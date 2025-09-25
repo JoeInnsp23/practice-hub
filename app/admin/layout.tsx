@@ -10,7 +10,8 @@ export default async function AdminLayout({
 }) {
   const authContext = await getAuthContext();
 
-  if (!authContext || authContext.role !== "admin") {
+  // Check for both old and new admin role formats
+  if (!authContext || (authContext.role !== "admin" && authContext.role !== "org:admin")) {
     redirect("/");
   }
 
