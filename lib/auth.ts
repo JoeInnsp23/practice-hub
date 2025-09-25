@@ -98,7 +98,8 @@ export async function requireAuth(): Promise<AuthContext> {
 export async function requireAdmin(): Promise<AuthContext> {
   const authContext = await requireAuth();
 
-  if (authContext.role !== "admin") {
+  // Check for both old and new admin role formats
+  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
     throw new Error("Forbidden: Admin access required");
   }
 

@@ -126,9 +126,9 @@ export function UserManagementClient({
       // Update stats
       const updatedStats = { ...stats, total: stats.total - 1 };
       if (user.isActive) updatedStats.active--;
-      if (user.role === "admin") updatedStats.admins--;
-      if (user.role === "accountant") updatedStats.accountants--;
-      if (user.role === "member") updatedStats.members--;
+      if (user.role === "admin" || user.role === "org:admin") updatedStats.admins--;
+      if (user.role === "accountant" || user.role === "org:accountant") updatedStats.accountants--;
+      if (user.role === "member" || user.role === "org:member") updatedStats.members--;
       setStats(updatedStats);
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -145,14 +145,14 @@ export function UserManagementClient({
       const newStats = { ...stats };
 
       // Decrement old role count
-      if (oldUser.role === "admin") newStats.admins--;
-      else if (oldUser.role === "accountant") newStats.accountants--;
-      else if (oldUser.role === "member") newStats.members--;
+      if (oldUser.role === "admin" || oldUser.role === "org:admin") newStats.admins--;
+      else if (oldUser.role === "accountant" || oldUser.role === "org:accountant") newStats.accountants--;
+      else if (oldUser.role === "member" || oldUser.role === "org:member") newStats.members--;
 
       // Increment new role count
-      if (updatedUser.role === "admin") newStats.admins++;
-      else if (updatedUser.role === "accountant") newStats.accountants++;
-      else if (updatedUser.role === "member") newStats.members++;
+      if (updatedUser.role === "admin" || updatedUser.role === "org:admin") newStats.admins++;
+      else if (updatedUser.role === "accountant" || updatedUser.role === "org:accountant") newStats.accountants++;
+      else if (updatedUser.role === "member" || updatedUser.role === "org:member") newStats.members++;
 
       setStats(newStats);
     }
@@ -174,12 +174,19 @@ export function UserManagementClient({
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "admin":
+      case "org:admin":
         return "destructive";
       case "accountant":
+      case "org:accountant":
         return "secondary";
       default:
         return "outline";
     }
+  };
+
+  // Helper to display clean role names (removes org: prefix)
+  const getDisplayRole = (role: string) => {
+    return role.replace('org:', '');
   };
 
   const getStatusBadgeVariant = (isActive: boolean) => {
@@ -305,10 +312,10 @@ export function UserManagementClient({
                   </TableCell>
                   <TableCell>
                     <Badge variant={getRoleBadgeVariant(user.role)}>
-                      {user.role === "admin" && (
+                      {(user.role === "admin" || user.role === "org:admin") && (
                         <Shield className="h-3 w-3 mr-1" />
                       )}
-                      {user.role}
+                      {getDisplayRole(user.role)}
                     </Badge>
                   </TableCell>
                   <TableCell>

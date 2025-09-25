@@ -153,9 +153,9 @@ export function InviteUserDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="accountant">Accountant</SelectItem>
-                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="org:admin">Admin</SelectItem>
+                  <SelectItem value="org:accountant">Accountant</SelectItem>
+                  <SelectItem value="org:member">Member</SelectItem>
                 </SelectContent>
               </Select>
             </div>

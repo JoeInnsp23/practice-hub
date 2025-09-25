@@ -76,8 +76,8 @@ export function PracticeHubClient({ userRole, userName }: PracticeHubClientProps
       url: "/client-portal",
       status: "active" as const,
     },
-    // Admin panel - only for admin users
-    ...(userRole === "admin"
+    // Admin panel - only for admin users (checking both formats)
+    ...(userRole === "admin" || userRole === "org:admin"
       ? [
           {
             id: "admin",
