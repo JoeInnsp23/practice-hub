@@ -40,10 +40,37 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       // For development, auto-register the user with a default tenant
       if (process.env.NODE_ENV === "development") {
         // Check if we have a default tenant
-        const defaultTenant = await db.select().from(tenants).limit(1);
+        let defaultTenant = await db.select().from(tenants).limit(1);
+
+        // If no tenant exists, create one
+        if (defaultTenant.length === 0) {
+          console.info("Auth: Creating default tenant");
+
+          // Use Clerk organization data if available, otherwise use defaults
+          const orgName = clerkUser.organizationMemberships?.[0]?.organization?.name || "Default Organization";
+          const orgSlug = clerkUser.organizationMemberships?.[0]?.organization?.slug || "default";
+
+          defaultTenant = await db
+            .insert(tenants)
+            .values({
+              name: orgName,
+              slug: orgSlug,
+            })
+            .returning();
+        }
 
         if (defaultTenant.length > 0) {
           console.info("Auth: Auto-registering user in development");
+
+          // Check if this is the first user (they should be admin)
+          const existingUsers = await db
+            .select()
+            .from(users)
+            .where(eq(users.tenantId, defaultTenant[0].id))
+            .limit(1);
+
+          const isFirstUser = existingUsers.length === 0;
+          const userRole = isFirstUser ? "org:admin" : "org:member";
 
           const newUser = await db
             .insert(users)
@@ -53,15 +80,17 @@ export async function getAuthContext(): Promise<AuthContext | null> {
               email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
               firstName: clerkUser.firstName || undefined,
               lastName: clerkUser.lastName || undefined,
-              role: "member", // Default role
+              role: userRole, // First user is admin, others are members
             })
             .returning();
+
+          console.info(`Auth: User registered with role: ${userRole}`);
 
           return {
             userId: clerkUser.id,
             tenantId: defaultTenant[0].id,
             organizationName: defaultTenant[0].name,
-            role: "member",
+            role: userRole,
             email: newUser[0].email,
           };
         }
