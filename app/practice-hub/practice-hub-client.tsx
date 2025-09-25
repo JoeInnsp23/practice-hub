@@ -5,6 +5,7 @@ import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
 import { AppCard } from "@/components/practice-hub/AppCard";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { ClientOnly } from "@/components/client-only";
 import {
   Users,
   Share2,
@@ -173,9 +174,10 @@ export function PracticeHubClient({ userRole, userName }: PracticeHubClientProps
       </div>
 
       {/* Navigation Tabs */}
-      <NavigationTabs showFavorites={false}>
-        {/* Practice Hub Tab */}
-        <TabsContent value="practice-hub" className="mt-0">
+      <ClientOnly>
+        <NavigationTabs showFavorites={false}>
+          {/* Practice Hub Tab */}
+          <TabsContent value="practice-hub" className="mt-0">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {practiceHubApps.map((app) => {
               if (app.status === "placeholder") {
@@ -231,7 +233,8 @@ export function PracticeHubClient({ userRole, userName }: PracticeHubClientProps
             ))}
           </div>
         </TabsContent>
-      </NavigationTabs>
+        </NavigationTabs>
+      </ClientOnly>
     </div>
   );
 }
