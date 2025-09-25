@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
       icon: Users,
       href: "/admin/users",
       iconColor: "text-blue-600",
-      bgColor: "bg-blue-50",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
     },
     {
       title: "Feedback & Issues",
@@ -34,7 +34,7 @@ export default async function AdminDashboardPage() {
       icon: MessageSquare,
       href: "/admin/feedback",
       iconColor: "text-green-600",
-      bgColor: "bg-green-50",
+      bgColor: "bg-green-50 dark:bg-green-950/20",
     },
     {
       title: "Settings",
@@ -42,7 +42,7 @@ export default async function AdminDashboardPage() {
       icon: Settings,
       href: "/admin/settings",
       iconColor: "text-purple-600",
-      bgColor: "bg-purple-50",
+      bgColor: "bg-purple-50 dark:bg-purple-950/20",
     },
   ];
 
@@ -50,8 +50,8 @@ export default async function AdminDashboardPage() {
     <div>
       {/* Page Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">Admin Dashboard</h2>
-        <p className="text-gray-600 mt-2">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Admin Dashboard</h2>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">
           Manage your Practice Hub settings and configurations
         </p>
       </div>
@@ -62,7 +62,7 @@ export default async function AdminDashboardPage() {
           const Icon = section.icon;
           return (
             <Link key={section.href} href={section.href}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+              <Card className="hover:shadow-lg dark:hover:shadow-slate-700/50 transition-shadow cursor-pointer h-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                 <CardHeader>
                   <div
                     className={`w-12 h-12 ${section.bgColor} rounded-lg flex items-center justify-center mb-3`}
@@ -74,7 +74,7 @@ export default async function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-end">
-                    <ArrowRight className="h-5 w-5 text-gray-400" />
+                    <ArrowRight className="h-5 w-5 text-slate-400 dark:text-slate-500" />
                   </div>
                 </CardContent>
               </Card>
@@ -84,7 +84,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* System Information Card */}
-      <Card>
+      <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-orange-500" />
@@ -94,7 +94,7 @@ export default async function AdminDashboardPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
                 Organization
               </p>
               <p className="font-semibold">
@@ -102,16 +102,16 @@ export default async function AdminDashboardPage() {
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
                 Your Role
               </p>
               <p className="font-semibold capitalize">{authContext.role}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
                 Tenant ID
               </p>
-              <p className="font-mono text-xs text-gray-500">
+              <p className="font-mono text-xs text-slate-500 dark:text-slate-400">
                 {authContext.tenantId}
               </p>
             </div>

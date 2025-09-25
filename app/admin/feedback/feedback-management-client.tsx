@@ -228,8 +228,8 @@ export function FeedbackManagementClient({
     <div>
       {/* Page Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900">Feedback & Issues</h2>
-        <p className="text-gray-600 mt-2">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Feedback & Issues</h2>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">
           Manage user feedback, bug reports, and feature requests
         </p>
       </div>

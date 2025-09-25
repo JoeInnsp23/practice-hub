@@ -198,8 +198,8 @@ export function UserManagementClient({
       {/* Page Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">User Management</h2>
-          <p className="text-gray-600 mt-2">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">User Management</h2>
+          <p className="text-slate-600 dark:text-slate-400 mt-2">
             Manage team members and their permissions
           </p>
         </div>
@@ -213,7 +213,7 @@ export function UserManagementClient({
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total Users</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">Total Users</CardDescription>
             <CardTitle className="text-2xl">{stats.total}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -223,7 +223,7 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Active</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">Active</CardDescription>
             <CardTitle className="text-2xl">{stats.active}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -233,7 +233,7 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Admins</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">Admins</CardDescription>
             <CardTitle className="text-2xl">{stats.admins}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -243,7 +243,7 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Accountants</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">Accountants</CardDescription>
             <CardTitle className="text-2xl">{stats.accountants}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -253,11 +253,11 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Members</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">Members</CardDescription>
             <CardTitle className="text-2xl">{stats.members}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Users className="h-4 w-4 text-gray-600" />
+            <Users className="h-4 w-4 text-slate-600 dark:text-slate-400" />
           </CardContent>
         </Card>
       </div>
