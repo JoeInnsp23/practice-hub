@@ -1,6 +1,7 @@
-import { UserButton } from '@clerk/nextjs';
-import Link from 'next/link';
-import { Home, Settings } from 'lucide-react';
+"use client";
+
+import { Building2 } from "lucide-react";
+import { GlobalHeader } from "@/components/shared/GlobalHeader";
 
 export default function PracticeHubLayout({
   children,
@@ -8,29 +9,27 @@ export default function PracticeHubLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/practice-hub" className="flex items-center space-x-2">
-                <Home className="w-5 h-5" />
-                <span className="text-xl font-semibold">Practice Hub</span>
-              </Link>
-              <nav className="flex space-x-4">
-                <Link href="/practice-hub/settings" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-2">
-                  <Settings className="w-4 h-4" />
-                  <span>Settings</span>
-                </Link>
-              </nav>
-            </div>
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <GlobalHeader
+        title="Practice Hub"
+        subtitle="Business Management Suite"
+        icon={Building2}
+        iconColor="#2563eb"
+      />
+
+      {/* Main Content */}
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {children}
       </main>
+
+      {/* Footer */}
+      <footer className="mt-auto bg-slate-100 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-700">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+            © 2025 Practice Hub. Internal Use Only.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

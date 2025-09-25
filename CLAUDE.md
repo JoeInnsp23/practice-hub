@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Critical Behavior
+
+**IMPORTANT: These rules must be followed for all development in this repository:**
+
+1. **Always use shadcn/ui components first** - Before creating any custom UI components, check if a shadcn/ui component exists that can fulfill the requirement. Only create custom components when absolutely necessary.
+
+2. **Use react-hot-toast for notifications** - All toast notifications should use `react-hot-toast` library. Do not use other toast/notification libraries.
+
+3. **Always commit code when todo list is complete** - When all items in the todo list are marked as completed, create a git commit with a descriptive message summarizing the changes.
+
 ## Development Commands
 
 ```bash
@@ -35,8 +45,9 @@ This is a multi-tenant practice management platform built with Next.js 15, using
 - **Database**: PostgreSQL with Drizzle ORM
 - **Styling**: Tailwind CSS v4
 - **Code Quality**: Biome for linting and formatting
-- **UI Components**: Radix UI primitives with custom components in `components/ui/`
+- **UI Components**: shadcn/ui components (Radix UI primitives) in `components/ui/`
 - **Forms**: React Hook Form with Zod validation
+- **Notifications**: react-hot-toast for toast notifications
 
 ### Multi-Tenancy Architecture
 The application implements multi-tenancy through:

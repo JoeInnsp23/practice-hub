@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { shadcn } from "@clerk/themes";
+import { Toaster } from "react-hot-toast";
+import { FeedbackButton } from "@/components/feedback/feedback-button";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,12 +28,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
+    <ClerkProvider
+      appearance={{
+        baseTheme: shadcn,
+      }}
+    >
+      <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <FeedbackButton />
+            <Toaster position="top-right" />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
