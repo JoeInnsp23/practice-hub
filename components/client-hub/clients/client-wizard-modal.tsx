@@ -372,7 +372,7 @@ export function ClientWizardModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[92vh] overflow-hidden flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+      <DialogContent className="max-w-[1400px] w-[95vw] max-h-[90vh] flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
         <DialogHeader className="space-y-4 pb-6">
           <div>
             <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
@@ -398,7 +398,7 @@ export function ClientWizardModal({
             <Progress value={progressValue} className="h-2 bg-slate-200 dark:bg-slate-700" />
 
             {/* Step Indicators */}
-            <div className="grid grid-cols-4 gap-2 lg:grid-cols-8">
+            <div className="flex gap-2 overflow-x-auto pb-2">
               {STEPS.map((step, index) => (
                 <button
                   key={step.id}
@@ -409,7 +409,7 @@ export function ClientWizardModal({
                   }}
                   disabled={index > currentStep && !stepValidation[index - 1]}
                   className={`
-                    relative flex flex-col items-center p-2 rounded-lg transition-all
+                    flex-shrink-0 flex flex-col items-center p-2 rounded-lg transition-all min-w-[100px]
                     ${index === currentStep
                       ? "bg-blue-50 dark:bg-blue-950 border-2 border-blue-500"
                       : index < currentStep
@@ -432,10 +432,9 @@ export function ClientWizardModal({
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-center leading-tight hidden lg:block font-medium">
+                  <span className="text-[10px] text-center leading-tight font-medium">
                     {step.title}
                   </span>
-                  <span className="text-xs lg:hidden">{step.icon}</span>
                 </button>
               ))}
             </div>
@@ -443,36 +442,32 @@ export function ClientWizardModal({
         </DialogHeader>
 
         {/* Step Content */}
-        <div className="flex-1 overflow-hidden">
-          <Card className="h-full border-0 shadow-lg">
-            <div className="h-full flex flex-col">
-              {/* Step Header */}
-              <div className="px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
-                <div className="flex items-start space-x-3">
-                  <span className="text-2xl">{STEPS[currentStep].icon}</span>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      {STEPS[currentStep].title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {STEPS[currentStep].description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Scrollable Content Area */}
-              <div className="flex-1 overflow-y-auto px-6 py-6">
-                <div className="max-w-4xl mx-auto">
-                  {renderCurrentStep()}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="px-6 py-4">
+            {/* Step Header */}
+            <div className="border-b pb-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <span className="text-2xl">{STEPS[currentStep].icon}</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {STEPS[currentStep].title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {STEPS[currentStep].description}
+                  </p>
                 </div>
               </div>
             </div>
-          </Card>
+
+            {/* Form Content */}
+            <div className="">
+              {renderCurrentStep()}
+            </div>
+          </div>
         </div>
 
         {/* Enhanced Navigation Footer */}
-        <div className="flex justify-between items-center pt-6 border-t bg-slate-50 dark:bg-slate-900 px-6 py-4 rounded-b-lg">
+        <div className="flex justify-between items-center border-t bg-slate-50 dark:bg-slate-900 px-6 py-4">
           <Button
             type="button"
             variant="outline"
