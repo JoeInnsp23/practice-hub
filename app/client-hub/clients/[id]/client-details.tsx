@@ -411,65 +411,41 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="glass-subtle h-14 w-full p-1.5 flex gap-1">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="h-12 w-full bg-slate-100 dark:bg-slate-800 p-1">
           <TabsTrigger
             value="overview"
-            className={cn(
-              "flex-1 rounded-md font-medium transition-all duration-200",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
-              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-            )}
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900"
           >
             Overview
           </TabsTrigger>
           <TabsTrigger
             value="services"
-            className={cn(
-              "flex-1 rounded-md font-medium transition-all duration-200",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
-              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-            )}
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900"
           >
             Services
           </TabsTrigger>
           <TabsTrigger
             value="tasks"
-            className={cn(
-              "flex-1 rounded-md font-medium transition-all duration-200",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
-              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-            )}
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900"
           >
             Tasks
           </TabsTrigger>
           <TabsTrigger
             value="time"
-            className={cn(
-              "flex-1 rounded-md font-medium transition-all duration-200",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
-              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-            )}
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900"
           >
             Time Entries
           </TabsTrigger>
           <TabsTrigger
             value="invoices"
-            className={cn(
-              "flex-1 rounded-md font-medium transition-all duration-200",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
-              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-            )}
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900"
           >
             Invoices
           </TabsTrigger>
           <TabsTrigger
             value="documents"
-            className={cn(
-              "flex-1 rounded-md font-medium transition-all duration-200",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
-              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-            )}
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900"
           >
             Documents
           </TabsTrigger>
