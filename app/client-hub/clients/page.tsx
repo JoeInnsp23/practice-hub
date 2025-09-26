@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
 import { ClientFilters } from "@/components/client-hub/clients/client-filters";
@@ -206,30 +206,26 @@ export default function ClientsPage() {
       </div>
 
       {/* Filters and Table */}
-      <Card>
-        <CardHeader>
-          <div className="space-y-4">
-            <CardTitle>Client List</CardTitle>
-            <ClientFilters
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              typeFilter={typeFilter}
-              onTypeChange={setTypeFilter}
-              statusFilter={statusFilter}
-              onStatusChange={setStatusFilter}
-              onReset={resetFilters}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ClientsTable
-            clients={filteredClients}
-            onView={handleViewClient}
-            onEdit={handleEditClient}
-            onDelete={handleDeleteClient}
+      <div className="space-y-4">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold text-foreground">Client List</h2>
+          <ClientFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            onReset={resetFilters}
           />
-        </CardContent>
-      </Card>
+        </div>
+        <ClientsTable
+          clients={filteredClients}
+          onView={handleViewClient}
+          onEdit={handleEditClient}
+          onDelete={handleDeleteClient}
+        />
+      </div>
 
       {/* Client Wizard Modal */}
       <ClientWizardModal
