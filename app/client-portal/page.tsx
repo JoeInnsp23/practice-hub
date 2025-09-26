@@ -9,7 +9,7 @@ export default function ClientPortalPage() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
             Recent Documents
           </h3>
@@ -17,13 +17,13 @@ export default function ClientPortalPage() {
             No recent documents
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
             New Messages
           </h3>
           <p className="text-gray-500 dark:text-gray-400">No new messages</p>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
             Upcoming Meetings
           </h3>

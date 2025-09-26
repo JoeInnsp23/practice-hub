@@ -35,8 +35,8 @@ export function GlobalHeader({
 }: GlobalHeaderProps) {
   return (
     <header
-      className={`sticky top-0 z-50 border-b border-slate-200 dark:border-slate-700 shadow-sm ${
-        !headerColor ? "bg-white dark:bg-slate-900" : ""
+      className={`glass-subtle sticky top-0 z-50 border-b ${
+        headerColor ? "" : ""
       }`}
       style={headerColor ? { backgroundColor: headerColor } : undefined}
     >
@@ -72,13 +72,11 @@ export function GlobalHeader({
                 </div>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                <h1 className="text-xl font-semibold text-card-foreground">
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    {subtitle}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{subtitle}</p>
                 )}
               </div>
             </div>

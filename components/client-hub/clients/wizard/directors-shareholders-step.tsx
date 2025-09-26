@@ -13,18 +13,21 @@ interface DirectorsShareholdersStepProps {
   updateFormData: (updates: Partial<WizardFormData>) => void;
 }
 
-export function DirectorsShareholdersStep({ formData, updateFormData }: DirectorsShareholdersStepProps) {
+export function DirectorsShareholdersStep({
+  formData,
+  updateFormData,
+}: DirectorsShareholdersStepProps) {
   const [directors, setDirectors] = useState(formData.directors || []);
   const [shareholders, setShareholders] = useState(formData.shareholders || []);
 
   const addDirector = () => {
     const newDirector = {
       id: Date.now().toString(),
-      name: '',
-      role: 'Director',
-      appointedDate: '',
-      email: '',
-      phone: '',
+      name: "",
+      role: "Director",
+      appointedDate: "",
+      email: "",
+      phone: "",
     };
     const updated = [...directors, newDirector];
     setDirectors(updated);
@@ -32,14 +35,14 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
   };
 
   const removeDirector = (id: string) => {
-    const updated = directors.filter(d => d.id !== id);
+    const updated = directors.filter((d) => d.id !== id);
     setDirectors(updated);
     updateFormData({ directors: updated });
   };
 
   const updateDirector = (id: string, field: string, value: string) => {
-    const updated = directors.map(d =>
-      d.id === id ? { ...d, [field]: value } : d
+    const updated = directors.map((d) =>
+      d.id === id ? { ...d, [field]: value } : d,
     );
     setDirectors(updated);
     updateFormData({ directors: updated });
@@ -48,9 +51,9 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
   const addShareholder = () => {
     const newShareholder = {
       id: Date.now().toString(),
-      name: '',
+      name: "",
       percentage: 0,
-      shareClass: 'Ordinary',
+      shareClass: "Ordinary",
     };
     const updated = [...shareholders, newShareholder];
     setShareholders(updated);
@@ -58,14 +61,14 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
   };
 
   const removeShareholder = (id: string) => {
-    const updated = shareholders.filter(s => s.id !== id);
+    const updated = shareholders.filter((s) => s.id !== id);
     setShareholders(updated);
     updateFormData({ shareholders: updated });
   };
 
   const updateShareholder = (id: string, field: string, value: any) => {
-    const updated = shareholders.map(s =>
-      s.id === id ? { ...s, [field]: value } : s
+    const updated = shareholders.map((s) =>
+      s.id === id ? { ...s, [field]: value } : s,
     );
     setShareholders(updated);
     updateFormData({ shareholders: updated });
@@ -88,7 +91,7 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
         </CardHeader>
         <CardContent>
           {directors.length === 0 ? (
-            <p className="text-sm text-slate-600 text-center py-4">
+            <p className="text-sm text-muted-foreground text-center py-4">
               No directors added yet
             </p>
           ) : (
@@ -100,7 +103,9 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
                       <Label>Name</Label>
                       <Input
                         value={director.name}
-                        onChange={(e) => updateDirector(director.id, 'name', e.target.value)}
+                        onChange={(e) =>
+                          updateDirector(director.id, "name", e.target.value)
+                        }
                         placeholder="Full name"
                       />
                     </div>
@@ -108,7 +113,9 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
                       <Label>Role</Label>
                       <Input
                         value={director.role}
-                        onChange={(e) => updateDirector(director.id, 'role', e.target.value)}
+                        onChange={(e) =>
+                          updateDirector(director.id, "role", e.target.value)
+                        }
                         placeholder="e.g., Director, Secretary"
                       />
                     </div>
@@ -116,8 +123,10 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
                       <Label>Email</Label>
                       <Input
                         type="email"
-                        value={director.email || ''}
-                        onChange={(e) => updateDirector(director.id, 'email', e.target.value)}
+                        value={director.email || ""}
+                        onChange={(e) =>
+                          updateDirector(director.id, "email", e.target.value)
+                        }
                         placeholder="email@example.com"
                       />
                     </div>
@@ -126,7 +135,13 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
                       <Input
                         type="date"
                         value={director.appointedDate}
-                        onChange={(e) => updateDirector(director.id, 'appointedDate', e.target.value)}
+                        onChange={(e) =>
+                          updateDirector(
+                            director.id,
+                            "appointedDate",
+                            e.target.value,
+                          )
+                        }
                       />
                     </div>
                   </div>
@@ -161,7 +176,7 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
         </CardHeader>
         <CardContent>
           {shareholders.length === 0 ? (
-            <p className="text-sm text-slate-600 text-center py-4">
+            <p className="text-sm text-muted-foreground text-center py-4">
               No shareholders added yet
             </p>
           ) : (
@@ -173,7 +188,13 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
                       <Label>Name</Label>
                       <Input
                         value={shareholder.name}
-                        onChange={(e) => updateShareholder(shareholder.id, 'name', e.target.value)}
+                        onChange={(e) =>
+                          updateShareholder(
+                            shareholder.id,
+                            "name",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Full name"
                       />
                     </div>
@@ -184,14 +205,26 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
                         min="0"
                         max="100"
                         value={shareholder.percentage}
-                        onChange={(e) => updateShareholder(shareholder.id, 'percentage', parseFloat(e.target.value))}
+                        onChange={(e) =>
+                          updateShareholder(
+                            shareholder.id,
+                            "percentage",
+                            parseFloat(e.target.value),
+                          )
+                        }
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Share Class</Label>
                       <Input
-                        value={shareholder.shareClass || ''}
-                        onChange={(e) => updateShareholder(shareholder.id, 'shareClass', e.target.value)}
+                        value={shareholder.shareClass || ""}
+                        onChange={(e) =>
+                          updateShareholder(
+                            shareholder.id,
+                            "shareClass",
+                            e.target.value,
+                          )
+                        }
                         placeholder="e.g., Ordinary"
                       />
                     </div>

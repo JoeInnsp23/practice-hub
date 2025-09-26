@@ -19,15 +19,18 @@ interface ReviewStepProps {
 }
 
 export function ReviewStep({ formData }: ReviewStepProps) {
-  const selectedServiceNames = formData.selectedServices?.map((id) =>
-    id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-  ) || [];
+  const selectedServiceNames =
+    formData.selectedServices?.map((id) =>
+      id.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+    ) || [];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-green-600 mb-4">
+      <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-4">
         <CheckCircle2 className="h-5 w-5" />
-        <p className="font-medium">Ready to save! Please review the information below.</p>
+        <p className="font-medium">
+          Ready to save! Please review the information below.
+        </p>
       </div>
 
       {/* Basic Information */}
@@ -41,20 +44,26 @@ export function ReviewStep({ formData }: ReviewStepProps) {
         <CardContent className="space-y-2">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-slate-600">Client Code:</span>
-              <p className="font-medium">{formData.clientCode || 'Not provided'}</p>
+              <span className="text-muted-foreground">Client Code:</span>
+              <p className="font-medium">
+                {formData.clientCode || "Not provided"}
+              </p>
             </div>
             <div>
-              <span className="text-slate-600">Name:</span>
+              <span className="text-muted-foreground">Name:</span>
               <p className="font-medium">{formData.name}</p>
             </div>
             <div>
-              <span className="text-slate-600">Type:</span>
-              <p className="font-medium capitalize">{formData.type.replace(/_/g, ' ')}</p>
+              <span className="text-muted-foreground">Type:</span>
+              <p className="font-medium capitalize">
+                {formData.type.replace(/_/g, " ")}
+              </p>
             </div>
             <div>
-              <span className="text-slate-600">Status:</span>
-              <Badge variant={formData.status === 'active' ? 'default' : 'secondary'}>
+              <span className="text-muted-foreground">Status:</span>
+              <Badge
+                variant={formData.status === "active" ? "default" : "secondary"}
+              >
                 {formData.status}
               </Badge>
             </div>
@@ -95,28 +104,40 @@ export function ReviewStep({ formData }: ReviewStepProps) {
           <CardContent>
             <div className="text-sm space-y-1">
               <p>
-                <span className="text-slate-600">Billing Strategy:</span>{' '}
-                <span className="font-medium capitalize">{formData.billingStrategy}</span>
+                <span className="text-muted-foreground">Billing Strategy:</span>{" "}
+                <span className="font-medium capitalize">
+                  {formData.billingStrategy}
+                </span>
               </p>
-              {formData.billingStrategy === 'hourly' && formData.defaultHourlyRate && (
-                <p>
-                  <span className="text-slate-600">Hourly Rate:</span>{' '}
-                  <span className="font-medium">£{formData.defaultHourlyRate}/hr</span>
-                </p>
-              )}
-              {formData.billingStrategy === 'retainer' && formData.monthlyRetainer && (
-                <p>
-                  <span className="text-slate-600">Monthly Retainer:</span>{' '}
-                  <span className="font-medium">£{formData.monthlyRetainer}/mo</span>
-                </p>
-              )}
+              {formData.billingStrategy === "hourly" &&
+                formData.defaultHourlyRate && (
+                  <p>
+                    <span className="text-muted-foreground">Hourly Rate:</span>{" "}
+                    <span className="font-medium">
+                      £{formData.defaultHourlyRate}/hr
+                    </span>
+                  </p>
+                )}
+              {formData.billingStrategy === "retainer" &&
+                formData.monthlyRetainer && (
+                  <p>
+                    <span className="text-muted-foreground">
+                      Monthly Retainer:
+                    </span>{" "}
+                    <span className="font-medium">
+                      £{formData.monthlyRetainer}/mo
+                    </span>
+                  </p>
+                )}
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Registration Details */}
-      {(formData.companiesHouseNumber || formData.vatNumber || formData.utr) && (
+      {(formData.companiesHouseNumber ||
+        formData.vatNumber ||
+        formData.utr) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -128,25 +149,27 @@ export function ReviewStep({ formData }: ReviewStepProps) {
             <div className="grid grid-cols-2 gap-4 text-sm">
               {formData.companiesHouseNumber && (
                 <div>
-                  <span className="text-slate-600">Companies House:</span>
+                  <span className="text-muted-foreground">
+                    Companies House:
+                  </span>
                   <p className="font-medium">{formData.companiesHouseNumber}</p>
                 </div>
               )}
               {formData.vatNumber && (
                 <div>
-                  <span className="text-slate-600">VAT Number:</span>
+                  <span className="text-muted-foreground">VAT Number:</span>
                   <p className="font-medium">{formData.vatNumber}</p>
                 </div>
               )}
               {formData.utr && (
                 <div>
-                  <span className="text-slate-600">UTR:</span>
+                  <span className="text-muted-foreground">UTR:</span>
                   <p className="font-medium">{formData.utr}</p>
                 </div>
               )}
               {formData.payeReference && (
                 <div>
-                  <span className="text-slate-600">PAYE Reference:</span>
+                  <span className="text-muted-foreground">PAYE Reference:</span>
                   <p className="font-medium">{formData.payeReference}</p>
                 </div>
               )}
@@ -211,18 +234,26 @@ export function ReviewStep({ formData }: ReviewStepProps) {
           <CardContent className="space-y-4">
             {formData.primaryContactName && (
               <div className="text-sm">
-                <p className="text-slate-600 mb-1">Primary Contact:</p>
+                <p className="text-muted-foreground mb-1">Primary Contact:</p>
                 <p className="font-medium">{formData.primaryContactName}</p>
-                {formData.primaryContactEmail && <p>{formData.primaryContactEmail}</p>}
-                {formData.primaryContactPhone && <p>{formData.primaryContactPhone}</p>}
+                {formData.primaryContactEmail && (
+                  <p>{formData.primaryContactEmail}</p>
+                )}
+                {formData.primaryContactPhone && (
+                  <p>{formData.primaryContactPhone}</p>
+                )}
               </div>
             )}
             {formData.addressLine1 && (
               <div className="text-sm">
-                <p className="text-slate-600 mb-1">Address:</p>
+                <p className="text-muted-foreground mb-1">Address:</p>
                 <p>{formData.addressLine1}</p>
                 {formData.addressLine2 && <p>{formData.addressLine2}</p>}
-                {formData.city && <p>{formData.city}, {formData.postalCode}</p>}
+                {formData.city && (
+                  <p>
+                    {formData.city}, {formData.postalCode}
+                  </p>
+                )}
                 {formData.country && <p>{formData.country}</p>}
               </div>
             )}

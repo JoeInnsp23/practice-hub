@@ -13,7 +13,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { WizardFormData } from "../client-wizard-modal";
-import { Building2, Search, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Building2,
+  Search,
+  RefreshCw,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 
 interface BasicInfoStepProps {
   formData: WizardFormData;
@@ -24,19 +30,32 @@ interface BasicInfoStepProps {
 const generateClientCode = (name: string, type: string): string => {
   if (!name || !type) return "";
 
-  const prefix = type === "individual" ? "IND" :
-                 type === "company" ? "CO" :
-                 type === "partnership" ? "PART" :
-                 type === "trust" ? "TR" :
-                 type === "charity" ? "CH" : "SC";
+  const prefix =
+    type === "individual"
+      ? "IND"
+      : type === "company"
+        ? "CO"
+        : type === "partnership"
+          ? "PART"
+          : type === "trust"
+            ? "TR"
+            : type === "charity"
+              ? "CH"
+              : "SC";
 
-  const namePart = name.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, '');
+  const namePart = name
+    .substring(0, 3)
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
   const randomNum = Math.floor(Math.random() * 900) + 100;
 
   return `${prefix}${namePart}${randomNum}`;
 };
 
-export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) {
+export function BasicInfoStep({
+  formData,
+  updateFormData,
+}: BasicInfoStepProps) {
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
   const [showCompanySearch, setShowCompanySearch] = useState(false);
 
@@ -100,7 +119,7 @@ export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) 
               <Label htmlFor="clientCode">
                 Client Code
                 {formData.clientCode && (
-                  <span className="ml-2 text-xs text-green-600 inline-flex items-center">
+                  <span className="ml-2 text-xs text-green-600 dark:text-green-400 inline-flex items-center">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Auto-generated
                   </span>
@@ -109,8 +128,10 @@ export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) 
               <div className="flex gap-2">
                 <Input
                   id="clientCode"
-                  value={formData.clientCode || ''}
-                  onChange={(e) => updateFormData({ clientCode: e.target.value })}
+                  value={formData.clientCode || ""}
+                  onChange={(e) =>
+                    updateFormData({ clientCode: e.target.value })
+                  }
                   placeholder="Auto-generated"
                   className="flex-1"
                 />
@@ -119,16 +140,20 @@ export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) 
                   variant="outline"
                   size="icon"
                   onClick={handleRegenerateCode}
-                  disabled={isGeneratingCode || !formData.name || !formData.type}
+                  disabled={
+                    isGeneratingCode || !formData.name || !formData.type
+                  }
                 >
-                  <RefreshCw className={`h-4 w-4 ${isGeneratingCode ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`h-4 w-4 ${isGeneratingCode ? "animate-spin" : ""}`}
+                  />
                 </Button>
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="name">
-                Client Name <span className="text-red-500">*</span>
+                Client Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
@@ -143,9 +168,12 @@ export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">
-                Client Type <span className="text-red-500">*</span>
+                Client Type <span className="text-destructive">*</span>
               </Label>
-              <Select value={formData.type} onValueChange={(value) => updateFormData({ type: value })}>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => updateFormData({ type: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -162,9 +190,12 @@ export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) 
 
             <div className="space-y-2">
               <Label htmlFor="status">
-                Status <span className="text-red-500">*</span>
+                Status <span className="text-destructive">*</span>
               </Label>
-              <Select value={formData.status} onValueChange={(value) => updateFormData({ status: value })}>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => updateFormData({ status: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -180,7 +211,12 @@ export function BasicInfoStep({ formData, updateFormData }: BasicInfoStepProps) 
 
           <div className="space-y-2">
             <Label htmlFor="accountManager">Account Manager</Label>
-            <Select value={formData.accountManager || ''} onValueChange={(value) => updateFormData({ accountManager: value })}>
+            <Select
+              value={formData.accountManager || ""}
+              onValueChange={(value) =>
+                updateFormData({ accountManager: value })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select account manager" />
               </SelectTrigger>

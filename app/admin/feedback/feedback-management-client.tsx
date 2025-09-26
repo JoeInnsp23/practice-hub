@@ -228,7 +228,9 @@ export function FeedbackManagementClient({
     <div>
       {/* Page Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Feedback & Issues</h2>
+        <h2 className="text-3xl font-bold text-card-foreground">
+          Feedback & Issues
+        </h2>
         <p className="text-slate-600 dark:text-slate-400 mt-2">
           Manage user feedback, bug reports, and feature requests
         </p>
@@ -288,7 +290,9 @@ export function FeedbackManagementClient({
                 <Input
                   placeholder="Search feedback..."
                   value={searchQuery}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchQuery(e.target.value)
+                  }
                   className="pl-8"
                 />
               </div>

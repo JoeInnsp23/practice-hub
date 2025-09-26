@@ -162,7 +162,9 @@ export default function DocumentsPage() {
         (doc) =>
           doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           doc.client?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          doc.tags?.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          doc.tags?.some((tag) =>
+            tag.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
@@ -241,7 +243,7 @@ export default function DocumentsPage() {
     const newName = window.prompt("Enter new name:", doc.name);
     if (newName && newName !== doc.name) {
       setDocuments((prev) =>
-        prev.map((d) => (d.id === doc.id ? { ...d, name: newName } : d))
+        prev.map((d) => (d.id === doc.id ? { ...d, name: newName } : d)),
       );
       toast.success("Renamed successfully");
     }
@@ -267,10 +269,8 @@ export default function DocumentsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Documents
-          </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Documents</h1>
+          <p className="text-muted-foreground mt-2">
             Manage and organize all your documents and files
           </p>
         </div>
@@ -309,12 +309,16 @@ export default function DocumentsPage() {
             <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatFileSize(stats.totalSize)}</p>
+            <p className="text-2xl font-bold">
+              {formatFileSize(stats.totalSize)}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Recent Uploads</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Recent Uploads
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{stats.recentFiles.length}</p>
@@ -363,7 +367,7 @@ export default function DocumentsPage() {
             {/* Search and View Toggle */}
             <div className="flex justify-between items-center">
               <div className="relative w-full max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search documents..."
@@ -372,7 +376,10 @@ export default function DocumentsPage() {
                   className="pl-10"
                 />
               </div>
-              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <Tabs
+                value={viewMode}
+                onValueChange={(v) => setViewMode(v as any)}
+              >
                 <TabsList>
                   <TabsTrigger value="grid">
                     <Grid className="h-4 w-4" />
@@ -387,8 +394,10 @@ export default function DocumentsPage() {
         </CardHeader>
         <CardContent>
           {filteredDocuments.length === 0 ? (
-            <div className="text-center py-12 text-slate-600">
-              {searchTerm ? "No documents found matching your search" : "No documents in this folder"}
+            <div className="text-center py-12 text-muted-foreground">
+              {searchTerm
+                ? "No documents found matching your search"
+                : "No documents in this folder"}
             </div>
           ) : (
             <DocumentGrid

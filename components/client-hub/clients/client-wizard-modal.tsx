@@ -67,7 +67,7 @@ export interface WizardFormData {
   selectedServices?: string[];
 
   // Pricing Configuration
-  billingStrategy?: 'fixed' | 'hourly' | 'retainer';
+  billingStrategy?: "fixed" | "hourly" | "retainer";
   monthlyRetainer?: number;
   defaultHourlyRate?: number;
 
@@ -84,14 +84,46 @@ export interface WizardFormData {
 }
 
 const STEPS = [
-  { id: 'basic', title: 'Basic Information', description: 'Client details and manager' },
-  { id: 'services', title: 'Service Selection', description: 'Choose services for this client' },
-  { id: 'service-config', title: 'Service Configuration', description: 'Configure periods and dates' },
-  { id: 'pricing', title: 'Pricing Configuration', description: 'Configure pricing' },
-  { id: 'registration', title: 'Registration Details', description: 'Tax and company information' },
-  { id: 'directors', title: 'Directors & Shareholders', description: 'Company officers' },
-  { id: 'contact', title: 'Contact Information', description: 'Contact details and address' },
-  { id: 'review', title: 'Review & Confirm', description: 'Review all information' },
+  {
+    id: "basic",
+    title: "Basic Information",
+    description: "Client details and manager",
+  },
+  {
+    id: "services",
+    title: "Service Selection",
+    description: "Choose services for this client",
+  },
+  {
+    id: "service-config",
+    title: "Service Configuration",
+    description: "Configure periods and dates",
+  },
+  {
+    id: "pricing",
+    title: "Pricing Configuration",
+    description: "Configure pricing",
+  },
+  {
+    id: "registration",
+    title: "Registration Details",
+    description: "Tax and company information",
+  },
+  {
+    id: "directors",
+    title: "Directors & Shareholders",
+    description: "Company officers",
+  },
+  {
+    id: "contact",
+    title: "Contact Information",
+    description: "Contact details and address",
+  },
+  {
+    id: "review",
+    title: "Review & Confirm",
+    description: "Review all information",
+  },
 ];
 
 export function ClientWizardModal({
@@ -102,15 +134,15 @@ export function ClientWizardModal({
 }: ClientWizardModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<WizardFormData>({
-    name: client?.name || '',
-    type: client?.type || 'company',
-    status: client?.status || 'prospect',
-    accountManager: client?.accountManager || '',
-    clientCode: client?.clientCode || '',
+    name: client?.name || "",
+    type: client?.type || "company",
+    status: client?.status || "prospect",
+    accountManager: client?.accountManager || "",
+    clientCode: client?.clientCode || "",
   });
 
   const updateFormData = (updates: Partial<WizardFormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const validateCurrentStep = () => {
@@ -147,19 +179,51 @@ export function ClientWizardModal({
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return <BasicInfoStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <BasicInfoStep formData={formData} updateFormData={updateFormData} />
+        );
       case 1:
-        return <ServiceSelectionStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <ServiceSelectionStep
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 2:
-        return <ServiceConfigurationStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <ServiceConfigurationStep
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 3:
-        return <PricingConfigurationStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <PricingConfigurationStep
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 4:
-        return <RegistrationDetailsStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <RegistrationDetailsStep
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 5:
-        return <DirectorsShareholdersStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <DirectorsShareholdersStep
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 6:
-        return <ContactInfoStep formData={formData} updateFormData={updateFormData} />;
+        return (
+          <ContactInfoStep
+            formData={formData}
+            updateFormData={updateFormData}
+          />
+        );
       case 7:
         return <ReviewStep formData={formData} />;
       default:
@@ -172,12 +236,12 @@ export function ClientWizardModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="pb-4">
           <DialogTitle className="text-xl font-semibold">
-            {client ? 'Edit Client' : 'Add New Client'}
+            {client ? "Edit Client" : "Add New Client"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             {client
-              ? 'Update client information using the step-by-step wizard below.'
-              : 'Create a new client using the step-by-step wizard below.'}
+              ? "Update client information using the step-by-step wizard below."
+              : "Create a new client using the step-by-step wizard below."}
           </DialogDescription>
 
           {/* Progress Bar */}
@@ -189,22 +253,25 @@ export function ClientWizardModal({
                   key={step.id}
                   className={`flex items-center space-x-1 ${
                     index === currentStep
-                      ? 'text-primary font-medium'
+                      ? "text-primary font-medium"
                       : index < currentStep
-                        ? 'text-green-600'
-                        : 'text-muted-foreground'
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-muted-foreground"
                   }`}
                 >
                   {index < currentStep ? (
                     <Check className="h-3 w-3" />
                   ) : (
-                    <span className={`
+                    <span
+                      className={`
                       w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs
-                      ${index === currentStep
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-current'
+                      ${
+                        index === currentStep
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-current"
                       }
-                    `}>
+                    `}
+                    >
                       {index + 1}
                     </span>
                   )}
@@ -243,11 +310,7 @@ export function ClientWizardModal({
           </Button>
 
           <div className="flex space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-            >
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
 

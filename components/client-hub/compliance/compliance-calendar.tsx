@@ -23,7 +23,10 @@ interface ComplianceCalendarProps {
   onItemClick: (item: ComplianceItem) => void;
 }
 
-export function ComplianceCalendar({ items, onItemClick }: ComplianceCalendarProps) {
+export function ComplianceCalendar({
+  items,
+  onItemClick,
+}: ComplianceCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Get calendar days for current month
@@ -107,13 +110,13 @@ export function ComplianceCalendar({ items, onItemClick }: ComplianceCalendarPro
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
-        return "bg-red-100 text-red-800";
+        return "bg-destructive/10 text-destructive";
       case "high":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-600/10 dark:bg-orange-400/10 text-orange-600 dark:text-orange-400";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-600/10 dark:bg-yellow-400/10 text-yellow-600 dark:text-yellow-400";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -160,29 +163,32 @@ export function ComplianceCalendar({ items, onItemClick }: ComplianceCalendarPro
           {calendarDays.map((day, index) => {
             const dateKey = day.toISOString().split("T")[0];
             const dayItems = itemsByDate[dateKey] || [];
-            const hasOverdue = dayItems.some((item) => item.status === "overdue");
+            const hasOverdue = dayItems.some(
+              (item) => item.status === "overdue",
+            );
 
             return (
               <div
                 key={index}
                 className={cn(
                   "bg-white dark:bg-gray-900 p-2 min-h-[100px] border-t",
-                  !isCurrentMonth(day) && "bg-gray-50 dark:bg-gray-800 opacity-50",
-                  isToday(day) && "bg-blue-50 dark:bg-blue-950"
+                  !isCurrentMonth(day) &&
+                    "bg-gray-50 dark:bg-gray-800 opacity-50",
+                  isToday(day) && "bg-primary/5 dark:bg-primary/10",
                 )}
               >
                 <div className="flex justify-between items-start mb-1">
                   <span
                     className={cn(
                       "text-sm font-medium",
-                      isToday(day) && "text-blue-600",
-                      !isCurrentMonth(day) && "text-slate-500"
+                      isToday(day) && "text-primary",
+                      !isCurrentMonth(day) && "text-muted-foreground",
                     )}
                   >
                     {day.getDate()}
                   </span>
                   {hasOverdue && (
-                    <AlertCircle className="h-4 w-4 text-red-500" />
+                    <AlertCircle className="h-4 w-4 text-destructive" />
                   )}
                 </div>
                 <div className="space-y-1">
@@ -194,14 +200,17 @@ export function ComplianceCalendar({ items, onItemClick }: ComplianceCalendarPro
                     >
                       <Badge
                         variant="secondary"
-                        className={cn("text-xs w-full justify-start", getPriorityColor(item.priority))}
+                        className={cn(
+                          "text-xs w-full justify-start",
+                          getPriorityColor(item.priority),
+                        )}
                       >
                         <span className="truncate">{item.client}</span>
                       </Badge>
                     </div>
                   ))}
                   {dayItems.length > 3 && (
-                    <span className="text-xs text-slate-600">
+                    <span className="text-xs text-muted-foreground">
                       +{dayItems.length - 3} more
                     </span>
                   )}

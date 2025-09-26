@@ -4,7 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { WizardFormData } from "../client-wizard-modal";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { User, MapPin, FileText } from "lucide-react";
 
 interface ContactInfoStepProps {
@@ -12,7 +18,10 @@ interface ContactInfoStepProps {
   updateFormData: (updates: Partial<WizardFormData>) => void;
 }
 
-export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepProps) {
+export function ContactInfoStep({
+  formData,
+  updateFormData,
+}: ContactInfoStepProps) {
   return (
     <div className="space-y-6">
       <Card>
@@ -31,8 +40,10 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
               <Label htmlFor="primaryContactName">Contact Name</Label>
               <Input
                 id="primaryContactName"
-                value={formData.primaryContactName || ''}
-                onChange={(e) => updateFormData({ primaryContactName: e.target.value })}
+                value={formData.primaryContactName || ""}
+                onChange={(e) =>
+                  updateFormData({ primaryContactName: e.target.value })
+                }
                 placeholder="Full name"
               />
             </div>
@@ -42,8 +53,10 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
               <Input
                 id="primaryContactPhone"
                 type="tel"
-                value={formData.primaryContactPhone || ''}
-                onChange={(e) => updateFormData({ primaryContactPhone: e.target.value })}
+                value={formData.primaryContactPhone || ""}
+                onChange={(e) =>
+                  updateFormData({ primaryContactPhone: e.target.value })
+                }
                 placeholder="+44 20 1234 5678"
               />
             </div>
@@ -53,8 +66,10 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
               <Input
                 id="primaryContactEmail"
                 type="email"
-                value={formData.primaryContactEmail || ''}
-                onChange={(e) => updateFormData({ primaryContactEmail: e.target.value })}
+                value={formData.primaryContactEmail || ""}
+                onChange={(e) =>
+                  updateFormData({ primaryContactEmail: e.target.value })
+                }
                 placeholder="contact@example.com"
               />
             </div>
@@ -75,8 +90,10 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
               <Label htmlFor="addressLine1">Address Line 1</Label>
               <Input
                 id="addressLine1"
-                value={formData.addressLine1 || ''}
-                onChange={(e) => updateFormData({ addressLine1: e.target.value })}
+                value={formData.addressLine1 || ""}
+                onChange={(e) =>
+                  updateFormData({ addressLine1: e.target.value })
+                }
                 placeholder="Street address"
               />
             </div>
@@ -85,8 +102,10 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
               <Label htmlFor="addressLine2">Address Line 2</Label>
               <Input
                 id="addressLine2"
-                value={formData.addressLine2 || ''}
-                onChange={(e) => updateFormData({ addressLine2: e.target.value })}
+                value={formData.addressLine2 || ""}
+                onChange={(e) =>
+                  updateFormData({ addressLine2: e.target.value })
+                }
                 placeholder="Suite, unit, building, floor, etc."
               />
             </div>
@@ -96,7 +115,7 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
                 <Label htmlFor="city">City</Label>
                 <Input
                   id="city"
-                  value={formData.city || ''}
+                  value={formData.city || ""}
                   onChange={(e) => updateFormData({ city: e.target.value })}
                   placeholder="City"
                 />
@@ -106,8 +125,10 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
                 <Label htmlFor="postalCode">Postal Code</Label>
                 <Input
                   id="postalCode"
-                  value={formData.postalCode || ''}
-                  onChange={(e) => updateFormData({ postalCode: e.target.value })}
+                  value={formData.postalCode || ""}
+                  onChange={(e) =>
+                    updateFormData({ postalCode: e.target.value })
+                  }
                   placeholder="SW1A 1AA"
                 />
               </div>
@@ -117,7 +138,7 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
               <Label htmlFor="country">Country</Label>
               <Input
                 id="country"
-                value={formData.country || 'United Kingdom'}
+                value={formData.country || "United Kingdom"}
                 onChange={(e) => updateFormData({ country: e.target.value })}
                 placeholder="Country"
               />
@@ -135,7 +156,7 @@ export function ContactInfoStep({ formData, updateFormData }: ContactInfoStepPro
         </CardHeader>
         <CardContent>
           <Textarea
-            value={formData.notes || ''}
+            value={formData.notes || ""}
             onChange={(e) => updateFormData({ notes: e.target.value })}
             placeholder="Any additional information about this client..."
             rows={4}

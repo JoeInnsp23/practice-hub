@@ -9,20 +9,24 @@ import { DateTimeDisplay } from "@/components/shared/DateTimeDisplay";
 
 export function AdminHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900">
+    <header className="sticky top-0 z-50 border-b border shadow-sm bg-white dark:bg-slate-900">
       <div className="flex h-16 items-center justify-between">
         {/* Left Section - matches GlobalHeader structure */}
         <div className="flex items-center">
           <div className="flex items-center space-x-3 px-4 sm:px-6 lg:px-8">
-            <div className="rounded-lg p-2.5 shadow-md"
-                 style={{ background: "linear-gradient(135deg, #f97316, #f97316dd)" }}>
+            <div
+              className="rounded-lg p-2.5 shadow-md"
+              style={{
+                background: "linear-gradient(135deg, #f97316, #f97316dd)",
+              }}
+            >
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+              <h1 className="text-xl font-semibold text-card-foreground">
                 Admin Panel
               </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 System Administration
               </p>
             </div>

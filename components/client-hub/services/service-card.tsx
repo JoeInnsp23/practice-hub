@@ -70,18 +70,20 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-slate-700 dark:text-slate-300">
-          {service.description}
-        </p>
+        <p className="text-sm text-muted-foreground">{service.description}</p>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-green-600" />
-            <span className="text-2xl font-bold">{formatCurrency(service.price)}</span>
-            <span className="text-sm text-slate-600">/ {getPriceLabel()}</span>
+            <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <span className="text-2xl font-bold">
+              {formatCurrency(service.price)}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              / {getPriceLabel()}
+            </span>
           </div>
           {service.duration && (
-            <div className="flex items-center gap-1 text-sm text-slate-600">
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               {service.duration}
             </div>
@@ -91,7 +93,7 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         {service.features && service.features.length > 0 && (
           <div className="space-y-1">
             <p className="text-sm font-medium">Includes:</p>
-            <ul className="text-sm text-slate-700 dark:text-slate-300 space-y-1">
+            <ul className="text-sm text-muted-foreground space-y-1">
               {service.features.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <span className="text-green-500 mr-2">✓</span>
@@ -116,7 +118,11 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         <div className="pt-2 border-t">
           <Badge
             variant={service.isActive ? "default" : "secondary"}
-            className={service.isActive ? "bg-green-100 text-green-800" : ""}
+            className={
+              service.isActive
+                ? "bg-green-600 dark:bg-green-400/10 dark:bg-green-400/10 text-green-600 dark:text-green-400 dark:text-green-400"
+                : ""
+            }
           >
             {service.isActive ? "Active" : "Inactive"}
           </Badge>

@@ -62,22 +62,23 @@ export function ComplianceList({
       pending: {
         label: "Pending",
         icon: Clock,
-        className: "bg-gray-100 text-gray-800",
+        className: "bg-muted text-muted-foreground",
       },
       in_progress: {
         label: "In Progress",
         icon: Clock,
-        className: "bg-blue-100 text-blue-800",
+        className: "bg-primary/10 text-primary",
       },
       completed: {
         label: "Completed",
         icon: CheckCircle,
-        className: "bg-green-100 text-green-800",
+        className:
+          "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
       },
       overdue: {
         label: "Overdue",
         icon: AlertCircle,
-        className: "bg-red-100 text-red-800",
+        className: "bg-destructive/10 text-destructive",
       },
     };
 
@@ -94,20 +95,22 @@ export function ComplianceList({
     const config = {
       low: {
         label: "Low",
-        className: "bg-gray-100 text-gray-800",
+        className: "bg-muted text-muted-foreground",
       },
       medium: {
         label: "Medium",
-        className: "bg-yellow-100 text-yellow-800",
+        className:
+          "bg-yellow-600/10 dark:bg-yellow-400/10 text-yellow-600 dark:text-yellow-400",
       },
       high: {
         label: "High",
-        className: "bg-orange-100 text-orange-800",
+        className:
+          "bg-orange-600/10 dark:bg-orange-400/10 text-orange-600 dark:text-orange-400",
       },
       urgent: {
         label: "Urgent",
         icon: AlertTriangle,
-        className: "bg-red-100 text-red-800",
+        className: "bg-destructive/10 text-destructive",
       },
     };
 
@@ -151,7 +154,10 @@ export function ComplianceList({
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-8 text-slate-600">
+              <TableCell
+                colSpan={9}
+                className="text-center py-8 text-muted-foreground"
+              >
                 No compliance items found
               </TableCell>
             </TableRow>
@@ -180,14 +186,16 @@ export function ComplianceList({
                         <span
                           className={cn(
                             "text-xs",
-                            isOverdue ? "text-red-600 font-semibold" : "text-slate-600"
+                            isOverdue
+                              ? "text-destructive font-semibold"
+                              : "text-muted-foreground",
                           )}
                         >
                           {isOverdue
                             ? `${Math.abs(daysUntilDue)} days overdue`
                             : daysUntilDue === 0
-                            ? "Due today"
-                            : `${daysUntilDue} days left`}
+                              ? "Due today"
+                              : `${daysUntilDue} days left`}
                         </span>
                       )}
                     </div>
@@ -208,7 +216,9 @@ export function ComplianceList({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onStatusChange(item, "in_progress")}>
+                        <DropdownMenuItem
+                          onClick={() => onStatusChange(item, "in_progress")}
+                        >
                           <Clock className="mr-2 h-4 w-4" />
                           Mark In Progress
                         </DropdownMenuItem>
@@ -218,7 +228,7 @@ export function ComplianceList({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => onDelete(item)}
-                          className="text-red-600"
+                          className="text-destructive"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete

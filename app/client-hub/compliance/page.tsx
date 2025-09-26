@@ -128,7 +128,7 @@ export default function CompliancePage() {
 
   // Get unique types
   const types = useMemo(() => {
-    const uniqueTypes = [...new Set(items.map(item => item.type))];
+    const uniqueTypes = [...new Set(items.map((item) => item.type))];
     return uniqueTypes.sort();
   }, [items]);
 
@@ -141,7 +141,7 @@ export default function CompliancePage() {
         (item) =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.type.toLowerCase().includes(searchTerm.toLowerCase())
+          item.type.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -159,13 +159,15 @@ export default function CompliancePage() {
   // Calculate stats
   const stats = useMemo(() => {
     const now = new Date();
-    const overdue = items.filter((item) =>
-      item.status !== "completed" && item.dueDate < now
+    const overdue = items.filter(
+      (item) => item.status !== "completed" && item.dueDate < now,
     );
 
     const upcoming = items.filter((item) => {
       if (item.status === "completed") return false;
-      const daysUntil = Math.ceil((item.dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const daysUntil = Math.ceil(
+        (item.dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+      );
       return daysUntil >= 0 && daysUntil <= 7;
     });
 
@@ -175,14 +177,15 @@ export default function CompliancePage() {
     // Calculate completion rate for last 30 days
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const recentCompleted = completed.filter(
-      (item) => item.completedDate && item.completedDate >= thirtyDaysAgo
+      (item) => item.completedDate && item.completedDate >= thirtyDaysAgo,
     );
     const recentDue = items.filter(
-      (item) => item.dueDate >= thirtyDaysAgo && item.dueDate <= now
+      (item) => item.dueDate >= thirtyDaysAgo && item.dueDate <= now,
     );
-    const completionRate = recentDue.length > 0
-      ? Math.round((recentCompleted.length / recentDue.length) * 100)
-      : 0;
+    const completionRate =
+      recentDue.length > 0
+        ? Math.round((recentCompleted.length / recentDue.length) * 100)
+        : 0;
 
     return {
       overdue: overdue.length,
@@ -212,8 +215,8 @@ export default function CompliancePage() {
               status: status as any,
               completedDate: status === "completed" ? new Date() : undefined,
             }
-          : i
-      )
+          : i,
+      ),
     );
     toast.success("Status updated");
   };
@@ -254,10 +257,10 @@ export default function CompliancePage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="text-3xl font-bold text-foreground">
             Compliance Tracking
           </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <p className="text-muted-foreground mt-2">
             Track and manage compliance deadlines and requirements
           </p>
         </div>
@@ -288,9 +291,7 @@ export default function CompliancePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.upcoming}</div>
-            <p className="text-xs text-muted-foreground">
-              Next 7 days
-            </p>
+            <p className="text-xs text-muted-foreground">Next 7 days</p>
           </CardContent>
         </Card>
         <Card>
@@ -307,14 +308,14 @@ export default function CompliancePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Completion Rate
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.completionRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              Last 30 days
-            </p>
+            <p className="text-xs text-muted-foreground">Last 30 days</p>
           </CardContent>
         </Card>
       </div>
@@ -326,7 +327,7 @@ export default function CompliancePage() {
             <CardTitle>Compliance Items</CardTitle>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search items..."
@@ -361,7 +362,10 @@ export default function CompliancePage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <Tabs
+                value={viewMode}
+                onValueChange={(v) => setViewMode(v as any)}
+              >
                 <TabsList>
                   <TabsTrigger value="list">
                     <List className="h-4 w-4" />

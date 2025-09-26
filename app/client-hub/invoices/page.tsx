@@ -40,9 +40,9 @@ const mockInvoices = [
     client: "ABC Company Ltd",
     issueDate: new Date("2024-09-01"),
     dueDate: new Date("2024-09-30"),
-    total: 2500.00,
-    subtotal: 2000.00,
-    taxTotal: 500.00,
+    total: 2500.0,
+    subtotal: 2000.0,
+    taxTotal: 500.0,
     status: "sent" as const,
     paymentTerms: "Net 30",
     lineItems: [
@@ -62,9 +62,9 @@ const mockInvoices = [
     client: "XYZ Ltd",
     issueDate: new Date("2024-09-15"),
     dueDate: new Date("2024-10-15"),
-    total: 3750.00,
-    subtotal: 3000.00,
-    taxTotal: 750.00,
+    total: 3750.0,
+    subtotal: 3000.0,
+    taxTotal: 750.0,
     status: "paid" as const,
     paymentTerms: "Net 30",
     lineItems: [
@@ -92,9 +92,9 @@ const mockInvoices = [
     client: "John Doe",
     issueDate: new Date("2024-09-20"),
     dueDate: new Date("2024-09-27"),
-    total: 1500.00,
-    subtotal: 1200.00,
-    taxTotal: 300.00,
+    total: 1500.0,
+    subtotal: 1200.0,
+    taxTotal: 300.0,
     status: "overdue" as const,
     paymentTerms: "Net 7",
     lineItems: [
@@ -114,9 +114,9 @@ const mockInvoices = [
     client: "Tech Innovations Ltd",
     issueDate: new Date("2024-09-25"),
     dueDate: new Date("2024-10-25"),
-    total: 5000.00,
-    subtotal: 4000.00,
-    taxTotal: 1000.00,
+    total: 5000.0,
+    subtotal: 4000.0,
+    taxTotal: 1000.0,
     status: "draft" as const,
     paymentTerms: "Net 30",
     lineItems: [
@@ -154,8 +154,10 @@ export default function InvoicesPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (invoice) =>
-          invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          invoice.client.toLowerCase().includes(searchTerm.toLowerCase())
+          invoice.invoiceNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          invoice.client.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -163,7 +165,9 @@ export default function InvoicesPage() {
       filtered = filtered.filter((invoice) => invoice.status === statusFilter);
     }
 
-    return filtered.sort((a, b) => b.issueDate.getTime() - a.issueDate.getTime());
+    return filtered.sort(
+      (a, b) => b.issueDate.getTime() - a.issueDate.getTime(),
+    );
   }, [invoices, searchTerm, statusFilter]);
 
   // Calculate stats
@@ -209,9 +213,14 @@ export default function InvoicesPage() {
       setInvoices((prev) =>
         prev.map((inv) =>
           inv.id === editingInvoice.id
-            ? { ...inv, ...data, issueDate: new Date(data.issueDate), dueDate: new Date(data.dueDate) }
-            : inv
-        )
+            ? {
+                ...inv,
+                ...data,
+                issueDate: new Date(data.issueDate),
+                dueDate: new Date(data.dueDate),
+              }
+            : inv,
+        ),
       );
       toast.success("Invoice updated successfully");
     } else {
@@ -247,8 +256,8 @@ export default function InvoicesPage() {
   const handleSendInvoice = (invoice: any) => {
     setInvoices((prev) =>
       prev.map((inv) =>
-        inv.id === invoice.id ? { ...inv, status: "sent" as const } : inv
-      )
+        inv.id === invoice.id ? { ...inv, status: "sent" as const } : inv,
+      ),
     );
     toast.success(`Invoice ${invoice.invoiceNumber} sent to client`);
   };
@@ -269,10 +278,8 @@ export default function InvoicesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Invoices
-          </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Invoices</h1>
+          <p className="text-muted-foreground mt-2">
             Create and manage your invoices
           </p>
         </div>
@@ -286,11 +293,15 @@ export default function InvoicesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Invoiced</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Invoiced
+            </CardTitle>
             <FileText className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.total)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.total)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {stats.count.total} invoices
             </p>
@@ -302,7 +313,9 @@ export default function InvoicesPage() {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.paid)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.paid)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {stats.count.paid} invoices
             </p>
@@ -314,7 +327,9 @@ export default function InvoicesPage() {
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.pending)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.pending)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {stats.count.sent} invoices
             </p>
@@ -326,7 +341,9 @@ export default function InvoicesPage() {
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.overdue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.overdue)}
+            </div>
             <p className="text-xs text-muted-foreground">
               {stats.count.overdue} invoices
             </p>
@@ -341,7 +358,7 @@ export default function InvoicesPage() {
             <CardTitle>Invoice List</CardTitle>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search invoices..."

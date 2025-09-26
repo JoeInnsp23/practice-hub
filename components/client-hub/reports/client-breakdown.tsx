@@ -46,11 +46,13 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
               <Users className="h-5 w-5" />
               Top Clients
             </CardTitle>
-            <p className="text-sm text-slate-600 mt-1">Revenue breakdown by client</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Revenue breakdown by client
+            </p>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold">{formatCurrency(totalRevenue)}</p>
-            <p className="text-sm text-slate-600">Total Revenue</p>
+            <p className="text-sm text-muted-foreground">Total Revenue</p>
           </div>
         </div>
       </CardHeader>
@@ -65,7 +67,7 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-2xl font-bold">{topClients.length}</p>
-                  <p className="text-xs text-slate-600">Top Clients</p>
+                  <p className="text-xs text-muted-foreground">Top Clients</p>
                 </div>
               </div>
             </div>
@@ -76,18 +78,28 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
             {topClients.map((client, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1">
-                  <div className={`w-3 h-3 rounded-full ${getColorClass(index)}`}></div>
+                  <div
+                    className={`w-3 h-3 rounded-full ${getColorClass(index)}`}
+                  ></div>
                   <div className="flex-1">
                     <p className="font-medium text-sm">{client.name}</p>
-                    <p className="text-xs text-slate-600">{client.services} services</p>
+                    <p className="text-xs text-muted-foreground">
+                      {client.services} services
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-sm">{formatCurrency(client.revenue)}</p>
+                  <p className="font-semibold text-sm">
+                    {formatCurrency(client.revenue)}
+                  </p>
                   <div className="flex items-center justify-end gap-1">
-                    <span className="text-xs text-slate-600">{client.percentage.toFixed(1)}%</span>
+                    <span className="text-xs text-muted-foreground">
+                      {client.percentage.toFixed(1)}%
+                    </span>
                     {client.change !== 0 && (
-                      <span className={`flex items-center text-xs ${client.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span
+                        className={`flex items-center text-xs ${client.change > 0 ? "text-green-600 dark:text-green-400" : "text-destructive"}`}
+                      >
                         {client.change > 0 ? (
                           <TrendingUp className="h-3 w-3" />
                         ) : (
@@ -105,7 +117,9 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
           {/* Show More */}
           {data.length > 10 && (
             <div className="pt-4 border-t text-center">
-              <Badge variant="secondary">+{data.length - 10} more clients</Badge>
+              <Badge variant="secondary">
+                +{data.length - 10} more clients
+              </Badge>
             </div>
           )}
         </div>

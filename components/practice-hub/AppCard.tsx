@@ -1,7 +1,6 @@
 "use client";
 
 import { LucideIcon } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -27,11 +26,11 @@ export function AppCard({
   const isComingSoon = status === "coming-soon";
 
   return (
-    <Card
+    <div
       className={cn(
-        "group relative overflow-hidden transition-all duration-300",
-        "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700",
-        "hover:shadow-lg hover:-translate-y-1 dark:hover:shadow-2xl dark:hover:shadow-slate-900/50",
+        "glass-card",
+        "group relative overflow-hidden transition-all duration-300 rounded-xl",
+        "hover:shadow-xl hover:-translate-y-1",
         isComingSoon ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         className,
       )}
@@ -50,12 +49,12 @@ export function AppCard({
         </div>
 
         {/* Title */}
-        <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <h3 className="mb-2 text-lg font-semibold text-card-foreground">
           {title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+        <p className="text-sm text-muted-foreground line-clamp-2">
           {description}
         </p>
 
@@ -63,7 +62,7 @@ export function AppCard({
         {isComingSoon && (
           <Badge
             variant="secondary"
-            className="absolute right-4 top-4 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600"
+            className="absolute right-4 top-4 bg-secondary text-secondary-foreground border"
           >
             Coming Soon
           </Badge>
@@ -85,6 +84,6 @@ export function AppCard({
           background: `linear-gradient(90deg, ${color}, ${color}66)`,
         }}
       />
-    </Card>
+    </div>
   );
 }

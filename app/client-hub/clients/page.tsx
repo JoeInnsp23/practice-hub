@@ -84,11 +84,14 @@ export default function ClientsPage() {
       const matchesSearch =
         !debouncedSearchTerm ||
         client.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        client.clientCode.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        client.clientCode
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()) ||
         client.email?.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
       const matchesType = typeFilter === "all" || client.type === typeFilter;
-      const matchesStatus = statusFilter === "all" || client.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || client.status === statusFilter;
 
       return matchesSearch && matchesType && matchesStatus;
     });
@@ -146,8 +149,8 @@ export default function ClientsPage() {
         prev.map((c) =>
           c.id === editingClient.id
             ? { ...c, ...data, updatedAt: new Date() }
-            : c
-        )
+            : c,
+        ),
       );
     } else {
       // Add new client
@@ -178,10 +181,8 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Clients
-          </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Clients</h1>
+          <p className="text-muted-foreground mt-2">
             Manage your client relationships and information
           </p>
         </div>

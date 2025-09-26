@@ -15,7 +15,11 @@ interface TimeEntryModalProps {
   onSave?: (data: any) => void;
 }
 
-export function TimeEntryModal({ isOpen, onClose, onSave }: TimeEntryModalProps) {
+export function TimeEntryModal({
+  isOpen,
+  onClose,
+  onSave,
+}: TimeEntryModalProps) {
   const handleSave = (data: any) => {
     if (onSave) {
       onSave(data);

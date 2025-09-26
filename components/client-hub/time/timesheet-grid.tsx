@@ -43,13 +43,29 @@ interface TimesheetGridProps {
   onDuplicate: (entry: TimeEntry) => void;
 }
 
-export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: TimesheetGridProps) {
+export function TimesheetGrid({
+  entries,
+  view,
+  onEdit,
+  onDelete,
+  onDuplicate,
+}: TimesheetGridProps) {
   const getStatusBadge = (status: TimeEntry["status"]) => {
     const config = {
       draft: { label: "Draft", className: "bg-gray-100 text-gray-800" },
-      submitted: { label: "Submitted", className: "bg-blue-100 text-blue-800" },
-      approved: { label: "Approved", className: "bg-green-100 text-green-800" },
-      rejected: { label: "Rejected", className: "bg-red-100 text-red-800" },
+      submitted: {
+        label: "Submitted",
+        className: "bg-primary/10 text-primary",
+      },
+      approved: {
+        label: "Approved",
+        className:
+          "bg-green-600 dark:bg-green-400/10 dark:bg-green-400/10 text-green-600 dark:text-green-400 dark:text-green-400",
+      },
+      rejected: {
+        label: "Rejected",
+        className: "bg-destructive/10 text-destructive",
+      },
     };
 
     const { label, className } = config[status];
@@ -61,14 +77,17 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
   };
 
   // Group entries by date for weekly/monthly views
-  const groupedEntries = entries.reduce((acc, entry) => {
-    const dateKey = formatDate(entry.date);
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(entry);
-    return acc;
-  }, {} as Record<string, TimeEntry[]>);
+  const groupedEntries = entries.reduce(
+    (acc, entry) => {
+      const dateKey = formatDate(entry.date);
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(entry);
+      return acc;
+    },
+    {} as Record<string, TimeEntry[]>,
+  );
 
   const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
   const billableHours = entries
@@ -89,10 +108,14 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Billable Hours</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Billable Hours
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600">{formatHours(billableHours)}</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+              {formatHours(billableHours)}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -100,7 +123,7 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
             <CardTitle className="text-sm font-medium">Non-Billable</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-700">
+            <p className="text-2xl font-bold text-muted-foreground">
               {formatHours(totalHours - billableHours)}
             </p>
           </CardContent>
@@ -138,7 +161,10 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
               <TableBody>
                 {entries.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-slate-600">
+                    <TableCell
+                      colSpan={8}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       No time entries for this period
                     </TableCell>
                   </TableRow>
@@ -150,7 +176,10 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
                       </TableCell>
                       <TableCell>{entry.client}</TableCell>
                       <TableCell>{entry.task || "-"}</TableCell>
-                      <TableCell className="max-w-xs truncate" title={entry.description}>
+                      <TableCell
+                        className="max-w-xs truncate"
+                        title={entry.description}
+                      >
                         {entry.description}
                       </TableCell>
                       <TableCell>
@@ -161,9 +190,13 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
                       </TableCell>
                       <TableCell>
                         {entry.billable ? (
-                          <Badge className="bg-green-100 text-green-800">Billable</Badge>
+                          <Badge className="bg-green-600 dark:bg-green-400/10 dark:bg-green-400/10 text-green-600 dark:text-green-400 dark:text-green-400">
+                            Billable
+                          </Badge>
                         ) : (
-                          <Badge className="bg-gray-100 text-gray-800">Non-billable</Badge>
+                          <Badge className="bg-gray-100 text-gray-800">
+                            Non-billable
+                          </Badge>
                         )}
                       </TableCell>
                       <TableCell>{getStatusBadge(entry.status)}</TableCell>
@@ -180,13 +213,15 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDuplicate(entry)}>
+                            <DropdownMenuItem
+                              onClick={() => onDuplicate(entry)}
+                            >
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => onDelete(entry)}
-                              className="text-red-600"
+                              className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete

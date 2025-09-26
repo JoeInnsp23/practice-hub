@@ -96,7 +96,8 @@ export function DocumentGrid({
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {documents.map((doc) => {
-          const Icon = doc.type === "folder" ? Folder : getFileIcon(doc.fileType);
+          const Icon =
+            doc.type === "folder" ? Folder : getFileIcon(doc.fileType);
 
           return (
             <Card
@@ -109,18 +110,22 @@ export function DocumentGrid({
                   <Icon
                     className={cn(
                       "h-12 w-12",
-                      doc.type === "folder" ? "text-blue-500" : "text-slate-600"
+                      doc.type === "folder"
+                        ? "text-blue-500"
+                        : "text-muted-foreground",
                     )}
                   />
                   <div className="w-full">
-                    <p className="text-sm font-medium truncate" title={doc.name}>
+                    <p
+                      className="text-sm font-medium truncate"
+                      title={doc.name}
+                    >
                       {doc.name}
                     </p>
-                    <p className="text-xs text-slate-600">
+                    <p className="text-xs text-muted-foreground">
                       {doc.type === "folder"
-                        ? `${documents.filter(d => d.parentId === doc.id).length} items`
-                        : formatFileSize(doc.size)
-                      }
+                        ? `${documents.filter((d) => d.parentId === doc.id).length} items`
+                        : formatFileSize(doc.size)}
                     </p>
                   </div>
                   <DropdownMenu>
@@ -162,7 +167,7 @@ export function DocumentGrid({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onDelete(doc)}
-                        className="text-red-600"
+                        className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
@@ -194,7 +199,8 @@ export function DocumentGrid({
         </thead>
         <tbody>
           {documents.map((doc) => {
-            const Icon = doc.type === "folder" ? Folder : getFileIcon(doc.fileType);
+            const Icon =
+              doc.type === "folder" ? Folder : getFileIcon(doc.fileType);
 
             return (
               <tr
@@ -207,22 +213,23 @@ export function DocumentGrid({
                     <Icon
                       className={cn(
                         "h-5 w-5",
-                        doc.type === "folder" ? "text-blue-500" : "text-slate-600"
+                        doc.type === "folder"
+                          ? "text-blue-500"
+                          : "text-muted-foreground",
                       )}
                     />
                     <span className="font-medium">{doc.name}</span>
                   </div>
                 </td>
-                <td className="p-4 text-sm text-slate-700">
+                <td className="p-4 text-sm text-muted-foreground">
                   {doc.client || "-"}
                 </td>
-                <td className="p-4 text-sm text-slate-700">
+                <td className="p-4 text-sm text-muted-foreground">
                   {doc.type === "folder"
-                    ? `${documents.filter(d => d.parentId === doc.id).length} items`
-                    : formatFileSize(doc.size)
-                  }
+                    ? `${documents.filter((d) => d.parentId === doc.id).length} items`
+                    : formatFileSize(doc.size)}
                 </td>
-                <td className="p-4 text-sm text-slate-700">
+                <td className="p-4 text-sm text-muted-foreground">
                   {formatDate(doc.modifiedAt)}
                 </td>
                 <td className="p-4">
@@ -274,7 +281,7 @@ export function DocumentGrid({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onDelete(doc)}
-                        className="text-red-600"
+                        className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete

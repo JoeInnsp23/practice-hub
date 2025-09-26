@@ -60,10 +60,17 @@ export function InvoiceList({
 }: InvoiceListProps) {
   const getStatusBadge = (status: Invoice["status"]) => {
     const config = {
-      draft: { label: "Draft", className: "bg-gray-100 text-gray-800" },
-      sent: { label: "Sent", className: "bg-blue-100 text-blue-800" },
-      paid: { label: "Paid", className: "bg-green-100 text-green-800" },
-      overdue: { label: "Overdue", className: "bg-red-100 text-red-800" },
+      draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
+      sent: { label: "Sent", className: "bg-primary/10 text-primary" },
+      paid: {
+        label: "Paid",
+        className:
+          "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
+      },
+      overdue: {
+        label: "Overdue",
+        className: "bg-destructive/10 text-destructive",
+      },
     };
 
     const { label, className } = config[status];
@@ -99,7 +106,10 @@ export function InvoiceList({
         <TableBody>
           {invoices.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-slate-600">
+              <TableCell
+                colSpan={7}
+                className="text-center py-8 text-muted-foreground"
+              >
                 No invoices found
               </TableCell>
             </TableRow>
@@ -122,7 +132,9 @@ export function InvoiceList({
                         <span
                           className={cn(
                             "text-xs",
-                            isOverdue ? "text-red-600" : "text-slate-600"
+                            isOverdue
+                              ? "text-destructive"
+                              : "text-muted-foreground",
                           )}
                         >
                           {isOverdue
@@ -171,7 +183,7 @@ export function InvoiceList({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => onDelete(invoice)}
-                          className="text-red-600"
+                          className="text-destructive"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete

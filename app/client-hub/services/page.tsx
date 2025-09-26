@@ -34,7 +34,8 @@ const mockServices = [
   {
     id: "1",
     name: "Annual Accounts Preparation",
-    description: "Complete preparation and filing of annual accounts including balance sheet, profit & loss, and director's report.",
+    description:
+      "Complete preparation and filing of annual accounts including balance sheet, profit & loss, and director's report.",
     category: "Accounting",
     price: 1500,
     priceType: "fixed" as const,
@@ -51,7 +52,8 @@ const mockServices = [
   {
     id: "2",
     name: "VAT Return Services",
-    description: "Quarterly VAT return preparation and submission to HMRC with full compliance checks.",
+    description:
+      "Quarterly VAT return preparation and submission to HMRC with full compliance checks.",
     category: "Tax Services",
     price: 250,
     priceType: "fixed" as const,
@@ -68,7 +70,8 @@ const mockServices = [
   {
     id: "3",
     name: "Bookkeeping Services",
-    description: "Monthly bookkeeping services including bank reconciliation and expense categorization.",
+    description:
+      "Monthly bookkeeping services including bank reconciliation and expense categorization.",
     category: "Bookkeeping",
     price: 150,
     priceType: "hourly" as const,
@@ -84,7 +87,8 @@ const mockServices = [
   {
     id: "4",
     name: "Personal Tax Return",
-    description: "Complete self-assessment tax return preparation and submission for individuals.",
+    description:
+      "Complete self-assessment tax return preparation and submission for individuals.",
     category: "Tax Services",
     price: 350,
     priceType: "fixed" as const,
@@ -101,7 +105,8 @@ const mockServices = [
   {
     id: "5",
     name: "Corporation Tax Return",
-    description: "Preparation and submission of CT600 corporation tax return with full computations.",
+    description:
+      "Preparation and submission of CT600 corporation tax return with full computations.",
     category: "Tax Services",
     price: 850,
     priceType: "fixed" as const,
@@ -118,7 +123,8 @@ const mockServices = [
   {
     id: "6",
     name: "Payroll Processing",
-    description: "Monthly payroll processing including RTI submissions and payslips for up to 10 employees.",
+    description:
+      "Monthly payroll processing including RTI submissions and payslips for up to 10 employees.",
     category: "Payroll",
     price: 50,
     priceType: "monthly" as const,
@@ -134,7 +140,8 @@ const mockServices = [
   {
     id: "7",
     name: "Company Formation",
-    description: "Complete company formation service including registration and initial compliance setup.",
+    description:
+      "Complete company formation service including registration and initial compliance setup.",
     category: "Company Formation",
     price: 250,
     priceType: "fixed" as const,
@@ -151,7 +158,8 @@ const mockServices = [
   {
     id: "8",
     name: "Business Advisory",
-    description: "Strategic business consulting and financial planning services.",
+    description:
+      "Strategic business consulting and financial planning services.",
     category: "Advisory",
     price: 200,
     priceType: "hourly" as const,
@@ -176,7 +184,7 @@ export default function ServicesPage() {
 
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = [...new Set(services.map(s => s.category))];
+    const cats = [...new Set(services.map((s) => s.category))];
     return cats.sort();
   }, [services]);
 
@@ -188,13 +196,19 @@ export default function ServicesPage() {
       filtered = filtered.filter(
         (service) =>
           service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          service.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          service.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          service.tags?.some((tag) =>
+            tag.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
     if (categoryFilter !== "all") {
-      filtered = filtered.filter((service) => service.category === categoryFilter);
+      filtered = filtered.filter(
+        (service) => service.category === categoryFilter,
+      );
     }
 
     return filtered;
@@ -202,13 +216,20 @@ export default function ServicesPage() {
 
   // Calculate stats
   const stats = useMemo(() => {
-    const activeServices = services.filter(s => s.isActive);
-    const avgPrice = activeServices.reduce((sum, s) => sum + s.price, 0) / activeServices.length;
-    const categoryCounts = services.reduce((acc, s) => {
-      acc[s.category] = (acc[s.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
+    const activeServices = services.filter((s) => s.isActive);
+    const avgPrice =
+      activeServices.reduce((sum, s) => sum + s.price, 0) /
+      activeServices.length;
+    const categoryCounts = services.reduce(
+      (acc, s) => {
+        acc[s.category] = (acc[s.category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+    const topCategory = Object.entries(categoryCounts).sort(
+      (a, b) => b[1] - a[1],
+    )[0];
 
     return {
       total: services.length,
@@ -239,8 +260,8 @@ export default function ServicesPage() {
     if (editingService) {
       setServices((prev) =>
         prev.map((s) =>
-          s.id === editingService.id ? { ...s, ...data, id: s.id } : s
-        )
+          s.id === editingService.id ? { ...s, ...data, id: s.id } : s,
+        ),
       );
     } else {
       const newService = {
@@ -257,10 +278,8 @@ export default function ServicesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Services
-          </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Services</h1>
+          <p className="text-muted-foreground mt-2">
             Manage your service catalog and pricing
           </p>
         </div>
@@ -274,7 +293,9 @@ export default function ServicesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Services</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Services
+            </CardTitle>
             <Package className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -290,10 +311,10 @@ export default function ServicesPage() {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.avgPrice)}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all services
-            </p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.avgPrice)}
+            </div>
+            <p className="text-xs text-muted-foreground">Across all services</p>
           </CardContent>
         </Card>
         <Card>
@@ -315,9 +336,7 @@ export default function ServicesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categories.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Service categories
-            </p>
+            <p className="text-xs text-muted-foreground">Service categories</p>
           </CardContent>
         </Card>
       </div>
@@ -329,7 +348,7 @@ export default function ServicesPage() {
             <CardTitle>Service Catalog</CardTitle>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search services..."
@@ -352,7 +371,10 @@ export default function ServicesPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <Tabs
+                value={viewMode}
+                onValueChange={(v) => setViewMode(v as any)}
+              >
                 <TabsList>
                   <TabsTrigger value="grid">
                     <Grid className="h-4 w-4" />
@@ -367,7 +389,7 @@ export default function ServicesPage() {
         </CardHeader>
         <CardContent>
           {filteredServices.length === 0 ? (
-            <div className="text-center py-12 text-slate-600">
+            <div className="text-center py-12 text-muted-foreground">
               {searchTerm || categoryFilter !== "all"
                 ? "No services found matching your filters"
                 : "No services added yet"}
@@ -390,28 +412,39 @@ export default function ServicesPage() {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold">{service.name}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {service.name}
+                        </h3>
                         <Badge variant="secondary">{service.category}</Badge>
                         <Badge
                           variant={service.isActive ? "default" : "secondary"}
-                          className={service.isActive ? "bg-green-100 text-green-800" : ""}
+                          className={
+                            service.isActive
+                              ? "bg-green-100 text-green-800"
+                              : ""
+                          }
                         >
                           {service.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
+                      <p className="text-sm text-muted-foreground mb-3">
                         {service.description}
                       </p>
                       <div className="flex items-center gap-6">
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-green-600" />
-                          <span className="font-bold">{formatCurrency(service.price)}</span>
-                          <span className="text-sm text-slate-600">
-                            / {service.priceType === "hourly" ? "hour" : service.priceType}
+                          <span className="font-bold">
+                            {formatCurrency(service.price)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            /{" "}
+                            {service.priceType === "hourly"
+                              ? "hour"
+                              : service.priceType}
                           </span>
                         </div>
                         {service.duration && (
-                          <div className="text-sm text-slate-600">
+                          <div className="text-sm text-muted-foreground">
                             Duration: {service.duration}
                           </div>
                         )}

@@ -47,8 +47,12 @@ export async function getAuthContext(): Promise<AuthContext | null> {
           console.info("Auth: Creating default tenant");
 
           // Use Clerk organization data if available, otherwise use defaults
-          const orgName = clerkUser.organizationMemberships?.[0]?.organization?.name || "Default Organization";
-          const orgSlug = clerkUser.organizationMemberships?.[0]?.organization?.slug || "default";
+          const orgName =
+            clerkUser.organizationMemberships?.[0]?.organization?.name ||
+            "Default Organization";
+          const orgSlug =
+            clerkUser.organizationMemberships?.[0]?.organization?.slug ||
+            "default";
 
           defaultTenant = await db
             .insert(tenants)

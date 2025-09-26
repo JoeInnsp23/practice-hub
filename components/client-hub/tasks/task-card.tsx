@@ -43,17 +43,22 @@ interface TaskCardProps {
   onStatusChange: (taskId: string, status: string) => void;
 }
 
-export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onEdit,
+  onDelete,
+  onStatusChange,
+}: TaskCardProps) {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
-        return "border-red-500 bg-red-50";
+        return "border-destructive bg-destructive/10";
       case "high":
-        return "border-orange-500 bg-orange-50";
+        return "border-orange-500 dark:border-orange-400 bg-orange-600/10 dark:bg-orange-400/10";
       case "medium":
-        return "border-yellow-500 bg-yellow-50";
+        return "border-yellow-500 dark:border-yellow-400 bg-yellow-600/10 dark:bg-yellow-400/10";
       case "low":
-        return "border-green-500 bg-green-50";
+        return "border-green-500 dark:border-green-400 bg-green-600/10 dark:bg-green-400/10";
       default:
         return "";
     }
@@ -61,10 +66,25 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
 
   const getPriorityBadge = (priority: string) => {
     const config = {
-      urgent: { label: "Urgent", className: "bg-red-100 text-red-800" },
-      high: { label: "High", className: "bg-orange-100 text-orange-800" },
-      medium: { label: "Medium", className: "bg-yellow-100 text-yellow-800" },
-      low: { label: "Low", className: "bg-green-100 text-green-800" },
+      urgent: {
+        label: "Urgent",
+        className: "bg-destructive/10 text-destructive",
+      },
+      high: {
+        label: "High",
+        className:
+          "bg-orange-600/10 text-orange-600 dark:bg-orange-400/10 dark:text-orange-400",
+      },
+      medium: {
+        label: "Medium",
+        className:
+          "bg-yellow-600/10 text-yellow-600 dark:bg-yellow-400/10 dark:text-yellow-400",
+      },
+      low: {
+        label: "Low",
+        className:
+          "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
+      },
     };
 
     const { label, className } = config[priority as keyof typeof config];
@@ -75,16 +95,26 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
     );
   };
 
-  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "completed";
+  const isOverdue =
+    task.dueDate &&
+    new Date(task.dueDate) < new Date() &&
+    task.status !== "completed";
 
   return (
-    <Card className={cn("cursor-move hover:shadow-md transition-shadow", getPriorityColor(task.priority))}>
+    <Card
+      className={cn(
+        "cursor-move hover:shadow-md transition-shadow",
+        getPriorityColor(task.priority),
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <h4 className="font-medium text-sm line-clamp-2">{task.title}</h4>
             {task.client && (
-              <p className="text-xs text-slate-700 mt-1">{task.client}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {task.client}
+              </p>
             )}
           </div>
           <DropdownMenu>
@@ -94,11 +124,18 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(task)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onStatusChange(task.id, "completed")}>
+              <DropdownMenuItem onClick={() => onEdit(task)}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onStatusChange(task.id, "completed")}
+              >
                 Mark Complete
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(task)} className="text-red-600">
+              <DropdownMenuItem
+                onClick={() => onDelete(task)}
+                className="text-destructive"
+              >
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -107,7 +144,9 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
       </CardHeader>
       <CardContent className="pt-0">
         {task.description && (
-          <p className="text-xs text-slate-700 mb-3 line-clamp-2">{task.description}</p>
+          <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+            {task.description}
+          </p>
         )}
 
         <div className="flex items-center justify-between mb-2">
@@ -132,7 +171,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
           </div>
         )}
 
-        <div className="flex items-center justify-between text-xs text-slate-600">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             {task.dueDate && (
               <div className="flex items-center gap-1">
@@ -151,7 +190,10 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
             <div className="flex items-center gap-1">
               <Avatar className="h-5 w-5">
                 <AvatarFallback className="text-[10px]">
-                  {task.assignee.name.split(" ").map((n) => n[0]).join("")}
+                  {task.assignee.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
             </div>

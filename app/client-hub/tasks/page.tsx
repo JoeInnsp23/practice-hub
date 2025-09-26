@@ -95,10 +95,11 @@ export default function TasksPage() {
   const filteredTasks = useMemo(() => {
     if (!searchTerm) return tasks;
 
-    return tasks.filter((task) =>
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.client?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    return tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.client?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [tasks, searchTerm]);
 
@@ -118,21 +119,25 @@ export default function TasksPage() {
     },
     {
       title: "Due This Week",
-      value: tasks.filter((t) => {
-        if (!t.dueDate) return false;
-        const weekFromNow = new Date();
-        weekFromNow.setDate(weekFromNow.getDate() + 7);
-        return t.dueDate <= weekFromNow && t.status !== "completed";
-      }).length.toString(),
+      value: tasks
+        .filter((t) => {
+          if (!t.dueDate) return false;
+          const weekFromNow = new Date();
+          weekFromNow.setDate(weekFromNow.getDate() + 7);
+          return t.dueDate <= weekFromNow && t.status !== "completed";
+        })
+        .length.toString(),
       icon: Calendar,
       iconColor: "text-purple-600",
     },
     {
       title: "Overdue",
-      value: tasks.filter((t) => {
-        if (!t.dueDate) return false;
-        return t.dueDate < new Date() && t.status !== "completed";
-      }).length.toString(),
+      value: tasks
+        .filter((t) => {
+          if (!t.dueDate) return false;
+          return t.dueDate < new Date() && t.status !== "completed";
+        })
+        .length.toString(),
       icon: AlertTriangle,
       iconColor: "text-red-600",
     },
@@ -159,8 +164,8 @@ export default function TasksPage() {
     if (editingTask) {
       setTasks((prev) =>
         prev.map((t) =>
-          t.id === editingTask.id ? { ...t, ...data, id: t.id } : t
-        )
+          t.id === editingTask.id ? { ...t, ...data, id: t.id } : t,
+        ),
       );
     } else {
       const newTask = {
@@ -176,10 +181,8 @@ export default function TasksPage() {
   const handleStatusChange = (taskId: string, status: string) => {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === taskId
-          ? { ...task, status: status as any }
-          : task
-      )
+        task.id === taskId ? { ...task, status: status as any } : task,
+      ),
     );
     toast.success("Task status updated");
   };
@@ -189,10 +192,8 @@ export default function TasksPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Tasks
-          </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Tasks</h1>
+          <p className="text-muted-foreground mt-2">
             Track and manage all your tasks and deadlines
           </p>
         </div>
@@ -224,7 +225,7 @@ export default function TasksPage() {
             <CardTitle>Task Board</CardTitle>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
                   placeholder="Search tasks..."
@@ -233,7 +234,10 @@ export default function TasksPage() {
                   className="pl-10 w-64"
                 />
               </div>
-              <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <Tabs
+                value={viewMode}
+                onValueChange={(v) => setViewMode(v as any)}
+              >
                 <TabsList>
                   <TabsTrigger value="board" className="gap-2">
                     <LayoutGrid className="h-4 w-4" />
@@ -257,7 +261,7 @@ export default function TasksPage() {
               onStatusChange={handleStatusChange}
             />
           ) : (
-            <div className="text-center py-12 text-slate-600">
+            <div className="text-center py-12 text-muted-foreground">
               List view coming soon...
             </div>
           )}

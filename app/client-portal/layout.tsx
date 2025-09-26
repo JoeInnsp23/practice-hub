@@ -19,7 +19,7 @@ export default function ClientPortalLayout({
       />
 
       <div className="flex">
-        <nav className="w-64 bg-white dark:bg-slate-800 shadow-sm h-[calc(100vh-4rem)] border-r border-gray-200 dark:border-slate-700">
+        <nav className="w-64 bg-card shadow-sm h-[calc(100vh-4rem)] border-r border">
           <div className="p-4">
             <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
               Client Portal

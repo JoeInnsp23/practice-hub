@@ -188,7 +188,10 @@ export default function TimeTrackingPage() {
       endDate.setDate(endDate.getDate() + 6);
       return `${formatDate(startDate)} - ${formatDate(endDate)}`;
     } else {
-      return selectedDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+      return selectedDate.toLocaleDateString("en-GB", {
+        month: "long",
+        year: "numeric",
+      });
     }
   };
 
@@ -197,10 +200,8 @@ export default function TimeTrackingPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Time Tracking
-          </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
+          <p className="text-muted-foreground mt-2">
             View and manage your time entries
           </p>
         </div>
@@ -244,11 +245,7 @@ export default function TimeTrackingPage() {
                   <span className="font-medium">{getPeriodLabel()}</span>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleNextPeriod}
-              >
+              <Button variant="outline" size="icon" onClick={handleNextPeriod}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" onClick={handleToday}>
@@ -260,9 +257,7 @@ export default function TimeTrackingPage() {
       </Card>
 
       {/* Quick Entry Toggle */}
-      {isQuickEntryOpen && (
-        <QuickTimeEntry onSave={handleSaveEntry} />
-      )}
+      {isQuickEntryOpen && <QuickTimeEntry onSave={handleSaveEntry} />}
 
       <div className="flex justify-end">
         <Button

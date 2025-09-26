@@ -55,11 +55,9 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Welcome back, {displayName}!
-        </h1>
-        <p className="mt-2 text-slate-700 dark:text-slate-300 text-base">
+      <div className="bg-card text-card-foreground rounded-xl border p-8 shadow-sm">
+        <h1 className="text-3xl font-bold">Welcome back, {displayName}!</h1>
+        <p className="mt-2 text-muted-foreground text-base">
           Here's an overview of your practice dashboard.
         </p>
       </div>
@@ -119,7 +117,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">£45,230</div>
-            <p className="text-sm text-slate-600 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               +18% from last month
             </p>
           </CardContent>
@@ -136,15 +134,21 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm">VAT Returns Due</span>
-                <span className="text-sm text-orange-600 font-medium">3 days</span>
+                <span className="text-sm text-orange-600 font-medium">
+                  3 days
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Annual Accounts - ABC Ltd</span>
-                <span className="text-sm text-yellow-600 font-medium">1 week</span>
+                <span className="text-sm text-yellow-600 font-medium">
+                  1 week
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Corporation Tax - XYZ</span>
-                <span className="text-sm text-green-600 font-medium">2 weeks</span>
+                <span className="text-sm text-green-600 font-medium">
+                  2 weeks
+                </span>
               </div>
             </div>
           </CardContent>

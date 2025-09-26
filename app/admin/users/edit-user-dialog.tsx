@@ -151,9 +151,15 @@ export function EditUserDialog({
                   <SelectItem value="org:accountant">Accountant</SelectItem>
                   <SelectItem value="org:member">Member</SelectItem>
                   {/* Support old format too */}
-                  <SelectItem value="admin" className="hidden">Admin (old)</SelectItem>
-                  <SelectItem value="accountant" className="hidden">Accountant (old)</SelectItem>
-                  <SelectItem value="member" className="hidden">Member (old)</SelectItem>
+                  <SelectItem value="admin" className="hidden">
+                    Admin (old)
+                  </SelectItem>
+                  <SelectItem value="accountant" className="hidden">
+                    Accountant (old)
+                  </SelectItem>
+                  <SelectItem value="member" className="hidden">
+                    Member (old)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

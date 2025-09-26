@@ -27,14 +27,13 @@ export function KPIWidget({
   return (
     <Card
       className={cn(
-        "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700",
         "cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1",
-        className
+        className,
       )}
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <h3 className="text-sm font-medium text-slate-600">{title}</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
         <Icon className={cn("h-4 w-4", iconColor)} />
       </CardHeader>
       <CardContent>
@@ -43,7 +42,9 @@ export function KPIWidget({
           <p
             className={cn(
               "text-xs mt-1",
-              change.trend === "up" ? "text-green-600" : "text-red-600"
+              change.trend === "up"
+                ? "text-green-600 dark:text-green-400"
+                : "text-destructive",
             )}
           >
             {change.trend === "up" ? "↑" : "↓"} {Math.abs(change.value)}% from

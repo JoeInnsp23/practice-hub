@@ -32,12 +32,21 @@ interface TaskBoardProps {
 }
 
 const columns = [
-  { id: "pending", title: "To Do", color: "bg-gray-100" },
-  { id: "in_progress", title: "In Progress", color: "bg-blue-100" },
-  { id: "completed", title: "Completed", color: "bg-green-100" },
+  { id: "pending", title: "To Do", color: "bg-muted" },
+  { id: "in_progress", title: "In Progress", color: "bg-primary/10" },
+  {
+    id: "completed",
+    title: "Completed",
+    color: "bg-green-600/10 dark:bg-green-400/10",
+  },
 ];
 
-export function TaskBoard({ tasks, onEditTask, onDeleteTask, onStatusChange }: TaskBoardProps) {
+export function TaskBoard({
+  tasks,
+  onEditTask,
+  onDeleteTask,
+  onStatusChange,
+}: TaskBoardProps) {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
 
@@ -78,7 +87,7 @@ export function TaskBoard({ tasks, onEditTask, onDeleteTask, onStatusChange }: T
             key={column.id}
             className={cn(
               "h-full transition-colors",
-              isOver && "ring-2 ring-primary ring-opacity-50"
+              isOver && "ring-2 ring-primary ring-opacity-50",
             )}
             onDragOver={(e) => handleDragOver(e, column.id)}
             onDragLeave={handleDragLeave}
@@ -98,7 +107,7 @@ export function TaskBoard({ tasks, onEditTask, onDeleteTask, onStatusChange }: T
               <ScrollArea className="h-[600px]">
                 <div className="space-y-3">
                   {columnTasks.length === 0 ? (
-                    <div className="text-center py-8 text-slate-600">
+                    <div className="text-center py-8 text-muted-foreground">
                       <p className="text-sm">No tasks</p>
                       <p className="text-xs mt-1">Drag tasks here</p>
                     </div>

@@ -126,9 +126,12 @@ export function UserManagementClient({
       // Update stats
       const updatedStats = { ...stats, total: stats.total - 1 };
       if (user.isActive) updatedStats.active--;
-      if (user.role === "admin" || user.role === "org:admin") updatedStats.admins--;
-      if (user.role === "accountant" || user.role === "org:accountant") updatedStats.accountants--;
-      if (user.role === "member" || user.role === "org:member") updatedStats.members--;
+      if (user.role === "admin" || user.role === "org:admin")
+        updatedStats.admins--;
+      if (user.role === "accountant" || user.role === "org:accountant")
+        updatedStats.accountants--;
+      if (user.role === "member" || user.role === "org:member")
+        updatedStats.members--;
       setStats(updatedStats);
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -145,14 +148,29 @@ export function UserManagementClient({
       const newStats = { ...stats };
 
       // Decrement old role count
-      if (oldUser.role === "admin" || oldUser.role === "org:admin") newStats.admins--;
-      else if (oldUser.role === "accountant" || oldUser.role === "org:accountant") newStats.accountants--;
-      else if (oldUser.role === "member" || oldUser.role === "org:member") newStats.members--;
+      if (oldUser.role === "admin" || oldUser.role === "org:admin")
+        newStats.admins--;
+      else if (
+        oldUser.role === "accountant" ||
+        oldUser.role === "org:accountant"
+      )
+        newStats.accountants--;
+      else if (oldUser.role === "member" || oldUser.role === "org:member")
+        newStats.members--;
 
       // Increment new role count
-      if (updatedUser.role === "admin" || updatedUser.role === "org:admin") newStats.admins++;
-      else if (updatedUser.role === "accountant" || updatedUser.role === "org:accountant") newStats.accountants++;
-      else if (updatedUser.role === "member" || updatedUser.role === "org:member") newStats.members++;
+      if (updatedUser.role === "admin" || updatedUser.role === "org:admin")
+        newStats.admins++;
+      else if (
+        updatedUser.role === "accountant" ||
+        updatedUser.role === "org:accountant"
+      )
+        newStats.accountants++;
+      else if (
+        updatedUser.role === "member" ||
+        updatedUser.role === "org:member"
+      )
+        newStats.members++;
 
       setStats(newStats);
     }
@@ -186,7 +204,7 @@ export function UserManagementClient({
 
   // Helper to display clean role names (removes org: prefix)
   const getDisplayRole = (role: string) => {
-    return role.replace('org:', '');
+    return role.replace("org:", "");
   };
 
   const getStatusBadgeVariant = (isActive: boolean) => {
@@ -198,7 +216,9 @@ export function UserManagementClient({
       {/* Page Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">User Management</h2>
+          <h2 className="text-3xl font-bold text-card-foreground">
+            User Management
+          </h2>
           <p className="text-slate-600 dark:text-slate-400 mt-2">
             Manage team members and their permissions
           </p>
@@ -213,7 +233,9 @@ export function UserManagementClient({
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription className="text-slate-600 dark:text-slate-400">Total Users</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">
+              Total Users
+            </CardDescription>
             <CardTitle className="text-2xl">{stats.total}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -223,7 +245,9 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription className="text-slate-600 dark:text-slate-400">Active</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">
+              Active
+            </CardDescription>
             <CardTitle className="text-2xl">{stats.active}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -233,7 +257,9 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription className="text-slate-600 dark:text-slate-400">Admins</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">
+              Admins
+            </CardDescription>
             <CardTitle className="text-2xl">{stats.admins}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -243,7 +269,9 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription className="text-slate-600 dark:text-slate-400">Accountants</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">
+              Accountants
+            </CardDescription>
             <CardTitle className="text-2xl">{stats.accountants}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -253,7 +281,9 @@ export function UserManagementClient({
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription className="text-slate-600 dark:text-slate-400">Members</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-400">
+              Members
+            </CardDescription>
             <CardTitle className="text-2xl">{stats.members}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -272,7 +302,9 @@ export function UserManagementClient({
               <Input
                 placeholder="Search users..."
                 value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearchQuery(e.target.value)
+                }
                 className="pl-8"
               />
             </div>

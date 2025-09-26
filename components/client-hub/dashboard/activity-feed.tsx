@@ -86,15 +86,15 @@ export function ActivityFeed({
   const getActivityColor = (type: Activity["type"]) => {
     switch (type) {
       case "task":
-        return "text-blue-600 bg-blue-50";
+        return "text-primary bg-primary/10";
       case "client":
-        return "text-green-600 bg-green-50";
+        return "text-green-600 dark:text-green-400 bg-green-600/10 dark:bg-green-400/10";
       case "invoice":
-        return "text-purple-600 bg-purple-50";
+        return "text-purple-600 dark:text-purple-400 bg-purple-600/10 dark:bg-purple-400/10";
       case "time_entry":
-        return "text-orange-600 bg-orange-50";
+        return "text-orange-600 dark:text-orange-400 bg-orange-600/10 dark:bg-orange-400/10";
       default:
-        return "text-slate-700 bg-gray-50";
+        return "text-muted-foreground bg-muted";
     }
   };
 
@@ -114,16 +114,16 @@ export function ActivityFeed({
                 <div
                   className={cn(
                     "h-10 w-10 rounded-full flex items-center justify-center text-lg",
-                    getActivityColor(activity.type)
+                    getActivityColor(activity.type),
                   )}
                 >
                   {getActivityIcon(activity.type)}
                 </div>
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                  <p className="text-sm font-medium text-foreground">
                     {activity.description}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{activity.user.name}</span>
                     <span>•</span>
                     <span>{formatDateTime(activity.timestamp)}</span>

@@ -23,15 +23,15 @@ export function NavigationTabs({
       className="w-full"
       onValueChange={onTabChange}
     >
-      <TabsList className="mb-8 h-14 w-full justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1.5 shadow-sm">
+      <TabsList className="glass-subtle mb-8 h-14 w-full justify-center border p-1.5">
         {showFavorites && (
           <TabsTrigger
             value="favorites"
             className={cn(
               "flex items-center gap-2 px-6 rounded-md font-medium",
-              "data-[state=active]:bg-blue-600 dark:data-[state=active]:bg-blue-500",
-              "data-[state=active]:text-white data-[state=active]:shadow-sm",
-              "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700",
+              "data-[state=active]:bg-primary",
+              "data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "text-muted-foreground hover:text-card-foreground hover:bg-muted",
               "transition-all duration-200",
             )}
           >
@@ -43,9 +43,9 @@ export function NavigationTabs({
           value="practice-hub"
           className={cn(
             "flex items-center gap-2 px-6 rounded-md font-medium",
-            "data-[state=active]:bg-blue-600",
-            "data-[state=active]:text-white data-[state=active]:shadow-sm",
-            "text-slate-700 hover:text-slate-900 hover:bg-slate-50",
+            "data-[state=active]:bg-primary",
+            "data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+            "text-muted-foreground hover:text-card-foreground hover:bg-muted",
             "transition-all duration-200",
           )}
         >
@@ -56,9 +56,9 @@ export function NavigationTabs({
           value="useful-links"
           className={cn(
             "flex items-center gap-2 px-6 rounded-md font-medium",
-            "data-[state=active]:bg-blue-600",
-            "data-[state=active]:text-white data-[state=active]:shadow-sm",
-            "text-slate-700 hover:text-slate-900 hover:bg-slate-50",
+            "data-[state=active]:bg-primary",
+            "data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+            "text-muted-foreground hover:text-card-foreground hover:bg-muted",
             "transition-all duration-200",
           )}
         >

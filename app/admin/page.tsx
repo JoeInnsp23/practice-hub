@@ -50,8 +50,10 @@ export default async function AdminDashboardPage() {
     <div>
       {/* Page Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Admin Dashboard</h2>
-        <p className="text-slate-600 dark:text-slate-400 mt-2">
+        <h2 className="text-3xl font-bold text-card-foreground">
+          Admin Dashboard
+        </h2>
+        <p className="text-muted-foreground mt-2">
           Manage your Practice Hub settings and configurations
         </p>
       </div>
@@ -62,7 +64,7 @@ export default async function AdminDashboardPage() {
           const Icon = section.icon;
           return (
             <Link key={section.href} href={section.href}>
-              <Card className="hover:shadow-lg dark:hover:shadow-slate-700/50 transition-shadow cursor-pointer h-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+              <Card className="hover:shadow-lg dark:hover:shadow-slate-700/50 transition-shadow cursor-pointer h-full bg-card border">
                 <CardHeader>
                   <div
                     className={`w-12 h-12 ${section.bgColor} rounded-lg flex items-center justify-center mb-3`}
@@ -84,7 +86,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* System Information Card */}
-      <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+      <Card className="bg-card border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-orange-500" />
@@ -94,7 +96,7 @@ export default async function AdminDashboardPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+              <p className="text-sm font-medium text-muted-foreground mb-1">
                 Organization
               </p>
               <p className="font-semibold">
@@ -102,13 +104,13 @@ export default async function AdminDashboardPage() {
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+              <p className="text-sm font-medium text-muted-foreground mb-1">
                 Your Role
               </p>
               <p className="font-semibold capitalize">{authContext.role}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+              <p className="text-sm font-medium text-muted-foreground mb-1">
                 Tenant ID
               </p>
               <p className="font-mono text-xs text-slate-500 dark:text-slate-400">

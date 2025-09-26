@@ -2,10 +2,23 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { WizardFormData } from "../client-wizard-modal";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, FileText, Calculator, Briefcase, Building2, Users } from "lucide-react";
+import {
+  DollarSign,
+  FileText,
+  Calculator,
+  Briefcase,
+  Building2,
+  Users,
+} from "lucide-react";
 
 interface ServiceSelectionStepProps {
   formData: WizardFormData;
@@ -74,28 +87,36 @@ const AVAILABLE_SERVICES = [
   },
 ];
 
-export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({
+  formData,
+  updateFormData,
+}: ServiceSelectionStepProps) {
   const selectedServices = formData.selectedServices || [];
 
   const toggleService = (serviceId: string) => {
     const updated = selectedServices.includes(serviceId)
-      ? selectedServices.filter(id => id !== serviceId)
+      ? selectedServices.filter((id) => id !== serviceId)
       : [...selectedServices, serviceId];
     updateFormData({ selectedServices: updated });
   };
 
-  const categories = Array.from(new Set(AVAILABLE_SERVICES.map(s => s.category)));
+  const categories = Array.from(
+    new Set(AVAILABLE_SERVICES.map((s) => s.category)),
+  );
 
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-slate-700 mb-4">
-          Select the services this client will need. You can configure specific details in the next step.
+        <p className="text-sm text-muted-foreground mb-4">
+          Select the services this client will need. You can configure specific
+          details in the next step.
         </p>
       </div>
 
-      {categories.map(category => {
-        const categoryServices = AVAILABLE_SERVICES.filter(s => s.category === category);
+      {categories.map((category) => {
+        const categoryServices = AVAILABLE_SERVICES.filter(
+          (s) => s.category === category,
+        );
 
         return (
           <Card key={category}>
@@ -104,7 +125,7 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 gap-3">
-                {categoryServices.map(service => {
+                {categoryServices.map((service) => {
                   const Icon = service.icon;
                   const isSelected = selectedServices.includes(service.id);
 
@@ -113,9 +134,10 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
                       key={service.id}
                       className={`
                         flex items-start space-x-3 p-3 rounded-lg border cursor-pointer transition-colors
-                        ${isSelected
-                          ? 'bg-blue-50 border-blue-300 dark:bg-blue-950/20 dark:border-blue-800'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ${
+                          isSelected
+                            ? "bg-blue-50 border-blue-300 dark:bg-blue-950/20 dark:border-blue-800"
+                            : "hover:bg-gray-50 dark:hover:bg-gray-800"
                         }
                       `}
                       onClick={() => toggleService(service.id)}
@@ -125,15 +147,19 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
                         onCheckedChange={() => toggleService(service.id)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <Icon className="h-5 w-5 text-slate-600 mt-0.5" />
+                      <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <Label className="cursor-pointer">{service.name}</Label>
+                          <Label className="cursor-pointer">
+                            {service.name}
+                          </Label>
                           {service.popular && (
-                            <Badge variant="secondary" className="text-xs">Popular</Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              Popular
+                            </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-slate-700 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           {service.description}
                         </p>
                       </div>
@@ -147,9 +173,10 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
       })}
 
       {selectedServices.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4">
+        <div className="bg-primary/5 dark:bg-primary/10/20 rounded-lg p-4">
           <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-            {selectedServices.length} service{selectedServices.length !== 1 ? 's' : ''} selected
+            {selectedServices.length} service
+            {selectedServices.length !== 1 ? "s" : ""} selected
           </p>
         </div>
       )}

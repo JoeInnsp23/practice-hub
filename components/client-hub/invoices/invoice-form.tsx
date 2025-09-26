@@ -65,7 +65,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
         tax: 0,
         total: 0,
       },
-    ]
+    ],
   );
 
   const form = useForm<InvoiceFormValues>({
@@ -111,12 +111,15 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
           return updated;
         }
         return item;
-      })
+      }),
     );
   };
 
   const calculateTotals = () => {
-    const subtotal = lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+    const subtotal = lineItems.reduce(
+      (sum, item) => sum + item.quantity * item.rate,
+      0,
+    );
     const taxTotal = lineItems.reduce((sum, item) => {
       const itemSubtotal = item.quantity * item.rate;
       return sum + (itemSubtotal * item.tax) / 100;
@@ -161,10 +164,14 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="abc-company">ABC Company Ltd</SelectItem>
+                        <SelectItem value="abc-company">
+                          ABC Company Ltd
+                        </SelectItem>
                         <SelectItem value="xyz-ltd">XYZ Ltd</SelectItem>
                         <SelectItem value="john-doe">John Doe</SelectItem>
-                        <SelectItem value="tech-innovations">Tech Innovations Ltd</SelectItem>
+                        <SelectItem value="tech-innovations">
+                          Tech Innovations Ltd
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -253,7 +260,9 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                       <SelectContent>
                         <SelectItem value="Net 30">Net 30</SelectItem>
                         <SelectItem value="Net 15">Net 15</SelectItem>
-                        <SelectItem value="Due on receipt">Due on receipt</SelectItem>
+                        <SelectItem value="Due on receipt">
+                          Due on receipt
+                        </SelectItem>
                         <SelectItem value="Net 60">Net 60</SelectItem>
                       </SelectContent>
                     </Select>
@@ -287,7 +296,12 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Line Items</CardTitle>
-                  <Button type="button" variant="outline" size="sm" onClick={addLineItem}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addLineItem}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Item
                   </Button>
@@ -296,7 +310,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
               <CardContent>
                 <div className="space-y-2">
                   {/* Header */}
-                  <div className="grid grid-cols-12 gap-2 text-sm font-medium text-slate-700">
+                  <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground">
                     <div className="col-span-5">Description</div>
                     <div className="col-span-2 text-right">Quantity</div>
                     <div className="col-span-2 text-right">Rate</div>
@@ -312,7 +326,11 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                         <Input
                           value={item.description}
                           onChange={(e) =>
-                            updateLineItem(item.id, "description", e.target.value)
+                            updateLineItem(
+                              item.id,
+                              "description",
+                              e.target.value,
+                            )
                           }
                           placeholder="Item description"
                         />
@@ -324,7 +342,11 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                           step="0.01"
                           value={item.quantity}
                           onChange={(e) =>
-                            updateLineItem(item.id, "quantity", parseFloat(e.target.value) || 0)
+                            updateLineItem(
+                              item.id,
+                              "quantity",
+                              parseFloat(e.target.value) || 0,
+                            )
                           }
                           className="text-right"
                         />
@@ -336,7 +358,11 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                           step="0.01"
                           value={item.rate}
                           onChange={(e) =>
-                            updateLineItem(item.id, "rate", parseFloat(e.target.value) || 0)
+                            updateLineItem(
+                              item.id,
+                              "rate",
+                              parseFloat(e.target.value) || 0,
+                            )
                           }
                           className="text-right"
                         />
@@ -349,7 +375,11 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                           step="0.1"
                           value={item.tax}
                           onChange={(e) =>
-                            updateLineItem(item.id, "tax", parseFloat(e.target.value) || 0)
+                            updateLineItem(
+                              item.id,
+                              "tax",
+                              parseFloat(e.target.value) || 0,
+                            )
                           }
                           className="text-right"
                         />
@@ -378,12 +408,20 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                   <div className="flex justify-end">
                     <div className="w-64 space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-sm text-slate-700">Subtotal:</span>
-                        <span className="font-medium">{formatCurrency(subtotal)}</span>
+                        <span className="text-sm text-muted-foreground">
+                          Subtotal:
+                        </span>
+                        <span className="font-medium">
+                          {formatCurrency(subtotal)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-slate-700">Tax:</span>
-                        <span className="font-medium">{formatCurrency(taxTotal)}</span>
+                        <span className="text-sm text-muted-foreground">
+                          Tax:
+                        </span>
+                        <span className="font-medium">
+                          {formatCurrency(taxTotal)}
+                        </span>
                       </div>
                       <div className="flex justify-between text-lg font-bold pt-2 border-t">
                         <span>Total:</span>

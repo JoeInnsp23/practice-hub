@@ -54,7 +54,12 @@ interface ServiceModalProps {
   service?: any;
 }
 
-export function ServiceModal({ isOpen, onClose, onSave, service }: ServiceModalProps) {
+export function ServiceModal({
+  isOpen,
+  onClose,
+  onSave,
+  service,
+}: ServiceModalProps) {
   const [features, setFeatures] = useState<string[]>(service?.features || []);
   const [tags, setTags] = useState<string[]>(service?.tags || []);
   const [newFeature, setNewFeature] = useState("");
@@ -112,9 +117,13 @@ export function ServiceModal({ isOpen, onClose, onSave, service }: ServiceModalP
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{service ? "Edit Service" : "Create New Service"}</DialogTitle>
+          <DialogTitle>
+            {service ? "Edit Service" : "Create New Service"}
+          </DialogTitle>
           <DialogDescription>
-            {service ? "Update the service details below" : "Add a new service to your catalog"}
+            {service
+              ? "Update the service details below"
+              : "Add a new service to your catalog"}
           </DialogDescription>
         </DialogHeader>
 
@@ -128,7 +137,10 @@ export function ServiceModal({ isOpen, onClose, onSave, service }: ServiceModalP
                   <FormItem>
                     <FormLabel>Service Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Tax Return Preparation" {...field} />
+                      <Input
+                        placeholder="e.g., Tax Return Preparation"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -148,12 +160,16 @@ export function ServiceModal({ isOpen, onClose, onSave, service }: ServiceModalP
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Tax Services">Tax Services</SelectItem>
+                        <SelectItem value="Tax Services">
+                          Tax Services
+                        </SelectItem>
                         <SelectItem value="Accounting">Accounting</SelectItem>
                         <SelectItem value="Bookkeeping">Bookkeeping</SelectItem>
                         <SelectItem value="Consulting">Consulting</SelectItem>
                         <SelectItem value="Payroll">Payroll</SelectItem>
-                        <SelectItem value="Company Formation">Company Formation</SelectItem>
+                        <SelectItem value="Company Formation">
+                          Company Formation
+                        </SelectItem>
                         <SelectItem value="Compliance">Compliance</SelectItem>
                         <SelectItem value="Advisory">Advisory</SelectItem>
                       </SelectContent>
@@ -271,7 +287,7 @@ export function ServiceModal({ isOpen, onClose, onSave, service }: ServiceModalP
                       <button
                         type="button"
                         onClick={() => removeFeature(index)}
-                        className="ml-1 hover:text-red-600"
+                        className="ml-1 hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -305,13 +321,13 @@ export function ServiceModal({ isOpen, onClose, onSave, service }: ServiceModalP
                   {tags.map((tag, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 rounded-full text-sm"
+                      className="flex items-center gap-1 px-3 py-1 bg-primary/10 dark:bg-blue-900 rounded-full text-sm"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => removeTag(index)}
-                        className="ml-1 hover:text-red-600"
+                        className="ml-1 hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
                       </button>

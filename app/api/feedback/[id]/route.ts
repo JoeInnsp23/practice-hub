@@ -20,10 +20,7 @@ export async function PATCH(
         updatedAt: new Date(),
       })
       .where(
-        and(
-          eq(feedback.id, id),
-          eq(feedback.tenantId, authContext.tenantId),
-        ),
+        and(eq(feedback.id, id), eq(feedback.tenantId, authContext.tenantId)),
       )
       .returning();
 

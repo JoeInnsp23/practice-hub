@@ -27,9 +27,7 @@ export async function PATCH(
         ...body,
         updatedAt: new Date(),
       })
-      .where(
-        and(eq(users.id, id), eq(users.tenantId, authContext.tenantId)),
-      )
+      .where(and(eq(users.id, id), eq(users.tenantId, authContext.tenantId)))
       .returning();
 
     if (updatedUser.length === 0) {
@@ -64,9 +62,7 @@ export async function DELETE(
 
     const deletedUser = await db
       .delete(users)
-      .where(
-        and(eq(users.id, id), eq(users.tenantId, authContext.tenantId)),
-      )
+      .where(and(eq(users.id, id), eq(users.tenantId, authContext.tenantId)))
       .returning();
 
     if (deletedUser.length === 0) {

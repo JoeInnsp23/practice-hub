@@ -105,7 +105,10 @@ export function UploadModal({
 
       await onUpload(fileList.files, {
         client,
-        tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
         parentId: currentFolderId,
       });
 
@@ -144,15 +147,15 @@ export function UploadModal({
             className={cn(
               "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
               isDragging
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
-                : "border-gray-300 dark:border-gray-600"
+                ? "border-blue-500 bg-primary/5 dark:bg-primary/10"
+                : "border-gray-300 dark:border-gray-600",
             )}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <Upload className="h-12 w-12 mx-auto mb-4 text-slate-500" />
-            <p className="text-sm text-slate-700 dark:text-slate-300 mb-2">
+            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground mb-2">
               Drag and drop your files here, or
             </p>
             <label htmlFor="file-upload">
@@ -179,10 +182,10 @@ export function UploadModal({
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <File className="h-5 w-5 text-slate-600" />
+                    <File className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">{file.name}</p>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-muted-foreground">
                         {formatFileSize(file.size)}
                       </p>
                     </div>
@@ -209,7 +212,11 @@ export function UploadModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="client">Client (Optional)</Label>
-              <Select value={client} onValueChange={setClient} disabled={isUploading}>
+              <Select
+                value={client}
+                onValueChange={setClient}
+                disabled={isUploading}
+              >
                 <SelectTrigger id="client">
                   <SelectValue placeholder="Select client" />
                 </SelectTrigger>
@@ -217,7 +224,9 @@ export function UploadModal({
                   <SelectItem value="abc-company">ABC Company Ltd</SelectItem>
                   <SelectItem value="xyz-ltd">XYZ Ltd</SelectItem>
                   <SelectItem value="john-doe">John Doe</SelectItem>
-                  <SelectItem value="tech-innovations">Tech Innovations Ltd</SelectItem>
+                  <SelectItem value="tech-innovations">
+                    Tech Innovations Ltd
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -250,8 +259,13 @@ export function UploadModal({
           <Button variant="outline" onClick={onClose} disabled={isUploading}>
             Cancel
           </Button>
-          <Button onClick={handleUpload} disabled={files.length === 0 || isUploading}>
-            {isUploading ? "Uploading..." : `Upload ${files.length || ""} File${files.length !== 1 ? "s" : ""}`}
+          <Button
+            onClick={handleUpload}
+            disabled={files.length === 0 || isUploading}
+          >
+            {isUploading
+              ? "Uploading..."
+              : `Upload ${files.length || ""} File${files.length !== 1 ? "s" : ""}`}
           </Button>
         </DialogFooter>
       </DialogContent>

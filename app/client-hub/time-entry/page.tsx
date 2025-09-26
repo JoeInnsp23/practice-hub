@@ -13,7 +13,10 @@ export default function TimeEntryPage() {
   const [billableHours, setBillableHours] = useState(0);
 
   const handleSaveEntry = (entry: any) => {
-    setTodayEntries((prev) => [...prev, { ...entry, id: Date.now().toString() }]);
+    setTodayEntries((prev) => [
+      ...prev,
+      { ...entry, id: Date.now().toString() },
+    ]);
     setTotalHours((prev) => prev + entry.hours);
     if (entry.billable) {
       setBillableHours((prev) => prev + entry.hours);
@@ -41,7 +44,10 @@ export default function TimeEntryPage() {
     },
     {
       title: "Efficiency",
-      value: totalHours > 0 ? `${Math.round((billableHours / totalHours) * 100)}%` : "0%",
+      value:
+        totalHours > 0
+          ? `${Math.round((billableHours / totalHours) * 100)}%`
+          : "0%",
       icon: TrendingUp,
       color: "text-orange-600",
     },
@@ -51,10 +57,8 @@ export default function TimeEntryPage() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Time Entry
-        </h1>
-        <p className="text-slate-700 dark:text-slate-300 mt-2">
+        <h1 className="text-3xl font-bold text-foreground">Time Entry</h1>
+        <p className="text-muted-foreground mt-2">
           Quick and easy time tracking for your daily work
         </p>
       </div>
@@ -87,7 +91,7 @@ export default function TimeEntryPage() {
           </CardHeader>
           <CardContent>
             {todayEntries.length === 0 ? (
-              <p className="text-center py-8 text-slate-600">
+              <p className="text-center py-8 text-muted-foreground">
                 No entries yet today
               </p>
             ) : (
@@ -99,17 +103,25 @@ export default function TimeEntryPage() {
                   >
                     <div className="flex-1">
                       <p className="font-medium">{entry.client}</p>
-                      <p className="text-sm text-slate-700">{entry.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {entry.description}
+                      </p>
                       {entry.task && (
-                        <p className="text-xs text-slate-600 mt-1">Task: {entry.task}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Task: {entry.task}
+                        </p>
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">{formatHours(entry.hours)}</p>
+                      <p className="font-semibold">
+                        {formatHours(entry.hours)}
+                      </p>
                       {entry.billable ? (
                         <span className="text-xs text-green-600">Billable</span>
                       ) : (
-                        <span className="text-xs text-slate-600">Non-billable</span>
+                        <span className="text-xs text-muted-foreground">
+                          Non-billable
+                        </span>
                       )}
                     </div>
                   </div>

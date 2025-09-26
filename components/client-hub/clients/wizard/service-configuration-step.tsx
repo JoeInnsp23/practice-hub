@@ -19,7 +19,10 @@ interface ServiceConfigurationStepProps {
   updateFormData: (updates: Partial<WizardFormData>) => void;
 }
 
-const SERVICE_DETAILS: Record<string, { frequency: string; defaultPeriod?: string; color?: string }> = {
+const SERVICE_DETAILS: Record<
+  string,
+  { frequency: string; defaultPeriod?: string; color?: string }
+> = {
   bookkeeping: { frequency: "monthly", color: "blue" },
   vat_returns: { frequency: "quarterly", defaultPeriod: "Q1", color: "green" },
   annual_accounts: { frequency: "annual", color: "purple" },
@@ -30,7 +33,10 @@ const SERVICE_DETAILS: Record<string, { frequency: string; defaultPeriod?: strin
   management_accounts: { frequency: "monthly", color: "indigo" },
 };
 
-export function ServiceConfigurationStep({ formData, updateFormData }: ServiceConfigurationStepProps) {
+export function ServiceConfigurationStep({
+  formData,
+  updateFormData,
+}: ServiceConfigurationStepProps) {
   const selectedServices = formData.selectedServices || [];
 
   if (selectedServices.length === 0) {
@@ -38,9 +44,12 @@ export function ServiceConfigurationStep({ formData, updateFormData }: ServiceCo
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center py-12">
           <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium text-muted-foreground mb-2">No Services Selected</p>
+          <p className="text-lg font-medium text-muted-foreground mb-2">
+            No Services Selected
+          </p>
           <p className="text-sm text-muted-foreground text-center max-w-md">
-            Please select services in the previous step to configure their schedules and timing.
+            Please select services in the previous step to configure their
+            schedules and timing.
           </p>
         </CardContent>
       </Card>
@@ -64,24 +73,29 @@ export function ServiceConfigurationStep({ formData, updateFormData }: ServiceCo
         </p>
         <Badge variant="secondary" className="flex items-center gap-1">
           <Clock className="h-3 w-3" />
-          {selectedServices.length} Service{selectedServices.length !== 1 ? 's' : ''}
+          {selectedServices.length} Service
+          {selectedServices.length !== 1 ? "s" : ""}
         </Badge>
       </div>
 
       {selectedServices.map((serviceId) => {
         const serviceConfig = SERVICE_DETAILS[serviceId];
-        const serviceName = serviceId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const serviceName = serviceId
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase());
 
         return (
           <Card key={serviceId} className="overflow-hidden">
             <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/20">
               <CardTitle className="text-base flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-blue-600" />
+                  <CalendarIcon className="h-4 w-4 text-primary" />
                   {serviceName}
                 </div>
-                <Badge variant={getFrequencyBadge(serviceConfig?.frequency || '')}>
-                  {serviceConfig?.frequency || 'custom'}
+                <Badge
+                  variant={getFrequencyBadge(serviceConfig?.frequency || "")}
+                >
+                  {serviceConfig?.frequency || "custom"}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -91,14 +105,14 @@ export function ServiceConfigurationStep({ formData, updateFormData }: ServiceCo
                   <Label className="text-muted-foreground">Frequency</Label>
                   <div className="flex items-center gap-2">
                     <Input
-                      value={serviceConfig?.frequency || 'custom'}
+                      value={serviceConfig?.frequency || "custom"}
                       disabled
                       className="capitalize bg-muted"
                     />
                   </div>
                 </div>
 
-                {serviceConfig?.frequency === 'quarterly' && (
+                {serviceConfig?.frequency === "quarterly" && (
                   <div className="space-y-2">
                     <Label>VAT Period</Label>
                     <Select defaultValue="standard">
@@ -106,7 +120,9 @@ export function ServiceConfigurationStep({ formData, updateFormData }: ServiceCo
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="standard">Standard (Jan/Apr/Jul/Oct)</SelectItem>
+                        <SelectItem value="standard">
+                          Standard (Jan/Apr/Jul/Oct)
+                        </SelectItem>
                         <SelectItem value="feb">February Stagger</SelectItem>
                         <SelectItem value="mar">March Stagger</SelectItem>
                       </SelectContent>
@@ -114,14 +130,14 @@ export function ServiceConfigurationStep({ formData, updateFormData }: ServiceCo
                   </div>
                 )}
 
-                {serviceConfig?.frequency === 'annual' && (
+                {serviceConfig?.frequency === "annual" && (
                   <div className="space-y-2">
                     <Label>Year End</Label>
                     <Input type="date" placeholder="Select year end date" />
                   </div>
                 )}
 
-                {serviceConfig?.frequency === 'monthly' && (
+                {serviceConfig?.frequency === "monthly" && (
                   <div className="space-y-2">
                     <Label>Day of Month</Label>
                     <Select defaultValue="15">

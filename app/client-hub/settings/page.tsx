@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,9 +74,11 @@ export default function SettingsPage() {
 
     // Email Templates
     emailSignature: "Best regards,\nABC Accounting Team",
-    welcomeEmailTemplate: "Welcome to ABC Accounting! We're excited to have you as our client.",
+    welcomeEmailTemplate:
+      "Welcome to ABC Accounting! We're excited to have you as our client.",
     invoiceEmailTemplate: "Please find attached your invoice for this month.",
-    reminderEmailTemplate: "This is a friendly reminder about your upcoming deadline.",
+    reminderEmailTemplate:
+      "This is a friendly reminder about your upcoming deadline.",
   });
 
   const handleSave = (section: string) => {
@@ -97,11 +105,11 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Settings className="h-8 w-8" />
             Settings
           </h1>
-          <p className="text-slate-700 dark:text-slate-300 mt-2">
+          <p className="text-muted-foreground mt-2">
             Configure your practice management system
           </p>
         </div>
@@ -177,7 +185,10 @@ export default function SettingsPage() {
                     id="companyWebsite"
                     value={settings.companyWebsite}
                     onChange={(e) =>
-                      setSettings({ ...settings, companyWebsite: e.target.value })
+                      setSettings({
+                        ...settings,
+                        companyWebsite: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -209,10 +220,18 @@ export default function SettingsPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Europe/London">London (GMT)</SelectItem>
-                        <SelectItem value="Europe/Dublin">Dublin (GMT)</SelectItem>
-                        <SelectItem value="America/New_York">New York (EST)</SelectItem>
-                        <SelectItem value="America/Los_Angeles">Los Angeles (PST)</SelectItem>
+                        <SelectItem value="Europe/London">
+                          London (GMT)
+                        </SelectItem>
+                        <SelectItem value="Europe/Dublin">
+                          Dublin (GMT)
+                        </SelectItem>
+                        <SelectItem value="America/New_York">
+                          New York (EST)
+                        </SelectItem>
+                        <SelectItem value="America/Los_Angeles">
+                          Los Angeles (PST)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -282,7 +301,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="emailNotif">Email Notifications</Label>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                       Receive notifications via email
                     </p>
                   </div>
@@ -297,7 +316,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="smsNotif">SMS Notifications</Label>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                       Receive notifications via SMS
                     </p>
                   </div>
@@ -312,7 +331,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="pushNotif">Push Notifications</Label>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                       Browser push notifications
                     </p>
                   </div>
@@ -333,7 +352,10 @@ export default function SettingsPage() {
                     <Select
                       value={settings.notificationFrequency}
                       onValueChange={(value) =>
-                        setSettings({ ...settings, notificationFrequency: value })
+                        setSettings({
+                          ...settings,
+                          notificationFrequency: value,
+                        })
                       }
                     >
                       <SelectTrigger id="notifFreq">
@@ -348,7 +370,9 @@ export default function SettingsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="reminderDays">Reminder Days Before Due</Label>
+                    <Label htmlFor="reminderDays">
+                      Reminder Days Before Due
+                    </Label>
                     <Select
                       value={settings.reminderDays}
                       onValueChange={(value) =>
@@ -396,7 +420,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="twoFactor">Two-Factor Authentication</Label>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                       Require 2FA for all users
                     </p>
                   </div>
@@ -414,24 +438,34 @@ export default function SettingsPage() {
                 <h3 className="font-medium mb-4">Session & Password Policy</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label>
+                    <Label htmlFor="sessionTimeout">
+                      Session Timeout (minutes)
+                    </Label>
                     <Input
                       id="sessionTimeout"
                       type="number"
                       value={settings.sessionTimeout}
                       onChange={(e) =>
-                        setSettings({ ...settings, sessionTimeout: e.target.value })
+                        setSettings({
+                          ...settings,
+                          sessionTimeout: e.target.value,
+                        })
                       }
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="passwordExpiry">Password Expiry (days)</Label>
+                    <Label htmlFor="passwordExpiry">
+                      Password Expiry (days)
+                    </Label>
                     <Input
                       id="passwordExpiry"
                       type="number"
                       value={settings.passwordExpiry}
                       onChange={(e) =>
-                        setSettings({ ...settings, passwordExpiry: e.target.value })
+                        setSettings({
+                          ...settings,
+                          passwordExpiry: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -442,17 +476,25 @@ export default function SettingsPage() {
                       type="number"
                       value={settings.minPasswordLength}
                       onChange={(e) =>
-                        setSettings({ ...settings, minPasswordLength: e.target.value })
+                        setSettings({
+                          ...settings,
+                          minPasswordLength: e.target.value,
+                        })
                       }
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="complexPassword">Complex Password Required</Label>
+                    <Label htmlFor="complexPassword">
+                      Complex Password Required
+                    </Label>
                     <Switch
                       id="complexPassword"
                       checked={settings.requireComplexPassword}
                       onCheckedChange={(checked) =>
-                        setSettings({ ...settings, requireComplexPassword: checked })
+                        setSettings({
+                          ...settings,
+                          requireComplexPassword: checked,
+                        })
                       }
                       className="mt-2"
                     />
@@ -469,7 +511,7 @@ export default function SettingsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <p className="text-sm text-muted-foreground">
                       Last security audit: 15 days ago
                     </p>
                     <Button variant="outline" size="sm" className="mt-2">
@@ -506,7 +548,9 @@ export default function SettingsPage() {
                 {/* Accounting Software */}
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Accounting Software</CardTitle>
+                    <CardTitle className="text-sm">
+                      Accounting Software
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -525,7 +569,10 @@ export default function SettingsPage() {
                         id="quickbooks"
                         checked={settings.quickbooksEnabled}
                         onCheckedChange={(checked) =>
-                          setSettings({ ...settings, quickbooksEnabled: checked })
+                          setSettings({
+                            ...settings,
+                            quickbooksEnabled: checked,
+                          })
                         }
                       />
                     </div>
@@ -623,7 +670,10 @@ export default function SettingsPage() {
                   id="welcomeEmail"
                   value={settings.welcomeEmailTemplate}
                   onChange={(e) =>
-                    setSettings({ ...settings, welcomeEmailTemplate: e.target.value })
+                    setSettings({
+                      ...settings,
+                      welcomeEmailTemplate: e.target.value,
+                    })
                   }
                   rows={4}
                 />
@@ -635,7 +685,10 @@ export default function SettingsPage() {
                   id="invoiceEmail"
                   value={settings.invoiceEmailTemplate}
                   onChange={(e) =>
-                    setSettings({ ...settings, invoiceEmailTemplate: e.target.value })
+                    setSettings({
+                      ...settings,
+                      invoiceEmailTemplate: e.target.value,
+                    })
                   }
                   rows={4}
                 />
@@ -647,7 +700,10 @@ export default function SettingsPage() {
                   id="reminderEmail"
                   value={settings.reminderEmailTemplate}
                   onChange={(e) =>
-                    setSettings({ ...settings, reminderEmailTemplate: e.target.value })
+                    setSettings({
+                      ...settings,
+                      reminderEmailTemplate: e.target.value,
+                    })
                   }
                   rows={4}
                 />

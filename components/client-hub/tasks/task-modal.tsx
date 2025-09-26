@@ -63,7 +63,9 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
       priority: task?.priority || "medium",
       client: task?.client || "",
       assignee: task?.assignee?.name || "",
-      dueDate: task?.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
+      dueDate: task?.dueDate
+        ? new Date(task.dueDate).toISOString().split("T")[0]
+        : "",
       estimatedHours: task?.estimatedHours?.toString() || "",
       category: task?.category || "",
     },
@@ -73,12 +75,16 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
     const taskData = {
       ...data,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-      estimatedHours: data.estimatedHours ? parseFloat(data.estimatedHours) : undefined,
+      estimatedHours: data.estimatedHours
+        ? parseFloat(data.estimatedHours)
+        : undefined,
       assignee: data.assignee ? { name: data.assignee } : undefined,
     };
 
     await onSave(taskData);
-    toast.success(task ? "Task updated successfully" : "Task created successfully");
+    toast.success(
+      task ? "Task updated successfully" : "Task created successfully",
+    );
     onClose();
     form.reset();
   };
@@ -134,7 +140,10 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -158,7 +167,10 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Priority</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select priority" />
@@ -225,7 +237,12 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                   <FormItem>
                     <FormLabel>Estimated Hours</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.5" placeholder="0" {...field} />
+                      <Input
+                        type="number"
+                        step="0.5"
+                        placeholder="0"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -240,11 +257,12 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Tax Return, Bookkeeping" {...field} />
+                    <Input
+                      placeholder="e.g., Tax Return, Bookkeeping"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormDescription>
-                    Organize tasks by category
-                  </FormDescription>
+                  <FormDescription>Organize tasks by category</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -254,9 +272,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {task ? "Update" : "Create"}
-              </Button>
+              <Button type="submit">{task ? "Update" : "Create"}</Button>
             </DialogFooter>
           </form>
         </Form>

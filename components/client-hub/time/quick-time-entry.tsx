@@ -68,7 +68,8 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
   const stopTimer = () => {
     if (startTime) {
       const endTime = new Date();
-      const hours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+      const hours =
+        (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
       form.setValue("hours", hours.toFixed(2));
       setElapsedTime(hours);
     }
@@ -121,8 +122,12 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
           </Button>
         </div>
         {isTimerRunning && (
-          <p className="text-sm text-slate-600 mt-2">
-            Timer running... {startTime && formatHours((new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60))}
+          <p className="text-sm text-muted-foreground mt-2">
+            Timer running...{" "}
+            {startTime &&
+              formatHours(
+                (new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60),
+              )}
           </p>
         )}
       </CardHeader>
@@ -136,17 +141,24 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Client</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select client" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="abc-company">ABC Company Ltd</SelectItem>
+                        <SelectItem value="abc-company">
+                          ABC Company Ltd
+                        </SelectItem>
                         <SelectItem value="xyz-ltd">XYZ Ltd</SelectItem>
                         <SelectItem value="john-doe">John Doe</SelectItem>
-                        <SelectItem value="tech-innovations">Tech Innovations Ltd</SelectItem>
+                        <SelectItem value="tech-innovations">
+                          Tech Innovations Ltd
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

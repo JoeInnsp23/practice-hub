@@ -18,7 +18,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Edit, Trash2, FileText, Clock } from "lucide-react";
+import {
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Trash2,
+  FileText,
+  Clock,
+} from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 
@@ -41,43 +48,40 @@ interface ClientsTableProps {
   onDelete: (client: Client) => void;
 }
 
-export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTableProps) {
+export function ClientsTable({
+  clients,
+  onView,
+  onEdit,
+  onDelete,
+}: ClientsTableProps) {
   const getStatusBadge = (status: Client["status"]) => {
     const statusConfig = {
-      active: { label: "Active", className: "bg-green-50 text-green-700 border-green-200" },
-      inactive: { label: "Inactive", className: "bg-slate-50 text-slate-700 border-slate-200" },
-      prospect: { label: "Prospect", className: "bg-blue-50 text-blue-700 border-blue-200" },
-      archived: { label: "Archived", className: "bg-red-50 text-red-700 border-red-200" },
+      active: { label: "Active", variant: "default" as const },
+      inactive: { label: "Inactive", variant: "secondary" as const },
+      prospect: { label: "Prospect", variant: "outline" as const },
+      archived: { label: "Archived", variant: "destructive" as const },
     };
 
     const config = statusConfig[status];
-    return (
-      <Badge variant="secondary" className={cn(config.className)}>
-        {config.label}
-      </Badge>
-    );
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   const getTypeBadge = (type: Client["type"]) => {
     const typeConfig = {
-      individual: { label: "Individual", className: "bg-purple-50 text-purple-700 border-purple-200" },
-      company: { label: "Company", className: "bg-blue-50 text-blue-700 border-blue-200" },
-      trust: { label: "Trust", className: "bg-orange-50 text-orange-700 border-orange-200" },
-      partnership: { label: "Partnership", className: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+      individual: { label: "Individual" },
+      company: { label: "Company" },
+      trust: { label: "Trust" },
+      partnership: { label: "Partnership" },
     };
 
     const config = typeConfig[type];
-    return (
-      <Badge variant="secondary" className={cn(config.className)}>
-        {config.label}
-      </Badge>
-    );
+    return <Badge variant="secondary">{config.label}</Badge>;
   };
 
   if (clients.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate-600">No clients found</p>
+        <p className="text-muted-foreground">No clients found</p>
       </div>
     );
   }
@@ -104,11 +108,11 @@ export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTable
               <TableCell className="font-medium">{client.name}</TableCell>
               <TableCell>{getTypeBadge(client.type)}</TableCell>
               <TableCell>{getStatusBadge(client.status)}</TableCell>
-              <TableCell className="text-sm text-slate-700">
+              <TableCell className="text-sm text-muted-foreground">
                 {client.email || "-"}
               </TableCell>
               <TableCell>{client.accountManager || "-"}</TableCell>
-              <TableCell className="text-sm text-slate-700">
+              <TableCell className="text-sm text-muted-foreground">
                 {formatDate(client.createdAt)}
               </TableCell>
               <TableCell className="text-right">
@@ -141,7 +145,7 @@ export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTable
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => onDelete(client)}
-                      className="text-red-600"
+                      className="text-destructive"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete

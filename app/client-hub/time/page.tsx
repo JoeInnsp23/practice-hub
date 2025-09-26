@@ -9,9 +9,9 @@ export default function TimePage() {
           Start Timer
         </button>
       </div>
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow dark:shadow-slate-900/50">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-          <p className="text-slate-600 dark:text-slate-500">
+      <div className="bg-card rounded-lg shadow dark:shadow-slate-900/50">
+        <div className="px-6 py-4 border-b border">
+          <p className="text-muted-foreground dark:text-muted-foreground">
             No time entries yet. Start tracking time for your tasks.
           </p>
         </div>

@@ -63,7 +63,12 @@ interface ClientModalProps {
   client?: Partial<ClientFormValues>;
 }
 
-export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProps) {
+export function ClientModal({
+  isOpen,
+  onClose,
+  onSave,
+  client,
+}: ClientModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ClientFormValues>({
@@ -93,7 +98,9 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
     setIsLoading(true);
     try {
       await onSave(data);
-      toast.success(client ? "Client updated successfully" : "Client created successfully");
+      toast.success(
+        client ? "Client updated successfully" : "Client created successfully",
+      );
       onClose();
       form.reset();
     } catch (error) {
@@ -109,7 +116,9 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
         <DialogHeader>
           <DialogTitle>{client ? "Edit Client" : "New Client"}</DialogTitle>
           <DialogDescription>
-            {client ? "Update client information" : "Add a new client to your practice"}
+            {client
+              ? "Update client information"
+              : "Add a new client to your practice"}
           </DialogDescription>
         </DialogHeader>
 
@@ -145,7 +154,10 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Company or individual name" {...field} />
+                          <Input
+                            placeholder="Company or individual name"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -158,17 +170,24 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="individual">Individual</SelectItem>
+                            <SelectItem value="individual">
+                              Individual
+                            </SelectItem>
                             <SelectItem value="company">Company</SelectItem>
                             <SelectItem value="trust">Trust</SelectItem>
-                            <SelectItem value="partnership">Partnership</SelectItem>
+                            <SelectItem value="partnership">
+                              Partnership
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -182,7 +201,10 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select status" />
@@ -229,7 +251,11 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="email@example.com" {...field} />
+                          <Input
+                            type="email"
+                            placeholder="email@example.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

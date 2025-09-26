@@ -111,12 +111,38 @@ export const feedback = pgTable(
 );
 
 // Enums for CRM entities
-export const clientTypeEnum = pgEnum("client_type", ["individual", "company", "trust", "partnership"]);
-export const clientStatusEnum = pgEnum("client_status", ["active", "inactive", "prospect", "archived"]);
-export const taskStatusEnum = pgEnum("task_status", ["pending", "in_progress", "completed", "cancelled"]);
-export const taskPriorityEnum = pgEnum("task_priority", ["low", "medium", "high", "urgent"]);
+export const clientTypeEnum = pgEnum("client_type", [
+  "individual",
+  "company",
+  "trust",
+  "partnership",
+]);
+export const clientStatusEnum = pgEnum("client_status", [
+  "active",
+  "inactive",
+  "prospect",
+  "archived",
+]);
+export const taskStatusEnum = pgEnum("task_status", [
+  "pending",
+  "in_progress",
+  "completed",
+  "cancelled",
+]);
+export const taskPriorityEnum = pgEnum("task_priority", [
+  "low",
+  "medium",
+  "high",
+  "urgent",
+]);
 export const documentTypeEnum = pgEnum("document_type", ["file", "folder"]);
-export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "paid", "overdue", "cancelled"]);
+export const invoiceStatusEnum = pgEnum("invoice_status", [
+  "draft",
+  "sent",
+  "paid",
+  "overdue",
+  "cancelled",
+]);
 
 // Clients table
 export const clients = pgTable(
@@ -145,8 +171,9 @@ export const clients = pgTable(
     country: varchar("country", { length: 100 }),
 
     // Relationship fields
-    accountManagerId: uuid("account_manager_id")
-      .references(() => users.id, { onDelete: "set null" }),
+    accountManagerId: uuid("account_manager_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     parentClientId: uuid("parent_client_id"),
 
     // Business fields
@@ -274,10 +301,12 @@ export const tasks = pgTable(
     priority: taskPriorityEnum("priority").default("medium").notNull(),
 
     // Assignment
-    clientId: uuid("client_id")
-      .references(() => clients.id, { onDelete: "set null" }),
-    assignedToId: uuid("assigned_to_id")
-      .references(() => users.id, { onDelete: "set null" }),
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "set null",
+    }),
+    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     createdById: uuid("created_by_id")
       .references(() => users.id, { onDelete: "set null" })
       .notNull(),
@@ -324,12 +353,15 @@ export const timeEntries = pgTable(
     userId: uuid("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    clientId: uuid("client_id")
-      .references(() => clients.id, { onDelete: "set null" }),
-    taskId: uuid("task_id")
-      .references(() => tasks.id, { onDelete: "set null" }),
-    serviceId: uuid("service_id")
-      .references(() => services.id, { onDelete: "set null" }),
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "set null",
+    }),
+    taskId: uuid("task_id").references(() => tasks.id, {
+      onDelete: "set null",
+    }),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
     // Time tracking
     date: date("date").notNull(),
@@ -350,8 +382,9 @@ export const timeEntries = pgTable(
     // Approval workflow
     status: varchar("status", { length: 50 }).default("draft"), // draft, submitted, approved, rejected
     submittedAt: timestamp("submitted_at"),
-    approvedById: uuid("approved_by_id")
-      .references(() => users.id, { onDelete: "set null" }),
+    approvedById: uuid("approved_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     approvedAt: timestamp("approved_at"),
 
     metadata: jsonb("metadata"),
@@ -362,7 +395,10 @@ export const timeEntries = pgTable(
     userDateIdx: index("idx_time_entry_user_date").on(table.userId, table.date),
     clientTimeIdx: index("idx_time_entry_client").on(table.clientId),
     taskTimeIdx: index("idx_time_entry_task").on(table.taskId),
-    billableIdx: index("idx_time_entry_billable").on(table.billable, table.billed),
+    billableIdx: index("idx_time_entry_billable").on(
+      table.billable,
+      table.billed,
+    ),
     statusIdx: index("idx_time_entry_status").on(table.status),
   }),
 );
@@ -389,10 +425,10 @@ export const documents = pgTable(
     path: text("path"), // Full path for quick lookups
 
     // Associations
-    clientId: uuid("client_id")
-      .references(() => clients.id, { onDelete: "cascade" }),
-    taskId: uuid("task_id")
-      .references(() => tasks.id, { onDelete: "cascade" }),
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "cascade",
+    }),
+    taskId: uuid("task_id").references(() => tasks.id, { onDelete: "cascade" }),
 
     // Metadata
     description: text("description"),
@@ -447,7 +483,9 @@ export const invoices = pgTable(
     taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0"),
     discount: decimal("discount", { precision: 10, scale: 2 }).default("0"),
     total: decimal("total", { precision: 10, scale: 2 }).notNull(),
-    amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }).default("0"),
+    amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }).default(
+      "0",
+    ),
 
     status: invoiceStatusEnum("status").default("draft").notNull(),
 
@@ -462,8 +500,9 @@ export const invoices = pgTable(
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdById: uuid("created_by_id")
-      .references(() => users.id, { onDelete: "set null" }),
+    createdById: uuid("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => ({
     tenantInvoiceNumberIdx: uniqueIndex("idx_tenant_invoice_number").on(
@@ -490,10 +529,12 @@ export const invoiceItems = pgTable(
     amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
 
     // References
-    timeEntryId: uuid("time_entry_id")
-      .references(() => timeEntries.id, { onDelete: "set null" }),
-    serviceId: uuid("service_id")
-      .references(() => services.id, { onDelete: "set null" }),
+    timeEntryId: uuid("time_entry_id").references(() => timeEntries.id, {
+      onDelete: "set null",
+    }),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
     sortOrder: integer("sort_order").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -526,8 +567,9 @@ export const workflows = pgTable(
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdById: uuid("created_by_id")
-      .references(() => users.id, { onDelete: "set null" }),
+    createdById: uuid("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => ({
     typeIdx: index("idx_workflow_type").on(table.type),

@@ -5,7 +5,7 @@ export default function SocialHubPage() {
         Social Hub
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Connected Accounts
           </h3>
@@ -13,7 +13,7 @@ export default function SocialHubPage() {
             0
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Scheduled Posts
           </h3>
@@ -21,7 +21,7 @@ export default function SocialHubPage() {
             0
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Content Drafts
           </h3>
@@ -29,7 +29,7 @@ export default function SocialHubPage() {
             0
           </p>
         </div>
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+        <div className="bg-card p-6 rounded-lg shadow-sm border">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Published This Week
           </h3>

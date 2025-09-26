@@ -4,7 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { WizardFormData } from "../client-wizard-modal";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DollarSign } from "lucide-react";
 
 interface PricingConfigurationStepProps {
@@ -12,7 +18,10 @@ interface PricingConfigurationStepProps {
   updateFormData: (updates: Partial<WizardFormData>) => void;
 }
 
-export function PricingConfigurationStep({ formData, updateFormData }: PricingConfigurationStepProps) {
+export function PricingConfigurationStep({
+  formData,
+  updateFormData,
+}: PricingConfigurationStepProps) {
   return (
     <div className="space-y-6">
       <Card>
@@ -27,8 +36,10 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
         </CardHeader>
         <CardContent>
           <RadioGroup
-            value={formData.billingStrategy || 'fixed'}
-            onValueChange={(value: any) => updateFormData({ billingStrategy: value })}
+            value={formData.billingStrategy || "fixed"}
+            onValueChange={(value: any) =>
+              updateFormData({ billingStrategy: value })
+            }
           >
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
@@ -37,7 +48,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                   <Label htmlFor="fixed" className="font-medium">
                     Fixed Fee per Service
                   </Label>
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-muted-foreground">
                     Each service has a predetermined fixed price
                   </p>
                 </div>
@@ -49,7 +60,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                   <Label htmlFor="hourly" className="font-medium">
                     Hourly Rate
                   </Label>
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-muted-foreground">
                     Bill based on time spent on each service
                   </p>
                 </div>
@@ -61,7 +72,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                   <Label htmlFor="retainer" className="font-medium">
                     Monthly Retainer
                   </Label>
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-muted-foreground">
                     Fixed monthly fee covering all services
                   </p>
                 </div>
@@ -71,10 +82,12 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
         </CardContent>
       </Card>
 
-      {formData.billingStrategy === 'hourly' && (
+      {formData.billingStrategy === "hourly" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Hourly Rate Configuration</CardTitle>
+            <CardTitle className="text-base">
+              Hourly Rate Configuration
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -84,8 +97,12 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.defaultHourlyRate || ''}
-                onChange={(e) => updateFormData({ defaultHourlyRate: parseFloat(e.target.value) })}
+                value={formData.defaultHourlyRate || ""}
+                onChange={(e) =>
+                  updateFormData({
+                    defaultHourlyRate: parseFloat(e.target.value),
+                  })
+                }
                 placeholder="150.00"
               />
             </div>
@@ -93,7 +110,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
         </Card>
       )}
 
-      {formData.billingStrategy === 'retainer' && (
+      {formData.billingStrategy === "retainer" && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Monthly Retainer</CardTitle>
@@ -106,8 +123,12 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.monthlyRetainer || ''}
-                onChange={(e) => updateFormData({ monthlyRetainer: parseFloat(e.target.value) })}
+                value={formData.monthlyRetainer || ""}
+                onChange={(e) =>
+                  updateFormData({
+                    monthlyRetainer: parseFloat(e.target.value),
+                  })
+                }
                 placeholder="1500.00"
               />
             </div>
