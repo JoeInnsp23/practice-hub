@@ -2,13 +2,6 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { WizardFormData } from "../client-wizard-modal";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -137,12 +130,11 @@ export function ServiceSelectionStep({
         );
 
         return (
-          <Card key={category} className="glass-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{category}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-3">
+          <div key={category} className="space-y-4">
+            <h4 className="text-base font-medium text-slate-900 dark:text-slate-100 pb-2 border-b">
+              {category}
+            </h4>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {categoryServices.map((service) => {
                   const Icon = service.icon;
                   const isSelected = selectedServices.includes(service.id);
@@ -185,8 +177,7 @@ export function ServiceSelectionStep({
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
+          </div>
         );
       })}
 

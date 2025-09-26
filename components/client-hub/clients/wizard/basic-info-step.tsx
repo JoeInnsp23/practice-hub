@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { WizardFormData } from "../client-wizard-modal";
 import {
@@ -83,138 +82,141 @@ export function BasicInfoStep({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Company Search Card */}
+    <div className="space-y-8">
+      {/* Company Search Section */}
       {formData.type === "limited_company" && (
-        <Card className="glass-card border-blue-200 dark:border-blue-800">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2 text-blue-600 dark:text-blue-400">
-              <Building2 className="h-4 w-4" />
-              Company Search (Optional)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <h4 className="text-base font-medium text-blue-900 dark:text-blue-100">
+              Companies House Lookup (Optional)
+            </h4>
+          </div>
+          <div className="space-y-3">
             <div className="flex gap-2">
               <Input
-                placeholder="Search Companies House by name or number..."
+                placeholder="Search by company name or registration number..."
                 className="flex-1"
               />
-              <Button variant="outline" className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950">
+              <Button variant="outline" className="border-blue-300 hover:bg-blue-100 dark:border-blue-700 dark:hover:bg-blue-900">
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Search Companies House to auto-populate registration details
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Search Companies House to automatically populate company registration details
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* Basic Information Card */}
-      <Card className="glass-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Client Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clientCode">
-                Client Code
-                {formData.clientCode && (
-                  <span className="ml-2 text-xs text-green-600 dark:text-green-400 inline-flex items-center">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Auto-generated
-                  </span>
-                )}
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="clientCode"
-                  value={formData.clientCode || ""}
-                  onChange={(e) =>
-                    updateFormData({ clientCode: e.target.value })
-                  }
-                  placeholder="Auto-generated"
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleRegenerateCode}
-                  disabled={
-                    isGeneratingCode || !formData.name || !formData.type
-                  }
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${isGeneratingCode ? "animate-spin" : ""}`}
-                  />
-                </Button>
-              </div>
-            </div>
+      {/* Basic Information Section */}
+      <div className="space-y-6">
+        <h4 className="text-base font-medium text-slate-900 dark:text-slate-100 pb-4 border-b">
+          Client Information
+        </h4>
 
-            <div className="space-y-2">
-              <Label htmlFor="name">
-                Client Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => updateFormData({ name: e.target.value })}
-                placeholder="Enter client name"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">
-                Client Type <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.type}
-                onValueChange={(value) => updateFormData({ type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="limited_company">Limited Company</SelectItem>
-                  <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="sole_trader">Sole Trader</SelectItem>
-                  <SelectItem value="partnership">Partnership</SelectItem>
-                  <SelectItem value="llp">LLP</SelectItem>
-                  <SelectItem value="trust">Trust</SelectItem>
-                  <SelectItem value="charity">Charity</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">
-                Status <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => updateFormData({ status: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="prospect">Prospect</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="name">
+              Client Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => updateFormData({ name: e.target.value })}
+              placeholder="Enter client or company name"
+              required
+              className="text-base"
+            />
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="clientCode">
+              Client Code
+              {formData.clientCode && (
+                <span className="ml-2 text-xs text-green-600 dark:text-green-400 inline-flex items-center">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Auto-generated
+                </span>
+              )}
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="clientCode"
+                value={formData.clientCode || ""}
+                onChange={(e) =>
+                  updateFormData({ clientCode: e.target.value })
+                }
+                placeholder="Auto-generated"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleRegenerateCode}
+                disabled={
+                  isGeneratingCode || !formData.name || !formData.type
+                }
+                title="Regenerate code"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${isGeneratingCode ? "animate-spin" : ""}`}
+                />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="type">
+              Client Type <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={formData.type}
+              onValueChange={(value) => updateFormData({ type: value })}
+            >
+              <SelectTrigger className="text-base">
+                <SelectValue placeholder="Select client type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="limited_company">Limited Company</SelectItem>
+                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="sole_trader">Sole Trader</SelectItem>
+                <SelectItem value="partnership">Partnership</SelectItem>
+                <SelectItem value="llp">Limited Liability Partnership (LLP)</SelectItem>
+                <SelectItem value="trust">Trust</SelectItem>
+                <SelectItem value="charity">Charity</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">
+              Client Status <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => updateFormData({ status: value })}
+            >
+              <SelectTrigger className="text-base">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="prospect">Prospect</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-2 lg:col-span-2">
             <Label htmlFor="accountManager">
               Account Manager <span className="text-destructive">*</span>
             </Label>
@@ -224,8 +226,8 @@ export function BasicInfoStep({
                 updateFormData({ clientManagerId: value, accountManager: value })
               }
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select account manager" />
+              <SelectTrigger className="text-base">
+                <SelectValue placeholder="Select an account manager" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
@@ -236,14 +238,14 @@ export function BasicInfoStep({
               </SelectContent>
             </Select>
             {!formData.clientManagerId && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center mt-1">
-                <AlertCircle className="h-3 w-3 mr-1" />
+              <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center mt-2">
+                <AlertCircle className="h-4 w-4 mr-1" />
                 Please select an account manager to continue
               </p>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

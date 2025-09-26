@@ -442,28 +442,24 @@ export function ClientWizardModal({
         </DialogHeader>
 
         {/* Step Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="px-6 py-4">
-            {/* Step Header */}
-            <div className="border-b pb-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">{STEPS[currentStep].icon}</span>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    {STEPS[currentStep].title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {STEPS[currentStep].description}
-                  </p>
-                </div>
+        <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6">
+          {/* Step Header */}
+          <div className="border-b pb-4 mb-8">
+            <div className="flex items-start space-x-3">
+              <span className="text-2xl">{STEPS[currentStep].icon}</span>
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                  {STEPS[currentStep].title}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {STEPS[currentStep].description}
+                </p>
               </div>
             </div>
-
-            {/* Form Content */}
-            <div className="">
-              {renderCurrentStep()}
-            </div>
           </div>
+
+          {/* Form Content - Full Width */}
+          {renderCurrentStep()}
         </div>
 
         {/* Enhanced Navigation Footer */}
