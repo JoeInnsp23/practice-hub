@@ -34,7 +34,7 @@ export function AdminLayoutClient({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <GlobalHeader
         moduleName="Admin Panel"
         title="Admin Panel"
