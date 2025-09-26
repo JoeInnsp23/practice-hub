@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   ChevronLeft,
   Building,
@@ -23,6 +24,8 @@ import {
   Trash2,
   FileText,
   DollarSign,
+  Plus,
+  Eye,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -125,18 +128,170 @@ const mockRecentTasks = [
     name: "Annual Accounts Preparation",
     status: "in_progress",
     dueDate: new Date("2024-12-31"),
+    assignee: "John Smith",
+    description: "Prepare annual accounts for year ending December 2024",
+    estimatedHours: 20,
   },
   {
     id: "2",
     name: "VAT Return Q4",
     status: "not_started",
     dueDate: new Date("2024-11-30"),
+    assignee: "Jane Wilson",
+    description: "Complete and submit quarterly VAT return",
+    estimatedHours: 5,
   },
   {
     id: "3",
     name: "Payroll Processing",
     status: "completed",
     dueDate: new Date("2024-10-31"),
+    assignee: "Bob Johnson",
+    description: "Monthly payroll processing for all employees",
+    estimatedHours: 3,
+  },
+  {
+    id: "4",
+    name: "Corporation Tax Return",
+    status: "in_progress",
+    dueDate: new Date("2024-12-15"),
+    assignee: "Alice Brown",
+    description: "Prepare and file corporation tax return",
+    estimatedHours: 15,
+  },
+  {
+    id: "5",
+    name: "Management Accounts",
+    status: "not_started",
+    dueDate: new Date("2024-11-15"),
+    assignee: "John Smith",
+    description: "Prepare monthly management accounts",
+    estimatedHours: 8,
+  },
+];
+
+// Mock time entries
+const mockTimeEntries = [
+  {
+    id: "1",
+    taskName: "Annual Accounts Preparation",
+    date: new Date("2024-10-25"),
+    hours: 4.5,
+    billable: true,
+    billed: false,
+    description: "Initial review of accounts",
+    staff: "John Smith",
+  },
+  {
+    id: "2",
+    taskName: "VAT Return Q3",
+    date: new Date("2024-10-24"),
+    hours: 2.0,
+    billable: true,
+    billed: true,
+    description: "VAT calculation and submission",
+    staff: "Jane Wilson",
+  },
+  {
+    id: "3",
+    taskName: "General consultation",
+    date: new Date("2024-10-23"),
+    hours: 1.5,
+    billable: true,
+    billed: false,
+    description: "Client meeting regarding tax planning",
+    staff: "Bob Johnson",
+  },
+  {
+    id: "4",
+    taskName: "Payroll Processing",
+    date: new Date("2024-10-22"),
+    hours: 3.0,
+    billable: true,
+    billed: true,
+    description: "October payroll run",
+    staff: "Alice Brown",
+  },
+  {
+    id: "5",
+    taskName: "Email correspondence",
+    date: new Date("2024-10-21"),
+    hours: 0.5,
+    billable: false,
+    billed: false,
+    description: "Responding to client queries",
+    staff: "John Smith",
+  },
+];
+
+// Mock services
+const mockServices = [
+  {
+    id: "1",
+    name: "Annual Accounts",
+    type: "Compliance",
+    frequency: "Annual",
+    price: 2500,
+    status: "active",
+    nextDue: new Date("2024-12-31"),
+  },
+  {
+    id: "2",
+    name: "VAT Returns",
+    type: "Compliance",
+    frequency: "Quarterly",
+    price: 400,
+    status: "active",
+    nextDue: new Date("2024-11-30"),
+  },
+  {
+    id: "3",
+    name: "Payroll Services",
+    type: "Ongoing",
+    frequency: "Monthly",
+    price: 150,
+    status: "active",
+    nextDue: new Date("2024-11-01"),
+  },
+  {
+    id: "4",
+    name: "Corporation Tax",
+    type: "Compliance",
+    frequency: "Annual",
+    price: 1500,
+    status: "active",
+    nextDue: new Date("2024-12-15"),
+  },
+];
+
+// Mock invoices
+const mockInvoices = [
+  {
+    id: "1",
+    invoiceNumber: "INV-2024-001",
+    date: new Date("2024-10-01"),
+    dueDate: new Date("2024-10-31"),
+    amount: 2500,
+    status: "paid",
+    description: "Annual accounts preparation",
+  },
+  {
+    id: "2",
+    invoiceNumber: "INV-2024-002",
+    date: new Date("2024-10-15"),
+    dueDate: new Date("2024-11-15"),
+    amount: 400,
+    status: "sent",
+    description: "VAT Return Q3",
+  },
+  {
+    id: "3",
+    invoiceNumber: "INV-2024-003",
+    date: new Date("2024-11-01"),
+    dueDate: new Date("2024-12-01"),
+    amount: 150,
+    status: "draft",
+    description: "Payroll services - October",
   },
 ];
 
@@ -257,13 +412,67 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="services">Services</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
-          <TabsTrigger value="time">Time Entries</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
+        <TabsList className="glass-subtle h-14 w-full p-1.5 flex gap-1">
+          <TabsTrigger
+            value="overview"
+            className={cn(
+              "flex-1 rounded-md font-medium transition-all duration-200",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
+            )}
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="services"
+            className={cn(
+              "flex-1 rounded-md font-medium transition-all duration-200",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
+            )}
+          >
+            Services
+          </TabsTrigger>
+          <TabsTrigger
+            value="tasks"
+            className={cn(
+              "flex-1 rounded-md font-medium transition-all duration-200",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
+            )}
+          >
+            Tasks
+          </TabsTrigger>
+          <TabsTrigger
+            value="time"
+            className={cn(
+              "flex-1 rounded-md font-medium transition-all duration-200",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
+            )}
+          >
+            Time Entries
+          </TabsTrigger>
+          <TabsTrigger
+            value="invoices"
+            className={cn(
+              "flex-1 rounded-md font-medium transition-all duration-200",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
+            )}
+          >
+            Invoices
+          </TabsTrigger>
+          <TabsTrigger
+            value="documents"
+            className={cn(
+              "flex-1 rounded-md font-medium transition-all duration-200",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+              "data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
+            )}
+          >
+            Documents
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -444,69 +653,318 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
         <TabsContent value="services" className="space-y-4">
           <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Services</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Active Services
+              </CardTitle>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Service
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Services management coming soon</p>
-              </div>
+              {mockServices.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No services configured</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {mockServices.map((service) => (
+                    <div
+                      key={service.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-medium">{service.name}</h4>
+                          <Badge variant="outline">{service.type}</Badge>
+                          <Badge
+                            variant={service.status === "active" ? "default" : "secondary"}
+                          >
+                            {service.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          <span>Frequency: {service.frequency}</span>
+                          <span>•</span>
+                          <span>Next Due: {service.nextDue.toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-semibold">£{service.price}</p>
+                        <p className="text-sm text-muted-foreground">per {service.frequency.toLowerCase()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
           <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>All Tasks</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                All Tasks
+              </CardTitle>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Task
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Task management coming soon</p>
-              </div>
+              {mockRecentTasks.length === 0 ? (
+                <div className="text-center py-12">
+                  <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No tasks found for this client</p>
+                  <Button className="mt-4" size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First Task
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {mockRecentTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium mb-1">{task.name}</h4>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {task.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              Due: {task.dueDate.toLocaleDateString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {task.assignee}
+                            </span>
+                            {task.estimatedHours && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Est: {task.estimatedHours}h
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {getTaskStatusBadge(task.status)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="time" className="space-y-4">
+          {/* Time Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="glass-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">
+                  {mockTimeEntries.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)}
+                </p>
+                <p className="text-xs text-muted-foreground">This month</p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Billable Hours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">
+                  {mockTimeEntries
+                    .filter((e) => e.billable)
+                    .reduce((sum, entry) => sum + entry.hours, 0)
+                    .toFixed(1)}
+                </p>
+                <p className="text-xs text-muted-foreground">This month</p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Unbilled Hours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">
+                  {mockTimeEntries
+                    .filter((e) => e.billable && !e.billed)
+                    .reduce((sum, entry) => sum + entry.hours, 0)
+                    .toFixed(1)}
+                </p>
+                <p className="text-xs text-muted-foreground">To be invoiced</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Time Entries List */}
           <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Time Entries</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Recent Time Entries
+              </CardTitle>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Time
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Time tracking coming soon</p>
-              </div>
+              {mockTimeEntries.length === 0 ? (
+                <div className="text-center py-12">
+                  <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No time entries found</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {mockTimeEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium">{entry.taskName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {entry.date.toLocaleDateString()} • {entry.staff}
+                          {entry.description && ` • ${entry.description}`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{entry.hours}h</p>
+                        <div className="flex gap-2">
+                          {entry.billable && (
+                            <Badge variant={entry.billed ? "secondary" : "default"}>
+                              {entry.billed ? "Billed" : "Billable"}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="invoices" className="space-y-4">
           <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Invoices</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Invoices
+              </CardTitle>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Invoice
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Invoice management coming soon</p>
-              </div>
+              {mockInvoices.length === 0 ? (
+                <div className="text-center py-12">
+                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No invoices found</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {mockInvoices.map((invoice) => (
+                    <div
+                      key={invoice.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-medium">{invoice.invoiceNumber}</h4>
+                          <Badge
+                            variant={
+                              invoice.status === "paid"
+                                ? "default"
+                                : invoice.status === "sent"
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className={
+                              invoice.status === "paid"
+                                ? "bg-green-100 text-green-800"
+                                : invoice.status === "sent"
+                                ? "bg-blue-100 text-blue-800"
+                                : ""
+                            }
+                          >
+                            {invoice.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {invoice.description}
+                        </p>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          <span>Issued: {invoice.date.toLocaleDateString()}</span>
+                          <span>•</span>
+                          <span>Due: {invoice.dueDate.toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-semibold">£{invoice.amount.toFixed(2)}</p>
+                        <div className="flex gap-2 mt-2">
+                          <Button size="sm" variant="ghost">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost">
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">
           <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Documents</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Documents
+              </CardTitle>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Upload Document
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Document management coming soon</p>
+                <h3 className="text-lg font-medium mb-2">Document System Coming Soon</h3>
+                <p className="text-muted-foreground mb-4">
+                  Document management and storage will be available in a future update.
+                </p>
+                <div className="bg-muted/50 p-4 rounded-lg text-left max-w-md mx-auto">
+                  <h4 className="font-medium mb-2">Planned Features:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Upload and organize client documents</li>
+                    <li>• Version control and history</li>
+                    <li>• Secure document sharing</li>
+                    <li>• Integration with client portal</li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
