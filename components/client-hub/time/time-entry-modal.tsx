@@ -49,15 +49,15 @@ export function TimeEntryModal({
 }: TimeEntryModalProps) {
   const [formData, setFormData] = useState({
     date: selectedEntry?.date || selectedDate,
-    clientId: selectedEntry?.clientId || "",
-    taskId: selectedEntry?.taskId || "",
+    clientId: selectedEntry?.clientId || "none",
+    taskId: selectedEntry?.taskId || "none",
     description: selectedEntry?.description || "",
     hours: selectedEntry?.hours || 0,
     billable: selectedEntry?.billable !== undefined ? selectedEntry.billable : true,
   });
 
   // Filter tasks based on selected client
-  const availableTasks = formData.clientId
+  const availableTasks = formData.clientId && formData.clientId !== "none"
     ? tasks.filter((task) => task.clientId === formData.clientId)
     : tasks;
 
@@ -77,8 +77,10 @@ export function TimeEntryModal({
     onSave({
       ...formData,
       id: selectedEntry?.id,
-      client: clients.find((c) => c.id === formData.clientId)?.name,
-      task: tasks.find((t) => t.id === formData.taskId)?.name,
+      clientId: formData.clientId === "none" ? undefined : formData.clientId,
+      taskId: formData.taskId === "none" ? undefined : formData.taskId,
+      client: formData.clientId !== "none" ? clients.find((c) => c.id === formData.clientId)?.name : undefined,
+      task: formData.taskId !== "none" ? tasks.find((t) => t.id === formData.taskId)?.name : undefined,
     });
 
     toast.success(selectedEntry ? "Time entry updated" : "Time entry created");
@@ -88,8 +90,8 @@ export function TimeEntryModal({
   const handleReset = () => {
     setFormData({
       date: selectedDate,
-      clientId: "",
-      taskId: "",
+      clientId: "none",
+      taskId: "none",
       description: "",
       hours: 0,
       billable: true,
@@ -146,14 +148,14 @@ export function TimeEntryModal({
               <Select
                 value={formData.clientId}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, clientId: value, taskId: "" })
+                  setFormData({ ...formData, clientId: value, taskId: "none" })
                 }
               >
                 <SelectTrigger id="client">
                   <SelectValue placeholder="Select client" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No client</SelectItem>
+                  <SelectItem value="none">No client</SelectItem>
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.name}
@@ -177,7 +179,7 @@ export function TimeEntryModal({
                   <SelectValue placeholder="Select task (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No task</SelectItem>
+                  <SelectItem value="none">No task</SelectItem>
                   {availableTasks.map((task) => (
                     <SelectItem key={task.id} value={task.id}>
                       {task.name}

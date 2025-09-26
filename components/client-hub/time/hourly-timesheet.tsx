@@ -98,9 +98,9 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-2 border-b">
         <div className="flex items-center space-x-4">
           {/* Week Navigation */}
           <div className="flex items-center space-x-2">
@@ -131,7 +131,7 @@ export function HourlyTimesheet({
         {/* New Time Entry Button */}
         <Button
           onClick={() => openModal(new Date())}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Time Entry
@@ -140,15 +140,15 @@ export function HourlyTimesheet({
 
       {/* View Toggle */}
       {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-2 border-b">
           <div className="flex items-center space-x-2">
-            <Button variant="default" size="sm" className="bg-foreground text-white">
+            <Button variant="default" size="sm">
               Week
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-600"
+              className="text-muted-foreground"
               onClick={() => onViewChange("monthly")}
             >
               Month
@@ -158,7 +158,7 @@ export function HourlyTimesheet({
             variant="ghost"
             size="sm"
             onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-            className="text-blue-600"
+            className="text-primary"
           >
             Today
           </Button>
@@ -169,8 +169,8 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-gray-50 z-10 border-b border-gray-200">
-            <div className="p-3 text-center text-sm font-medium text-gray-700 border-r border-gray-200">
+          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-muted/50 z-10 border-b">
+            <div className="p-3 text-center text-sm font-medium text-foreground border-r">
               Time
             </div>
             {weekDays.map((day, index) => {
@@ -180,15 +180,15 @@ export function HourlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "p-3 text-center text-sm font-medium border-r border-gray-200 last:border-r-0",
-                    isToday && "bg-blue-50",
-                    isWeekend && "bg-gray-100"
+                    "p-3 text-center text-sm font-medium border-r last:border-r-0",
+                    isToday && "bg-primary/10",
+                    isWeekend && "bg-muted/30"
                   )}
                 >
-                  <div className={cn(isToday && "text-blue-600 font-semibold")}>
+                  <div className={cn(isToday && "text-primary font-semibold")}>
                     {format(day, "EEE")}
                   </div>
-                  <div className={cn("text-xs", isToday ? "text-blue-600" : "text-gray-500")}>
+                  <div className={cn("text-xs", isToday ? "text-primary" : "text-muted-foreground")}>
                     {format(day, "MMM d")}
                   </div>
                 </div>
@@ -203,12 +203,12 @@ export function HourlyTimesheet({
               <div
                 key={slot.hour}
                 data-hour={slot.hour}
-                className="grid grid-cols-8 gap-0 border-b border-gray-200 hover:bg-gray-50"
+                className="grid grid-cols-8 gap-0 border-b hover:bg-muted/30"
               >
                 <div
                   className={cn(
-                    "p-3 text-center text-sm font-medium text-gray-700 border-r border-gray-200",
-                    isCurrentHour && "bg-orange-50 text-orange-600"
+                    "p-3 text-center text-sm font-medium text-foreground border-r",
+                    isCurrentHour && "bg-orange-500/10 text-orange-600 dark:text-orange-400"
                   )}
                 >
                   {slot.display}
@@ -222,9 +222,9 @@ export function HourlyTimesheet({
                     <div
                       key={day.toISOString()}
                       className={cn(
-                        "p-2 min-h-[60px] border-r border-gray-200 last:border-r-0 cursor-pointer hover:bg-gray-100",
-                        isWeekend && "bg-gray-50",
-                        isToday && isCurrentHour && "bg-orange-50"
+                        "p-2 min-h-[60px] border-r last:border-r-0 cursor-pointer hover:bg-muted/30",
+                        isWeekend && "bg-muted/20",
+                        isToday && isCurrentHour && "bg-orange-500/10"
                       )}
                       onClick={() => openModal(day, slot.hour)}
                     >
@@ -236,8 +236,8 @@ export function HourlyTimesheet({
                               className={cn(
                                 "text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow",
                                 entry.billable
-                                  ? "bg-blue-100 text-blue-700 border-l-2 border-blue-500"
-                                  : "bg-gray-100 text-gray-700 border-l-2 border-gray-400"
+                                  ? "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-500"
+                                  : "bg-muted text-muted-foreground border-l-2 border-muted-foreground/50"
                               )}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -255,7 +255,7 @@ export function HourlyTimesheet({
                             </div>
                           ))}
                           {entries.length > 2 && (
-                            <div className="text-[10px] text-gray-500 text-center">
+                            <div className="text-[10px] text-muted-foreground text-center">
                               +{entries.length - 2} more
                             </div>
                           )}

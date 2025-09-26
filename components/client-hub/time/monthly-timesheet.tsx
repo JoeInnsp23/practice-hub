@@ -87,9 +87,9 @@ export function MonthlyTimesheet({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-2 border-b">
         <div className="flex items-center space-x-4">
           {/* Month Navigation */}
           <div className="flex items-center space-x-2">
@@ -120,7 +120,7 @@ export function MonthlyTimesheet({
         {/* New Time Entry Button */}
         <Button
           onClick={() => openModal(new Date())}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Time Entry
@@ -128,33 +128,33 @@ export function MonthlyTimesheet({
       </div>
 
       {/* Summary Bar */}
-      <div className="flex items-center space-x-6 px-4 py-2 bg-gray-50 border-b border-gray-200">
+      <div className="flex items-center space-x-6 px-4 py-2 bg-muted/50 border-b">
         <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
+          <div className="w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded"></div>
           <span className="text-sm">Billable</span>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-gray-400 rounded"></div>
+          <div className="w-4 h-4 bg-muted-foreground/50 rounded"></div>
           <span className="text-sm">Non-Billable</span>
         </div>
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           Total: {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0} hours
         </div>
       </div>
 
       {/* View Toggle */}
       {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-2 border-b">
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-600"
+              className="text-muted-foreground"
               onClick={() => onViewChange("weekly")}
             >
               Week
             </Button>
-            <Button variant="default" size="sm" className="bg-foreground text-white">
+            <Button variant="default" size="sm">
               Month
             </Button>
           </div>
@@ -162,7 +162,7 @@ export function MonthlyTimesheet({
             variant="ghost"
             size="sm"
             onClick={() => setCurrentDate(new Date())}
-            className="text-blue-600"
+            className="text-primary"
           >
             Today
           </Button>
@@ -173,11 +173,11 @@ export function MonthlyTimesheet({
       <div className="flex-1 overflow-auto">
         <div className="h-full">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-0 border-b border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-7 gap-0 border-b bg-muted/50">
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="p-3 text-center text-sm font-medium text-gray-700 border-r border-gray-200 last:border-r-0"
+                className="p-3 text-center text-sm font-medium text-foreground border-r last:border-r-0"
               >
                 {day}
               </div>
@@ -197,10 +197,10 @@ export function MonthlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "border-r border-b border-gray-200 last:border-r-0 min-h-[120px] p-2 cursor-pointer hover:bg-gray-50",
-                    !isCurrentMonth && "bg-gray-50 text-gray-400",
-                    isToday && "bg-blue-50 border-blue-200",
-                    isWeekend && isCurrentMonth && "bg-gray-50"
+                    "border-r border-b last:border-r-0 min-h-[120px] p-2 cursor-pointer hover:bg-muted/30",
+                    !isCurrentMonth && "bg-muted/30 text-muted-foreground/50",
+                    isToday && "bg-primary/10 border-primary/50",
+                    isWeekend && isCurrentMonth && "bg-muted/20"
                   )}
                   onClick={() => openModal(day)}
                 >
@@ -210,13 +210,13 @@ export function MonthlyTimesheet({
                       className={cn(
                         "text-sm font-medium",
                         isToday &&
-                          "bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                          "bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs"
                       )}
                     >
                       {format(day, "d")}
                     </span>
                     {totalHours > 0 && (
-                      <span className="text-xs text-gray-600 font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {totalHours.toFixed(1)}h
                       </span>
                     )}
@@ -230,8 +230,8 @@ export function MonthlyTimesheet({
                         className={cn(
                           "text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4",
                           entry.billable
-                            ? "bg-blue-100 border-blue-500"
-                            : "bg-gray-100 border-gray-400"
+                            ? "bg-blue-500/20 border-blue-500 dark:border-blue-400"
+                            : "bg-muted border-muted-foreground/50"
                         )}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -243,23 +243,23 @@ export function MonthlyTimesheet({
                           <div
                             className={cn(
                               "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                              entry.billable ? "bg-blue-500" : "bg-gray-400"
+                              entry.billable ? "bg-blue-500 dark:bg-blue-400" : "bg-muted-foreground/50"
                             )}
                           />
-                          <span className="font-medium text-gray-800 flex-1 min-w-0 truncate">
+                          <span className="font-medium text-foreground flex-1 min-w-0 truncate">
                             {entry.client || entry.task || "Time entry"}
                           </span>
-                          <span className="text-gray-600">{entry.hours}h</span>
+                          <span className="text-muted-foreground">{entry.hours}h</span>
                         </div>
                         {entry.description && (
-                          <div className="text-[10px] text-gray-600 truncate mt-0.5">
+                          <div className="text-[10px] text-muted-foreground truncate mt-0.5">
                             {entry.description}
                           </div>
                         )}
                       </div>
                     ))}
                     {dayEntries.length > 3 && (
-                      <div className="text-[10px] text-gray-500 text-center">
+                      <div className="text-[10px] text-muted-foreground text-center">
                         +{dayEntries.length - 3} more
                       </div>
                     )}
