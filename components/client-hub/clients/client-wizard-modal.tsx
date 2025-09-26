@@ -398,45 +398,47 @@ export function ClientWizardModal({
             <Progress value={progressValue} className="h-2 bg-slate-200 dark:bg-slate-700" />
 
             {/* Step Indicators */}
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {STEPS.map((step, index) => (
-                <button
-                  key={step.id}
-                  onClick={() => {
-                    if (index < currentStep || (index === 0 && stepValidation[0])) {
-                      setCurrentStep(index);
-                    }
-                  }}
-                  disabled={index > currentStep && !stepValidation[index - 1]}
-                  className={`
-                    flex-shrink-0 flex flex-col items-center p-2 rounded-lg transition-all min-w-[100px]
-                    ${index === currentStep
-                      ? "bg-blue-50 dark:bg-blue-950 border-2 border-blue-500"
-                      : index < currentStep
-                        ? "bg-green-50 dark:bg-green-950 border border-green-500 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900"
-                        : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
-                    }
-                    ${index > currentStep && !stepValidation[index - 1] ? "opacity-50 cursor-not-allowed" : ""}
-                  `}
-                >
-                  <div className="flex items-center justify-center w-8 h-8 mb-1">
-                    {index < currentStep ? (
-                      <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    ) : index === currentStep ? (
-                      <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                        {index + 1}
-                      </div>
-                    ) : (
-                      <div className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-xs font-medium">
-                        {index + 1}
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-center leading-tight font-medium">
-                    {step.title}
-                  </span>
-                </button>
-              ))}
+            <div className="flex justify-center">
+              <div className="flex gap-2 overflow-x-auto pb-2 px-4">
+                {STEPS.map((step, index) => (
+                  <button
+                    key={step.id}
+                    onClick={() => {
+                      if (index < currentStep || (index === 0 && stepValidation[0])) {
+                        setCurrentStep(index);
+                      }
+                    }}
+                    disabled={index > currentStep && !stepValidation[index - 1]}
+                    className={`
+                      flex-shrink-0 flex flex-col items-center justify-center p-2 rounded-lg transition-all w-[110px] h-[80px]
+                      ${index === currentStep
+                        ? "bg-blue-50 dark:bg-blue-950 border-2 border-blue-500"
+                        : index < currentStep
+                          ? "bg-green-50 dark:bg-green-950 border border-green-500 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900"
+                          : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                      }
+                      ${index > currentStep && !stepValidation[index - 1] ? "opacity-50 cursor-not-allowed" : ""}
+                    `}
+                  >
+                    <div className="flex items-center justify-center w-8 h-8 mb-1">
+                      {index < currentStep ? (
+                        <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      ) : index === currentStep ? (
+                        <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
+                          {index + 1}
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-xs font-medium">
+                          {index + 1}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-center leading-tight font-medium max-w-[90px]">
+                      {step.title}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </DialogHeader>
