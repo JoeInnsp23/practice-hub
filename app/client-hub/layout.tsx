@@ -30,8 +30,7 @@ const sections = [
   {
     title: "Time Management",
     items: [
-      { name: "Time Entry", href: "/client-hub/time-entry", icon: Clock },
-      { name: "Time Tracking", href: "/client-hub/time-tracking", icon: Timer },
+      { name: "Time Tracking", href: "/client-hub/time-tracking", icon: Clock },
     ],
   },
   {

@@ -1,279 +1,245 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TimesheetGrid } from "@/components/client-hub/time/timesheet-grid";
-import { QuickTimeEntry } from "@/components/client-hub/time/quick-time-entry";
 import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  FileText,
-} from "lucide-react";
-import { formatDate } from "@/lib/utils/format";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { HourlyTimesheet } from "@/components/client-hub/time/hourly-timesheet";
+import { MonthlyTimesheet } from "@/components/client-hub/time/monthly-timesheet";
+import { QuickTimeEntry } from "@/components/client-hub/time/quick-time-entry";
+import { Clock, Calendar, List, Play, Edit, Trash2 } from "lucide-react";
+import { useTimeEntries, useDeleteTimeEntry } from "@/lib/hooks/use-time-entries";
+import { formatHours } from "@/lib/utils/format";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
-// Mock time entries
-const mockEntries = [
-  {
-    id: "1",
-    date: new Date("2024-09-25"),
-    client: "ABC Company Ltd",
-    task: "VAT Return Q4",
-    description: "Prepared and submitted VAT return for Q4",
-    hours: 3.5,
-    billable: true,
-    billed: false,
-    status: "approved" as const,
-    user: "John Smith",
-  },
-  {
-    id: "2",
-    date: new Date("2024-09-25"),
-    client: "XYZ Ltd",
-    task: "Annual Accounts",
-    description: "Reviewed year-end accounts",
-    hours: 2,
-    billable: true,
-    billed: false,
-    status: "approved" as const,
-    user: "John Smith",
-  },
-  {
-    id: "3",
-    date: new Date("2024-09-24"),
-    client: "John Doe",
-    description: "Tax planning consultation",
-    hours: 1.5,
-    billable: true,
-    billed: true,
-    status: "approved" as const,
-    user: "Jane Wilson",
-  },
-  {
-    id: "4",
-    date: new Date("2024-09-24"),
-    client: "Internal",
-    description: "Team meeting",
-    hours: 1,
-    billable: false,
-    billed: false,
-    status: "submitted" as const,
-    user: "John Smith",
-  },
-  {
-    id: "5",
-    date: new Date("2024-09-23"),
-    client: "Tech Innovations Ltd",
-    task: "CT600 Preparation",
-    description: "Prepared corporation tax return",
-    hours: 4,
-    billable: true,
-    billed: false,
-    status: "draft" as const,
-    user: "Alice Brown",
-  },
-];
-
 export default function TimeTrackingPage() {
-  const [entries, setEntries] = useState(mockEntries);
   const [view, setView] = useState<"daily" | "weekly" | "monthly">("daily");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isQuickEntryOpen, setIsQuickEntryOpen] = useState(false);
+  const [deleteEntryId, setDeleteEntryId] = useState<string | null>(null);
 
-  // Filter entries based on selected date and view
-  const filteredEntries = useMemo(() => {
-    const startDate = new Date(selectedDate);
-    let endDate = new Date(selectedDate);
+  // Get today's date for daily view
+  const today = format(new Date(), "yyyy-MM-dd");
+  const { data: timeEntries, isLoading } = useTimeEntries(today, today);
+  const deleteTimeEntry = useDeleteTimeEntry();
 
-    if (view === "daily") {
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
-    } else if (view === "weekly") {
-      const day = startDate.getDay();
-      const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
-      startDate.setDate(diff);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 6);
-      endDate.setHours(23, 59, 59, 999);
-    } else if (view === "monthly") {
-      startDate.setDate(1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
-      endDate.setHours(23, 59, 59, 999);
+  // Calculate stats
+  const todayEntries = timeEntries || [];
+  const totalHours = todayEntries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
+  const billableHours = todayEntries
+    .filter((entry) => entry.billable)
+    .reduce((sum, entry) => sum + (entry.hours || 0), 0);
+
+  const stats = [
+    {
+      title: "Hours Today",
+      value: formatHours(totalHours),
+      icon: Clock,
+      color: "text-blue-600",
+    },
+    {
+      title: "Billable Hours",
+      value: formatHours(billableHours),
+      icon: Clock,
+      color: "text-green-600",
+    },
+    {
+      title: "Entries Today",
+      value: todayEntries.length.toString(),
+      icon: Play,
+      color: "text-purple-600",
+    },
+    {
+      title: "Avg per Entry",
+      value: todayEntries.length > 0 ? formatHours(totalHours / todayEntries.length) : "0h",
+      icon: Clock,
+      color: "text-orange-600",
+    },
+  ];
+
+  const confirmDelete = async () => {
+    if (deleteEntryId) {
+      await deleteTimeEntry.mutateAsync(deleteEntryId);
+      setDeleteEntryId(null);
     }
-
-    return entries.filter((entry) => {
-      const entryDate = new Date(entry.date);
-      return entryDate >= startDate && entryDate <= endDate;
-    });
-  }, [entries, selectedDate, view]);
-
-  const handlePreviousPeriod = () => {
-    const newDate = new Date(selectedDate);
-    if (view === "daily") {
-      newDate.setDate(newDate.getDate() - 1);
-    } else if (view === "weekly") {
-      newDate.setDate(newDate.getDate() - 7);
-    } else if (view === "monthly") {
-      newDate.setMonth(newDate.getMonth() - 1);
-    }
-    setSelectedDate(newDate);
-  };
-
-  const handleNextPeriod = () => {
-    const newDate = new Date(selectedDate);
-    if (view === "daily") {
-      newDate.setDate(newDate.getDate() + 1);
-    } else if (view === "weekly") {
-      newDate.setDate(newDate.getDate() + 7);
-    } else if (view === "monthly") {
-      newDate.setMonth(newDate.getMonth() + 1);
-    }
-    setSelectedDate(newDate);
-  };
-
-  const handleToday = () => {
-    setSelectedDate(new Date());
-  };
-
-  const handleEditEntry = (entry: any) => {
-    toast.success(`Editing ${entry.description}`);
-  };
-
-  const handleDeleteEntry = (entry: any) => {
-    if (window.confirm(`Delete time entry for "${entry.description}"?`)) {
-      setEntries((prev) => prev.filter((e) => e.id !== entry.id));
-      toast.success("Entry deleted");
-    }
-  };
-
-  const handleDuplicateEntry = (entry: any) => {
-    const newEntry = {
-      ...entry,
-      id: Date.now().toString(),
-      date: new Date(),
-      status: "draft" as const,
-      billed: false,
-    };
-    setEntries((prev) => [...prev, newEntry]);
-    toast.success("Entry duplicated");
   };
 
   const handleSaveEntry = (entry: any) => {
-    const newEntry = {
-      ...entry,
-      id: Date.now().toString(),
-      status: "draft" as const,
-      billed: false,
-      user: "Current User",
-    };
-    setEntries((prev) => [...prev, newEntry]);
-    setIsQuickEntryOpen(false);
-  };
-
-  const getPeriodLabel = () => {
-    if (view === "daily") {
-      return formatDate(selectedDate);
-    } else if (view === "weekly") {
-      const startDate = new Date(selectedDate);
-      const day = startDate.getDay();
-      const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
-      startDate.setDate(diff);
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 6);
-      return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-    } else {
-      return format(selectedDate, "MMMM yyyy");
-    }
+    toast.success("Time entry saved");
   };
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
-          <p className="text-muted-foreground mt-2">
-            View and manage your time entries
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="outline">
-            <FileText className="h-4 w-4 mr-2" />
-            Submit Timesheet
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
+        <p className="text-muted-foreground mt-2">
+          Track your time and monitor productivity across projects
+        </p>
       </div>
 
-      {/* View Controls */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Tabs value={view} onValueChange={(v) => setView(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="daily">Daily</TabsTrigger>
-                  <TabsTrigger value="weekly">Weekly</TabsTrigger>
-                  <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                </TabsList>
-              </Tabs>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, index) => (
+          <Card key={index} className="glass-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.title}
+              </CardTitle>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Content with View Toggle */}
+      <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+        <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsTrigger value="daily">
+            <List className="h-4 w-4 mr-2" />
+            Daily
+          </TabsTrigger>
+          <TabsTrigger value="weekly">
+            <Calendar className="h-4 w-4 mr-2" />
+            Weekly
+          </TabsTrigger>
+          <TabsTrigger value="monthly">
+            <Calendar className="h-4 w-4 mr-2" />
+            Monthly
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="daily" className="space-y-6">
+          {/* Daily View */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Time Entries List */}
+            <div className="lg:col-span-2">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Today's Time Entries</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="text-center py-8">
+                      <div className="text-muted-foreground">Loading time entries...</div>
+                    </div>
+                  ) : todayEntries.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Clock className="h-16 w-16 text-muted mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No time entries today</h3>
+                      <p className="text-muted-foreground">
+                        Start logging your time to track productivity
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {todayEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="flex justify-between items-start p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                        >
+                          <div className="flex-1">
+                            <p className="font-medium">{entry.client || "No client"}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {entry.description || "No description"}
+                            </p>
+                            {entry.task && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Task: {entry.task}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-right">
+                              <p className="font-semibold">{formatHours(entry.hours)}</p>
+                              <Badge
+                                variant={entry.billable ? "default" : "secondary"}
+                                className="text-xs"
+                              >
+                                {entry.billable ? "Billable" : "Non-billable"}
+                              </Badge>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setDeleteEntryId(entry.id)}
+                                className="h-8 w-8 text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePreviousPeriod}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="min-w-[200px] text-center px-4 py-2 border rounded-lg">
-                <div className="flex items-center justify-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span className="font-medium">{getPeriodLabel()}</span>
-                </div>
-              </div>
-              <Button variant="outline" size="icon" onClick={handleNextPeriod}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleToday}>
-                Today
-              </Button>
+            {/* Quick Time Entry */}
+            <div>
+              <QuickTimeEntry onSave={handleSaveEntry} />
             </div>
           </div>
-        </CardHeader>
-      </Card>
+        </TabsContent>
 
-      {/* Quick Entry Toggle */}
-      {isQuickEntryOpen && <QuickTimeEntry onSave={handleSaveEntry} />}
+        <TabsContent value="weekly" className="space-y-4">
+          {/* Weekly View - Hourly Timesheet */}
+          <Card className="glass-card p-0">
+            <div className="h-[calc(100vh-300px)]">
+              <HourlyTimesheet onViewChange={setView} />
+            </div>
+          </Card>
+        </TabsContent>
 
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          onClick={() => setIsQuickEntryOpen(!isQuickEntryOpen)}
-        >
-          {isQuickEntryOpen ? "Hide" : "Show"} Quick Entry
-        </Button>
-      </div>
+        <TabsContent value="monthly" className="space-y-4">
+          {/* Monthly View - Calendar */}
+          <Card className="glass-card p-0">
+            <div className="h-[calc(100vh-300px)]">
+              <MonthlyTimesheet onViewChange={setView} />
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
-      {/* Timesheet Grid */}
-      <TimesheetGrid
-        entries={filteredEntries}
-        view={view}
-        onEdit={handleEditEntry}
-        onDelete={handleDeleteEntry}
-        onDuplicate={handleDuplicateEntry}
-      />
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteEntryId} onOpenChange={() => setDeleteEntryId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Time Entry</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this time entry? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

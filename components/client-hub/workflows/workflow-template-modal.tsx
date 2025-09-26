@@ -68,13 +68,19 @@ export function WorkflowTemplateModal({
 
   useEffect(() => {
     if (template) {
+      // Ensure all stages have a checklist array
+      const stagesWithChecklist = (template.stages || []).map((stage: any) => ({
+        ...stage,
+        checklist: stage.checklist || [],
+      }));
+
       setFormData({
         name: template.name || "",
         description: template.description || "",
         service: template.service || null,
         estimatedDays: template.estimatedDays || 1,
         is_active: template.is_active !== undefined ? template.is_active : true,
-        stages: template.stages || [],
+        stages: stagesWithChecklist,
       });
     } else {
       handleReset();
@@ -141,7 +147,7 @@ export function WorkflowTemplateModal({
 
     const updatedStages = formData.stages.map((stage) =>
       stage.id === stageId
-        ? { ...stage, checklist: [...stage.checklist, item] }
+        ? { ...stage, checklist: [...(stage.checklist || []), item] }
         : stage
     );
     setFormData({ ...formData, stages: updatedStages });
@@ -152,7 +158,7 @@ export function WorkflowTemplateModal({
       stage.id === stageId
         ? {
             ...stage,
-            checklist: stage.checklist.filter((_, i) => i !== itemIndex),
+            checklist: (stage.checklist || []).filter((_, i) => i !== itemIndex),
           }
         : stage
     );
@@ -333,7 +339,7 @@ export function WorkflowTemplateModal({
                   <CardContent>
                     <div className="space-y-2">
                       <Label className="text-xs">Checklist Items</Label>
-                      {stage.checklist.map((item, itemIndex) => (
+                      {(stage.checklist || []).map((item, itemIndex) => (
                         <div
                           key={itemIndex}
                           className="flex items-center justify-between text-xs p-2 bg-muted rounded"
