@@ -2,13 +2,20 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
-import { ClientFilters } from "@/components/client-hub/clients/client-filters";
 import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import { Users, UserCheck, UserX, UserPlus, Plus } from "lucide-react";
+import { Users, UserCheck, UserX, UserPlus, Plus, Search, X } from "lucide-react";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import toast from "react-hot-toast";
 
@@ -206,24 +213,75 @@ export default function ClientsPage() {
         ))}
       </div>
 
-      {/* Filters and Table */}
-      <div className="space-y-4">
-        <ClientFilters
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          typeFilter={typeFilter}
-          onTypeChange={setTypeFilter}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-          onReset={resetFilters}
-        />
-        <ClientsTable
-          clients={filteredClients}
-          onView={handleViewClient}
-          onEdit={handleEditClient}
-          onDelete={handleDeleteClient}
-        />
-      </div>
+      {/* Client List with Filters and Table */}
+      <Card className="glass-card">
+        <CardHeader>
+          <div className="space-y-4">
+            <CardTitle>Client List</CardTitle>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search by name, code, or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Type Filter */}
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="individual">Individual</SelectItem>
+                  <SelectItem value="company">Company</SelectItem>
+                  <SelectItem value="trust">Trust</SelectItem>
+                  <SelectItem value="partnership">Partnership</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="prospect">Prospect</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Reset Button */}
+              {(searchTerm || typeFilter !== "all" || statusFilter !== "all") && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={resetFilters}
+                  className="h-10 w-10"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <ClientsTable
+            clients={filteredClients}
+            onView={handleViewClient}
+            onEdit={handleEditClient}
+            onDelete={handleDeleteClient}
+          />
+        </CardContent>
+      </Card>
 
       {/* Client Wizard Modal */}
       <ClientWizardModal

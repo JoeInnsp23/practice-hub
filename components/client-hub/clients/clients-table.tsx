@@ -90,9 +90,8 @@ export function ClientsTable({
   }
 
   return (
-    <div className="glass-table">
-      <Table>
-        <TableHeader>
+    <Table>
+      <TableHeader>
           <TableRow>
             <TableHead>Code</TableHead>
             <TableHead>Name</TableHead>
@@ -163,7 +162,6 @@ export function ClientsTable({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
-    </div>
+    </Table>
   );
 }
