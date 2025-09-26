@@ -14,25 +14,25 @@ export function QuickActions({ className }: QuickActionsProps) {
     {
       label: "New Task",
       icon: Plus,
-      onClick: () => router.push("/practice-hub/tasks"),
+      onClick: () => router.push("/client-hub/tasks"),
       color: "bg-primary hover:bg-primary/90",
     },
     {
-      label: "New Client",
+      label: "Add Client",
       icon: Users,
-      onClick: () => router.push("/practice-hub/clients"),
+      onClick: () => router.push("/client-hub/clients"),
       color: "bg-green-600 hover:bg-green-700",
     },
     {
       label: "Log Time",
       icon: Clock,
-      onClick: () => router.push("/practice-hub/time-entry"),
+      onClick: () => router.push("/client-hub/time-entry"),
       color: "bg-orange-600 hover:bg-orange-700",
     },
     {
       label: "View Reports",
       icon: BarChart3,
-      onClick: () => router.push("/practice-hub/reports"),
+      onClick: () => router.push("/client-hub/reports"),
       color: "bg-purple-600 hover:bg-purple-700",
     },
   ];

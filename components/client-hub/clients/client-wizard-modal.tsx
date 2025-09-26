@@ -170,80 +170,103 @@ export function ClientWizardModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>{client ? 'Edit Client' : 'Add New Client'}</DialogTitle>
-          <DialogDescription>
-            Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].title}
+        <DialogHeader className="pb-4">
+          <DialogTitle className="text-xl font-semibold">
+            {client ? 'Edit Client' : 'Add New Client'}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {client
+              ? 'Update client information using the step-by-step wizard below.'
+              : 'Create a new client using the step-by-step wizard below.'}
           </DialogDescription>
+
+          {/* Progress Bar */}
+          <div className="space-y-3 pt-4">
+            <Progress value={progressValue} className="h-2" />
+            <div className="flex justify-between text-xs">
+              {STEPS.map((step, index) => (
+                <div
+                  key={step.id}
+                  className={`flex items-center space-x-1 ${
+                    index === currentStep
+                      ? 'text-primary font-medium'
+                      : index < currentStep
+                        ? 'text-green-600'
+                        : 'text-muted-foreground'
+                  }`}
+                >
+                  {index < currentStep ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <span className={`
+                      w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs
+                      ${index === currentStep
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-current'
+                      }
+                    `}>
+                      {index + 1}
+                    </span>
+                  )}
+                  <span className="hidden sm:inline">{step.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="py-4">
-          <Progress value={progressValue} className="mb-4" />
-
-          <div className="flex items-center gap-2 mb-6">
-            {STEPS.map((step, index) => (
-              <div
-                key={step.id}
-                className="flex items-center"
-              >
-                <div
-                  className={`
-                    w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                    ${index < currentStep
-                      ? 'bg-primary text-primary-foreground'
-                      : index === currentStep
-                        ? 'bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary'
-                        : 'bg-gray-200 text-gray-600'
-                    }
-                  `}
-                >
-                  {index < currentStep ? <Check className="h-4 w-4" /> : index + 1}
-                </div>
-                {index < STEPS.length - 1 && (
-                  <div
-                    className={`
-                      h-0.5 w-8 mx-1
-                      ${index < currentStep ? 'bg-primary' : 'bg-gray-200'}
-                    `}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-
+        {/* Step Content */}
+        <div className="flex-1 overflow-y-auto py-4">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">{STEPS[currentStep].title}</h3>
-            <p className="text-sm text-gray-600">{STEPS[currentStep].description}</p>
+            <h3 className="text-lg font-medium mb-2">
+              {STEPS[currentStep].title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {STEPS[currentStep].description}
+            </p>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto px-1">
           {renderStepContent()}
         </div>
 
-        <div className="flex justify-between items-center pt-6 border-t">
+        {/* Navigation */}
+        <div className="flex justify-between items-center pt-4 border-t">
           <Button
+            type="button"
             variant="outline"
             onClick={handlePrevious}
             disabled={currentStep === 0}
+            className="flex items-center space-x-2"
           >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Previous
+            <ChevronLeft className="h-4 w-4" />
+            <span>Previous</span>
           </Button>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
+          <div className="flex space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+            >
               Cancel
             </Button>
+
             {currentStep === STEPS.length - 1 ? (
-              <Button onClick={handleSave}>
-                <Check className="h-4 w-4 mr-2" />
-                Save Client
+              <Button
+                onClick={handleSave}
+                className="flex items-center space-x-2"
+              >
+                <Check className="h-4 w-4" />
+                <span>Save Client</span>
               </Button>
             ) : (
-              <Button onClick={handleNext} disabled={!validateCurrentStep()}>
-                Next
-                <ChevronRight className="h-4 w-4 ml-2" />
+              <Button
+                onClick={handleNext}
+                disabled={!validateCurrentStep()}
+                className="flex items-center space-x-2"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-4 w-4" />
               </Button>
             )}
           </div>
