@@ -40,7 +40,7 @@ export function QuickActions({ className }: QuickActionsProps) {
       label: "New Task",
       icon: Plus,
       onClick: () => setIsTaskModalOpen(true),
-      variant: "default" as const,
+      variant: "secondary" as const,
     },
     {
       label: "Add Client",
@@ -52,13 +52,13 @@ export function QuickActions({ className }: QuickActionsProps) {
       label: "Log Time",
       icon: Clock,
       onClick: () => setIsTimeEntryModalOpen(true),
-      variant: "outline" as const,
+      variant: "secondary" as const,
     },
     {
       label: "View Reports",
       icon: BarChart3,
       onClick: () => router.push("/client-hub/reports"),
-      variant: "ghost" as const,
+      variant: "secondary" as const,
     },
   ];
 
