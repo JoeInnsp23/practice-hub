@@ -1,7 +1,53 @@
 "use client";
 
-import { Sidebar } from "@/components/client-hub/sidebar";
+import {
+  LayoutDashboard,
+  Users,
+  CheckSquare,
+  FolderOpen,
+  Clock,
+  Timer,
+  FileText,
+  DollarSign,
+  Package,
+  Shield,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
+import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
+
+const navigation = [
+  { name: "Dashboard", href: "/client-hub", icon: LayoutDashboard },
+  { name: "Clients", href: "/client-hub/clients", icon: Users },
+  { name: "Tasks", href: "/client-hub/tasks", icon: CheckSquare },
+  { name: "Documents", href: "/client-hub/documents", icon: FolderOpen },
+];
+
+const sections = [
+  {
+    title: "Time Management",
+    items: [
+      { name: "Time Entry", href: "/client-hub/time-entry", icon: Clock },
+      { name: "Time Tracking", href: "/client-hub/time-tracking", icon: Timer },
+    ],
+  },
+  {
+    title: "Financial",
+    items: [
+      { name: "Invoices", href: "/client-hub/invoices", icon: DollarSign },
+      { name: "Services", href: "/client-hub/services", icon: Package },
+    ],
+  },
+  {
+    title: "Management",
+    items: [
+      { name: "Compliance", href: "/client-hub/compliance", icon: Shield },
+      { name: "Reports", href: "/client-hub/reports", icon: BarChart3 },
+      { name: "Settings", href: "/client-hub/settings", icon: Settings },
+    ],
+  },
+];
 
 export default function ClientHubLayout({
   children,
@@ -9,7 +55,7 @@ export default function ClientHubLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <GlobalHeader
         moduleName="Client Hub"
         title="Client Hub"
@@ -17,10 +63,13 @@ export default function ClientHubLayout({
         showBackToHome={true}
       />
       <div className="flex">
-        <Sidebar />
-        <div className="flex-1 lg:ml-64">
-          <main className="mt-16">{children}</main>
-        </div>
+        <GlobalSidebar
+          moduleName="Client Hub"
+          baseHref="/client-hub"
+          navigation={navigation}
+          sections={sections}
+        />
+        <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
       </div>
     </div>
   );
