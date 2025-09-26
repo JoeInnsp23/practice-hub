@@ -36,10 +36,6 @@ export function GlobalSidebar({
   return (
     <nav className="w-64 bg-white dark:bg-slate-800 shadow-sm min-h-[calc(100vh-4rem)] border-r border-gray-200 dark:border-slate-700">
       <div className="p-4">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
-          {moduleName}
-        </h2>
-
         {/* Main Navigation */}
         <div className="space-y-1">
           {navigation.map((item) => {
