@@ -30,6 +30,7 @@ export default function ProposalHubLayout({
           moduleName="Proposal Hub"
           baseHref="/proposal-hub"
           navigation={navigation}
+          moduleColor="#ec4899"
         />
 
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>

@@ -30,6 +30,7 @@ export default function SocialHubLayout({
           moduleName="Social Hub"
           baseHref="/social-hub"
           navigation={navigation}
+          moduleColor="#8b5cf6"
         />
 
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>

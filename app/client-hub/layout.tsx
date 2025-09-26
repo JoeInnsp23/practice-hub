@@ -68,6 +68,7 @@ export default function ClientHubLayout({
           baseHref="/client-hub"
           navigation={navigation}
           sections={sections}
+          moduleColor="#3b82f6"
         />
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
       </div>
