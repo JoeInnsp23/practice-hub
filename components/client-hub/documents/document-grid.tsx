@@ -109,14 +109,14 @@ export function DocumentGrid({
                   <Icon
                     className={cn(
                       "h-12 w-12",
-                      doc.type === "folder" ? "text-blue-500" : "text-gray-500"
+                      doc.type === "folder" ? "text-blue-500" : "text-slate-600"
                     )}
                   />
                   <div className="w-full">
                     <p className="text-sm font-medium truncate" title={doc.name}>
                       {doc.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-600">
                       {doc.type === "folder"
                         ? `${documents.filter(d => d.parentId === doc.id).length} items`
                         : formatFileSize(doc.size)
@@ -207,22 +207,22 @@ export function DocumentGrid({
                     <Icon
                       className={cn(
                         "h-5 w-5",
-                        doc.type === "folder" ? "text-blue-500" : "text-gray-500"
+                        doc.type === "folder" ? "text-blue-500" : "text-slate-600"
                       )}
                     />
                     <span className="font-medium">{doc.name}</span>
                   </div>
                 </td>
-                <td className="p-4 text-sm text-gray-600">
+                <td className="p-4 text-sm text-slate-700">
                   {doc.client || "-"}
                 </td>
-                <td className="p-4 text-sm text-gray-600">
+                <td className="p-4 text-sm text-slate-700">
                   {doc.type === "folder"
                     ? `${documents.filter(d => d.parentId === doc.id).length} items`
                     : formatFileSize(doc.size)
                   }
                 </td>
-                <td className="p-4 text-sm text-gray-600">
+                <td className="p-4 text-sm text-slate-700">
                   {formatDate(doc.modifiedAt)}
                 </td>
                 <td className="p-4">

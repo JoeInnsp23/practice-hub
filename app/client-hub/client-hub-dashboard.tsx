@@ -53,19 +53,19 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Dashboard
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          Welcome back, {displayName}!
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Welcome back, {displayName}! Here's an overview of your practice.
+        <p className="mt-2 text-slate-700 dark:text-slate-300 text-base">
+          Here's an overview of your practice dashboard.
         </p>
       </div>
 
       {/* KPI Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPIWidget
           title="Total Clients"
           value="156"
@@ -96,7 +96,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Activity Feed */}
         <div className="lg:col-span-2">
           <ActivityFeed activities={activities} />
@@ -109,7 +109,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
       </div>
 
       {/* Additional Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">£45,230</div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-slate-600 mt-2">
               +18% from last month
             </p>
           </CardContent>

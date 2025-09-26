@@ -176,7 +176,7 @@ export function ComplianceCalendar({ items, onItemClick }: ComplianceCalendarPro
                     className={cn(
                       "text-sm font-medium",
                       isToday(day) && "text-blue-600",
-                      !isCurrentMonth(day) && "text-gray-400"
+                      !isCurrentMonth(day) && "text-slate-500"
                     )}
                   >
                     {day.getDate()}
@@ -201,7 +201,7 @@ export function ComplianceCalendar({ items, onItemClick }: ComplianceCalendarPro
                     </div>
                   ))}
                   {dayItems.length > 3 && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-slate-600">
                       +{dayItems.length - 3} more
                     </span>
                   )}

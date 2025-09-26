@@ -98,7 +98,7 @@ export function TaskBoard({ tasks, onEditTask, onDeleteTask, onStatusChange }: T
               <ScrollArea className="h-[600px]">
                 <div className="space-y-3">
                   {columnTasks.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-slate-600">
                       <p className="text-sm">No tasks</p>
                       <p className="text-xs mt-1">Drag tasks here</p>
                     </div>

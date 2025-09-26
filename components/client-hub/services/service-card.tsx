@@ -70,7 +70,7 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-slate-700 dark:text-slate-300">
           {service.description}
         </p>
 
@@ -78,10 +78,10 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-green-600" />
             <span className="text-2xl font-bold">{formatCurrency(service.price)}</span>
-            <span className="text-sm text-gray-500">/ {getPriceLabel()}</span>
+            <span className="text-sm text-slate-600">/ {getPriceLabel()}</span>
           </div>
           {service.duration && (
-            <div className="flex items-center gap-1 text-sm text-gray-500">
+            <div className="flex items-center gap-1 text-sm text-slate-600">
               <Clock className="h-4 w-4" />
               {service.duration}
             </div>
@@ -91,7 +91,7 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         {service.features && service.features.length > 0 && (
           <div className="space-y-1">
             <p className="text-sm font-medium">Includes:</p>
-            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+            <ul className="text-sm text-slate-700 dark:text-slate-300 space-y-1">
               {service.features.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <span className="text-green-500 mr-2">✓</span>

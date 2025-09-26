@@ -84,7 +84,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
           <div className="flex-1">
             <h4 className="font-medium text-sm line-clamp-2">{task.title}</h4>
             {task.client && (
-              <p className="text-xs text-gray-600 mt-1">{task.client}</p>
+              <p className="text-xs text-slate-700 mt-1">{task.client}</p>
             )}
           </div>
           <DropdownMenu>
@@ -107,7 +107,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
       </CardHeader>
       <CardContent className="pt-0">
         {task.description && (
-          <p className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description}</p>
+          <p className="text-xs text-slate-700 mb-3 line-clamp-2">{task.description}</p>
         )}
 
         <div className="flex items-center justify-between mb-2">
@@ -132,7 +132,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
           </div>
         )}
 
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-xs text-slate-600">
           <div className="flex items-center gap-3">
             {task.dueDate && (
               <div className="flex items-center gap-1">

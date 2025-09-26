@@ -189,10 +189,10 @@ export default function TasksPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
             Tasks
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-slate-700 dark:text-slate-300 mt-2">
             Track and manage all your tasks and deadlines
           </p>
         </div>
@@ -224,7 +224,7 @@ export default function TasksPage() {
             <CardTitle>Task Board</CardTitle>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                 <Input
                   type="search"
                   placeholder="Search tasks..."
@@ -257,7 +257,7 @@ export default function TasksPage() {
               onStatusChange={handleStatusChange}
             />
           ) : (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-slate-600">
               List view coming soon...
             </div>
           )}

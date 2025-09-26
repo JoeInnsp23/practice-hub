@@ -94,7 +94,7 @@ export function ActivityFeed({
       case "time_entry":
         return "text-orange-600 bg-orange-50";
       default:
-        return "text-gray-600 bg-gray-50";
+        return "text-slate-700 bg-gray-50";
     }
   };
 
@@ -120,10 +120,10 @@ export function ActivityFeed({
                   {getActivityIcon(activity.type)}
                 </div>
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                     {activity.description}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 text-xs text-slate-600">
                     <span>{activity.user.name}</span>
                     <span>•</span>
                     <span>{formatDateTime(activity.timestamp)}</span>

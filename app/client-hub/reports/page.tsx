@@ -113,10 +113,10 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
             Reports & Analytics
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-slate-700 dark:text-slate-300 mt-2">
             Comprehensive business insights and performance metrics
           </p>
         </div>
@@ -233,7 +233,7 @@ export default function ReportsPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{service.service}</span>
-                      <span className="text-sm text-gray-500">{service.count} completed</span>
+                      <span className="text-sm text-slate-600">{service.count} completed</span>
                     </div>
                     <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                       <div
@@ -246,7 +246,7 @@ export default function ReportsPage() {
                   </div>
                   <div className="ml-4 text-right">
                     <p className="font-semibold">{formatCurrency(service.revenue)}</p>
-                    <p className="text-xs text-gray-500">Avg: {formatCurrency(service.avgPrice)}</p>
+                    <p className="text-xs text-slate-600">Avg: {formatCurrency(service.avgPrice)}</p>
                   </div>
                 </div>
               ))}
@@ -300,15 +300,15 @@ export default function ReportsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-500">Average Client Value</p>
+                <p className="text-sm text-slate-600">Average Client Value</p>
                 <p className="text-xl font-bold">{formatCurrency(kpis.totalRevenue / kpis.activeClients)}</p>
               </div>
               <div className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-500">Client Retention</p>
+                <p className="text-sm text-slate-600">Client Retention</p>
                 <p className="text-xl font-bold">92%</p>
               </div>
               <div className="p-4 border rounded-lg">
-                <p className="text-sm text-gray-500">New Clients</p>
+                <p className="text-sm text-slate-600">New Clients</p>
                 <p className="text-xl font-bold">8</p>
               </div>
             </div>

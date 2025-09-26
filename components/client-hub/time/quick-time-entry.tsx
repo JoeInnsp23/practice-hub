@@ -121,7 +121,7 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
           </Button>
         </div>
         {isTimerRunning && (
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-slate-600 mt-2">
             Timer running... {startTime && formatHours((new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60))}
           </p>
         )}

@@ -44,10 +44,10 @@ interface ClientsTableProps {
 export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTableProps) {
   const getStatusBadge = (status: Client["status"]) => {
     const statusConfig = {
-      active: { label: "Active", className: "bg-green-100 text-green-800" },
-      inactive: { label: "Inactive", className: "bg-gray-100 text-gray-800" },
-      prospect: { label: "Prospect", className: "bg-blue-100 text-blue-800" },
-      archived: { label: "Archived", className: "bg-red-100 text-red-800" },
+      active: { label: "Active", className: "bg-green-50 text-green-700 border-green-200" },
+      inactive: { label: "Inactive", className: "bg-slate-50 text-slate-700 border-slate-200" },
+      prospect: { label: "Prospect", className: "bg-blue-50 text-blue-700 border-blue-200" },
+      archived: { label: "Archived", className: "bg-red-50 text-red-700 border-red-200" },
     };
 
     const config = statusConfig[status];
@@ -60,10 +60,10 @@ export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTable
 
   const getTypeBadge = (type: Client["type"]) => {
     const typeConfig = {
-      individual: { label: "Individual", className: "bg-purple-100 text-purple-800" },
-      company: { label: "Company", className: "bg-blue-100 text-blue-800" },
-      trust: { label: "Trust", className: "bg-orange-100 text-orange-800" },
-      partnership: { label: "Partnership", className: "bg-indigo-100 text-indigo-800" },
+      individual: { label: "Individual", className: "bg-purple-50 text-purple-700 border-purple-200" },
+      company: { label: "Company", className: "bg-blue-50 text-blue-700 border-blue-200" },
+      trust: { label: "Trust", className: "bg-orange-50 text-orange-700 border-orange-200" },
+      partnership: { label: "Partnership", className: "bg-indigo-50 text-indigo-700 border-indigo-200" },
     };
 
     const config = typeConfig[type];
@@ -77,7 +77,7 @@ export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTable
   if (clients.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">No clients found</p>
+        <p className="text-slate-600">No clients found</p>
       </div>
     );
   }
@@ -104,11 +104,11 @@ export function ClientsTable({ clients, onView, onEdit, onDelete }: ClientsTable
               <TableCell className="font-medium">{client.name}</TableCell>
               <TableCell>{getTypeBadge(client.type)}</TableCell>
               <TableCell>{getStatusBadge(client.status)}</TableCell>
-              <TableCell className="text-sm text-gray-600">
+              <TableCell className="text-sm text-slate-700">
                 {client.email || "-"}
               </TableCell>
               <TableCell>{client.accountManager || "-"}</TableCell>
-              <TableCell className="text-sm text-gray-600">
+              <TableCell className="text-sm text-slate-700">
                 {formatDate(client.createdAt)}
               </TableCell>
               <TableCell className="text-right">

@@ -100,7 +100,7 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
             <CardTitle className="text-sm font-medium">Non-Billable</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-gray-600">
+            <p className="text-2xl font-bold text-slate-700">
               {formatHours(totalHours - billableHours)}
             </p>
           </CardContent>
@@ -138,7 +138,7 @@ export function TimesheetGrid({ entries, view, onEdit, onDelete, onDuplicate }: 
               <TableBody>
                 {entries.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={8} className="text-center py-8 text-slate-600">
                       No time entries for this period
                     </TableCell>
                   </TableRow>

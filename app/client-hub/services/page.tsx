@@ -257,10 +257,10 @@ export default function ServicesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
             Services
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-slate-700 dark:text-slate-300 mt-2">
             Manage your service catalog and pricing
           </p>
         </div>
@@ -329,7 +329,7 @@ export default function ServicesPage() {
             <CardTitle>Service Catalog</CardTitle>
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                 <Input
                   type="search"
                   placeholder="Search services..."
@@ -367,7 +367,7 @@ export default function ServicesPage() {
         </CardHeader>
         <CardContent>
           {filteredServices.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-slate-600">
               {searchTerm || categoryFilter !== "all"
                 ? "No services found matching your filters"
                 : "No services added yet"}
@@ -399,19 +399,19 @@ export default function ServicesPage() {
                           {service.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
                         {service.description}
                       </p>
                       <div className="flex items-center gap-6">
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-green-600" />
                           <span className="font-bold">{formatCurrency(service.price)}</span>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-slate-600">
                             / {service.priceType === "hourly" ? "hour" : service.priceType}
                           </span>
                         </div>
                         {service.duration && (
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-slate-600">
                             Duration: {service.duration}
                           </div>
                         )}

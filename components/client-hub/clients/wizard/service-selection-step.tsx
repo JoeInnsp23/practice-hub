@@ -89,7 +89,7 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-slate-700 mb-4">
           Select the services this client will need. You can configure specific details in the next step.
         </p>
       </div>
@@ -125,7 +125,7 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
                         onCheckedChange={() => toggleService(service.id)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <Icon className="h-5 w-5 text-gray-500 mt-0.5" />
+                      <Icon className="h-5 w-5 text-slate-600 mt-0.5" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Label className="cursor-pointer">{service.name}</Label>
@@ -133,7 +133,7 @@ export function ServiceSelectionStep({ formData, updateFormData }: ServiceSelect
                             <Badge variant="secondary" className="text-xs">Popular</Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-slate-700 mt-1">
                           {service.description}
                         </p>
                       </div>

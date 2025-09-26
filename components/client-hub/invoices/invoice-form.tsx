@@ -296,7 +296,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
               <CardContent>
                 <div className="space-y-2">
                   {/* Header */}
-                  <div className="grid grid-cols-12 gap-2 text-sm font-medium text-gray-600">
+                  <div className="grid grid-cols-12 gap-2 text-sm font-medium text-slate-700">
                     <div className="col-span-5">Description</div>
                     <div className="col-span-2 text-right">Quantity</div>
                     <div className="col-span-2 text-right">Rate</div>
@@ -378,11 +378,11 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                   <div className="flex justify-end">
                     <div className="w-64 space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Subtotal:</span>
+                        <span className="text-sm text-slate-700">Subtotal:</span>
                         <span className="font-medium">{formatCurrency(subtotal)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Tax:</span>
+                        <span className="text-sm text-slate-700">Tax:</span>
                         <span className="font-medium">{formatCurrency(taxTotal)}</span>
                       </div>
                       <div className="flex justify-between text-lg font-bold pt-2 border-t">

@@ -151,8 +151,8 @@ export function UploadModal({
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <Upload className="h-12 w-12 mx-auto mb-4 text-slate-500" />
+            <p className="text-sm text-slate-700 dark:text-slate-300 mb-2">
               Drag and drop your files here, or
             </p>
             <label htmlFor="file-upload">
@@ -179,10 +179,10 @@ export function UploadModal({
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <File className="h-5 w-5 text-gray-500" />
+                    <File className="h-5 w-5 text-slate-600" />
                     <div>
                       <p className="text-sm font-medium">{file.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-600">
                         {formatFileSize(file.size)}
                       </p>
                     </div>

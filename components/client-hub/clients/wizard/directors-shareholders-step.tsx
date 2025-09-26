@@ -88,7 +88,7 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
         </CardHeader>
         <CardContent>
           {directors.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-slate-600 text-center py-4">
               No directors added yet
             </p>
           ) : (
@@ -161,7 +161,7 @@ export function DirectorsShareholdersStep({ formData, updateFormData }: Director
         </CardHeader>
         <CardContent>
           {shareholders.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-slate-600 text-center py-4">
               No shareholders added yet
             </p>
           ) : (

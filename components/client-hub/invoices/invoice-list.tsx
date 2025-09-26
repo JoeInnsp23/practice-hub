@@ -99,7 +99,7 @@ export function InvoiceList({
         <TableBody>
           {invoices.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={7} className="text-center py-8 text-slate-600">
                 No invoices found
               </TableCell>
             </TableRow>
@@ -122,7 +122,7 @@ export function InvoiceList({
                         <span
                           className={cn(
                             "text-xs",
-                            isOverdue ? "text-red-600" : "text-gray-500"
+                            isOverdue ? "text-red-600" : "text-slate-600"
                           )}
                         >
                           {isOverdue

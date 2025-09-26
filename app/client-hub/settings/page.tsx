@@ -97,11 +97,11 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <Settings className="h-8 w-8" />
             Settings
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-slate-700 dark:text-slate-300 mt-2">
             Configure your practice management system
           </p>
         </div>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="emailNotif">Email Notifications</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-600">
                       Receive notifications via email
                     </p>
                   </div>
@@ -297,7 +297,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="smsNotif">SMS Notifications</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-600">
                       Receive notifications via SMS
                     </p>
                   </div>
@@ -312,7 +312,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="pushNotif">Push Notifications</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-600">
                       Browser push notifications
                     </p>
                   </div>
@@ -396,7 +396,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="twoFactor">Two-Factor Authentication</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-600">
                       Require 2FA for all users
                     </p>
                   </div>
@@ -469,7 +469,7 @@ export default function SettingsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-slate-700 dark:text-slate-300">
                       Last security audit: 15 days ago
                     </p>
                     <Button variant="outline" size="sm" className="mt-2">

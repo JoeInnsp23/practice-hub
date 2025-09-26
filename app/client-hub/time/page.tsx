@@ -11,7 +11,7 @@ export default function TimePage() {
       </div>
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow dark:shadow-slate-900/50">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-slate-600 dark:text-slate-500">
             No time entries yet. Start tracking time for your tasks.
           </p>
         </div>

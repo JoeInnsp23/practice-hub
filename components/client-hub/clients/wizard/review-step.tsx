@@ -41,19 +41,19 @@ export function ReviewStep({ formData }: ReviewStepProps) {
         <CardContent className="space-y-2">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Client Code:</span>
+              <span className="text-slate-600">Client Code:</span>
               <p className="font-medium">{formData.clientCode || 'Not provided'}</p>
             </div>
             <div>
-              <span className="text-gray-500">Name:</span>
+              <span className="text-slate-600">Name:</span>
               <p className="font-medium">{formData.name}</p>
             </div>
             <div>
-              <span className="text-gray-500">Type:</span>
+              <span className="text-slate-600">Type:</span>
               <p className="font-medium capitalize">{formData.type.replace(/_/g, ' ')}</p>
             </div>
             <div>
-              <span className="text-gray-500">Status:</span>
+              <span className="text-slate-600">Status:</span>
               <Badge variant={formData.status === 'active' ? 'default' : 'secondary'}>
                 {formData.status}
               </Badge>
@@ -95,18 +95,18 @@ export function ReviewStep({ formData }: ReviewStepProps) {
           <CardContent>
             <div className="text-sm space-y-1">
               <p>
-                <span className="text-gray-500">Billing Strategy:</span>{' '}
+                <span className="text-slate-600">Billing Strategy:</span>{' '}
                 <span className="font-medium capitalize">{formData.billingStrategy}</span>
               </p>
               {formData.billingStrategy === 'hourly' && formData.defaultHourlyRate && (
                 <p>
-                  <span className="text-gray-500">Hourly Rate:</span>{' '}
+                  <span className="text-slate-600">Hourly Rate:</span>{' '}
                   <span className="font-medium">£{formData.defaultHourlyRate}/hr</span>
                 </p>
               )}
               {formData.billingStrategy === 'retainer' && formData.monthlyRetainer && (
                 <p>
-                  <span className="text-gray-500">Monthly Retainer:</span>{' '}
+                  <span className="text-slate-600">Monthly Retainer:</span>{' '}
                   <span className="font-medium">£{formData.monthlyRetainer}/mo</span>
                 </p>
               )}
@@ -128,25 +128,25 @@ export function ReviewStep({ formData }: ReviewStepProps) {
             <div className="grid grid-cols-2 gap-4 text-sm">
               {formData.companiesHouseNumber && (
                 <div>
-                  <span className="text-gray-500">Companies House:</span>
+                  <span className="text-slate-600">Companies House:</span>
                   <p className="font-medium">{formData.companiesHouseNumber}</p>
                 </div>
               )}
               {formData.vatNumber && (
                 <div>
-                  <span className="text-gray-500">VAT Number:</span>
+                  <span className="text-slate-600">VAT Number:</span>
                   <p className="font-medium">{formData.vatNumber}</p>
                 </div>
               )}
               {formData.utr && (
                 <div>
-                  <span className="text-gray-500">UTR:</span>
+                  <span className="text-slate-600">UTR:</span>
                   <p className="font-medium">{formData.utr}</p>
                 </div>
               )}
               {formData.payeReference && (
                 <div>
-                  <span className="text-gray-500">PAYE Reference:</span>
+                  <span className="text-slate-600">PAYE Reference:</span>
                   <p className="font-medium">{formData.payeReference}</p>
                 </div>
               )}
@@ -211,7 +211,7 @@ export function ReviewStep({ formData }: ReviewStepProps) {
           <CardContent className="space-y-4">
             {formData.primaryContactName && (
               <div className="text-sm">
-                <p className="text-gray-500 mb-1">Primary Contact:</p>
+                <p className="text-slate-600 mb-1">Primary Contact:</p>
                 <p className="font-medium">{formData.primaryContactName}</p>
                 {formData.primaryContactEmail && <p>{formData.primaryContactEmail}</p>}
                 {formData.primaryContactPhone && <p>{formData.primaryContactPhone}</p>}
@@ -219,7 +219,7 @@ export function ReviewStep({ formData }: ReviewStepProps) {
             )}
             {formData.addressLine1 && (
               <div className="text-sm">
-                <p className="text-gray-500 mb-1">Address:</p>
+                <p className="text-slate-600 mb-1">Address:</p>
                 <p>{formData.addressLine1}</p>
                 {formData.addressLine2 && <p>{formData.addressLine2}</p>}
                 {formData.city && <p>{formData.city}, {formData.postalCode}</p>}

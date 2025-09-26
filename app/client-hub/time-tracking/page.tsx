@@ -197,10 +197,10 @@ export default function TimeTrackingPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
             Time Tracking
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-slate-700 dark:text-slate-300 mt-2">
             View and manage your time entries
           </p>
         </div>

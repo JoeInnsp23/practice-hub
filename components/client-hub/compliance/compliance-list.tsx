@@ -151,7 +151,7 @@ export function ComplianceList({
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={9} className="text-center py-8 text-slate-600">
                 No compliance items found
               </TableCell>
             </TableRow>
@@ -180,7 +180,7 @@ export function ComplianceList({
                         <span
                           className={cn(
                             "text-xs",
-                            isOverdue ? "text-red-600 font-semibold" : "text-gray-500"
+                            isOverdue ? "text-red-600 font-semibold" : "text-slate-600"
                           )}
                         >
                           {isOverdue

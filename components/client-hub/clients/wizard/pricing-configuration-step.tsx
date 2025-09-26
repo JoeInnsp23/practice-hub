@@ -37,7 +37,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                   <Label htmlFor="fixed" className="font-medium">
                     Fixed Fee per Service
                   </Label>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-700">
                     Each service has a predetermined fixed price
                   </p>
                 </div>
@@ -49,7 +49,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                   <Label htmlFor="hourly" className="font-medium">
                     Hourly Rate
                   </Label>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-700">
                     Bill based on time spent on each service
                   </p>
                 </div>
@@ -61,7 +61,7 @@ export function PricingConfigurationStep({ formData, updateFormData }: PricingCo
                   <Label htmlFor="retainer" className="font-medium">
                     Monthly Retainer
                   </Label>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-700">
                     Fixed monthly fee covering all services
                   </p>
                 </div>
