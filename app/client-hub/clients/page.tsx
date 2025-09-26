@@ -207,18 +207,15 @@ export default function ClientsPage() {
 
       {/* Filters and Table */}
       <div className="space-y-4">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-foreground">Client List</h2>
-          <ClientFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            typeFilter={typeFilter}
-            onTypeChange={setTypeFilter}
-            statusFilter={statusFilter}
-            onStatusChange={setStatusFilter}
-            onReset={resetFilters}
-          />
-        </div>
+        <ClientFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          onReset={resetFilters}
+        />
         <ClientsTable
           clients={filteredClients}
           onView={handleViewClient}
