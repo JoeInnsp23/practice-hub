@@ -13,6 +13,7 @@ import {
   Shield,
   BarChart3,
   Settings,
+  GitBranch,
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Dashboard", href: "/client-hub", icon: LayoutDashboard },
   { name: "Clients", href: "/client-hub/clients", icon: Users },
   { name: "Tasks", href: "/client-hub/tasks", icon: CheckSquare },
+  { name: "Workflows", href: "/client-hub/workflows", icon: GitBranch },
   { name: "Documents", href: "/client-hub/documents", icon: FolderOpen },
 ];
 
