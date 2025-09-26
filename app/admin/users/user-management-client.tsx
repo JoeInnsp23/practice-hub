@@ -311,7 +311,8 @@ export function UserManagementClient({
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
+          <div className="glass-table">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
@@ -390,6 +391,7 @@ export function UserManagementClient({
               ))}
             </TableBody>
           </Table>
+          </div>
           {filteredUsers.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               {searchQuery

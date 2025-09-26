@@ -121,7 +121,7 @@ export default function ClientsPage() {
       title: "Inactive",
       value: clients.filter((c) => c.status === "inactive").length.toString(),
       icon: UserX,
-      iconColor: "text-gray-600",
+      iconColor: "text-muted-foreground",
     },
   ];
 

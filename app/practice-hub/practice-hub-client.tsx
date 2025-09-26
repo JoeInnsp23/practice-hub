@@ -207,7 +207,7 @@ export function PracticeHubClient({
           {/* Favorites Tab (when implemented) */}
           <TabsContent value="favorites" className="mt-0">
             <div className="glass-card rounded-xl p-8 text-center">
-              <p className="text-slate-700 dark:text-slate-300">
+              <p className="text-muted-foreground">
                 No favorites yet. Star your most used apps for quick access.
               </p>
             </div>

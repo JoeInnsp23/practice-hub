@@ -2,7 +2,7 @@ export default function TimePage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">
+        <h1 className="text-3xl font-bold text-card-foreground">
           Time Tracking
         </h1>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">

@@ -322,7 +322,8 @@ export function FeedbackManagementClient({
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
+          <div className="glass-table">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Type</TableHead>
@@ -383,6 +384,7 @@ export function FeedbackManagementClient({
               ))}
             </TableBody>
           </Table>
+          </div>
           {filteredFeedback.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               No feedback found
