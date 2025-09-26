@@ -38,6 +38,7 @@ export const users = pgTable(
     role: varchar("role", { length: 50 }).default("member").notNull(), // admin, accountant, member
     status: varchar("status", { length: 20 }).default("active").notNull(), // pending, active, inactive
     isActive: boolean("is_active").default(true).notNull(),
+    hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -142,6 +143,27 @@ export const invoiceStatusEnum = pgEnum("invoice_status", [
   "paid",
   "overdue",
   "cancelled",
+]);
+
+// Work Type enum for time entries
+export const workTypeEnum = pgEnum("work_type", [
+  "work",
+  "admin",
+  "training",
+  "meeting",
+  "business_development",
+  "research",
+  "holiday",
+  "sick",
+  "time_off_in_lieu",
+]);
+
+// Time Entry Status enum
+export const timeEntryStatusEnum = pgEnum("time_entry_status", [
+  "draft",
+  "submitted",
+  "approved",
+  "rejected",
 ]);
 
 // Clients table
@@ -369,6 +391,9 @@ export const timeEntries = pgTable(
     endTime: varchar("end_time", { length: 8 }), // HH:MM:SS
     hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
 
+    // Work type
+    workType: workTypeEnum("work_type").default("work").notNull(),
+
     // Billing
     billable: boolean("billable").default(true).notNull(),
     billed: boolean("billed").default(false).notNull(),
@@ -380,7 +405,7 @@ export const timeEntries = pgTable(
     notes: text("notes"),
 
     // Approval workflow
-    status: varchar("status", { length: 50 }).default("draft"), // draft, submitted, approved, rejected
+    status: timeEntryStatusEnum("status").default("draft").notNull(),
     submittedAt: timestamp("submitted_at"),
     approvedById: uuid("approved_by_id").references(() => users.id, {
       onDelete: "set null",

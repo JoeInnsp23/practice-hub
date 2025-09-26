@@ -15,6 +15,7 @@ import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { TimeEntryModal } from "./time-entry-modal";
 import { useTimeEntries } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
+import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 
 interface HourlyTimesheetProps {
   initialWeekStart?: Date;
@@ -165,6 +166,34 @@ export function HourlyTimesheet({
         </div>
       )}
 
+      {/* Summary Bar */}
+      <div className="flex items-center px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-red-500 rounded"></div>
+            <span className="text-sm text-slate-700 dark:text-slate-300">Billable</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-blue-500 rounded"></div>
+            <span className="text-sm text-slate-700 dark:text-slate-300">Non-Billable</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 ml-auto text-sm">
+          <div className="text-slate-600 dark:text-slate-400">
+            <span className="font-medium">Week Total:</span>
+            <span className="ml-2 font-bold text-slate-800 dark:text-slate-200">
+              {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0}h
+            </span>
+          </div>
+          <div className="text-slate-600 dark:text-slate-400">
+            <span className="font-medium">Billable:</span>
+            <span className="ml-2 font-bold text-green-600 dark:text-green-400">
+              {timeEntries?.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0}h
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Timesheet Grid */}
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
@@ -237,30 +266,42 @@ export function HourlyTimesheet({
                     >
                       {entries.length > 0 && (
                         <div className="space-y-1">
-                          {entries.slice(0, 2).map((entry, idx) => (
-                            <div
-                              key={idx}
-                              className={cn(
-                                "text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow",
-                                entry.billable
-                                  ? "bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-500 dark:border-blue-400"
-                                  : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-l-2 border-slate-400 dark:border-slate-500"
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedEntry(entry);
-                                setSelectedDate(new Date(entry.date));
-                                setIsModalOpen(true);
-                              }}
-                            >
-                              <div className="font-medium truncate">
-                                {entry.client || "No client"}
+                          {entries.slice(0, 2).map((entry, idx) => {
+                            const workTypeColor = getWorkTypeColor(entry.workType || "work");
+                            const workTypeLabel = getWorkTypeLabel(entry.workType || "work");
+
+                            return (
+                              <div
+                                key={idx}
+                                className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
+                                style={{
+                                  backgroundColor: `${workTypeColor}20`,
+                                  borderLeftColor: workTypeColor,
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedEntry(entry);
+                                  setSelectedDate(new Date(entry.date));
+                                  setIsModalOpen(true);
+                                }}
+                              >
+                                <div className="flex items-center gap-1">
+                                  <div
+                                    className={cn(
+                                      "w-1.5 h-1.5 rounded-full flex-shrink-0",
+                                      entry.billable ? "bg-red-500" : "bg-blue-500"
+                                    )}
+                                  />
+                                  <span className="font-medium truncate flex-1">
+                                    {workTypeLabel}
+                                  </span>
+                                  {entry.hours && (
+                                    <span className="text-[10px]">{entry.hours}h</span>
+                                  )}
+                                </div>
                               </div>
-                              {entry.hours && (
-                                <div className="text-[10px]">{entry.hours}h</div>
-                              )}
-                            </div>
-                          ))}
+                            );
+                          })}
                           {entries.length > 2 && (
                             <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
                               +{entries.length - 2} more
@@ -277,16 +318,45 @@ export function HourlyTimesheet({
         </div>
       </div>
 
+      {/* Daily Totals Footer */}
+      <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3">
+        <div className="grid grid-cols-8 gap-0 min-w-[800px]">
+          <div className="text-center text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Daily Totals
+          </div>
+          {weekDays.map((day) => {
+            const dayEntries = getEntriesForSlot(day.date, 0); // Get all entries for the day
+            const dayTotal = dayEntries.reduce((sum, entry) => sum + entry.hours, 0);
+            const billableTotal = dayEntries.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0);
+
+            return (
+              <div key={day.date} className="text-center text-xs">
+                <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  {dayTotal > 0 ? `${dayTotal.toFixed(1)}h` : '-'}
+                </div>
+                {dayTotal > 0 && (
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">
+                    {billableTotal > 0 ? `${billableTotal.toFixed(1)}h billable` : 'Non-billable'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Time Entry Modal */}
       <TimeEntryModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedEntry(null);
+          setSelectedHour(null);
         }}
         onSave={handleSaveEntry}
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
+        selectedHour={selectedHour}
       />
     </div>
   );

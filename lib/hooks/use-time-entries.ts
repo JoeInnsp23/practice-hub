@@ -16,9 +16,12 @@ export interface TimeEntry {
   hours: number;
   billable: boolean;
   billed: boolean;
-  status?: "draft" | "submitted" | "approved";
+  status?: "draft" | "submitted" | "approved" | "rejected";
   userId?: string;
   user?: string;
+  workType?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 interface TimeEntryInput {
@@ -28,6 +31,9 @@ interface TimeEntryInput {
   description?: string;
   hours: number;
   billable: boolean;
+  workType?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 // Hook to fetch time entries
@@ -65,6 +71,9 @@ export function useTimeEntries(startDate?: string, endDate?: string) {
             billed: false,
             status: "approved",
             user: "Current User",
+            workType: "work",
+            startTime: "09:00",
+            endTime: "12:30",
           },
           {
             id: "2",
@@ -79,6 +88,9 @@ export function useTimeEntries(startDate?: string, endDate?: string) {
             billed: false,
             status: "submitted",
             user: "Current User",
+            workType: "work",
+            startTime: "14:00",
+            endTime: "16:00",
           },
         ];
 
@@ -179,6 +191,70 @@ export function useDeleteTimeEntry() {
       toast.success("Time entry deleted");
     } catch (error) {
       toast.error("Failed to delete time entry");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { mutateAsync, isLoading };
+}
+
+// Hook to submit week for approval
+export function useSubmitWeekForApproval() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { userId } = useAuth();
+
+  const mutateAsync = async (weekStart: string) => {
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      setIsLoading(true);
+      // API call would go here
+      // const response = await fetch("/api/time-entries/submit-week", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ weekStart }),
+      // });
+
+      toast.success("Week submitted for approval");
+      return { success: true };
+    } catch (error) {
+      toast.error("Failed to submit week");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { mutateAsync, isLoading };
+}
+
+// Hook to copy previous week entries
+export function useCopyPreviousWeek() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { userId } = useAuth();
+
+  const mutateAsync = async ({ sourceWeekStart, targetWeekStart }: { sourceWeekStart: string; targetWeekStart: string }) => {
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      setIsLoading(true);
+      // API call would go here
+      // const response = await fetch("/api/time-entries/copy-week", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ sourceWeekStart, targetWeekStart }),
+      // });
+
+      toast.success("Previous week copied successfully");
+      return { success: true };
+    } catch (error) {
+      toast.error("Failed to copy week");
       throw error;
     } finally {
       setIsLoading(false);

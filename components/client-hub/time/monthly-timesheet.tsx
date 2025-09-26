@@ -18,6 +18,7 @@ import {
 import { TimeEntryModal } from "./time-entry-modal";
 import { useTimeEntries } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
+import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 
 interface MonthlyTimesheetProps {
   initialDate?: Date;
@@ -225,40 +226,44 @@ export function MonthlyTimesheet({
 
                   {/* Time Entries */}
                   <div className="space-y-1">
-                    {dayEntries.slice(0, 3).map((entry, entryIndex) => (
-                      <div
-                        key={entryIndex}
-                        className={cn(
-                          "text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4",
-                          entry.billable
-                            ? "bg-blue-100 dark:bg-blue-500/20 border-blue-500 dark:border-blue-400"
-                            : "bg-slate-100 dark:bg-slate-700 border-slate-400 dark:border-slate-500"
-                        )}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openModal(day, entry);
-                        }}
-                      >
-                        <div className="flex items-center gap-1">
-                          {/* Billable/Non-billable dot */}
-                          <div
-                            className={cn(
-                              "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                              entry.billable ? "bg-blue-500 dark:bg-blue-400" : "bg-slate-400 dark:bg-slate-500"
-                            )}
-                          />
-                          <span className="font-medium text-slate-800 dark:text-slate-200 flex-1 min-w-0 truncate">
-                            {entry.client || entry.task || "Time entry"}
-                          </span>
-                          <span className="text-slate-600 dark:text-slate-400">{entry.hours}h</span>
-                        </div>
-                        {entry.description && (
-                          <div className="text-[10px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
-                            {entry.description}
+                    {dayEntries.slice(0, 3).map((entry, entryIndex) => {
+                      const workTypeColor = getWorkTypeColor(entry.workType || "work");
+                      const workTypeLabel = getWorkTypeLabel(entry.workType || "work");
+
+                      return (
+                        <div
+                          key={entryIndex}
+                          className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
+                          style={{
+                            backgroundColor: `${workTypeColor}20`,
+                            borderLeftColor: workTypeColor,
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openModal(day, entry);
+                          }}
+                        >
+                          <div className="flex items-center gap-1">
+                            {/* Billable/Non-billable dot */}
+                            <div
+                              className={cn(
+                                "w-1.5 h-1.5 rounded-full flex-shrink-0",
+                                entry.billable ? "bg-red-500" : "bg-blue-500"
+                              )}
+                            />
+                            <span className="font-medium text-slate-800 dark:text-slate-200 flex-1 min-w-0 truncate">
+                              {workTypeLabel}
+                            </span>
+                            <span className="text-slate-600 dark:text-slate-400">{entry.hours}h</span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          {entry.description && (
+                            <div className="text-[10px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                              {entry.description}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                     {dayEntries.length > 3 && (
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
                         +{dayEntries.length - 3} more
@@ -282,6 +287,7 @@ export function MonthlyTimesheet({
         onSave={handleSaveEntry}
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
+        selectedHour={null}
       />
     </div>
   );
