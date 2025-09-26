@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
@@ -69,6 +70,7 @@ const mockClients = [
 ];
 
 export default function ClientsPage() {
+  const router = useRouter();
   const [clients, setClients] = useState(mockClients);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -166,8 +168,7 @@ export default function ClientsPage() {
   };
 
   const handleViewClient = (client: any) => {
-    // In a real app, this would navigate to client detail page
-    toast.success(`Viewing ${client.name}`);
+    router.push(`/client-hub/clients/${client.id}`);
   };
 
   const resetFilters = () => {

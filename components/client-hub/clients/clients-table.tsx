@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -54,6 +55,8 @@ export function ClientsTable({
   onEdit,
   onDelete,
 }: ClientsTableProps) {
+  const router = useRouter();
+
   const getStatusBadge = (status: Client["status"]) => {
     const statusConfig = {
       active: { label: "Active", variant: "default" as const },
@@ -103,7 +106,11 @@ export function ClientsTable({
         </TableHeader>
         <TableBody>
           {clients.map((client) => (
-            <TableRow key={client.id}>
+            <TableRow
+              key={client.id}
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => router.push(`/client-hub/clients/${client.id}`)}
+            >
               <TableCell className="font-medium">{client.clientCode}</TableCell>
               <TableCell className="font-medium">{client.name}</TableCell>
               <TableCell>{getTypeBadge(client.type)}</TableCell>
@@ -115,7 +122,7 @@ export function ClientsTable({
               <TableCell className="text-sm text-muted-foreground">
                 {formatDate(client.createdAt)}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
