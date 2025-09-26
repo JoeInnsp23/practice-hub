@@ -22,7 +22,12 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   const { user } = useUser();
 
   // Use passed userName or fall back to Clerk user data
-  const displayName = userName || user?.firstName || "User";
+  // Convert to proper case (capitalize first letter of each word)
+  const rawName = userName || user?.firstName || "User";
+  const displayName = rawName
+    .split(/[\s-_]+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 
   // Mock data - in production, this would come from API
   const activities = [
@@ -53,12 +58,12 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="glass-card rounded-xl p-8">
-        <h1 className="text-3xl font-bold">Welcome back, {displayName}!</h1>
-        <p className="mt-2 text-muted-foreground text-base">
-          Here's an overview of your practice dashboard.
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground mt-2">
+          Welcome back, {displayName}! Here's an overview of your practice.
         </p>
       </div>
 
