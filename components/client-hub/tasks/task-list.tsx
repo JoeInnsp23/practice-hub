@@ -31,6 +31,8 @@ import {
   AlertTriangle,
   CheckCircle,
   User,
+  GitBranch,
+  Plus,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -209,6 +211,14 @@ export function TaskList({
                     ))}
                   </div>
                 )}
+                {task.workflowInstance && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <GitBranch className="h-3 w-3 text-blue-600" />
+                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {task.workflowInstance.template.name}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </TableCell>
             <TableCell>{task.client}</TableCell>
@@ -274,6 +284,21 @@ export function TaskList({
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  {!task.workflowInstance && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // In production, this would open the workflow assignment modal
+                          console.log("Assign workflow to task:", task.id);
+                        }}
+                      >
+                        <GitBranch className="mr-2 h-4 w-4" />
+                        Assign Workflow
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   <DropdownMenuItem>
                     <Clock className="mr-2 h-4 w-4" />
                     Log Time

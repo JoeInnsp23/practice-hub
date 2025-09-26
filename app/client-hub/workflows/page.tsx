@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,18 +19,24 @@ import {
   Settings,
   Clock,
   AlertCircle,
+  User,
+  Building2,
+  ExternalLink,
+  CheckSquare,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-// Mock data for workflow instances
+// Mock data for workflow instances (connected to tasks)
 const mockWorkflowInstances = [
   {
     id: "1",
     name: "VAT Return Q4 2024",
     status: "in_progress",
+    taskId: "1", // Link to the task
+    taskTitle: "Complete VAT return for ABC Company",
     client: { id: "1", name: "ABC Company Ltd" },
     template: { id: "1", name: "Standard VAT Return" },
-    tasks: [
+    checklistItems: [
       { id: "1", status: "completed", progress_percentage: 100 },
       { id: "2", status: "completed", progress_percentage: 100 },
       { id: "3", status: "in_progress", progress_percentage: 60 },
@@ -43,9 +50,11 @@ const mockWorkflowInstances = [
     id: "2",
     name: "Annual Accounts Preparation",
     status: "in_progress",
+    taskId: "2",
+    taskTitle: "Prepare annual accounts",
     client: { id: "2", name: "XYZ Ltd" },
     template: { id: "2", name: "Year-End Accounts" },
-    tasks: [
+    checklistItems: [
       { id: "5", status: "completed", progress_percentage: 100 },
       { id: "6", status: "in_progress", progress_percentage: 30 },
       { id: "7", status: "pending", progress_percentage: 0 },
@@ -60,9 +69,11 @@ const mockWorkflowInstances = [
     id: "3",
     name: "Payroll Processing October",
     status: "not_started",
+    taskId: "6",
+    taskTitle: "Payroll Processing - October",
     client: { id: "3", name: "Tech Innovations Ltd" },
     template: { id: "3", name: "Monthly Payroll" },
-    tasks: [
+    checklistItems: [
       { id: "10", status: "pending", progress_percentage: 0 },
       { id: "11", status: "pending", progress_percentage: 0 },
       { id: "12", status: "pending", progress_percentage: 0 },
@@ -75,9 +86,11 @@ const mockWorkflowInstances = [
     id: "4",
     name: "CT600 Submission",
     status: "completed",
+    taskId: "4",
+    taskTitle: "Submit CT600 return",
     client: { id: "4", name: "Green Solutions Ltd" },
     template: { id: "4", name: "Corporation Tax Return" },
-    tasks: [
+    checklistItems: [
       { id: "13", status: "completed", progress_percentage: 100 },
       { id: "14", status: "completed", progress_percentage: 100 },
       { id: "15", status: "completed", progress_percentage: 100 },
@@ -178,6 +191,7 @@ const mockWorkflowTemplates = [
 ];
 
 export default function WorkflowsPage() {
+  const router = useRouter();
   const [workflowInstances, setWorkflowInstances] = useState(mockWorkflowInstances);
   const [workflowTemplates] = useState(mockWorkflowTemplates);
   const [isInstanceModalOpen, setIsInstanceModalOpen] = useState(false);
@@ -214,13 +228,12 @@ export default function WorkflowsPage() {
     }
   };
 
-  const calculateProgress = (tasks: any[]) => {
-    if (!tasks || tasks.length === 0) return 0;
-    const totalProgress = tasks.reduce(
-      (sum, task) => sum + (task.progress_percentage || 0),
-      0
-    );
-    return Math.round(totalProgress / tasks.length);
+  const calculateProgress = (checklistItems: any[]) => {
+    if (!checklistItems || checklistItems.length === 0) return 0;
+    const completedItems = checklistItems.filter(
+      (item) => item.status === "completed"
+    ).length;
+    return Math.round((completedItems / checklistItems.length) * 100);
   };
 
   const workflowStats = [
@@ -343,12 +356,25 @@ export default function WorkflowsPage() {
               {workflowInstances
                 .filter((w) => w.status !== "completed")
                 .map((workflow) => (
-                  <Card key={workflow.id} className="hover:shadow-lg transition-shadow">
+                  <Card
+                    key={workflow.id}
+                    className="hover:shadow-lg transition-shadow cursor-pointer group"
+                    onClick={() => router.push(`/client-hub/tasks/${workflow.taskId}`)}
+                  >
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium truncate">
-                          {workflow.name}
-                        </CardTitle>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-sm font-medium truncate flex items-center gap-2">
+                            {workflow.name}
+                            <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <CheckSquare className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground truncate">
+                              Task: {workflow.taskTitle}
+                            </span>
+                          </div>
+                        </div>
                         <Badge className={getStatusColor(workflow.status)}>
                           <div className="flex items-center gap-1">
                             {getStatusIcon(workflow.status)}
@@ -358,8 +384,13 @@ export default function WorkflowsPage() {
                           </div>
                         </Badge>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {workflow.client.name} • {workflow.template.name}
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          <span>{workflow.client.name}</span>
+                        </div>
+                        <span>•</span>
+                        <span>{workflow.template.name}</span>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -367,23 +398,23 @@ export default function WorkflowsPage() {
                         <div>
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-xs text-muted-foreground">
-                              Progress
+                              Checklist Progress
                             </span>
                             <span className="text-xs font-medium">
-                              {calculateProgress(workflow.tasks)}%
+                              {calculateProgress(workflow.checklistItems)}%
                             </span>
                           </div>
                           <Progress
-                            value={calculateProgress(workflow.tasks)}
+                            value={calculateProgress(workflow.checklistItems)}
                             className="h-2"
                           />
                         </div>
                         <div className="flex justify-between items-center text-xs text-muted-foreground">
-                          <span>{workflow.tasks.length} tasks</span>
+                          <span>{workflow.checklistItems.length} checklist items</span>
                           <span>
                             {
-                              workflow.tasks.filter(
-                                (t) => t.status === "completed"
+                              workflow.checklistItems.filter(
+                                (item) => item.status === "completed"
                               ).length
                             }{" "}
                             completed
@@ -396,9 +427,12 @@ export default function WorkflowsPage() {
                               Due {workflow.dueDate.toLocaleDateString()}
                             </span>
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {workflow.assignee}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
+                              {workflow.assignee}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
