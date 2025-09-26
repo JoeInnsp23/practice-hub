@@ -9,7 +9,7 @@ import { DateTimeDisplay } from "@/components/shared/DateTimeDisplay";
 
 export function AdminHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border shadow-sm bg-white dark:bg-slate-900">
+    <header className="glass-subtle sticky top-0 z-50 border-b">
       <div className="flex h-16 items-center justify-between">
         {/* Left Section - matches GlobalHeader structure */}
         <div className="flex items-center">

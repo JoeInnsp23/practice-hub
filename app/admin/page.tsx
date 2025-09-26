@@ -64,7 +64,7 @@ export default async function AdminDashboardPage() {
           const Icon = section.icon;
           return (
             <Link key={section.href} href={section.href}>
-              <Card className="hover:shadow-lg dark:hover:shadow-slate-700/50 transition-shadow cursor-pointer h-full bg-card border">
+              <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
                 <CardHeader>
                   <div
                     className={`w-12 h-12 ${section.bgColor} rounded-lg flex items-center justify-center mb-3`}
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* System Information Card */}
-      <Card className="bg-card border">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-orange-500" />
