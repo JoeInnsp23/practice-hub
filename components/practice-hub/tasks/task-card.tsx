@@ -1,0 +1,163 @@
+"use client";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Calendar,
+  Clock,
+  MoreVertical,
+  User,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/format";
+
+interface TaskCardProps {
+  task: {
+    id: string;
+    title: string;
+    description?: string;
+    status: "pending" | "in_progress" | "completed" | "cancelled";
+    priority: "low" | "medium" | "high" | "urgent";
+    dueDate?: Date;
+    assignee?: {
+      name: string;
+      avatar?: string;
+    };
+    client?: string;
+    estimatedHours?: number;
+    actualHours?: number;
+    tags?: string[];
+  };
+  onEdit: (task: any) => void;
+  onDelete: (task: any) => void;
+  onStatusChange: (taskId: string, status: string) => void;
+}
+
+export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardProps) {
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "urgent":
+        return "border-red-500 bg-red-50";
+      case "high":
+        return "border-orange-500 bg-orange-50";
+      case "medium":
+        return "border-yellow-500 bg-yellow-50";
+      case "low":
+        return "border-green-500 bg-green-50";
+      default:
+        return "";
+    }
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    const config = {
+      urgent: { label: "Urgent", className: "bg-red-100 text-red-800" },
+      high: { label: "High", className: "bg-orange-100 text-orange-800" },
+      medium: { label: "Medium", className: "bg-yellow-100 text-yellow-800" },
+      low: { label: "Low", className: "bg-green-100 text-green-800" },
+    };
+
+    const { label, className } = config[priority as keyof typeof config];
+    return (
+      <Badge variant="secondary" className={cn(className)}>
+        {label}
+      </Badge>
+    );
+  };
+
+  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "completed";
+
+  return (
+    <Card className={cn("cursor-move hover:shadow-md transition-shadow", getPriorityColor(task.priority))}>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <h4 className="font-medium text-sm line-clamp-2">{task.title}</h4>
+            {task.client && (
+              <p className="text-xs text-gray-600 mt-1">{task.client}</p>
+            )}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <MoreVertical className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(task)}>Edit</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusChange(task.id, "completed")}>
+                Mark Complete
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(task)} className="text-red-600">
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {task.description && (
+          <p className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description}</p>
+        )}
+
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            {getPriorityBadge(task.priority)}
+            {isOverdue && (
+              <Badge variant="destructive" className="text-xs">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Overdue
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {task.tags && task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {task.tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center gap-3">
+            {task.dueDate && (
+              <div className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                <span>{formatDate(task.dueDate)}</span>
+              </div>
+            )}
+            {task.estimatedHours && (
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                <span>{task.estimatedHours}h</span>
+              </div>
+            )}
+          </div>
+          {task.assignee && (
+            <div className="flex items-center gap-1">
+              <Avatar className="h-5 w-5">
+                <AvatarFallback className="text-[10px]">
+                  {task.assignee.name.split(" ").map((n) => n[0]).join("")}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
