@@ -87,9 +87,9 @@ export function MonthlyTimesheet({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-white dark:bg-slate-800 rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center space-x-4">
           {/* Month Navigation */}
           <div className="flex items-center space-x-2">
@@ -102,7 +102,7 @@ export function MonthlyTimesheet({
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <div className="text-base font-semibold text-foreground min-w-[200px] text-center">
+            <div className="text-base font-semibold text-slate-900 dark:text-slate-100 min-w-[200px] text-center">
               {format(currentDate, "MMMM yyyy")}
             </div>
 
@@ -120,7 +120,7 @@ export function MonthlyTimesheet({
         {/* New Time Entry Button */}
         <Button
           onClick={() => openModal(new Date())}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Time Entry
@@ -128,28 +128,28 @@ export function MonthlyTimesheet({
       </div>
 
       {/* Summary Bar */}
-      <div className="flex items-center space-x-6 px-4 py-2 bg-muted/50 border-b">
+      <div className="flex items-center space-x-6 px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded"></div>
-          <span className="text-sm">Billable</span>
+          <span className="text-sm text-slate-700 dark:text-slate-300">Billable</span>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-muted-foreground/50 rounded"></div>
-          <span className="text-sm">Non-Billable</span>
+          <div className="w-4 h-4 bg-slate-400 dark:bg-slate-500 rounded"></div>
+          <span className="text-sm text-slate-700 dark:text-slate-300">Non-Billable</span>
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-slate-600 dark:text-slate-400">
           Total: {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0} hours
         </div>
       </div>
 
       {/* View Toggle */}
       {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground"
+              className="text-slate-600 dark:text-slate-400"
               onClick={() => onViewChange("weekly")}
             >
               Week
@@ -162,7 +162,7 @@ export function MonthlyTimesheet({
             variant="ghost"
             size="sm"
             onClick={() => setCurrentDate(new Date())}
-            className="text-primary"
+            className="text-blue-600 dark:text-blue-400"
           >
             Today
           </Button>
@@ -173,11 +173,11 @@ export function MonthlyTimesheet({
       <div className="flex-1 overflow-auto">
         <div className="h-full">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-0 border-b bg-muted/50">
+          <div className="grid grid-cols-7 gap-0 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="p-3 text-center text-sm font-medium text-foreground border-r last:border-r-0"
+                className="p-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 last:border-r-0"
               >
                 {day}
               </div>
@@ -197,10 +197,11 @@ export function MonthlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "border-r border-b last:border-r-0 min-h-[120px] p-2 cursor-pointer hover:bg-muted/30",
-                    !isCurrentMonth && "bg-muted/30 text-muted-foreground/50",
-                    isToday && "bg-primary/10 border-primary/50",
-                    isWeekend && isCurrentMonth && "bg-muted/20"
+                    "border-r border-b border-slate-200 dark:border-slate-700 last:border-r-0 min-h-[120px] p-2 cursor-pointer",
+                    "hover:bg-slate-50 dark:hover:bg-slate-700/30",
+                    !isCurrentMonth && "bg-slate-50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500",
+                    isToday && "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/50",
+                    isWeekend && isCurrentMonth && !isToday && "bg-slate-50 dark:bg-slate-800/50"
                   )}
                   onClick={() => openModal(day)}
                 >
@@ -209,14 +210,14 @@ export function MonthlyTimesheet({
                     <span
                       className={cn(
                         "text-sm font-medium",
-                        isToday &&
-                          "bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                        isToday && "bg-blue-600 dark:bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                        !isCurrentMonth && "text-slate-400 dark:text-slate-500"
                       )}
                     >
                       {format(day, "d")}
                     </span>
                     {totalHours > 0 && (
-                      <span className="text-xs text-muted-foreground font-medium">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                         {totalHours.toFixed(1)}h
                       </span>
                     )}
@@ -230,8 +231,8 @@ export function MonthlyTimesheet({
                         className={cn(
                           "text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4",
                           entry.billable
-                            ? "bg-blue-500/20 border-blue-500 dark:border-blue-400"
-                            : "bg-muted border-muted-foreground/50"
+                            ? "bg-blue-100 dark:bg-blue-500/20 border-blue-500 dark:border-blue-400"
+                            : "bg-slate-100 dark:bg-slate-700 border-slate-400 dark:border-slate-500"
                         )}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -243,23 +244,23 @@ export function MonthlyTimesheet({
                           <div
                             className={cn(
                               "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                              entry.billable ? "bg-blue-500 dark:bg-blue-400" : "bg-muted-foreground/50"
+                              entry.billable ? "bg-blue-500 dark:bg-blue-400" : "bg-slate-400 dark:bg-slate-500"
                             )}
                           />
-                          <span className="font-medium text-foreground flex-1 min-w-0 truncate">
+                          <span className="font-medium text-slate-800 dark:text-slate-200 flex-1 min-w-0 truncate">
                             {entry.client || entry.task || "Time entry"}
                           </span>
-                          <span className="text-muted-foreground">{entry.hours}h</span>
+                          <span className="text-slate-600 dark:text-slate-400">{entry.hours}h</span>
                         </div>
                         {entry.description && (
-                          <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                          <div className="text-[10px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
                             {entry.description}
                           </div>
                         )}
                       </div>
                     ))}
                     {dayEntries.length > 3 && (
-                      <div className="text-[10px] text-muted-foreground text-center">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
                         +{dayEntries.length - 3} more
                       </div>
                     )}

@@ -98,9 +98,9 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-white dark:bg-slate-800 rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center space-x-4">
           {/* Week Navigation */}
           <div className="flex items-center space-x-2">
@@ -113,7 +113,7 @@ export function HourlyTimesheet({
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <div className="text-base font-semibold text-foreground min-w-[200px] text-center">
+            <div className="text-base font-semibold text-slate-900 dark:text-slate-100 min-w-[200px] text-center">
               Week of {format(currentWeek, "MMM d, yyyy")}
             </div>
 
@@ -131,7 +131,7 @@ export function HourlyTimesheet({
         {/* New Time Entry Button */}
         <Button
           onClick={() => openModal(new Date())}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Time Entry
@@ -140,7 +140,7 @@ export function HourlyTimesheet({
 
       {/* View Toggle */}
       {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center space-x-2">
             <Button variant="default" size="sm">
               Week
@@ -148,7 +148,7 @@ export function HourlyTimesheet({
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground"
+              className="text-slate-600 dark:text-slate-400"
               onClick={() => onViewChange("monthly")}
             >
               Month
@@ -158,7 +158,7 @@ export function HourlyTimesheet({
             variant="ghost"
             size="sm"
             onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-            className="text-primary"
+            className="text-blue-600 dark:text-blue-400"
           >
             Today
           </Button>
@@ -169,8 +169,8 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-muted/50 z-10 border-b">
-            <div className="p-3 text-center text-sm font-medium text-foreground border-r">
+          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-slate-50 dark:bg-slate-800/50 z-10 border-b border-slate-200 dark:border-slate-700">
+            <div className="p-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
               Time
             </div>
             {weekDays.map((day, index) => {
@@ -180,15 +180,21 @@ export function HourlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "p-3 text-center text-sm font-medium border-r last:border-r-0",
-                    isToday && "bg-primary/10",
-                    isWeekend && "bg-muted/30"
+                    "p-3 text-center text-sm font-medium border-r border-slate-200 dark:border-slate-700 last:border-r-0",
+                    isToday && "bg-blue-50 dark:bg-blue-500/10",
+                    isWeekend && !isToday && "bg-slate-100 dark:bg-slate-800/70"
                   )}
                 >
-                  <div className={cn(isToday && "text-primary font-semibold")}>
+                  <div className={cn(
+                    "text-slate-700 dark:text-slate-300",
+                    isToday && "text-blue-600 dark:text-blue-400 font-semibold"
+                  )}>
                     {format(day, "EEE")}
                   </div>
-                  <div className={cn("text-xs", isToday ? "text-primary" : "text-muted-foreground")}>
+                  <div className={cn(
+                    "text-xs",
+                    isToday ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
+                  )}>
                     {format(day, "MMM d")}
                   </div>
                 </div>
@@ -203,12 +209,12 @@ export function HourlyTimesheet({
               <div
                 key={slot.hour}
                 data-hour={slot.hour}
-                className="grid grid-cols-8 gap-0 border-b hover:bg-muted/30"
+                className="grid grid-cols-8 gap-0 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/30"
               >
                 <div
                   className={cn(
-                    "p-3 text-center text-sm font-medium text-foreground border-r",
-                    isCurrentHour && "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                    "p-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700",
+                    isCurrentHour && "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400"
                   )}
                 >
                   {slot.display}
@@ -222,9 +228,10 @@ export function HourlyTimesheet({
                     <div
                       key={day.toISOString()}
                       className={cn(
-                        "p-2 min-h-[60px] border-r last:border-r-0 cursor-pointer hover:bg-muted/30",
-                        isWeekend && "bg-muted/20",
-                        isToday && isCurrentHour && "bg-orange-500/10"
+                        "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer",
+                        "hover:bg-slate-100 dark:hover:bg-slate-700/50",
+                        isWeekend && "bg-slate-50 dark:bg-slate-800/50",
+                        isToday && isCurrentHour && "bg-orange-50 dark:bg-orange-500/10"
                       )}
                       onClick={() => openModal(day, slot.hour)}
                     >
@@ -236,8 +243,8 @@ export function HourlyTimesheet({
                               className={cn(
                                 "text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow",
                                 entry.billable
-                                  ? "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-500"
-                                  : "bg-muted text-muted-foreground border-l-2 border-muted-foreground/50"
+                                  ? "bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-500 dark:border-blue-400"
+                                  : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-l-2 border-slate-400 dark:border-slate-500"
                               )}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -255,7 +262,7 @@ export function HourlyTimesheet({
                             </div>
                           ))}
                           {entries.length > 2 && (
-                            <div className="text-[10px] text-muted-foreground text-center">
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
                               +{entries.length - 2} more
                             </div>
                           )}
