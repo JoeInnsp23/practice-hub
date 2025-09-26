@@ -162,31 +162,25 @@
  * ============================================================================ */
 
 @layer components {
-  /* Primary glassmorphic card style - use for main content cards */
+  /* Primary card style - solid with nice shadows for depth */
   .glass-card {
-    background: rgba(255, 255, 255, var(--glass-opacity-medium));
-    backdrop-filter: saturate(150%) blur(var(--glass-blur-strong));
-    -webkit-backdrop-filter: saturate(150%) blur(var(--glass-blur-strong));
-    border: 1px solid rgba(226, 232, 240, var(--glass-border-opacity));
-    box-shadow: var(--glass-shadow-light);
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(226, 232, 240);
+    box-shadow: 0 10px 40px rgba(148, 163, 184, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
-  /* Subtle glass effect - use for headers, sidebars */
+  /* Subtle style - for headers, sidebars */
   .glass-subtle {
-    background: rgba(255, 255, 255, var(--glass-opacity-subtle));
-    backdrop-filter: blur(var(--glass-blur-subtle));
-    -webkit-backdrop-filter: blur(var(--glass-blur-subtle));
-    border: 1px solid rgba(226, 232, 240, var(--glass-border-opacity));
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(226, 232, 240);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
-  /* Strong glass effect - use for overlays, modals */
+  /* Strong style - for overlays, modals */
   .glass-strong {
-    background: rgba(255, 255, 255, var(--glass-opacity-strong));
-    backdrop-filter: blur(var(--glass-blur-strong));
-    -webkit-backdrop-filter: blur(var(--glass-blur-strong));
-    border: 1px solid rgba(226, 232, 240, var(--glass-border-opacity));
-    box-shadow: var(--glass-shadow-light);
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(226, 232, 240);
+    box-shadow: 0 10px 40px rgba(148, 163, 184, 0.2), 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   /* Solid card for better readability */
@@ -206,29 +200,23 @@
       0 1px 2px 0 rgba(0, 0, 0, 0.06);
   }
 
-  /* Dark mode glassmorphic styles */
+  /* Dark mode solid styles */
   .dark .glass-card {
-    background: rgba(30, 41, 59, var(--glass-opacity-medium));
-    backdrop-filter: saturate(150%) blur(var(--glass-blur-strong));
-    -webkit-backdrop-filter: saturate(150%) blur(var(--glass-blur-strong));
-    border: 1px solid rgba(51, 65, 85, var(--glass-border-opacity));
-    box-shadow: var(--glass-shadow-dark);
+    background: rgb(30, 41, 59);
+    border: 1px solid rgb(51, 65, 85);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .dark .glass-subtle {
-    background: rgba(30, 41, 59, var(--glass-opacity-subtle));
-    backdrop-filter: blur(var(--glass-blur-subtle));
-    -webkit-backdrop-filter: blur(var(--glass-blur-subtle));
-    border: 1px solid rgba(51, 65, 85, var(--glass-border-opacity));
+    background: rgb(30, 41, 59);
+    border: 1px solid rgb(51, 65, 85);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .dark .glass-strong {
-    background: rgba(30, 41, 59, var(--glass-opacity-strong));
-    backdrop-filter: blur(var(--glass-blur-strong));
-    -webkit-backdrop-filter: blur(var(--glass-blur-strong));
-    border: 1px solid rgba(51, 65, 85, var(--glass-border-opacity));
-    box-shadow: var(--glass-shadow-dark);
+    background: rgb(30, 41, 59);
+    border: 1px solid rgb(51, 65, 85);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .glass-primary {
