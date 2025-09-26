@@ -190,7 +190,8 @@ export function TimeEntryModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
@@ -438,10 +439,10 @@ export function TimeEntryModal({
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+      </Dialog>
 
-    {/* Delete Confirmation Dialog */}
-    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -456,7 +457,7 @@ export function TimeEntryModal({
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-    </AlertDialog>
+      </AlertDialog>
     </>
   );
 }
