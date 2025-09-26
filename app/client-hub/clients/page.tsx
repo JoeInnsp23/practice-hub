@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -216,9 +216,7 @@ export default function ClientsPage() {
       {/* Client List with Filters and Table */}
       <Card className="glass-card">
         <CardHeader>
-          <div className="space-y-4">
-            <CardTitle>Client List</CardTitle>
-            <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
               {/* Search */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -271,7 +269,6 @@ export default function ClientsPage() {
                 </Button>
               )}
             </div>
-          </div>
         </CardHeader>
         <CardContent className="p-0">
           <ClientsTable
