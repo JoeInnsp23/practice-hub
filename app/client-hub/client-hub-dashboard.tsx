@@ -55,7 +55,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-card text-card-foreground rounded-xl border p-8 shadow-sm">
+      <div className="glass-card rounded-xl p-8">
         <h1 className="text-3xl font-bold">Welcome back, {displayName}!</h1>
         <p className="mt-2 text-muted-foreground text-base">
           Here's an overview of your practice dashboard.

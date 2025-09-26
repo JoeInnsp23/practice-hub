@@ -185,7 +185,7 @@ export function DocumentGrid({
 
   // List View
   return (
-    <div className="rounded-md border">
+    <div className="glass-table">
       <table className="w-full">
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>

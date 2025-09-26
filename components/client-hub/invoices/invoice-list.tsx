@@ -90,7 +90,7 @@ export function InvoiceList({
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="glass-table">
       <Table>
         <TableHeader>
           <TableRow>

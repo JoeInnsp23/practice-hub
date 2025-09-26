@@ -183,6 +183,15 @@
     box-shadow: 0 10px 40px rgba(148, 163, 184, 0.2), 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
+  /* Table container style - consistent with cards */
+  .glass-table {
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(226, 232, 240);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 40px rgba(148, 163, 184, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
   /* Solid card for better readability */
   .solid-card {
     background: rgba(255, 255, 255, 1);
@@ -217,6 +226,12 @@
     background: rgb(30, 41, 59);
     border: 1px solid rgb(51, 65, 85);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .glass-table {
+    background: rgb(30, 41, 59);
+    border: 1px solid rgb(51, 65, 85);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .glass-primary {

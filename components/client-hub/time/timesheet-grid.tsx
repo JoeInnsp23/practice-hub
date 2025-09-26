@@ -144,7 +144,7 @@ export function TimesheetGrid({
           <CardTitle>Time Entries</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="glass-table">
             <Table>
               <TableHeader>
                 <TableRow>

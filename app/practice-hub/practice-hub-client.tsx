@@ -169,7 +169,7 @@ export function PracticeHubClient({
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-card border rounded-xl p-8 shadow-sm">
+      <div className="glass-card rounded-xl p-8">
         <h1 className="text-3xl font-bold text-card-foreground">
           Welcome to Practice Hub, {displayName}!
         </h1>
@@ -206,7 +206,7 @@ export function PracticeHubClient({
 
           {/* Favorites Tab (when implemented) */}
           <TabsContent value="favorites" className="mt-0">
-            <div className="bg-card border rounded-xl p-8 text-center shadow-sm">
+            <div className="glass-card rounded-xl p-8 text-center">
               <p className="text-slate-700 dark:text-slate-300">
                 No favorites yet. Star your most used apps for quick access.
               </p>
