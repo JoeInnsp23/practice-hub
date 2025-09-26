@@ -105,7 +105,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-lg sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Submit Feedback</DialogTitle>

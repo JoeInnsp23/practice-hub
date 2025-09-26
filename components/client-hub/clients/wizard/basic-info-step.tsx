@@ -95,6 +95,9 @@ export function BasicInfoStep({
           <div className="space-y-3">
             <div className="flex gap-2">
               <Input
+                id="companySearch"
+                name="companySearch"
+                autoComplete="off"
                 placeholder="Search by company name or registration number..."
                 className="flex-1"
               />
@@ -123,6 +126,8 @@ export function BasicInfoStep({
             </Label>
             <Input
               id="name"
+              name="clientName"
+              autoComplete="organization"
               value={formData.name}
               onChange={(e) => updateFormData({ name: e.target.value })}
               placeholder="Enter client or company name"
@@ -144,6 +149,8 @@ export function BasicInfoStep({
             <div className="flex gap-2">
               <Input
                 id="clientCode"
+                name="clientCode"
+                autoComplete="off"
                 value={formData.clientCode || ""}
                 onChange={(e) =>
                   updateFormData({ clientCode: e.target.value })
@@ -171,14 +178,14 @@ export function BasicInfoStep({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="type">
+            <Label htmlFor="clientType">
               Client Type <span className="text-destructive">*</span>
             </Label>
             <Select
               value={formData.type}
               onValueChange={(value) => updateFormData({ type: value })}
             >
-              <SelectTrigger className="text-base">
+              <SelectTrigger id="clientType" name="clientType" className="text-base">
                 <SelectValue placeholder="Select client type" />
               </SelectTrigger>
               <SelectContent>
@@ -195,14 +202,14 @@ export function BasicInfoStep({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">
+            <Label htmlFor="clientStatus">
               Client Status <span className="text-destructive">*</span>
             </Label>
             <Select
               value={formData.status}
               onValueChange={(value) => updateFormData({ status: value })}
             >
-              <SelectTrigger className="text-base">
+              <SelectTrigger id="clientStatus" name="clientStatus" className="text-base">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
@@ -226,7 +233,7 @@ export function BasicInfoStep({
                 updateFormData({ clientManagerId: value, accountManager: value })
               }
             >
-              <SelectTrigger className="text-base">
+              <SelectTrigger id="accountManager" name="accountManager" className="text-base">
                 <SelectValue placeholder="Select an account manager" />
               </SelectTrigger>
               <SelectContent>

@@ -40,6 +40,8 @@ export function RegistrationDetailsStep({
             </Label>
             <Input
               id="companiesHouseNumber"
+              name="companiesHouseNumber"
+              autoComplete="off"
               value={formData.companiesHouseNumber || ""}
               onChange={(e) =>
                 updateFormData({ companiesHouseNumber: e.target.value })
@@ -53,7 +55,9 @@ export function RegistrationDetailsStep({
             <Label htmlFor="incorporationDate">Incorporation Date</Label>
             <Input
               id="incorporationDate"
+              name="incorporationDate"
               type="date"
+              autoComplete="off"
               value={formData.incorporationDate || ""}
               onChange={(e) =>
                 updateFormData({ incorporationDate: e.target.value })
@@ -65,7 +69,9 @@ export function RegistrationDetailsStep({
             <Label htmlFor="yearEndDate">Year End Date</Label>
             <Input
               id="yearEndDate"
+              name="yearEndDate"
               type="date"
+              autoComplete="off"
               value={formData.yearEndDate || ""}
               onChange={(e) =>
                 updateFormData({ yearEndDate: e.target.value })
@@ -89,6 +95,8 @@ export function RegistrationDetailsStep({
             <Label htmlFor="vatNumber">VAT Number</Label>
             <Input
               id="vatNumber"
+              name="vatNumber"
+              autoComplete="off"
               value={formData.vatNumber || ""}
               onChange={(e) => updateFormData({ vatNumber: e.target.value })}
               placeholder="GB 123 4567 89"
@@ -102,7 +110,7 @@ export function RegistrationDetailsStep({
               value={formData.vatPeriods || ""}
               onValueChange={(value) => updateFormData({ vatPeriods: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger id="vatPeriods" name="vatPeriods">
                 <SelectValue placeholder="Select VAT period" />
               </SelectTrigger>
               <SelectContent>
@@ -118,6 +126,8 @@ export function RegistrationDetailsStep({
             <Label htmlFor="utr">UTR (Unique Tax Reference)</Label>
             <Input
               id="utr"
+              name="utr"
+              autoComplete="off"
               value={formData.utr || ""}
               onChange={(e) => updateFormData({ utr: e.target.value })}
               placeholder="1234567890"
@@ -129,6 +139,8 @@ export function RegistrationDetailsStep({
             <Label htmlFor="payeReference">PAYE Reference</Label>
             <Input
               id="payeReference"
+              name="payeReference"
+              autoComplete="off"
               value={formData.payeReference || ""}
               onChange={(e) =>
                 updateFormData({ payeReference: e.target.value })
@@ -144,7 +156,7 @@ export function RegistrationDetailsStep({
               value={formData.payePeriods || ""}
               onValueChange={(value) => updateFormData({ payePeriods: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger id="payePeriods" name="payePeriods">
                 <SelectValue placeholder="Select PAYE period" />
               </SelectTrigger>
               <SelectContent>
@@ -160,6 +172,8 @@ export function RegistrationDetailsStep({
             <Label htmlFor="accountOffice">HMRC Account Office</Label>
             <Input
               id="accountOffice"
+              name="accountOffice"
+              autoComplete="off"
               value={formData.accountOffice || ""}
               onChange={(e) =>
                 updateFormData({ accountOffice: e.target.value })
