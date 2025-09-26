@@ -16,6 +16,7 @@ import { User, MapPin, FileText } from "lucide-react";
 interface ContactInfoStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 export function ContactInfoStep({

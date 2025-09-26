@@ -11,6 +11,7 @@ import { Plus, Trash2, Users, Briefcase } from "lucide-react";
 interface DirectorsShareholdersStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 export function DirectorsShareholdersStep({

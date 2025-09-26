@@ -16,6 +16,7 @@ import { DollarSign } from "lucide-react";
 interface PricingConfigurationStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 export function PricingConfigurationStep({

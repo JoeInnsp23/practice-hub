@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 interface ServiceConfigurationStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 const SERVICE_DETAILS: Record<

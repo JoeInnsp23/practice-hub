@@ -15,6 +15,7 @@ import { Building2, FileText } from "lucide-react";
 interface RegistrationDetailsStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 export function RegistrationDetailsStep({

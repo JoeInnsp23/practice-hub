@@ -16,6 +16,7 @@ import {
 
 interface ReviewStepProps {
   formData: WizardFormData;
+  onEdit?: (stepIndex: number) => void;
 }
 
 export function ReviewStep({ formData }: ReviewStepProps) {

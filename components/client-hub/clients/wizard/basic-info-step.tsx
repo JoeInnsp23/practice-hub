@@ -24,6 +24,7 @@ import {
 interface BasicInfoStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 // Generate client code based on name and type
@@ -33,23 +34,25 @@ const generateClientCode = (name: string, type: string): string => {
   const prefix =
     type === "individual"
       ? "IND"
-      : type === "company"
-        ? "CO"
-        : type === "partnership"
-          ? "PART"
-          : type === "trust"
-            ? "TR"
-            : type === "charity"
-              ? "CH"
-              : "SC";
+      : type === "limited_company"
+        ? "LTD"
+      : type === "partnership"
+        ? "PART"
+      : type === "trust"
+        ? "TR"
+      : type === "charity"
+        ? "CH"
+      : type === "sole_trader"
+        ? "ST"
+        : "CO";
 
   const namePart = name
-    .substring(0, 3)
+    .substring(0, 4)
     .toUpperCase()
     .replace(/[^A-Z]/g, "");
-  const randomNum = Math.floor(Math.random() * 900) + 100;
+  const timestamp = Date.now().toString().slice(-4);
 
-  return `${prefix}${namePart}${randomNum}`;
+  return `${prefix}-${namePart}${timestamp}`;
 };
 
 export function BasicInfoStep({
@@ -82,38 +85,38 @@ export function BasicInfoStep({
   return (
     <div className="space-y-6">
       {/* Company Search Card */}
-      {formData.type === "company" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+      {formData.type === "limited_company" && (
+        <Card className="glass-card border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2 text-blue-600 dark:text-blue-400">
               <Building2 className="h-4 w-4" />
-              Company Search
+              Company Search (Optional)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2">
               <Input
-                placeholder="Search Companies House..."
+                placeholder="Search Companies House by name or number..."
                 className="flex-1"
               />
-              <Button variant="outline">
+              <Button variant="outline" className="border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-950">
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Search Companies House to auto-populate company details
+              Search Companies House to auto-populate registration details
             </p>
           </CardContent>
         </Card>
       )}
 
       {/* Basic Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Basic Information</CardTitle>
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Client Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="clientCode">
@@ -178,12 +181,14 @@ export function BasicInfoStep({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="limited_company">Limited Company</SelectItem>
                   <SelectItem value="individual">Individual</SelectItem>
-                  <SelectItem value="company">Limited Company</SelectItem>
+                  <SelectItem value="sole_trader">Sole Trader</SelectItem>
                   <SelectItem value="partnership">Partnership</SelectItem>
+                  <SelectItem value="llp">LLP</SelectItem>
                   <SelectItem value="trust">Trust</SelectItem>
                   <SelectItem value="charity">Charity</SelectItem>
-                  <SelectItem value="sole_trader">Sole Trader</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -210,11 +215,13 @@ export function BasicInfoStep({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="accountManager">Account Manager</Label>
+            <Label htmlFor="accountManager">
+              Account Manager <span className="text-destructive">*</span>
+            </Label>
             <Select
-              value={formData.accountManager || ""}
+              value={formData.clientManagerId || ""}
               onValueChange={(value) =>
-                updateFormData({ accountManager: value })
+                updateFormData({ clientManagerId: value, accountManager: value })
               }
             >
               <SelectTrigger>
@@ -228,6 +235,12 @@ export function BasicInfoStep({
                 <SelectItem value="alice_brown">Alice Brown</SelectItem>
               </SelectContent>
             </Select>
+            {!formData.clientManagerId && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center mt-1">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Please select an account manager to continue
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

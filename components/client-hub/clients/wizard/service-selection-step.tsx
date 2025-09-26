@@ -23,6 +23,7 @@ import {
 interface ServiceSelectionStepProps {
   formData: WizardFormData;
   updateFormData: (updates: Partial<WizardFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 const AVAILABLE_SERVICES = [
@@ -91,13 +92,30 @@ export function ServiceSelectionStep({
   formData,
   updateFormData,
 }: ServiceSelectionStepProps) {
-  const selectedServices = formData.selectedServices || [];
+  const selectedServices = formData.selectedServices?.map(s =>
+    typeof s === 'string' ? s : s.serviceId
+  ) || [];
 
   const toggleService = (serviceId: string) => {
-    const updated = selectedServices.includes(serviceId)
-      ? selectedServices.filter((id) => id !== serviceId)
-      : [...selectedServices, serviceId];
-    updateFormData({ selectedServices: updated });
+    const currentIds = selectedServices;
+    const isSelected = currentIds.includes(serviceId);
+
+    let updatedServices;
+    if (isSelected) {
+      // Remove the service
+      updatedServices = formData.selectedServices?.filter(s =>
+        (typeof s === 'string' ? s : s.serviceId) !== serviceId
+      ) || [];
+    } else {
+      // Add the service with default configuration
+      const newService = {
+        serviceId,
+        status: 'active',
+        frequency: 'monthly',
+      };
+      updatedServices = [...(formData.selectedServices || []), newService];
+    }
+    updateFormData({ selectedServices: updatedServices });
   };
 
   const categories = Array.from(
@@ -119,7 +137,7 @@ export function ServiceSelectionStep({
         );
 
         return (
-          <Card key={category}>
+          <Card key={category} className="glass-card">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">{category}</CardTitle>
             </CardHeader>
@@ -133,11 +151,11 @@ export function ServiceSelectionStep({
                     <div
                       key={service.id}
                       className={`
-                        flex items-start space-x-3 p-3 rounded-lg border cursor-pointer transition-colors
+                        flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
                         ${
                           isSelected
-                            ? "bg-blue-50 border-blue-300 dark:bg-blue-950/20 dark:border-blue-800"
-                            : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                            ? "bg-blue-50 border-blue-400 dark:bg-blue-950/30 dark:border-blue-600 shadow-sm"
+                            : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600"
                         }
                       `}
                       onClick={() => toggleService(service.id)}
