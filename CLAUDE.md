@@ -16,6 +16,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 5. **Never run pnpm dev** - The user will manually run dev to test front end UI.
 
+6. **Always follow Critical Design Elements** - Must strictly adhere to all design standards outlined in the Critical Design Elements section without fail.
+
+## Critical Design Elements
+
+**IMPORTANT: These design standards must be followed consistently across all modules:**
+
+1. **Card styling** - Use `glass-card` class (Card component applies this automatically). Never use inline `bg-card border`.
+
+2. **Table styling** - Wrap tables with `<div className="glass-table">`.
+
+3. **Headers/Sidebars** - Use GlobalHeader and GlobalSidebar components only. Include `showBackToHome={true}` and module color.
+
+4. **Background** - All layouts must use: `bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800`.
+
+5. **No transparency** - Use solid colors only: `rgb(255, 255, 255)` for white, `rgb(30, 41, 59)` for dark. No blur effects.
+
+6. **Design classes** - Use predefined classes: `.glass-card`, `.glass-subtle`, `.glass-table`.
+
+7. **Module colors** - Client Hub: `#3b82f6`, Admin: `#f97316`, maintain consistency.
+
+8. **Auth patterns** - Server-side auth checks in layout.tsx, client components separated.
+
 ## Development Commands
 
 ```bash
