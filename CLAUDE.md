@@ -22,21 +22,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
 
-1. **Card styling** - Use `glass-card` class (Card component applies this automatically). Never use inline `bg-card border`.
+1. **Card styling** - Use `glass-card` class for all cards. The Card component from shadcn/ui applies this automatically. Never use inline `bg-card border` styles.
 
-2. **Table styling** - Wrap tables with `<div className="glass-table">`.
+2. **Table styling** - Wrap all Table components with `<div className="glass-table">` for consistent styling.
 
-3. **Headers/Sidebars** - Use GlobalHeader and GlobalSidebar components only. Include `showBackToHome={true}` and module color.
+3. **Headers and Sidebars** - Always use GlobalHeader and GlobalSidebar components:
+   - GlobalHeader: Include `showBackToHome={true}` for non-practice-hub modules
+   - Add module-specific `headerColor` prop
+   - GlobalSidebar: Match module color with header
 
-4. **Background** - All layouts must use: `bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800`.
+4. **Layout backgrounds** - All module layouts must use gradient background:
+   ```tsx
+   className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+   ```
 
-5. **No transparency** - Use solid colors only: `rgb(255, 255, 255)` for white, `rgb(30, 41, 59)` for dark. No blur effects.
+5. **No transparency/glassmorphism** - All components must have solid backgrounds:
+   - Use `rgb(255, 255, 255)` for white (not rgba with opacity)
+   - Use `rgb(30, 41, 59)` for dark slate
+   - No backdrop-filter or blur effects
 
-6. **Design classes** - Use predefined classes: `.glass-card`, `.glass-subtle`, `.glass-table`.
+6. **Use design system classes** - Reference predefined classes from globals.css:
+   - `.glass-card` - For primary content cards
+   - `.glass-subtle` - For headers and sidebars
+   - `.glass-table` - For table containers
 
-7. **Module colors** - Client Hub: `#3b82f6`, Admin: `#f97316`, maintain consistency.
+7. **Module color scheme** - Maintain consistent colors:
+   - Client Hub: `#3b82f6` (blue)
+   - Admin Panel: `#f97316` (orange)
+   - Practice Hub: Primary theme color
 
-8. **Auth patterns** - Server-side auth checks in layout.tsx, client components separated.
+8. **Authentication patterns** - Protected routes must use server-side auth checks in layout.tsx, with client components separated into dedicated files.
 
 ## Development Commands
 
