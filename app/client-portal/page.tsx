@@ -1,3 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export default function ClientPortalPage() {
   return (
     <div>
@@ -9,28 +11,34 @@ export default function ClientPortalPage() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-card p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-card-foreground mb-2">
-            Recent Documents
-          </h3>
-          <p className="text-muted-foreground">
-            No recent documents
-          </p>
-        </div>
-        <div className="bg-card p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-card-foreground mb-2">
-            New Messages
-          </h3>
-          <p className="text-muted-foreground">No new messages</p>
-        </div>
-        <div className="bg-card p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-card-foreground mb-2">
-            Upcoming Meetings
-          </h3>
-          <p className="text-muted-foreground">
-            No scheduled meetings
-          </p>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Recent Documents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              No recent documents
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">New Messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">No new messages</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Upcoming Meetings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              No scheduled meetings
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
