@@ -14,6 +14,7 @@ import {
   FileText,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 
 // Mock time entries
@@ -188,10 +189,7 @@ export default function TimeTrackingPage() {
       endDate.setDate(endDate.getDate() + 6);
       return `${formatDate(startDate)} - ${formatDate(endDate)}`;
     } else {
-      return selectedDate.toLocaleDateString("en-GB", {
-        month: "long",
-        year: "numeric",
-      });
+      return format(selectedDate, "MMMM yyyy");
     }
   };
 

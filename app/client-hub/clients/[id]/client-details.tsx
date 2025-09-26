@@ -27,6 +27,7 @@ import {
   Plus,
   Eye,
 } from "lucide-react";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 
 interface ClientDetailsProps {
@@ -517,7 +518,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                       <div>
                         <p className="text-sm text-muted-foreground">Incorporated</p>
                         <p className="font-medium">
-                          {client.incorporationDate.toLocaleDateString()}
+                          {format(client.incorporationDate, "dd/MM/yyyy")}
                         </p>
                       </div>
                     )}
@@ -616,7 +617,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                     <div>
                       <p className="font-medium">{task.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        Due: {task.dueDate.toLocaleDateString()}
+                        Due: {format(task.dueDate, "dd/MM/yyyy")}
                       </p>
                     </div>
                     {getTaskStatusBadge(task.status)}
@@ -665,7 +666,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                         <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                           <span>Frequency: {service.frequency}</span>
                           <span>•</span>
-                          <span>Next Due: {service.nextDue.toLocaleDateString()}</span>
+                          <span>Next Due: {format(service.nextDue, "dd/MM/yyyy")}</span>
                         </div>
                       </div>
                       <div className="text-right">
@@ -720,7 +721,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              Due: {task.dueDate.toLocaleDateString()}
+                              Due: {format(task.dueDate, "dd/MM/yyyy")}
                             </span>
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
@@ -816,7 +817,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                       <div>
                         <p className="font-medium">{entry.taskName}</p>
                         <p className="text-sm text-muted-foreground">
-                          {entry.date.toLocaleDateString()} • {entry.staff}
+                          {format(entry.date, "dd/MM/yyyy")} • {entry.staff}
                           {entry.description && ` • ${entry.description}`}
                         </p>
                       </div>
@@ -889,9 +890,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                           {invoice.description}
                         </p>
                         <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <span>Issued: {invoice.date.toLocaleDateString()}</span>
+                          <span>Issued: {format(invoice.date, "dd/MM/yyyy")}</span>
                           <span>•</span>
-                          <span>Due: {invoice.dueDate.toLocaleDateString()}</span>
+                          <span>Due: {format(invoice.dueDate, "dd/MM/yyyy")}</span>
                         </div>
                       </div>
                       <div className="text-right">

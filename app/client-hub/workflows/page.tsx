@@ -24,6 +24,7 @@ import {
   ExternalLink,
   CheckSquare,
 } from "lucide-react";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 
 // Mock data for workflow instances (connected to tasks)
@@ -424,7 +425,7 @@ export default function WorkflowsPage() {
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3 text-muted-foreground" />
                             <span className="text-xs text-muted-foreground">
-                              Due {workflow.dueDate.toLocaleDateString()}
+                              Due {format(workflow.dueDate, "dd/MM/yyyy")}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">

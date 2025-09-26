@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Calendar, AlertCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface ComplianceItem {
@@ -133,10 +134,7 @@ export function ComplianceCalendar({
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <div className="min-w-[150px] text-center font-semibold">
-              {currentDate.toLocaleDateString("en-GB", {
-                month: "long",
-                year: "numeric",
-              })}
+              {format(currentDate, "MMMM yyyy")}
             </div>
             <Button variant="outline" size="icon" onClick={handleNextMonth}>
               <ChevronRight className="h-4 w-4" />

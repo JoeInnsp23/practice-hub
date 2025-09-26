@@ -29,6 +29,7 @@ import {
   FileText,
   Timer,
 } from "lucide-react";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 
@@ -319,7 +320,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                     <span className={cn(
                       daysUntilTarget && daysUntilTarget < 0 && "text-amber-600 font-medium"
                     )}>
-                      {task.targetDate.toLocaleDateString()}
+                      {format(task.targetDate, "dd/MM/yyyy")}
                     </span>
                     <div className="text-xs text-muted-foreground">
                       {daysUntilTarget === 0 ? "Today" :
@@ -344,7 +345,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                   <span className={cn(
                     daysUntilDue < 0 && "text-red-600 font-medium"
                   )}>
-                    {task.dueDate.toLocaleDateString()}
+                    {format(task.dueDate, "dd/MM/yyyy")}
                   </span>
                   <div className="text-xs text-muted-foreground">
                     {daysUntilDue === 0 ? "Today" :
@@ -532,13 +533,13 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Created:</span>
                         <span className="text-sm">
-                          {task.createdAt.toLocaleDateString()} {task.createdAt.toLocaleTimeString()}
+                          {format(task.createdAt, "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Last Updated:</span>
                         <span className="text-sm">
-                          {task.updatedAt.toLocaleDateString()} {task.updatedAt.toLocaleTimeString()}
+                          {format(task.updatedAt, "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -629,7 +630,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                                       {item.completed && item.completedBy && (
                                         <p className="text-xs text-muted-foreground mt-1">
                                           Completed by {item.completedBy} on{" "}
-                                          {item.completedAt?.toLocaleDateString()}
+                                          {item.completedAt && format(item.completedAt, "dd/MM/yyyy")}
                                         </p>
                                       )}
                                     </div>
@@ -686,7 +687,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                       <div className="flex-1">
                         <p className="font-medium">{entry.description}</p>
                         <p className="text-sm text-muted-foreground">
-                          {entry.user} • {entry.date.toLocaleDateString()}
+                          {entry.user} • {format(entry.date, "dd/MM/yyyy")}
                         </p>
                       </div>
                       <Badge variant="outline">{entry.hours}h</Badge>
@@ -734,7 +735,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-sm">{note.author}</span>
                           <span className="text-xs text-muted-foreground">
-                            {note.createdAt.toLocaleDateString()} at {note.createdAt.toLocaleTimeString()}
+                            {format(note.createdAt, "dd/MM/yyyy 'at' HH:mm")}
                           </span>
                         </div>
                         <p className="text-sm">{note.content}</p>

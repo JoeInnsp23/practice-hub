@@ -34,7 +34,7 @@ import {
   GitBranch,
   Plus,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface Task {
@@ -133,7 +133,7 @@ export function TaskList({
     if (diffDays === -1) return "Yesterday";
     if (diffDays < -1) return `${Math.abs(diffDays)} days overdue`;
     if (diffDays > 1 && diffDays <= 7) return `${diffDays} days`;
-    return dueDate.toLocaleDateString();
+    return format(dueDate, "dd/MM/yyyy");
   };
 
   if (isLoading) {
