@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
 import { ClientFilters } from "@/components/client-hub/clients/client-filters";
-import { ClientModal } from "@/components/client-hub/clients/client-modal";
+import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { Users, UserCheck, UserX, UserPlus, Plus } from "lucide-react";
 import { useDebounce } from "@/lib/hooks/use-debounce";
@@ -230,8 +230,8 @@ export default function ClientsPage() {
         </CardContent>
       </Card>
 
-      {/* Client Modal */}
-      <ClientModal
+      {/* Client Wizard Modal */}
+      <ClientWizardModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveClient}
