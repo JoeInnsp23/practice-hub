@@ -68,6 +68,14 @@ async function seedDatabase() {
   console.log("Creating users...");
   const userList = [
     {
+      clerkId: "user_316Q56M4cs8UNbHyh7YaAJADGKs", // Real Clerk user ID for joe@pageivy.com
+      email: "joe@pageivy.com",
+      firstName: "Joe",
+      lastName: "User",
+      role: "admin",
+      hourlyRate: "150",
+    },
+    {
       clerkId: "user_demo_admin",
       email: "admin@demo.com",
       firstName: "John",
