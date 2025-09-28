@@ -20,6 +20,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 7. **Always use docker v2 commands** - Must always use docker v2 commands only.
 
+8. **Always read entire files** - Must always review entire file contents when looking to fix errors to ensure updates will not break existing code.
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**

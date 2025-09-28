@@ -33,6 +33,7 @@ export function HourlyTimesheet({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Get week dates
@@ -85,10 +86,13 @@ export function HourlyTimesheet({
     setIsModalOpen(false);
   };
 
-  // Scroll to current hour on mount
+  // Scroll to current hour on mount and set current time
   useEffect(() => {
+    const now = new Date();
+    setCurrentTime(now);
+
     if (gridRef.current) {
-      const currentHour = new Date().getHours();
+      const currentHour = now.getHours();
       const hourElement = gridRef.current.querySelector(
         `[data-hour="${currentHour}"]`
       );
@@ -203,7 +207,7 @@ export function HourlyTimesheet({
               Time
             </div>
             {weekDays.map((day, index) => {
-              const isToday = isSameDay(day, new Date());
+              const isToday = currentTime && isSameDay(day, currentTime);
               const isWeekend = index >= 5;
               return (
                 <div
@@ -233,7 +237,7 @@ export function HourlyTimesheet({
 
           {/* Hour Rows */}
           {timeSlots.map((slot) => {
-            const isCurrentHour = slot.hour === new Date().getHours();
+            const isCurrentHour = currentTime && slot.hour === currentTime.getHours();
             return (
               <div
                 key={slot.hour}
@@ -251,7 +255,7 @@ export function HourlyTimesheet({
                 {weekDays.map((day, dayIndex) => {
                   const entries = getEntriesForSlot(day, slot.hour);
                   const isWeekend = dayIndex >= 5;
-                  const isToday = isSameDay(day, new Date());
+                  const isToday = currentTime && isSameDay(day, currentTime);
 
                   return (
                     <div
@@ -325,7 +329,7 @@ export function HourlyTimesheet({
             Daily Totals
           </div>
           {weekDays.map((day) => {
-            const dayEntries = getEntriesForSlot(day.date, 0); // Get all entries for the day
+            const dayEntries = getEntriesForSlot(day, 0); // Get all entries for the day
             const dayTotal = dayEntries.reduce((sum, entry) => sum + entry.hours, 0);
             const billableTotal = dayEntries.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0);
 
