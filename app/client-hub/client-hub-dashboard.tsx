@@ -82,6 +82,8 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
             billableHours30d: 0,
             upcomingCompliance30d: 0,
             overdueCompliance: 0,
+            utilizationRate: 0,
+            collectionRate: 0,
           });
         }
 
@@ -115,6 +117,8 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           billableHours30d: 0,
           upcomingCompliance30d: 0,
           overdueCompliance: 0,
+          utilizationRate: 0,
+          collectionRate: 0,
         });
         setActivities([]);
       } finally {
@@ -152,9 +156,9 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
         />
         <KPIWidget
           title="Hours (30d)"
-          value={kpis?.totalHours30d.toFixed(1) || "0"}
+          value={kpis?.totalHours30d?.toFixed(1) || "0"}
           icon={Clock}
-          subtext={`${kpis?.utilizationRate.toFixed(0) || 0}% billable`}
+          subtext={`${kpis?.utilizationRate?.toFixed(0) || 0}% billable`}
           loading={loading}
         />
         <KPIWidget
