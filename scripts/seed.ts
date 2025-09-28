@@ -76,14 +76,6 @@ async function seedDatabase() {
       hourlyRate: "150",
     },
     {
-      clerkId: "user_demo_admin",
-      email: "admin@demo.com",
-      firstName: "John",
-      lastName: "Admin",
-      role: "admin",
-      hourlyRate: "150",
-    },
-    {
       clerkId: "user_demo_accountant1",
       email: "sarah.johnson@demo.com",
       firstName: "Sarah",
