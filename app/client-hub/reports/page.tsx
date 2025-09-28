@@ -25,94 +25,8 @@ import {
 import { formatCurrency, formatHours } from "@/lib/utils/format";
 import toast from "react-hot-toast";
 
-// Mock data for reports
-const mockRevenueData = [
-  { month: "Jan", revenue: 45000, invoiced: 48000, collected: 45000 },
-  { month: "Feb", revenue: 52000, invoiced: 55000, collected: 52000 },
-  { month: "Mar", revenue: 48000, invoiced: 52000, collected: 48000 },
-  { month: "Apr", revenue: 61000, invoiced: 63000, collected: 61000 },
-  { month: "May", revenue: 58000, invoiced: 62000, collected: 58000 },
-  { month: "Jun", revenue: 65000, invoiced: 68000, collected: 65000 },
-  { month: "Jul", revenue: 72000, invoiced: 75000, collected: 72000 },
-  { month: "Aug", revenue: 69000, invoiced: 71000, collected: 69000 },
-  { month: "Sep", revenue: 75000, invoiced: 78000, collected: 75000 },
-];
 
-const mockClientData = [
-  {
-    name: "ABC Company Ltd",
-    revenue: 125000,
-    percentage: 22.5,
-    change: 15,
-    services: 8,
-  },
-  { name: "XYZ Ltd", revenue: 98000, percentage: 17.6, change: 8, services: 6 },
-  {
-    name: "Tech Innovations Ltd",
-    revenue: 85000,
-    percentage: 15.3,
-    change: -5,
-    services: 5,
-  },
-  {
-    name: "John Doe",
-    revenue: 45000,
-    percentage: 8.1,
-    change: 12,
-    services: 3,
-  },
-  {
-    name: "Small Business Co",
-    revenue: 38000,
-    percentage: 6.8,
-    change: 0,
-    services: 4,
-  },
-  {
-    name: "Construction Corp",
-    revenue: 32000,
-    percentage: 5.8,
-    change: 20,
-    services: 2,
-  },
-  {
-    name: "Retail Solutions",
-    revenue: 28000,
-    percentage: 5.0,
-    change: -10,
-    services: 3,
-  },
-  {
-    name: "Green Energy Ltd",
-    revenue: 25000,
-    percentage: 4.5,
-    change: 25,
-    services: 2,
-  },
-  {
-    name: "Healthcare Plus",
-    revenue: 22000,
-    percentage: 4.0,
-    change: 5,
-    services: 2,
-  },
-  {
-    name: "Media Group",
-    revenue: 18000,
-    percentage: 3.2,
-    change: -2,
-    services: 2,
-  },
-];
 
-const mockServiceStats = [
-  { service: "Tax Returns", count: 145, revenue: 125000, avgPrice: 862 },
-  { service: "Bookkeeping", count: 89, revenue: 95000, avgPrice: 1067 },
-  { service: "VAT Returns", count: 72, revenue: 45000, avgPrice: 625 },
-  { service: "Annual Accounts", count: 45, revenue: 85000, avgPrice: 1889 },
-  { service: "Payroll", count: 38, revenue: 38000, avgPrice: 1000 },
-  { service: "Advisory", count: 25, revenue: 65000, avgPrice: 2600 },
-];
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState("this_year");
@@ -120,44 +34,19 @@ export default function ReportsPage() {
 
   // Calculate KPIs
   const kpis = useMemo(() => {
-    const totalRevenue = mockRevenueData.reduce(
-      (sum, d) => sum + d.collected,
-      0,
-    );
-    const totalInvoiced = mockRevenueData.reduce(
-      (sum, d) => sum + d.invoiced,
-      0,
-    );
-    const collectionRate = (totalRevenue / totalInvoiced) * 100;
-    const avgMonthlyRevenue = totalRevenue / mockRevenueData.length;
-
-    // Calculate YoY growth (mock data)
-    const lastYearRevenue = totalRevenue * 0.85; // Assuming 15% growth
-    const yoyGrowth =
-      ((totalRevenue - lastYearRevenue) / lastYearRevenue) * 100;
-
-    // Service metrics
-    const totalServices = mockServiceStats.reduce((sum, s) => sum + s.count, 0);
-    const avgServiceValue = totalRevenue / totalServices;
-
-    // Time metrics (mock)
-    const totalHours = 2850;
-    const billableHours = 2280;
-    const utilizationRate = (billableHours / totalHours) * 100;
-
     return {
-      totalRevenue,
-      totalInvoiced,
-      collectionRate,
-      avgMonthlyRevenue,
-      yoyGrowth,
-      totalServices,
-      avgServiceValue,
-      totalHours,
-      billableHours,
-      utilizationRate,
-      activeClients: mockClientData.length,
-      topClient: mockClientData[0],
+      totalRevenue: 0,
+      totalInvoiced: 0,
+      collectionRate: 0,
+      avgMonthlyRevenue: 0,
+      yoyGrowth: 0,
+      totalServices: 0,
+      avgServiceValue: 0,
+      totalHours: 0,
+      billableHours: 0,
+      utilizationRate: 0,
+      activeClients: 0,
+      topClient: null,
     };
   }, []);
 
@@ -269,7 +158,7 @@ export default function ReportsPage() {
             <CardContent>
               <div className="text-2xl font-bold">{kpis.activeClients}</div>
               <p className="text-xs text-muted-foreground">
-                Top: {kpis.topClient.name}
+                Top: {kpis.topClient?.name || 'N/A'}
               </p>
             </CardContent>
           </Card>
@@ -293,9 +182,9 @@ export default function ReportsPage() {
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RevenueChart data={mockRevenueData} period="Last 9 Months" />
+          <RevenueChart data={[]} period="Last 9 Months" />
           <ClientBreakdown
-            data={mockClientData}
+            data={[]}
             totalRevenue={kpis.totalRevenue}
           />
         </div>
@@ -309,44 +198,15 @@ export default function ReportsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockServiceStats.map((service, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">
-                        {service.service}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {service.count} completed
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-blue-500"
-                        style={{
-                          width: `${(service.revenue / mockServiceStats[0].revenue) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="ml-4 text-right">
-                    <p className="font-semibold">
-                      {formatCurrency(service.revenue)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Avg: {formatCurrency(service.avgPrice)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No service data available</p>
             </div>
           </CardContent>
         </Card>
       </TabsContent>
 
       <TabsContent value="revenue" className="space-y-6">
-        <RevenueChart data={mockRevenueData} period="Last 9 Months" />
+        <RevenueChart data={[]} period="Last 9 Months" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
@@ -386,7 +246,7 @@ export default function ReportsPage() {
 
       <TabsContent value="clients" className="space-y-6">
         <ClientBreakdown
-          data={mockClientData}
+          data={[]}
           totalRevenue={kpis.totalRevenue}
         />
 

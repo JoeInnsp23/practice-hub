@@ -56,45 +56,8 @@ export function useTimeEntries(startDate?: string, endDate?: string, refreshKey?
         // const response = await fetch(`/api/time-entries?start=${startDate}&end=${endDate}`);
         // const entries = await response.json();
 
-        // For now, return mock data
-        const mockData: TimeEntry[] = [
-          {
-            id: "1",
-            date: new Date(startDate || new Date()),
-            client: "ABC Company",
-            clientId: "client1",
-            task: "Monthly Bookkeeping",
-            taskId: "task1",
-            description: "Reviewed and categorized transactions",
-            hours: 3.5,
-            billable: true,
-            billed: false,
-            status: "approved",
-            user: "Current User",
-            workType: "work",
-            startTime: "09:00",
-            endTime: "12:30",
-          },
-          {
-            id: "2",
-            date: new Date(startDate || new Date()),
-            client: "XYZ Ltd",
-            clientId: "client2",
-            task: "VAT Return",
-            taskId: "task2",
-            description: "Prepared quarterly VAT return",
-            hours: 2,
-            billable: true,
-            billed: false,
-            status: "submitted",
-            user: "Current User",
-            workType: "work",
-            startTime: "14:00",
-            endTime: "16:00",
-          },
-        ];
-
-        setData(mockData);
+        // Return empty array until API is implemented
+        setData([]);
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Failed to fetch entries"));
       } finally {
@@ -127,7 +90,7 @@ export function useCreateTimeEntry() {
       //   body: JSON.stringify(entry),
       // });
 
-      // For now, return mock data
+      // Return empty entry until API is implemented
       const newEntry: TimeEntry = {
         id: Date.now().toString(),
         ...entry,

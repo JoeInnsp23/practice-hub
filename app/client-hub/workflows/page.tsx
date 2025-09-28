@@ -32,105 +32,10 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-// Mock task usage count for templates (in production, this would come from database)
-const mockTaskUsageCount: { [key: string]: number } = {
-  "1": 12, // 12 tasks using VAT Return template
-  "2": 8,  // 8 tasks using Year-End Accounts
-  "3": 15, // 15 tasks using Monthly Payroll
-  "4": 6,  // 6 tasks using Corporation Tax Return
-  "5": 10, // 10 tasks using Management Accounts
-  "6": 0,  // 0 tasks using Company Formation (inactive)
-};
 
-// Mock data for workflow templates
-const mockWorkflowTemplates = [
-  {
-    id: "1",
-    name: "Standard VAT Return",
-    description: "Complete VAT return submission process including data collection, calculation, and filing",
-    service: { name: "VAT Services", code: "VAT" },
-    stages: [
-      { id: "1", name: "Data Collection", order: 1 },
-      { id: "2", name: "Calculation", order: 2 },
-      { id: "3", name: "Review", order: 3 },
-      { id: "4", name: "Submission", order: 4 },
-    ],
-    is_active: true,
-    estimatedDays: 3,
-  },
-  {
-    id: "2",
-    name: "Year-End Accounts",
-    description: "Comprehensive year-end accounts preparation including trial balance, adjustments, and financial statements",
-    service: { name: "Accounting", code: "ACC" },
-    stages: [
-      { id: "5", name: "Trial Balance", order: 1 },
-      { id: "6", name: "Adjustments", order: 2 },
-      { id: "7", name: "Financial Statements", order: 3 },
-      { id: "8", name: "Notes", order: 4 },
-      { id: "9", name: "Review & Sign-off", order: 5 },
-    ],
-    is_active: true,
-    estimatedDays: 10,
-  },
-  {
-    id: "3",
-    name: "Monthly Payroll",
-    description: "Process monthly payroll including calculations, submissions, and payslips",
-    service: { name: "Payroll", code: "PAY" },
-    stages: [
-      { id: "10", name: "Data Collection", order: 1 },
-      { id: "11", name: "Processing", order: 2 },
-      { id: "12", name: "Distribution", order: 3 },
-    ],
-    is_active: true,
-    estimatedDays: 2,
-  },
-  {
-    id: "4",
-    name: "Corporation Tax Return",
-    description: "Complete CT600 return preparation and submission to HMRC",
-    service: { name: "Tax Services", code: "TAX" },
-    stages: [
-      { id: "13", name: "Data Gathering", order: 1 },
-      { id: "14", name: "Computation", order: 2 },
-      { id: "15", name: "CT600 Preparation", order: 3 },
-      { id: "16", name: "Submission", order: 4 },
-    ],
-    is_active: true,
-    estimatedDays: 5,
-  },
-  {
-    id: "5",
-    name: "Management Accounts",
-    description: "Monthly management accounts preparation with variance analysis",
-    service: { name: "Accounting", code: "ACC" },
-    stages: [
-      { id: "17", name: "Data Processing", order: 1 },
-      { id: "18", name: "Report Generation", order: 2 },
-      { id: "19", name: "Analysis", order: 3 },
-    ],
-    is_active: true,
-    estimatedDays: 3,
-  },
-  {
-    id: "6",
-    name: "Company Formation",
-    description: "New company registration and setup process",
-    service: { name: "Company Services", code: "COS" },
-    stages: [
-      { id: "20", name: "Registration", order: 1 },
-      { id: "21", name: "HMRC Setup", order: 2 },
-      { id: "22", name: "Bank Setup", order: 3 },
-      { id: "23", name: "Documentation", order: 4 },
-    ],
-    is_active: false,
-    estimatedDays: 7,
-  },
-];
 
 export default function WorkflowsPage() {
-  const [workflowTemplates, setWorkflowTemplates] = useState(mockWorkflowTemplates);
+  const [workflowTemplates, setWorkflowTemplates] = useState([]);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
 
@@ -192,9 +97,7 @@ export default function WorkflowsPage() {
     },
     {
       title: "Tasks Using Templates",
-      value: Object.values(mockTaskUsageCount)
-        .reduce((sum, count) => sum + count, 0)
-        .toString(),
+      value: "0",
       icon: GitBranch,
       change: "",
       changeType: "neutral" as const,
@@ -351,7 +254,7 @@ export default function WorkflowsPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <GitBranch className="h-3 w-3 text-muted-foreground" />
-                          <span>{mockTaskUsageCount[template.id] || 0} tasks</span>
+                          <span>0 tasks</span>
                         </div>
                       </div>
                       <div className="pt-2 border-t">

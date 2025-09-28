@@ -37,98 +37,12 @@ interface TaskDetailsProps {
   taskId: string;
 }
 
-// Enhanced mock data - in production this would come from the database
-const mockTasksWithDetails = [
-  {
-    id: "1",
-    title: "Complete VAT return for ABC Company",
-    description: "Q4 VAT return submission - Ensure all receipts are collected and calculations are verified before submission.",
-    status: "in_progress" as const,
-    priority: "high" as const,
-    task_type: "compliance",
-    dueDate: new Date("2024-09-30"),
-    targetDate: new Date("2024-09-28"),
-    assignee: { id: "u1", name: "John Smith", email: "john@example.com" },
-    reviewer: { id: "u2", name: "Jane Wilson", email: "jane@example.com" },
-    client: { id: "c1", name: "ABC Company Ltd", code: "ABC001" },
-    service: { id: "s1", name: "VAT Services" },
-    estimatedHours: 3,
-    actualHours: 1.5,
-    progress: 65,
-    tags: ["VAT", "Q4", "Compliance"],
-    createdAt: new Date("2024-09-01"),
-    updatedAt: new Date("2024-09-26"),
-    notes: [
-      { id: "n1", content: "Client provided additional receipts", author: "John Smith", createdAt: new Date("2024-09-25") },
-      { id: "n2", content: "Need to clarify expense categorization", author: "Jane Wilson", createdAt: new Date("2024-09-26") }
-    ],
-    timeEntries: [
-      { id: "te1", date: new Date("2024-09-25"), hours: 1.0, description: "Initial data collection", user: "John Smith" },
-      { id: "te2", date: new Date("2024-09-26"), hours: 0.5, description: "Receipt review", user: "John Smith" }
-    ],
-    workflowInstance: {
-      id: "wf1",
-      name: "VAT Return Workflow",
-      status: "active",
-      template: {
-        name: "Standard VAT Return",
-        stages: [
-          {
-            id: "stage1",
-            name: "Data Collection",
-            description: "Gather all VAT records",
-            stage_order: 1,
-            is_required: true,
-            estimated_hours: 1,
-            checklist_items: [
-              { id: "item1", text: "Collect sales invoices", completed: true, completedBy: "John Smith", completedAt: new Date("2024-09-25") },
-              { id: "item2", text: "Collect purchase invoices", completed: true, completedBy: "John Smith", completedAt: new Date("2024-09-25") },
-              { id: "item3", text: "Review expense receipts", completed: false },
-              { id: "item4", text: "Verify bank statements", completed: false },
-            ],
-          },
-          {
-            id: "stage2",
-            name: "Calculation & Verification",
-            description: "Calculate VAT amounts and verify accuracy",
-            stage_order: 2,
-            is_required: true,
-            estimated_hours: 1,
-            checklist_items: [
-              { id: "item5", text: "Calculate output VAT", completed: true, completedBy: "John Smith", completedAt: new Date("2024-09-26") },
-              { id: "item6", text: "Calculate input VAT", completed: false },
-              { id: "item7", text: "Reconcile with accounts", completed: false },
-              { id: "item8", text: "Cross-check calculations", completed: false },
-            ],
-          },
-          {
-            id: "stage3",
-            name: "Review & Submission",
-            description: "Final review and submit to HMRC",
-            stage_order: 3,
-            is_required: true,
-            estimated_hours: 1,
-            checklist_items: [
-              { id: "item9", text: "Manager review", completed: false },
-              { id: "item10", text: "Client approval", completed: false },
-              { id: "item11", text: "Submit to HMRC", completed: false },
-              { id: "item12", text: "File documentation", completed: false },
-            ],
-          },
-        ],
-      },
-    },
-  },
-  // Add other tasks here for completeness
-];
 
 export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
-  const [task, setTask] = useState(() =>
-    mockTasksWithDetails.find((t) => t.id === taskId) || mockTasksWithDetails[0]
-  );
+  const [task, setTask] = useState(null);
 
   // Calculate progress based on checklist
   const calculateProgress = useCallback(() => {

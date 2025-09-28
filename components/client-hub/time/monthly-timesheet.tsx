@@ -36,21 +36,9 @@ export function MonthlyTimesheet({
   const [refreshKey, setRefreshKey] = useState(0);
   const createTimeEntry = useCreateTimeEntry();
 
-  // Mock client and task data (same as hourly timesheet)
-  const mockClients = [
-    { id: "client1", name: "ABC Company" },
-    { id: "client2", name: "XYZ Ltd" },
-    { id: "client3", name: "Tech Corp" },
-    { id: "client4", name: "Smith & Associates" },
-  ];
-
-  const mockTasks = [
-    { id: "task1", name: "Monthly Bookkeeping", clientId: "client1" },
-    { id: "task2", name: "VAT Return", clientId: "client2" },
-    { id: "task3", name: "Year End Accounts", clientId: "client1" },
-    { id: "task4", name: "Tax Planning", clientId: "client3" },
-    { id: "task5", name: "Payroll Processing", clientId: "client4" },
-  ];
+  // Empty arrays until API is connected
+  const clients: Array<{ id: string; name: string }> = [];
+  const tasks: Array<{ id: string; name: string; clientId?: string }> = [];
 
   // Get calendar days for current month
   const monthStart = startOfMonth(currentDate);
@@ -314,8 +302,8 @@ export function MonthlyTimesheet({
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
         selectedHour={null}
-        clients={mockClients}
-        tasks={mockTasks}
+        clients={clients}
+        tasks={tasks}
       />
     </div>
   );

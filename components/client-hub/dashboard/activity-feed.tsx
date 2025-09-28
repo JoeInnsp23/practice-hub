@@ -21,51 +21,8 @@ interface ActivityFeedProps {
   className?: string;
 }
 
-const mockActivities: Activity[] = [
-  {
-    id: "1",
-    type: "task",
-    action: "completed",
-    description: "Completed VAT return for ABC Company",
-    user: { name: "John Doe" },
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-  },
-  {
-    id: "2",
-    type: "client",
-    action: "created",
-    description: "Added new client: XYZ Limited",
-    user: { name: "Jane Smith" },
-    timestamp: new Date(Date.now() - 1000 * 60 * 120),
-  },
-  {
-    id: "3",
-    type: "invoice",
-    action: "sent",
-    description: "Invoice #INV-2024-001 sent to client",
-    user: { name: "Bob Johnson" },
-    timestamp: new Date(Date.now() - 1000 * 60 * 180),
-  },
-  {
-    id: "4",
-    type: "time_entry",
-    action: "logged",
-    description: "Logged 2.5 hours for Client Meeting",
-    user: { name: "Alice Brown" },
-    timestamp: new Date(Date.now() - 1000 * 60 * 240),
-  },
-  {
-    id: "5",
-    type: "task",
-    action: "assigned",
-    description: "New task assigned: Prepare annual accounts",
-    user: { name: "Charlie Wilson" },
-    timestamp: new Date(Date.now() - 1000 * 60 * 300),
-  },
-];
-
 export function ActivityFeed({
-  activities = mockActivities,
+  activities = [],
   className,
 }: ActivityFeedProps) {
   const getActivityIcon = (type: Activity["type"]) => {

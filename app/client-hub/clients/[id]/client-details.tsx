@@ -34,274 +34,18 @@ interface ClientDetailsProps {
   clientId: string;
 }
 
-// Mock data - in a real app this would come from the database
-const mockClients = [
-  {
-    id: "1",
-    clientCode: "CLI001",
-    name: "ABC Company Ltd",
-    type: "company" as const,
-    status: "active" as const,
-    email: "contact@abccompany.com",
-    phone: "+44 20 1234 5678",
-    accountManager: "John Smith",
-    createdAt: new Date("2024-01-15"),
-    companyNumber: "12345678",
-    incorporationDate: new Date("2020-03-15"),
-    yearEnd: "31 December",
-    vatNumber: "GB123456789",
-    registeredAddress: {
-      line1: "123 Business Street",
-      line2: "Suite 100",
-      city: "London",
-      postcode: "EC1A 1BB",
-      country: "United Kingdom",
-    },
-    contact: {
-      name: "Jane Doe",
-      title: "Finance Director",
-      email: "jane.doe@abccompany.com",
-      phone: "+44 20 1234 5678",
-    },
-  },
-  {
-    id: "2",
-    clientCode: "CLI002",
-    name: "John Doe",
-    type: "individual" as const,
-    status: "active" as const,
-    email: "john.doe@email.com",
-    phone: "+44 20 9876 5432",
-    accountManager: "Jane Wilson",
-    createdAt: new Date("2024-02-20"),
-    contact: {
-      name: "John Doe",
-      email: "john.doe@email.com",
-      phone: "+44 20 9876 5432",
-    },
-  },
-  {
-    id: "3",
-    clientCode: "CLI003",
-    name: "XYZ Partnership",
-    type: "partnership" as const,
-    status: "prospect" as const,
-    email: "info@xyzpartnership.com",
-    accountManager: "Bob Johnson",
-    createdAt: new Date("2024-03-10"),
-  },
-  {
-    id: "4",
-    clientCode: "CLI004",
-    name: "Smith Family Trust",
-    type: "trust" as const,
-    status: "active" as const,
-    email: "trustees@smithtrust.com",
-    phone: "+44 20 5555 1234",
-    accountManager: "Alice Brown",
-    createdAt: new Date("2024-03-25"),
-  },
-  {
-    id: "5",
-    clientCode: "CLI005",
-    name: "Tech Innovations Ltd",
-    type: "company" as const,
-    status: "inactive" as const,
-    email: "hello@techinnovations.com",
-    accountManager: "John Smith",
-    createdAt: new Date("2024-04-01"),
-    companyNumber: "87654321",
-  },
-];
 
-// Mock metrics
-const mockMetrics = {
-  activeTasks: 8,
-  overdueTasks: 2,
-  unbilledHours: 24.5,
-  healthScore: 85,
-};
 
-// Mock recent tasks
-const mockRecentTasks = [
-  {
-    id: "1",
-    name: "Annual Accounts Preparation",
-    status: "in_progress",
-    dueDate: new Date("2024-12-31"),
-    assignee: "John Smith",
-    description: "Prepare annual accounts for year ending December 2024",
-    estimatedHours: 20,
-  },
-  {
-    id: "2",
-    name: "VAT Return Q4",
-    status: "not_started",
-    dueDate: new Date("2024-11-30"),
-    assignee: "Jane Wilson",
-    description: "Complete and submit quarterly VAT return",
-    estimatedHours: 5,
-  },
-  {
-    id: "3",
-    name: "Payroll Processing",
-    status: "completed",
-    dueDate: new Date("2024-10-31"),
-    assignee: "Bob Johnson",
-    description: "Monthly payroll processing for all employees",
-    estimatedHours: 3,
-  },
-  {
-    id: "4",
-    name: "Corporation Tax Return",
-    status: "in_progress",
-    dueDate: new Date("2024-12-15"),
-    assignee: "Alice Brown",
-    description: "Prepare and file corporation tax return",
-    estimatedHours: 15,
-  },
-  {
-    id: "5",
-    name: "Management Accounts",
-    status: "not_started",
-    dueDate: new Date("2024-11-15"),
-    assignee: "John Smith",
-    description: "Prepare monthly management accounts",
-    estimatedHours: 8,
-  },
-];
 
-// Mock time entries
-const mockTimeEntries = [
-  {
-    id: "1",
-    taskName: "Annual Accounts Preparation",
-    date: new Date("2024-10-25"),
-    hours: 4.5,
-    billable: true,
-    billed: false,
-    description: "Initial review of accounts",
-    staff: "John Smith",
-  },
-  {
-    id: "2",
-    taskName: "VAT Return Q3",
-    date: new Date("2024-10-24"),
-    hours: 2.0,
-    billable: true,
-    billed: true,
-    description: "VAT calculation and submission",
-    staff: "Jane Wilson",
-  },
-  {
-    id: "3",
-    taskName: "General consultation",
-    date: new Date("2024-10-23"),
-    hours: 1.5,
-    billable: true,
-    billed: false,
-    description: "Client meeting regarding tax planning",
-    staff: "Bob Johnson",
-  },
-  {
-    id: "4",
-    taskName: "Payroll Processing",
-    date: new Date("2024-10-22"),
-    hours: 3.0,
-    billable: true,
-    billed: true,
-    description: "October payroll run",
-    staff: "Alice Brown",
-  },
-  {
-    id: "5",
-    taskName: "Email correspondence",
-    date: new Date("2024-10-21"),
-    hours: 0.5,
-    billable: false,
-    billed: false,
-    description: "Responding to client queries",
-    staff: "John Smith",
-  },
-];
 
-// Mock services
-const mockServices = [
-  {
-    id: "1",
-    name: "Annual Accounts",
-    type: "Compliance",
-    frequency: "Annual",
-    price: 2500,
-    status: "active",
-    nextDue: new Date("2024-12-31"),
-  },
-  {
-    id: "2",
-    name: "VAT Returns",
-    type: "Compliance",
-    frequency: "Quarterly",
-    price: 400,
-    status: "active",
-    nextDue: new Date("2024-11-30"),
-  },
-  {
-    id: "3",
-    name: "Payroll Services",
-    type: "Ongoing",
-    frequency: "Monthly",
-    price: 150,
-    status: "active",
-    nextDue: new Date("2024-11-01"),
-  },
-  {
-    id: "4",
-    name: "Corporation Tax",
-    type: "Compliance",
-    frequency: "Annual",
-    price: 1500,
-    status: "active",
-    nextDue: new Date("2024-12-15"),
-  },
-];
 
-// Mock invoices
-const mockInvoices = [
-  {
-    id: "1",
-    invoiceNumber: "INV-2024-001",
-    date: new Date("2024-10-01"),
-    dueDate: new Date("2024-10-31"),
-    amount: 2500,
-    status: "paid",
-    description: "Annual accounts preparation",
-  },
-  {
-    id: "2",
-    invoiceNumber: "INV-2024-002",
-    date: new Date("2024-10-15"),
-    dueDate: new Date("2024-11-15"),
-    amount: 400,
-    status: "sent",
-    description: "VAT Return Q3",
-  },
-  {
-    id: "3",
-    invoiceNumber: "INV-2024-003",
-    date: new Date("2024-11-01"),
-    dueDate: new Date("2024-12-01"),
-    amount: 150,
-    status: "draft",
-    description: "Payroll services - October",
-  },
-];
 
 export default function ClientDetails({ clientId }: ClientDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Find the client from mock data
-  const client = mockClients.find((c) => c.id === clientId);
+  // Find the client from database - for now returns null since no data
+  const client = null;
 
   if (!client) {
     return (
@@ -461,7 +205,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{mockMetrics.activeTasks}</div>
+                <div className="text-2xl font-bold">0</div>
               </CardContent>
             </Card>
 
@@ -471,7 +215,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{mockMetrics.overdueTasks}</div>
+                <div className="text-2xl font-bold">0</div>
               </CardContent>
             </Card>
 
@@ -481,7 +225,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <Clock className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{mockMetrics.unbilledHours}</div>
+                <div className="text-2xl font-bold">0</div>
               </CardContent>
             </Card>
 
@@ -491,7 +235,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{mockMetrics.healthScore}/100</div>
+                <div className="text-2xl font-bold">0/100</div>
               </CardContent>
             </Card>
           </div>
@@ -608,21 +352,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               <CardTitle>Recent Tasks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {mockRecentTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">{task.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Due: {format(task.dueDate, "dd/MM/yyyy")}
-                      </p>
-                    </div>
-                    {getTaskStatusBadge(task.status)}
-                  </div>
-                ))}
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No recent tasks found</p>
               </div>
             </CardContent>
           </Card>
@@ -641,42 +372,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              {mockServices.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No services configured</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {mockServices.map((service) => (
-                    <div
-                      key={service.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h4 className="font-medium">{service.name}</h4>
-                          <Badge variant="outline">{service.type}</Badge>
-                          <Badge
-                            variant={service.status === "active" ? "default" : "secondary"}
-                          >
-                            {service.status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <span>Frequency: {service.frequency}</span>
-                          <span>•</span>
-                          <span>Next Due: {format(service.nextDue, "dd/MM/yyyy")}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-semibold">£{service.price}</p>
-                        <p className="text-sm text-muted-foreground">per {service.frequency.toLowerCase()}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No services configured</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -694,53 +393,14 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              {mockRecentTasks.length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No tasks found for this client</p>
-                  <Button className="mt-4" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create First Task
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {mockRecentTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium mb-1">{task.name}</h4>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {task.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              Due: {format(task.dueDate, "dd/MM/yyyy")}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              {task.assignee}
-                            </span>
-                            {task.estimatedHours && (
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                Est: {task.estimatedHours}h
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        {getTaskStatusBadge(task.status)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-center py-12">
+                <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No tasks found for this client</p>
+                <Button className="mt-4" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Task
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -753,9 +413,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">
-                  {mockTimeEntries.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)}
-                </p>
+                <p className="text-2xl font-bold">0.0</p>
                 <p className="text-xs text-muted-foreground">This month</p>
               </CardContent>
             </Card>
@@ -764,12 +422,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <CardTitle className="text-sm font-medium">Billable Hours</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">
-                  {mockTimeEntries
-                    .filter((e) => e.billable)
-                    .reduce((sum, entry) => sum + entry.hours, 0)
-                    .toFixed(1)}
-                </p>
+                <p className="text-2xl font-bold">0.0</p>
                 <p className="text-xs text-muted-foreground">This month</p>
               </CardContent>
             </Card>
@@ -778,12 +431,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <CardTitle className="text-sm font-medium">Unbilled Hours</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">
-                  {mockTimeEntries
-                    .filter((e) => e.billable && !e.billed)
-                    .reduce((sum, entry) => sum + entry.hours, 0)
-                    .toFixed(1)}
-                </p>
+                <p className="text-2xl font-bold">0.0</p>
                 <p className="text-xs text-muted-foreground">To be invoiced</p>
               </CardContent>
             </Card>
@@ -802,39 +450,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              {mockTimeEntries.length === 0 ? (
-                <div className="text-center py-12">
-                  <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No time entries found</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {mockTimeEntries.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{entry.taskName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(entry.date, "dd/MM/yyyy")} • {entry.staff}
-                          {entry.description && ` • ${entry.description}`}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">{entry.hours}h</p>
-                        <div className="flex gap-2">
-                          {entry.billable && (
-                            <Badge variant={entry.billed ? "secondary" : "default"}>
-                              {entry.billed ? "Billed" : "Billable"}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-center py-12">
+                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No time entries found</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -852,64 +471,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              {mockInvoices.length === 0 ? (
-                <div className="text-center py-12">
-                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No invoices found</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {mockInvoices.map((invoice) => (
-                    <div
-                      key={invoice.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h4 className="font-medium">{invoice.invoiceNumber}</h4>
-                          <Badge
-                            variant={
-                              invoice.status === "paid"
-                                ? "default"
-                                : invoice.status === "sent"
-                                ? "secondary"
-                                : "outline"
-                            }
-                            className={
-                              invoice.status === "paid"
-                                ? "bg-green-100 text-green-800"
-                                : invoice.status === "sent"
-                                ? "bg-blue-100 text-blue-800"
-                                : ""
-                            }
-                          >
-                            {invoice.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {invoice.description}
-                        </p>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <span>Issued: {format(invoice.date, "dd/MM/yyyy")}</span>
-                          <span>•</span>
-                          <span>Due: {format(invoice.dueDate, "dd/MM/yyyy")}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-semibold">£{invoice.amount.toFixed(2)}</p>
-                        <div className="flex gap-2 mt-2">
-                          <Button size="sm" variant="ghost">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost">
-                            <Mail className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-center py-12">
+                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No invoices found</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
