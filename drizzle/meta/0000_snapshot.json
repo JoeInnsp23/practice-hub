@@ -1,9 +1,214 @@
 {
-  "id": "6a936fc8-0385-4f87-a7cf-a35ba7ab174e",
+  "id": "3f036ae1-6dd3-4994-a7ff-95d12596f5c3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.activity_logs": {
+      "name": "activity_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_name": {
+          "name": "user_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "old_values": {
+          "name": "old_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "new_values": {
+          "name": "new_values",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_activity_entity": {
+          "name": "idx_activity_entity",
+          "columns": [
+            {
+              "expression": "entity_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_activity_user": {
+          "name": "idx_activity_user",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_activity_created": {
+          "name": "idx_activity_created",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_activity_tenant_entity": {
+          "name": "idx_activity_tenant_entity",
+          "columns": [
+            {
+              "expression": "tenant_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entity_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "activity_logs_tenant_id_tenants_id_fk": {
+          "name": "activity_logs_tenant_id_tenants_id_fk",
+          "tableFrom": "activity_logs",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "activity_logs_user_id_users_id_fk": {
+          "name": "activity_logs_user_id_users_id_fk",
+          "tableFrom": "activity_logs",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.client_contacts": {
       "name": "client_contacts",
       "schema": "",
@@ -153,8 +358,12 @@
           "name": "client_contacts_tenant_id_tenants_id_fk",
           "tableFrom": "client_contacts",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -162,8 +371,12 @@
           "name": "client_contacts_client_id_clients_id_fk",
           "tableFrom": "client_contacts",
           "tableTo": "clients",
-          "columnsFrom": ["client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -271,8 +484,12 @@
           "name": "client_services_tenant_id_tenants_id_fk",
           "tableFrom": "client_services",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -280,8 +497,12 @@
           "name": "client_services_client_id_clients_id_fk",
           "tableFrom": "client_services",
           "tableTo": "clients",
-          "columnsFrom": ["client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -289,8 +510,12 @@
           "name": "client_services_service_id_services_id_fk",
           "tableFrom": "client_services",
           "tableTo": "services",
-          "columnsFrom": ["service_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -541,8 +766,12 @@
           "name": "clients_tenant_id_tenants_id_fk",
           "tableFrom": "clients",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -550,17 +779,12 @@
           "name": "clients_account_manager_id_users_id_fk",
           "tableFrom": "clients",
           "tableTo": "users",
-          "columnsFrom": ["account_manager_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "clients_parent_client_id_clients_id_fk": {
-          "name": "clients_parent_client_id_clients_id_fk",
-          "tableFrom": "clients",
-          "tableTo": "clients",
-          "columnsFrom": ["parent_client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "account_manager_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -568,9 +792,270 @@
           "name": "clients_created_by_users_id_fk",
           "tableFrom": "clients",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.compliance": {
+      "name": "compliance",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "assigned_to_id": {
+          "name": "assigned_to_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "completed_date": {
+          "name": "completed_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reminder_date": {
+          "name": "reminder_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "compliance_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "priority": {
+          "name": "priority",
+          "type": "compliance_priority",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'medium'"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "attachments": {
+          "name": "attachments",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_by_id": {
+          "name": "created_by_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_compliance_client": {
+          "name": "idx_compliance_client",
+          "columns": [
+            {
+              "expression": "client_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_compliance_assignee": {
+          "name": "idx_compliance_assignee",
+          "columns": [
+            {
+              "expression": "assigned_to_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_compliance_status": {
+          "name": "idx_compliance_status",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_compliance_due_date": {
+          "name": "idx_compliance_due_date",
+          "columns": [
+            {
+              "expression": "due_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_compliance_type": {
+          "name": "idx_compliance_type",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "compliance_tenant_id_tenants_id_fk": {
+          "name": "compliance_tenant_id_tenants_id_fk",
+          "tableFrom": "compliance",
+          "tableTo": "tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "compliance_client_id_clients_id_fk": {
+          "name": "compliance_client_id_clients_id_fk",
+          "tableFrom": "compliance",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "compliance_assigned_to_id_users_id_fk": {
+          "name": "compliance_assigned_to_id_users_id_fk",
+          "tableFrom": "compliance",
+          "tableTo": "users",
+          "columnsFrom": [
+            "assigned_to_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "compliance_created_by_id_users_id_fk": {
+          "name": "compliance_created_by_id_users_id_fk",
+          "tableFrom": "compliance",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -812,17 +1297,12 @@
           "name": "documents_tenant_id_tenants_id_fk",
           "tableFrom": "documents",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "documents_parent_id_documents_id_fk": {
-          "name": "documents_parent_id_documents_id_fk",
-          "tableFrom": "documents",
-          "tableTo": "documents",
-          "columnsFrom": ["parent_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -830,8 +1310,12 @@
           "name": "documents_client_id_clients_id_fk",
           "tableFrom": "documents",
           "tableTo": "clients",
-          "columnsFrom": ["client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -839,8 +1323,12 @@
           "name": "documents_task_id_tasks_id_fk",
           "tableFrom": "documents",
           "tableTo": "tasks",
-          "columnsFrom": ["task_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "task_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -848,8 +1336,12 @@
           "name": "documents_uploaded_by_id_users_id_fk",
           "tableFrom": "documents",
           "tableTo": "users",
-          "columnsFrom": ["uploaded_by_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "uploaded_by_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1093,8 +1585,12 @@
           "name": "feedback_tenant_id_tenants_id_fk",
           "tableFrom": "feedback",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1202,8 +1698,12 @@
           "name": "invoice_items_invoice_id_invoices_id_fk",
           "tableFrom": "invoice_items",
           "tableTo": "invoices",
-          "columnsFrom": ["invoice_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "invoice_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1211,8 +1711,12 @@
           "name": "invoice_items_time_entry_id_time_entries_id_fk",
           "tableFrom": "invoice_items",
           "tableTo": "time_entries",
-          "columnsFrom": ["time_entry_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "time_entry_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1220,8 +1724,12 @@
           "name": "invoice_items_service_id_services_id_fk",
           "tableFrom": "invoice_items",
           "tableTo": "services",
-          "columnsFrom": ["service_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1452,8 +1960,12 @@
           "name": "invoices_tenant_id_tenants_id_fk",
           "tableFrom": "invoices",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1461,8 +1973,12 @@
           "name": "invoices_client_id_clients_id_fk",
           "tableFrom": "invoices",
           "tableTo": "clients",
-          "columnsFrom": ["client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1470,8 +1986,12 @@
           "name": "invoices_created_by_id_users_id_fk",
           "tableFrom": "invoices",
           "tableTo": "users",
-          "columnsFrom": ["created_by_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1526,6 +2046,32 @@
         "default_rate": {
           "name": "default_rate",
           "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price_type": {
+          "name": "price_type",
+          "type": "service_price_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'fixed'"
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tags": {
+          "name": "tags",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -1600,9 +2146,189 @@
           "name": "services_tenant_id_tenants_id_fk",
           "tableFrom": "services",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.task_workflow_instances": {
+      "name": "task_workflow_instances",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "task_id": {
+          "name": "task_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workflow_id": {
+          "name": "workflow_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "current_stage_id": {
+          "name": "current_stage_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "stage_progress": {
+          "name": "stage_progress",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paused_at": {
+          "name": "paused_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_task_workflow_instance": {
+          "name": "idx_task_workflow_instance",
+          "columns": [
+            {
+              "expression": "task_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_workflow_instance": {
+          "name": "idx_workflow_instance",
+          "columns": [
+            {
+              "expression": "workflow_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_workflow_instance_status": {
+          "name": "idx_workflow_instance_status",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "task_workflow_instances_task_id_tasks_id_fk": {
+          "name": "task_workflow_instances_task_id_tasks_id_fk",
+          "tableFrom": "task_workflow_instances",
+          "tableTo": "tasks",
+          "columnsFrom": [
+            "task_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "task_workflow_instances_workflow_id_workflows_id_fk": {
+          "name": "task_workflow_instances_workflow_id_workflows_id_fk",
+          "tableFrom": "task_workflow_instances",
+          "tableTo": "workflows",
+          "columnsFrom": [
+            "workflow_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "task_workflow_instances_current_stage_id_workflow_stages_id_fk": {
+          "name": "task_workflow_instances_current_stage_id_workflow_stages_id_fk",
+          "tableFrom": "task_workflow_instances",
+          "tableTo": "workflow_stages",
+          "columnsFrom": [
+            "current_stage_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -1669,6 +2395,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "reviewer_id": {
+          "name": "reviewer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_by_id": {
           "name": "created_by_id",
           "type": "uuid",
@@ -1677,6 +2409,12 @@
         },
         "due_date": {
           "name": "due_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_date": {
+          "name": "target_date",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -1696,6 +2434,19 @@
         "actual_hours": {
           "name": "actual_hours",
           "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "progress": {
+          "name": "progress",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "task_type": {
+          "name": "task_type",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         },
@@ -1773,6 +2524,21 @@
           "method": "btree",
           "with": {}
         },
+        "idx_task_reviewer": {
+          "name": "idx_task_reviewer",
+          "columns": [
+            {
+              "expression": "reviewer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "idx_task_client": {
           "name": "idx_task_client",
           "columns": [
@@ -1832,6 +2598,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "idx_task_progress": {
+          "name": "idx_task_progress",
+          "columns": [
+            {
+              "expression": "progress",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -1839,8 +2620,12 @@
           "name": "tasks_tenant_id_tenants_id_fk",
           "tableFrom": "tasks",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1848,8 +2633,12 @@
           "name": "tasks_client_id_clients_id_fk",
           "tableFrom": "tasks",
           "tableTo": "clients",
-          "columnsFrom": ["client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1857,8 +2646,25 @@
           "name": "tasks_assigned_to_id_users_id_fk",
           "tableFrom": "tasks",
           "tableTo": "users",
-          "columnsFrom": ["assigned_to_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "assigned_to_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "tasks_reviewer_id_users_id_fk": {
+          "name": "tasks_reviewer_id_users_id_fk",
+          "tableFrom": "tasks",
+          "tableTo": "users",
+          "columnsFrom": [
+            "reviewer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1866,18 +2672,13 @@
           "name": "tasks_created_by_id_users_id_fk",
           "tableFrom": "tasks",
           "tableTo": "users",
-          "columnsFrom": ["created_by_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "tasks_parent_task_id_tasks_id_fk": {
-          "name": "tasks_parent_task_id_tasks_id_fk",
-          "tableFrom": "tasks",
-          "tableTo": "tasks",
-          "columnsFrom": ["parent_task_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1932,7 +2733,9 @@
         "tenants_slug_unique": {
           "name": "tenants_slug_unique",
           "nullsNotDistinct": false,
-          "columns": ["slug"]
+          "columns": [
+            "slug"
+          ]
         }
       },
       "policies": {},
@@ -2004,6 +2807,14 @@
           "primaryKey": false,
           "notNull": true
         },
+        "work_type": {
+          "name": "work_type",
+          "type": "work_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'work'"
+        },
         "billable": {
           "name": "billable",
           "type": "boolean",
@@ -2050,9 +2861,10 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "time_entry_status",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "'draft'"
         },
         "submitted_at": {
@@ -2188,8 +3000,12 @@
           "name": "time_entries_tenant_id_tenants_id_fk",
           "tableFrom": "time_entries",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2197,8 +3013,12 @@
           "name": "time_entries_user_id_users_id_fk",
           "tableFrom": "time_entries",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2206,8 +3026,12 @@
           "name": "time_entries_client_id_clients_id_fk",
           "tableFrom": "time_entries",
           "tableTo": "clients",
-          "columnsFrom": ["client_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2215,8 +3039,12 @@
           "name": "time_entries_task_id_tasks_id_fk",
           "tableFrom": "time_entries",
           "tableTo": "tasks",
-          "columnsFrom": ["task_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "task_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2224,8 +3052,12 @@
           "name": "time_entries_service_id_services_id_fk",
           "tableFrom": "time_entries",
           "tableTo": "services",
-          "columnsFrom": ["service_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2233,8 +3065,12 @@
           "name": "time_entries_approved_by_id_users_id_fk",
           "tableFrom": "time_entries",
           "tableTo": "users",
-          "columnsFrom": ["approved_by_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "approved_by_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2306,6 +3142,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "hourly_rate": {
+          "name": "hourly_rate",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -2386,8 +3228,12 @@
           "name": "users_tenant_id_tenants_id_fk",
           "tableFrom": "users",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2397,9 +3243,159 @@
         "users_clerk_id_unique": {
           "name": "users_clerk_id_unique",
           "nullsNotDistinct": false,
-          "columns": ["clerk_id"]
+          "columns": [
+            "clerk_id"
+          ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workflow_stages": {
+      "name": "workflow_stages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "workflow_id": {
+          "name": "workflow_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stage_order": {
+          "name": "stage_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_required": {
+          "name": "is_required",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "estimated_hours": {
+          "name": "estimated_hours",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "checklist_items": {
+          "name": "checklist_items",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "auto_complete": {
+          "name": "auto_complete",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "requires_approval": {
+          "name": "requires_approval",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_stage_workflow": {
+          "name": "idx_stage_workflow",
+          "columns": [
+            {
+              "expression": "workflow_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_stage_order": {
+          "name": "idx_stage_order",
+          "columns": [
+            {
+              "expression": "workflow_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "stage_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "workflow_stages_workflow_id_workflows_id_fk": {
+          "name": "workflow_stages_workflow_id_workflows_id_fk",
+          "tableFrom": "workflow_stages",
+          "tableTo": "workflows",
+          "columnsFrom": [
+            "workflow_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -2451,6 +3447,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "estimated_days": {
+          "name": "estimated_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "service_id": {
+          "name": "service_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         },
         "config": {
           "name": "config",
@@ -2527,6 +3535,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "idx_workflow_service": {
+          "name": "idx_workflow_service",
+          "columns": [
+            {
+              "expression": "service_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -2534,17 +3557,38 @@
           "name": "workflows_tenant_id_tenants_id_fk",
           "tableFrom": "workflows",
           "tableTo": "tenants",
-          "columnsFrom": ["tenant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "workflows_service_id_services_id_fk": {
+          "name": "workflows_service_id_services_id_fk",
+          "tableFrom": "workflows",
+          "tableTo": "services",
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "workflows_created_by_id_users_id_fk": {
           "name": "workflows_created_by_id_users_id_fk",
           "tableFrom": "workflows",
           "tableTo": "users",
-          "columnsFrom": ["created_by_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2560,32 +3604,117 @@
     "public.client_status": {
       "name": "client_status",
       "schema": "public",
-      "values": ["active", "inactive", "prospect", "archived"]
+      "values": [
+        "active",
+        "inactive",
+        "prospect",
+        "archived"
+      ]
     },
     "public.client_type": {
       "name": "client_type",
       "schema": "public",
-      "values": ["individual", "company", "trust", "partnership"]
+      "values": [
+        "individual",
+        "company",
+        "trust",
+        "partnership"
+      ]
+    },
+    "public.compliance_priority": {
+      "name": "compliance_priority",
+      "schema": "public",
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ]
+    },
+    "public.compliance_status": {
+      "name": "compliance_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "in_progress",
+        "completed",
+        "overdue"
+      ]
     },
     "public.document_type": {
       "name": "document_type",
       "schema": "public",
-      "values": ["file", "folder"]
+      "values": [
+        "file",
+        "folder"
+      ]
     },
     "public.invoice_status": {
       "name": "invoice_status",
       "schema": "public",
-      "values": ["draft", "sent", "paid", "overdue", "cancelled"]
+      "values": [
+        "draft",
+        "sent",
+        "paid",
+        "overdue",
+        "cancelled"
+      ]
+    },
+    "public.service_price_type": {
+      "name": "service_price_type",
+      "schema": "public",
+      "values": [
+        "hourly",
+        "fixed",
+        "retainer",
+        "project",
+        "percentage"
+      ]
     },
     "public.task_priority": {
       "name": "task_priority",
       "schema": "public",
-      "values": ["low", "medium", "high", "urgent"]
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ]
     },
     "public.task_status": {
       "name": "task_status",
       "schema": "public",
-      "values": ["pending", "in_progress", "completed", "cancelled"]
+      "values": [
+        "pending",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ]
+    },
+    "public.time_entry_status": {
+      "name": "time_entry_status",
+      "schema": "public",
+      "values": [
+        "draft",
+        "submitted",
+        "approved",
+        "rejected"
+      ]
+    },
+    "public.work_type": {
+      "name": "work_type",
+      "schema": "public",
+      "values": [
+        "work",
+        "admin",
+        "training",
+        "meeting",
+        "business_development",
+        "research",
+        "holiday",
+        "sick",
+        "time_off_in_lieu"
+      ]
     }
   },
   "schemas": {},

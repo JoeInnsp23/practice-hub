@@ -52,12 +52,39 @@ export function useTimeEntries(startDate?: string, endDate?: string, refreshKey?
 
       try {
         setIsLoading(true);
-        // API call would go here
-        // const response = await fetch(`/api/time-entries?start=${startDate}&end=${endDate}`);
-        // const entries = await response.json();
 
-        // Return empty array until API is implemented
-        setData([]);
+        // Build query parameters
+        const params = new URLSearchParams();
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+        params.append("userId", userId);
+
+        const response = await fetch(`/api/time-entries?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          // Transform API response to match our interface
+          const entries: TimeEntry[] = data.entries.map((e: any) => ({
+            id: e.id,
+            date: new Date(e.date),
+            client: e.clientName,
+            clientId: e.clientId,
+            task: e.taskTitle,
+            taskId: e.taskId,
+            description: e.description,
+            hours: e.hours,
+            billable: e.billable,
+            billed: e.billed,
+            status: e.status,
+            userId: e.userId,
+            user: e.userName,
+            workType: e.workType,
+            startTime: e.startTime,
+            endTime: e.endTime,
+          }));
+          setData(entries);
+        } else {
+          throw new Error("Failed to fetch time entries");
+        }
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Failed to fetch entries"));
       } finally {
@@ -83,24 +110,24 @@ export function useCreateTimeEntry() {
 
     try {
       setIsLoading(true);
-      // API call would go here
-      // const response = await fetch("/api/time-entries", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(entry),
-      // });
 
-      // Return empty entry until API is implemented
-      const newEntry: TimeEntry = {
-        id: Date.now().toString(),
-        ...entry,
-        billed: false,
-        status: "draft",
-        user: "Current User",
-      };
+      const response = await fetch("/api/time-entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...entry,
+          date: format(entry.date, "yyyy-MM-dd"),
+          userId,
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to create time entry");
+      }
+
+      const data = await response.json();
       toast.success("Time entry created");
-      return newEntry;
+      return data.entry;
     } catch (error) {
       toast.error("Failed to create time entry");
       throw error;

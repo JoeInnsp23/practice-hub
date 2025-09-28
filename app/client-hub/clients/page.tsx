@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,11 @@ import {
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
 import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import { Users, UserCheck, UserX, UserPlus, Plus, Search, X } from "lucide-react";
+import { Users, UserCheck, UserX, UserPlus, Plus, Search, X, Upload } from "lucide-react";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import toast from "react-hot-toast";
+import { DataExportButton } from "@/components/client-hub/data-export-button";
+import { DataImportModal } from "@/components/client-hub/data-import-modal";
 
 export default function ClientsPage() {
   const router = useRouter();
@@ -26,9 +28,41 @@ export default function ClientsPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Fetch clients from API
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
+        if (typeFilter !== "all") params.append("type", typeFilter);
+        if (statusFilter !== "all") params.append("status", statusFilter);
+
+        const response = await fetch(`/api/clients?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setClients(data.clients);
+        } else {
+          console.error("Failed to fetch clients");
+          toast.error("Failed to load clients");
+        }
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+        toast.error("Failed to load clients");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClients();
+  }, [debouncedSearchTerm, typeFilter, statusFilter, refreshKey]);
 
   // Filter clients based on search and filters
   const filteredClients = useMemo(() => {
@@ -87,34 +121,57 @@ export default function ClientsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteClient = (client: any) => {
+  const handleDeleteClient = async (client: any) => {
     if (window.confirm(`Are you sure you want to delete ${client.name}?`)) {
-      setClients((prev) => prev.filter((c) => c.id !== client.id));
-      toast.success("Client deleted successfully");
+      try {
+        const response = await fetch(`/api/clients/${client.id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          toast.success("Client archived successfully");
+          setRefreshKey((prev) => prev + 1); // Trigger refresh
+        } else {
+          toast.error("Failed to delete client");
+        }
+      } catch (error) {
+        console.error("Error deleting client:", error);
+        toast.error("Failed to delete client");
+      }
     }
   };
 
-  const handleSaveClient = (data: any) => {
-    if (editingClient) {
-      // Update existing client
-      setClients((prev) =>
-        prev.map((c) =>
-          c.id === editingClient.id
-            ? { ...c, ...data, updatedAt: new Date() }
-            : c,
-        ),
-      );
-    } else {
-      // Add new client
-      const newClient = {
-        ...data,
-        id: (clients.length + 1).toString(),
-        accountManager: "Current User",
-        createdAt: new Date(),
-      };
-      setClients((prev) => [...prev, newClient]);
+  const handleSaveClient = async (data: any) => {
+    try {
+      const url = editingClient
+        ? `/api/clients/${editingClient.id}`
+        : "/api/clients";
+      const method = editingClient ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        toast.success(
+          editingClient
+            ? "Client updated successfully"
+            : "Client created successfully"
+        );
+        setIsModalOpen(false);
+        setRefreshKey((prev) => prev + 1); // Trigger refresh
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Failed to save client");
+      }
+    } catch (error) {
+      console.error("Error saving client:", error);
+      toast.error("Failed to save client");
     }
-    setIsModalOpen(false);
   };
 
   const handleViewClient = (client: any) => {
@@ -137,10 +194,21 @@ export default function ClientsPage() {
             Manage your client relationships and information
           </p>
         </div>
-        <Button onClick={handleAddClient}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Client
-        </Button>
+        <div className="flex gap-2">
+          <DataExportButton
+            endpoint="/api/export/clients"
+            filename="clients"
+            filters={{ status: statusFilter, type: typeFilter }}
+          />
+          <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={handleAddClient}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Client
+          </Button>
+        </div>
       </div>
 
       {/* KPIs */}
@@ -229,6 +297,16 @@ export default function ClientsPage() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveClient}
         client={editingClient}
+      />
+
+      {/* Import Modal */}
+      <DataImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        endpoint="/api/import/clients"
+        templateEndpoint="/api/import/clients"
+        entityName="Clients"
+        onSuccess={() => setRefreshKey((prev) => prev + 1)}
       />
     </div>
   );

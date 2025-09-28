@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,8 +25,12 @@ import {
   Search,
   LayoutGrid,
   List,
+  Upload,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useDebounce } from "@/lib/hooks/use-debounce";
+import { DataExportButton } from "@/components/client-hub/data-export-button";
+import { DataImportModal } from "@/components/client-hub/data-import-modal";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -35,9 +39,44 @@ export default function TasksPage() {
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Fetch tasks from API
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
+        if (statusFilter !== "all") params.append("status", statusFilter);
+        if (priorityFilter !== "all") params.append("priority", priorityFilter);
+        if (assigneeFilter !== "all") params.append("assigneeId", assigneeFilter);
+
+        const response = await fetch(`/api/tasks?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTasks(data.tasks);
+        } else {
+          console.error("Failed to fetch tasks");
+          toast.error("Failed to load tasks");
+        }
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        toast.error("Failed to load tasks");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [debouncedSearchTerm, statusFilter, priorityFilter, assigneeFilter, refreshKey]);
 
   // Filter tasks based on search and filters
   const filteredTasks = useMemo(() => {
@@ -137,43 +176,81 @@ export default function TasksPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (task && window.confirm(`Are you sure you want to delete "${task.title}"?`)) {
-      setTasks((prev) => prev.filter((t) => t.id !== taskId));
-      toast.success("Task deleted successfully");
+      try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          toast.success("Task cancelled successfully");
+          setRefreshKey((prev) => prev + 1);
+        } else {
+          toast.error("Failed to delete task");
+        }
+      } catch (error) {
+        console.error("Error deleting task:", error);
+        toast.error("Failed to delete task");
+      }
     }
   };
 
-  const handleSaveTask = (data: any) => {
-    if (editingTask) {
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === editingTask.id ? { ...t, ...data } : t
-        )
-      );
-      toast.success("Task updated successfully");
-    } else {
-      const newTask = {
-        ...data,
-        id: Date.now().toString(),
-        status: "pending" as const,
-        progress: 0,
-      };
-      setTasks((prev) => [...prev, newTask]);
-      toast.success("Task created successfully");
+  const handleSaveTask = async (data: any) => {
+    try {
+      const url = editingTask
+        ? `/api/tasks/${editingTask.id}`
+        : "/api/tasks";
+      const method = editingTask ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        toast.success(
+          editingTask
+            ? "Task updated successfully"
+            : "Task created successfully"
+        );
+        setIsModalOpen(false);
+        setEditingTask(null);
+        setRefreshKey((prev) => prev + 1);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Failed to save task");
+      }
+    } catch (error) {
+      console.error("Error saving task:", error);
+      toast.error("Failed to save task");
     }
-    setIsModalOpen(false);
-    setEditingTask(null);
   };
 
-  const handleStatusChange = (taskId: string, status: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, status: status as any } : task
-      )
-    );
-    toast.success("Task status updated");
+  const handleStatusChange = async (taskId: string, status: string) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (response.ok) {
+        toast.success("Task status updated");
+        setRefreshKey((prev) => prev + 1);
+      } else {
+        toast.error("Failed to update task status");
+      }
+    } catch (error) {
+      console.error("Error updating task status:", error);
+      toast.error("Failed to update task status");
+    }
   };
 
   return (
@@ -186,15 +263,30 @@ export default function TasksPage() {
             Track and manage all your tasks and deadlines
           </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditingTask(null);
-            setIsModalOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Task
-        </Button>
+        <div className="flex gap-2">
+          <DataExportButton
+            endpoint="/api/export/tasks"
+            filename="tasks"
+            filters={{
+              status: statusFilter,
+              priority: priorityFilter,
+              assigneeId: assigneeFilter === "all" ? undefined : assigneeFilter,
+            }}
+          />
+          <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button
+            onClick={() => {
+              setEditingTask(null);
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Task
+          </Button>
+        </div>
       </div>
 
       {/* Task Statistics */}
@@ -342,6 +434,16 @@ export default function TasksPage() {
         }}
         onSave={handleSaveTask}
         task={editingTask}
+      />
+
+      {/* Import Modal */}
+      <DataImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        endpoint="/api/import/tasks"
+        templateEndpoint="/api/import/tasks"
+        entityName="Tasks"
+        onSuccess={() => setRefreshKey((prev) => prev + 1)}
       />
     </div>
   );
