@@ -9,6 +9,19 @@ import superjson from "superjson";
 
 export const trpc = createTRPCReact<AppRouter>();
 
+function getBaseUrl() {
+  if (typeof window !== "undefined") {
+    // browser should use relative path
+    return "";
+  }
+  // SSR should use absolute URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // assume localhost
+  return `http://localhost:${process.env.PORT ?? 3000}`;
+}
+
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
@@ -23,8 +36,20 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: "/api/trpc",
+          url: `${getBaseUrl()}/api/trpc`,
           transformer: superjson,
+          // Ensure cookies are sent with requests
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: "same-origin",
+            });
+          },
+          headers() {
+            return {
+              // Add any additional headers if needed
+            };
+          },
         }),
       ],
     })

@@ -35,15 +35,21 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
     .join(" ");
 
   // Fetch KPIs using tRPC
-  const { data: kpisData, isLoading: kpisLoading } = trpc.dashboard.kpis.useQuery(undefined, {
+  const { data: kpisData, isLoading: kpisLoading, error: kpisError } = trpc.dashboard.kpis.useQuery(undefined, {
     retry: false,
+    onError: (error) => {
+      console.error("Failed to fetch KPIs:", error);
+    },
   });
 
   // Fetch activities using tRPC
-  const { data: activitiesData, isLoading: activitiesLoading } = trpc.dashboard.activity.useQuery(
+  const { data: activitiesData, isLoading: activitiesLoading, error: activitiesError } = trpc.dashboard.activity.useQuery(
     { limit: 10 },
-    { retry: false }
-  );
+    { retry: false,
+    onError: (error) => {
+      console.error("Failed to fetch activities:", error);
+    },
+  });
 
   const loading = kpisLoading || activitiesLoading;
   const kpis = kpisData?.kpis || {
@@ -64,6 +70,36 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
     collectionRate: 0,
   };
   const activities = activitiesData?.activities || [];
+
+  // Show error message if there's an authentication issue
+  if (kpisError || activitiesError) {
+    const error = kpisError || activitiesError;
+    const isAuthError = error?.message?.includes("UNAUTHORIZED") || error?.message?.includes("signed-out");
+
+    return (
+      <div className="p-6 space-y-6">
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="text-red-600">
+              {isAuthError ? "Authentication Error" : "Error Loading Dashboard"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              {isAuthError
+                ? "Please sign in again to access the dashboard."
+                : "Failed to load dashboard data. Please try refreshing the page."}
+            </p>
+            {!isAuthError && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Error details: {error?.message}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

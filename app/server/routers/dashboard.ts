@@ -2,15 +2,17 @@ import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const dashboardRouter = router({
   kpis: protectedProcedure.query(async ({ ctx }) => {
-    const { tenantId } = ctx.authContext;
+    try {
+      const { tenantId } = ctx.authContext;
 
-    // Query the dashboard KPI view for aggregated metrics
-    const kpisResult = await db.execute(
-      sql`SELECT * FROM dashboard_kpi_view WHERE tenant_id = ${tenantId}`
-    );
+      // Query the dashboard KPI view for aggregated metrics
+      const kpisResult = await db.execute(
+        sql`SELECT * FROM dashboard_kpi_view WHERE tenant_id = ${tenantId}`
+      );
 
     // Extract the first row (should only be one row per tenant)
     const kpiData = kpisResult.rows[0] || {
@@ -53,6 +55,14 @@ export const dashboardRouter = router({
     };
 
     return { kpis };
+    } catch (error) {
+      console.error("Dashboard KPIs query error:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to fetch dashboard KPIs",
+        cause: error,
+      });
+    }
   }),
 
   activity: protectedProcedure
@@ -62,11 +72,12 @@ export const dashboardRouter = router({
       entityType: z.string().optional(),
     }))
     .query(async ({ ctx, input }) => {
-      const { tenantId } = ctx.authContext;
-      const { limit, offset, entityType } = input;
+      try {
+        const { tenantId } = ctx.authContext;
+        const { limit, offset, entityType } = input;
 
-      // Build the query with optional entity type filter
-      let query = sql`
+        // Build the query with optional entity type filter
+        let query = sql`
         SELECT
           id,
           entity_type,
@@ -121,5 +132,13 @@ export const dashboardRouter = router({
       }));
 
       return { activities };
+      } catch (error) {
+        console.error("Dashboard activity query error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch dashboard activities",
+          cause: error,
+        });
+      }
     }),
 });
