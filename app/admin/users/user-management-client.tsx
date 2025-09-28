@@ -144,40 +144,6 @@ export function UserManagementClient({
   const handleUserUpdated = (updatedUser: User) => {
     // Invalidate users list to refetch updated data
     utils.users.list.invalidate();
-      if (oldUser.role === "admin" || oldUser.role === "org:admin")
-        newStats.admins--;
-      else if (
-        oldUser.role === "accountant" ||
-        oldUser.role === "org:accountant"
-      )
-        newStats.accountants--;
-      else if (oldUser.role === "member" || oldUser.role === "org:member")
-        newStats.members--;
-
-      // Increment new role count
-      if (updatedUser.role === "admin" || updatedUser.role === "org:admin")
-        newStats.admins++;
-      else if (
-        updatedUser.role === "accountant" ||
-        updatedUser.role === "org:accountant"
-      )
-        newStats.accountants++;
-      else if (
-        updatedUser.role === "member" ||
-        updatedUser.role === "org:member"
-      )
-        newStats.members++;
-
-      setStats(newStats);
-    }
-
-    // Update active count if status changed
-    if (oldUser && oldUser.isActive !== updatedUser.isActive) {
-      setStats({
-        ...stats,
-        active: updatedUser.isActive ? stats.active + 1 : stats.active - 1,
-      });
-    }
   };
 
   const handleInviteSent = () => {
