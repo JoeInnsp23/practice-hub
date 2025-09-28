@@ -330,7 +330,7 @@ export function HourlyTimesheet({
             const billableTotal = dayEntries.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0);
 
             return (
-              <div key={day.date} className="text-center text-xs">
+              <div key={day.toISOString()} className="text-center text-xs">
                 <div className="font-semibold text-slate-800 dark:text-slate-200">
                   {dayTotal > 0 ? `${dayTotal.toFixed(1)}h` : '-'}
                 </div>
