@@ -65,7 +65,24 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           const kpiData = await kpiResponse.json();
           setKpis(kpiData.kpis);
         } else {
-          console.error("Failed to fetch KPIs");
+          const errorData = await kpiResponse.json().catch(() => ({}));
+          console.warn("KPIs unavailable:", errorData.error || "Unknown error");
+          // Set default KPIs when API fails
+          setKpis({
+            totalRevenue: 0,
+            collectedRevenue: 0,
+            outstandingRevenue: 0,
+            activeClients: 0,
+            newClients30d: 0,
+            pendingTasks: 0,
+            inProgressTasks: 0,
+            completedTasks30d: 0,
+            overdueTasks: 0,
+            totalHours30d: 0,
+            billableHours30d: 0,
+            upcomingCompliance30d: 0,
+            overdueCompliance: 0,
+          });
         }
 
         // Fetch activity feed
@@ -74,11 +91,32 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           const activityData = await activityResponse.json();
           setActivities(activityData.activities);
         } else {
-          console.error("Failed to fetch activities");
+          console.warn("Activities unavailable");
+          setActivities([]);
         }
       } catch (error) {
         console.error("Dashboard data fetch error:", error);
-        toast.error("Failed to load dashboard data");
+        // Show error only for network failures, not expected API errors
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          toast.error("Unable to connect to server. Please check your connection.");
+        }
+        // Set default values on error
+        setKpis({
+          totalRevenue: 0,
+          collectedRevenue: 0,
+          outstandingRevenue: 0,
+          activeClients: 0,
+          newClients30d: 0,
+          pendingTasks: 0,
+          inProgressTasks: 0,
+          completedTasks30d: 0,
+          overdueTasks: 0,
+          totalHours30d: 0,
+          billableHours30d: 0,
+          upcomingCompliance30d: 0,
+          overdueCompliance: 0,
+        });
+        setActivities([]);
       } finally {
         setLoading(false);
       }
