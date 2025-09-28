@@ -41,8 +41,8 @@ interface Task {
   id: string;
   title: string;
   description?: string;
-  status: "pending" | "in_progress" | "review" | "completed" | "blocked";
-  priority: "low" | "medium" | "high" | "urgent";
+  status: "pending" | "in_progress" | "review" | "completed" | "cancelled" | "blocked" | "records_received" | "queries_sent" | "queries_received";
+  priority: "low" | "medium" | "high" | "urgent" | "critical";
   dueDate: Date;
   targetDate?: Date;
   assignee?: { name: string };
@@ -92,9 +92,13 @@ export function TaskList({
     const statusConfig = {
       pending: { label: "Not Started", className: "bg-gray-100 text-gray-800" },
       in_progress: { label: "In Progress", className: "bg-blue-100 text-blue-800" },
-      review: { label: "Review", className: "bg-amber-100 text-amber-800" },
-      completed: { label: "Completed", className: "bg-green-100 text-green-800" },
+      review: { label: "Review", className: "bg-purple-100 text-purple-800" },
+      queries_sent: { label: "Queries Sent", className: "bg-orange-100 text-orange-800" },
+      queries_received: { label: "Queries Received", className: "bg-amber-100 text-amber-800" },
+      records_received: { label: "Records Received", className: "bg-indigo-100 text-indigo-800" },
       blocked: { label: "Blocked", className: "bg-red-100 text-red-800" },
+      completed: { label: "Completed", className: "bg-green-100 text-green-800" },
+      cancelled: { label: "Cancelled", className: "bg-gray-200 text-gray-700" },
     };
     const config = statusConfig[status];
     return (
@@ -106,6 +110,7 @@ export function TaskList({
 
   const getPriorityBadge = (priority: Task["priority"]) => {
     const priorityConfig = {
+      critical: { label: "Critical", className: "bg-red-100 text-red-800 border-red-300" },
       urgent: { label: "Urgent", className: "bg-red-100 text-red-800 border-red-300" },
       high: { label: "High", className: "bg-orange-100 text-orange-800 border-orange-300" },
       medium: { label: "Medium", className: "bg-yellow-100 text-yellow-800 border-yellow-300" },
