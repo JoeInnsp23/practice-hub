@@ -71,7 +71,7 @@ export default function ClientHubLayout({
           sections={sections}
           moduleColor="#3b82f6"
         />
-        <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
+        <main className="flex-1 min-w-0 overflow-x-hidden p-8 max-w-7xl mx-auto">{children}</main>
       </div>
     </div>
   );
