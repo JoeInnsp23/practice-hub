@@ -18,6 +18,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 6. **Always follow Critical Design Elements** - Must strictly adhere to all design standards outlined in the Critical Design Elements section without fail.
 
+7. **Always use docker v2 commands** - Must always use docker v2 commands only.
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
