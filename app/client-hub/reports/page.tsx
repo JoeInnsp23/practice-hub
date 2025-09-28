@@ -46,7 +46,7 @@ export default function ReportsPage() {
       billableHours: 0,
       utilizationRate: 0,
       activeClients: 0,
-      topClient: null,
+      topClient: null as { name: string } | null,
     };
   }, []);
 
@@ -82,9 +82,10 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Period Selector */}
-      <div className="flex justify-between items-center">
-        <Tabs value={reportType} onValueChange={setReportType}>
+      {/* Tabs wrapper for all content */}
+      <Tabs value={reportType} onValueChange={setReportType} className="space-y-4">
+        {/* Header with tabs and period selector */}
+        <div className="flex justify-between items-center">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
@@ -92,24 +93,23 @@ export default function ReportsPage() {
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="productivity">Productivity</TabsTrigger>
           </TabsList>
-        </Tabs>
-        <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="this_month">This Month</SelectItem>
-            <SelectItem value="last_month">Last Month</SelectItem>
-            <SelectItem value="this_quarter">This Quarter</SelectItem>
-            <SelectItem value="last_quarter">Last Quarter</SelectItem>
-            <SelectItem value="this_year">This Year</SelectItem>
-            <SelectItem value="last_year">Last Year</SelectItem>
-            <SelectItem value="custom">Custom Range</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="this_month">This Month</SelectItem>
+              <SelectItem value="last_month">Last Month</SelectItem>
+              <SelectItem value="this_quarter">This Quarter</SelectItem>
+              <SelectItem value="last_quarter">Last Quarter</SelectItem>
+              <SelectItem value="this_year">This Year</SelectItem>
+              <SelectItem value="last_year">Last Year</SelectItem>
+              <SelectItem value="custom">Custom Range</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
@@ -362,6 +362,7 @@ export default function ReportsPage() {
           </Card>
         </div>
       </TabsContent>
+      </Tabs>
     </div>
   );
 }

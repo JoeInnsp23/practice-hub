@@ -29,33 +29,8 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 
-  // Mock data - in production, this would come from API
-  const activities = [
-    {
-      id: "1",
-      type: "client" as const,
-      title: "New client added",
-      description: "ABC Company Ltd has been added as a new client",
-      time: "2 hours ago",
-      user: "John Smith",
-    },
-    {
-      id: "2",
-      type: "task" as const,
-      title: "Task completed",
-      description: "Annual accounts review for XYZ Ltd marked as complete",
-      time: "4 hours ago",
-      user: "Jane Wilson",
-    },
-    {
-      id: "3",
-      type: "invoice" as const,
-      title: "Invoice sent",
-      description: "Invoice #INV-2024-001 sent to Tech Innovations",
-      time: "Yesterday",
-      user: "Alice Brown",
-    },
-  ];
+  // Empty activities until API is connected
+  const activities: any[] = [];
 
   return (
     <div className="p-6 space-y-6">
@@ -71,31 +46,23 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPIWidget
           title="Total Clients"
-          value="156"
-          change={12}
+          value="0"
           icon={Users}
-          color="blue"
         />
         <KPIWidget
           title="Active Tasks"
-          value="42"
-          change={-5}
+          value="0"
           icon={CheckSquare}
-          color="green"
         />
         <KPIWidget
           title="Hours Tracked"
-          value="1,234"
-          change={8}
+          value="0"
           icon={Clock}
-          color="purple"
         />
         <KPIWidget
           title="Pending Invoices"
-          value="23"
-          change={15}
+          value="0"
           icon={FileText}
-          color="orange"
         />
       </div>
 
@@ -121,9 +88,9 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">£45,230</div>
+            <div className="text-3xl font-bold">£0</div>
             <p className="text-sm text-muted-foreground mt-2">
-              +18% from last month
+              No data available
             </p>
           </CardContent>
         </Card>
@@ -137,17 +104,8 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">VAT Returns Due</span>
-                <span className="text-sm text-orange-600 font-medium">
-                  3 days
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Annual Accounts - ABC Ltd</span>
-                <span className="text-sm text-yellow-600 font-medium">
-                  1 week
-                </span>
+              <div className="text-center py-4">
+                <span className="text-sm text-muted-foreground">No upcoming deadlines</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Corporation Tax - XYZ</span>
