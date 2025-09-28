@@ -11,6 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TaskBoard } from "@/components/client-hub/tasks/task-board";
 import { TaskList } from "@/components/client-hub/tasks/task-list";
@@ -26,6 +32,7 @@ import {
   LayoutGrid,
   List,
   Upload,
+  Maximize2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useDebounce } from "@/lib/hooks/use-debounce";
@@ -44,6 +51,7 @@ export default function TasksPage() {
   const [editingTask, setEditingTask] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -301,6 +309,16 @@ export default function TasksPage() {
                 >
                   <List className="h-4 w-4" />
                 </Button>
+                {viewMode === "board" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsFullscreenOpen(true)}
+                    title="Fullscreen Kanban View"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -357,7 +375,7 @@ export default function TasksPage() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {/* Bulk Actions */}
           {selectedTaskIds.length > 0 && viewMode === "list" && (
             <div className="mb-4 p-3 bg-muted rounded-lg flex items-center justify-between">
@@ -422,6 +440,26 @@ export default function TasksPage() {
         entityName="Tasks"
         onSuccess={() => utils.tasks.list.invalidate()}
       />
+
+      {/* Fullscreen Kanban Modal */}
+      <Dialog open={isFullscreenOpen} onOpenChange={setIsFullscreenOpen}>
+        <DialogContent
+          className="max-w-none w-screen h-screen m-0 p-0 rounded-none border-0"
+          showCloseButton={true}
+        >
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle className="text-2xl font-bold">Tasks - Kanban View</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 h-[calc(100vh-80px)] overflow-hidden">
+            <TaskBoard
+              tasks={filteredTasks}
+              onEditTask={handleEditTask}
+              onDeleteTask={(task) => handleDeleteTask(task.id)}
+              onStatusChange={handleStatusChange}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

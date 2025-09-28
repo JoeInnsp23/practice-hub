@@ -26,14 +26,27 @@ import {
   TrendingUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 
 
 export default function CompliancePage() {
-  const [items, setItems] = useState([]);
+  const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list");
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Fetch compliance items using tRPC
+  const { data: complianceData, isLoading: loading } = trpc.compliance.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    type: typeFilter !== "all" ? typeFilter : undefined,
+  });
+
+  const items = complianceData?.compliance || [];
 
   // Get unique types
   const types = useMemo(() => {

@@ -26,9 +26,11 @@ import {
   DollarSign,
   Plus,
   Eye,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 
 interface ClientDetailsProps {
   clientId: string;
@@ -44,17 +46,29 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Find the client from database - for now returns null since no data
-  const client = null;
+  // Fetch client from database using tRPC
+  const { data: client, isLoading, error } = trpc.clients.getById.useQuery(clientId);
 
-  if (!client) {
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Loading Client Details</h2>
+          <p className="text-muted-foreground">Please wait...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !client) {
     return (
       <div className="p-6">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Client Not Found</h2>
           <p className="text-muted-foreground mb-4">
-            The client you're looking for doesn't exist.
+            {error?.message || "The client you're looking for doesn't exist."}
           </p>
           <Button onClick={() => router.push("/client-hub/clients")}>
             Back to Clients
@@ -135,7 +149,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <div className="flex items-center gap-4 mt-2 text-muted-foreground">
               <span className="font-mono">{client.clientCode}</span>
               <span>•</span>
-              <span>Managed by {client.accountManager}</span>
+              <span>Managed by {client.accountManagerId || 'Unassigned'}</span>
             </div>
           </div>
         </div>
@@ -252,17 +266,17 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               <CardContent className="space-y-4">
                 {client.type === "company" && (
                   <>
-                    {client.companyNumber && (
+                    {client.registrationNumber && (
                       <div>
                         <p className="text-sm text-muted-foreground">Company Number</p>
-                        <p className="font-medium">{client.companyNumber}</p>
+                        <p className="font-medium">{client.registrationNumber}</p>
                       </div>
                     )}
                     {client.incorporationDate && (
                       <div>
                         <p className="text-sm text-muted-foreground">Incorporated</p>
                         <p className="font-medium">
-                          {format(client.incorporationDate, "dd/MM/yyyy")}
+                          {format(new Date(client.incorporationDate), "dd/MM/yyyy")}
                         </p>
                       </div>
                     )}
@@ -280,15 +294,16 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                     )}
                   </>
                 )}
-                {client.registeredAddress && (
+                {(client.addressLine1 || client.city) && (
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Registered Address</p>
                     <div className="space-y-1">
-                      <p>{client.registeredAddress.line1}</p>
-                      {client.registeredAddress.line2 && <p>{client.registeredAddress.line2}</p>}
-                      <p>{client.registeredAddress.city}</p>
-                      <p>{client.registeredAddress.postcode}</p>
-                      <p>{client.registeredAddress.country}</p>
+                      {client.addressLine1 && <p>{client.addressLine1}</p>}
+                      {client.addressLine2 && <p>{client.addressLine2}</p>}
+                      {client.city && <p>{client.city}</p>}
+                      {client.state && <p>{client.state}</p>}
+                      {client.postalCode && <p>{client.postalCode}</p>}
+                      {client.country && <p>{client.country}</p>}
                     </div>
                   </div>
                 )}
@@ -304,34 +319,31 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {client.contact ? (
+                {(client.email || client.phone) ? (
                   <>
                     <div>
-                      <p className="text-sm text-muted-foreground">Primary Contact</p>
-                      <p className="font-medium">{client.contact.name}</p>
-                      {client.contact.title && (
-                        <p className="text-sm text-muted-foreground">{client.contact.title}</p>
-                      )}
+                      <p className="text-sm text-muted-foreground">Contact Details</p>
+                      <p className="font-medium">{client.name}</p>
                     </div>
-                    {client.contact.email && (
+                    {client.email && (
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
                         <a
-                          href={`mailto:${client.contact.email}`}
+                          href={`mailto:${client.email}`}
                           className="text-blue-600 hover:underline"
                         >
-                          {client.contact.email}
+                          {client.email}
                         </a>
                       </div>
                     )}
-                    {client.contact.phone && (
+                    {client.phone && (
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <a
-                          href={`tel:${client.contact.phone}`}
+                          href={`tel:${client.phone}`}
                           className="text-blue-600 hover:underline"
                         >
-                          {client.contact.phone}
+                          {client.phone}
                         </a>
                       </div>
                     )}

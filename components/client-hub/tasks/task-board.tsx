@@ -11,7 +11,7 @@ interface Task {
   id: string;
   title: string;
   description?: string;
-  status: "pending" | "in_progress" | "completed" | "cancelled";
+  status: "pending" | "in_progress" | "review" | "completed" | "cancelled" | "blocked" | "records_received" | "queries_sent" | "queries_received";
   priority: "low" | "medium" | "high" | "urgent";
   dueDate?: Date;
   assignee?: {
@@ -32,13 +32,15 @@ interface TaskBoardProps {
 }
 
 const columns = [
-  { id: "pending", title: "To Do", color: "bg-muted" },
-  { id: "in_progress", title: "In Progress", color: "bg-primary/10" },
-  {
-    id: "completed",
-    title: "Completed",
-    color: "bg-green-600/10 dark:bg-green-400/10",
-  },
+  { id: "pending", title: "To Do", color: "bg-gray-100 dark:bg-gray-800" },
+  { id: "in_progress", title: "In Progress", color: "bg-blue-100 dark:bg-blue-900/20" },
+  { id: "review", title: "Review", color: "bg-purple-100 dark:bg-purple-900/20" },
+  { id: "queries_sent", title: "Queries Sent", color: "bg-orange-100 dark:bg-orange-900/20" },
+  { id: "queries_received", title: "Queries Received", color: "bg-amber-100 dark:bg-amber-900/20" },
+  { id: "records_received", title: "Records Received", color: "bg-indigo-100 dark:bg-indigo-900/20" },
+  { id: "blocked", title: "Blocked", color: "bg-red-100 dark:bg-red-900/20" },
+  { id: "completed", title: "Completed", color: "bg-green-100 dark:bg-green-900/20" },
+  { id: "cancelled", title: "Cancelled", color: "bg-gray-200 dark:bg-gray-700" },
 ];
 
 export function TaskBoard({
@@ -77,18 +79,19 @@ export function TaskBoard({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {columns.map((column) => {
+    <div className="overflow-x-auto pb-4">
+      <div className="flex gap-4 min-w-max px-1">
+        {columns.map((column) => {
         const columnTasks = getTasksByStatus(column.id);
         const isOver = dragOverColumn === column.id;
 
-        return (
-          <Card
-            key={column.id}
-            className={cn(
-              "h-full transition-colors",
-              isOver && "ring-2 ring-primary ring-opacity-50",
-            )}
+          return (
+            <Card
+              key={column.id}
+              className={cn(
+                "w-80 min-w-[320px] h-full transition-colors",
+                isOver && "ring-2 ring-primary ring-opacity-50",
+              )}
             onDragOver={(e) => handleDragOver(e, column.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, column.id)}
@@ -132,8 +135,9 @@ export function TaskBoard({
               </ScrollArea>
             </CardContent>
           </Card>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

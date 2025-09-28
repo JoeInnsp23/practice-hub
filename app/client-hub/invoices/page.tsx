@@ -31,32 +31,30 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState([]);
+  const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<any>(null);
 
-  // Filter invoices
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Fetch invoices using tRPC
+  const { data: invoicesData, isLoading: loading } = trpc.invoices.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+  });
+
+  const invoices = invoicesData?.invoices || [];
+
+  // Filter invoices (already filtered by tRPC query)
   const filteredInvoices = useMemo(() => {
-    let filtered = invoices;
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (invoice) =>
-          invoice.invoiceNumber
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          invoice.client.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((invoice) => invoice.status === statusFilter);
-    }
+    return invoices;
 
     return filtered.sort(
       (a, b) => b.issueDate.getTime() - a.issueDate.getTime(),

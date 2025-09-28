@@ -28,15 +28,27 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 
 
 export default function ServicesPage() {
-  const [services, setServices] = useState([]);
+  const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // Fetch services using tRPC
+  const { data: servicesData, isLoading: loading } = trpc.services.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    category: categoryFilter !== "all" ? categoryFilter : undefined,
+  });
+
+  const services = servicesData?.services || [];
 
   // Get unique categories
   const categories = useMemo(() => {

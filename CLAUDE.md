@@ -22,6 +22,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 8. **Always read entire files** - Must always review entire file contents when looking to fix errors to ensure updates will not break existing code.
 
+9. **Never use quick fixes** - Never use quick patches or fixes, only use complete fixes even if it means database schema updates.
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**

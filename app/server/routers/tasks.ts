@@ -13,7 +13,7 @@ const taskSchema = z.object({
   serviceId: z.string().optional(),
   assignedToId: z.string().optional(),
   reviewerId: z.string().optional(),
-  status: z.enum(["pending", "in-progress", "review", "completed", "cancelled"]),
+  status: z.enum(["pending", "in_progress", "review", "completed", "cancelled", "blocked", "records_received", "queries_sent", "queries_received"]),
   priority: z.enum(["low", "medium", "high", "critical"]),
   progress: z.number().min(0).max(100).optional(),
   estimatedHours: z.number().optional(),
@@ -81,11 +81,16 @@ export const tasksRouter = router({
       // Add ordering
       query = sql`${query} ORDER BY
         CASE
-          WHEN status = 'in-progress' THEN 1
+          WHEN status = 'in_progress' THEN 1
           WHEN status = 'review' THEN 2
-          WHEN status = 'pending' THEN 3
-          WHEN status = 'completed' THEN 4
-          ELSE 5
+          WHEN status = 'queries_sent' THEN 3
+          WHEN status = 'queries_received' THEN 4
+          WHEN status = 'records_received' THEN 5
+          WHEN status = 'pending' THEN 6
+          WHEN status = 'blocked' THEN 7
+          WHEN status = 'completed' THEN 8
+          WHEN status = 'cancelled' THEN 9
+          ELSE 10
         END,
         priority DESC,
         created_at DESC`;
@@ -95,28 +100,28 @@ export const tasksRouter = router({
       // Format the response
       const tasksList = result.map((task: any) => ({
         id: task.id,
-        taskCode: task.task_code,
         title: task.title,
         description: task.description,
-        clientId: task.client_id,
-        clientName: task.client_name,
-        clientCode: task.client_code,
-        serviceId: task.service_id,
-        assignedToId: task.assigned_to_id,
-        assigneeName: task.assignee_name,
-        assigneeEmail: task.assignee_email,
-        reviewerId: task.reviewer_id,
-        reviewerName: task.reviewer_name,
         status: task.status,
         priority: task.priority,
-        progress: task.progress,
+        dueDate: task.due_date,
+        targetDate: task.target_date,
+        assignee: task.assignee_name ? {
+          name: task.assignee_name,
+        } : undefined,
+        reviewer: task.reviewer_name ? {
+          name: task.reviewer_name,
+        } : undefined,
+        client: task.client_name,
+        clientId: task.client_id,
+        clientCode: task.client_code,
+        assignedToId: task.assigned_to_id,
+        reviewerId: task.reviewer_id,
         estimatedHours: task.estimated_hours,
         actualHours: task.actual_hours,
-        targetDate: task.target_date,
-        startDate: task.start_date,
-        completedDate: task.completed_date,
+        progress: task.progress,
         tags: task.tags,
-        notes: task.notes,
+        completedAt: task.completed_at,
         createdAt: task.created_at,
         updatedAt: task.updated_at,
       }));
@@ -289,7 +294,7 @@ export const tasksRouter = router({
   updateStatus: protectedProcedure
     .input(z.object({
       id: z.string(),
-      status: z.enum(["pending", "in-progress", "review", "completed", "cancelled"]),
+      status: z.enum(["pending", "in_progress", "review", "completed", "cancelled", "blocked", "records_received", "queries_sent", "queries_received"]),
     }))
     .mutation(async ({ ctx, input }) => {
       return tasksRouter.createCaller(ctx).update({

@@ -17,8 +17,6 @@ import {
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
-import { DatabaseStatus } from "@/components/database-status";
-import { NetworkStatus } from "@/components/network-status";
 
 const navigation = [
   { name: "Dashboard", href: "/client-hub", icon: LayoutDashboard },
@@ -65,8 +63,6 @@ export default function ClientHubLayout({
         headerColor="#3b82f6"
         showBackToHome={true}
       />
-      <DatabaseStatus />
-      <NetworkStatus />
       <div className="flex">
         <GlobalSidebar
           moduleName="Client Hub"

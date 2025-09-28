@@ -28,10 +28,12 @@ import {
   Plus,
   FileText,
   Timer,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { trpc } from "@/app/providers/trpc-provider";
 
 interface TaskDetailsProps {
   taskId: string;
@@ -42,14 +44,17 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
-  const [task, setTask] = useState(null);
+
+  // Fetch task from database using tRPC
+  const { data: task, isLoading, error } = trpc.tasks.getById.useQuery(taskId);
 
   // Calculate progress based on checklist
   const calculateProgress = useCallback(() => {
+    if (!task) return 0;
     if (!task.workflowInstance) return task.progress || 0;
 
-    const allItems = task.workflowInstance.template.stages.flatMap(stage => stage.checklist_items);
-    const completedItems = allItems.filter(item => item.completed);
+    const allItems = task.workflowInstance.template.stages.flatMap((stage: any) => stage.checklist_items);
+    const completedItems = allItems.filter((item: any) => item.completed);
 
     return Math.round((completedItems.length / allItems.length) * 100);
   }, [task]);
@@ -156,14 +161,26 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
     return Math.round((completedItems / stage.checklist_items.length) * 100);
   };
 
-  if (!task) {
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Loading Task Details</h2>
+          <p className="text-muted-foreground">Please wait...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !task) {
     return (
       <div className="p-6">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Task Not Found</h2>
           <p className="text-muted-foreground mb-4">
-            The task you're looking for doesn't exist.
+            {error?.message || "The task you're looking for doesn't exist."}
           </p>
           <Button onClick={() => router.push("/client-hub/tasks")}>
             Back to Tasks
