@@ -15,6 +15,13 @@
       "when": 1758917035068,
       "tag": "0001_certain_centennial",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759077607129,
+      "tag": "0002_public_gorgon",
+      "breakpoints": true
     }
   ]
 }

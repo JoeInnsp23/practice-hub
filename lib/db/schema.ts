@@ -253,6 +253,15 @@ export const clientContacts = pgTable(
   }),
 );
 
+// Service Price Type Enum
+export const servicePriceTypeEnum = pgEnum("service_price_type", [
+  "hourly",
+  "fixed",
+  "retainer",
+  "project",
+  "percentage",
+]);
+
 // Services table
 export const services = pgTable(
   "services",
@@ -265,7 +274,15 @@ export const services = pgTable(
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
     category: varchar("category", { length: 100 }),
+
+    // Pricing fields
     defaultRate: decimal("default_rate", { precision: 10, scale: 2 }),
+    price: decimal("price", { precision: 10, scale: 2 }), // Alias for defaultRate
+    priceType: servicePriceTypeEnum("price_type").default("fixed"),
+    duration: integer("duration"), // Duration in minutes
+
+    // Additional fields
+    tags: jsonb("tags"), // Array of strings
     isActive: boolean("is_active").default(true).notNull(),
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -329,15 +346,23 @@ export const tasks = pgTable(
     assignedToId: uuid("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
+    reviewerId: uuid("reviewer_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     createdById: uuid("created_by_id")
       .references(() => users.id, { onDelete: "set null" })
       .notNull(),
 
     // Dates
     dueDate: timestamp("due_date"),
+    targetDate: timestamp("target_date"),
     completedAt: timestamp("completed_at"),
     estimatedHours: decimal("estimated_hours", { precision: 5, scale: 2 }),
     actualHours: decimal("actual_hours", { precision: 5, scale: 2 }),
+
+    // Progress tracking
+    progress: integer("progress").default(0), // 0-100 percentage
+    taskType: varchar("task_type", { length: 100 }),
 
     // Categorization
     category: varchar("category", { length: 100 }),
@@ -357,10 +382,12 @@ export const tasks = pgTable(
   },
   (table) => ({
     assigneeIdx: index("idx_task_assignee").on(table.assignedToId),
+    reviewerIdx: index("idx_task_reviewer").on(table.reviewerId),
     clientTaskIdx: index("idx_task_client").on(table.clientId),
     statusIdx: index("idx_task_status").on(table.status),
     dueDateIdx: index("idx_task_due_date").on(table.dueDate),
     parentTaskIdx: index("idx_parent_task").on(table.parentTaskId),
+    progressIdx: index("idx_task_progress").on(table.progress),
   }),
 );
 
@@ -583,6 +610,12 @@ export const workflows = pgTable(
     type: varchar("type", { length: 50 }).notNull(), // task_template, automation, approval
     trigger: varchar("trigger", { length: 100 }), // manual, schedule, event
     isActive: boolean("is_active").default(true).notNull(),
+    estimatedDays: integer("estimated_days"),
+
+    // Service association
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
     // Configuration
     config: jsonb("config").notNull(), // Workflow-specific configuration
@@ -599,5 +632,197 @@ export const workflows = pgTable(
   (table) => ({
     typeIdx: index("idx_workflow_type").on(table.type),
     activeIdx: index("idx_workflow_active").on(table.isActive),
+    serviceIdx: index("idx_workflow_service").on(table.serviceId),
+  }),
+);
+
+// ============================================
+// NEW SCHEMA ENHANCEMENTS
+// ============================================
+
+// Compliance Status Enum
+export const complianceStatusEnum = pgEnum("compliance_status", [
+  "pending",
+  "in_progress",
+  "completed",
+  "overdue",
+]);
+
+// Compliance Priority Enum
+export const compliancePriorityEnum = pgEnum("compliance_priority", [
+  "low",
+  "medium",
+  "high",
+  "urgent",
+]);
+
+// Compliance table
+export const compliance = pgTable(
+  "compliance",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Core fields
+    title: varchar("title", { length: 255 }).notNull(),
+    type: varchar("type", { length: 100 }).notNull(), // VAT Return, Annual Accounts, CT600, etc.
+    description: text("description"),
+
+    // Relationships
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    // Dates
+    dueDate: timestamp("due_date").notNull(),
+    completedDate: timestamp("completed_date"),
+    reminderDate: timestamp("reminder_date"),
+
+    // Status
+    status: complianceStatusEnum("status").default("pending").notNull(),
+    priority: compliancePriorityEnum("priority").default("medium").notNull(),
+
+    // Additional fields
+    notes: text("notes"),
+    attachments: jsonb("attachments"), // Array of document IDs or URLs
+    metadata: jsonb("metadata"),
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdById: uuid("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => ({
+    clientIdx: index("idx_compliance_client").on(table.clientId),
+    assigneeIdx: index("idx_compliance_assignee").on(table.assignedToId),
+    statusIdx: index("idx_compliance_status").on(table.status),
+    dueDateIdx: index("idx_compliance_due_date").on(table.dueDate),
+    typeIdx: index("idx_compliance_type").on(table.type),
+  }),
+);
+
+// Workflow Stages table
+export const workflowStages = pgTable(
+  "workflow_stages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workflowId: uuid("workflow_id")
+      .references(() => workflows.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Stage details
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    stageOrder: integer("stage_order").notNull(),
+    isRequired: boolean("is_required").default(true).notNull(),
+
+    // Time estimates
+    estimatedHours: decimal("estimated_hours", { precision: 5, scale: 2 }),
+
+    // Checklist items stored as JSON
+    checklistItems: jsonb("checklist_items"), // Array of {id, text, isRequired}
+
+    // Configuration
+    autoComplete: boolean("auto_complete").default(false), // Auto-complete when all checklist items done
+    requiresApproval: boolean("requires_approval").default(false),
+
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    workflowIdx: index("idx_stage_workflow").on(table.workflowId),
+    orderIdx: index("idx_stage_order").on(table.workflowId, table.stageOrder),
+  }),
+);
+
+// Task Workflow Instances table
+export const taskWorkflowInstances = pgTable(
+  "task_workflow_instances",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    taskId: uuid("task_id")
+      .references(() => tasks.id, { onDelete: "cascade" })
+      .notNull(),
+    workflowId: uuid("workflow_id")
+      .references(() => workflows.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Current state
+    currentStageId: uuid("current_stage_id").references(() => workflowStages.id, {
+      onDelete: "set null",
+    }),
+    status: varchar("status", { length: 50 }).default("active").notNull(), // active, paused, completed, cancelled
+
+    // Progress tracking (JSON structure for flexibility)
+    stageProgress: jsonb("stage_progress"), // {stageId: {completed: bool, checklistItems: {itemId: bool}}}
+
+    // Timestamps
+    startedAt: timestamp("started_at").defaultNow().notNull(),
+    completedAt: timestamp("completed_at"),
+    pausedAt: timestamp("paused_at"),
+
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    taskIdx: uniqueIndex("idx_task_workflow_instance").on(table.taskId),
+    workflowIdx: index("idx_workflow_instance").on(table.workflowId),
+    statusIdx: index("idx_workflow_instance_status").on(table.status),
+  }),
+);
+
+// Activity Logs table
+export const activityLogs = pgTable(
+  "activity_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Entity reference
+    entityType: varchar("entity_type", { length: 50 }).notNull(), // task, client, invoice, etc.
+    entityId: uuid("entity_id").notNull(),
+
+    // Action details
+    action: varchar("action", { length: 50 }).notNull(), // created, updated, deleted, status_changed, etc.
+    description: text("description"),
+
+    // User who performed action
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    userName: varchar("user_name", { length: 255 }), // Denormalized for performance
+
+    // Changes tracking
+    oldValues: jsonb("old_values"), // Previous state
+    newValues: jsonb("new_values"), // New state
+
+    // Additional context
+    ipAddress: varchar("ip_address", { length: 45 }),
+    userAgent: text("user_agent"),
+    metadata: jsonb("metadata"),
+
+    // Timestamp
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    entityIdx: index("idx_activity_entity").on(table.entityType, table.entityId),
+    userIdx: index("idx_activity_user").on(table.userId),
+    createdAtIdx: index("idx_activity_created").on(table.createdAt),
+    tenantEntityIdx: index("idx_activity_tenant_entity").on(
+      table.tenantId,
+      table.entityType,
+      table.entityId,
+    ),
   }),
 );
