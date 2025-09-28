@@ -16,7 +16,7 @@ import {
   getDay,
 } from "date-fns";
 import { TimeEntryModal } from "./time-entry-modal";
-import { useTimeEntries } from "@/lib/hooks/use-time-entries";
+import { useTimeEntries, useCreateTimeEntry } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
 import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 
@@ -33,6 +33,24 @@ export function MonthlyTimesheet({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const createTimeEntry = useCreateTimeEntry();
+
+  // Mock client and task data (same as hourly timesheet)
+  const mockClients = [
+    { id: "client1", name: "ABC Company" },
+    { id: "client2", name: "XYZ Ltd" },
+    { id: "client3", name: "Tech Corp" },
+    { id: "client4", name: "Smith & Associates" },
+  ];
+
+  const mockTasks = [
+    { id: "task1", name: "Monthly Bookkeeping", clientId: "client1" },
+    { id: "task2", name: "VAT Return", clientId: "client2" },
+    { id: "task3", name: "Year End Accounts", clientId: "client1" },
+    { id: "task4", name: "Tax Planning", clientId: "client3" },
+    { id: "task5", name: "Payroll Processing", clientId: "client4" },
+  ];
 
   // Get calendar days for current month
   const monthStart = startOfMonth(currentDate);
@@ -48,7 +66,8 @@ export function MonthlyTimesheet({
   // Fetch time entries for the month
   const { data: timeEntries } = useTimeEntries(
     format(monthStart, "yyyy-MM-dd"),
-    format(monthEnd, "yyyy-MM-dd")
+    format(monthEnd, "yyyy-MM-dd"),
+    refreshKey
   );
 
   // Get entries for a specific day
@@ -78,10 +97,14 @@ export function MonthlyTimesheet({
     setIsModalOpen(true);
   };
 
-  const handleSaveEntry = (entry: any) => {
-    // Handle saving the entry
-    console.log("Saving entry:", entry);
-    setIsModalOpen(false);
+  const handleSaveEntry = async (entry: any) => {
+    try {
+      await createTimeEntry.mutateAsync(entry);
+      setRefreshKey(prev => prev + 1); // Trigger data refresh
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save time entry:", error);
+    }
   };
 
   // Week headers
@@ -283,11 +306,16 @@ export function MonthlyTimesheet({
         onClose={() => {
           setIsModalOpen(false);
           setSelectedEntry(null);
+          setSelectedDate(null);
         }}
         onSave={handleSaveEntry}
+        onUpdate={() => setRefreshKey(prev => prev + 1)}
+        onDelete={() => setRefreshKey(prev => prev + 1)}
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
         selectedHour={null}
+        clients={mockClients}
+        tasks={mockTasks}
       />
     </div>
   );

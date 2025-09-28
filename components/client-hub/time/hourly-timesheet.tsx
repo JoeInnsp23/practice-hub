@@ -13,7 +13,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { TimeEntryModal } from "./time-entry-modal";
-import { useTimeEntries } from "@/lib/hooks/use-time-entries";
+import { useTimeEntries, useCreateTimeEntry } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
 import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 
@@ -34,14 +34,32 @@ export function HourlyTimesheet({
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
+  const createTimeEntry = useCreateTimeEntry();
+
+  // Mock client and task data (replace with actual hooks in production)
+  const mockClients = [
+    { id: "client1", name: "ABC Company" },
+    { id: "client2", name: "XYZ Ltd" },
+    { id: "client3", name: "Tech Corp" },
+    { id: "client4", name: "Smith & Associates" },
+  ];
+
+  const mockTasks = [
+    { id: "task1", name: "Monthly Bookkeeping", clientId: "client1" },
+    { id: "task2", name: "VAT Return", clientId: "client2" },
+    { id: "task3", name: "Year End Accounts", clientId: "client1" },
+    { id: "task4", name: "Tax Planning", clientId: "client3" },
+    { id: "task5", name: "Payroll Processing", clientId: "client4" },
+  ];
 
   // Get week dates
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
   const weekStart = format(currentWeek, "yyyy-MM-dd");
   const weekEnd = format(addDays(currentWeek, 6), "yyyy-MM-dd");
 
-  const { data: timeEntries } = useTimeEntries(weekStart, weekEnd);
+  const { data: timeEntries } = useTimeEntries(weekStart, weekEnd, refreshKey);
 
   // Generate 24 hours (12am to 11pm)
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -58,13 +76,24 @@ export function HourlyTimesheet({
   });
 
   // Get entries for a specific day and hour
-  const getEntriesForSlot = (date: Date, hour: number) => {
+  const getEntriesForSlot = (date: Date, hour?: number) => {
     return (
       timeEntries?.filter((entry) => {
         const entryDate = new Date(entry.date);
-        // For now, just check if it's the same day
-        // In a real app, you'd check the actual hour
-        return isSameDay(entryDate, date);
+        const sameDay = isSameDay(entryDate, date);
+
+        // If no hour specified, return all entries for the day
+        if (hour === undefined) {
+          return sameDay;
+        }
+
+        // Check if entry falls within the specified hour
+        if (sameDay && entry.startTime) {
+          const [entryHour] = entry.startTime.split(':').map(Number);
+          return entryHour === hour;
+        }
+
+        return false;
       }) || []
     );
   };
@@ -80,10 +109,14 @@ export function HourlyTimesheet({
     setIsModalOpen(true);
   };
 
-  const handleSaveEntry = (entry: any) => {
-    // Handle saving the entry
-    console.log("Saving entry:", entry);
-    setIsModalOpen(false);
+  const handleSaveEntry = async (entry: any) => {
+    try {
+      await createTimeEntry.mutateAsync(entry);
+      setRefreshKey(prev => prev + 1); // Trigger data refresh
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save time entry:", error);
+    }
   };
 
   // Scroll to current hour on mount and set current time
@@ -329,7 +362,7 @@ export function HourlyTimesheet({
             Daily Totals
           </div>
           {weekDays.map((day) => {
-            const dayEntries = getEntriesForSlot(day, 0); // Get all entries for the day
+            const dayEntries = getEntriesForSlot(day); // Get all entries for the day
             const dayTotal = dayEntries.reduce((sum, entry) => sum + entry.hours, 0);
             const billableTotal = dayEntries.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0);
 
@@ -356,11 +389,16 @@ export function HourlyTimesheet({
           setIsModalOpen(false);
           setSelectedEntry(null);
           setSelectedHour(null);
+          setSelectedDate(null);
         }}
         onSave={handleSaveEntry}
+        onUpdate={() => setRefreshKey(prev => prev + 1)}
+        onDelete={() => setRefreshKey(prev => prev + 1)}
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
         selectedHour={selectedHour}
+        clients={mockClients}
+        tasks={mockTasks}
       />
     </div>
   );

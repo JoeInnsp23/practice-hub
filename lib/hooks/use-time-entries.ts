@@ -37,7 +37,7 @@ interface TimeEntryInput {
 }
 
 // Hook to fetch time entries
-export function useTimeEntries(startDate?: string, endDate?: string) {
+export function useTimeEntries(startDate?: string, endDate?: string, refreshKey?: number) {
   const [data, setData] = useState<TimeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -103,7 +103,7 @@ export function useTimeEntries(startDate?: string, endDate?: string) {
     }
 
     fetchEntries();
-  }, [userId, startDate, endDate]);
+  }, [userId, startDate, endDate, refreshKey]);
 
   return { data, isLoading, error };
 }

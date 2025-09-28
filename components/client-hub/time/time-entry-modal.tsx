@@ -44,6 +44,8 @@ interface TimeEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (entry: any) => void;
+  onUpdate?: () => void;
+  onDelete?: () => void;
   selectedDate?: Date;
   selectedEntry?: any;
   selectedHour?: number | null;
@@ -55,6 +57,8 @@ export function TimeEntryModal({
   isOpen,
   onClose,
   onSave,
+  onUpdate,
+  onDelete,
   selectedDate = new Date(),
   selectedEntry,
   selectedHour,
@@ -96,6 +100,24 @@ export function TimeEntryModal({
 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Update form data when props change
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        date: selectedEntry?.date || selectedDate,
+        clientId: selectedEntry?.clientId || "none",
+        taskId: selectedEntry?.taskId || "none",
+        description: selectedEntry?.description || "",
+        hours: selectedEntry?.hours || 1,
+        billable: selectedEntry?.billable !== undefined ? selectedEntry.billable : false,
+        workType: selectedEntry?.workType || "work",
+        startTime: getDefaultStartTime(),
+        endTime: getDefaultEndTime(),
+        fullDescription: selectedEntry?.fullDescription || "",
+      });
+    }
+  }, [isOpen, selectedDate, selectedEntry, selectedHour]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filter tasks based on selected client
   const availableTasks = formData.clientId && formData.clientId !== "none"
@@ -158,17 +180,20 @@ export function TimeEntryModal({
 
     if (selectedEntry) {
       await updateTimeEntry.mutateAsync(selectedEntry.id, entryData);
+      if (onUpdate) onUpdate();
+      toast.success("Time entry updated");
     } else {
       await onSave(entryData);
+      toast.success("Time entry created");
     }
 
-    toast.success(selectedEntry ? "Time entry updated" : "Time entry created");
     onClose();
   };
 
   const handleDelete = async () => {
     if (selectedEntry?.id) {
       await deleteTimeEntry.mutateAsync(selectedEntry.id);
+      if (onDelete) onDelete();
       setShowDeleteConfirm(false);
       onClose();
     }
