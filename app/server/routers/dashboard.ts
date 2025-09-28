@@ -15,7 +15,7 @@ export const dashboardRouter = router({
       );
 
     // Extract the first row (should only be one row per tenant)
-    const kpiData = kpisResult.rows[0] || {
+    const kpiData = kpisResult[0] || {
       total_revenue: 0,
       collected_revenue: 0,
       outstanding_revenue: 0,
@@ -118,7 +118,7 @@ export const dashboardRouter = router({
       const result = await db.execute(query);
 
       // Format activities
-      const activities = result.rows.map((activity: any) => ({
+      const activities = result.map((activity: any) => ({
         id: activity.id,
         entityType: activity.entity_type,
         entityId: activity.entity_id,

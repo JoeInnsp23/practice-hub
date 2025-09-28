@@ -83,7 +83,7 @@ export const clientsRouter = router({
       const result = await db.execute(query);
 
       // Format the response
-      const clientsList = result.rows.map((client: any) => ({
+      const clientsList = result.map((client: any) => ({
         id: client.id,
         clientCode: client.client_code,
         name: client.name,

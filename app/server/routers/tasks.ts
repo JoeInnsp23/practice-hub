@@ -93,7 +93,7 @@ export const tasksRouter = router({
       const result = await db.execute(query);
 
       // Format the response
-      const tasksList = result.rows.map((task: any) => ({
+      const tasksList = result.map((task: any) => ({
         id: task.id,
         taskCode: task.task_code,
         title: task.title,
