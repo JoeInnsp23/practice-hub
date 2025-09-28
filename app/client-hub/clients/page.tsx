@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,49 +20,28 @@ import { useDebounce } from "@/lib/hooks/use-debounce";
 import toast from "react-hot-toast";
 import { DataExportButton } from "@/components/client-hub/data-export-button";
 import { DataImportModal } from "@/components/client-hub/data-import-modal";
+import { trpc } from "@/app/providers/trpc-provider";
 
 export default function ClientsPage() {
   const router = useRouter();
-  const [clients, setClients] = useState<any[]>([]);
+  const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Fetch clients from API
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
-        if (typeFilter !== "all") params.append("type", typeFilter);
-        if (statusFilter !== "all") params.append("status", statusFilter);
+  // Fetch clients using tRPC
+  const { data: clientsData, isLoading: loading } = trpc.clients.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    type: typeFilter !== "all" ? typeFilter : undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+  });
 
-        const response = await fetch(`/api/clients?${params}`);
-        if (response.ok) {
-          const data = await response.json();
-          setClients(data.clients);
-        } else {
-          console.error("Failed to fetch clients");
-          toast.error("Failed to load clients");
-        }
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-        toast.error("Failed to load clients");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClients();
-  }, [debouncedSearchTerm, typeFilter, statusFilter, refreshKey]);
+  const clients = clientsData?.clients || [];
 
   // Filter clients based on search and filters
   const filteredClients = useMemo(() => {
@@ -121,56 +100,55 @@ export default function ClientsPage() {
     setIsModalOpen(true);
   };
 
+  const deleteMutation = trpc.clients.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Client archived successfully");
+      utils.clients.list.invalidate();
+    },
+    onError: (error) => {
+      console.error("Error deleting client:", error);
+      toast.error("Failed to delete client");
+    },
+  });
+
   const handleDeleteClient = async (client: any) => {
     if (window.confirm(`Are you sure you want to delete ${client.name}?`)) {
-      try {
-        const response = await fetch(`/api/clients/${client.id}`, {
-          method: "DELETE",
-        });
-
-        if (response.ok) {
-          toast.success("Client archived successfully");
-          setRefreshKey((prev) => prev + 1); // Trigger refresh
-        } else {
-          toast.error("Failed to delete client");
-        }
-      } catch (error) {
-        console.error("Error deleting client:", error);
-        toast.error("Failed to delete client");
-      }
+      deleteMutation.mutate(client.id);
     }
   };
 
-  const handleSaveClient = async (data: any) => {
-    try {
-      const url = editingClient
-        ? `/api/clients/${editingClient.id}`
-        : "/api/clients";
-      const method = editingClient ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        toast.success(
-          editingClient
-            ? "Client updated successfully"
-            : "Client created successfully"
-        );
-        setIsModalOpen(false);
-        setRefreshKey((prev) => prev + 1); // Trigger refresh
-      } else {
-        const error = await response.json();
-        toast.error(error.error || "Failed to save client");
-      }
-    } catch (error) {
+  const createMutation = trpc.clients.create.useMutation({
+    onSuccess: () => {
+      toast.success("Client created successfully");
+      setIsModalOpen(false);
+      utils.clients.list.invalidate();
+    },
+    onError: (error) => {
       console.error("Error saving client:", error);
-      toast.error("Failed to save client");
+      toast.error(error.message || "Failed to save client");
+    },
+  });
+
+  const updateMutation = trpc.clients.update.useMutation({
+    onSuccess: () => {
+      toast.success("Client updated successfully");
+      setIsModalOpen(false);
+      utils.clients.list.invalidate();
+    },
+    onError: (error) => {
+      console.error("Error saving client:", error);
+      toast.error(error.message || "Failed to save client");
+    },
+  });
+
+  const handleSaveClient = async (data: any) => {
+    if (editingClient) {
+      updateMutation.mutate({
+        id: editingClient.id,
+        data,
+      });
+    } else {
+      createMutation.mutate(data);
     }
   };
 
@@ -306,7 +284,7 @@ export default function ClientsPage() {
         endpoint="/api/import/clients"
         templateEndpoint="/api/import/clients"
         entityName="Clients"
-        onSuccess={() => setRefreshKey((prev) => prev + 1)}
+        onSuccess={() => utils.clients.list.invalidate()}
       />
     </div>
   );

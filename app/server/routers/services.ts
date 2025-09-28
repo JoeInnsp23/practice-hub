@@ -1,0 +1,206 @@
+import { router, protectedProcedure } from "../trpc";
+import { db } from "@/lib/db";
+import { services, activityLogs } from "@/lib/db/schema";
+import { eq, and, or, ilike, desc } from "drizzle-orm";
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+
+const serviceSchema = z.object({
+  serviceCode: z.string(),
+  name: z.string(),
+  category: z.string(),
+  description: z.string().optional(),
+  billingType: z.enum(["hourly", "fixed", "retainer", "milestone"]),
+  standardRate: z.number().optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const servicesRouter = router({
+  list: protectedProcedure
+    .input(z.object({
+      search: z.string().optional(),
+      category: z.string().optional(),
+      isActive: z.boolean().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+      const { search, category, isActive } = input;
+
+      // Build conditions
+      let conditions = [eq(services.tenantId, tenantId)];
+
+      if (search) {
+        conditions.push(
+          or(
+            ilike(services.name, `%${search}%`),
+            ilike(services.serviceCode, `%${search}%`),
+            ilike(services.description, `%${search}%`)
+          )!
+        );
+      }
+
+      if (category && category !== "all") {
+        conditions.push(eq(services.category, category));
+      }
+
+      if (isActive !== undefined) {
+        conditions.push(eq(services.isActive, isActive));
+      }
+
+      const servicesList = await db
+        .select()
+        .from(services)
+        .where(and(...conditions))
+        .orderBy(desc(services.createdAt));
+
+      return { services: servicesList };
+    }),
+
+  getById: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: id }) => {
+      const { tenantId } = ctx.authContext;
+
+      const service = await db
+        .select()
+        .from(services)
+        .where(and(eq(services.id, id), eq(services.tenantId, tenantId)))
+        .limit(1);
+
+      if (!service[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Service not found"
+        });
+      }
+
+      return service[0];
+    }),
+
+  create: protectedProcedure
+    .input(serviceSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Create the service
+      const [newService] = await db
+        .insert(services)
+        .values({
+          tenantId,
+          serviceCode: input.serviceCode,
+          name: input.name,
+          category: input.category,
+          description: input.description,
+          billingType: input.billingType,
+          standardRate: input.standardRate,
+          isActive: input.isActive ?? true,
+          createdBy: userId,
+        })
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "service",
+        entityId: newService.id,
+        action: "created",
+        description: `Created service "${input.name}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: { name: input.name, category: input.category, billingType: input.billingType }
+      });
+
+      return { success: true, service: newService };
+    }),
+
+  update: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      data: serviceSchema.partial(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check service exists and belongs to tenant
+      const existingService = await db
+        .select()
+        .from(services)
+        .where(and(eq(services.id, input.id), eq(services.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingService[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Service not found"
+        });
+      }
+
+      // Update service
+      const [updatedService] = await db
+        .update(services)
+        .set({
+          ...input.data,
+          updatedAt: new Date(),
+        })
+        .where(eq(services.id, input.id))
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "service",
+        entityId: input.id,
+        action: "updated",
+        description: `Updated service "${updatedService.name}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        oldValues: existingService[0],
+        newValues: input.data,
+      });
+
+      return { success: true, service: updatedService };
+    }),
+
+  delete: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input: id }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check service exists and belongs to tenant
+      const existingService = await db
+        .select()
+        .from(services)
+        .where(and(eq(services.id, id), eq(services.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingService[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Service not found"
+        });
+      }
+
+      // Soft delete by marking as inactive
+      const [updatedService] = await db
+        .update(services)
+        .set({
+          isActive: false,
+          updatedAt: new Date(),
+        })
+        .where(eq(services.id, id))
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "service",
+        entityId: id,
+        action: "deactivated",
+        description: `Deactivated service "${existingService[0].name}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+      });
+
+      return { success: true };
+    }),
+});

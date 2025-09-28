@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,9 +31,10 @@ import toast from "react-hot-toast";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { DataExportButton } from "@/components/client-hub/data-export-button";
 import { DataImportModal } from "@/components/client-hub/data-import-modal";
+import { trpc } from "@/app/providers/trpc-provider";
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
@@ -43,40 +44,18 @@ export default function TasksPage() {
   const [editingTask, setEditingTask] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Fetch tasks from API
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
-        if (statusFilter !== "all") params.append("status", statusFilter);
-        if (priorityFilter !== "all") params.append("priority", priorityFilter);
-        if (assigneeFilter !== "all") params.append("assigneeId", assigneeFilter);
+  // Fetch tasks using tRPC
+  const { data: tasksData, isLoading: loading } = trpc.tasks.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    priority: priorityFilter !== "all" ? priorityFilter : undefined,
+    assigneeId: assigneeFilter !== "all" ? assigneeFilter : undefined,
+  });
 
-        const response = await fetch(`/api/tasks?${params}`);
-        if (response.ok) {
-          const data = await response.json();
-          setTasks(data.tasks);
-        } else {
-          console.error("Failed to fetch tasks");
-          toast.error("Failed to load tasks");
-        }
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-        toast.error("Failed to load tasks");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTasks();
-  }, [debouncedSearchTerm, statusFilter, priorityFilter, assigneeFilter, refreshKey]);
+  const tasks = tasksData?.tasks || [];
 
   // Filter tasks based on search and filters
   const filteredTasks = useMemo(() => {
@@ -176,81 +155,77 @@ export default function TasksPage() {
     setIsModalOpen(true);
   };
 
+  const deleteMutation = trpc.tasks.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Task cancelled successfully");
+      utils.tasks.list.invalidate();
+    },
+    onError: (error) => {
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
+    },
+  });
+
   const handleDeleteTask = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (task && window.confirm(`Are you sure you want to delete "${task.title}"?`)) {
-      try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
-          method: "DELETE",
-        });
-
-        if (response.ok) {
-          toast.success("Task cancelled successfully");
-          setRefreshKey((prev) => prev + 1);
-        } else {
-          toast.error("Failed to delete task");
-        }
-      } catch (error) {
-        console.error("Error deleting task:", error);
-        toast.error("Failed to delete task");
-      }
+      deleteMutation.mutate(taskId);
     }
   };
+
+  const createMutation = trpc.tasks.create.useMutation({
+    onSuccess: () => {
+      toast.success("Task created successfully");
+      setIsModalOpen(false);
+      setEditingTask(null);
+      utils.tasks.list.invalidate();
+    },
+    onError: (error) => {
+      console.error("Error saving task:", error);
+      toast.error(error.message || "Failed to save task");
+    },
+  });
+
+  const updateMutation = trpc.tasks.update.useMutation({
+    onSuccess: () => {
+      toast.success("Task updated successfully");
+      setIsModalOpen(false);
+      setEditingTask(null);
+      utils.tasks.list.invalidate();
+    },
+    onError: (error) => {
+      console.error("Error saving task:", error);
+      toast.error(error.message || "Failed to save task");
+    },
+  });
 
   const handleSaveTask = async (data: any) => {
-    try {
-      const url = editingTask
-        ? `/api/tasks/${editingTask.id}`
-        : "/api/tasks";
-      const method = editingTask ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+    if (editingTask) {
+      updateMutation.mutate({
+        id: editingTask.id,
+        data,
       });
-
-      if (response.ok) {
-        toast.success(
-          editingTask
-            ? "Task updated successfully"
-            : "Task created successfully"
-        );
-        setIsModalOpen(false);
-        setEditingTask(null);
-        setRefreshKey((prev) => prev + 1);
-      } else {
-        const error = await response.json();
-        toast.error(error.error || "Failed to save task");
-      }
-    } catch (error) {
-      console.error("Error saving task:", error);
-      toast.error("Failed to save task");
+    } else {
+      createMutation.mutate(data);
     }
   };
 
-  const handleStatusChange = async (taskId: string, status: string) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      if (response.ok) {
-        toast.success("Task status updated");
-        setRefreshKey((prev) => prev + 1);
-      } else {
-        toast.error("Failed to update task status");
-      }
-    } catch (error) {
+  const updateStatusMutation = trpc.tasks.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Task status updated");
+      utils.tasks.list.invalidate();
+    },
+    onError: (error) => {
       console.error("Error updating task status:", error);
       toast.error("Failed to update task status");
-    }
+    },
+  });
+
+  const handleStatusChange = async (taskId: string, status: string) => {
+    updateStatusMutation.mutate({
+      id: taskId,
+      status: status as any,
+    });
   };
 
   return (
@@ -443,7 +418,7 @@ export default function TasksPage() {
         endpoint="/api/import/tasks"
         templateEndpoint="/api/import/tasks"
         entityName="Tasks"
-        onSuccess={() => setRefreshKey((prev) => prev + 1)}
+        onSuccess={() => utils.tasks.list.invalidate()}
       />
     </div>
   );

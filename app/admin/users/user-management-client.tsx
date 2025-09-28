@@ -43,6 +43,7 @@ import {
 import { InviteUserDialog } from "./invite-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 
 interface User {
   id: string;
@@ -77,11 +78,28 @@ export function UserManagementClient({
   tenantId,
 }: UserManagementClientProps) {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [stats, setStats] = useState(initialStats);
+  const utils = trpc.useUtils();
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+
+  // Fetch users using tRPC
+  const { data: usersData } = trpc.users.list.useQuery({
+    search: searchQuery || undefined,
+  });
+
+  const users = usersData?.users || initialUsers;
+
+  // Calculate stats from users
+  const stats = useMemo(() => {
+    return {
+      total: users.length,
+      active: users.filter((u) => u.isActive).length,
+      admins: users.filter((u) => u.role === "admin" || u.role === "org:admin").length,
+      accountants: users.filter((u) => u.role === "accountant" || u.role === "org:accountant").length,
+      members: users.filter((u) => u.role === "member" || u.role === "org:member").length,
+    };
+  }, [users]);
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
@@ -97,6 +115,17 @@ export function UserManagementClient({
     );
   }, [users, searchQuery]);
 
+  const deleteMutation = trpc.users.delete.useMutation({
+    onSuccess: () => {
+      toast.success("User removed successfully");
+      utils.users.list.invalidate();
+    },
+    onError: (error) => {
+      console.error("Failed to delete user:", error);
+      toast.error("Failed to remove user");
+    },
+  });
+
   const handleDeleteUser = async (userId: string) => {
     const user = users.find((u) => u.id === userId);
     if (!user) return;
@@ -109,45 +138,12 @@ export function UserManagementClient({
       return;
     }
 
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
-
-      toast.success("User removed successfully");
-
-      // Update local state
-      setUsers(users.filter((u) => u.id !== userId));
-
-      // Update stats
-      const updatedStats = { ...stats, total: stats.total - 1 };
-      if (user.isActive) updatedStats.active--;
-      if (user.role === "admin" || user.role === "org:admin")
-        updatedStats.admins--;
-      if (user.role === "accountant" || user.role === "org:accountant")
-        updatedStats.accountants--;
-      if (user.role === "member" || user.role === "org:member")
-        updatedStats.members--;
-      setStats(updatedStats);
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-      toast.error("Failed to remove user");
-    }
+    deleteMutation.mutate(userId);
   };
 
   const handleUserUpdated = (updatedUser: User) => {
-    setUsers(users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
-
-    // Update stats if role changed
-    const oldUser = users.find((u) => u.id === updatedUser.id);
-    if (oldUser && oldUser.role !== updatedUser.role) {
-      const newStats = { ...stats };
-
-      // Decrement old role count
+    // Invalidate users list to refetch updated data
+    utils.users.list.invalidate();
       if (oldUser.role === "admin" || oldUser.role === "org:admin")
         newStats.admins--;
       else if (

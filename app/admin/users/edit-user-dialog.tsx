@@ -22,6 +22,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { User, Shield } from "lucide-react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 
 interface User {
   id: string;
@@ -49,7 +50,6 @@ export function EditUserDialog({
   onClose,
   onSuccess,
 }: EditUserDialogProps) {
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user.firstName || "",
     lastName: user.lastName || "",
@@ -57,34 +57,32 @@ export function EditUserDialog({
     isActive: user.isActive,
   });
 
+  const updateMutation = trpc.users.update.useMutation({
+    onSuccess: (data) => {
+      toast.success("User updated successfully");
+      onSuccess(data.user);
+      onClose();
+    },
+    onError: (error) => {
+      console.error("Failed to update user:", error);
+      toast.error(error.message || "Failed to update user");
+    },
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/admin/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update user");
-      }
-
-      const { user: updatedUser } = await response.json();
-
-      toast.success("User updated successfully");
-      onSuccess(updatedUser);
-      onClose();
-    } catch (error: any) {
-      console.error("Failed to update user:", error);
-      toast.error(error.message || "Failed to update user");
-    } finally {
-      setLoading(false);
-    }
+    updateMutation.mutate({
+      id: user.id,
+      data: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role: formData.role as any,
+      },
+    });
   };
+
+  const loading = updateMutation.isPending;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

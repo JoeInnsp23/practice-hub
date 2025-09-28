@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
@@ -17,33 +16,15 @@ import {
   Target,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
-import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 
 interface ClientHubDashboardProps {
   userName?: string;
 }
 
-interface KPIData {
-  totalRevenue: number;
-  collectedRevenue: number;
-  outstandingRevenue: number;
-  activeClients: number;
-  pendingTasks: number;
-  inProgressTasks: number;
-  completedTasks30d: number;
-  overdueTasks: number;
-  totalHours30d: number;
-  billableHours30d: number;
-  utilizationRate: number;
-  collectionRate: number;
-  upcomingCompliance30d: number;
-}
 
 export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   const { user } = useUser();
-  const [kpis, setKpis] = useState<KPIData | null>(null);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // Use passed userName or fall back to Clerk user data
   // Convert to proper case (capitalize first letter of each word)
@@ -53,81 +34,36 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 
-  // Fetch KPIs
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
+  // Fetch KPIs using tRPC
+  const { data: kpisData, isLoading: kpisLoading } = trpc.dashboard.kpis.useQuery(undefined, {
+    retry: false,
+  });
 
-        // Fetch KPIs
-        const kpiResponse = await fetch("/api/dashboard/kpis");
-        if (kpiResponse.ok) {
-          const kpiData = await kpiResponse.json();
-          setKpis(kpiData.kpis);
-        } else {
-          const errorData = await kpiResponse.json().catch(() => ({}));
-          console.warn("KPIs unavailable:", errorData.error || "Unknown error");
-          // Set default KPIs when API fails
-          setKpis({
-            totalRevenue: 0,
-            collectedRevenue: 0,
-            outstandingRevenue: 0,
-            activeClients: 0,
-            newClients30d: 0,
-            pendingTasks: 0,
-            inProgressTasks: 0,
-            completedTasks30d: 0,
-            overdueTasks: 0,
-            totalHours30d: 0,
-            billableHours30d: 0,
-            upcomingCompliance30d: 0,
-            overdueCompliance: 0,
-            utilizationRate: 0,
-            collectionRate: 0,
-          });
-        }
+  // Fetch activities using tRPC
+  const { data: activitiesData, isLoading: activitiesLoading } = trpc.dashboard.activity.useQuery(
+    { limit: 10 },
+    { retry: false }
+  );
 
-        // Fetch activity feed
-        const activityResponse = await fetch("/api/dashboard/activity?limit=10");
-        if (activityResponse.ok) {
-          const activityData = await activityResponse.json();
-          setActivities(activityData.activities);
-        } else {
-          console.warn("Activities unavailable");
-          setActivities([]);
-        }
-      } catch (error) {
-        console.error("Dashboard data fetch error:", error);
-        // Show error only for network failures, not expected API errors
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-          toast.error("Unable to connect to server. Please check your connection.");
-        }
-        // Set default values on error
-        setKpis({
-          totalRevenue: 0,
-          collectedRevenue: 0,
-          outstandingRevenue: 0,
-          activeClients: 0,
-          newClients30d: 0,
-          pendingTasks: 0,
-          inProgressTasks: 0,
-          completedTasks30d: 0,
-          overdueTasks: 0,
-          totalHours30d: 0,
-          billableHours30d: 0,
-          upcomingCompliance30d: 0,
-          overdueCompliance: 0,
-          utilizationRate: 0,
-          collectionRate: 0,
-        });
-        setActivities([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
+  const loading = kpisLoading || activitiesLoading;
+  const kpis = kpisData?.kpis || {
+    totalRevenue: 0,
+    collectedRevenue: 0,
+    outstandingRevenue: 0,
+    activeClients: 0,
+    newClients30d: 0,
+    pendingTasks: 0,
+    inProgressTasks: 0,
+    completedTasks30d: 0,
+    overdueTasks: 0,
+    totalHours30d: 0,
+    billableHours30d: 0,
+    upcomingCompliance30d: 0,
+    overdueCompliance: 0,
+    utilizationRate: 0,
+    collectionRate: 0,
+  };
+  const activities = activitiesData?.activities || [];
 
   return (
     <div className="p-6 space-y-6">
