@@ -1,3 +1,9 @@
+/*
+ * DataExportButton Component
+ * TEMPORARILY DISABLED - Export functionality is currently not available
+ * This component will be re-enabled once backend export endpoints are implemented
+ */
+
 "use client";
 
 import { useState } from "react";

@@ -18,7 +18,7 @@ import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { Users, UserCheck, UserX, UserPlus, Plus, Search, X, Upload } from "lucide-react";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import toast from "react-hot-toast";
-import { DataExportButton } from "@/components/client-hub/data-export-button";
+// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
 import { DataImportModal } from "@/components/client-hub/data-import-modal";
 import { trpc } from "@/app/providers/trpc-provider";
 
@@ -173,11 +173,13 @@ export default function ClientsPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          {/* Export button temporarily disabled
           <DataExportButton
             endpoint="/api/export/clients"
             filename="clients"
             filters={{ status: statusFilter, type: typeFilter }}
           />
+          */}
           <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
             Import
