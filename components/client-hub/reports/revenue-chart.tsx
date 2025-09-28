@@ -17,15 +17,35 @@ interface RevenueChartProps {
 }
 
 export function RevenueChart({ data, period }: RevenueChartProps) {
+  // Handle empty data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue Overview</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">{period}</p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">No revenue data available</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const maxValue = Math.max(
     ...data.map((d) => Math.max(d.invoiced, d.collected)),
+    1 // Fallback to prevent -Infinity
   );
   const total = data.reduce((sum, d) => sum + d.collected, 0);
-  const avgMonthly = total / data.length;
+  const avgMonthly = data.length > 0 ? total / data.length : 0;
   const trend =
-    (((data[data.length - 1]?.collected || 0) - (data[0]?.collected || 0)) /
-      (data[0]?.collected || 1)) *
-    100;
+    data.length > 0
+      ? (((data[data.length - 1]?.collected || 0) - (data[0]?.collected || 0)) /
+          (data[0]?.collected || 1)) *
+        100
+      : 0;
 
   return (
     <Card>
@@ -62,9 +82,11 @@ export function RevenueChart({ data, period }: RevenueChartProps) {
               <p className="text-sm text-muted-foreground">Best Month</p>
               <p className="font-semibold">
                 {
-                  data.reduce((best, current) =>
-                    current.collected > best.collected ? current : best,
-                  ).month
+                  data.length > 0
+                    ? data.reduce((best, current) =>
+                        current.collected > best.collected ? current : best,
+                      ).month
+                    : 'N/A'
                 }
               </p>
             </div>
