@@ -46,7 +46,8 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
   // Fetch task from database using tRPC
-  const { data: task, isLoading, error } = trpc.tasks.getById.useQuery(taskId);
+  const { data: task, isLoading, error, refetch } = trpc.tasks.getById.useQuery(taskId);
+  const updateStatusMutation = trpc.tasks.updateStatus.useMutation();
 
   // Calculate progress based on checklist
   const calculateProgress = useCallback(() => {
@@ -74,44 +75,22 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
 
   // Handle checklist item toggle
   const handleChecklistToggle = (stageId: string, itemId: string) => {
-    setTask((prevTask) => {
-      if (!prevTask.workflowInstance) return prevTask;
-
-      const newTask = { ...prevTask };
-      const stages = newTask.workflowInstance.template.stages;
-
-      stages.forEach((stage) => {
-        if (stage.id === stageId) {
-          stage.checklist_items.forEach((item) => {
-            if (item.id === itemId) {
-              item.completed = !item.completed;
-              if (item.completed) {
-                item.completedBy = "Current User";
-                item.completedAt = new Date();
-              } else {
-                delete item.completedBy;
-                delete item.completedAt;
-              }
-            }
-          });
-        }
-      });
-
-      // Update overall progress
-      const allItems = stages.flatMap(s => s.checklist_items);
-      const completedItems = allItems.filter(i => i.completed);
-      newTask.progress = Math.round((completedItems.length / allItems.length) * 100);
-
-      return newTask;
-    });
-
-    toast.success("Checklist updated");
+    // TODO: Implement checklist item toggle when workflow functionality is added
+    toast.success("Checklist functionality coming soon");
   };
 
   // Handle status update
-  const handleStatusUpdate = (newStatus: string) => {
-    setTask((prev) => ({ ...prev, status: newStatus as any }));
-    toast.success(`Task status updated to ${newStatus.replace('_', ' ')}`);
+  const handleStatusUpdate = async (newStatus: string) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: taskId,
+        status: newStatus as any,
+      });
+      toast.success(`Task status updated to ${newStatus.replace('_', ' ')}`);
+      refetch();
+    } catch (error) {
+      toast.error("Failed to update task status");
+    }
   };
 
   // Get status badge config
@@ -190,7 +169,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
     );
   }
 
-  const daysUntilDue = getDaysUntil(task.dueDate);
+  const daysUntilDue = task.dueDate ? getDaysUntil(task.dueDate) : null;
   const daysUntilTarget = task.targetDate ? getDaysUntil(task.targetDate) : null;
 
   return (
@@ -251,7 +230,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                     <span className={cn(
                       daysUntilTarget && daysUntilTarget < 0 && "text-amber-600 font-medium"
                     )}>
-                      {format(task.targetDate, "dd/MM/yyyy")}
+                      {format(new Date(task.targetDate), "dd/MM/yyyy")}
                     </span>
                     <div className="text-xs text-muted-foreground">
                       {daysUntilTarget === 0 ? "Today" :
@@ -265,28 +244,30 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             )}
 
             {/* Due Date */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Due Date</p>
-              <div className="flex items-center gap-2">
-                <Calendar className={cn(
-                  "h-4 w-4",
-                  daysUntilDue < 0 ? "text-red-600" : "text-red-500"
-                )} />
-                <div>
-                  <span className={cn(
-                    daysUntilDue < 0 && "text-red-600 font-medium"
-                  )}>
-                    {format(task.dueDate, "dd/MM/yyyy")}
-                  </span>
-                  <div className="text-xs text-muted-foreground">
-                    {daysUntilDue === 0 ? "Today" :
-                     daysUntilDue === 1 ? "Tomorrow" :
-                     daysUntilDue > 0 ? `${daysUntilDue} days` :
-                     `${Math.abs(daysUntilDue)} days overdue`}
+            {task.dueDate && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Due Date</p>
+                <div className="flex items-center gap-2">
+                  <Calendar className={cn(
+                    "h-4 w-4",
+                    daysUntilDue && daysUntilDue < 0 ? "text-red-600" : "text-red-500"
+                  )} />
+                  <div>
+                    <span className={cn(
+                      daysUntilDue && daysUntilDue < 0 && "text-red-600 font-medium"
+                    )}>
+                      {format(new Date(task.dueDate), "dd/MM/yyyy")}
+                    </span>
+                    <div className="text-xs text-muted-foreground">
+                      {daysUntilDue === 0 ? "Today" :
+                       daysUntilDue === 1 ? "Tomorrow" :
+                       daysUntilDue && daysUntilDue > 0 ? `${daysUntilDue} days` :
+                       daysUntilDue ? `${Math.abs(daysUntilDue)} days overdue` : ""}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Progress */}
             <div className="space-y-2">
@@ -464,13 +445,13 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Created:</span>
                         <span className="text-sm">
-                          {format(task.createdAt, "dd/MM/yyyy HH:mm")}
+                          {format(new Date(task.createdAt), "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Last Updated:</span>
                         <span className="text-sm">
-                          {format(task.updatedAt, "dd/MM/yyyy HH:mm")}
+                          {format(new Date(task.updatedAt), "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -561,7 +542,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                                       {item.completed && item.completedBy && (
                                         <p className="text-xs text-muted-foreground mt-1">
                                           Completed by {item.completedBy} on{" "}
-                                          {item.completedAt && format(item.completedAt, "dd/MM/yyyy")}
+                                          {item.completedAt && format(new Date(item.completedAt), "dd/MM/yyyy")}
                                         </p>
                                       )}
                                     </div>
@@ -618,7 +599,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                       <div className="flex-1">
                         <p className="font-medium">{entry.description}</p>
                         <p className="text-sm text-muted-foreground">
-                          {entry.user} • {format(entry.date, "dd/MM/yyyy")}
+                          {entry.user} • {format(new Date(entry.date), "dd/MM/yyyy")}
                         </p>
                       </div>
                       <Badge variant="outline">{entry.hours}h</Badge>
@@ -666,7 +647,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-sm">{note.author}</span>
                           <span className="text-xs text-muted-foreground">
-                            {format(note.createdAt, "dd/MM/yyyy 'at' HH:mm")}
+                            {format(new Date(note.createdAt), "dd/MM/yyyy 'at' HH:mm")}
                           </span>
                         </div>
                         <p className="text-sm">{note.content}</p>

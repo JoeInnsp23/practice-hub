@@ -1,9 +1,4 @@
-import dotenv from "dotenv";
-import path from "path";
-
-// Load environment variables from .env.local
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
-
+// Environment variables are loaded via tsx -r dotenv/config in package.json
 import { faker } from "@faker-js/faker";
 import { db } from "../lib/db";
 import {

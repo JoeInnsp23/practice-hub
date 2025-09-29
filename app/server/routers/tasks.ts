@@ -134,20 +134,63 @@ export const tasksRouter = router({
     .query(async ({ ctx, input: id }) => {
       const { tenantId } = ctx.authContext;
 
-      const task = await db
-        .select()
-        .from(tasks)
-        .where(and(eq(tasks.id, id), eq(tasks.tenantId, tenantId)))
-        .limit(1);
+      // Use the task details view to get task with client and service data
+      const query = sql`
+        SELECT * FROM task_details_view
+        WHERE id = ${id} AND tenant_id = ${tenantId}
+        LIMIT 1
+      `;
 
-      if (!task[0]) {
+      const result = await db.execute(query);
+
+      if (!result || result.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Task not found"
         });
       }
 
-      return task[0];
+      const task = result[0] as any;
+
+      // Format the response to match the component's expectations
+      return {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        dueDate: task.due_date,
+        targetDate: task.target_date,
+        startDate: task.start_date,
+        completedDate: task.completed_date,
+        estimatedHours: task.estimated_hours,
+        actualHours: task.actual_hours,
+        progress: task.progress || 0,
+        tags: task.tags || [],
+        notes: task.notes,
+        task_type: task.task_type,
+        assignee: task.assignee_name ? {
+          id: task.assigned_to_id,
+          name: task.assignee_name,
+        } : null,
+        reviewer: task.reviewer_name ? {
+          id: task.reviewer_id,
+          name: task.reviewer_name,
+        } : null,
+        client: {
+          id: task.client_id,
+          name: task.client_name || "No Client",
+          code: task.client_code || "",
+        },
+        service: task.service_name ? {
+          id: task.service_id,
+          name: task.service_name,
+        } : null,
+        workflowInstance: null, // Will be implemented later if needed
+        timeEntries: [], // Will be implemented later if needed
+        createdAt: task.created_at,
+        updatedAt: task.updated_at,
+      };
     }),
 
   create: protectedProcedure

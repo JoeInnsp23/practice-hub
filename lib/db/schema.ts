@@ -127,14 +127,20 @@ export const clientStatusEnum = pgEnum("client_status", [
 export const taskStatusEnum = pgEnum("task_status", [
   "pending",
   "in_progress",
+  "review",
   "completed",
   "cancelled",
+  "blocked",
+  "records_received",
+  "queries_sent",
+  "queries_received",
 ]);
 export const taskPriorityEnum = pgEnum("task_priority", [
   "low",
   "medium",
   "high",
   "urgent",
+  "critical",
 ]);
 export const documentTypeEnum = pgEnum("document_type", ["file", "folder"]);
 export const invoiceStatusEnum = pgEnum("invoice_status", [
