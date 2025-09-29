@@ -56,10 +56,11 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import * as Icons from "lucide-react";
 import toast from "react-hot-toast";
 import { IconPicker } from "./icon-picker";
 import { cn } from "@/lib/utils";
+import { getIconByName } from "./icon-registry";
+import { Folder } from "lucide-react";
 
 const linkFormSchema = z.object({
   categoryId: z.string().uuid("Please select a category"),
@@ -269,9 +270,9 @@ export function LinkManagement() {
       {linksByCategory.length > 0 ? (
         <div className="space-y-6">
           {linksByCategory.map((group: any) => {
-            const CategoryIcon = group.category.iconName && (Icons as any)[group.category.iconName]
-              ? (Icons as any)[group.category.iconName]
-              : Icons.Folder;
+            const CategoryIcon = group.category.iconName
+              ? getIconByName(group.category.iconName) || Folder
+              : Folder;
             const isCollapsed = collapsedCategories.has(group.category.id);
 
             return (
@@ -330,8 +331,8 @@ export function LinkManagement() {
                   </TableHeader>
                   <TableBody>
                     {group.links.map((link: any, index: number) => {
-                      const LinkIconComponent = link.iconName && (Icons as any)[link.iconName]
-                        ? (Icons as any)[link.iconName]
+                      const LinkIconComponent = link.iconName
+                        ? getIconByName(link.iconName)
                         : null;
 
                       return (

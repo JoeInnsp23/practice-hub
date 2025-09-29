@@ -45,9 +45,9 @@ import {
   Loader2,
   Palette,
 } from "lucide-react";
-import * as Icons from "lucide-react";
 import toast from "react-hot-toast";
 import { IconPicker } from "./icon-picker";
+import { getIconByName } from "./icon-registry";
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -227,7 +227,7 @@ export function CategoryManagement() {
                 </TableCell>
                 <TableCell>
                   {category.iconName ? (() => {
-                    const Icon = (Icons as any)[category.iconName];
+                    const Icon = getIconByName(category.iconName);
                     return Icon ? <Icon className="h-4 w-4" /> : <span>-</span>;
                   })() : <span>-</span>}
                 </TableCell>

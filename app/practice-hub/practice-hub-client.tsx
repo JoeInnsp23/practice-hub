@@ -8,7 +8,8 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ClientOnly } from "@/components/client-only";
 import { api } from "@/lib/trpc/client";
-import * as Icons from "lucide-react";
+import { Folder, ExternalLink } from "lucide-react";
+import { getIconByName } from "@/app/admin/portal-links/icon-registry";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
@@ -57,9 +58,9 @@ export function PracticeHubClient({
 
   const practiceHubApps = practiceHubCategory?.links.map(link => {
     // Get the appropriate icon
-    const IconComponent = link.iconName && link.iconName in Icons
-      ? (Icons as any)[link.iconName]
-      : Icons.ExternalLink;
+    const IconComponent = link.iconName
+      ? getIconByName(link.iconName) || ExternalLink
+      : ExternalLink;
 
     // Determine status from description
     let status: "active" | "coming-soon" | "placeholder" = "active";
@@ -214,9 +215,9 @@ export function PracticeHubClient({
                     </h3>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {category.links.map((link) => {
-                        const LinkIcon = link.iconName && link.iconName in Icons
-                          ? (Icons as any)[link.iconName]
-                          : Icons.ExternalLink;
+                        const LinkIcon = link.iconName
+                          ? getIconByName(link.iconName) || ExternalLink
+                          : ExternalLink;
 
                         return (
                           <a
@@ -233,16 +234,15 @@ export function PracticeHubClient({
                                     className="p-3 rounded-lg flex-shrink-0 shadow-md transition-all duration-300 group-hover:shadow-lg"
                                     style={{ backgroundColor: `${category.colorHex}20` }}
                                   >
-                                    {React.createElement(LinkIcon, {
-                                      className: "h-5 w-5 transition-transform duration-300 group-hover:scale-110",
-                                      style: { color: category.colorHex }
-                                    })}
+                                    <span style={{ color: category.colorHex || '#000000' }}>
+                                      <LinkIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                                    </span>
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <h4 className="font-semibold text-card-foreground flex items-center gap-1">
                                       {link.title}
                                       {!link.isInternal && (
-                                        <Icons.ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                        <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                       )}
                                     </h4>
                                     {link.description && (
