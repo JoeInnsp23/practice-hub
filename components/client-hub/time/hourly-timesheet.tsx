@@ -311,7 +311,7 @@ export function HourlyTimesheet({
                     >
                       {entries.length > 0 && (
                         <div className="space-y-1">
-                          {entries.slice(0, 2).map((entry, idx) => {
+                          {entries.slice(0, 2).map((entry) => {
                             const workTypeColor = getWorkTypeColor(
                               entry.workType || "work",
                             );
@@ -321,7 +321,7 @@ export function HourlyTimesheet({
 
                             return (
                               <div
-                                key={idx}
+                                key={entry.id || `${entry.date}-${entry.hours}`}
                                 className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
                                 style={{
                                   backgroundColor: `${workTypeColor}20`,

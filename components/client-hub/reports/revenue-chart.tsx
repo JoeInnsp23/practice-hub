@@ -92,8 +92,8 @@ export function RevenueChart({ data, period }: RevenueChartProps) {
 
           {/* Bar Chart */}
           <div className="space-y-3">
-            {data.map((item, index) => (
-              <div key={index} className="space-y-2">
+            {data.map((item) => (
+              <div key={item.month} className="space-y-2">
                 <div className="flex justify-between items-center text-sm">
                   <span className="font-medium">{item.month}</span>
                   <span className="text-muted-foreground">

@@ -94,7 +94,7 @@ export function ServiceSelectionStep({
     const currentIds = selectedServices;
     const isSelected = currentIds.includes(serviceId);
 
-    let updatedServices: Array<string | { serviceId: string; status: string; frequency: string }>;
+    let updatedServices: typeof formData.selectedServices;
     if (isSelected) {
       // Remove the service
       updatedServices =

@@ -344,7 +344,7 @@ export function WorkflowTemplateModal({
                       <Label className="text-xs">Checklist Items</Label>
                       {(stage.checklist || []).map((item, itemIndex) => (
                         <div
-                          key={itemIndex}
+                          key={item}
                           className="flex items-center justify-between text-xs p-2 bg-muted rounded"
                         >
                           <span>{item}</span>

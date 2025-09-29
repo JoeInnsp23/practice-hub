@@ -252,7 +252,7 @@ export function MonthlyTimesheet({
 
                   {/* Time Entries */}
                   <div className="space-y-1">
-                    {dayEntries.slice(0, 3).map((entry, entryIndex) => {
+                    {dayEntries.slice(0, 3).map((entry) => {
                       const workTypeColor = getWorkTypeColor(
                         entry.workType || "work",
                       );
@@ -262,7 +262,7 @@ export function MonthlyTimesheet({
 
                       return (
                         <div
-                          key={entryIndex}
+                          key={entry.id || `${entry.date}-${entry.hours}`}
                           className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
                           style={{
                             backgroundColor: `${workTypeColor}20`,

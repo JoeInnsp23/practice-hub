@@ -280,7 +280,7 @@ export function ServiceModal({
                 <div className="flex flex-wrap gap-2 mt-2">
                   {features.map((feature, index) => (
                     <div
-                      key={index}
+                      key={feature}
                       className="flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm"
                     >
                       {feature}
@@ -320,7 +320,7 @@ export function ServiceModal({
                 <div className="flex flex-wrap gap-2 mt-2">
                   {tags.map((tag, index) => (
                     <div
-                      key={index}
+                      key={tag}
                       className="flex items-center gap-1 px-3 py-1 bg-primary/10 dark:bg-blue-900 rounded-full text-sm"
                     >
                       {tag}
