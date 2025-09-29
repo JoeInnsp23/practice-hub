@@ -48,6 +48,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   // Fetch task from database using tRPC
   const { data: task, isLoading, error, refetch } = trpc.tasks.getById.useQuery(taskId);
   const updateStatusMutation = trpc.tasks.updateStatus.useMutation();
+  const updateChecklistMutation = trpc.tasks.updateChecklistItem.useMutation();
 
   // Calculate progress based on checklist
   const calculateProgress = useCallback(() => {
@@ -74,9 +75,19 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Handle checklist item toggle
-  const handleChecklistToggle = (stageId: string, itemId: string) => {
-    // TODO: Implement checklist item toggle when workflow functionality is added
-    toast.success("Checklist functionality coming soon");
+  const handleChecklistToggle = async (stageId: string, itemId: string, currentStatus: boolean) => {
+    try {
+      await updateChecklistMutation.mutateAsync({
+        taskId,
+        stageId,
+        itemId,
+        completed: !currentStatus,
+      });
+      toast.success("Checklist item updated");
+      refetch();
+    } catch (error) {
+      toast.error("Failed to update checklist item");
+    }
   };
 
   // Handle status update
@@ -531,7 +542,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                                   >
                                     <Checkbox
                                       checked={item.completed}
-                                      onCheckedChange={() => handleChecklistToggle(stage.id, item.id)}
+                                      onCheckedChange={() => handleChecklistToggle(stage.id, item.id, item.completed)}
                                       className="mt-0.5"
                                     />
                                     <div className="flex-1">

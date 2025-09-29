@@ -8,6 +8,7 @@ import { servicesRouter } from "./routers/services";
 import { complianceRouter } from "./routers/compliance";
 import { usersRouter } from "./routers/users";
 import { settingsRouter } from "./routers/settings";
+import { workflowsRouter } from "./routers/workflows";
 
 export const appRouter = router({
   dashboard: dashboardRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   compliance: complianceRouter,
   users: usersRouter,
   settings: settingsRouter,
+  workflows: workflowsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,6 +1,6 @@
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
-import { tasks, activityLogs } from "@/lib/db/schema";
+import { tasks, activityLogs, taskWorkflowInstances, workflows, workflowStages } from "@/lib/db/schema";
 import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -152,6 +152,53 @@ export const tasksRouter = router({
 
       const task = result[0] as any;
 
+      // Get workflow instance if exists
+      let workflowInstance = null;
+      if (task.workflow_id) {
+        const instance = await db
+          .select()
+          .from(taskWorkflowInstances)
+          .where(eq(taskWorkflowInstances.taskId, id))
+          .limit(1);
+
+        if (instance[0]) {
+          const workflow = await db
+            .select()
+            .from(workflows)
+            .where(eq(workflows.id, task.workflow_id))
+            .limit(1);
+
+          const stages = await db
+            .select()
+            .from(workflowStages)
+            .where(eq(workflowStages.workflowId, task.workflow_id))
+            .orderBy(workflowStages.stageOrder);
+
+          workflowInstance = {
+            id: instance[0].id,
+            name: workflow[0]?.name || "Unknown Workflow",
+            template: {
+              stages: stages.map(stage => ({
+                id: stage.id,
+                name: stage.name,
+                description: stage.description,
+                is_required: stage.isRequired,
+                checklist_items: ((stage.checklistItems as any) || []).map((item: any) => {
+                  const progress = (instance[0].stageProgress as any)?.[stage.id]?.checklistItems?.[item.id];
+                  return {
+                    id: item.id,
+                    text: item.text,
+                    completed: progress?.completed || false,
+                    completedBy: progress?.completedBy,
+                    completedAt: progress?.completedAt,
+                  };
+                }),
+              })),
+            },
+          };
+        }
+      }
+
       // Format the response to match the component's expectations
       return {
         id: task.id,
@@ -186,7 +233,7 @@ export const tasksRouter = router({
           id: task.service_id,
           name: task.service_name,
         } : null,
-        workflowInstance: null, // Will be implemented later if needed
+        workflowInstance,
         timeEntries: [], // Will be implemented later if needed
         createdAt: task.created_at,
         updatedAt: task.updated_at,
@@ -344,5 +391,222 @@ export const tasksRouter = router({
         id: input.id,
         data: { status: input.status }
       });
+    }),
+
+  // Workflow instance management
+  assignWorkflow: protectedProcedure
+    .input(z.object({
+      taskId: z.string(),
+      workflowId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Check task exists
+      const task = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
+        .limit(1);
+
+      if (!task[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found"
+        });
+      }
+
+      // Check workflow exists
+      const workflow = await db
+        .select()
+        .from(workflows)
+        .where(and(eq(workflows.id, input.workflowId), eq(workflows.tenantId, tenantId)))
+        .limit(1);
+
+      if (!workflow[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found"
+        });
+      }
+
+      // Update task with workflow ID
+      await db
+        .update(tasks)
+        .set({ workflowId: input.workflowId })
+        .where(eq(tasks.id, input.taskId));
+
+      // Get workflow stages
+      const stages = await db
+        .select()
+        .from(workflowStages)
+        .where(eq(workflowStages.workflowId, input.workflowId))
+        .orderBy(workflowStages.stageOrder);
+
+      // Create workflow instance
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: input.taskId,
+          workflowId: input.workflowId,
+          currentStageId: stages[0]?.id || null,
+          status: "active",
+          stageProgress: {},
+        })
+        .returning();
+
+      return { success: true, instance };
+    }),
+
+  getWorkflowInstance: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: taskId }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Get task to verify it belongs to tenant
+      const task = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, taskId), eq(tasks.tenantId, tenantId)))
+        .limit(1);
+
+      if (!task[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found"
+        });
+      }
+
+      if (!task[0].workflowId) {
+        return null;
+      }
+
+      // Get workflow instance
+      const instance = await db
+        .select()
+        .from(taskWorkflowInstances)
+        .where(eq(taskWorkflowInstances.taskId, taskId))
+        .limit(1);
+
+      if (!instance[0]) {
+        return null;
+      }
+
+      // Get workflow with stages
+      const workflow = await db
+        .select()
+        .from(workflows)
+        .where(eq(workflows.id, task[0].workflowId))
+        .limit(1);
+
+      const stages = await db
+        .select()
+        .from(workflowStages)
+        .where(eq(workflowStages.workflowId, task[0].workflowId))
+        .orderBy(workflowStages.stageOrder);
+
+      return {
+        instance: instance[0],
+        workflow: workflow[0],
+        stages,
+      };
+    }),
+
+  updateChecklistItem: protectedProcedure
+    .input(z.object({
+      taskId: z.string(),
+      stageId: z.string(),
+      itemId: z.string(),
+      completed: z.boolean(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get workflow instance
+      const instance = await db
+        .select()
+        .from(taskWorkflowInstances)
+        .where(eq(taskWorkflowInstances.taskId, input.taskId))
+        .limit(1);
+
+      if (!instance[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow instance not found"
+        });
+      }
+
+      // Update stage progress
+      const stageProgress = (instance[0].stageProgress as any) || {};
+      if (!stageProgress[input.stageId]) {
+        stageProgress[input.stageId] = {
+          checklistItems: {}
+        };
+      }
+      stageProgress[input.stageId].checklistItems[input.itemId] = {
+        completed: input.completed,
+        completedBy: input.completed ? `${firstName} ${lastName}` : null,
+        completedAt: input.completed ? new Date().toISOString() : null,
+      };
+
+      // Update instance
+      await db
+        .update(taskWorkflowInstances)
+        .set({
+          stageProgress,
+          updatedAt: new Date(),
+        })
+        .where(eq(taskWorkflowInstances.taskId, input.taskId));
+
+      // Calculate and update task progress
+      const workflow = await db
+        .select()
+        .from(workflows)
+        .where(eq(workflows.id, instance[0].workflowId))
+        .limit(1);
+
+      const stages = await db
+        .select()
+        .from(workflowStages)
+        .where(eq(workflowStages.workflowId, instance[0].workflowId));
+
+      let totalItems = 0;
+      let completedItems = 0;
+
+      for (const stage of stages) {
+        const checklistItems = (stage.checklistItems as any) || [];
+        totalItems += checklistItems.length;
+
+        const stageProgressData = stageProgress[stage.id];
+        if (stageProgressData) {
+          for (const item of checklistItems) {
+            if (stageProgressData.checklistItems[item.id]?.completed) {
+              completedItems++;
+            }
+          }
+        }
+      }
+
+      const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+      // Update task progress
+      await db
+        .update(tasks)
+        .set({ progress })
+        .where(eq(tasks.id, input.taskId));
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "task",
+        entityId: input.taskId,
+        action: "checklist_updated",
+        description: `Updated checklist item in workflow`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        metadata: { stageId: input.stageId, itemId: input.itemId, completed: input.completed }
+      });
+
+      return { success: true, progress };
     }),
 });

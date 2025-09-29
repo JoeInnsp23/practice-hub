@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,37 +36,61 @@ import toast from "react-hot-toast";
 
 
 export default function WorkflowsPage() {
-  const [workflowTemplates, setWorkflowTemplates] = useState([]);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
 
-  const handleToggleTemplate = (templateId: string, isActive: boolean) => {
-    setWorkflowTemplates(templates =>
-      templates.map(t =>
-        t.id === templateId ? { ...t, is_active: !isActive } : t
-      )
-    );
-    toast.success(isActive ? "Template deactivated" : "Template activated");
-  };
+  // Fetch workflows from database
+  const { data: workflowTemplates = [], refetch } = trpc.workflows.list.useQuery();
+  const toggleActiveMutation = trpc.workflows.toggleActive.useMutation();
+  const deleteWorkflowMutation = trpc.workflows.delete.useMutation();
+  const createWorkflowMutation = trpc.workflows.create.useMutation();
+  const updateWorkflowMutation = trpc.workflows.update.useMutation();
 
-  const handleDeleteTemplate = (templateId: string) => {
-    const template = workflowTemplates.find(t => t.id === templateId);
-    if (template && window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
-      setWorkflowTemplates(templates => templates.filter(t => t.id !== templateId));
-      toast.success("Template deleted successfully");
+  const handleToggleTemplate = async (templateId: string, isActive: boolean) => {
+    try {
+      await toggleActiveMutation.mutateAsync({
+        id: templateId,
+        isActive: !isActive,
+      });
+      toast.success(isActive ? "Template deactivated" : "Template activated");
+      refetch();
+    } catch (error) {
+      toast.error("Failed to toggle template status");
     }
   };
 
-  const handleDuplicateTemplate = (templateId: string) => {
+  const handleDeleteTemplate = async (templateId: string) => {
+    const template = workflowTemplates.find(t => t.id === templateId);
+    if (template && window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
+      try {
+        await deleteWorkflowMutation.mutateAsync(templateId);
+        toast.success("Template deleted successfully");
+        refetch();
+      } catch (error) {
+        toast.error("Failed to delete template");
+      }
+    }
+  };
+
+  const handleDuplicateTemplate = async (templateId: string) => {
     const template = workflowTemplates.find(t => t.id === templateId);
     if (template) {
-      const newTemplate = {
-        ...template,
-        id: Date.now().toString(),
-        name: `${template.name} (Copy)`,
-      };
-      setWorkflowTemplates([...workflowTemplates, newTemplate]);
-      toast.success("Template duplicated successfully");
+      try {
+        await createWorkflowMutation.mutateAsync({
+          name: `${template.name} (Copy)`,
+          description: template.description,
+          type: template.type,
+          trigger: template.trigger,
+          serviceId: template.serviceId,
+          isActive: template.isActive,
+          estimatedDays: template.estimatedDays,
+          stages: template.stages,
+        });
+        toast.success("Template duplicated successfully");
+        refetch();
+      } catch (error) {
+        toast.error("Failed to duplicate template");
+      }
     }
   };
 
@@ -80,7 +105,7 @@ export default function WorkflowsPage() {
     {
       title: "Active Templates",
       value: workflowTemplates
-        .filter((t) => t.is_active)
+        .filter((t) => t.isActive)
         .length.toString(),
       icon: Activity,
       change: "",
@@ -89,7 +114,7 @@ export default function WorkflowsPage() {
     {
       title: "Total Stages",
       value: workflowTemplates
-        .reduce((sum, t) => sum + (t.stages?.length || 0), 0)
+        .reduce((sum, t) => sum + (t.stageCount || 0), 0)
         .toString(),
       icon: Layers,
       change: "",
@@ -104,25 +129,24 @@ export default function WorkflowsPage() {
     },
   ];
 
-  const handleSaveTemplate = (data: any) => {
-    if (editingTemplate) {
-      setWorkflowTemplates(templates =>
-        templates.map(t =>
-          t.id === editingTemplate.id ? { ...editingTemplate, ...data } : t
-        )
-      );
-      toast.success("Template updated successfully");
-    } else {
-      const newTemplate = {
-        ...data,
-        id: Date.now().toString(),
-        is_active: true,
-      };
-      setWorkflowTemplates([...workflowTemplates, newTemplate]);
-      toast.success("Template created successfully");
+  const handleSaveTemplate = async (data: any) => {
+    try {
+      if (editingTemplate) {
+        await updateWorkflowMutation.mutateAsync({
+          id: editingTemplate.id,
+          data,
+        });
+        toast.success("Template updated successfully");
+      } else {
+        await createWorkflowMutation.mutateAsync(data);
+        toast.success("Template created successfully");
+      }
+      setIsTemplateModalOpen(false);
+      setEditingTemplate(null);
+      refetch();
+    } catch (error) {
+      toast.error("Failed to save template");
     }
-    setIsTemplateModalOpen(false);
-    setEditingTemplate(null);
   };
 
   return (
@@ -183,10 +207,12 @@ export default function WorkflowsPage() {
                           {template.name}
                         </CardTitle>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {template.service.code}
-                          </Badge>
-                          {!template.is_active && (
+                          {template.service && (
+                            <Badge variant="outline" className="text-xs">
+                              {template.service.code}
+                            </Badge>
+                          )}
+                          {!template.isActive && (
                             <Badge variant="secondary" className="text-xs">
                               Inactive
                             </Badge>
@@ -216,9 +242,9 @@ export default function WorkflowsPage() {
                             Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleToggleTemplate(template.id, template.is_active)}
+                            onClick={() => handleToggleTemplate(template.id, template.isActive)}
                           >
-                            {template.is_active ? (
+                            {template.isActive ? (
                               <>
                                 <ToggleLeft className="mr-2 h-4 w-4" />
                                 Deactivate
@@ -250,7 +276,7 @@ export default function WorkflowsPage() {
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="flex items-center gap-1">
                           <Layers className="h-3 w-3 text-muted-foreground" />
-                          <span>{template.stages.length} stages</span>
+                          <span>{template.stageCount || 0} stages</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <GitBranch className="h-3 w-3 text-muted-foreground" />
@@ -263,7 +289,7 @@ export default function WorkflowsPage() {
                             Est. {template.estimatedDays} days
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {template.service.name}
+                            {template.service?.name || "No Service"}
                           </span>
                         </div>
                       </div>
