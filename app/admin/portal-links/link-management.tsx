@@ -53,9 +53,13 @@ import {
   Loader2,
   ExternalLink,
   Link as LinkIcon,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
+import * as Icons from "lucide-react";
 import toast from "react-hot-toast";
 import { IconPicker } from "./icon-picker";
+import { cn } from "@/lib/utils";
 
 const linkFormSchema = z.object({
   categoryId: z.string().uuid("Please select a category"),
@@ -85,6 +89,7 @@ export function LinkManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
 
   const { data: categories } = api.portal.getCategories.useQuery();
   const { data: links, isLoading, refetch } = api.portal.getLinks.useQuery({
@@ -94,6 +99,23 @@ export function LinkManagement() {
   const updateMutation = api.portal.updateLink.useMutation();
   const deleteMutation = api.portal.deleteLink.useMutation();
   const reorderMutation = api.portal.reorderLinks.useMutation();
+
+  // Group links by category
+  const linksByCategory = React.useMemo(() => {
+    if (!links || !categories) return [];
+
+    const grouped = categories
+      .filter((cat: any) => !selectedCategory || cat.id === selectedCategory)
+      .map((category: any) => ({
+        category,
+        links: links.filter((link: any) => link.categoryId === category.id)
+          .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+      }))
+      .filter((group: any) => group.links.length > 0)
+      .sort((a: any, b: any) => a.category.sortOrder - b.category.sortOrder);
+
+    return grouped;
+  }, [links, categories, selectedCategory]);
 
   const form = useForm<LinkFormData>({
     resolver: zodResolver(linkFormSchema),
@@ -244,105 +266,162 @@ export function LinkManagement() {
         </Button>
       </div>
 
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">Order</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>URL</TableHead>
-              <TableHead className="w-24">Type</TableHead>
-              <TableHead className="w-24">Status</TableHead>
-              <TableHead className="w-32">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {links?.map((link: any, index: number) => (
-              <TableRow key={link.id}>
-                <TableCell>
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleReorder(links, index, "up")}
-                      disabled={index === 0}
-                    >
-                      <ArrowUp className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleReorder(links, index, "down")}
-                      disabled={index === links.length - 1}
-                    >
-                      <ArrowDown className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    {link.iconName && (() => {
-                      const Icon = (require("lucide-react") as any)[link.iconName];
-                      return Icon ? <Icon className="h-4 w-4" /> : null;
-                    })()}
-                    {link.title}
-                  </div>
-                </TableCell>
-                <TableCell>{getCategoryName(link.categoryId)}</TableCell>
-                <TableCell className="max-w-xs truncate">
-                  <div className="flex items-center gap-1">
-                    {link.targetBlank ? (
-                      <ExternalLink className="h-3 w-3" />
+      {linksByCategory.length > 0 ? (
+        <div className="space-y-6">
+          {linksByCategory.map((group: any) => {
+            const CategoryIcon = group.category.iconName && (Icons as any)[group.category.iconName]
+              ? (Icons as any)[group.category.iconName]
+              : Icons.Folder;
+            const isCollapsed = collapsedCategories.has(group.category.id);
+
+            return (
+              <Card key={group.category.id} className="overflow-hidden">
+                {/* Category Header */}
+                <div
+                  className="px-6 py-3 border-b flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
+                  style={{
+                    backgroundColor: `${group.category.colorHex}10`,
+                    borderColor: `${group.category.colorHex}30`
+                  }}
+                  onClick={() => {
+                    const newCollapsed = new Set(collapsedCategories);
+                    if (isCollapsed) {
+                      newCollapsed.delete(group.category.id);
+                    } else {
+                      newCollapsed.add(group.category.id);
+                    }
+                    setCollapsedCategories(newCollapsed);
+                  }}
+                >
+                  <Button variant="ghost" size="sm" className="p-0 h-auto">
+                    {isCollapsed ? (
+                      <ChevronRight className="h-4 w-4" />
                     ) : (
-                      <LinkIcon className="h-3 w-3" />
+                      <ChevronDown className="h-4 w-4" />
                     )}
-                    <span className="truncate">{link.url}</span>
+                  </Button>
+                  <div
+                    className="h-8 w-8 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: group.category.colorHex }}
+                  >
+                    <CategoryIcon className="h-4 w-4 text-white" />
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={link.isInternal ? "secondary" : "outline"}>
-                    {link.isInternal ? "Internal" : "External"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={link.isActive ? "default" : "secondary"}>
-                    {link.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEdit(link)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setLinkToDelete(link);
-                        setDeleteDialogOpen(true);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  <div className="flex-1">
+                    <h4 className="font-semibold">{group.category.name}</h4>
+                    {group.category.description && !isCollapsed && (
+                      <p className="text-xs text-muted-foreground">{group.category.description}</p>
+                    )}
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {links?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No links found. Create your first link to get started.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+                  <Badge variant="secondary">{group.links.length} links</Badge>
+                </div>
+
+                {/* Links Table */}
+                {!isCollapsed && (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">Order</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>URL</TableHead>
+                      <TableHead className="w-24">Type</TableHead>
+                      <TableHead className="w-24">Status</TableHead>
+                      <TableHead className="w-32">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {group.links.map((link: any, index: number) => {
+                      const LinkIconComponent = link.iconName && (Icons as any)[link.iconName]
+                        ? (Icons as any)[link.iconName]
+                        : null;
+
+                      return (
+                        <TableRow key={link.id}>
+                          <TableCell>
+                            <div className="flex flex-col gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleReorder(group.links, index, "up")}
+                                disabled={index === 0}
+                              >
+                                <ArrowUp className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleReorder(group.links, index, "down")}
+                                disabled={index === group.links.length - 1}
+                              >
+                                <ArrowDown className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              {LinkIconComponent && <LinkIconComponent className="h-4 w-4" />}
+                              {link.title}
+                            </div>
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="flex items-center gap-1">
+                              {link.targetBlank ? (
+                                <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                              ) : (
+                                <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                              )}
+                              <span className="truncate">{link.url}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={link.isInternal ? "secondary" : "outline"}>
+                              {link.isInternal ? "Internal" : "External"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={link.isActive ? "default" : "secondary"}>
+                              {link.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(link)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setLinkToDelete(link);
+                                  setDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      ) : (
+        <Card className="p-8">
+          <div className="text-center text-muted-foreground">
+            {selectedCategory
+              ? "No links found in this category. Create your first link to get started."
+              : "No links found. Create your first link to get started."}
+          </div>
+        </Card>
+      )}
 
       {/* Create/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

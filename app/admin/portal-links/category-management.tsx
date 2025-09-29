@@ -45,6 +45,7 @@ import {
   Loader2,
   Palette,
 } from "lucide-react";
+import * as Icons from "lucide-react";
 import toast from "react-hot-toast";
 import { IconPicker } from "./icon-picker";
 
@@ -224,15 +225,18 @@ export function CategoryManagement() {
                 <TableCell className="max-w-xs truncate">
                   {category.description || "-"}
                 </TableCell>
-                <TableCell>{category.iconName || "-"}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-6 w-6 rounded border"
-                      style={{ backgroundColor: category.colorHex }}
-                    />
-                    <span className="text-xs font-mono">{category.colorHex}</span>
-                  </div>
+                  {category.iconName ? (() => {
+                    const Icon = (Icons as any)[category.iconName];
+                    return Icon ? <Icon className="h-4 w-4" /> : <span>-</span>;
+                  })() : <span>-</span>}
+                </TableCell>
+                <TableCell>
+                  <div
+                    className="h-6 w-6 rounded border"
+                    style={{ backgroundColor: category.colorHex }}
+                    title={category.colorHex}
+                  />
                 </TableCell>
                 <TableCell>
                   <Badge variant={category.isActive ? "default" : "secondary"}>

@@ -38,15 +38,20 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  // Get all available icon names
+  // Get all available icon names, excluding non-icon exports
   const allIconNames = Object.keys(Icons).filter(
-    (key) => key !== "default" && typeof (Icons as any)[key] === "function"
+    (key) => {
+      // Exclude non-icon exports
+      if (["default", "icons", "aliases", "createLucideIcon"].includes(key)) return false;
+      // Check if it's a function (icon component)
+      return typeof (Icons as any)[key] === "function";
+    }
   );
 
-  // Filter icons based on search or use common icons
-  const filteredIcons = search
+  // Filter icons based on search, or show common icons if no search
+  const filteredIcons = search.trim()
     ? allIconNames.filter((name) =>
-        name.toLowerCase().includes(search.toLowerCase())
+        name.toLowerCase().includes(search.toLowerCase().trim())
       )
     : commonIcons.filter((name) => allIconNames.includes(name));
 
@@ -76,13 +81,18 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0">
-        <div className="p-4 pb-2">
+        <div className="p-4 pb-2 space-y-2">
           <Input
-            placeholder="Search icons..."
+            placeholder="Search all icons..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full"
           />
+          {!search && (
+            <p className="text-xs text-muted-foreground">
+              Showing common icons. Type to search all {allIconNames.length} available icons.
+            </p>
+          )}
         </div>
         <ScrollArea className="h-[300px] px-4 pb-4">
           <div className="grid grid-cols-6 gap-2">
@@ -98,7 +108,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                     size="sm"
                     className={cn(
                       "h-10 w-10 p-0",
-                      value === iconName && "bg-primary text-primary-foreground"
+                      value === iconName && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
                     )}
                     onClick={() => handleSelect(iconName)}
                     title={iconName}
@@ -109,7 +119,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               })
             ) : (
               <div className="col-span-6 text-center py-4 text-muted-foreground">
-                No icons found
+                {search ? "No icons found matching your search" : "No icons available"}
               </div>
             )}
           </div>
