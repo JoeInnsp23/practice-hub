@@ -2,13 +2,8 @@
 
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, FileText, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllIconNames,
@@ -23,7 +18,7 @@ interface IconPickerProps {
 }
 
 export function IconPicker({ value, onChange }: IconPickerProps) {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
   // Get all available icon names (memoized for performance)
@@ -48,33 +43,53 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
 
   const handleSelect = (iconName: string) => {
     onChange(iconName);
-    setOpen(false);
+    setIsOpen(false);
     setSearch("");
   };
 
-  // Calculate if we should show scroll indicators
-  const hasMoreIcons = filteredIcons.length > 30; // ~5 rows of 6 icons
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange("");
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-start"
-        >
-          <SelectedIcon className="h-4 w-4 mr-2" />
-          <span className="flex-1 text-left">
-            {value || "Select an icon..."}
-          </span>
-          <ChevronDown className="h-4 w-4 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[420px] p-0" align="start">
-        <div className="flex flex-col">
-          {/* Fixed header with search */}
-          <div className="p-4 pb-3 border-b space-y-2">
+    <div className="space-y-2">
+      {/* Toggle Button */}
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full justify-between"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2">
+          <SelectedIcon className="h-4 w-4" />
+          <span>{value || "Select an icon..."}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {value && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-auto p-1"
+              onClick={handleClear}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          )}
+          {isOpen ? (
+            <ChevronUp className="h-4 w-4 opacity-50" />
+          ) : (
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          )}
+        </div>
+      </Button>
+
+      {/* Inline Expandable Panel */}
+      {isOpen && (
+        <div className="border rounded-lg p-4 space-y-3 bg-background">
+          {/* Search Input */}
+          <div className="space-y-2">
             <Input
               placeholder="Search icons (try 'document', 'time', 'mail')..."
               value={search}
@@ -90,40 +105,37 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                   <>Showing popular icons</>
                 )}
               </span>
-              <span>{allIconNames.length} total icons available</span>
+              <span>{allIconNames.length} total available</span>
             </div>
           </div>
 
-          {/* Scrollable icon grid with reduced height */}
+          {/* Scrollable Icon Grid */}
           <div
-            className="overflow-y-auto p-4"
+            className="overflow-y-auto border rounded-md p-3 bg-muted/30"
             style={{
-              maxHeight: "240px", // Reduced from 300px to ensure scrolling
-              scrollbarWidth: "thin" // For Firefox
+              height: "200px",
+              scrollbarGutter: "stable"
             }}
           >
             {filteredIcons.length > 0 ? (
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-8 gap-1">
                 {filteredIcons.map((iconName) => {
                   const IconComponent = getIconComponent(iconName);
                   if (!IconComponent) return null;
 
                   return (
-                    <Button
+                    <button
                       key={iconName}
-                      variant="outline"
-                      size="sm"
+                      type="button"
                       className={cn(
-                        "h-10 w-10 p-0 transition-all",
-                        value === iconName &&
-                        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground ring-2 ring-primary"
+                        "h-10 w-10 rounded border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-center",
+                        value === iconName && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground border-primary"
                       )}
                       onClick={() => handleSelect(iconName)}
                       title={iconName}
-                      type="button"
                     >
                       <IconComponent className="h-4 w-4" />
-                    </Button>
+                    </button>
                   );
                 })}
               </div>
@@ -133,35 +145,16 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                 <p className="text-xs mt-2">Try searching for something else</p>
               </div>
             )}
-
-            {/* Scroll indicator */}
-            {hasMoreIcons && (
-              <div className="text-center mt-4 text-xs text-muted-foreground">
-                <p>↓ Scroll for more icons ↓</p>
-              </div>
-            )}
           </div>
-        </div>
 
-        {/* Custom scrollbar styles */}
-        <style jsx>{`
-          /* Webkit browsers (Chrome, Safari, Edge) */
-          :global(.overflow-y-auto::-webkit-scrollbar) {
-            width: 8px;
-          }
-          :global(.overflow-y-auto::-webkit-scrollbar-track) {
-            background: hsl(var(--muted));
-            border-radius: 4px;
-          }
-          :global(.overflow-y-auto::-webkit-scrollbar-thumb) {
-            background: hsl(var(--muted-foreground) / 0.3);
-            border-radius: 4px;
-          }
-          :global(.overflow-y-auto::-webkit-scrollbar-thumb:hover) {
-            background: hsl(var(--muted-foreground) / 0.5);
-          }
-        `}</style>
-      </PopoverContent>
-    </Popover>
+          {/* Helper Text */}
+          {filteredIcons.length > 40 && (
+            <p className="text-xs text-center text-muted-foreground">
+              Scroll to see more icons
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
