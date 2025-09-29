@@ -8,7 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronDown, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { iconRegistry, getIconNames, getIconByName, commonIconNames } from "./icon-registry";
@@ -58,22 +57,22 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0" align="start">
-        <div className="p-4 pb-2 space-y-2">
-          <Input
-            placeholder="Search all icons..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full"
-            autoFocus
-          />
-          {!search && (
-            <p className="text-xs text-muted-foreground">
-              Showing common icons. Type to search all {allIconNames.length} available icons.
-            </p>
-          )}
-        </div>
-        <ScrollArea className="h-[300px]">
-          <div className="px-4 pb-4">
+        <div className="flex flex-col max-h-[400px]">
+          <div className="p-4 pb-2 space-y-2 border-b">
+            <Input
+              placeholder="Search all icons..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full"
+              autoFocus
+            />
+            {!search && (
+              <p className="text-xs text-muted-foreground">
+                Showing common icons. Type to search all {allIconNames.length} available icons.
+              </p>
+            )}
+          </div>
+          <div className="overflow-y-auto max-h-[300px] p-4">
             <div className="grid grid-cols-6 gap-2">
               {filteredIcons.length > 0 ? (
                 filteredIcons.map((iconName) => {
@@ -104,7 +103,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               )}
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </PopoverContent>
     </Popover>
   );
