@@ -6,6 +6,7 @@ import {
   MessageSquare,
   Palette,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 import {
   Card,
@@ -27,6 +28,14 @@ export default async function AdminDashboardPage() {
       href: "/admin/users",
       iconColor: "text-blue-600",
       bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    },
+    {
+      title: "Portal Links",
+      description: "Manage portal categories and links",
+      icon: Globe,
+      href: "/admin/portal-links",
+      iconColor: "text-indigo-600",
+      bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
     },
     {
       title: "Feedback & Issues",
@@ -59,7 +68,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Admin Sections Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {adminSections.map((section) => {
           const Icon = section.icon;
           return (

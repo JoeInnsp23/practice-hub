@@ -1,24 +1,23 @@
 "use client";
 
+import React from "react";
 import { useUser } from "@clerk/nextjs";
 import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
 import { AppCard } from "@/components/practice-hub/AppCard";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ClientOnly } from "@/components/client-only";
+import { api } from "@/lib/trpc/client";
+import * as Icons from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import {
-  Users,
-  Share2,
-  UserCheck,
-  Calculator,
-  FileText,
-  DollarSign,
-  TrendingUp,
-  Briefcase,
-  ExternalLink,
-  BookOpen,
-  Shield,
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PracticeHubClientProps {
   userRole?: string;
@@ -30,141 +29,94 @@ export function PracticeHubClient({
   userName,
 }: PracticeHubClientProps) {
   const { user } = useUser();
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Use passed userName or fall back to Clerk user data
   const displayName = userName || user?.firstName || "User";
 
-  const practiceHubApps = [
-    {
-      id: "proposal",
-      name: "Proposal Hub",
-      description: "Lead management and proposal generation",
-      icon: TrendingUp,
-      color: "#ec4899",
-      url: "/proposal-hub",
-      status: "active" as const,
-    },
-    {
-      id: "social",
-      name: "Social Hub",
-      description: "Schedule and manage social media posts",
-      icon: Share2,
-      color: "#8b5cf6",
-      url: "/social-hub",
-      status: "active" as const,
-    },
-    {
-      id: "client",
-      name: "Client Hub",
-      description: "Client relationship and practice management",
-      icon: Users,
-      color: "#3b82f6",
-      url: "/client-hub",
-      status: "active" as const,
-    },
-    {
-      id: "employee",
-      name: "Employee Portal",
-      description: "Staff timesheets, leave and internal tools",
-      icon: Briefcase,
-      color: "#a855f7",
-      url: "/employee-portal",
-      status: "coming-soon" as const,
-    },
-    {
-      id: "client-portal",
-      name: "Client Portal",
-      description: "Secure portal for client documents",
-      icon: UserCheck,
-      color: "#10b981",
-      url: "/client-portal",
-      status: "active" as const,
-    },
-    // Admin panel - only for admin users (checking both formats)
-    ...(userRole === "admin" || userRole === "org:admin"
-      ? [
-          {
-            id: "admin",
-            name: "Admin Panel",
-            description: "System administration and user management",
-            icon: Shield,
-            color: "#f97316",
-            url: "/admin",
-            status: "active" as const,
-          },
-        ]
-      : []),
-    {
-      id: "bookkeeping",
-      name: "Bookkeeping Hub",
-      description: "Making Tax Digital compliant bookkeeping",
-      icon: BookOpen,
-      color: "#f59e0b",
-      url: "/bookkeeping-hub",
-      status: "coming-soon" as const,
-    },
-    {
-      id: "accounts",
-      name: "Accounts Hub",
-      description: "Year-end accounts and financial reporting",
-      icon: FileText,
-      color: "#06b6d4",
-      url: "/accounts-hub",
-      status: "coming-soon" as const,
-    },
-    {
-      id: "payroll",
-      name: "Payroll Hub",
-      description: "Process client payroll and RTI submissions",
-      icon: DollarSign,
-      color: "#84cc16",
-      url: "/payroll-app",
-      status: "coming-soon" as const,
-    },
-    {
-      id: "placeholder",
-      name: "",
-      description: "",
-      icon: Users,
-      color: "transparent",
-      url: "#",
-      status: "placeholder" as const,
-    },
-  ];
+  // Fetch portal data
+  const { data: categoriesWithLinks, isLoading } = api.portal.getCategoriesWithLinks.useQuery();
+  const { data: favorites } = api.portal.getUserFavorites.useQuery();
+  const toggleFavoriteMutation = api.portal.toggleFavorite.useMutation();
 
-  const usefulLinks = [
-    {
-      category: "Tax Resources",
-      links: [
-        {
-          name: "HMRC Online",
-          url: "https://www.gov.uk/government/organisations/hm-revenue-customs",
-        },
-        {
-          name: "Companies House",
-          url: "https://www.gov.uk/government/organisations/companies-house",
-        },
-        {
-          name: "Tax Calculator",
-          url: "https://www.gov.uk/estimate-income-tax",
-        },
-      ],
-    },
-    {
-      category: "Professional Tools",
-      links: [
-        { name: "Xero", url: "https://www.xero.com" },
-        { name: "QuickBooks", url: "https://quickbooks.intuit.com" },
-        { name: "Sage", url: "https://www.sage.com" },
-      ],
-    },
-  ];
+  // Get Practice Hub category and its links
+  const practiceHubCategory = categoriesWithLinks?.find(cat => cat.name === "Practice Hub");
+
+  // Define module-specific colors (preserving original colors)
+  const moduleColors: Record<string, string> = {
+    "Proposal Hub": "#ec4899",  // pink
+    "Social Hub": "#8b5cf6",    // purple
+    "Client Hub": "#3b82f6",    // blue
+    "Employee Portal": "#a855f7", // purple
+    "Client Portal": "#10b981",  // green
+    "Admin Panel": "#f97316",    // orange
+    "Bookkeeping Hub": "#f59e0b", // amber
+    "Accounts Hub": "#06b6d4",   // cyan
+    "Payroll Hub": "#84cc16",    // lime
+  };
+
+  const practiceHubApps = practiceHubCategory?.links.map(link => {
+    // Get the appropriate icon
+    const IconComponent = link.iconName && link.iconName in Icons
+      ? (Icons as any)[link.iconName]
+      : Icons.ExternalLink;
+
+    // Determine status from description
+    let status: "active" | "coming-soon" | "placeholder" = "active";
+    if (link.description?.includes("coming soon") ||
+        link.url.includes("/bookkeeping") ||
+        link.url.includes("/accounts-hub") ||
+        link.url.includes("/payroll") ||
+        link.url.includes("/employee-portal")) {
+      status = "coming-soon";
+    }
+
+    // Use module-specific color or fall back to category color
+    const moduleColor = moduleColors[link.title] || practiceHubCategory.colorHex || "#ff8609";
+
+    return {
+      id: link.id,
+      name: link.title,
+      description: link.description || "",
+      icon: IconComponent as any,
+      color: moduleColor,
+      url: link.url,
+      status,
+      isFavorite: favorites?.some((f: any) => f.linkId === link.id) || false,
+    };
+  }) || [];
+
+  // Get all external links (non-Practice Hub categories)
+  const externalCategories = categoriesWithLinks?.filter(cat =>
+    cat.name !== "Practice Hub" && cat.links.length > 0
+  ) || [];
+
+  // Filter links by selected category
+  const filteredExternalLinks = selectedCategory === "all"
+    ? externalCategories
+    : externalCategories.filter(cat => cat.id === selectedCategory);
 
   const handleAppClick = (app: (typeof practiceHubApps)[0]) => {
     if (app.status === "active") {
       window.location.href = app.url;
     }
   };
+
+  const handleToggleFavorite = async (linkId: string) => {
+    try {
+      await toggleFavoriteMutation.mutateAsync({ linkId });
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-muted-foreground">Loading portal data...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -185,11 +137,14 @@ export function PracticeHubClient({
           {/* Practice Hub Tab */}
           <TabsContent value="practice-hub" className="mt-0">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {practiceHubApps.map((app) => {
-                if (app.status === "placeholder") {
-                  return <div key={app.id} className="hidden lg:block" />;
-                }
-                return (
+              {practiceHubApps.length === 0 ? (
+                <Card className="col-span-full p-8 text-center">
+                  <p className="text-muted-foreground">
+                    No Practice Hub apps available.
+                  </p>
+                </Card>
+              ) : (
+                practiceHubApps.map((app) => (
                   <AppCard
                     key={app.id}
                     title={app.name}
@@ -199,8 +154,8 @@ export function PracticeHubClient({
                     status={app.status}
                     onClick={() => handleAppClick(app)}
                   />
-                );
-              })}
+                ))
+              )}
             </div>
           </TabsContent>
 
@@ -215,29 +170,114 @@ export function PracticeHubClient({
 
           {/* Useful Links Tab */}
           <TabsContent value="useful-links" className="mt-0">
-            <div className="grid gap-6 md:grid-cols-2">
-              {usefulLinks.map((category) => (
-                <Card key={category.category} className="p-6">
-                  <h3 className="font-semibold text-lg mb-4 text-card-foreground">
-                    {category.category}
-                  </h3>
-                  <div className="space-y-2">
-                    {category.links.map((link) => (
-                      <a
-                        key={link.name}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        {link.name}
-                      </a>
-                    ))}
-                  </div>
-                </Card>
-              ))}
+            {/* Category Filter */}
+            <div className="mb-6">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {externalCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <div className="flex items-center gap-2">
+                        {category.colorHex && (
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: category.colorHex }}
+                          />
+                        )}
+                        {category.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Links Display */}
+            {filteredExternalLinks.length === 0 ? (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">
+                  No external links available in this category.
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {filteredExternalLinks.map((category) => (
+                  <div key={category.id}>
+                    <h3
+                      className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 pb-2 border-b"
+                      style={{ borderColor: category.colorHex || "#e5e5e5" }}
+                    >
+                      {category.name}
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {category.links.map((link) => {
+                        const LinkIcon = link.iconName && link.iconName in Icons
+                          ? (Icons as any)[link.iconName]
+                          : Icons.ExternalLink;
+
+                        return (
+                          <a
+                            key={link.id}
+                            href={link.url}
+                            target={link.targetBlank ? "_blank" : undefined}
+                            rel={link.targetBlank ? "noopener noreferrer" : undefined}
+                            className="block"
+                          >
+                            <div className="glass-card group relative overflow-hidden transition-all duration-300 rounded-xl hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+                              <div className="relative p-4">
+                                <div className="flex items-start gap-3">
+                                  <div
+                                    className="p-3 rounded-lg flex-shrink-0 shadow-md transition-all duration-300 group-hover:shadow-lg"
+                                    style={{ backgroundColor: `${category.colorHex}20` }}
+                                  >
+                                    {React.createElement(LinkIcon, {
+                                      className: "h-5 w-5 transition-transform duration-300 group-hover:scale-110",
+                                      style: { color: category.colorHex }
+                                    })}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-card-foreground flex items-center gap-1">
+                                      {link.title}
+                                      {!link.isInternal && (
+                                        <Icons.ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                      )}
+                                    </h4>
+                                    {link.description && (
+                                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                        {link.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Glass Hover Tint Overlay */}
+                              <div
+                                className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
+                                style={{
+                                  background: `linear-gradient(135deg, ${category.colorHex}15, ${category.colorHex}25)`,
+                                }}
+                              />
+
+                              {/* Bottom Highlight Line */}
+                              <div
+                                className="absolute bottom-0 left-0 h-1 w-full transform scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+                                style={{
+                                  background: `linear-gradient(90deg, ${category.colorHex}, ${category.colorHex}66)`,
+                                }}
+                              />
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </NavigationTabs>
       </ClientOnly>

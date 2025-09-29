@@ -9,6 +9,7 @@ import { complianceRouter } from "./routers/compliance";
 import { usersRouter } from "./routers/users";
 import { settingsRouter } from "./routers/settings";
 import { workflowsRouter } from "./routers/workflows";
+import { portalRouter } from "./routers/portal";
 
 export const appRouter = router({
   dashboard: dashboardRouter,
@@ -21,6 +22,7 @@ export const appRouter = router({
   users: usersRouter,
   settings: settingsRouter,
   workflows: workflowsRouter,
+  portal: portalRouter,
 });
 
 export type AppRouter = typeof appRouter;

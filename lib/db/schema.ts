@@ -832,3 +832,96 @@ export const activityLogs = pgTable(
     ),
   }),
 );
+
+// Portal Categories table - for organizing links
+export const portalCategories = pgTable(
+  "portal_categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Category details
+    name: varchar("name", { length: 100 }).notNull(),
+    description: text("description"),
+    iconName: varchar("icon_name", { length: 50 }), // Lucide icon name
+    colorHex: varchar("color_hex", { length: 7 }), // Hex color code
+    sortOrder: integer("sort_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+
+    // Metadata
+    createdById: uuid("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_portal_categories_tenant").on(table.tenantId),
+    sortOrderIdx: index("idx_portal_categories_sort").on(table.sortOrder),
+    activeIdx: index("idx_portal_categories_active").on(table.isActive),
+  }),
+);
+
+// Portal Links table - individual links/apps
+export const portalLinks = pgTable(
+  "portal_links",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    categoryId: uuid("category_id")
+      .references(() => portalCategories.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Link details
+    title: varchar("title", { length: 200 }).notNull(),
+    description: text("description"),
+    url: text("url").notNull(),
+    isInternal: boolean("is_internal").default(false).notNull(), // Internal vs external link
+    iconName: varchar("icon_name", { length: 50 }), // Lucide icon name
+    sortOrder: integer("sort_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    targetBlank: boolean("target_blank").default(true).notNull(), // Open in new tab
+
+    // Access control
+    requiresAuth: boolean("requires_auth").default(false).notNull(),
+    allowedRoles: jsonb("allowed_roles"), // Array of roles that can see this link
+
+    // Metadata
+    createdById: uuid("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_portal_links_tenant").on(table.tenantId),
+    categoryIdx: index("idx_portal_links_category").on(table.categoryId),
+    sortOrderIdx: index("idx_portal_links_sort").on(table.sortOrder),
+    activeIdx: index("idx_portal_links_active").on(table.isActive),
+    internalIdx: index("idx_portal_links_internal").on(table.isInternal),
+  }),
+);
+
+// User Favorites table - track favorite links/apps per user
+export const userFavorites = pgTable(
+  "user_favorites",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    linkId: uuid("link_id")
+      .references(() => portalLinks.id, { onDelete: "cascade" })
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userLinkIdx: uniqueIndex("idx_user_link_favorite").on(table.userId, table.linkId),
+    userIdx: index("idx_user_favorites_user").on(table.userId),
+    linkIdx: index("idx_user_favorites_link").on(table.linkId),
+  }),
+);

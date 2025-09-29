@@ -8,6 +8,13 @@
       "when": 1759077942948,
       "tag": "0000_ordinary_doctor_octopus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1759146097105,
+      "tag": "0001_remarkable_cobalt_man",
+      "breakpoints": true
     }
   ]
 }
