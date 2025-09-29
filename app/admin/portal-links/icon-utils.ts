@@ -1,5 +1,5 @@
+import type { LucideIcon } from "lucide-react";
 import * as Icons from "lucide-react";
-import { type LucideIcon } from "lucide-react";
 
 // Get all icon names from Lucide
 export const getAllIconNames = (): string[] => {

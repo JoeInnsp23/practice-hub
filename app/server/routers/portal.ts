@@ -1,5 +1,6 @@
+import { TRPCError } from "@trpc/server";
+import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import {
   portalCategories,
@@ -7,8 +8,7 @@ import {
   userFavorites,
   users,
 } from "@/lib/db/schema";
-import { eq, and, desc, asc, sql } from "drizzle-orm";
-import { TRPCError } from "@trpc/server";
+import { protectedProcedure, router } from "../trpc";
 
 export const portalRouter = router({
   // Get all categories with their links

@@ -1,17 +1,27 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  ChevronRight,
+  Edit,
+  ExternalLink,
+  Folder,
+  Link as LinkIcon,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import React, { useState } from "react";
-import { api } from "@/lib/trpc/client";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as z from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +39,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -36,31 +47,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
-  Plus,
-  Edit,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  Loader2,
-  ExternalLink,
-  Link as LinkIcon,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
-import toast from "react-hot-toast";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/lib/trpc/client";
 import { IconPicker } from "./icon-picker";
-import { cn } from "@/lib/utils";
 import { getIconComponent } from "./icon-utils";
-import { Folder } from "lucide-react";
 
 const linkFormSchema = z.object({
   categoryId: z.string().uuid("Please select a category"),
@@ -192,7 +191,7 @@ export function LinkManagement() {
       }
       setIsModalOpen(false);
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save link");
     }
   };
@@ -206,7 +205,7 @@ export function LinkManagement() {
       setDeleteDialogOpen(false);
       setLinkToDelete(null);
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete link");
     }
   };
@@ -234,13 +233,13 @@ export function LinkManagement() {
       await reorderMutation.mutateAsync({ links: updates });
       refetch();
       toast.success("Links reordered");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to reorder links");
     }
   };
 
   // Get category name for display
-  const getCategoryName = (categoryId: string) => {
+  const _getCategoryName = (categoryId: string) => {
     const category = categories?.find((c: any) => c.id === categoryId);
     return category?.name || "Unknown";
   };
@@ -579,7 +578,7 @@ export function LinkManagement() {
                           min="0"
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
+                            field.onChange(parseInt(e.target.value, 10))
                           }
                         />
                       </FormControl>

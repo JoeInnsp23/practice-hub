@@ -1,36 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import {
-  ChevronLeft,
+  AlertTriangle,
+  Archive,
   Building,
-  Users,
+  CheckCircle,
+  ChevronLeft,
+  Clock,
+  DollarSign,
+  Edit,
+  FileText,
+  Loader2,
   Mail,
   Phone,
-  MapPin,
-  Calendar,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  TrendingUp,
-  Edit,
-  Archive,
-  Trash2,
-  FileText,
-  DollarSign,
   Plus,
-  Eye,
-  Loader2,
+  Trash2,
+  TrendingUp,
+  Users,
 } from "lucide-react";
-import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ClientDetailsProps {
   clientId: string;
@@ -102,7 +98,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
     );
   };
 
-  const getTaskStatusBadge = (status: string) => {
+  const _getTaskStatusBadge = (status: string) => {
     const statusConfig = {
       completed: {
         label: "Completed",

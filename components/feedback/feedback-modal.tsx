@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Bug, Lightbulb, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -21,9 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import toast from "react-hot-toast";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { getRecentConsoleLogs } from "@/lib/console-capture";
 
 interface FeedbackModalProps {
@@ -52,7 +52,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     setLoading(true);
     try {
       // Capture console logs if it's an issue
-      let consoleLogs = undefined;
+      let consoleLogs;
       if (feedbackType === "issue" && typeof window !== "undefined") {
         consoleLogs = getRecentConsoleLogs(20);
       }
@@ -92,7 +92,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const _getTypeIcon = (type: string) => {
     switch (type) {
       case "issue":
         return <Bug className="h-4 w-4" />;

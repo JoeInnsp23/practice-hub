@@ -1,31 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Download,
+  Edit,
+  Eye,
+  File,
+  FileSpreadsheet,
+  FileText,
+  Folder,
+  FolderOpen,
+  Image,
+  MoreVertical,
+  Share2,
+  Trash2,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Folder,
-  File,
-  FileText,
-  FileSpreadsheet,
-  Image,
-  MoreVertical,
-  Download,
-  Eye,
-  Trash2,
-  Edit,
-  Share2,
-  FolderOpen,
-} from "lucide-react";
-import { formatDate } from "@/lib/utils/format";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/format";
 
 interface Document {
   id: string;
@@ -81,7 +80,7 @@ export function DocumentGrid({
     if (!bytes) return "";
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+    return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
   };
 
   const handleDoubleClick = (doc: Document) => {

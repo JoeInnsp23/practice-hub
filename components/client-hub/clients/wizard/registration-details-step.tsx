@@ -1,9 +1,8 @@
 "use client";
 
+import { Building2, Calendar, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WizardFormData } from "../client-wizard-modal";
-import { Building2, FileText, Calendar } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface RegistrationDetailsStepProps {
   formData: WizardFormData;

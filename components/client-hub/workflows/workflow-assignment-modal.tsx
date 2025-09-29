@@ -1,21 +1,21 @@
 "use client";
 
+import { Clock, GitBranch, Layers, Loader2 } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, GitBranch, Layers, Clock } from "lucide-react";
-import { trpc } from "@/app/providers/trpc-provider";
-import toast from "react-hot-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface WorkflowAssignmentModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export function WorkflowAssignmentModal({
       toast.success("Workflow assigned successfully");
       onAssigned?.();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to assign workflow");
     } finally {
       setIsAssigning(false);

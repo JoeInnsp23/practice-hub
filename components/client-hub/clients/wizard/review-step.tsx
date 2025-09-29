@@ -1,18 +1,18 @@
 "use client";
 
-import { WizardFormData } from "../client-wizard-modal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
-  Building2,
-  User,
-  FileText,
-  DollarSign,
-  MapPin,
-  Users,
   Briefcase,
+  Building2,
   CheckCircle2,
+  DollarSign,
+  FileText,
+  MapPin,
+  User,
+  Users,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface ReviewStepProps {
   formData: WizardFormData;
@@ -22,7 +22,9 @@ interface ReviewStepProps {
 export function ReviewStep({ formData }: ReviewStepProps) {
   const selectedServiceNames =
     formData.selectedServices?.map((service) =>
-      service.serviceId.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
+      service.serviceId
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (l: string) => l.toUpperCase()),
     ) || [];
 
   return (

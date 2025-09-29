@@ -1,13 +1,13 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Clock, Pause, Play, Save } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 import * as z from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -17,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -24,8 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock, Play, Pause, Save } from "lucide-react";
-import toast from "react-hot-toast";
+import { Textarea } from "@/components/ui/textarea";
 import { formatHours } from "@/lib/utils/format";
 
 const timeEntrySchema = z.object({
@@ -46,7 +46,7 @@ interface QuickTimeEntryProps {
 export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [_elapsedTime, setElapsedTime] = useState(0);
 
   const form = useForm<TimeEntryFormValues>({
     resolver: zodResolver(timeEntrySchema),
@@ -126,7 +126,7 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
             Timer running...{" "}
             {startTime &&
               formatHours(
-                (new Date().getTime() - startTime.getTime()) / (1000 * 60 * 60),
+                (Date.now() - startTime.getTime()) / (1000 * 60 * 60),
               )}
           </p>
         )}

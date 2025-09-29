@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { GripVertical, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -21,8 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, X, GripVertical } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 interface WorkflowStage {
   id: string;
@@ -85,7 +85,7 @@ export function WorkflowTemplateModal({
     } else {
       handleReset();
     }
-  }, [template]);
+  }, [template, handleReset]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,7 +167,7 @@ export function WorkflowTemplateModal({
     setFormData({ ...formData, stages: updatedStages });
   };
 
-  const moveStage = (fromIndex: number, toIndex: number) => {
+  const _moveStage = (fromIndex: number, toIndex: number) => {
     const newStages = [...formData.stages];
     const [movedStage] = newStages.splice(fromIndex, 1);
     newStages.splice(toIndex, 0, movedStage);
@@ -253,7 +253,7 @@ export function WorkflowTemplateModal({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    estimatedDays: parseInt(e.target.value) || 1,
+                    estimatedDays: parseInt(e.target.value, 10) || 1,
                   })
                 }
               />
@@ -314,7 +314,7 @@ export function WorkflowTemplateModal({
 
             {/* Existing Stages */}
             <div className="space-y-3">
-              {formData.stages.map((stage, index) => (
+              {formData.stages.map((stage, _index) => (
                 <Card key={stage.id}>
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">

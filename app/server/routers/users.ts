@@ -1,10 +1,10 @@
-import { router, protectedProcedure, adminProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { users, activityLogs } from "@/lib/db/schema";
-import { eq, and, or, ilike, desc } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { and, eq, ilike, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, users } from "@/lib/db/schema";
+import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertUserSchema = createInsertSchema(users);
@@ -30,7 +30,7 @@ export const usersRouter = router({
       const { search, role } = input;
 
       // Build conditions
-      let conditions = [eq(users.tenantId, tenantId)];
+      const conditions = [eq(users.tenantId, tenantId)];
 
       if (search) {
         conditions.push(

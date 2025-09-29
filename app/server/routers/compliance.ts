@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { compliance, activityLogs } from "@/lib/db/schema";
-import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, compliance } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertComplianceSchema = createInsertSchema(compliance, {
@@ -39,7 +39,7 @@ export const complianceRouter = router({
       const { search, type, status, clientId, assigneeId, overdue } = input;
 
       // Build conditions
-      let conditions = [eq(compliance.tenantId, tenantId)];
+      const conditions = [eq(compliance.tenantId, tenantId)];
 
       if (search) {
         conditions.push(
@@ -121,10 +121,14 @@ export const complianceRouter = router({
           clientId: input.clientId,
           assignedToId: input.assignedToId || userId,
           dueDate: new Date(input.dueDate),
-          reminderDate: input.reminderDate ? new Date(input.reminderDate) : null,
+          reminderDate: input.reminderDate
+            ? new Date(input.reminderDate)
+            : null,
           status: input.status || "pending",
           priority: input.priority || "medium",
-          completedDate: input.completedDate ? new Date(input.completedDate) : null,
+          completedDate: input.completedDate
+            ? new Date(input.completedDate)
+            : null,
           notes: input.notes,
           attachments: input.attachments,
           metadata: input.metadata,
@@ -253,12 +257,7 @@ export const complianceRouter = router({
     .input(
       z.object({
         id: z.string(),
-        status: z.enum([
-          "pending",
-          "in_progress",
-          "completed",
-          "overdue",
-        ]),
+        status: z.enum(["pending", "in_progress", "completed", "overdue"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {

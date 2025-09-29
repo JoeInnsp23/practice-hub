@@ -1,6 +1,21 @@
 "use client";
 
+import {
+  AlertCircle,
+  Bell,
+  Building,
+  Download,
+  FileText,
+  Globe,
+  Mail,
+  Save,
+  Settings,
+  Shield,
+  Upload,
+} from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,12 +23,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -21,20 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Settings,
-  Building,
-  Globe,
-  Shield,
-  Mail,
-  Bell,
-  Save,
-  Upload,
-  Download,
-  FileText,
-  AlertCircle,
-} from "lucide-react";
-import toast from "react-hot-toast";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({

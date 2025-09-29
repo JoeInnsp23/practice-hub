@@ -1,8 +1,8 @@
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
-import { users, tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { tenants, users } from "@/lib/db/schema";
 
 export function useTenant() {
   const { user } = useUser();

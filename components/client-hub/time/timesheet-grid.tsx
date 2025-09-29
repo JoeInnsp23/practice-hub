@@ -1,6 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { Clock, Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -9,18 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2, Copy, Clock } from "lucide-react";
-import { formatDate, formatHours } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
+import { formatDate, formatHours } from "@/lib/utils/format";
 
 interface TimeEntry {
   id: string;
@@ -77,7 +76,7 @@ export function TimesheetGrid({
   };
 
   // Group entries by date for weekly/monthly views
-  const groupedEntries = entries.reduce(
+  const _groupedEntries = entries.reduce(
     (acc, entry) => {
       const dateKey = formatDate(entry.date);
       if (!acc[dateKey]) {

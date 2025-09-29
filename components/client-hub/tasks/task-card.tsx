@@ -1,24 +1,22 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  AlertCircle,
+  Calendar,
+  Clock,
+  GitBranch,
+  MoreVertical,
+} from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Calendar,
-  Clock,
-  MoreVertical,
-  User,
-  AlertCircle,
-  CheckCircle,
-  GitBranch,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 

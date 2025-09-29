@@ -1,17 +1,13 @@
 "use client";
 
-import React from "react";
 import { useUser } from "@clerk/nextjs";
-import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
-import { AppCard } from "@/components/practice-hub/AppCard";
-import { TabsContent } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { ClientOnly } from "@/components/client-only";
-import { api } from "@/lib/trpc/client";
-import { Folder, ExternalLink } from "lucide-react";
-import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
-import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
+import { ClientOnly } from "@/components/client-only";
+import { AppCard } from "@/components/practice-hub/AppCard";
+import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TabsContent } from "@/components/ui/tabs";
+import { api } from "@/lib/trpc/client";
 
 interface PracticeHubClientProps {
   userRole?: string;
@@ -112,7 +110,7 @@ export function PracticeHubClient({
     }
   };
 
-  const handleToggleFavorite = async (linkId: string) => {
+  const _handleToggleFavorite = async (linkId: string) => {
     try {
       await toggleFavoriteMutation.mutateAsync({ linkId });
     } catch (error) {

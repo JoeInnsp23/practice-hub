@@ -64,7 +64,7 @@ class ApiClient {
 
         // Retry on server errors (5xx)
         if (response.status >= 500 && attempt < retry - 1) {
-          const delay = retryDelay * Math.pow(2, attempt); // Exponential backoff
+          const delay = retryDelay * 2 ** attempt; // Exponential backoff
           await this.sleep(delay);
           continue;
         }
@@ -83,7 +83,7 @@ class ApiClient {
         }
 
         // Exponential backoff with jitter
-        const delay = retryDelay * Math.pow(2, attempt) + Math.random() * 1000;
+        const delay = retryDelay * 2 ** attempt + Math.random() * 1000;
         await this.sleep(delay);
       }
     }
@@ -121,7 +121,7 @@ class ApiClient {
     }
 
     const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
+    if (contentType?.includes("application/json")) {
       return response.json();
     }
 
@@ -199,7 +199,10 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Remove content-type header for multipart/form-data
-    const headers = { ...this.defaultOptions.headers } as Record<string, string>;
+    const headers = { ...this.defaultOptions.headers } as Record<
+      string,
+      string
+    >;
     delete headers["Content-Type"];
 
     const xhr = new XMLHttpRequest();
@@ -210,7 +213,7 @@ class ApiClient {
         xhr.upload.addEventListener("progress", (e) => {
           if (e.lengthComputable) {
             const progress = (e.loaded / e.total) * 100;
-            options.onProgress!(progress);
+            options.onProgress?.(progress);
           }
         });
       }

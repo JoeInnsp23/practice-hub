@@ -1,20 +1,19 @@
 "use client";
 
-import { useSSE } from "@/lib/hooks/use-sse";
-import { useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
 import { Bell, X } from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { motion, AnimatePresence } from "framer-motion";
-import { formatDistanceToNow } from "date-fns";
+import { useSSE } from "@/lib/hooks/use-sse";
 
 interface Notification {
   id: string;

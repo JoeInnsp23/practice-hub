@@ -1,27 +1,27 @@
 "use client";
 
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  getDay,
+  isSameDay,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
-  startOfWeek,
-  endOfWeek,
-  addMonths,
-  getDay,
-} from "date-fns";
-import { TimeEntryModal } from "./time-entry-modal";
-import {
-  useTimeEntries,
   useCreateTimeEntry,
+  useTimeEntries,
 } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
-import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
+import { TimeEntryModal } from "./time-entry-modal";
 
 interface MonthlyTimesheetProps {
   initialDate?: Date;
@@ -207,7 +207,7 @@ export function MonthlyTimesheet({
 
           {/* Calendar Days */}
           <div className="grid grid-cols-7 gap-0 h-full">
-            {calendarDays.map((day, index) => {
+            {calendarDays.map((day, _index) => {
               const dayEntries = getEntriesForDay(day);
               const totalHours = getDayTotal(day);
               const isCurrentMonth = isSameMonth(day, currentDate);

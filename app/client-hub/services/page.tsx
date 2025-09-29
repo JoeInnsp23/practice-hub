@@ -1,11 +1,25 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  DollarSign,
+  Filter,
+  Grid,
+  List,
+  Package,
+  Plus,
+  Search,
+  Tag,
+  TrendingUp,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { ServiceCard } from "@/components/client-hub/services/service-card";
+import { ServiceModal } from "@/components/client-hub/services/service-modal";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -13,23 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ServiceCard } from "@/components/client-hub/services/service-card";
-import { ServiceModal } from "@/components/client-hub/services/service-modal";
-import {
-  Plus,
-  Search,
-  Filter,
-  Package,
-  DollarSign,
-  TrendingUp,
-  Tag,
-  Grid,
-  List,
-} from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
-import toast from "react-hot-toast";
-import { trpc } from "@/app/providers/trpc-provider";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { formatCurrency } from "@/lib/utils/format";
 
 type Service = {
   id: string;
@@ -103,7 +103,11 @@ export default function ServicesPage() {
 
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = [...new Set(services.map((s) => s.category).filter((c): c is string => c !== null))];
+    const cats = [
+      ...new Set(
+        services.map((s) => s.category).filter((c): c is string => c !== null),
+      ),
+    ];
     return cats.sort();
   }, [services]);
 
@@ -118,9 +122,10 @@ export default function ServicesPage() {
           service.description
             ?.toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          (Array.isArray(service.tags) && service.tags.some((tag: string) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase()),
-          )),
+          (Array.isArray(service.tags) &&
+            service.tags.some((tag: string) =>
+              tag.toLowerCase().includes(searchTerm.toLowerCase()),
+            )),
       );
     }
 
@@ -140,7 +145,8 @@ export default function ServicesPage() {
       (sum, s) => sum + (s.price ? parseFloat(s.price) : 0),
       0,
     );
-    const avgPrice = activeServices.length > 0 ? pricesSum / activeServices.length : 0;
+    const avgPrice =
+      activeServices.length > 0 ? pricesSum / activeServices.length : 0;
     const categoryCounts = services.reduce(
       (acc, s) => {
         const cat = s.category || "Uncategorized";
@@ -349,7 +355,9 @@ export default function ServicesPage() {
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-green-600" />
                           <span className="font-bold">
-                            {service.price ? formatCurrency(parseFloat(service.price)) : "N/A"}
+                            {service.price
+                              ? formatCurrency(parseFloat(service.price))
+                              : "N/A"}
                           </span>
                           <span className="text-sm text-muted-foreground">
                             /{" "}

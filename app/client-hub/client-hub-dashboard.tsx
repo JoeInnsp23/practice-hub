@@ -1,22 +1,20 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import { ActivityFeed } from "@/components/client-hub/dashboard/activity-feed";
-import { QuickActions } from "@/components/client-hub/dashboard/quick-actions";
 import {
-  Users,
+  Calendar,
   CheckSquare,
   Clock,
-  FileText,
-  TrendingUp,
-  Calendar,
   Receipt,
-  Target,
+  TrendingUp,
+  Users,
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
 import { trpc } from "@/app/providers/trpc-provider";
+import { ActivityFeed } from "@/components/client-hub/dashboard/activity-feed";
+import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
+import { QuickActions } from "@/components/client-hub/dashboard/quick-actions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface ClientHubDashboardProps {
   userName?: string;

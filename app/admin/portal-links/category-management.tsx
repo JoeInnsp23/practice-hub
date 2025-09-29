@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { api } from "@/lib/trpc/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowDown, ArrowUp, Edit, Loader2, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as z from "zod";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -30,22 +27,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
-  Plus,
-  Edit,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  Loader2,
-  Palette,
-} from "lucide-react";
-import toast from "react-hot-toast";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/lib/trpc/client";
 import { IconPicker } from "./icon-picker";
 import { getIconComponent } from "./icon-utils";
 
@@ -128,7 +120,7 @@ export function CategoryManagement() {
       }
       setIsModalOpen(false);
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save category");
     }
   };
@@ -142,7 +134,7 @@ export function CategoryManagement() {
       setDeleteDialogOpen(false);
       setCategoryToDelete(null);
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete category");
     }
   };
@@ -170,7 +162,7 @@ export function CategoryManagement() {
       await reorderMutation.mutateAsync({ categories: updates });
       refetch();
       toast.success("Categories reordered");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to reorder categories");
     }
   };
@@ -410,7 +402,7 @@ export function CategoryManagement() {
                           min="0"
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
+                            field.onChange(parseInt(e.target.value, 10))
                           }
                         />
                       </FormControl>

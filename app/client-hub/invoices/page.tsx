@@ -1,16 +1,28 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertCircle,
+  Clock,
+  DollarSign,
+  FileText,
+  Filter,
+  Plus,
+  Search,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { InvoiceForm } from "@/components/client-hub/invoices/invoice-form";
+import { InvoiceList } from "@/components/client-hub/invoices/invoice-list";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,21 +30,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { InvoiceList } from "@/components/client-hub/invoices/invoice-list";
-import { InvoiceForm } from "@/components/client-hub/invoices/invoice-form";
-import {
-  Plus,
-  Search,
-  Filter,
-  FileText,
-  DollarSign,
-  Clock,
-  AlertCircle,
-} from "lucide-react";
-import { formatCurrency } from "@/lib/utils/format";
-import toast from "react-hot-toast";
-import { trpc } from "@/app/providers/trpc-provider";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { formatCurrency } from "@/lib/utils/format";
 
 type Invoice = {
   id: string;
@@ -48,7 +47,14 @@ type Invoice = {
   discount: string | null;
   total: string;
   amountPaid: string | null;
-  status: "draft" | "sent" | "viewed" | "partial" | "paid" | "overdue" | "cancelled";
+  status:
+    | "draft"
+    | "sent"
+    | "viewed"
+    | "partial"
+    | "paid"
+    | "overdue"
+    | "cancelled";
   currency: string | null;
   notes: string | null;
   terms: string | null;
@@ -183,7 +189,9 @@ export default function InvoicesPage() {
       invoiceNumber: `${invoice.invoiceNumber}-COPY`,
       clientId: invoice.clientId,
       issueDate: new Date().toISOString().split("T")[0],
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
       subtotal: invoice.subtotal,
       taxRate: invoice.taxRate,
       taxAmount: invoice.taxAmount,

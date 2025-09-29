@@ -1,9 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock, DollarSign, Edit, Tag, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Clock, DollarSign, Tag } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils/format";
 
 interface Service {
@@ -41,7 +41,6 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         return "per project";
       case "percentage":
         return "percentage";
-      case "fixed":
       default:
         return "fixed price";
     }
@@ -88,7 +87,9 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
             <span className="text-2xl font-bold">
-              {service.price ? formatCurrency(parseFloat(service.price)) : "N/A"}
+              {service.price
+                ? formatCurrency(parseFloat(service.price))
+                : "N/A"}
             </span>
             <span className="text-sm text-muted-foreground">
               / {getPriceLabel()}

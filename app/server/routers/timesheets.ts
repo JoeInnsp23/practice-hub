@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { timeEntries, activityLogs } from "@/lib/db/schema";
-import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, timeEntries } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertTimeEntrySchema = createInsertSchema(timeEntries, {
@@ -36,7 +36,7 @@ export const timesheetsRouter = router({
       const { startDate, endDate, userId, clientId, billable } = input;
 
       // Build conditions
-      let conditions = [eq(timeEntries.tenantId, tenantId)];
+      const conditions = [eq(timeEntries.tenantId, tenantId)];
 
       if (startDate) {
         conditions.push(gte(timeEntries.date, startDate));

@@ -1,11 +1,11 @@
 "use client";
 
+import { AlertCircle, Home, RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw, Home } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;

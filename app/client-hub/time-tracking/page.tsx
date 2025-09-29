@@ -1,11 +1,11 @@
 "use client";
 
+import { Calendar, Clock } from "lucide-react";
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HourlyTimesheet } from "@/components/client-hub/time/hourly-timesheet";
 import { MonthlyTimesheet } from "@/components/client-hub/time/monthly-timesheet";
-import { Calendar, Clock } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TimeTrackingPage() {
   const [view, setView] = useState<"daily" | "weekly" | "monthly">("weekly");

@@ -1,9 +1,9 @@
 "use client";
 
+import { FolderOpen, Globe, Link } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CategoryManagement } from "./category-management";
 import { LinkManagement } from "./link-management";
-import { Globe, FolderOpen, Link } from "lucide-react";
 
 export function PortalLinksClient() {
   return (

@@ -1,8 +1,8 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavigationItem {
@@ -65,7 +65,7 @@ export function GlobalSidebar({
         </div>
 
         {/* Additional Sections */}
-        {sections?.map((section, index) => (
+        {sections?.map((section, _index) => (
           <div key={section.title}>
             <div className="my-4 h-px bg-border" />
             <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">

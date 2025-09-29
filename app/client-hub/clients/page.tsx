@@ -1,9 +1,26 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import {
+  Plus,
+  Search,
+  Upload,
+  UserCheck,
+  UserPlus,
+  Users,
+  UserX,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
+import { ClientsTable } from "@/components/client-hub/clients/clients-table";
+import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
+// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
+import { DataImportModal } from "@/components/client-hub/data-import-modal";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -12,24 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClientsTable } from "@/components/client-hub/clients/clients-table";
-import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
-import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import {
-  Users,
-  UserCheck,
-  UserX,
-  UserPlus,
-  Plus,
-  Search,
-  X,
-  Upload,
-} from "lucide-react";
 import { useDebounce } from "@/lib/hooks/use-debounce";
-import toast from "react-hot-toast";
-// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
-import { DataImportModal } from "@/components/client-hub/data-import-modal";
-import { trpc } from "@/app/providers/trpc-provider";
 
 export default function ClientsPage() {
   const router = useRouter();

@@ -1,30 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import {
-  Users,
-  Shield,
   Activity,
-  Mail,
-  Search,
-  UserPlus,
-  MoreVertical,
   Edit,
+  Mail,
+  MoreVertical,
+  Search,
+  Shield,
   Trash2,
   UserCheck,
+  UserPlus,
+  Users,
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -40,10 +33,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { InviteUserDialog } from "./invite-user-dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { EditUserDialog } from "./edit-user-dialog";
-import toast from "react-hot-toast";
-import { trpc } from "@/app/providers/trpc-provider";
+import { InviteUserDialog } from "./invite-user-dialog";
 
 interface User {
   id: string;
@@ -95,9 +95,15 @@ export function UserManagementClient({
     return {
       total: users.length,
       active: users.filter((u: any) => u.isActive).length,
-      admins: users.filter((u: any) => u.role === "admin" || u.role === "org:admin").length,
-      accountants: users.filter((u: any) => u.role === "accountant" || u.role === "org:accountant").length,
-      members: users.filter((u: any) => u.role === "member" || u.role === "org:member").length,
+      admins: users.filter(
+        (u: any) => u.role === "admin" || u.role === "org:admin",
+      ).length,
+      accountants: users.filter(
+        (u: any) => u.role === "accountant" || u.role === "org:accountant",
+      ).length,
+      members: users.filter(
+        (u: any) => u.role === "member" || u.role === "org:member",
+      ).length,
     };
   }, [users]);
 
@@ -141,7 +147,7 @@ export function UserManagementClient({
     deleteMutation.mutate(userId);
   };
 
-  const handleUserUpdated = (updatedUser: User) => {
+  const handleUserUpdated = (_updatedUser: User) => {
     // Invalidate users list to refetch updated data
     utils.users.list.invalidate();
   };
@@ -275,84 +281,85 @@ export function UserManagementClient({
         <CardContent>
           <div className="glass-table">
             <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.map((user: any) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-medium">
-                        {user.firstName?.[0]?.toUpperCase() ||
-                          user.email[0].toUpperCase()}
-                        {user.lastName?.[0]?.toUpperCase() || ""}
-                      </div>
-                      <div>
-                        <div className="font-medium">
-                          {user.firstName} {user.lastName}
-                        </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          {user.email}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getRoleBadgeVariant(user.role)}>
-                      {(user.role === "admin" || user.role === "org:admin") && (
-                        <Shield className="h-3 w-3 mr-1" />
-                      )}
-                      {getDisplayRole(user.role)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadgeVariant(user.isActive)}>
-                      {user.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => setEditingUser(user)}
-                          disabled={user.clerkId === currentUserId}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit User
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteUser(user.id)}
-                          disabled={user.clerkId === currentUserId}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Remove User
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="w-[70px]"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user: any) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-medium">
+                          {user.firstName?.[0]?.toUpperCase() ||
+                            user.email[0].toUpperCase()}
+                          {user.lastName?.[0]?.toUpperCase() || ""}
+                        </div>
+                        <div>
+                          <div className="font-medium">
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getRoleBadgeVariant(user.role)}>
+                        {(user.role === "admin" ||
+                          user.role === "org:admin") && (
+                          <Shield className="h-3 w-3 mr-1" />
+                        )}
+                        {getDisplayRole(user.role)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadgeVariant(user.isActive)}>
+                        {user.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setEditingUser(user)}
+                            disabled={user.clerkId === currentUserId}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit User
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteUser(user.id)}
+                            disabled={user.clerkId === currentUserId}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Remove User
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
           {filteredUsers.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">

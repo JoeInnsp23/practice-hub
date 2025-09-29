@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { CheckCircle, File, Upload, X } from "lucide-react";
+import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -19,10 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Upload, File, X, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import toast from "react-hot-toast";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -76,7 +76,7 @@ export function UploadModal({
   const formatFileSize = (bytes: number) => {
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+    return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
   };
 
   const handleUpload = async () => {
@@ -124,7 +124,7 @@ export function UploadModal({
         setUploadProgress(0);
         onClose();
       }, 500);
-    } catch (error) {
+    } catch (_error) {
       setIsUploading(false);
       setUploadProgress(0);
       toast.error("Failed to upload files");

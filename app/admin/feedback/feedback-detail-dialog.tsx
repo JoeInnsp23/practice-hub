@@ -1,6 +1,17 @@
 "use client";
 
+import {
+  Bug,
+  FileText,
+  Globe,
+  Lightbulb,
+  MessageSquare,
+  Terminal,
+  User,
+} from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -9,8 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,25 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Bug,
-  Lightbulb,
-  MessageSquare,
-  User,
-  Calendar,
-  Globe,
-  Terminal,
-  FileText,
-} from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Feedback {
   id: string;

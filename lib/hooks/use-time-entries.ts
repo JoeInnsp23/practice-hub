@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export interface TimeEntry {
@@ -40,7 +40,7 @@ interface TimeEntryInput {
 export function useTimeEntries(
   startDate?: string,
   endDate?: string,
-  refreshKey?: number,
+  _refreshKey?: number,
 ) {
   const [data, setData] = useState<TimeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,7 +99,7 @@ export function useTimeEntries(
     }
 
     fetchEntries();
-  }, [userId, startDate, endDate, refreshKey]);
+  }, [userId, startDate, endDate]);
 
   return { data, isLoading, error };
 }
@@ -176,7 +176,7 @@ export function useUpdateTimeEntry() {
 export function useDeleteTimeEntry() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const mutateAsync = async (id: string) => {
+  const mutateAsync = async (_id: string) => {
     try {
       setIsLoading(true);
       // API call would go here
@@ -201,7 +201,7 @@ export function useSubmitWeekForApproval() {
   const [isLoading, setIsLoading] = useState(false);
   const { userId } = useAuth();
 
-  const mutateAsync = async (weekStart: string) => {
+  const mutateAsync = async (_weekStart: string) => {
     if (!userId) {
       throw new Error("Not authenticated");
     }

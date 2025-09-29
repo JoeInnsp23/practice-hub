@@ -1,17 +1,17 @@
 import {
+  boolean,
+  date,
+  decimal,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
   pgTable,
-  uuid,
   text,
   timestamp,
-  boolean,
-  varchar,
-  index,
   uniqueIndex,
-  jsonb,
-  integer,
-  decimal,
-  date,
-  pgEnum,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 // Tenants table - for multi-tenancy

@@ -1,14 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { format } from "date-fns";
+import { CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,9 +15,22 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -31,21 +39,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
+import { getWorkTypeByCode, WORK_TYPES } from "@/lib/constants/work-types";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import toast from "react-hot-toast";
-import { WORK_TYPES, getWorkTypeByCode } from "@/lib/constants/work-types";
-import {
-  useUpdateTimeEntry,
   useDeleteTimeEntry,
+  useUpdateTimeEntry,
 } from "@/lib/hooks/use-time-entries";
+import { cn } from "@/lib/utils";
 
 interface TimeEntryModalProps {
   isOpen: boolean;
@@ -128,7 +128,13 @@ export function TimeEntryModal({
         fullDescription: selectedEntry?.fullDescription || "",
       });
     }
-  }, [isOpen, selectedDate, selectedEntry, selectedHour]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    isOpen,
+    selectedDate,
+    selectedEntry,
+    getDefaultEndTime,
+    getDefaultStartTime,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filter tasks based on selected client
   const availableTasks =

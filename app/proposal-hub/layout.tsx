@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Users, FileText, UserPlus } from "lucide-react";
+import { FileText, Home, UserPlus, Users } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 

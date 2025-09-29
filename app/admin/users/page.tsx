@@ -1,7 +1,7 @@
+import { eq } from "drizzle-orm";
 import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { users, tenants } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { users } from "@/lib/db/schema";
 import { UserManagementClient } from "./user-management-client";
 
 export default async function UserManagementPage() {

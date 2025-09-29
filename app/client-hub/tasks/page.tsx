@@ -1,8 +1,34 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertTriangle,
+  Calendar,
+  CheckSquare,
+  Clock,
+  LayoutGrid,
+  List,
+  Maximize2,
+  Plus,
+  Search,
+  Upload,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
+// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
+import { DataImportModal } from "@/components/client-hub/data-import-modal";
+import { TaskBoard } from "@/components/client-hub/tasks/task-board";
+import { TaskList } from "@/components/client-hub/tasks/task-list";
+import { TaskModal } from "@/components/client-hub/tasks/task-modal";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,34 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TaskBoard } from "@/components/client-hub/tasks/task-board";
-import { TaskList } from "@/components/client-hub/tasks/task-list";
-import { TaskModal } from "@/components/client-hub/tasks/task-modal";
-import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import {
-  CheckSquare,
-  Clock,
-  Calendar,
-  AlertTriangle,
-  Plus,
-  Search,
-  LayoutGrid,
-  List,
-  Upload,
-  Maximize2,
-} from "lucide-react";
-import toast from "react-hot-toast";
 import { useDebounce } from "@/lib/hooks/use-debounce";
-// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
-import { DataImportModal } from "@/components/client-hub/data-import-modal";
-import { trpc } from "@/app/providers/trpc-provider";
 
 export default function TasksPage() {
   const utils = trpc.useUtils();

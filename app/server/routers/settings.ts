@@ -1,10 +1,10 @@
-import { router, protectedProcedure, adminProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { tenants, activityLogs } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, tenants } from "@/lib/db/schema";
+import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertTenantSchema = createInsertSchema(tenants);

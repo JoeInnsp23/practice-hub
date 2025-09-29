@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { services, activityLogs } from "@/lib/db/schema";
-import { eq, and, or, ilike, desc } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq, ilike, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, services } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertServiceSchema = createInsertSchema(services);
@@ -31,7 +31,7 @@ export const servicesRouter = router({
       const { search, category, isActive } = input;
 
       // Build conditions
-      let conditions = [eq(services.tenantId, tenantId)];
+      const conditions = [eq(services.tenantId, tenantId)];
 
       if (search) {
         conditions.push(
@@ -194,7 +194,7 @@ export const servicesRouter = router({
       }
 
       // Soft delete by marking as inactive
-      const [updatedService] = await db
+      const [_updatedService] = await db
         .update(services)
         .set({
           isActive: false,

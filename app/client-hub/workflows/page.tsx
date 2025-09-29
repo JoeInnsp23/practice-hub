@@ -1,13 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  Activity,
+  Copy,
+  Edit,
+  FileText,
+  GitBranch,
+  Layers,
+  MoreVertical,
+  Plus,
+  ToggleLeft,
+  ToggleRight,
+  Trash2,
+} from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { WorkflowTemplateModal } from "@/components/client-hub/workflows/workflow-template-modal";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,23 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
-import {
-  GitBranch,
-  Plus,
-  Settings,
-  FileText,
-  Package,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Copy,
-  ToggleLeft,
-  ToggleRight,
-  Layers,
-  Activity,
-} from "lucide-react";
-import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 export default function WorkflowsPage() {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
@@ -56,7 +53,7 @@ export default function WorkflowsPage() {
       });
       toast.success(isActive ? "Template deactivated" : "Template activated");
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to toggle template status");
     }
   };
@@ -71,7 +68,7 @@ export default function WorkflowsPage() {
         await deleteWorkflowMutation.mutateAsync(templateId);
         toast.success("Template deleted successfully");
         refetch();
-      } catch (error) {
+      } catch (_error) {
         toast.error("Failed to delete template");
       }
     }
@@ -93,7 +90,7 @@ export default function WorkflowsPage() {
         });
         toast.success("Template duplicated successfully");
         refetch();
-      } catch (error) {
+      } catch (_error) {
         toast.error("Failed to duplicate template");
       }
     }
@@ -139,7 +136,7 @@ export default function WorkflowsPage() {
       setIsTemplateModalOpen(false);
       setEditingTemplate(null);
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save template");
     }
   };

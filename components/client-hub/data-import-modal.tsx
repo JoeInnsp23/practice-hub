@@ -1,6 +1,18 @@
 "use client";
 
+import {
+  AlertCircle,
+  CheckCircle,
+  Download,
+  FileSpreadsheet,
+  Upload,
+  XCircle,
+} from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -9,21 +21,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import {
-  Upload,
-  FileSpreadsheet,
-  Download,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
-import toast from "react-hot-toast";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -144,7 +144,7 @@ export function DataImportModal({
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to download template");
     }
   };

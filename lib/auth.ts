@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { users, tenants } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { tenants, users } from "@/lib/db/schema";
 
 export interface AuthContext {
   userId: string;
@@ -52,11 +52,11 @@ export async function getAuthContext(): Promise<AuthContext | null> {
 
           // Use Clerk organization data if available, otherwise use defaults
           const orgName =
-            (clerkUser as any).organizationMemberships?.[0]?.organization?.name ||
-            "Default Organization";
+            (clerkUser as any).organizationMemberships?.[0]?.organization
+              ?.name || "Default Organization";
           const orgSlug =
-            (clerkUser as any).organizationMemberships?.[0]?.organization?.slug ||
-            "default";
+            (clerkUser as any).organizationMemberships?.[0]?.organization
+              ?.slug || "default";
 
           defaultTenant = await db
             .insert(tenants)
@@ -109,7 +109,8 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       return null;
     }
 
-    const { tenantId, role, email, firstName, lastName, tenantName } = userRecord[0];
+    const { tenantId, role, email, firstName, lastName, tenantName } =
+      userRecord[0];
 
     return {
       userId: clerkUser.id,

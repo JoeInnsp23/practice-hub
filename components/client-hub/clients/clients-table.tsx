@@ -1,14 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Clock,
+  Edit,
+  Eye,
+  FileText,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,15 +20,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Trash2,
-  FileText,
-  Clock,
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatDate } from "@/lib/utils/format";
-import { cn } from "@/lib/utils";
 
 interface Client {
   id: string;

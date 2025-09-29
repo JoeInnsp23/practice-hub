@@ -1,24 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { format, startOfWeek, addDays, isSameDay } from "date-fns";
-import { TimeEntryModal } from "./time-entry-modal";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 import {
-  useTimeEntries,
   useCreateTimeEntry,
+  useTimeEntries,
 } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
-import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
+import { TimeEntryModal } from "./time-entry-modal";
 
 interface HourlyTimesheetProps {
   initialWeekStart?: Date;

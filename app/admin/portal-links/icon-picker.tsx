@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { ChevronDown, ChevronUp, FileText, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, ChevronUp, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllIconNames,
   getCommonIconNames,
-  searchIcons,
   getIconComponent,
+  searchIcons,
 } from "./icon-index";
 
 interface IconPickerProps {
@@ -105,12 +106,12 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               <span>
                 {search ? (
                   search !== debouncedSearch ? (
-                    <>Searching...</>
+                    "Searching..."
                   ) : (
                     <>Found {filteredIcons.length} icons</>
                   )
                 ) : (
-                  <>Showing popular icons</>
+                  "Showing popular icons"
                 )}
               </span>
               <span>{allIconNames.length} total available</span>

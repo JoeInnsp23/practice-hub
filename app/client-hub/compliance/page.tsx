@@ -1,10 +1,24 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertCircle,
+  Calendar,
+  Clock,
+  Filter,
+  List,
+  Plus,
+  Search,
+  TrendingUp,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { ComplianceCalendar } from "@/components/client-hub/compliance/compliance-calendar";
+import type { ComplianceItem } from "@/components/client-hub/compliance/compliance-list";
+import { ComplianceList } from "@/components/client-hub/compliance/compliance-list";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -12,22 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ComplianceCalendar } from "@/components/client-hub/compliance/compliance-calendar";
-import { ComplianceList } from "@/components/client-hub/compliance/compliance-list";
-import type { ComplianceItem } from "@/components/client-hub/compliance/compliance-list";
-import {
-  Plus,
-  Search,
-  Filter,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  Calendar,
-  List,
-  TrendingUp,
-} from "lucide-react";
-import toast from "react-hot-toast";
-import { trpc } from "@/app/providers/trpc-provider";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 
 export default function CompliancePage() {
@@ -51,7 +50,9 @@ export default function CompliancePage() {
 
   // Get unique types
   const types = useMemo(() => {
-    const uniqueTypes = [...new Set(items.map((item: ComplianceItem) => item.type))];
+    const uniqueTypes = [
+      ...new Set(items.map((item: ComplianceItem) => item.type)),
+    ];
     return uniqueTypes.sort();
   }, [items]);
 
@@ -68,11 +69,15 @@ export default function CompliancePage() {
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((item: ComplianceItem) => item.status === statusFilter);
+      filtered = filtered.filter(
+        (item: ComplianceItem) => item.status === statusFilter,
+      );
     }
 
     if (typeFilter !== "all") {
-      filtered = filtered.filter((item: ComplianceItem) => item.type === typeFilter);
+      filtered = filtered.filter(
+        (item: ComplianceItem) => item.type === typeFilter,
+      );
     }
 
     return filtered.sort((a: ComplianceItem, b: ComplianceItem) => {
@@ -85,12 +90,10 @@ export default function CompliancePage() {
   // Calculate stats
   const stats = useMemo(() => {
     const now = new Date();
-    const overdue = items.filter(
-      (item: ComplianceItem) => {
-        const itemDate = new Date(item.dueDate);
-        return item.status !== "completed" && itemDate < now;
-      },
-    );
+    const overdue = items.filter((item: ComplianceItem) => {
+      const itemDate = new Date(item.dueDate);
+      return item.status !== "completed" && itemDate < now;
+    });
 
     const upcoming = items.filter((item: ComplianceItem) => {
       if (item.status === "completed") return false;
@@ -101,24 +104,24 @@ export default function CompliancePage() {
       return daysUntil >= 0 && daysUntil <= 7;
     });
 
-    const inProgress = items.filter((item: ComplianceItem) => item.status === "in_progress");
-    const completed = items.filter((item: ComplianceItem) => item.status === "completed");
+    const inProgress = items.filter(
+      (item: ComplianceItem) => item.status === "in_progress",
+    );
+    const completed = items.filter(
+      (item: ComplianceItem) => item.status === "completed",
+    );
 
     // Calculate completion rate for last 30 days
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const recentCompleted = completed.filter(
-      (item: ComplianceItem) => {
-        if (!item.completedDate) return false;
-        const completedDate = new Date(item.completedDate);
-        return completedDate >= thirtyDaysAgo;
-      },
-    );
-    const recentDue = items.filter(
-      (item: ComplianceItem) => {
-        const dueDate = new Date(item.dueDate);
-        return dueDate >= thirtyDaysAgo && dueDate <= now;
-      },
-    );
+    const recentCompleted = completed.filter((item: ComplianceItem) => {
+      if (!item.completedDate) return false;
+      const completedDate = new Date(item.completedDate);
+      return completedDate >= thirtyDaysAgo;
+    });
+    const recentDue = items.filter((item: ComplianceItem) => {
+      const dueDate = new Date(item.dueDate);
+      return dueDate >= thirtyDaysAgo && dueDate <= now;
+    });
     const completionRate =
       recentDue.length > 0
         ? Math.round((recentCompleted.length / recentDue.length) * 100)

@@ -1,5 +1,8 @@
 "use client";
 
+import { AlertCircle, CalendarIcon, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -9,10 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WizardFormData } from "../client-wizard-modal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarIcon, Clock, AlertCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface ServiceConfigurationStepProps {
   formData: WizardFormData;

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TaskCard } from "./task-card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { TaskCard } from "./task-card";
 
 interface Task {
   id: string;

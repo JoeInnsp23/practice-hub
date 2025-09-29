@@ -1,7 +1,7 @@
 "use client";
 
+import { TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/format";
 
 interface RevenueData {

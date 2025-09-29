@@ -1,8 +1,8 @@
-import { router, protectedProcedure } from "../trpc";
-import { db } from "@/lib/db";
+import { TRPCError } from "@trpc/server";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
+import { db } from "@/lib/db";
+import { protectedProcedure, router } from "../trpc";
 
 export const dashboardRouter = router({
   kpis: protectedProcedure.query(async ({ ctx }) => {

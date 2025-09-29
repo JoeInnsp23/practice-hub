@@ -1,19 +1,17 @@
 "use client";
 
 import {
-  LayoutDashboard,
-  Users,
-  CheckSquare,
-  FolderOpen,
-  Clock,
-  Timer,
-  FileText,
-  DollarSign,
-  Package,
-  Shield,
   BarChart3,
-  Settings,
+  CheckSquare,
+  Clock,
+  DollarSign,
+  FolderOpen,
   GitBranch,
+  LayoutDashboard,
+  Package,
+  Settings,
+  Shield,
+  Users,
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";

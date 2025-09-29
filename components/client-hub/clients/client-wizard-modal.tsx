@@ -1,27 +1,26 @@
 "use client";
 
+import { AlertCircle, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Check, AlertCircle } from "lucide-react";
 
 // Import step components
 import { BasicInfoStep } from "./wizard/basic-info-step";
-import { ServiceSelectionStep } from "./wizard/service-selection-step";
-import { ServiceConfigurationStep } from "./wizard/service-configuration-step";
+import { ContactInfoStep } from "./wizard/contact-info-step";
+import { DirectorsShareholdersStep } from "./wizard/directors-shareholders-step";
 import { PricingConfigurationStep } from "./wizard/pricing-configuration-step";
 import { RegistrationDetailsStep } from "./wizard/registration-details-step";
-import { DirectorsShareholdersStep } from "./wizard/directors-shareholders-step";
-import { ContactInfoStep } from "./wizard/contact-info-step";
 import { ReviewStep } from "./wizard/review-step";
+import { ServiceConfigurationStep } from "./wizard/service-configuration-step";
+import { ServiceSelectionStep } from "./wizard/service-selection-step";
 
 interface ClientWizardModalProps {
   isOpen: boolean;

@@ -1,8 +1,20 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Activity,
+  BarChart3,
+  Clock,
+  DollarSign,
+  Download,
+  Target,
+  Users,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { ClientBreakdown } from "@/components/client-hub/reports/client-breakdown";
+import { RevenueChart } from "@/components/client-hub/reports/revenue-chart";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -11,19 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RevenueChart } from "@/components/client-hub/reports/revenue-chart";
-import { ClientBreakdown } from "@/components/client-hub/reports/client-breakdown";
-import {
-  Download,
-  Users,
-  Clock,
-  DollarSign,
-  BarChart3,
-  Activity,
-  Target,
-} from "lucide-react";
 import { formatCurrency, formatHours } from "@/lib/utils/format";
-import toast from "react-hot-toast";
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState("this_year");

@@ -1,7 +1,7 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, Grid3x3, Link } from "lucide-react";
+import { Grid3x3, Link, Star } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 interface NavigationTabsProps {

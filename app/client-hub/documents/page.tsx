@@ -1,9 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  ChevronRight,
+  FolderPlus,
+  Grid,
+  Home,
+  List,
+  Search,
+  Upload,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { DocumentGrid } from "@/components/client-hub/documents/document-grid";
+import { UploadModal } from "@/components/client-hub/documents/upload-modal";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,19 +21,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DocumentGrid } from "@/components/client-hub/documents/document-grid";
-import { UploadModal } from "@/components/client-hub/documents/upload-modal";
-import {
-  Upload,
-  FolderPlus,
-  Search,
-  Grid,
-  List,
-  Home,
-  ChevronRight,
-} from "lucide-react";
-import toast from "react-hot-toast";
 
 interface Document {
   id: string;
@@ -106,7 +106,7 @@ export default function DocumentsPage() {
   const formatFileSize = (bytes: number) => {
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+    return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
   };
 
   const handleNavigate = (folderId: string | null) => {

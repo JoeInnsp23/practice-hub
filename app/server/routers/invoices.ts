@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { invoices, invoiceItems, activityLogs } from "@/lib/db/schema";
-import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, invoiceItems, invoices } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
 
 // Generate schemas from Drizzle table definitions
 const insertInvoiceItemSchema = createInsertSchema(invoiceItems);
@@ -22,15 +22,17 @@ const invoiceItemSchema = insertInvoiceItemSchema.omit({
 });
 
 // Schema for create/update operations (omit auto-generated fields)
-const invoiceSchema = insertInvoiceSchema.omit({
-  id: true,
-  tenantId: true,
-  createdAt: true,
-  updatedAt: true,
-  createdById: true,
-}).extend({
-  items: z.array(invoiceItemSchema).optional(),
-});
+const invoiceSchema = insertInvoiceSchema
+  .omit({
+    id: true,
+    tenantId: true,
+    createdAt: true,
+    updatedAt: true,
+    createdById: true,
+  })
+  .extend({
+    items: z.array(invoiceItemSchema).optional(),
+  });
 
 export const invoicesRouter = router({
   list: protectedProcedure
@@ -47,7 +49,7 @@ export const invoicesRouter = router({
       const { search, status, clientId, overdue } = input;
 
       // Build base query
-      let conditions = [eq(invoices.tenantId, tenantId)];
+      const conditions = [eq(invoices.tenantId, tenantId)];
 
       if (search) {
         conditions.push(or(ilike(invoices.invoiceNumber, `%${search}%`))!);
@@ -227,13 +229,7 @@ export const invoicesRouter = router({
     .input(
       z.object({
         id: z.string(),
-        status: z.enum([
-          "draft",
-          "sent",
-          "paid",
-          "overdue",
-          "cancelled",
-        ]),
+        status: z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {

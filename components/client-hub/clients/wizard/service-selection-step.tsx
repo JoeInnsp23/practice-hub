@@ -1,17 +1,17 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { WizardFormData } from "../client-wizard-modal";
-import { Badge } from "@/components/ui/badge";
 import {
-  DollarSign,
-  FileText,
-  Calculator,
   Briefcase,
   Building2,
+  Calculator,
+  DollarSign,
+  FileText,
   Users,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface ServiceSelectionStepProps {
   formData: WizardFormData;

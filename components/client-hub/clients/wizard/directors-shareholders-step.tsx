@@ -1,12 +1,12 @@
 "use client";
 
+import { Briefcase, Plus, Trash2, Users } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { WizardFormData } from "../client-wizard-modal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Users, Briefcase } from "lucide-react";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface DirectorsShareholdersStepProps {
   formData: WizardFormData;

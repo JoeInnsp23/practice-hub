@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Users, Clock, BarChart3 } from "lucide-react";
+import { BarChart3, Clock, Plus, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
 import { TaskModal } from "@/components/client-hub/tasks/task-modal";
 import { TimeEntryModal } from "@/components/client-hub/time/time-entry-modal";
-import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface QuickActionsProps {
   className?: string;
@@ -20,17 +20,17 @@ export function QuickActions({ className }: QuickActionsProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isTimeEntryModalOpen, setIsTimeEntryModalOpen] = useState(false);
 
-  const handleSaveClient = (clientData: any) => {
+  const handleSaveClient = (_clientData: any) => {
     toast.success("Client added successfully");
     setIsClientModalOpen(false);
   };
 
-  const handleSaveTask = (taskData: any) => {
+  const handleSaveTask = (_taskData: any) => {
     toast.success("Task created successfully");
     setIsTaskModalOpen(false);
   };
 
-  const handleSaveTimeEntry = (timeData: any) => {
+  const handleSaveTimeEntry = (_timeData: any) => {
     toast.success("Time entry logged successfully");
     setIsTimeEntryModalOpen(false);
   };

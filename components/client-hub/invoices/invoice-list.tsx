@@ -1,13 +1,14 @@
 "use client";
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Copy,
+  Download,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,16 +18,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  MoreHorizontal,
-  Eye,
-  Edit,
-  Copy,
-  Send,
-  Download,
-  Trash2,
-} from "lucide-react";
-import { formatDate, formatCurrency } from "@/lib/utils/format";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils/format";
 
 interface Invoice {
   id: string;
@@ -42,7 +42,14 @@ interface Invoice {
   discount: string | null;
   total: string;
   amountPaid: string | null;
-  status: "draft" | "sent" | "viewed" | "partial" | "paid" | "overdue" | "cancelled";
+  status:
+    | "draft"
+    | "sent"
+    | "viewed"
+    | "partial"
+    | "paid"
+    | "overdue"
+    | "cancelled";
   currency: string | null;
   notes: string | null;
   terms: string | null;
@@ -77,7 +84,10 @@ export function InvoiceList({
       draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
       sent: { label: "Sent", className: "bg-primary/10 text-primary" },
       viewed: { label: "Viewed", className: "bg-blue-600/10 text-blue-600" },
-      partial: { label: "Partial", className: "bg-yellow-600/10 text-yellow-600" },
+      partial: {
+        label: "Partial",
+        className: "bg-yellow-600/10 text-yellow-600",
+      },
       paid: {
         label: "Paid",
         className:

@@ -1,40 +1,38 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { WorkflowAssignmentModal } from "@/components/client-hub/workflows/workflow-assignment-modal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 import {
-  ChevronLeft,
-  ChevronDown,
-  ChevronRight,
+  AlertCircle,
+  AlertTriangle,
   Calendar,
+  CheckCheck,
+  CheckCircle,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Clock,
+  Edit,
+  FileText,
+  Loader2,
+  Play,
+  Plus,
+  Timer,
   User,
   Users,
-  AlertTriangle,
-  CheckCircle,
-  AlertCircle,
-  Play,
-  CheckCheck,
-  Edit,
-  Archive,
-  Trash2,
-  Plus,
-  FileText,
-  Timer,
-  Loader2,
 } from "lucide-react";
-import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { cn } from "@/lib/utils";
 import { trpc } from "@/app/providers/trpc-provider";
+import { WorkflowAssignmentModal } from "@/components/client-hub/workflows/workflow-assignment-modal";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 interface TaskDetailsProps {
   taskId: string;
@@ -100,7 +98,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
       });
       toast.success("Checklist item updated");
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update checklist item");
     }
   };
@@ -114,7 +112,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
       });
       toast.success(`Task status updated to ${newStatus.replace("_", " ")}`);
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update task status");
     }
   };

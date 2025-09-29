@@ -1,12 +1,12 @@
 "use client";
 
 import {
+  Activity,
   LayoutDashboard,
-  Users,
   MessageSquare,
   Settings,
   Shield,
-  Activity,
+  Users,
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";

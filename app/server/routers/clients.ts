@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
-import { db } from "@/lib/db";
-import { clients, clientContacts, activityLogs } from "@/lib/db/schema";
-import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { and, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { activityLogs, clientContacts, clients } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertClientSchema = createInsertSchema(clients, {
@@ -13,24 +13,26 @@ const insertClientSchema = createInsertSchema(clients, {
 });
 
 // Schema for create/update operations (omit auto-generated fields)
-const clientSchema = insertClientSchema.omit({
-  id: true,
-  tenantId: true,
-  createdAt: true,
-  updatedAt: true,
-  createdById: true,
-}).extend({
-  primaryContact: z
-    .object({
-      firstName: z.string(),
-      lastName: z.string(),
-      email: z.string().email(),
-      phone: z.string().optional(),
-      mobile: z.string().optional(),
-      position: z.string().optional(),
-    })
-    .optional(),
-});
+const clientSchema = insertClientSchema
+  .omit({
+    id: true,
+    tenantId: true,
+    createdAt: true,
+    updatedAt: true,
+    createdById: true,
+  })
+  .extend({
+    primaryContact: z
+      .object({
+        firstName: z.string(),
+        lastName: z.string(),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        mobile: z.string().optional(),
+        position: z.string().optional(),
+      })
+      .optional(),
+  });
 
 export const clientsRouter = router({
   list: protectedProcedure
@@ -274,7 +276,7 @@ export const clientsRouter = router({
       }
 
       // Archive instead of hard delete
-      const [archivedClient] = await db
+      const [_archivedClient] = await db
         .update(clients)
         .set({
           status: "archived",

@@ -1,9 +1,6 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { WizardFormData } from "../client-wizard-modal";
+import { DollarSign } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,7 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface PricingConfigurationStepProps {
   formData: WizardFormData;
@@ -68,7 +68,10 @@ export function PricingConfigurationStep({
               </div>
 
               <div className="flex items-start space-x-3">
-                <RadioGroupItem value="monthly_retainer" id="monthly_retainer" />
+                <RadioGroupItem
+                  value="monthly_retainer"
+                  id="monthly_retainer"
+                />
                 <div className="grid gap-1">
                   <Label htmlFor="monthly_retainer" className="font-medium">
                     Monthly Retainer

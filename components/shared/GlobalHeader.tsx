@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
-import { LucideIcon, Home } from "lucide-react";
+import { Home, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { DateTimeDisplay } from "./DateTimeDisplay";
 import { ThemeToggle } from "./theme-toggle";
 

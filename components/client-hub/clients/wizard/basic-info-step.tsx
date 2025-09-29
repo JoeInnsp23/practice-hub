@@ -1,6 +1,14 @@
 "use client";
 
+import {
+  AlertCircle,
+  Building2,
+  CheckCircle,
+  RefreshCw,
+  Search,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,15 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { WizardFormData } from "../client-wizard-modal";
-import {
-  Building2,
-  Search,
-  RefreshCw,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface BasicInfoStepProps {
   formData: WizardFormData;
@@ -59,7 +59,7 @@ export function BasicInfoStep({
   updateFormData,
 }: BasicInfoStepProps) {
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
-  const [showCompanySearch, setShowCompanySearch] = useState(false);
+  const [_showCompanySearch, _setShowCompanySearch] = useState(false);
 
   // Auto-generate client code when name or type changes
   useEffect(() => {

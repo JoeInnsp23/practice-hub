@@ -1,25 +1,25 @@
 // Environment variables are loaded via tsx -r dotenv/config in package.json
 import { faker } from "@faker-js/faker";
+import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
-  tenants,
-  users,
-  clients,
+  activityLogs,
   clientContacts,
-  tasks,
-  services,
   clientServices,
-  timeEntries,
-  invoices,
-  invoiceItems,
+  clients,
   compliance,
   documents,
-  workflows,
-  workflowStages,
-  activityLogs,
+  invoiceItems,
+  invoices,
+  services,
+  tasks,
   taskWorkflowInstances,
+  tenants,
+  timeEntries,
+  users,
+  workflowStages,
+  workflows,
 } from "../lib/db/schema";
-import { eq } from "drizzle-orm";
 
 // Set a consistent seed for reproducible data
 faker.seed(12345);
@@ -109,7 +109,7 @@ async function seedDatabase() {
     )
     .returning();
 
-  const [adminUser, sarah, mike, emily] = createdUsers;
+  const [adminUser, _sarah, _mike, _emily] = createdUsers;
 
   // 3. Create Services
   console.log("Creating services...");
@@ -185,7 +185,7 @@ async function seedDatabase() {
   // 4. Create Clients
   console.log("Creating clients...");
   const clientList = [];
-  const clientTypes = [
+  const _clientTypes = [
     "individual",
     "company",
     "trust",
@@ -1139,7 +1139,7 @@ async function seedDatabase() {
 
   // 12. Create Documents
   console.log("Creating documents...");
-  const documentTypes = ["file", "folder"] as const;
+  const _documentTypes = ["file", "folder"] as const;
   const fileTypes = [
     { name: "Tax Return 2023.pdf", mimeType: "application/pdf", size: 245678 },
     { name: "Invoice_March.pdf", mimeType: "application/pdf", size: 123456 },
@@ -1223,16 +1223,18 @@ async function seedDatabase() {
     let entityName: string;
 
     switch (entityType) {
-      case "task":
+      case "task": {
         const task = faker.helpers.arrayElement(createdTasks);
         entityId = task.id;
         entityName = task.title;
         break;
-      case "client":
+      }
+      case "client": {
         const client = faker.helpers.arrayElement(createdClients);
         entityId = client.id;
         entityName = client.name;
         break;
+      }
       case "invoice":
         entityId = faker.string.uuid();
         entityName = `Invoice #${faker.number.int({ min: 1000, max: 9999 })}`;

@@ -1,7 +1,7 @@
 "use client";
 
+import { Calendar, FileText, Home, MessageSquare, Shield } from "lucide-react";
 import Link from "next/link";
-import { Home, FileText, MessageSquare, Calendar, Shield } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 
 export default function ClientPortalLayout({

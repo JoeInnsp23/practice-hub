@@ -1,13 +1,11 @@
-import { getAuthContext } from "@/lib/auth";
-import Link from "next/link";
 import {
-  Settings,
-  Users,
-  MessageSquare,
-  Palette,
   ArrowRight,
   Globe,
+  MessageSquare,
+  Settings,
+  Users,
 } from "lucide-react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -15,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getAuthContext } from "@/lib/auth";
 
 export default async function AdminDashboardPage() {
   const authContext = await getAuthContext();

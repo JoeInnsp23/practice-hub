@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import TaskDetails from "./task-details";
 
 export const metadata: Metadata = {

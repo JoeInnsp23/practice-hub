@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Edit,
+  MoreHorizontal,
+  Trash2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,16 +18,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-  AlertCircle,
-} from "lucide-react";
-import { formatDate } from "@/lib/utils/format";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/format";
 
 // Match DB schema from tRPC
 export interface ComplianceItem {

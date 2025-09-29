@@ -1,16 +1,16 @@
-import { router, protectedProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
+import { and, eq, sql } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  tasks,
   activityLogs,
+  tasks,
   taskWorkflowInstances,
-  workflows,
   workflowStages,
+  workflows,
 } from "@/lib/db/schema";
-import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
-import { createInsertSchema } from "drizzle-zod";
+import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
 const insertTaskSchema = createInsertSchema(tasks, {
@@ -450,7 +450,10 @@ export const tasksRouter = router({
         .update(tasks)
         .set({
           status: input.status,
-          completedAt: input.status === "completed" ? new Date() : existingTask[0].completedAt,
+          completedAt:
+            input.status === "completed"
+              ? new Date()
+              : existingTask[0].completedAt,
           updatedAt: new Date(),
         })
         .where(eq(tasks.id, input.id))
@@ -647,7 +650,7 @@ export const tasksRouter = router({
         .where(eq(taskWorkflowInstances.taskId, input.taskId));
 
       // Calculate and update task progress
-      const workflow = await db
+      const _workflow = await db
         .select()
         .from(workflows)
         .where(eq(workflows.id, instance[0].workflowId))

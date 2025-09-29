@@ -1,9 +1,6 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { WizardFormData } from "../client-wizard-modal";
+import { FileText, MapPin, User } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,7 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { User, MapPin, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { WizardFormData } from "../client-wizard-modal";
 
 interface ContactInfoStepProps {
   formData: WizardFormData;
