@@ -127,9 +127,11 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Calculate days until dates
-  const getDaysUntil = (date: Date) => {
+  const getDaysUntil = (date: Date | string | null | undefined) => {
+    if (!date) return null;
+    const targetDate = typeof date === 'string' ? new Date(date) : date;
     const today = new Date();
-    const diffTime = date.getTime() - today.getTime();
+    const diffTime = targetDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
