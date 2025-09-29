@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronUp, FileText, X } from "lucide-react";
@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 import {
   getAllIconNames,
   getCommonIconNames,
-  fuzzySearchIcons,
+  searchIcons,
   getIconComponent,
-} from "./icon-utils";
+} from "./icon-index";
 
 interface IconPickerProps {
   value?: string;
@@ -20,23 +20,30 @@ interface IconPickerProps {
 export function IconPicker({ value, onChange }: IconPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Get all available icon names (memoized for performance)
   const allIconNames = useMemo(() => getAllIconNames(), []);
   const commonIconNames = useMemo(() => getCommonIconNames(), []);
 
-  // Filter icons based on search
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Filter icons based on debounced search
   const filteredIcons = useMemo(() => {
-    if (search.trim()) {
-      // Use fuzzy search for better results
-      const results = fuzzySearchIcons(search, allIconNames);
-      // Limit to 100 results for performance
-      return results.slice(0, 100);
+    if (debouncedSearch.trim()) {
+      // Use optimized search with pre-built index
+      return searchIcons(debouncedSearch, 100);
     } else {
       // Show common icons when not searching
       return commonIconNames;
     }
-  }, [search, allIconNames, commonIconNames]);
+  }, [debouncedSearch, commonIconNames]);
 
   // Get the selected icon component
   const SelectedIcon = value ? getIconComponent(value) || FileText : FileText;
@@ -100,7 +107,11 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 {search ? (
-                  <>Found {filteredIcons.length} icons</>
+                  search !== debouncedSearch ? (
+                    <>Searching...</>
+                  ) : (
+                    <>Found {filteredIcons.length} icons</>
+                  )
                 ) : (
                   <>Showing popular icons</>
                 )}
@@ -118,7 +129,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             }}
           >
             {filteredIcons.length > 0 ? (
-              <div className="grid grid-cols-8 gap-1">
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
                 {filteredIcons.map((iconName) => {
                   const IconComponent = getIconComponent(iconName);
                   if (!IconComponent) return null;
@@ -128,7 +139,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                       key={iconName}
                       type="button"
                       className={cn(
-                        "h-10 w-10 rounded border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-center",
+                        "h-10 w-10 rounded border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-center flex-shrink-0",
                         value === iconName && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground border-primary"
                       )}
                       onClick={() => handleSelect(iconName)}
