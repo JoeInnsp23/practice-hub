@@ -476,12 +476,84 @@ async function seedDatabase() {
       type: "task_template",
       trigger: "manual",
       estimatedDays: 14,
+      serviceCode: "TAX-PREP",
       stages: [
-        { name: "Gather Documents", estimatedHours: 2, checklist: ["Bank statements", "Receipts", "P60s"] },
-        { name: "Data Entry", estimatedHours: 4, checklist: ["Enter income", "Enter expenses", "Enter deductions"] },
-        { name: "Review & Calculations", estimatedHours: 3, checklist: ["Review entries", "Calculate tax", "Apply reliefs"] },
-        { name: "Client Approval", estimatedHours: 1, requiresApproval: true },
-        { name: "Submit to HMRC", estimatedHours: 1, checklist: ["Final check", "Submit online", "Get confirmation"] },
+        { name: "Gather Documents", estimatedHours: 2, checklist: ["Bank statements", "Receipts", "P60s", "P45s if applicable", "P11D benefits forms"] },
+        { name: "Data Entry", estimatedHours: 4, checklist: ["Enter employment income", "Enter self-employment income", "Enter expenses", "Enter deductions", "Enter pension contributions"] },
+        { name: "Review & Calculations", estimatedHours: 3, checklist: ["Review all entries", "Calculate tax liability", "Apply tax reliefs", "Check for errors", "Optimize deductions"] },
+        { name: "Client Approval", estimatedHours: 1, requiresApproval: true, checklist: ["Prepare summary", "Send to client", "Get written approval"] },
+        { name: "Submit to HMRC", estimatedHours: 1, checklist: ["Final review", "Submit online", "Get confirmation", "Save reference", "Update records"] },
+      ],
+    },
+    {
+      name: "VAT Return Process",
+      description: "Quarterly VAT return preparation and submission",
+      type: "task_template",
+      trigger: "schedule",
+      estimatedDays: 5,
+      serviceCode: "VAT-RET",
+      stages: [
+        { name: "Gather Invoices", estimatedHours: 2, checklist: ["Collect sales invoices", "Collect purchase invoices", "Download bank statements", "Gather receipts"] },
+        { name: "Calculate VAT", estimatedHours: 3, checklist: ["Calculate output VAT", "Calculate input VAT", "Apply VAT schemes", "Check partial exemption"] },
+        { name: "Review Transactions", estimatedHours: 2, checklist: ["Review all entries", "Check VAT rates", "Verify calculations", "Reconcile with accounts"] },
+        { name: "Submit to HMRC", estimatedHours: 1, checklist: ["Complete VAT return", "Submit online", "Get confirmation", "Schedule payment", "File documents"] },
+      ],
+    },
+    {
+      name: "Annual Accounts Preparation",
+      description: "Complete annual accounts preparation and filing",
+      type: "task_template",
+      trigger: "manual",
+      estimatedDays: 21,
+      serviceCode: "AUDIT",
+      stages: [
+        { name: "Trial Balance", estimatedHours: 4, checklist: ["Prepare trial balance", "Review GL accounts", "Clear suspense accounts", "Review reconciliations"] },
+        { name: "Draft Accounts", estimatedHours: 6, checklist: ["Prepare P&L", "Prepare balance sheet", "Calculate tax provision", "Draft notes to accounts", "Prepare directors report"] },
+        { name: "Review & Adjustments", estimatedHours: 4, checklist: ["Review draft accounts", "Post adjusting entries", "Update tax computation", "Review compliance", "Internal quality check"] },
+        { name: "Director Approval", estimatedHours: 2, requiresApproval: true, checklist: ["Present to directors", "Explain key changes", "Get board approval", "Obtain signatures"] },
+        { name: "File Accounts", estimatedHours: 2, checklist: ["File with Companies House", "Submit to HMRC", "Send to shareholders", "Update statutory books", "Archive documents"] },
+      ],
+    },
+    {
+      name: "Payroll Processing",
+      description: "Monthly payroll processing workflow",
+      type: "task_template",
+      trigger: "schedule",
+      estimatedDays: 2,
+      serviceCode: "PAYROLL",
+      stages: [
+        { name: "Collect Timesheets", estimatedHours: 1, checklist: ["Gather timesheets", "Review overtime", "Check leave records", "Verify hours worked"] },
+        { name: "Calculate Wages", estimatedHours: 2, checklist: ["Calculate gross pay", "Apply deductions", "Calculate PAYE", "Calculate NI", "Process benefits"] },
+        { name: "Process Deductions", estimatedHours: 1, checklist: ["Student loans", "Pension contributions", "Court orders", "Union fees", "Other deductions"] },
+        { name: "Submit RTI", estimatedHours: 1, checklist: ["Prepare FPS", "Submit to HMRC", "Get confirmation", "Update records"] },
+        { name: "Issue Payslips", estimatedHours: 1, checklist: ["Generate payslips", "Review for accuracy", "Send to employees", "Process payments", "File copies"] },
+      ],
+    },
+    {
+      name: "Compliance Review",
+      description: "Regulatory compliance check workflow",
+      type: "task_template",
+      trigger: "manual",
+      estimatedDays: 10,
+      stages: [
+        { name: "Review Requirements", estimatedHours: 2, checklist: ["Identify regulations", "Check updates", "Review deadlines", "Assess scope"] },
+        { name: "Gather Documentation", estimatedHours: 3, checklist: ["Collect policies", "Gather records", "Review procedures", "Interview staff"] },
+        { name: "Check Compliance", estimatedHours: 4, checklist: ["Test controls", "Review documentation", "Check procedures", "Identify gaps"] },
+        { name: "Document Findings", estimatedHours: 2, checklist: ["Write report", "Document issues", "Recommend actions", "Set priorities"] },
+        { name: "Submit Report", estimatedHours: 1, checklist: ["Finalize report", "Management review", "Submit to board", "File documentation"] },
+      ],
+    },
+    {
+      name: "Document Review Process",
+      description: "Standard document review and approval workflow",
+      type: "task_template",
+      trigger: "manual",
+      estimatedDays: 3,
+      stages: [
+        { name: "Initial Review", estimatedHours: 1, checklist: ["Check completeness", "Verify format", "Review scope", "Check references"] },
+        { name: "Detailed Analysis", estimatedHours: 2, checklist: ["Check accuracy", "Verify calculations", "Review compliance", "Check consistency"] },
+        { name: "Quality Check", estimatedHours: 1, checklist: ["Grammar check", "Format review", "Cross-reference", "Fact check"] },
+        { name: "Final Approval", estimatedHours: 1, requiresApproval: true, checklist: ["Final review", "Get approval", "Document decision", "Archive copy"] },
       ],
     },
     {
@@ -490,11 +562,12 @@ async function seedDatabase() {
       type: "task_template",
       trigger: "manual",
       estimatedDays: 7,
+      serviceCode: "CONSULT",
       stages: [
-        { name: "Initial Setup", estimatedHours: 1, checklist: ["Create client record", "Set up folders", "Send welcome email"] },
-        { name: "Document Collection", estimatedHours: 2, checklist: ["ID verification", "Engagement letter", "Bank details"] },
-        { name: "Service Configuration", estimatedHours: 1, checklist: ["Assign services", "Set rates", "Create schedule"] },
-        { name: "System Access", estimatedHours: 1, checklist: ["Portal access", "Document sharing", "Communication setup"] },
+        { name: "Initial Setup", estimatedHours: 1, checklist: ["Create client record", "Set up folders", "Send welcome email", "Schedule meeting"] },
+        { name: "Document Collection", estimatedHours: 2, checklist: ["ID verification", "Engagement letter", "Bank details", "Tax information", "Company documents"] },
+        { name: "Service Configuration", estimatedHours: 1, checklist: ["Assign services", "Set rates", "Create schedule", "Set up billing"] },
+        { name: "System Access", estimatedHours: 1, checklist: ["Portal access", "Document sharing", "Communication setup", "Training provided"] },
       ],
     },
     {
@@ -503,16 +576,26 @@ async function seedDatabase() {
       type: "task_template",
       trigger: "schedule",
       estimatedDays: 3,
+      serviceCode: "BOOKKEEP",
       stages: [
-        { name: "Transaction Import", estimatedHours: 1, checklist: ["Import bank", "Import credit cards", "Import expenses"] },
-        { name: "Categorization", estimatedHours: 2, checklist: ["Categorize transactions", "Match receipts", "Flag queries"] },
-        { name: "Reconciliation", estimatedHours: 2, checklist: ["Bank reconciliation", "VAT reconciliation", "Balance sheet review"] },
-        { name: "Reporting", estimatedHours: 1, checklist: ["P&L report", "Cash flow", "Send to client"] },
+        { name: "Transaction Import", estimatedHours: 1, checklist: ["Import bank", "Import credit cards", "Import expenses", "Import invoices"] },
+        { name: "Categorization", estimatedHours: 2, checklist: ["Categorize transactions", "Match receipts", "Flag queries", "Code to accounts"] },
+        { name: "Reconciliation", estimatedHours: 2, checklist: ["Bank reconciliation", "Credit card reconciliation", "VAT reconciliation", "Balance sheet review"] },
+        { name: "Reporting", estimatedHours: 1, checklist: ["P&L report", "Balance sheet", "Cash flow", "Send to client", "File reports"] },
       ],
     },
   ];
 
   for (const template of workflowTemplates) {
+    // Find the service if specified
+    let serviceId = null;
+    if (template.serviceCode) {
+      const service = createdServices.find(s => s.code === template.serviceCode);
+      if (service) {
+        serviceId = service.id;
+      }
+    }
+
     const [workflow] = await db
       .insert(workflows)
       .values({
@@ -522,6 +605,7 @@ async function seedDatabase() {
         type: template.type as any,
         trigger: template.trigger as any,
         estimatedDays: template.estimatedDays,
+        serviceId,
         isActive: true,
         config: {},
         createdById: adminUser.id,
@@ -552,32 +636,27 @@ async function seedDatabase() {
   // 11.5. Assign workflows to tasks and create instances
   console.log("Assigning workflows to tasks...");
 
-  // Get the created workflows
-  const taxWorkflow = workflowTemplates.find(w => w.name.includes("Tax Return"));
-  const bookkeepingWorkflow = workflowTemplates.find(w => w.name.includes("Bookkeeping"));
-  const onboardingWorkflow = workflowTemplates.find(w => w.name.includes("Onboarding"));
-
   // Get workflow IDs from database
   const createdWorkflows = await db
     .select()
     .from(workflows)
     .where(eq(workflows.tenantId, tenant.id));
 
-  const taxWorkflowDb = createdWorkflows.find(w => w.name.includes("Tax Return"));
-  const bookkeepingWorkflowDb = createdWorkflows.find(w => w.name.includes("Bookkeeping"));
-  const onboardingWorkflowDb = createdWorkflows.find(w => w.name.includes("Onboarding"));
+  // Create a map of task types to workflows
+  const workflowMap: { [key: string]: any } = {
+    "Tax Return": createdWorkflows.find(w => w.name.includes("Tax Return")),
+    "VAT Return": createdWorkflows.find(w => w.name.includes("VAT Return")),
+    "Annual Accounts": createdWorkflows.find(w => w.name.includes("Annual Accounts")),
+    "Payroll": createdWorkflows.find(w => w.name.includes("Payroll")),
+    "Bookkeeping": createdWorkflows.find(w => w.name.includes("Bookkeeping")),
+    "Client Meeting": createdWorkflows.find(w => w.name.includes("Client Onboarding")),
+    "Compliance Check": createdWorkflows.find(w => w.name.includes("Compliance Review")),
+    "Document Review": createdWorkflows.find(w => w.name.includes("Document Review")),
+  };
 
-  // Assign workflows to matching tasks
+  // Assign workflows to matching tasks based on task_type
   for (const task of createdTasks) {
-    let workflowToAssign = null;
-
-    if (task.title.includes("Tax Return") && taxWorkflowDb) {
-      workflowToAssign = taxWorkflowDb;
-    } else if (task.title.includes("Bookkeeping") && bookkeepingWorkflowDb) {
-      workflowToAssign = bookkeepingWorkflowDb;
-    } else if (task.title.includes("Client Meeting") && onboardingWorkflowDb) {
-      workflowToAssign = onboardingWorkflowDb;
-    }
+    const workflowToAssign = workflowMap[task.taskType];
 
     if (workflowToAssign) {
       // Update task with workflow ID
