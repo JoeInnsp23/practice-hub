@@ -19,10 +19,7 @@ interface UseSSEOptions {
   maxReconnectAttempts?: number;
 }
 
-export function useSSE(
-  url: string = "/api/sse",
-  options: UseSSEOptions = {}
-) {
+export function useSSE(url: string = "/api/sse", options: UseSSEOptions = {}) {
   const {
     onMessage,
     onError,
@@ -36,7 +33,7 @@ export function useSSE(
   const [lastMessage, setLastMessage] = useState<SSEMessage | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectAttemptsRef = useRef(0);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const connect = useCallback(() => {
     if (eventSourceRef.current) {
@@ -107,21 +104,31 @@ export function useSSE(
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current++;
           console.log(
-            `Reconnecting SSE (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`
+            `Reconnecting SSE (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`,
           );
 
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, reconnectDelay * reconnectAttemptsRef.current);
         } else {
-          toast.error("Real-time updates disconnected. Please refresh the page.");
+          toast.error(
+            "Real-time updates disconnected. Please refresh the page.",
+          );
         }
       };
     } catch (error) {
       console.error("Failed to create SSE connection:", error);
       onError?.(error as Error);
     }
-  }, [url, onMessage, onError, onConnect, onDisconnect, reconnectDelay, maxReconnectAttempts]);
+  }, [
+    url,
+    onMessage,
+    onError,
+    onConnect,
+    onDisconnect,
+    reconnectDelay,
+    maxReconnectAttempts,
+  ]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

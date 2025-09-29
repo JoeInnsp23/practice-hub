@@ -58,12 +58,12 @@ export function EditUserDialog({
   });
 
   const updateMutation = trpc.users.update.useMutation({
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast.success("User updated successfully");
       onSuccess(data.user);
       onClose();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Failed to update user:", error);
       toast.error(error.message || "Failed to update user");
     },

@@ -20,7 +20,7 @@ class ApiClient {
     this.defaultOptions = {
       headers: {
         "Content-Type": "application/json",
-      },
+      } as HeadersInit,
       retry: 3,
       retryDelay: 1000,
       timeout: 30000,
@@ -30,9 +30,14 @@ class ApiClient {
 
   private async fetchWithRetry(
     url: string,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
   ): Promise<Response> {
-    const { retry = 3, retryDelay = 1000, timeout = 30000, ...fetchOptions } = {
+    const {
+      retry = 3,
+      retryDelay = 1000,
+      timeout = 30000,
+      ...fetchOptions
+    } = {
       ...this.defaultOptions,
       ...options,
     };
@@ -100,7 +105,7 @@ class ApiClient {
       }
 
       const error = new Error(
-        errorData.error || errorData.message || "Request failed"
+        errorData.error || errorData.message || "Request failed",
       ) as ApiError;
       error.status = response.status;
       error.data = errorData;
@@ -108,7 +113,10 @@ class ApiClient {
     }
 
     // Handle empty responses
-    if (response.status === 204 || response.headers.get("content-length") === "0") {
+    if (
+      response.status === 204 ||
+      response.headers.get("content-length") === "0"
+    ) {
       return null as T;
     }
 
@@ -132,7 +140,7 @@ class ApiClient {
   async post<T = any>(
     endpoint: string,
     data?: any,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const response = await this.fetchWithRetry(url, {
@@ -146,7 +154,7 @@ class ApiClient {
   async put<T = any>(
     endpoint: string,
     data?: any,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const response = await this.fetchWithRetry(url, {
@@ -160,7 +168,7 @@ class ApiClient {
   async patch<T = any>(
     endpoint: string,
     data?: any,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const response = await this.fetchWithRetry(url, {
@@ -186,12 +194,12 @@ class ApiClient {
     formData: FormData,
     options?: FetchOptions & {
       onProgress?: (progress: number) => void;
-    }
+    },
   ): Promise<any> {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Remove content-type header for multipart/form-data
-    const headers = { ...this.defaultOptions.headers };
+    const headers = { ...(this.defaultOptions.headers as Record<string, string>) };
     delete headers["Content-Type"];
 
     const xhr = new XMLHttpRequest();
@@ -216,7 +224,9 @@ class ApiClient {
             resolve(xhr.responseText);
           }
         } else {
-          const error = new Error(`Upload failed: ${xhr.statusText}`) as ApiError;
+          const error = new Error(
+            `Upload failed: ${xhr.statusText}`,
+          ) as ApiError;
           error.status = xhr.status;
           try {
             error.data = JSON.parse(xhr.responseText);
@@ -260,7 +270,7 @@ export async function fetchWithErrorHandling<T = any>(
     showError?: boolean;
     errorMessage?: string;
     retryable?: boolean;
-  }
+  },
 ): Promise<T | null> {
   const { showError = true, errorMessage, retryable = true } = options || {};
 

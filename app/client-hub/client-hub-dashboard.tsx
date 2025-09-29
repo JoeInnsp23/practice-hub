@@ -22,7 +22,6 @@ interface ClientHubDashboardProps {
   userName?: string;
 }
 
-
 export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   const { user } = useUser();
 
@@ -31,25 +30,29 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   const rawName = userName || user?.firstName || "User";
   const displayName = rawName
     .split(/[\s-_]+/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 
   // Fetch KPIs using tRPC
-  const { data: kpisData, isLoading: kpisLoading, error: kpisError } = trpc.dashboard.kpis.useQuery(undefined, {
+  const {
+    data: kpisData,
+    isLoading: kpisLoading,
+    error: kpisError,
+  } = trpc.dashboard.kpis.useQuery(undefined, {
     retry: false,
-    onError: (error) => {
-      console.error("Failed to fetch KPIs:", error);
-    },
   });
 
   // Fetch activities using tRPC
-  const { data: activitiesData, isLoading: activitiesLoading, error: activitiesError } = trpc.dashboard.activity.useQuery(
+  const {
+    data: activitiesData,
+    isLoading: activitiesLoading,
+    error: activitiesError,
+  } = trpc.dashboard.activity.useQuery(
     { limit: 10 },
-    { retry: false,
-    onError: (error) => {
-      console.error("Failed to fetch activities:", error);
+    {
+      retry: false,
     },
-  });
+  );
 
   const loading = kpisLoading || activitiesLoading;
   const kpis = kpisData?.kpis || {
@@ -74,7 +77,9 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   // Show error message if there's an authentication issue
   if (kpisError || activitiesError) {
     const error = kpisError || activitiesError;
-    const isAuthError = error?.message?.includes("UNAUTHORIZED") || error?.message?.includes("signed-out");
+    const isAuthError =
+      error?.message?.includes("UNAUTHORIZED") ||
+      error?.message?.includes("signed-out");
 
     return (
       <div className="p-6 space-y-6">
@@ -121,9 +126,14 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
         />
         <KPIWidget
           title="Active Tasks"
-          value={(kpis ? kpis.pendingTasks + kpis.inProgressTasks : 0).toString()}
+          value={(kpis
+            ? kpis.pendingTasks + kpis.inProgressTasks
+            : 0
+          ).toString()}
           icon={CheckSquare}
-          subtext={kpis?.overdueTasks ? `${kpis.overdueTasks} overdue` : undefined}
+          subtext={
+            kpis?.overdueTasks ? `${kpis.overdueTasks} overdue` : undefined
+          }
           loading={loading}
         />
         <KPIWidget
@@ -182,7 +192,9 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
           <CardContent>
             <div className="space-y-2">
               <div className="text-center py-4">
-                <span className="text-sm text-muted-foreground">No upcoming deadlines</span>
+                <span className="text-sm text-muted-foreground">
+                  No upcoming deadlines
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Corporation Tax - XYZ</span>

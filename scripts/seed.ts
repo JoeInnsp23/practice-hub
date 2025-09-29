@@ -105,7 +105,7 @@ async function seedDatabase() {
         ...user,
         tenantId: tenant.id,
         isActive: true,
-      }))
+      })),
     )
     .returning();
 
@@ -178,15 +178,26 @@ async function seedDatabase() {
         tenantId: tenant.id,
         isActive: true,
         tags: [service.category],
-      }))
+      })),
     )
     .returning();
 
   // 4. Create Clients
   console.log("Creating clients...");
   const clientList = [];
-  const clientTypes = ["individual", "company", "trust", "partnership"] as const;
-  const clientStatuses = ["active", "active", "active", "prospect", "inactive"] as const;
+  const clientTypes = [
+    "individual",
+    "company",
+    "trust",
+    "partnership",
+  ] as const;
+  const clientStatuses = [
+    "active",
+    "active",
+    "active",
+    "prospect",
+    "inactive",
+  ] as const;
 
   for (let i = 0; i < 25; i++) {
     const isCompany = faker.datatype.boolean();
@@ -201,14 +212,20 @@ async function seedDatabase() {
       phone: faker.phone.number(),
       website: isCompany ? faker.internet.url() : null,
       vatNumber: isCompany ? `GB${faker.string.numeric(9)}` : null,
-      registrationNumber: isCompany ? faker.string.alphanumeric(8).toUpperCase() : null,
+      registrationNumber: isCompany
+        ? faker.string.alphanumeric(8).toUpperCase()
+        : null,
       addressLine1: faker.location.streetAddress(),
       city: faker.location.city(),
       postalCode: faker.location.zipCode("??# #??"),
       country: "United Kingdom",
       accountManagerId: faker.helpers.arrayElement(createdUsers).id,
-      incorporationDate: isCompany ? faker.date.past({ years: 10 }).toISOString() : null,
-      yearEnd: isCompany ? faker.date.future({ years: 1 }).toISOString().slice(5, 10) : null,
+      incorporationDate: isCompany
+        ? faker.date.past({ years: 10 }).toISOString()
+        : null,
+      yearEnd: isCompany
+        ? faker.date.future({ years: 1 }).toISOString().slice(5, 10)
+        : null,
       notes: faker.lorem.sentence(),
     });
   }
@@ -220,7 +237,7 @@ async function seedDatabase() {
         ...client,
         tenantId: tenant.id,
         createdBy: adminUser.id,
-      }))
+      })),
     )
     .returning();
 
@@ -251,7 +268,10 @@ async function seedDatabase() {
   for (const client of createdClients) {
     // Each client gets 1-4 services
     const serviceCount = faker.number.int({ min: 1, max: 4 });
-    const selectedServices = faker.helpers.arrayElements(createdServices, serviceCount);
+    const selectedServices = faker.helpers.arrayElements(
+      createdServices,
+      serviceCount,
+    );
 
     for (const service of selectedServices) {
       await db.insert(clientServices).values({
@@ -259,7 +279,10 @@ async function seedDatabase() {
         clientId: client.id,
         serviceId: service.id,
         customRate: faker.datatype.boolean()
-          ? String(Number(service.defaultRate) * faker.number.float({ min: 0.8, max: 1.2 }))
+          ? String(
+              Number(service.defaultRate) *
+                faker.number.float({ min: 0.8, max: 1.2 }),
+            )
           : null,
         startDate: faker.date.past({ years: 2 }).toISOString(),
         isActive: true,
@@ -269,7 +292,12 @@ async function seedDatabase() {
 
   // 7. Create Tasks
   console.log("Creating tasks...");
-  const taskStatuses = ["pending", "in_progress", "completed", "cancelled"] as const;
+  const taskStatuses = [
+    "pending",
+    "in_progress",
+    "completed",
+    "cancelled",
+  ] as const;
   const taskPriorities = ["low", "medium", "high", "urgent"] as const;
   const taskTypes = [
     "Tax Return",
@@ -300,17 +328,32 @@ async function seedDatabase() {
         priority: faker.helpers.arrayElement(taskPriorities),
         clientId: faker.helpers.arrayElement(createdClients).id,
         assignedToId: faker.helpers.arrayElement(createdUsers).id,
-        reviewerId: faker.datatype.boolean() ? faker.helpers.arrayElement(createdUsers).id : null,
+        reviewerId: faker.datatype.boolean()
+          ? faker.helpers.arrayElement(createdUsers).id
+          : null,
         createdById: faker.helpers.arrayElement(createdUsers).id,
         dueDate,
         targetDate: faker.date.soon({ days: 3, refDate: dueDate }),
-        completedAt: status === "completed" ? faker.date.recent({ days: 7 }) : null,
+        completedAt:
+          status === "completed" ? faker.date.recent({ days: 7 }) : null,
         estimatedHours: String(faker.number.int({ min: 1, max: 20 })),
-        actualHours: status === "completed" ? String(faker.number.int({ min: 1, max: 25 })) : null,
-        progress: status === "completed" ? 100 : faker.number.int({ min: 0, max: 80 }),
+        actualHours:
+          status === "completed"
+            ? String(faker.number.int({ min: 1, max: 25 }))
+            : null,
+        progress:
+          status === "completed" ? 100 : faker.number.int({ min: 0, max: 80 }),
         taskType: faker.helpers.arrayElement(taskTypes),
-        category: faker.helpers.arrayElement(["Client Work", "Admin", "Development", "Support"]),
-        tags: faker.helpers.arrayElements(["urgent", "client-request", "monthly", "quarterly", "annual"], { min: 0, max: 3 }),
+        category: faker.helpers.arrayElement([
+          "Client Work",
+          "Admin",
+          "Development",
+          "Support",
+        ]),
+        tags: faker.helpers.arrayElements(
+          ["urgent", "client-request", "monthly", "quarterly", "annual"],
+          { min: 0, max: 3 },
+        ),
       })
       .returning();
 
@@ -319,8 +362,19 @@ async function seedDatabase() {
 
   // 8. Create Time Entries
   console.log("Creating time entries...");
-  const workTypes = ["work", "admin", "meeting", "training", "research"] as const;
-  const timeEntryStatuses = ["draft", "submitted", "approved", "rejected"] as const;
+  const workTypes = [
+    "work",
+    "admin",
+    "meeting",
+    "training",
+    "research",
+  ] as const;
+  const timeEntryStatuses = [
+    "draft",
+    "submitted",
+    "approved",
+    "rejected",
+  ] as const;
 
   for (let days = 90; days >= 0; days--) {
     const date = new Date();
@@ -336,9 +390,18 @@ async function seedDatabase() {
 
       for (let i = 0; i < entryCount; i++) {
         const client = faker.helpers.arrayElement(createdClients);
-        const relatedTasks = createdTasks.filter(t => t.clientId === client.id);
-        const task = relatedTasks.length > 0 ? faker.helpers.arrayElement(relatedTasks) : null;
-        const hours = faker.number.float({ min: 0.5, max: 4, multipleOf: 0.25 });
+        const relatedTasks = createdTasks.filter(
+          (t) => t.clientId === client.id,
+        );
+        const task =
+          relatedTasks.length > 0
+            ? faker.helpers.arrayElement(relatedTasks)
+            : null;
+        const hours = faker.number.float({
+          min: 0.5,
+          max: 4,
+          multipleOf: 0.25,
+        });
         const rate = Number(user.hourlyRate || 100);
 
         await db.insert(timeEntries).values({
@@ -355,7 +418,10 @@ async function seedDatabase() {
           rate: String(rate),
           amount: String(hours * rate),
           description: faker.lorem.sentence(),
-          status: days > 7 ? "approved" : faker.helpers.arrayElement(timeEntryStatuses),
+          status:
+            days > 7
+              ? "approved"
+              : faker.helpers.arrayElement(timeEntryStatuses),
           approvedById: days > 7 ? adminUser.id : null,
           approvedAt: days > 7 ? date : null,
         });
@@ -374,7 +440,11 @@ async function seedDatabase() {
     const dueDate = new Date(issueDate);
     dueDate.setDate(dueDate.getDate() + 30);
 
-    const subtotal = faker.number.float({ min: 500, max: 10000, multipleOf: 0.01 });
+    const subtotal = faker.number.float({
+      min: 500,
+      max: 10000,
+      multipleOf: 0.01,
+    });
     const taxRate = 20; // UK VAT
     const taxAmount = subtotal * (taxRate / 100);
     const total = subtotal + taxAmount;
@@ -387,7 +457,13 @@ async function seedDatabase() {
         clientId: client.id,
         issueDate: issueDate.toISOString().split("T")[0],
         dueDate: dueDate.toISOString().split("T")[0],
-        paidDate: status === "paid" ? faker.date.between({ from: issueDate, to: new Date() }).toISOString().split("T")[0] : null,
+        paidDate:
+          status === "paid"
+            ? faker.date
+                .between({ from: issueDate, to: new Date() })
+                .toISOString()
+                .split("T")[0]
+            : null,
         subtotal: String(subtotal),
         taxRate: String(taxRate),
         taxAmount: String(taxAmount),
@@ -410,7 +486,11 @@ async function seedDatabase() {
       const isLastItem = j === itemCount - 1;
       const itemAmount = isLastItem
         ? remainingAmount
-        : faker.number.float({ min: 100, max: remainingAmount / 2, multipleOf: 0.01 });
+        : faker.number.float({
+            min: 100,
+            max: remainingAmount / 2,
+            multipleOf: 0.01,
+          });
 
       const quantity = faker.number.int({ min: 1, max: 10 });
       const rate = itemAmount / quantity;
@@ -439,16 +519,27 @@ async function seedDatabase() {
     "Confirmation Statement",
     "Self Assessment",
   ];
-  const complianceStatuses = ["pending", "in_progress", "completed", "overdue"] as const;
+  const complianceStatuses = [
+    "pending",
+    "in_progress",
+    "completed",
+    "overdue",
+  ] as const;
 
-  for (const client of createdClients.filter(c => c.type === "company").slice(0, 15)) {
-    for (const type of faker.helpers.arrayElements(complianceTypes, { min: 2, max: 4 })) {
+  for (const client of createdClients
+    .filter((c) => c.type === "company")
+    .slice(0, 15)) {
+    for (const type of faker.helpers.arrayElements(complianceTypes, {
+      min: 2,
+      max: 4,
+    })) {
       const dueDate = faker.date.between({
         from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         to: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
       });
 
-      const isOverdue = dueDate < new Date() && faker.datatype.boolean({ probability: 0.2 });
+      const isOverdue =
+        dueDate < new Date() && faker.datatype.boolean({ probability: 0.2 });
 
       await db.insert(compliance).values({
         tenantId: tenant.id,
@@ -458,10 +549,16 @@ async function seedDatabase() {
         clientId: client.id,
         assignedToId: faker.helpers.arrayElement(createdUsers).id,
         dueDate,
-        completedDate: faker.datatype.boolean({ probability: 0.3 }) ? faker.date.recent({ days: 30 }) : null,
+        completedDate: faker.datatype.boolean({ probability: 0.3 })
+          ? faker.date.recent({ days: 30 })
+          : null,
         reminderDate: new Date(dueDate.getTime() - 7 * 24 * 60 * 60 * 1000),
-        status: isOverdue ? "overdue" : faker.helpers.arrayElement(complianceStatuses),
-        priority: isOverdue ? "urgent" : faker.helpers.arrayElement(["low", "medium", "high"] as const),
+        status: isOverdue
+          ? "overdue"
+          : faker.helpers.arrayElement(complianceStatuses),
+        priority: isOverdue
+          ? "urgent"
+          : faker.helpers.arrayElement(["low", "medium", "high"] as const),
         createdById: adminUser.id,
       });
     }
@@ -478,11 +575,60 @@ async function seedDatabase() {
       estimatedDays: 14,
       serviceCode: "TAX-PREP",
       stages: [
-        { name: "Gather Documents", estimatedHours: 2, checklist: ["Bank statements", "Receipts", "P60s", "P45s if applicable", "P11D benefits forms"] },
-        { name: "Data Entry", estimatedHours: 4, checklist: ["Enter employment income", "Enter self-employment income", "Enter expenses", "Enter deductions", "Enter pension contributions"] },
-        { name: "Review & Calculations", estimatedHours: 3, checklist: ["Review all entries", "Calculate tax liability", "Apply tax reliefs", "Check for errors", "Optimize deductions"] },
-        { name: "Client Approval", estimatedHours: 1, requiresApproval: true, checklist: ["Prepare summary", "Send to client", "Get written approval"] },
-        { name: "Submit to HMRC", estimatedHours: 1, checklist: ["Final review", "Submit online", "Get confirmation", "Save reference", "Update records"] },
+        {
+          name: "Gather Documents",
+          estimatedHours: 2,
+          checklist: [
+            "Bank statements",
+            "Receipts",
+            "P60s",
+            "P45s if applicable",
+            "P11D benefits forms",
+          ],
+        },
+        {
+          name: "Data Entry",
+          estimatedHours: 4,
+          checklist: [
+            "Enter employment income",
+            "Enter self-employment income",
+            "Enter expenses",
+            "Enter deductions",
+            "Enter pension contributions",
+          ],
+        },
+        {
+          name: "Review & Calculations",
+          estimatedHours: 3,
+          checklist: [
+            "Review all entries",
+            "Calculate tax liability",
+            "Apply tax reliefs",
+            "Check for errors",
+            "Optimize deductions",
+          ],
+        },
+        {
+          name: "Client Approval",
+          estimatedHours: 1,
+          requiresApproval: true,
+          checklist: [
+            "Prepare summary",
+            "Send to client",
+            "Get written approval",
+          ],
+        },
+        {
+          name: "Submit to HMRC",
+          estimatedHours: 1,
+          checklist: [
+            "Final review",
+            "Submit online",
+            "Get confirmation",
+            "Save reference",
+            "Update records",
+          ],
+        },
       ],
     },
     {
@@ -493,10 +639,47 @@ async function seedDatabase() {
       estimatedDays: 5,
       serviceCode: "VAT-RET",
       stages: [
-        { name: "Gather Invoices", estimatedHours: 2, checklist: ["Collect sales invoices", "Collect purchase invoices", "Download bank statements", "Gather receipts"] },
-        { name: "Calculate VAT", estimatedHours: 3, checklist: ["Calculate output VAT", "Calculate input VAT", "Apply VAT schemes", "Check partial exemption"] },
-        { name: "Review Transactions", estimatedHours: 2, checklist: ["Review all entries", "Check VAT rates", "Verify calculations", "Reconcile with accounts"] },
-        { name: "Submit to HMRC", estimatedHours: 1, checklist: ["Complete VAT return", "Submit online", "Get confirmation", "Schedule payment", "File documents"] },
+        {
+          name: "Gather Invoices",
+          estimatedHours: 2,
+          checklist: [
+            "Collect sales invoices",
+            "Collect purchase invoices",
+            "Download bank statements",
+            "Gather receipts",
+          ],
+        },
+        {
+          name: "Calculate VAT",
+          estimatedHours: 3,
+          checklist: [
+            "Calculate output VAT",
+            "Calculate input VAT",
+            "Apply VAT schemes",
+            "Check partial exemption",
+          ],
+        },
+        {
+          name: "Review Transactions",
+          estimatedHours: 2,
+          checklist: [
+            "Review all entries",
+            "Check VAT rates",
+            "Verify calculations",
+            "Reconcile with accounts",
+          ],
+        },
+        {
+          name: "Submit to HMRC",
+          estimatedHours: 1,
+          checklist: [
+            "Complete VAT return",
+            "Submit online",
+            "Get confirmation",
+            "Schedule payment",
+            "File documents",
+          ],
+        },
       ],
     },
     {
@@ -507,11 +690,60 @@ async function seedDatabase() {
       estimatedDays: 21,
       serviceCode: "AUDIT",
       stages: [
-        { name: "Trial Balance", estimatedHours: 4, checklist: ["Prepare trial balance", "Review GL accounts", "Clear suspense accounts", "Review reconciliations"] },
-        { name: "Draft Accounts", estimatedHours: 6, checklist: ["Prepare P&L", "Prepare balance sheet", "Calculate tax provision", "Draft notes to accounts", "Prepare directors report"] },
-        { name: "Review & Adjustments", estimatedHours: 4, checklist: ["Review draft accounts", "Post adjusting entries", "Update tax computation", "Review compliance", "Internal quality check"] },
-        { name: "Director Approval", estimatedHours: 2, requiresApproval: true, checklist: ["Present to directors", "Explain key changes", "Get board approval", "Obtain signatures"] },
-        { name: "File Accounts", estimatedHours: 2, checklist: ["File with Companies House", "Submit to HMRC", "Send to shareholders", "Update statutory books", "Archive documents"] },
+        {
+          name: "Trial Balance",
+          estimatedHours: 4,
+          checklist: [
+            "Prepare trial balance",
+            "Review GL accounts",
+            "Clear suspense accounts",
+            "Review reconciliations",
+          ],
+        },
+        {
+          name: "Draft Accounts",
+          estimatedHours: 6,
+          checklist: [
+            "Prepare P&L",
+            "Prepare balance sheet",
+            "Calculate tax provision",
+            "Draft notes to accounts",
+            "Prepare directors report",
+          ],
+        },
+        {
+          name: "Review & Adjustments",
+          estimatedHours: 4,
+          checklist: [
+            "Review draft accounts",
+            "Post adjusting entries",
+            "Update tax computation",
+            "Review compliance",
+            "Internal quality check",
+          ],
+        },
+        {
+          name: "Director Approval",
+          estimatedHours: 2,
+          requiresApproval: true,
+          checklist: [
+            "Present to directors",
+            "Explain key changes",
+            "Get board approval",
+            "Obtain signatures",
+          ],
+        },
+        {
+          name: "File Accounts",
+          estimatedHours: 2,
+          checklist: [
+            "File with Companies House",
+            "Submit to HMRC",
+            "Send to shareholders",
+            "Update statutory books",
+            "Archive documents",
+          ],
+        },
       ],
     },
     {
@@ -522,11 +754,59 @@ async function seedDatabase() {
       estimatedDays: 2,
       serviceCode: "PAYROLL",
       stages: [
-        { name: "Collect Timesheets", estimatedHours: 1, checklist: ["Gather timesheets", "Review overtime", "Check leave records", "Verify hours worked"] },
-        { name: "Calculate Wages", estimatedHours: 2, checklist: ["Calculate gross pay", "Apply deductions", "Calculate PAYE", "Calculate NI", "Process benefits"] },
-        { name: "Process Deductions", estimatedHours: 1, checklist: ["Student loans", "Pension contributions", "Court orders", "Union fees", "Other deductions"] },
-        { name: "Submit RTI", estimatedHours: 1, checklist: ["Prepare FPS", "Submit to HMRC", "Get confirmation", "Update records"] },
-        { name: "Issue Payslips", estimatedHours: 1, checklist: ["Generate payslips", "Review for accuracy", "Send to employees", "Process payments", "File copies"] },
+        {
+          name: "Collect Timesheets",
+          estimatedHours: 1,
+          checklist: [
+            "Gather timesheets",
+            "Review overtime",
+            "Check leave records",
+            "Verify hours worked",
+          ],
+        },
+        {
+          name: "Calculate Wages",
+          estimatedHours: 2,
+          checklist: [
+            "Calculate gross pay",
+            "Apply deductions",
+            "Calculate PAYE",
+            "Calculate NI",
+            "Process benefits",
+          ],
+        },
+        {
+          name: "Process Deductions",
+          estimatedHours: 1,
+          checklist: [
+            "Student loans",
+            "Pension contributions",
+            "Court orders",
+            "Union fees",
+            "Other deductions",
+          ],
+        },
+        {
+          name: "Submit RTI",
+          estimatedHours: 1,
+          checklist: [
+            "Prepare FPS",
+            "Submit to HMRC",
+            "Get confirmation",
+            "Update records",
+          ],
+        },
+        {
+          name: "Issue Payslips",
+          estimatedHours: 1,
+          checklist: [
+            "Generate payslips",
+            "Review for accuracy",
+            "Send to employees",
+            "Process payments",
+            "File copies",
+          ],
+        },
       ],
     },
     {
@@ -536,11 +816,56 @@ async function seedDatabase() {
       trigger: "manual",
       estimatedDays: 10,
       stages: [
-        { name: "Review Requirements", estimatedHours: 2, checklist: ["Identify regulations", "Check updates", "Review deadlines", "Assess scope"] },
-        { name: "Gather Documentation", estimatedHours: 3, checklist: ["Collect policies", "Gather records", "Review procedures", "Interview staff"] },
-        { name: "Check Compliance", estimatedHours: 4, checklist: ["Test controls", "Review documentation", "Check procedures", "Identify gaps"] },
-        { name: "Document Findings", estimatedHours: 2, checklist: ["Write report", "Document issues", "Recommend actions", "Set priorities"] },
-        { name: "Submit Report", estimatedHours: 1, checklist: ["Finalize report", "Management review", "Submit to board", "File documentation"] },
+        {
+          name: "Review Requirements",
+          estimatedHours: 2,
+          checklist: [
+            "Identify regulations",
+            "Check updates",
+            "Review deadlines",
+            "Assess scope",
+          ],
+        },
+        {
+          name: "Gather Documentation",
+          estimatedHours: 3,
+          checklist: [
+            "Collect policies",
+            "Gather records",
+            "Review procedures",
+            "Interview staff",
+          ],
+        },
+        {
+          name: "Check Compliance",
+          estimatedHours: 4,
+          checklist: [
+            "Test controls",
+            "Review documentation",
+            "Check procedures",
+            "Identify gaps",
+          ],
+        },
+        {
+          name: "Document Findings",
+          estimatedHours: 2,
+          checklist: [
+            "Write report",
+            "Document issues",
+            "Recommend actions",
+            "Set priorities",
+          ],
+        },
+        {
+          name: "Submit Report",
+          estimatedHours: 1,
+          checklist: [
+            "Finalize report",
+            "Management review",
+            "Submit to board",
+            "File documentation",
+          ],
+        },
       ],
     },
     {
@@ -550,10 +875,47 @@ async function seedDatabase() {
       trigger: "manual",
       estimatedDays: 3,
       stages: [
-        { name: "Initial Review", estimatedHours: 1, checklist: ["Check completeness", "Verify format", "Review scope", "Check references"] },
-        { name: "Detailed Analysis", estimatedHours: 2, checklist: ["Check accuracy", "Verify calculations", "Review compliance", "Check consistency"] },
-        { name: "Quality Check", estimatedHours: 1, checklist: ["Grammar check", "Format review", "Cross-reference", "Fact check"] },
-        { name: "Final Approval", estimatedHours: 1, requiresApproval: true, checklist: ["Final review", "Get approval", "Document decision", "Archive copy"] },
+        {
+          name: "Initial Review",
+          estimatedHours: 1,
+          checklist: [
+            "Check completeness",
+            "Verify format",
+            "Review scope",
+            "Check references",
+          ],
+        },
+        {
+          name: "Detailed Analysis",
+          estimatedHours: 2,
+          checklist: [
+            "Check accuracy",
+            "Verify calculations",
+            "Review compliance",
+            "Check consistency",
+          ],
+        },
+        {
+          name: "Quality Check",
+          estimatedHours: 1,
+          checklist: [
+            "Grammar check",
+            "Format review",
+            "Cross-reference",
+            "Fact check",
+          ],
+        },
+        {
+          name: "Final Approval",
+          estimatedHours: 1,
+          requiresApproval: true,
+          checklist: [
+            "Final review",
+            "Get approval",
+            "Document decision",
+            "Archive copy",
+          ],
+        },
       ],
     },
     {
@@ -564,10 +926,47 @@ async function seedDatabase() {
       estimatedDays: 7,
       serviceCode: "CONSULT",
       stages: [
-        { name: "Initial Setup", estimatedHours: 1, checklist: ["Create client record", "Set up folders", "Send welcome email", "Schedule meeting"] },
-        { name: "Document Collection", estimatedHours: 2, checklist: ["ID verification", "Engagement letter", "Bank details", "Tax information", "Company documents"] },
-        { name: "Service Configuration", estimatedHours: 1, checklist: ["Assign services", "Set rates", "Create schedule", "Set up billing"] },
-        { name: "System Access", estimatedHours: 1, checklist: ["Portal access", "Document sharing", "Communication setup", "Training provided"] },
+        {
+          name: "Initial Setup",
+          estimatedHours: 1,
+          checklist: [
+            "Create client record",
+            "Set up folders",
+            "Send welcome email",
+            "Schedule meeting",
+          ],
+        },
+        {
+          name: "Document Collection",
+          estimatedHours: 2,
+          checklist: [
+            "ID verification",
+            "Engagement letter",
+            "Bank details",
+            "Tax information",
+            "Company documents",
+          ],
+        },
+        {
+          name: "Service Configuration",
+          estimatedHours: 1,
+          checklist: [
+            "Assign services",
+            "Set rates",
+            "Create schedule",
+            "Set up billing",
+          ],
+        },
+        {
+          name: "System Access",
+          estimatedHours: 1,
+          checklist: [
+            "Portal access",
+            "Document sharing",
+            "Communication setup",
+            "Training provided",
+          ],
+        },
       ],
     },
     {
@@ -578,10 +977,47 @@ async function seedDatabase() {
       estimatedDays: 3,
       serviceCode: "BOOKKEEP",
       stages: [
-        { name: "Transaction Import", estimatedHours: 1, checklist: ["Import bank", "Import credit cards", "Import expenses", "Import invoices"] },
-        { name: "Categorization", estimatedHours: 2, checklist: ["Categorize transactions", "Match receipts", "Flag queries", "Code to accounts"] },
-        { name: "Reconciliation", estimatedHours: 2, checklist: ["Bank reconciliation", "Credit card reconciliation", "VAT reconciliation", "Balance sheet review"] },
-        { name: "Reporting", estimatedHours: 1, checklist: ["P&L report", "Balance sheet", "Cash flow", "Send to client", "File reports"] },
+        {
+          name: "Transaction Import",
+          estimatedHours: 1,
+          checklist: [
+            "Import bank",
+            "Import credit cards",
+            "Import expenses",
+            "Import invoices",
+          ],
+        },
+        {
+          name: "Categorization",
+          estimatedHours: 2,
+          checklist: [
+            "Categorize transactions",
+            "Match receipts",
+            "Flag queries",
+            "Code to accounts",
+          ],
+        },
+        {
+          name: "Reconciliation",
+          estimatedHours: 2,
+          checklist: [
+            "Bank reconciliation",
+            "Credit card reconciliation",
+            "VAT reconciliation",
+            "Balance sheet review",
+          ],
+        },
+        {
+          name: "Reporting",
+          estimatedHours: 1,
+          checklist: [
+            "P&L report",
+            "Balance sheet",
+            "Cash flow",
+            "Send to client",
+            "File reports",
+          ],
+        },
       ],
     },
   ];
@@ -590,7 +1026,9 @@ async function seedDatabase() {
     // Find the service if specified
     let serviceId = null;
     if (template.serviceCode) {
-      const service = createdServices.find(s => s.code === template.serviceCode);
+      const service = createdServices.find(
+        (s) => s.code === template.serviceCode,
+      );
       if (service) {
         serviceId = service.id;
       }
@@ -644,18 +1082,28 @@ async function seedDatabase() {
 
   // Create a map of task types to workflows
   const workflowMap: { [key: string]: any } = {
-    "Tax Return": createdWorkflows.find(w => w.name.includes("Tax Return")),
-    "VAT Return": createdWorkflows.find(w => w.name.includes("VAT Return")),
-    "Annual Accounts": createdWorkflows.find(w => w.name.includes("Annual Accounts")),
-    "Payroll": createdWorkflows.find(w => w.name.includes("Payroll")),
-    "Bookkeeping": createdWorkflows.find(w => w.name.includes("Bookkeeping")),
-    "Client Meeting": createdWorkflows.find(w => w.name.includes("Client Onboarding")),
-    "Compliance Check": createdWorkflows.find(w => w.name.includes("Compliance Review")),
-    "Document Review": createdWorkflows.find(w => w.name.includes("Document Review")),
+    "Tax Return": createdWorkflows.find((w) => w.name.includes("Tax Return")),
+    "VAT Return": createdWorkflows.find((w) => w.name.includes("VAT Return")),
+    "Annual Accounts": createdWorkflows.find((w) =>
+      w.name.includes("Annual Accounts"),
+    ),
+    Payroll: createdWorkflows.find((w) => w.name.includes("Payroll")),
+    Bookkeeping: createdWorkflows.find((w) => w.name.includes("Bookkeeping")),
+    "Client Meeting": createdWorkflows.find((w) =>
+      w.name.includes("Client Onboarding"),
+    ),
+    "Compliance Check": createdWorkflows.find((w) =>
+      w.name.includes("Compliance Review"),
+    ),
+    "Document Review": createdWorkflows.find((w) =>
+      w.name.includes("Document Review"),
+    ),
   };
 
   // Assign workflows to matching tasks based on task_type
   for (const task of createdTasks) {
+    if (!task.taskType) continue;
+
     const workflowToAssign = workflowMap[task.taskType];
 
     if (workflowToAssign) {
@@ -686,7 +1134,7 @@ async function seedDatabase() {
   const workflowInstanceCount = await db
     .select()
     .from(taskWorkflowInstances)
-    .then(r => r.length);
+    .then((r) => r.length);
 
   console.log(`✓ ${workflowInstanceCount} Workflow instances created`);
 
@@ -698,12 +1146,28 @@ async function seedDatabase() {
     { name: "Invoice_March.pdf", mimeType: "application/pdf", size: 123456 },
     { name: "Bank_Statement.pdf", mimeType: "application/pdf", size: 456789 },
     { name: "Receipts.zip", mimeType: "application/zip", size: 2345678 },
-    { name: "Accounts_2023.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", size: 345678 },
-    { name: "Meeting_Notes.docx", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", size: 123456 },
+    {
+      name: "Accounts_2023.xlsx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      size: 345678,
+    },
+    {
+      name: "Meeting_Notes.docx",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      size: 123456,
+    },
   ];
 
   // Create root folders
-  const rootFolders = ["Tax Returns", "Invoices", "Bank Statements", "Contracts", "Correspondence"];
+  const rootFolders = [
+    "Tax Returns",
+    "Invoices",
+    "Bank Statements",
+    "Contracts",
+    "Correspondence",
+  ];
   for (const folderName of rootFolders) {
     const [folder] = await db
       .insert(documents)
@@ -732,14 +1196,23 @@ async function seedDatabase() {
         clientId: client.id,
         uploadedById: faker.helpers.arrayElement(createdUsers).id,
         description: faker.lorem.sentence(),
-        tags: faker.helpers.arrayElements(["important", "archived", "pending-review", "approved"], { min: 0, max: 2 }),
+        tags: faker.helpers.arrayElements(
+          ["important", "archived", "pending-review", "approved"],
+          { min: 0, max: 2 },
+        ),
       });
     }
   }
 
   // 13. Create Activity Logs
   console.log("Creating activity logs...");
-  const actions = ["created", "updated", "completed", "assigned", "status_changed"];
+  const actions = [
+    "created",
+    "updated",
+    "completed",
+    "assigned",
+    "status_changed",
+  ];
   const entityTypes = ["task", "client", "invoice", "compliance", "document"];
 
   for (let i = 0; i < 100; i++) {
@@ -780,7 +1253,12 @@ async function seedDatabase() {
       userName: `${user.firstName} ${user.lastName}`,
       createdAt: faker.date.recent({ days: 30 }),
       metadata: {
-        browser: faker.helpers.arrayElement(["Chrome", "Firefox", "Safari", "Edge"]),
+        browser: faker.helpers.arrayElement([
+          "Chrome",
+          "Firefox",
+          "Safari",
+          "Edge",
+        ]),
         os: faker.helpers.arrayElement(["Windows", "MacOS", "Linux"]),
       },
     });
@@ -812,13 +1290,16 @@ async function seedDatabase() {
   }
 
   console.log("\n🎉 You can now log in with any of the above users!");
-  console.log("Note: In development, authentication will auto-create these users with Clerk.");
+  console.log(
+    "Note: In development, authentication will auto-create these users with Clerk.",
+  );
 }
 
 async function main() {
   try {
     // Check if we should clear first
-    const shouldClear = process.argv.includes("--clear") || process.argv.includes("-c");
+    const shouldClear =
+      process.argv.includes("--clear") || process.argv.includes("-c");
 
     if (shouldClear) {
       await clearDatabase();
