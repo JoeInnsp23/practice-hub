@@ -277,9 +277,9 @@ export function DataImportModal({
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Errors:</p>
                   <div className="max-h-40 overflow-y-auto space-y-1">
-                    {result.errors.map((error, i) => (
+                    {result.errors.map((error) => (
                       <div
-                        key={i}
+                        key={`error-${error.row}-${error.field}`}
                         className="text-xs p-2 bg-destructive/10 rounded flex items-start gap-2"
                       >
                         <XCircle className="h-3 w-3 text-destructive mt-0.5" />
@@ -298,9 +298,9 @@ export function DataImportModal({
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Skipped:</p>
                   <div className="max-h-40 overflow-y-auto space-y-1">
-                    {result.skipped.map((skip, i) => (
+                    {result.skipped.map((skip) => (
                       <div
-                        key={i}
+                        key={`skip-${skip.row}`}
                         className="text-xs p-2 bg-orange-100 dark:bg-orange-900/20 rounded"
                       >
                         Row {skip.row}: {skip.reason}

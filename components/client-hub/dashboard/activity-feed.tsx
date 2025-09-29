@@ -77,7 +77,7 @@ export function ActivityFeed({
             {loading ? (
               // Loading skeletons
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex gap-3 pb-4 border-b">
+                <div key={`skeleton-${i}`} className="flex gap-3 pb-4 border-b">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="flex-1 space-y-2">
                     <Skeleton className="h-4 w-3/4" />

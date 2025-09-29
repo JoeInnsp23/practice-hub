@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-interface User {
+interface UserData {
   id: string;
   clerkId: string;
   email: string;
@@ -38,10 +38,10 @@ interface User {
 }
 
 interface EditUserDialogProps {
-  user: User;
+  user: UserData;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (user: User) => void;
+  onSuccess: (user: UserData) => void;
 }
 
 export function EditUserDialog({

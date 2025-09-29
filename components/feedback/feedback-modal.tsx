@@ -52,7 +52,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     setLoading(true);
     try {
       // Capture console logs if it's an issue
-      let consoleLogs;
+      let consoleLogs: string | undefined;
       if (feedbackType === "issue" && typeof window !== "undefined") {
         consoleLogs = getRecentConsoleLogs(20);
       }

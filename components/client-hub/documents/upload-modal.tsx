@@ -101,7 +101,9 @@ export function UploadModal({
       }, 200);
 
       const fileList = new DataTransfer();
-      files.forEach((file) => fileList.items.add(file));
+      files.forEach((file) => {
+        fileList.items.add(file);
+      });
 
       await onUpload(fileList.files, {
         client,
@@ -176,9 +178,9 @@ export function UploadModal({
           {/* Selected Files */}
           {files.length > 0 && (
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {files.map((file, index) => (
+              {files.map((file) => (
                 <div
-                  key={index}
+                  key={`${file.name}-${file.size}`}
                   className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
                   <div className="flex items-center gap-3">

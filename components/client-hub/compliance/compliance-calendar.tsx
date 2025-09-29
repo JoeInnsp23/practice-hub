@@ -158,7 +158,7 @@ export function ComplianceCalendar({
 
             return (
               <div
-                key={index}
+                key={format(day, "yyyy-MM-dd")}
                 className={cn(
                   "bg-white dark:bg-gray-900 p-2 min-h-[100px] border-t",
                   !isCurrentMonth(day) &&

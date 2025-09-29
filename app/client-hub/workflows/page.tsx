@@ -166,9 +166,9 @@ export default function WorkflowsPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {templateStats.map((stat, index) => (
+        {templateStats.map((stat) => (
           <KPIWidget
-            key={index}
+            key={stat.title}
             title={stat.title}
             value={stat.value}
             icon={stat.icon}

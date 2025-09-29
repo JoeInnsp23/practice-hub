@@ -202,9 +202,9 @@ export default function ClientsPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((kpi, index) => (
+        {kpis.map((kpi) => (
           <KPIWidget
-            key={index}
+            key={kpi.title}
             title={kpi.title}
             value={kpi.value}
             icon={kpi.icon}

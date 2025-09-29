@@ -1,7 +1,7 @@
 "use client";
 
 import { GripVertical, Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -66,6 +66,19 @@ export function WorkflowTemplateModal({
   const [newStageName, setNewStageName] = useState("");
   const [newStageDescription, setNewStageDescription] = useState("");
 
+  const handleReset = useCallback(() => {
+    setFormData({
+      name: "",
+      description: "",
+      service: null,
+      estimatedDays: 1,
+      is_active: true,
+      stages: [],
+    });
+    setNewStageName("");
+    setNewStageDescription("");
+  }, []);
+
   useEffect(() => {
     if (template) {
       // Ensure all stages have a checklist array
@@ -94,19 +107,6 @@ export function WorkflowTemplateModal({
     }
     onSave(formData);
     handleReset();
-  };
-
-  const handleReset = () => {
-    setFormData({
-      name: "",
-      description: "",
-      service: null,
-      estimatedDays: 1,
-      is_active: true,
-      stages: [],
-    });
-    setNewStageName("");
-    setNewStageDescription("");
   };
 
   const handleServiceChange = (serviceId: string) => {

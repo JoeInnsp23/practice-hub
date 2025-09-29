@@ -76,7 +76,7 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
           {/* Client List */}
           <div className="space-y-3">
             {topClients.map((client, index) => (
-              <div key={index} className="flex items-center justify-between">
+              <div key={client.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1">
                   <div
                     className={`w-3 h-3 rounded-full ${getColorClass(index)}`}

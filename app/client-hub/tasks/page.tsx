@@ -265,9 +265,9 @@ export default function TasksPage() {
 
       {/* Task Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {taskStats.map((stat, index) => (
+        {taskStats.map((stat) => (
           <KPIWidget
-            key={index}
+            key={stat.title}
             title={stat.title}
             value={stat.value}
             icon={stat.icon}

@@ -97,7 +97,7 @@ class ApiClient {
 
   private async handleResponse<T = any>(response: Response): Promise<T> {
     if (!response.ok) {
-      let errorData;
+      let errorData: { error?: string; message?: string; [key: string]: any };
       try {
         errorData = await response.json();
       } catch {
