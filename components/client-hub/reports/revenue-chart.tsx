@@ -36,7 +36,7 @@ export function RevenueChart({ data, period }: RevenueChartProps) {
 
   const maxValue = Math.max(
     ...data.map((d) => Math.max(d.invoiced, d.collected)),
-    1 // Fallback to prevent -Infinity
+    1, // Fallback to prevent -Infinity
   );
   const total = data.reduce((sum, d) => sum + d.collected, 0);
   const avgMonthly = data.length > 0 ? total / data.length : 0;
@@ -81,13 +81,11 @@ export function RevenueChart({ data, period }: RevenueChartProps) {
             <div>
               <p className="text-sm text-muted-foreground">Best Month</p>
               <p className="font-semibold">
-                {
-                  data.length > 0
-                    ? data.reduce((best, current) =>
-                        current.collected > best.collected ? current : best,
-                      ).month
-                    : 'N/A'
-                }
+                {data.length > 0
+                  ? data.reduce((best, current) =>
+                      current.collected > best.collected ? current : best,
+                    ).month
+                  : "N/A"}
               </p>
             </div>
           </div>

@@ -1103,7 +1103,6 @@ async function seedDatabase() {
   // Assign workflows to matching tasks based on task_type
   for (const task of createdTasks) {
     if (!task.taskType) continue;
-
     const workflowToAssign = workflowMap[task.taskType];
 
     if (workflowToAssign) {

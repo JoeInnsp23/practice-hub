@@ -16,9 +16,7 @@ export default function ClientPortalPage() {
             <CardTitle className="text-lg">Recent Documents</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              No recent documents
-            </p>
+            <p className="text-muted-foreground">No recent documents</p>
           </CardContent>
         </Card>
         <Card>
@@ -34,9 +32,7 @@ export default function ClientPortalPage() {
             <CardTitle className="text-lg">Upcoming Meetings</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              No scheduled meetings
-            </p>
+            <p className="text-muted-foreground">No scheduled meetings</p>
           </CardContent>
         </Card>
       </div>

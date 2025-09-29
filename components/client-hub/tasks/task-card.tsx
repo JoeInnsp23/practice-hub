@@ -27,7 +27,16 @@ interface TaskCardProps {
     id: string;
     title: string;
     description?: string;
-    status: "pending" | "in_progress" | "completed" | "cancelled";
+    status:
+      | "pending"
+      | "in_progress"
+      | "review"
+      | "completed"
+      | "cancelled"
+      | "blocked"
+      | "records_received"
+      | "queries_sent"
+      | "queries_received";
     priority: "low" | "medium" | "high" | "urgent";
     dueDate?: Date;
     assignee?: {
@@ -38,6 +47,9 @@ interface TaskCardProps {
     estimatedHours?: number;
     actualHours?: number;
     tags?: string[];
+    workflowInstance?: {
+      name?: string;
+    };
   };
   onEdit: (task: any) => void;
   onDelete: (task: any) => void;
@@ -175,7 +187,10 @@ export function TaskCard({
         {task.workflowInstance && (
           <div className="flex items-center gap-1 mb-3">
             <GitBranch className="h-3 w-3 text-blue-600" />
-            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            >
               {task.workflowInstance.name || "Workflow"}
             </Badge>
           </div>

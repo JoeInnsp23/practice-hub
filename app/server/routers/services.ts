@@ -4,24 +4,28 @@ import { services, activityLogs } from "@/lib/db/schema";
 import { eq, and, or, ilike, desc } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const serviceSchema = z.object({
-  serviceCode: z.string(),
-  name: z.string(),
-  category: z.string(),
-  description: z.string().optional(),
-  billingType: z.enum(["hourly", "fixed", "retainer", "milestone"]),
-  standardRate: z.number().optional(),
-  isActive: z.boolean().optional(),
+// Generate schema from Drizzle table definition
+const insertServiceSchema = createInsertSchema(services);
+
+// Schema for create/update operations (omit auto-generated fields)
+const serviceSchema = insertServiceSchema.omit({
+  id: true,
+  tenantId: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const servicesRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      search: z.string().optional(),
-      category: z.string().optional(),
-      isActive: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        search: z.string().optional(),
+        category: z.string().optional(),
+        isActive: z.boolean().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
       const { search, category, isActive } = input;
@@ -33,9 +37,9 @@ export const servicesRouter = router({
         conditions.push(
           or(
             ilike(services.name, `%${search}%`),
-            ilike(services.serviceCode, `%${search}%`),
-            ilike(services.description, `%${search}%`)
-          )!
+            ilike(services.code, `%${search}%`),
+            ilike(services.description, `%${search}%`),
+          )!,
         );
       }
 
@@ -70,7 +74,7 @@ export const servicesRouter = router({
       if (!service[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Service not found"
+          message: "Service not found",
         });
       }
 
@@ -87,14 +91,17 @@ export const servicesRouter = router({
         .insert(services)
         .values({
           tenantId,
-          serviceCode: input.serviceCode,
+          code: input.code,
           name: input.name,
           category: input.category,
           description: input.description,
-          billingType: input.billingType,
-          standardRate: input.standardRate,
+          priceType: input.priceType,
+          price: input.price,
+          defaultRate: input.defaultRate,
+          duration: input.duration,
+          tags: input.tags,
           isActive: input.isActive ?? true,
-          createdBy: userId,
+          metadata: input.metadata,
         })
         .returning();
 
@@ -107,17 +114,23 @@ export const servicesRouter = router({
         description: `Created service "${input.name}"`,
         userId,
         userName: `${firstName} ${lastName}`,
-        newValues: { name: input.name, category: input.category, billingType: input.billingType }
+        newValues: {
+          name: input.name,
+          category: input.category,
+          priceType: input.priceType,
+        },
       });
 
       return { success: true, service: newService };
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: serviceSchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: serviceSchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -131,7 +144,7 @@ export const servicesRouter = router({
       if (!existingService[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Service not found"
+          message: "Service not found",
         });
       }
 
@@ -176,7 +189,7 @@ export const servicesRouter = router({
       if (!existingService[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Service not found"
+          message: "Service not found",
         });
       }
 

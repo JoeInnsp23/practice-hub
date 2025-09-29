@@ -33,20 +33,22 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-
-
 export default function WorkflowsPage() {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
 
   // Fetch workflows from database
-  const { data: workflowTemplates = [], refetch } = trpc.workflows.list.useQuery();
+  const { data: workflowTemplates = [], refetch } =
+    trpc.workflows.list.useQuery();
   const toggleActiveMutation = trpc.workflows.toggleActive.useMutation();
   const deleteWorkflowMutation = trpc.workflows.delete.useMutation();
   const createWorkflowMutation = trpc.workflows.create.useMutation();
   const updateWorkflowMutation = trpc.workflows.update.useMutation();
 
-  const handleToggleTemplate = async (templateId: string, isActive: boolean) => {
+  const handleToggleTemplate = async (
+    templateId: string,
+    isActive: boolean,
+  ) => {
     try {
       await toggleActiveMutation.mutateAsync({
         id: templateId,
@@ -60,8 +62,11 @@ export default function WorkflowsPage() {
   };
 
   const handleDeleteTemplate = async (templateId: string) => {
-    const template = workflowTemplates.find(t => t.id === templateId);
-    if (template && window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
+    const template = workflowTemplates.find((t) => t.id === templateId);
+    if (
+      template &&
+      window.confirm(`Are you sure you want to delete "${template.name}"?`)
+    ) {
       try {
         await deleteWorkflowMutation.mutateAsync(templateId);
         toast.success("Template deleted successfully");
@@ -73,18 +78,18 @@ export default function WorkflowsPage() {
   };
 
   const handleDuplicateTemplate = async (templateId: string) => {
-    const template = workflowTemplates.find(t => t.id === templateId);
+    const template = workflowTemplates.find((t) => t.id === templateId);
     if (template) {
       try {
         await createWorkflowMutation.mutateAsync({
           name: `${template.name} (Copy)`,
           description: template.description,
           type: template.type,
+          config: {},
           trigger: template.trigger,
           serviceId: template.serviceId,
           isActive: template.isActive,
           estimatedDays: template.estimatedDays,
-          stages: template.stages,
         });
         toast.success("Template duplicated successfully");
         refetch();
@@ -99,17 +104,11 @@ export default function WorkflowsPage() {
       title: "Total Templates",
       value: workflowTemplates.length.toString(),
       icon: FileText,
-      change: "",
-      changeType: "neutral" as const,
     },
     {
       title: "Active Templates",
-      value: workflowTemplates
-        .filter((t) => t.isActive)
-        .length.toString(),
+      value: workflowTemplates.filter((t) => t.isActive).length.toString(),
       icon: Activity,
-      change: "",
-      changeType: "neutral" as const,
     },
     {
       title: "Total Stages",
@@ -117,15 +116,11 @@ export default function WorkflowsPage() {
         .reduce((sum, t) => sum + (t.stageCount || 0), 0)
         .toString(),
       icon: Layers,
-      change: "",
-      changeType: "neutral" as const,
     },
     {
       title: "Tasks Using Templates",
       value: "0",
       icon: GitBranch,
-      change: "",
-      changeType: "neutral" as const,
     },
   ];
 
@@ -161,10 +156,12 @@ export default function WorkflowsPage() {
             Create and manage workflow templates for tasks
           </p>
         </div>
-        <Button onClick={() => {
-          setEditingTemplate(null);
-          setIsTemplateModalOpen(true);
-        }}>
+        <Button
+          onClick={() => {
+            setEditingTemplate(null);
+            setIsTemplateModalOpen(true);
+          }}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Create Template
         </Button>
@@ -178,8 +175,6 @@ export default function WorkflowsPage() {
             title={stat.title}
             value={stat.value}
             icon={stat.icon}
-            change={stat.change}
-            changeType={stat.changeType}
           />
         ))}
       </div>
@@ -197,7 +192,7 @@ export default function WorkflowsPage() {
                   key={template.id}
                   className={cn(
                     "hover:shadow-lg transition-shadow",
-                    !template.is_active && "opacity-60"
+                    !template.isActive && "opacity-60",
                   )}
                 >
                   <CardHeader className="pb-3">
@@ -221,7 +216,11 @@ export default function WorkflowsPage() {
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -242,7 +241,12 @@ export default function WorkflowsPage() {
                             Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleToggleTemplate(template.id, template.isActive)}
+                            onClick={() =>
+                              handleToggleTemplate(
+                                template.id,
+                                template.isActive,
+                              )
+                            }
                           >
                             {template.isActive ? (
                               <>
@@ -304,10 +308,12 @@ export default function WorkflowsPage() {
               <p className="text-muted-foreground mb-4">
                 No workflow templates created yet
               </p>
-              <Button onClick={() => {
-                setEditingTemplate(null);
-                setIsTemplateModalOpen(true);
-              }}>
+              <Button
+                onClick={() => {
+                  setEditingTemplate(null);
+                  setIsTemplateModalOpen(true);
+                }}
+              >
                 Create Your First Template
               </Button>
             </div>

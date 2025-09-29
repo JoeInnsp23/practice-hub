@@ -8,15 +8,20 @@ import { formatCurrency } from "@/lib/utils/format";
 
 interface Service {
   id: string;
+  tenantId: string;
+  code: string;
   name: string;
-  description: string;
-  category: string;
-  price: number;
-  priceType: "fixed" | "hourly" | "monthly" | "project";
-  duration?: string;
-  features?: string[];
-  tags?: string[];
+  description: string | null;
+  category: string | null;
+  defaultRate: string | null;
+  price: string | null;
+  priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
+  duration: number | null;
+  tags: any;
   isActive: boolean;
+  metadata: any;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface ServiceCardProps {
@@ -30,10 +35,13 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
     switch (service.priceType) {
       case "hourly":
         return "per hour";
-      case "monthly":
-        return "per month";
+      case "retainer":
+        return "retainer";
       case "project":
         return "per project";
+      case "percentage":
+        return "percentage";
+      case "fixed":
       default:
         return "fixed price";
     }
@@ -45,9 +53,11 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <CardTitle className="text-lg">{service.name}</CardTitle>
-            <Badge variant="secondary" className="mt-2">
-              {service.category}
-            </Badge>
+            {service.category && (
+              <Badge variant="secondary" className="mt-2">
+                {service.category}
+              </Badge>
+            )}
           </div>
           <div className="flex gap-1">
             <Button
@@ -70,13 +80,15 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">{service.description}</p>
+        {service.description && (
+          <p className="text-sm text-muted-foreground">{service.description}</p>
+        )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
             <span className="text-2xl font-bold">
-              {formatCurrency(service.price)}
+              {service.price ? formatCurrency(parseFloat(service.price)) : "N/A"}
             </span>
             <span className="text-sm text-muted-foreground">
               / {getPriceLabel()}
@@ -85,28 +97,14 @@ export function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
           {service.duration && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              {service.duration}
+              {service.duration} min
             </div>
           )}
         </div>
 
-        {service.features && service.features.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-sm font-medium">Includes:</p>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              {service.features.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-green-500 mr-2">✓</span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {service.tags && service.tags.length > 0 && (
+        {Array.isArray(service.tags) && service.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {service.tags.map((tag) => (
+            {service.tags.map((tag: string) => (
               <Badge key={tag} variant="outline" className="text-xs">
                 <Tag className="h-3 w-3 mr-1" />
                 {tag}

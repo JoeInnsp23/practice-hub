@@ -61,7 +61,7 @@ export function RealtimeNotifications() {
 
   const markAsRead = (notificationId: string) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n)),
     );
     setUnreadCount((prev) => Math.max(0, prev - 1));
   };
@@ -161,11 +161,13 @@ export function RealtimeNotifications() {
                     <div className="flex items-start gap-2">
                       <div
                         className={`mt-1 h-2 w-2 rounded-full ${getNotificationIcon(
-                          notification.type
+                          notification.type,
                         )}`}
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{notification.title}</p>
+                        <p className="font-medium text-sm">
+                          {notification.title}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {notification.message}
                         </p>

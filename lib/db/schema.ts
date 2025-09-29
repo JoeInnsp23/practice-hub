@@ -762,9 +762,12 @@ export const taskWorkflowInstances = pgTable(
       .notNull(),
 
     // Current state
-    currentStageId: uuid("current_stage_id").references(() => workflowStages.id, {
-      onDelete: "set null",
-    }),
+    currentStageId: uuid("current_stage_id").references(
+      () => workflowStages.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     status: varchar("status", { length: 50 }).default("active").notNull(), // active, paused, completed, cancelled
 
     // Progress tracking (JSON structure for flexibility)
@@ -822,7 +825,10 @@ export const activityLogs = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    entityIdx: index("idx_activity_entity").on(table.entityType, table.entityId),
+    entityIdx: index("idx_activity_entity").on(
+      table.entityType,
+      table.entityId,
+    ),
     userIdx: index("idx_activity_user").on(table.userId),
     createdAtIdx: index("idx_activity_created").on(table.createdAt),
     tenantEntityIdx: index("idx_activity_tenant_entity").on(
@@ -920,7 +926,10 @@ export const userFavorites = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    userLinkIdx: uniqueIndex("idx_user_link_favorite").on(table.userId, table.linkId),
+    userLinkIdx: uniqueIndex("idx_user_link_favorite").on(
+      table.userId,
+      table.linkId,
+    ),
     userIdx: index("idx_user_favorites_user").on(table.userId),
     linkIdx: index("idx_user_favorites_link").on(table.linkId),
   }),

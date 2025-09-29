@@ -1,40 +1,44 @@
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
-import { tasks, activityLogs, taskWorkflowInstances, workflows, workflowStages } from "@/lib/db/schema";
+import {
+  tasks,
+  activityLogs,
+  taskWorkflowInstances,
+  workflows,
+  workflowStages,
+} from "@/lib/db/schema";
 import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const taskSchema = z.object({
-  taskCode: z.string().optional(),
-  title: z.string(),
-  description: z.string().optional(),
-  clientId: z.string().optional(),
-  serviceId: z.string().optional(),
-  assignedToId: z.string().optional(),
-  reviewerId: z.string().optional(),
-  status: z.enum(["pending", "in_progress", "review", "completed", "cancelled", "blocked", "records_received", "queries_sent", "queries_received"]),
-  priority: z.enum(["low", "medium", "high", "critical"]),
-  progress: z.number().min(0).max(100).optional(),
-  estimatedHours: z.number().optional(),
-  actualHours: z.number().optional(),
+// Generate schema from Drizzle table definition
+const insertTaskSchema = createInsertSchema(tasks, {
   targetDate: z.string().optional(),
-  startDate: z.string().optional(),
-  completedDate: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  notes: z.string().optional(),
+  dueDate: z.string().optional(),
+});
+
+// Schema for create/update operations (omit auto-generated fields)
+const taskSchema = insertTaskSchema.omit({
+  id: true,
+  tenantId: true,
+  createdAt: true,
+  updatedAt: true,
+  createdById: true,
 });
 
 export const tasksRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      search: z.string().optional(),
-      status: z.string().optional(),
-      priority: z.string().optional(),
-      assigneeId: z.string().optional(),
-      clientId: z.string().optional(),
-      overdue: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        search: z.string().optional(),
+        status: z.string().optional(),
+        priority: z.string().optional(),
+        assigneeId: z.string().optional(),
+        clientId: z.string().optional(),
+        overdue: z.boolean().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
       const { search, status, priority, assigneeId, clientId, overdue } = input;
@@ -66,7 +70,9 @@ export const tasksRouter = router({
         conditions.push(sql`client_id = ${clientId}`);
       }
       if (overdue) {
-        conditions.push(sql`target_date < CURRENT_DATE AND status NOT IN ('completed', 'cancelled')`);
+        conditions.push(
+          sql`target_date < CURRENT_DATE AND status NOT IN ('completed', 'cancelled')`,
+        );
       }
 
       // Combine conditions
@@ -106,12 +112,16 @@ export const tasksRouter = router({
         priority: task.priority,
         dueDate: task.due_date,
         targetDate: task.target_date,
-        assignee: task.assignee_name ? {
-          name: task.assignee_name,
-        } : undefined,
-        reviewer: task.reviewer_name ? {
-          name: task.reviewer_name,
-        } : undefined,
+        assignee: task.assignee_name
+          ? {
+              name: task.assignee_name,
+            }
+          : undefined,
+        reviewer: task.reviewer_name
+          ? {
+              name: task.reviewer_name,
+            }
+          : undefined,
         client: task.client_name,
         clientId: task.client_id,
         clientCode: task.client_code,
@@ -146,7 +156,7 @@ export const tasksRouter = router({
       if (!result || result.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Task not found"
+          message: "Task not found",
         });
       }
 
@@ -178,21 +188,25 @@ export const tasksRouter = router({
             id: instance[0].id,
             name: workflow[0]?.name || "Unknown Workflow",
             template: {
-              stages: stages.map(stage => ({
+              stages: stages.map((stage) => ({
                 id: stage.id,
                 name: stage.name,
                 description: stage.description,
                 is_required: stage.isRequired,
-                checklist_items: ((stage.checklistItems as any) || []).map((item: any) => {
-                  const progress = (instance[0].stageProgress as any)?.[stage.id]?.checklistItems?.[item.id];
-                  return {
-                    id: item.id,
-                    text: item.text,
-                    completed: progress?.completed || false,
-                    completedBy: progress?.completedBy,
-                    completedAt: progress?.completedAt,
-                  };
-                }),
+                checklist_items: ((stage.checklistItems as any) || []).map(
+                  (item: any) => {
+                    const progress = (instance[0].stageProgress as any)?.[
+                      stage.id
+                    ]?.checklistItems?.[item.id];
+                    return {
+                      id: item.id,
+                      text: item.text,
+                      completed: progress?.completed || false,
+                      completedBy: progress?.completedBy,
+                      completedAt: progress?.completedAt,
+                    };
+                  },
+                ),
               })),
             },
           };
@@ -216,23 +230,29 @@ export const tasksRouter = router({
         tags: task.tags || [],
         notes: task.notes,
         task_type: task.task_type,
-        assignee: task.assignee_name ? {
-          id: task.assigned_to_id,
-          name: task.assignee_name,
-        } : null,
-        reviewer: task.reviewer_name ? {
-          id: task.reviewer_id,
-          name: task.reviewer_name,
-        } : null,
+        assignee: task.assignee_name
+          ? {
+              id: task.assigned_to_id,
+              name: task.assignee_name,
+            }
+          : null,
+        reviewer: task.reviewer_name
+          ? {
+              id: task.reviewer_id,
+              name: task.reviewer_name,
+            }
+          : null,
         client: {
           id: task.client_id,
           name: task.client_name || "No Client",
           code: task.client_code || "",
         },
-        service: task.service_name ? {
-          id: task.service_id,
-          name: task.service_name,
-        } : null,
+        service: task.service_name
+          ? {
+              id: task.service_id,
+              name: task.service_name,
+            }
+          : null,
         workflowInstance,
         timeEntries: [], // Will be implemented later if needed
         createdAt: task.created_at,
@@ -245,32 +265,33 @@ export const tasksRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-      // Generate task code if not provided
-      const taskCode = input.taskCode || `TASK-${Date.now()}`;
-
       // Create the task
       const [newTask] = await db
         .insert(tasks)
         .values({
           tenantId,
-          taskCode,
           title: input.title,
           description: input.description,
+          status: input.status || "pending",
+          priority: input.priority || "medium",
           clientId: input.clientId,
-          serviceId: input.serviceId,
           assignedToId: input.assignedToId || userId,
           reviewerId: input.reviewerId,
-          status: input.status,
-          priority: input.priority,
-          progress: input.progress || 0,
+          createdById: userId,
+          dueDate: input.dueDate ? new Date(input.dueDate) : null,
+          targetDate: input.targetDate ? new Date(input.targetDate) : null,
+          completedAt: input.completedAt ? new Date(input.completedAt) : null,
           estimatedHours: input.estimatedHours,
           actualHours: input.actualHours,
-          targetDate: input.targetDate,
-          startDate: input.startDate,
-          completedDate: input.completedDate,
+          progress: input.progress || 0,
+          taskType: input.taskType,
+          category: input.category,
           tags: input.tags,
-          notes: input.notes,
-          createdBy: userId,
+          parentTaskId: input.parentTaskId,
+          workflowId: input.workflowId,
+          isRecurring: input.isRecurring || false,
+          recurringPattern: input.recurringPattern,
+          metadata: input.metadata,
         })
         .returning();
 
@@ -283,17 +304,23 @@ export const tasksRouter = router({
         description: `Created new task "${input.title}"`,
         userId,
         userName: `${firstName} ${lastName}`,
-        newValues: { title: input.title, status: input.status, priority: input.priority }
+        newValues: {
+          title: input.title,
+          status: input.status,
+          priority: input.priority,
+        },
       });
 
       return { success: true, task: newTask };
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: taskSchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: taskSchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -307,7 +334,7 @@ export const tasksRouter = router({
       if (!existingTask[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Task not found"
+          message: "Task not found",
         });
       }
 
@@ -318,7 +345,10 @@ export const tasksRouter = router({
       };
 
       // Update completed date if status changed to completed
-      if (input.data.status === "completed" && existingTask[0].status !== "completed") {
+      if (
+        input.data.status === "completed" &&
+        existingTask[0].status !== "completed"
+      ) {
         updateData.completedDate = new Date().toISOString();
         updateData.progress = 100;
       }
@@ -360,7 +390,7 @@ export const tasksRouter = router({
       if (!existingTask[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Task not found"
+          message: "Task not found",
         });
       }
 
@@ -382,23 +412,74 @@ export const tasksRouter = router({
     }),
 
   updateStatus: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      status: z.enum(["pending", "in_progress", "review", "completed", "cancelled", "blocked", "records_received", "queries_sent", "queries_received"]),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        status: z.enum([
+          "pending",
+          "in_progress",
+          "review",
+          "completed",
+          "cancelled",
+          "blocked",
+          "records_received",
+          "queries_sent",
+          "queries_received",
+        ]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return tasksRouter.createCaller(ctx).update({
-        id: input.id,
-        data: { status: input.status }
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check task exists and belongs to tenant
+      const existingTask = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, input.id), eq(tasks.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingTask[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found",
+        });
+      }
+
+      // Update task status
+      const [updatedTask] = await db
+        .update(tasks)
+        .set({
+          status: input.status,
+          completedAt: input.status === "completed" ? new Date() : existingTask[0].completedAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(tasks.id, input.id))
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "task",
+        entityId: input.id,
+        action: "updated",
+        description: `Updated task status to ${input.status}`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        oldValues: existingTask[0],
+        newValues: { status: input.status },
       });
+
+      return { success: true, task: updatedTask };
     }),
 
   // Workflow instance management
   assignWorkflow: protectedProcedure
-    .input(z.object({
-      taskId: z.string(),
-      workflowId: z.string(),
-    }))
+    .input(
+      z.object({
+        taskId: z.string(),
+        workflowId: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
 
@@ -412,7 +493,7 @@ export const tasksRouter = router({
       if (!task[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Task not found"
+          message: "Task not found",
         });
       }
 
@@ -420,13 +501,18 @@ export const tasksRouter = router({
       const workflow = await db
         .select()
         .from(workflows)
-        .where(and(eq(workflows.id, input.workflowId), eq(workflows.tenantId, tenantId)))
+        .where(
+          and(
+            eq(workflows.id, input.workflowId),
+            eq(workflows.tenantId, tenantId),
+          ),
+        )
         .limit(1);
 
       if (!workflow[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Workflow not found"
+          message: "Workflow not found",
         });
       }
 
@@ -473,7 +559,7 @@ export const tasksRouter = router({
       if (!task[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Task not found"
+          message: "Task not found",
         });
       }
 
@@ -513,12 +599,14 @@ export const tasksRouter = router({
     }),
 
   updateChecklistItem: protectedProcedure
-    .input(z.object({
-      taskId: z.string(),
-      stageId: z.string(),
-      itemId: z.string(),
-      completed: z.boolean(),
-    }))
+    .input(
+      z.object({
+        taskId: z.string(),
+        stageId: z.string(),
+        itemId: z.string(),
+        completed: z.boolean(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -532,7 +620,7 @@ export const tasksRouter = router({
       if (!instance[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Workflow instance not found"
+          message: "Workflow instance not found",
         });
       }
 
@@ -540,7 +628,7 @@ export const tasksRouter = router({
       const stageProgress = (instance[0].stageProgress as any) || {};
       if (!stageProgress[input.stageId]) {
         stageProgress[input.stageId] = {
-          checklistItems: {}
+          checklistItems: {},
         };
       }
       stageProgress[input.stageId].checklistItems[input.itemId] = {
@@ -587,7 +675,8 @@ export const tasksRouter = router({
         }
       }
 
-      const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+      const progress =
+        totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
       // Update task progress
       await db
@@ -604,7 +693,11 @@ export const tasksRouter = router({
         description: `Updated checklist item in workflow`,
         userId,
         userName: `${firstName} ${lastName}`,
-        metadata: { stageId: input.stageId, itemId: input.itemId, completed: input.completed }
+        metadata: {
+          stageId: input.stageId,
+          itemId: input.itemId,
+          completed: input.completed,
+        },
       });
 
       return { success: true, progress };

@@ -29,17 +29,26 @@ import {
 import { formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 
-interface ComplianceItem {
+// Match DB schema from tRPC
+export interface ComplianceItem {
   id: string;
+  tenantId: string;
   title: string;
-  client: string;
   type: string;
+  description: string | null;
+  clientId: string;
+  assignedToId: string | null;
   dueDate: Date;
+  completedDate: Date | null;
+  reminderDate: Date | null;
   status: "pending" | "in_progress" | "completed" | "overdue";
-  priority: "low" | "medium" | "high" | "urgent";
-  assignee?: string;
-  notes?: string;
-  completedDate?: Date;
+  priority: "low" | "medium" | "high" | "critical";
+  notes: string | null;
+  attachments: any;
+  metadata: any;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string | null;
 }
 
 interface ComplianceListProps {
@@ -82,7 +91,8 @@ export function ComplianceList({
       },
     };
 
-    const { label, icon: Icon, className } = config[status];
+    const statusConfig = config[status] || config.pending;
+    const { label, icon: Icon, className } = statusConfig;
     return (
       <Badge variant="secondary" className={cn(className)}>
         <Icon className="h-3 w-3 mr-1" />
@@ -91,39 +101,7 @@ export function ComplianceList({
     );
   };
 
-  const getPriorityBadge = (priority: ComplianceItem["priority"]) => {
-    const config = {
-      low: {
-        label: "Low",
-        className: "bg-muted text-muted-foreground",
-      },
-      medium: {
-        label: "Medium",
-        className:
-          "bg-yellow-600/10 dark:bg-yellow-400/10 text-yellow-600 dark:text-yellow-400",
-      },
-      high: {
-        label: "High",
-        className:
-          "bg-orange-600/10 dark:bg-orange-400/10 text-orange-600 dark:text-orange-400",
-      },
-      urgent: {
-        label: "Urgent",
-        icon: AlertTriangle,
-        className: "bg-destructive/10 text-destructive",
-      },
-    };
-
-    const { label, icon: Icon, className } = config[priority];
-    return (
-      <Badge variant="secondary" className={cn(className)}>
-        {Icon && <Icon className="h-3 w-3 mr-1" />}
-        {label}
-      </Badge>
-    );
-  };
-
-  const getDaysUntilDue = (dueDate: Date) => {
+  const getDaysUntilDue = (dueDate: Date | string) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(dueDate);
@@ -142,12 +120,9 @@ export function ComplianceList({
               <Checkbox />
             </TableHead>
             <TableHead>Task</TableHead>
-            <TableHead>Client</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Due Date</TableHead>
-            <TableHead>Priority</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Assignee</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -155,7 +130,7 @@ export function ComplianceList({
           {items.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={9}
+                colSpan={6}
                 className="text-center py-8 text-muted-foreground"
               >
                 No compliance items found
@@ -175,7 +150,6 @@ export function ComplianceList({
                     />
                   </TableCell>
                   <TableCell className="font-medium">{item.title}</TableCell>
-                  <TableCell>{item.client}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{item.type}</Badge>
                   </TableCell>
@@ -200,9 +174,7 @@ export function ComplianceList({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>{getPriorityBadge(item.priority)}</TableCell>
                   <TableCell>{getStatusBadge(item.status)}</TableCell>
-                  <TableCell>{item.assignee || "-"}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

@@ -73,7 +73,7 @@ export const WORK_TYPES: WorkType[] = [
 ];
 
 export const getWorkTypeByCode = (code: string): WorkType | undefined => {
-  return WORK_TYPES.find(wt => wt.code === code);
+  return WORK_TYPES.find((wt) => wt.code === code);
 };
 
 export const getWorkTypeColor = (code: string): string => {

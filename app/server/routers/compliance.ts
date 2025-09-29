@@ -4,31 +4,36 @@ import { compliance, activityLogs } from "@/lib/db/schema";
 import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const complianceSchema = z.object({
-  title: z.string(),
-  type: z.enum(["filing", "payment", "renewal", "audit", "reporting", "other"]),
-  description: z.string().optional(),
-  clientId: z.string().optional(),
-  assignedToId: z.string().optional(),
+// Generate schema from Drizzle table definition
+const insertComplianceSchema = createInsertSchema(compliance, {
   dueDate: z.string(),
-  frequency: z.enum(["once", "monthly", "quarterly", "annually"]),
-  status: z.enum(["pending", "in-progress", "completed", "overdue", "cancelled"]),
   completedDate: z.string().optional(),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  reminderDate: z.string().optional(),
+});
+
+// Schema for create/update operations (omit auto-generated fields)
+const complianceSchema = insertComplianceSchema.omit({
+  id: true,
+  tenantId: true,
+  createdAt: true,
+  updatedAt: true,
+  createdById: true,
 });
 
 export const complianceRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      search: z.string().optional(),
-      type: z.string().optional(),
-      status: z.string().optional(),
-      clientId: z.string().optional(),
-      assigneeId: z.string().optional(),
-      overdue: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        search: z.string().optional(),
+        type: z.string().optional(),
+        status: z.string().optional(),
+        clientId: z.string().optional(),
+        assigneeId: z.string().optional(),
+        overdue: z.boolean().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
       const { search, type, status, clientId, assigneeId, overdue } = input;
@@ -40,8 +45,8 @@ export const complianceRouter = router({
         conditions.push(
           or(
             ilike(compliance.title, `%${search}%`),
-            ilike(compliance.description, `%${search}%`)
-          )!
+            ilike(compliance.description, `%${search}%`),
+          )!,
         );
       }
 
@@ -65,8 +70,8 @@ export const complianceRouter = router({
         conditions.push(
           and(
             sql`${compliance.dueDate} < CURRENT_DATE`,
-            sql`${compliance.status} NOT IN ('completed', 'cancelled')`
-          )!
+            sql`${compliance.status} NOT IN ('completed', 'cancelled')`,
+          )!,
         );
       }
 
@@ -93,7 +98,7 @@ export const complianceRouter = router({
       if (!item[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Compliance item not found"
+          message: "Compliance item not found",
         });
       }
 
@@ -115,13 +120,15 @@ export const complianceRouter = router({
           description: input.description,
           clientId: input.clientId,
           assignedToId: input.assignedToId || userId,
-          dueDate: input.dueDate,
-          frequency: input.frequency,
-          status: input.status,
-          completedDate: input.completedDate,
+          dueDate: new Date(input.dueDate),
+          reminderDate: input.reminderDate ? new Date(input.reminderDate) : null,
+          status: input.status || "pending",
+          priority: input.priority || "medium",
+          completedDate: input.completedDate ? new Date(input.completedDate) : null,
           notes: input.notes,
-          tags: input.tags,
-          createdBy: userId,
+          attachments: input.attachments,
+          metadata: input.metadata,
+          createdById: userId,
         })
         .returning();
 
@@ -134,17 +141,23 @@ export const complianceRouter = router({
         description: `Created compliance item "${input.title}"`,
         userId,
         userName: `${firstName} ${lastName}`,
-        newValues: { title: input.title, type: input.type, dueDate: input.dueDate }
+        newValues: {
+          title: input.title,
+          type: input.type,
+          dueDate: input.dueDate,
+        },
       });
 
       return { success: true, compliance: newItem };
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: complianceSchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: complianceSchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -152,13 +165,15 @@ export const complianceRouter = router({
       const existingItem = await db
         .select()
         .from(compliance)
-        .where(and(eq(compliance.id, input.id), eq(compliance.tenantId, tenantId)))
+        .where(
+          and(eq(compliance.id, input.id), eq(compliance.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!existingItem[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Compliance item not found"
+          message: "Compliance item not found",
         });
       }
 
@@ -169,7 +184,10 @@ export const complianceRouter = router({
       };
 
       // Update completed date if status changed to completed
-      if (input.data.status === "completed" && existingItem[0].status !== "completed") {
+      if (
+        input.data.status === "completed" &&
+        existingItem[0].status !== "completed"
+      ) {
         updateData.completedDate = new Date().toISOString();
       }
 
@@ -210,7 +228,7 @@ export const complianceRouter = router({
       if (!existingItem[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Compliance item not found"
+          message: "Compliance item not found",
         });
       }
 
@@ -232,14 +250,69 @@ export const complianceRouter = router({
     }),
 
   updateStatus: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      status: z.enum(["pending", "in-progress", "completed", "overdue", "cancelled"]),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        status: z.enum([
+          "pending",
+          "in_progress",
+          "completed",
+          "overdue",
+        ]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return complianceRouter.createCaller(ctx).update({
-        id: input.id,
-        data: { status: input.status }
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check item exists and belongs to tenant
+      const existingItem = await db
+        .select()
+        .from(compliance)
+        .where(
+          and(eq(compliance.id, input.id), eq(compliance.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!existingItem[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Compliance item not found",
+        });
+      }
+
+      // Update item
+      const updateData: any = {
+        status: input.status,
+        updatedAt: new Date(),
+      };
+
+      // Update completed date if status changed to completed
+      if (
+        input.status === "completed" &&
+        existingItem[0].status !== "completed"
+      ) {
+        updateData.completedDate = new Date().toISOString();
+      }
+
+      const [updatedItem] = await db
+        .update(compliance)
+        .set(updateData)
+        .where(eq(compliance.id, input.id))
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "compliance",
+        entityId: input.id,
+        action: "updated",
+        description: `Updated compliance item "${updatedItem.title}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        oldValues: existingItem[0],
+        newValues: { status: input.status },
       });
+
+      return { success: true, compliance: updatedItem };
     }),
 });

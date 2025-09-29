@@ -37,7 +37,11 @@ interface TimeEntryInput {
 }
 
 // Hook to fetch time entries
-export function useTimeEntries(startDate?: string, endDate?: string, refreshKey?: number) {
+export function useTimeEntries(
+  startDate?: string,
+  endDate?: string,
+  refreshKey?: number,
+) {
   const [data, setData] = useState<TimeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -86,7 +90,9 @@ export function useTimeEntries(startDate?: string, endDate?: string, refreshKey?
           throw new Error("Failed to fetch time entries");
         }
       } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to fetch entries"));
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch entries"),
+        );
       } finally {
         setIsLoading(false);
       }
@@ -227,7 +233,13 @@ export function useCopyPreviousWeek() {
   const [isLoading, setIsLoading] = useState(false);
   const { userId } = useAuth();
 
-  const mutateAsync = async ({ sourceWeekStart, targetWeekStart }: { sourceWeekStart: string; targetWeekStart: string }) => {
+  const mutateAsync = async ({
+    sourceWeekStart,
+    targetWeekStart,
+  }: {
+    sourceWeekStart: string;
+    targetWeekStart: string;
+  }) => {
     if (!userId) {
       throw new Error("Not authenticated");
     }

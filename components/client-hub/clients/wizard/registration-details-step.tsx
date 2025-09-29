@@ -35,9 +35,7 @@ export function RegistrationDetailsStep({
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="companiesHouseNumber">
-              Companies House Number
-            </Label>
+            <Label htmlFor="companiesHouseNumber">Companies House Number</Label>
             <Input
               id="companiesHouseNumber"
               name="companiesHouseNumber"
@@ -73,9 +71,7 @@ export function RegistrationDetailsStep({
               type="date"
               autoComplete="off"
               value={formData.yearEndDate || ""}
-              onChange={(e) =>
-                updateFormData({ yearEndDate: e.target.value })
-              }
+              onChange={(e) => updateFormData({ yearEndDate: e.target.value })}
             />
           </div>
         </div>
@@ -193,8 +189,8 @@ export function RegistrationDetailsStep({
               Registration Information
             </p>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              These details help track compliance deadlines and filing requirements.
-              You can update them later as needed.
+              These details help track compliance deadlines and filing
+              requirements. You can update them later as needed.
             </p>
           </div>
         </div>

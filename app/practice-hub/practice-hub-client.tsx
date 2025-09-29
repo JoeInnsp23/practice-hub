@@ -36,66 +36,75 @@ export function PracticeHubClient({
   const displayName = userName || user?.firstName || "User";
 
   // Fetch portal data
-  const { data: categoriesWithLinks, isLoading } = api.portal.getCategoriesWithLinks.useQuery();
+  const { data: categoriesWithLinks, isLoading } =
+    api.portal.getCategoriesWithLinks.useQuery();
   const { data: favorites } = api.portal.getUserFavorites.useQuery();
   const toggleFavoriteMutation = api.portal.toggleFavorite.useMutation();
 
   // Get Practice Hub category and its links
-  const practiceHubCategory = categoriesWithLinks?.find(cat => cat.name === "Practice Hub");
+  const practiceHubCategory = categoriesWithLinks?.find(
+    (cat) => cat.name === "Practice Hub",
+  );
 
   // Define module-specific colors (preserving original colors)
   const moduleColors: Record<string, string> = {
-    "Proposal Hub": "#ec4899",  // pink
-    "Social Hub": "#8b5cf6",    // purple
-    "Client Hub": "#3b82f6",    // blue
+    "Proposal Hub": "#ec4899", // pink
+    "Social Hub": "#8b5cf6", // purple
+    "Client Hub": "#3b82f6", // blue
     "Employee Portal": "#a855f7", // purple
-    "Client Portal": "#10b981",  // green
-    "Admin Panel": "#f97316",    // orange
+    "Client Portal": "#10b981", // green
+    "Admin Panel": "#f97316", // orange
     "Bookkeeping Hub": "#f59e0b", // amber
-    "Accounts Hub": "#06b6d4",   // cyan
-    "Payroll Hub": "#84cc16",    // lime
+    "Accounts Hub": "#06b6d4", // cyan
+    "Payroll Hub": "#84cc16", // lime
   };
 
-  const practiceHubApps = practiceHubCategory?.links.map(link => {
-    // Get the appropriate icon
-    const IconComponent = link.iconName
-      ? getIconComponent(link.iconName) || ExternalLink
-      : ExternalLink;
+  const practiceHubApps =
+    practiceHubCategory?.links.map((link) => {
+      // Get the appropriate icon
+      const IconComponent = link.iconName
+        ? getIconComponent(link.iconName) || ExternalLink
+        : ExternalLink;
 
-    // Determine status from description
-    let status: "active" | "coming-soon" | "placeholder" = "active";
-    if (link.description?.includes("coming soon") ||
+      // Determine status from description
+      let status: "active" | "coming-soon" | "placeholder" = "active";
+      if (
+        link.description?.includes("coming soon") ||
         link.url.includes("/bookkeeping") ||
         link.url.includes("/accounts-hub") ||
         link.url.includes("/payroll") ||
-        link.url.includes("/employee-portal")) {
-      status = "coming-soon";
-    }
+        link.url.includes("/employee-portal")
+      ) {
+        status = "coming-soon";
+      }
 
-    // Use module-specific color or fall back to category color
-    const moduleColor = moduleColors[link.title] || practiceHubCategory.colorHex || "#ff8609";
+      // Use module-specific color or fall back to category color
+      const moduleColor =
+        moduleColors[link.title] || practiceHubCategory.colorHex || "#ff8609";
 
-    return {
-      id: link.id,
-      name: link.title,
-      description: link.description || "",
-      icon: IconComponent as any,
-      color: moduleColor,
-      url: link.url,
-      status,
-      isFavorite: favorites?.some((f: any) => f.linkId === link.id) || false,
-    };
-  }) || [];
+      return {
+        id: link.id,
+        name: link.title,
+        description: link.description || "",
+        icon: IconComponent as any,
+        color: moduleColor,
+        url: link.url,
+        status,
+        isFavorite: favorites?.some((f: any) => f.linkId === link.id) || false,
+      };
+    }) || [];
 
   // Get all external links (non-Practice Hub categories)
-  const externalCategories = categoriesWithLinks?.filter(cat =>
-    cat.name !== "Practice Hub" && cat.links.length > 0
-  ) || [];
+  const externalCategories =
+    categoriesWithLinks?.filter(
+      (cat) => cat.name !== "Practice Hub" && cat.links.length > 0,
+    ) || [];
 
   // Filter links by selected category
-  const filteredExternalLinks = selectedCategory === "all"
-    ? externalCategories
-    : externalCategories.filter(cat => cat.id === selectedCategory);
+  const filteredExternalLinks =
+    selectedCategory === "all"
+      ? externalCategories
+      : externalCategories.filter((cat) => cat.id === selectedCategory);
 
   const handleAppClick = (app: (typeof practiceHubApps)[0]) => {
     if (app.status === "active") {
@@ -173,7 +182,10 @@ export function PracticeHubClient({
           <TabsContent value="useful-links" className="mt-0">
             {/* Category Filter */}
             <div className="mb-6">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger className="w-64">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
@@ -224,7 +236,11 @@ export function PracticeHubClient({
                             key={link.id}
                             href={link.url}
                             target={link.targetBlank ? "_blank" : undefined}
-                            rel={link.targetBlank ? "noopener noreferrer" : undefined}
+                            rel={
+                              link.targetBlank
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
                             className="block"
                           >
                             <div className="glass-card group relative overflow-hidden transition-all duration-300 rounded-xl hover:shadow-xl hover:-translate-y-1 cursor-pointer">
@@ -232,9 +248,15 @@ export function PracticeHubClient({
                                 <div className="flex items-start gap-3">
                                   <div
                                     className="p-3 rounded-lg flex-shrink-0 shadow-md transition-all duration-300 group-hover:shadow-lg"
-                                    style={{ backgroundColor: `${category.colorHex}20` }}
+                                    style={{
+                                      backgroundColor: `${category.colorHex}20`,
+                                    }}
                                   >
-                                    <span style={{ color: category.colorHex || '#000000' }}>
+                                    <span
+                                      style={{
+                                        color: category.colorHex || "#000000",
+                                      }}
+                                    >
                                       <LinkIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                                     </span>
                                   </div>

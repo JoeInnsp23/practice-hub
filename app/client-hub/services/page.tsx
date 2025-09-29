@@ -31,6 +31,23 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 
+type Service = {
+  id: string;
+  tenantId: string;
+  code: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  defaultRate: string | null;
+  price: string | null;
+  priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
+  duration: number | null;
+  tags: any;
+  isActive: boolean;
+  metadata: any;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export default function ServicesPage() {
   const utils = trpc.useUtils();
@@ -38,21 +55,55 @@ export default function ServicesPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<any>(null);
+  const [editingService, setEditingService] = useState<Service | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch services using tRPC
-  const { data: servicesData, isLoading: loading } = trpc.services.list.useQuery({
-    search: debouncedSearchTerm || undefined,
-    category: categoryFilter !== "all" ? categoryFilter : undefined,
-  });
+  const { data: servicesData, isLoading: loading } =
+    trpc.services.list.useQuery({
+      search: debouncedSearchTerm || undefined,
+      category: categoryFilter !== "all" ? categoryFilter : undefined,
+    });
 
   const services = servicesData?.services || [];
 
+  // tRPC mutations
+  const createMutation = trpc.services.create.useMutation({
+    onSuccess: () => {
+      toast.success("Service created successfully");
+      utils.services.list.invalidate();
+      setIsModalOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to create service: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.services.update.useMutation({
+    onSuccess: () => {
+      toast.success("Service updated successfully");
+      utils.services.list.invalidate();
+      setIsModalOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to update service: ${error.message}`);
+    },
+  });
+
+  const deleteMutation = trpc.services.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Service deleted");
+      utils.services.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete service: ${error.message}`);
+    },
+  });
+
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = [...new Set(services.map((s) => s.category))];
+    const cats = [...new Set(services.map((s) => s.category).filter((c): c is string => c !== null))];
     return cats.sort();
   }, [services]);
 
@@ -65,11 +116,11 @@ export default function ServicesPage() {
         (service) =>
           service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           service.description
-            .toLowerCase()
+            ?.toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          service.tags?.some((tag) =>
+          (Array.isArray(service.tags) && service.tags.some((tag: string) =>
             tag.toLowerCase().includes(searchTerm.toLowerCase()),
-          ),
+          )),
       );
     }
 
@@ -85,12 +136,15 @@ export default function ServicesPage() {
   // Calculate stats
   const stats = useMemo(() => {
     const activeServices = services.filter((s) => s.isActive);
-    const avgPrice =
-      activeServices.reduce((sum, s) => sum + s.price, 0) /
-      activeServices.length;
+    const pricesSum = activeServices.reduce(
+      (sum, s) => sum + (s.price ? parseFloat(s.price) : 0),
+      0,
+    );
+    const avgPrice = activeServices.length > 0 ? pricesSum / activeServices.length : 0;
     const categoryCounts = services.reduce(
       (acc, s) => {
-        acc[s.category] = (acc[s.category] || 0) + 1;
+        const cat = s.category || "Uncategorized";
+        acc[cat] = (acc[cat] || 0) + 1;
         return acc;
       },
       {} as Record<string, number>,
@@ -112,33 +166,26 @@ export default function ServicesPage() {
     setIsModalOpen(true);
   };
 
-  const handleEditService = (service: any) => {
+  const handleEditService = (service: Service) => {
     setEditingService(service);
     setIsModalOpen(true);
   };
 
-  const handleDeleteService = (service: any) => {
+  const handleDeleteService = (service: Service) => {
     if (window.confirm(`Delete service "${service.name}"?`)) {
-      setServices((prev) => prev.filter((s) => s.id !== service.id));
-      toast.success("Service deleted");
+      deleteMutation.mutate(service.id);
     }
   };
 
   const handleSaveService = (data: any) => {
     if (editingService) {
-      setServices((prev) =>
-        prev.map((s) =>
-          s.id === editingService.id ? { ...s, ...data, id: s.id } : s,
-        ),
-      );
+      updateMutation.mutate({
+        id: editingService.id,
+        data,
+      });
     } else {
-      const newService = {
-        ...data,
-        id: Date.now().toString(),
-      };
-      setServices((prev) => [...prev, newService]);
+      createMutation.mutate(data);
     }
-    setIsModalOpen(false);
   };
 
   return (
@@ -241,7 +288,7 @@ export default function ServicesPage() {
               </Select>
               <Tabs
                 value={viewMode}
-                onValueChange={(v) => setViewMode(v as any)}
+                onValueChange={(v) => setViewMode(v as "grid" | "list")}
               >
                 <TabsList>
                   <TabsTrigger value="grid">
@@ -302,7 +349,7 @@ export default function ServicesPage() {
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-green-600" />
                           <span className="font-bold">
-                            {formatCurrency(service.price)}
+                            {service.price ? formatCurrency(parseFloat(service.price)) : "N/A"}
                           </span>
                           <span className="text-sm text-muted-foreground">
                             /{" "}

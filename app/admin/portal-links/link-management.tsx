@@ -90,10 +90,16 @@ export function LinkManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set(),
+  );
 
   const { data: categories } = api.portal.getCategories.useQuery();
-  const { data: links, isLoading, refetch } = api.portal.getLinks.useQuery({
+  const {
+    data: links,
+    isLoading,
+    refetch,
+  } = api.portal.getLinks.useQuery({
     categoryId: selectedCategory || undefined,
   });
   const createMutation = api.portal.createLink.useMutation();
@@ -109,8 +115,9 @@ export function LinkManagement() {
       .filter((cat: any) => !selectedCategory || cat.id === selectedCategory)
       .map((category: any) => ({
         category,
-        links: links.filter((link: any) => link.categoryId === category.id)
-          .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+        links: links
+          .filter((link: any) => link.categoryId === category.id)
+          .sort((a: any, b: any) => a.sortOrder - b.sortOrder),
       }))
       .filter((group: any) => group.links.length > 0)
       .sort((a: any, b: any) => a.category.sortOrder - b.category.sortOrder);
@@ -204,13 +211,19 @@ export function LinkManagement() {
     }
   };
 
-  const handleReorder = async (links: any[], index: number, direction: "up" | "down") => {
+  const handleReorder = async (
+    links: any[],
+    index: number,
+    direction: "up" | "down",
+  ) => {
     const newIndex = direction === "up" ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= links.length) return;
 
     const reorderedLinks = [...links];
-    [reorderedLinks[index], reorderedLinks[newIndex]] =
-    [reorderedLinks[newIndex], reorderedLinks[index]];
+    [reorderedLinks[index], reorderedLinks[newIndex]] = [
+      reorderedLinks[newIndex],
+      reorderedLinks[index],
+    ];
 
     const updates = reorderedLinks.map((link, idx) => ({
       id: link.id,
@@ -282,7 +295,7 @@ export function LinkManagement() {
                   className="px-6 py-3 border-b flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
                   style={{
                     backgroundColor: `${group.category.colorHex}10`,
-                    borderColor: `${group.category.colorHex}30`
+                    borderColor: `${group.category.colorHex}30`,
                   }}
                   onClick={() => {
                     const newCollapsed = new Set(collapsedCategories);
@@ -310,7 +323,9 @@ export function LinkManagement() {
                   <div className="flex-1">
                     <h4 className="font-semibold">{group.category.name}</h4>
                     {group.category.description && !isCollapsed && (
-                      <p className="text-xs text-muted-foreground">{group.category.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {group.category.description}
+                      </p>
                     )}
                   </div>
                   <Badge variant="secondary">{group.links.length} links</Badge>
@@ -318,97 +333,111 @@ export function LinkManagement() {
 
                 {/* Links Table */}
                 {!isCollapsed && (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>URL</TableHead>
-                      <TableHead className="w-24">Type</TableHead>
-                      <TableHead className="w-24">Status</TableHead>
-                      <TableHead className="w-32">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {group.links.map((link: any, index: number) => {
-                      const LinkIconComponent = link.iconName
-                        ? getIconComponent(link.iconName)
-                        : null;
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">Order</TableHead>
+                        <TableHead>Title</TableHead>
+                        <TableHead>URL</TableHead>
+                        <TableHead className="w-24">Type</TableHead>
+                        <TableHead className="w-24">Status</TableHead>
+                        <TableHead className="w-32">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {group.links.map((link: any, index: number) => {
+                        const LinkIconComponent = link.iconName
+                          ? getIconComponent(link.iconName)
+                          : null;
 
-                      return (
-                        <TableRow key={link.id}>
-                          <TableCell>
-                            <div className="flex flex-col gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleReorder(group.links, index, "up")}
-                                disabled={index === 0}
+                        return (
+                          <TableRow key={link.id}>
+                            <TableCell>
+                              <div className="flex flex-col gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleReorder(group.links, index, "up")
+                                  }
+                                  disabled={index === 0}
+                                >
+                                  <ArrowUp className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleReorder(group.links, index, "down")
+                                  }
+                                  disabled={index === group.links.length - 1}
+                                >
+                                  <ArrowDown className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center gap-2">
+                                {LinkIconComponent && (
+                                  <LinkIconComponent className="h-4 w-4" />
+                                )}
+                                {link.title}
+                              </div>
+                            </TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="flex items-center gap-1">
+                                {link.targetBlank ? (
+                                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                ) : (
+                                  <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                                )}
+                                <span className="truncate">{link.url}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  link.isInternal ? "secondary" : "outline"
+                                }
                               >
-                                <ArrowUp className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleReorder(group.links, index, "down")}
-                                disabled={index === group.links.length - 1}
+                                {link.isInternal ? "Internal" : "External"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  link.isActive ? "default" : "secondary"
+                                }
                               >
-                                <ArrowDown className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
-                              {LinkIconComponent && <LinkIconComponent className="h-4 w-4" />}
-                              {link.title}
-                            </div>
-                          </TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="flex items-center gap-1">
-                              {link.targetBlank ? (
-                                <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                              ) : (
-                                <LinkIcon className="h-3 w-3 flex-shrink-0" />
-                              )}
-                              <span className="truncate">{link.url}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={link.isInternal ? "secondary" : "outline"}>
-                              {link.isInternal ? "Internal" : "External"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={link.isActive ? "default" : "secondary"}>
-                              {link.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEdit(link)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setLinkToDelete(link);
-                                  setDeleteDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                                {link.isActive ? "Active" : "Inactive"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEdit(link)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setLinkToDelete(link);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 )}
               </Card>
             );
@@ -509,7 +538,8 @@ export function LinkManagement() {
                       />
                     </FormControl>
                     <FormDescription>
-                      External URLs must start with http(s)://. Internal paths should start with /
+                      External URLs must start with http(s)://. Internal paths
+                      should start with /
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -524,7 +554,10 @@ export function LinkManagement() {
                     <FormItem>
                       <FormLabel>Icon</FormLabel>
                       <FormControl>
-                        <IconPicker value={field.value} onChange={field.onChange} />
+                        <IconPicker
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormDescription>
                         Choose an icon to display with this link
@@ -545,7 +578,9 @@ export function LinkManagement() {
                           type="number"
                           min="0"
                           {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormDescription>
@@ -656,7 +691,10 @@ export function LinkManagement() {
                     </FormDescription>
                     <div className="space-y-2">
                       {roleOptions.map((role) => (
-                        <div key={role.value} className="flex items-center space-x-2">
+                        <div
+                          key={role.value}
+                          className="flex items-center space-x-2"
+                        >
                           <Checkbox
                             checked={field.value?.includes(role.value)}
                             onCheckedChange={(checked) => {
@@ -664,7 +702,9 @@ export function LinkManagement() {
                               if (checked) {
                                 field.onChange([...current, role.value]);
                               } else {
-                                field.onChange(current.filter((r) => r !== role.value));
+                                field.onChange(
+                                  current.filter((r) => r !== role.value),
+                                );
                               }
                             }}
                           />
@@ -702,11 +742,15 @@ export function LinkManagement() {
           <DialogHeader>
             <DialogTitle>Delete Link</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{linkToDelete?.title}"? This action cannot be undone.
+              Are you sure you want to delete "{linkToDelete?.title}"? This
+              action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

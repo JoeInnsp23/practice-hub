@@ -162,24 +162,36 @@ export function WorkflowInstanceModal({
         <DialogHeader>
           <DialogTitle>Create Workflow</DialogTitle>
           <DialogDescription>
-            Assign a workflow template to a task to track progress through stages
+            Assign a workflow template to a task to track progress through
+            stages
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Task Mode Selection */}
           <div className="space-y-3">
             <Label>Assign Workflow To</Label>
-            <RadioGroup value={taskMode} onValueChange={(value) => setTaskMode(value as "existing" | "new")}>
+            <RadioGroup
+              value={taskMode}
+              onValueChange={(value) =>
+                setTaskMode(value as "existing" | "new")
+              }
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="existing" id="existing" />
-                <Label htmlFor="existing" className="flex items-center gap-2 cursor-pointer">
+                <Label
+                  htmlFor="existing"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <CheckSquare className="h-4 w-4" />
                   Existing Task (without workflow)
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="new" id="new" />
-                <Label htmlFor="new" className="flex items-center gap-2 cursor-pointer">
+                <Label
+                  htmlFor="new"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <Plus className="h-4 w-4" />
                   Create New Task
                 </Label>
@@ -194,7 +206,9 @@ export function WorkflowInstanceModal({
               <Select
                 value={formData.existingTask?.id}
                 onValueChange={(value) => {
-                  const task = mockTasksWithoutWorkflow.find((t) => t.id === value);
+                  const task = mockTasksWithoutWorkflow.find(
+                    (t) => t.id === value,
+                  );
                   setFormData({ ...formData, existingTask: task });
                 }}
               >
@@ -235,7 +249,10 @@ export function WorkflowInstanceModal({
                   id="taskDescription"
                   value={formData.taskDescription}
                   onChange={(e) =>
-                    setFormData({ ...formData, taskDescription: e.target.value })
+                    setFormData({
+                      ...formData,
+                      taskDescription: e.target.value,
+                    })
                   }
                   placeholder="Enter task description"
                   rows={3}
@@ -276,7 +293,8 @@ export function WorkflowInstanceModal({
                     <div>
                       <div className="font-medium">{template.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {template.service.name} • {template.stages.length} stages • Est. {template.estimatedDays} days
+                        {template.service.name} • {template.stages.length}{" "}
+                        stages • Est. {template.estimatedDays} days
                       </div>
                     </div>
                   </SelectItem>
@@ -330,7 +348,7 @@ export function WorkflowInstanceModal({
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
-                    !formData.dueDate && "text-muted-foreground"
+                    !formData.dueDate && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />

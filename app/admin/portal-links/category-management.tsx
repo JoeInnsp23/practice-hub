@@ -66,7 +66,11 @@ export function CategoryManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<any>(null);
 
-  const { data: categories, isLoading, refetch } = api.portal.getCategories.useQuery();
+  const {
+    data: categories,
+    isLoading,
+    refetch,
+  } = api.portal.getCategories.useQuery();
   const createMutation = api.portal.createCategory.useMutation();
   const updateMutation = api.portal.updateCategory.useMutation();
   const deleteMutation = api.portal.deleteCategory.useMutation();
@@ -143,13 +147,19 @@ export function CategoryManagement() {
     }
   };
 
-  const handleReorder = async (categories: any[], index: number, direction: "up" | "down") => {
+  const handleReorder = async (
+    categories: any[],
+    index: number,
+    direction: "up" | "down",
+  ) => {
     const newIndex = direction === "up" ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= categories.length) return;
 
     const reorderedCategories = [...categories];
-    [reorderedCategories[index], reorderedCategories[newIndex]] =
-    [reorderedCategories[newIndex], reorderedCategories[index]];
+    [reorderedCategories[index], reorderedCategories[newIndex]] = [
+      reorderedCategories[newIndex],
+      reorderedCategories[index],
+    ];
 
     const updates = reorderedCategories.map((cat, idx) => ({
       id: cat.id,
@@ -226,10 +236,18 @@ export function CategoryManagement() {
                   {category.description || "-"}
                 </TableCell>
                 <TableCell>
-                  {category.iconName ? (() => {
-                    const Icon = getIconComponent(category.iconName);
-                    return Icon ? <Icon className="h-4 w-4" /> : <span>-</span>;
-                  })() : <span>-</span>}
+                  {category.iconName ? (
+                    (() => {
+                      const Icon = getIconComponent(category.iconName);
+                      return Icon ? (
+                        <Icon className="h-4 w-4" />
+                      ) : (
+                        <span>-</span>
+                      );
+                    })()
+                  ) : (
+                    <span>-</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div
@@ -268,8 +286,12 @@ export function CategoryManagement() {
             ))}
             {categories?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No categories found. Create your first category to get started.
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  No categories found. Create your first category to get
+                  started.
                 </TableCell>
               </TableRow>
             )}
@@ -332,7 +354,10 @@ export function CategoryManagement() {
                     <FormItem>
                       <FormLabel>Icon</FormLabel>
                       <FormControl>
-                        <IconPicker value={field.value} onChange={field.onChange} />
+                        <IconPicker
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormDescription>
                         Choose an icon to represent this category
@@ -384,7 +409,9 @@ export function CategoryManagement() {
                           type="number"
                           min="0"
                           {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormDescription>
@@ -441,12 +468,16 @@ export function CategoryManagement() {
           <DialogHeader>
             <DialogTitle>Delete Category</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{categoryToDelete?.name}"? This will also delete
-              all links in this category. This action cannot be undone.
+              Are you sure you want to delete "{categoryToDelete?.name}"? This
+              will also delete all links in this category. This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

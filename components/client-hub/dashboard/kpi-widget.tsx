@@ -59,8 +59,8 @@ export function KPIWidget({
                     : "text-destructive",
                 )}
               >
-                {change.trend === "up" ? "↑" : "↓"} {Math.abs(change.value)}% from
-                last month
+                {change.trend === "up" ? "↑" : "↓"} {Math.abs(change.value)}%
+                from last month
               </p>
             )}
             {subtext && !change && (

@@ -74,15 +74,12 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
         </div>
         <div className="flex items-center gap-1">
           {value && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-auto p-1"
+            <div
+              className="p-1 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
               onClick={handleClear}
             >
               <X className="h-3 w-3" />
-            </Button>
+            </div>
           )}
           {isOpen ? (
             <ChevronUp className="h-4 w-4 opacity-50" />
@@ -125,7 +122,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             className="overflow-y-auto border rounded-md p-3 bg-muted/30"
             style={{
               height: "200px",
-              scrollbarGutter: "stable"
+              scrollbarGutter: "stable",
             }}
           >
             {filteredIcons.length > 0 ? (
@@ -140,7 +137,8 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                       type="button"
                       className={cn(
                         "h-10 w-10 rounded border bg-background hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-center flex-shrink-0",
-                        value === iconName && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground border-primary"
+                        value === iconName &&
+                          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground border-primary",
                       )}
                       onClick={() => handleSelect(iconName)}
                       title={iconName}

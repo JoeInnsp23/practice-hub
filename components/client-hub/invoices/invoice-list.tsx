@@ -30,13 +30,27 @@ import { cn } from "@/lib/utils";
 
 interface Invoice {
   id: string;
+  tenantId: string;
   invoiceNumber: string;
-  client: string;
-  issueDate: Date;
-  dueDate: Date;
-  total: number;
-  status: "draft" | "sent" | "paid" | "overdue";
-  paymentTerms: string;
+  clientId: string;
+  issueDate: string | Date;
+  dueDate: string | Date;
+  paidDate: string | Date | null;
+  subtotal: string;
+  taxRate: string | null;
+  taxAmount: string | null;
+  discount: string | null;
+  total: string;
+  amountPaid: string | null;
+  status: "draft" | "sent" | "viewed" | "partial" | "paid" | "overdue" | "cancelled";
+  currency: string | null;
+  notes: string | null;
+  terms: string | null;
+  purchaseOrderNumber: string | null;
+  metadata: any;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string | null;
 }
 
 interface InvoiceListProps {
@@ -62,6 +76,8 @@ export function InvoiceList({
     const config = {
       draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
       sent: { label: "Sent", className: "bg-primary/10 text-primary" },
+      viewed: { label: "Viewed", className: "bg-blue-600/10 text-blue-600" },
+      partial: { label: "Partial", className: "bg-yellow-600/10 text-yellow-600" },
       paid: {
         label: "Paid",
         className:
@@ -70,6 +86,10 @@ export function InvoiceList({
       overdue: {
         label: "Overdue",
         className: "bg-destructive/10 text-destructive",
+      },
+      cancelled: {
+        label: "Cancelled",
+        className: "bg-muted text-muted-foreground",
       },
     };
 
@@ -115,7 +135,7 @@ export function InvoiceList({
             </TableRow>
           ) : (
             invoices.map((invoice) => {
-              const daysUntilDue = getDaysUntilDue(invoice.dueDate);
+              const daysUntilDue = getDaysUntilDue(new Date(invoice.dueDate));
               const isOverdue = daysUntilDue < 0 && invoice.status !== "paid";
 
               return (
@@ -123,7 +143,7 @@ export function InvoiceList({
                   <TableCell className="font-medium">
                     {invoice.invoiceNumber}
                   </TableCell>
-                  <TableCell>{invoice.client}</TableCell>
+                  <TableCell>{invoice.clientId}</TableCell>
                   <TableCell>{formatDate(invoice.issueDate)}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
@@ -145,7 +165,7 @@ export function InvoiceList({
                     </div>
                   </TableCell>
                   <TableCell className="font-semibold">
-                    {formatCurrency(invoice.total)}
+                    {formatCurrency(parseFloat(invoice.total))}
                   </TableCell>
                   <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                   <TableCell className="text-right">

@@ -35,15 +35,15 @@ const generateClientCode = (name: string, type: string): string => {
       ? "IND"
       : type === "limited_company"
         ? "LTD"
-      : type === "partnership"
-        ? "PART"
-      : type === "trust"
-        ? "TR"
-      : type === "charity"
-        ? "CH"
-      : type === "sole_trader"
-        ? "ST"
-        : "CO";
+        : type === "partnership"
+          ? "PART"
+          : type === "trust"
+            ? "TR"
+            : type === "charity"
+              ? "CH"
+              : type === "sole_trader"
+                ? "ST"
+                : "CO";
 
   const namePart = name
     .substring(0, 4)
@@ -101,13 +101,17 @@ export function BasicInfoStep({
                 placeholder="Search by company name or registration number..."
                 className="flex-1"
               />
-              <Button variant="outline" className="border-blue-300 hover:bg-blue-100 dark:border-blue-700 dark:hover:bg-blue-900">
+              <Button
+                variant="outline"
+                className="border-blue-300 hover:bg-blue-100 dark:border-blue-700 dark:hover:bg-blue-900"
+              >
                 <Search className="h-4 w-4 mr-2" />
                 Search
               </Button>
             </div>
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Search Companies House to automatically populate company registration details
+              Search Companies House to automatically populate company
+              registration details
             </p>
           </div>
         </div>
@@ -152,9 +156,7 @@ export function BasicInfoStep({
                 name="clientCode"
                 autoComplete="off"
                 value={formData.clientCode || ""}
-                onChange={(e) =>
-                  updateFormData({ clientCode: e.target.value })
-                }
+                onChange={(e) => updateFormData({ clientCode: e.target.value })}
                 placeholder="Auto-generated"
                 className="flex-1"
               />
@@ -163,9 +165,7 @@ export function BasicInfoStep({
                 variant="outline"
                 size="icon"
                 onClick={handleRegenerateCode}
-                disabled={
-                  isGeneratingCode || !formData.name || !formData.type
-                }
+                disabled={isGeneratingCode || !formData.name || !formData.type}
                 title="Regenerate code"
               >
                 <RefreshCw
@@ -185,7 +185,11 @@ export function BasicInfoStep({
               value={formData.type}
               onValueChange={(value) => updateFormData({ type: value })}
             >
-              <SelectTrigger id="clientType" name="clientType" className="text-base">
+              <SelectTrigger
+                id="clientType"
+                name="clientType"
+                className="text-base"
+              >
                 <SelectValue placeholder="Select client type" />
               </SelectTrigger>
               <SelectContent>
@@ -193,7 +197,9 @@ export function BasicInfoStep({
                 <SelectItem value="individual">Individual</SelectItem>
                 <SelectItem value="sole_trader">Sole Trader</SelectItem>
                 <SelectItem value="partnership">Partnership</SelectItem>
-                <SelectItem value="llp">Limited Liability Partnership (LLP)</SelectItem>
+                <SelectItem value="llp">
+                  Limited Liability Partnership (LLP)
+                </SelectItem>
                 <SelectItem value="trust">Trust</SelectItem>
                 <SelectItem value="charity">Charity</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
@@ -209,7 +215,11 @@ export function BasicInfoStep({
               value={formData.status}
               onValueChange={(value) => updateFormData({ status: value })}
             >
-              <SelectTrigger id="clientStatus" name="clientStatus" className="text-base">
+              <SelectTrigger
+                id="clientStatus"
+                name="clientStatus"
+                className="text-base"
+              >
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
@@ -230,10 +240,17 @@ export function BasicInfoStep({
             <Select
               value={formData.clientManagerId || ""}
               onValueChange={(value) =>
-                updateFormData({ clientManagerId: value, accountManager: value })
+                updateFormData({
+                  clientManagerId: value,
+                  accountManager: value,
+                })
               }
             >
-              <SelectTrigger id="accountManager" name="accountManager" className="text-base">
+              <SelectTrigger
+                id="accountManager"
+                name="accountManager"
+                className="text-base"
+              >
                 <SelectValue placeholder="Select an account manager" />
               </SelectTrigger>
               <SelectContent>

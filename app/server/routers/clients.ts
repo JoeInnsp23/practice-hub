@@ -4,44 +4,43 @@ import { clients, clientContacts, activityLogs } from "@/lib/db/schema";
 import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const clientSchema = z.object({
-  clientCode: z.string(),
-  name: z.string(),
-  type: z.enum(["individual", "company", "trust", "partnership"]),
-  status: z.enum(["active", "inactive", "prospect", "archived"]).optional(),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  website: z.string().optional(),
-  vatNumber: z.string().optional(),
-  registrationNumber: z.string().optional(),
-  addressLine1: z.string().optional(),
-  addressLine2: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
-  accountManagerId: z.string().optional(),
+// Generate schema from Drizzle table definition
+const insertClientSchema = createInsertSchema(clients, {
   incorporationDate: z.string().optional(),
   yearEnd: z.string().optional(),
-  notes: z.string().optional(),
-  primaryContact: z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    email: z.string().email(),
-    phone: z.string().optional(),
-    mobile: z.string().optional(),
-    position: z.string().optional(),
-  }).optional(),
+});
+
+// Schema for create/update operations (omit auto-generated fields)
+const clientSchema = insertClientSchema.omit({
+  id: true,
+  tenantId: true,
+  createdAt: true,
+  updatedAt: true,
+  createdById: true,
+}).extend({
+  primaryContact: z
+    .object({
+      firstName: z.string(),
+      lastName: z.string(),
+      email: z.string().email(),
+      phone: z.string().optional(),
+      mobile: z.string().optional(),
+      position: z.string().optional(),
+    })
+    .optional(),
 });
 
 export const clientsRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      search: z.string().optional(),
-      type: z.string().optional(),
-      status: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        search: z.string().optional(),
+        type: z.string().optional(),
+        status: z.string().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
       const { search, type, status } = input;
@@ -126,7 +125,7 @@ export const clientsRouter = router({
       if (!client[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Client not found"
+          message: "Client not found",
         });
       }
 
@@ -164,20 +163,22 @@ export const clientsRouter = router({
             incorporationDate: input.incorporationDate,
             yearEnd: input.yearEnd,
             notes: input.notes,
-            createdBy: userId
+            createdBy: userId,
           })
           .returning();
 
         // Add primary contact if provided
         if (input.primaryContact) {
           await tx.insert(clientContacts).values({
+            tenantId,
             clientId: newClient.id,
+            isPrimary: true,
             firstName: input.primaryContact.firstName,
             lastName: input.primaryContact.lastName,
             email: input.primaryContact.email,
             phone: input.primaryContact.phone,
             mobile: input.primaryContact.mobile,
-            position: input.primaryContact.position
+            position: input.primaryContact.position,
           });
         }
 
@@ -190,7 +191,11 @@ export const clientsRouter = router({
           description: `Created new client "${input.name}"`,
           userId,
           userName: `${firstName} ${lastName}`,
-          newValues: { name: input.name, type: input.type, status: input.status || "active" }
+          newValues: {
+            name: input.name,
+            type: input.type,
+            status: input.status || "active",
+          },
         });
 
         return newClient;
@@ -200,10 +205,12 @@ export const clientsRouter = router({
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: clientSchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: clientSchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -217,7 +224,7 @@ export const clientsRouter = router({
       if (!existingClient[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Client not found"
+          message: "Client not found",
         });
       }
 
@@ -262,7 +269,7 @@ export const clientsRouter = router({
       if (!existingClient[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Client not found"
+          message: "Client not found",
         });
       }
 

@@ -148,7 +148,7 @@ export function WorkflowTemplateModal({
     const updatedStages = formData.stages.map((stage) =>
       stage.id === stageId
         ? { ...stage, checklist: [...(stage.checklist || []), item] }
-        : stage
+        : stage,
     );
     setFormData({ ...formData, stages: updatedStages });
   };
@@ -158,9 +158,11 @@ export function WorkflowTemplateModal({
       stage.id === stageId
         ? {
             ...stage,
-            checklist: (stage.checklist || []).filter((_, i) => i !== itemIndex),
+            checklist: (stage.checklist || []).filter(
+              (_, i) => i !== itemIndex,
+            ),
           }
-        : stage
+        : stage,
     );
     setFormData({ ...formData, stages: updatedStages });
   };
@@ -275,7 +277,8 @@ export function WorkflowTemplateModal({
             <div className="flex items-center justify-between">
               <Label>Workflow Stages *</Label>
               <span className="text-xs text-muted-foreground">
-                {formData.stages.length} stage{formData.stages.length !== 1 ? "s" : ""}
+                {formData.stages.length} stage
+                {formData.stages.length !== 1 ? "s" : ""}
               </span>
             </div>
 

@@ -85,9 +85,10 @@ export function ServiceSelectionStep({
   formData,
   updateFormData,
 }: ServiceSelectionStepProps) {
-  const selectedServices = formData.selectedServices?.map(s =>
-    typeof s === 'string' ? s : s.serviceId
-  ) || [];
+  const selectedServices =
+    formData.selectedServices?.map((s) =>
+      typeof s === "string" ? s : s.serviceId,
+    ) || [];
 
   const toggleService = (serviceId: string) => {
     const currentIds = selectedServices;
@@ -96,15 +97,16 @@ export function ServiceSelectionStep({
     let updatedServices;
     if (isSelected) {
       // Remove the service
-      updatedServices = formData.selectedServices?.filter(s =>
-        (typeof s === 'string' ? s : s.serviceId) !== serviceId
-      ) || [];
+      updatedServices =
+        formData.selectedServices?.filter(
+          (s) => (typeof s === "string" ? s : s.serviceId) !== serviceId,
+        ) || [];
     } else {
       // Add the service with default configuration
       const newService = {
         serviceId,
-        status: 'active',
-        frequency: 'monthly',
+        status: "active",
+        frequency: "monthly",
       };
       updatedServices = [...(formData.selectedServices || []), newService];
     }
@@ -135,14 +137,14 @@ export function ServiceSelectionStep({
               {category}
             </h4>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {categoryServices.map((service) => {
-                  const Icon = service.icon;
-                  const isSelected = selectedServices.includes(service.id);
+              {categoryServices.map((service) => {
+                const Icon = service.icon;
+                const isSelected = selectedServices.includes(service.id);
 
-                  return (
-                    <div
-                      key={service.id}
-                      className={`
+                return (
+                  <div
+                    key={service.id}
+                    className={`
                         flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
                         ${
                           isSelected
@@ -150,33 +152,31 @@ export function ServiceSelectionStep({
                             : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600"
                         }
                       `}
-                      onClick={() => toggleService(service.id)}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleService(service.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Label className="cursor-pointer">
-                            {service.name}
-                          </Label>
-                          {service.popular && (
-                            <Badge variant="secondary" className="text-xs">
-                              Popular
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {service.description}
-                        </p>
+                    onClick={() => toggleService(service.id)}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleService(service.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <Label className="cursor-pointer">{service.name}</Label>
+                        {service.popular && (
+                          <Badge variant="secondary" className="text-xs">
+                            Popular
+                          </Badge>
+                        )}
                       </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {service.description}
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       })}

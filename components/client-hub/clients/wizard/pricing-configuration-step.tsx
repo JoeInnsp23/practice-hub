@@ -56,9 +56,9 @@ export function PricingConfigurationStep({
               </div>
 
               <div className="flex items-start space-x-3">
-                <RadioGroupItem value="hourly" id="hourly" />
+                <RadioGroupItem value="ad_hoc_hourly" id="ad_hoc_hourly" />
                 <div className="grid gap-1">
-                  <Label htmlFor="hourly" className="font-medium">
+                  <Label htmlFor="ad_hoc_hourly" className="font-medium">
                     Hourly Rate
                   </Label>
                   <p className="text-sm text-muted-foreground">
@@ -68,9 +68,9 @@ export function PricingConfigurationStep({
               </div>
 
               <div className="flex items-start space-x-3">
-                <RadioGroupItem value="retainer" id="retainer" />
+                <RadioGroupItem value="monthly_retainer" id="monthly_retainer" />
                 <div className="grid gap-1">
-                  <Label htmlFor="retainer" className="font-medium">
+                  <Label htmlFor="monthly_retainer" className="font-medium">
                     Monthly Retainer
                   </Label>
                   <p className="text-sm text-muted-foreground">
@@ -83,7 +83,7 @@ export function PricingConfigurationStep({
         </CardContent>
       </Card>
 
-      {formData.billingStrategy === "hourly" && (
+      {formData.billingStrategy === "ad_hoc_hourly" && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
@@ -111,7 +111,7 @@ export function PricingConfigurationStep({
         </Card>
       )}
 
-      {formData.billingStrategy === "retainer" && (
+      {formData.billingStrategy === "monthly_retainer" && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Monthly Retainer</CardTitle>

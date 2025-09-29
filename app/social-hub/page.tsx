@@ -14,9 +14,7 @@ export default function SocialHubPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-card-foreground">
-              0
-            </p>
+            <p className="text-2xl font-semibold text-card-foreground">0</p>
           </CardContent>
         </Card>
         <Card>
@@ -26,9 +24,7 @@ export default function SocialHubPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-card-foreground">
-              0
-            </p>
+            <p className="text-2xl font-semibold text-card-foreground">0</p>
           </CardContent>
         </Card>
         <Card>
@@ -38,9 +34,7 @@ export default function SocialHubPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-card-foreground">
-              0
-            </p>
+            <p className="text-2xl font-semibold text-card-foreground">0</p>
           </CardContent>
         </Card>
         <Card>
@@ -50,9 +44,7 @@ export default function SocialHubPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold text-card-foreground">
-              0
-            </p>
+            <p className="text-2xl font-semibold text-card-foreground">0</p>
           </CardContent>
         </Card>
       </div>

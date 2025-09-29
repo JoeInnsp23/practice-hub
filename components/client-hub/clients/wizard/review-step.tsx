@@ -21,8 +21,8 @@ interface ReviewStepProps {
 
 export function ReviewStep({ formData }: ReviewStepProps) {
   const selectedServiceNames =
-    formData.selectedServices?.map((id) =>
-      id.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+    formData.selectedServices?.map((service) =>
+      service.serviceId.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
     ) || [];
 
   return (
@@ -110,7 +110,7 @@ export function ReviewStep({ formData }: ReviewStepProps) {
                   {formData.billingStrategy}
                 </span>
               </p>
-              {formData.billingStrategy === "hourly" &&
+              {formData.billingStrategy === "ad_hoc_hourly" &&
                 formData.defaultHourlyRate && (
                   <p>
                     <span className="text-muted-foreground">Hourly Rate:</span>{" "}
@@ -119,7 +119,7 @@ export function ReviewStep({ formData }: ReviewStepProps) {
                     </span>
                   </p>
                 )}
-              {formData.billingStrategy === "retainer" &&
+              {formData.billingStrategy === "monthly_retainer" &&
                 formData.monthlyRetainer && (
                   <p>
                     <span className="text-muted-foreground">

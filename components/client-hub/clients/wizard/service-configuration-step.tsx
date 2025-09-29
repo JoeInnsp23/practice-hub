@@ -79,14 +79,14 @@ export function ServiceConfigurationStep({
         </Badge>
       </div>
 
-      {selectedServices.map((serviceId) => {
-        const serviceConfig = SERVICE_DETAILS[serviceId];
-        const serviceName = serviceId
+      {selectedServices.map((service) => {
+        const serviceConfig = SERVICE_DETAILS[service.serviceId];
+        const serviceName = service.serviceId
           .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase());
+          .replace(/\b\w/g, (l: string) => l.toUpperCase());
 
         return (
-          <Card key={serviceId} className="overflow-hidden">
+          <Card key={service.serviceId} className="overflow-hidden">
             <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/20">
               <CardTitle className="text-base flex items-center justify-between">
                 <div className="flex items-center gap-2">

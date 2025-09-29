@@ -1,47 +1,66 @@
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
-import { workflows, workflowStages, taskWorkflowInstances, services } from "@/lib/db/schema";
+import {
+  workflows,
+  workflowStages,
+  taskWorkflowInstances,
+  services,
+} from "@/lib/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const workflowStageSchema = z.object({
-  id: z.string().optional(),
-  name: z.string(),
-  description: z.string().optional(),
-  stageOrder: z.number(),
-  isRequired: z.boolean().default(true),
-  estimatedHours: z.string().optional(),
-  checklistItems: z.array(z.object({
-    id: z.string(),
-    text: z.string(),
-    isRequired: z.boolean().default(false),
-  })).optional(),
-  autoComplete: z.boolean().default(false),
-  requiresApproval: z.boolean().default(false),
-});
+// Generate schemas from Drizzle table definitions
+const insertWorkflowSchema = createInsertSchema(workflows);
+const insertWorkflowStageSchema = createInsertSchema(workflowStages);
 
-const workflowSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  type: z.enum(["task_template", "automation", "approval"]),
-  trigger: z.enum(["manual", "schedule", "event"]).optional(),
-  serviceId: z.string().optional(),
-  isActive: z.boolean().default(true),
-  estimatedDays: z.number().optional(),
-  stages: z.array(workflowStageSchema).optional(),
-});
+// Schema for workflow stages
+const workflowStageSchema = insertWorkflowStageSchema
+  .omit({
+    id: true,
+    workflowId: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    id: z.string().optional(),
+  });
+
+// Schema for create/update operations (omit auto-generated fields)
+const workflowSchema = insertWorkflowSchema
+  .omit({
+    id: true,
+    tenantId: true,
+    createdAt: true,
+    updatedAt: true,
+    createdById: true,
+  })
+  .extend({
+    stages: z.array(workflowStageSchema).optional(),
+  });
 
 export const workflowsRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      isActive: z.boolean().optional(),
-      type: z.string().optional(),
-    }).optional())
+    .input(
+      z
+        .object({
+          isActive: z.boolean().optional(),
+          type: z.string().optional(),
+        })
+        .optional(),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
 
-      let query = db
+      // Build where conditions
+      const conditions = [eq(workflows.tenantId, tenantId)];
+
+      if (input?.isActive !== undefined) {
+        conditions.push(eq(workflows.isActive, input.isActive));
+      }
+
+      const results = await db
         .select({
           workflow: workflows,
           service: services,
@@ -52,16 +71,8 @@ export const workflowsRouter = router({
         })
         .from(workflows)
         .leftJoin(services, eq(workflows.serviceId, services.id))
-        .where(eq(workflows.tenantId, tenantId));
-
-      if (input?.isActive !== undefined) {
-        query = query.where(and(
-          eq(workflows.tenantId, tenantId),
-          eq(workflows.isActive, input.isActive)
-        ));
-      }
-
-      const results = await query.orderBy(desc(workflows.createdAt));
+        .where(and(...conditions))
+        .orderBy(desc(workflows.createdAt));
 
       return results.map((row) => ({
         ...row.workflow,
@@ -84,7 +95,7 @@ export const workflowsRouter = router({
       if (!workflow[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Workflow not found"
+          message: "Workflow not found",
         });
       }
 
@@ -156,10 +167,12 @@ export const workflowsRouter = router({
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: workflowSchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: workflowSchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
 
@@ -167,13 +180,15 @@ export const workflowsRouter = router({
       const existingWorkflow = await db
         .select()
         .from(workflows)
-        .where(and(eq(workflows.id, input.id), eq(workflows.tenantId, tenantId)))
+        .where(
+          and(eq(workflows.id, input.id), eq(workflows.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!existingWorkflow[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Workflow not found"
+          message: "Workflow not found",
         });
       }
 
@@ -190,7 +205,9 @@ export const workflowsRouter = router({
       // Update stages if provided
       if (input.data.stages) {
         // Delete existing stages
-        await db.delete(workflowStages).where(eq(workflowStages.workflowId, input.id));
+        await db
+          .delete(workflowStages)
+          .where(eq(workflowStages.workflowId, input.id));
 
         // Insert new stages
         for (const stage of input.data.stages) {
@@ -226,7 +243,7 @@ export const workflowsRouter = router({
       if (!existingWorkflow[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Workflow not found"
+          message: "Workflow not found",
         });
       }
 
@@ -240,7 +257,7 @@ export const workflowsRouter = router({
       if (tasksUsingWorkflow.length > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Cannot delete workflow that is in use by tasks"
+          message: "Cannot delete workflow that is in use by tasks",
         });
       }
 
@@ -251,10 +268,12 @@ export const workflowsRouter = router({
     }),
 
   toggleActive: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      isActive: z.boolean(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        isActive: z.boolean(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
 
@@ -262,13 +281,15 @@ export const workflowsRouter = router({
       const existingWorkflow = await db
         .select()
         .from(workflows)
-        .where(and(eq(workflows.id, input.id), eq(workflows.tenantId, tenantId)))
+        .where(
+          and(eq(workflows.id, input.id), eq(workflows.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!existingWorkflow[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Workflow not found"
+          message: "Workflow not found",
         });
       }
 

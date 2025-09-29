@@ -71,7 +71,8 @@ export function WorkflowAssignmentModal({
         <DialogHeader>
           <DialogTitle>Assign Workflow to Task</DialogTitle>
           <DialogDescription>
-            Select a workflow template to assign to: <strong>{taskTitle}</strong>
+            Select a workflow template to assign to:{" "}
+            <strong>{taskTitle}</strong>
           </DialogDescription>
         </DialogHeader>
 
@@ -83,10 +84,15 @@ export function WorkflowAssignmentModal({
           ) : workflows.length === 0 ? (
             <div className="text-center py-8">
               <GitBranch className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">No active workflows available</p>
+              <p className="text-muted-foreground">
+                No active workflows available
+              </p>
             </div>
           ) : (
-            <RadioGroup value={selectedWorkflowId} onValueChange={setSelectedWorkflowId}>
+            <RadioGroup
+              value={selectedWorkflowId}
+              onValueChange={setSelectedWorkflowId}
+            >
               <div className="space-y-3">
                 {workflows.map((workflow) => (
                   <div
@@ -95,7 +101,10 @@ export function WorkflowAssignmentModal({
                     onClick={() => setSelectedWorkflowId(workflow.id)}
                   >
                     <RadioGroupItem value={workflow.id} id={workflow.id} />
-                    <Label htmlFor={workflow.id} className="flex-1 cursor-pointer">
+                    <Label
+                      htmlFor={workflow.id}
+                      className="flex-1 cursor-pointer"
+                    >
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{workflow.name}</span>
@@ -120,9 +129,7 @@ export function WorkflowAssignmentModal({
                             </span>
                           )}
                           {workflow.service && (
-                            <span>
-                              Service: {workflow.service.name}
-                            </span>
+                            <span>Service: {workflow.service.name}</span>
                           )}
                         </div>
                       </div>

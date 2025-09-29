@@ -8,7 +8,7 @@ import { MonthlyTimesheet } from "@/components/client-hub/time/monthly-timesheet
 import { Calendar, Clock } from "lucide-react";
 
 export default function TimeTrackingPage() {
-  const [view, setView] = useState<"weekly" | "monthly">("weekly");
+  const [view, setView] = useState<"daily" | "weekly" | "monthly">("weekly");
 
   return (
     <div className="p-6 space-y-6">

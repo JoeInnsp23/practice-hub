@@ -4,38 +4,44 @@ import { invoices, invoiceItems, activityLogs } from "@/lib/db/schema";
 import { eq, and, or, ilike, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const invoiceItemSchema = z.object({
-  description: z.string(),
-  quantity: z.number(),
-  rate: z.number(),
-  amount: z.number(),
-});
-
-const invoiceSchema = z.object({
-  invoiceNumber: z.string(),
-  clientId: z.string(),
-  serviceId: z.string().optional(),
+// Generate schemas from Drizzle table definitions
+const insertInvoiceItemSchema = createInsertSchema(invoiceItems);
+const insertInvoiceSchema = createInsertSchema(invoices, {
   issueDate: z.string(),
   dueDate: z.string(),
-  status: z.enum(["draft", "sent", "viewed", "partial", "paid", "overdue", "cancelled"]),
-  subtotal: z.number(),
-  taxRate: z.number().optional(),
-  taxAmount: z.number().optional(),
-  discountAmount: z.number().optional(),
-  totalAmount: z.number(),
-  notes: z.string().optional(),
+  paidDate: z.string().optional(),
+});
+
+// Schema for invoice items
+const invoiceItemSchema = insertInvoiceItemSchema.omit({
+  id: true,
+  invoiceId: true,
+  createdAt: true,
+});
+
+// Schema for create/update operations (omit auto-generated fields)
+const invoiceSchema = insertInvoiceSchema.omit({
+  id: true,
+  tenantId: true,
+  createdAt: true,
+  updatedAt: true,
+  createdById: true,
+}).extend({
   items: z.array(invoiceItemSchema).optional(),
 });
 
 export const invoicesRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      search: z.string().optional(),
-      status: z.string().optional(),
-      clientId: z.string().optional(),
-      overdue: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        search: z.string().optional(),
+        status: z.string().optional(),
+        clientId: z.string().optional(),
+        overdue: z.boolean().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
       const { search, status, clientId, overdue } = input;
@@ -44,11 +50,7 @@ export const invoicesRouter = router({
       let conditions = [eq(invoices.tenantId, tenantId)];
 
       if (search) {
-        conditions.push(
-          or(
-            ilike(invoices.invoiceNumber, `%${search}%`)
-          )!
-        );
+        conditions.push(or(ilike(invoices.invoiceNumber, `%${search}%`))!);
       }
 
       if (status && status !== "all") {
@@ -63,8 +65,8 @@ export const invoicesRouter = router({
         conditions.push(
           and(
             eq(invoices.status, "sent"),
-            sql`${invoices.dueDate} < CURRENT_DATE`
-          )!
+            sql`${invoices.dueDate} < CURRENT_DATE`,
+          )!,
         );
       }
 
@@ -91,7 +93,7 @@ export const invoicesRouter = router({
       if (!invoice[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Invoice not found"
+          message: "Invoice not found",
         });
       }
 
@@ -118,30 +120,35 @@ export const invoicesRouter = router({
             tenantId,
             invoiceNumber: input.invoiceNumber,
             clientId: input.clientId,
-            serviceId: input.serviceId,
             issueDate: input.issueDate,
             dueDate: input.dueDate,
+            paidDate: input.paidDate,
             status: input.status,
             subtotal: input.subtotal,
             taxRate: input.taxRate,
             taxAmount: input.taxAmount,
-            discountAmount: input.discountAmount,
-            totalAmount: input.totalAmount,
+            discount: input.discount,
+            total: input.total,
+            amountPaid: input.amountPaid,
+            currency: input.currency,
             notes: input.notes,
-            createdBy: userId,
+            terms: input.terms,
+            purchaseOrderNumber: input.purchaseOrderNumber,
+            metadata: input.metadata,
+            createdById: userId,
           })
           .returning();
 
         // Add invoice items if provided
         if (input.items && input.items.length > 0) {
           await tx.insert(invoiceItems).values(
-            input.items.map(item => ({
+            input.items.map((item) => ({
               invoiceId: newInvoice.id,
               description: item.description,
               quantity: item.quantity,
               rate: item.rate,
               amount: item.amount,
-            }))
+            })),
           );
         }
 
@@ -154,7 +161,10 @@ export const invoicesRouter = router({
           description: `Created invoice ${input.invoiceNumber}`,
           userId,
           userName: `${firstName} ${lastName}`,
-          newValues: { invoiceNumber: input.invoiceNumber, totalAmount: input.totalAmount }
+          newValues: {
+            invoiceNumber: input.invoiceNumber,
+            total: input.total,
+          },
         });
 
         return newInvoice;
@@ -164,10 +174,12 @@ export const invoicesRouter = router({
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: invoiceSchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: invoiceSchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -181,7 +193,7 @@ export const invoicesRouter = router({
       if (!existingInvoice[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Invoice not found"
+          message: "Invoice not found",
         });
       }
 
@@ -212,15 +224,59 @@ export const invoicesRouter = router({
     }),
 
   updateStatus: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      status: z.enum(["draft", "sent", "viewed", "partial", "paid", "overdue", "cancelled"]),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        status: z.enum([
+          "draft",
+          "sent",
+          "paid",
+          "overdue",
+          "cancelled",
+        ]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return invoicesRouter.createCaller(ctx).update({
-        id: input.id,
-        data: { status: input.status }
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check invoice exists and belongs to tenant
+      const existingInvoice = await db
+        .select()
+        .from(invoices)
+        .where(and(eq(invoices.id, input.id), eq(invoices.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingInvoice[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invoice not found",
+        });
+      }
+
+      // Update invoice status
+      const [updatedInvoice] = await db
+        .update(invoices)
+        .set({
+          status: input.status,
+          updatedAt: new Date(),
+        })
+        .where(eq(invoices.id, input.id))
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "invoice",
+        entityId: input.id,
+        action: "updated",
+        description: `Updated invoice ${updatedInvoice.invoiceNumber} status`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        oldValues: existingInvoice[0],
+        newValues: { status: input.status },
       });
+
+      return { success: true, invoice: updatedInvoice };
     }),
 
   delete: protectedProcedure
@@ -238,7 +294,7 @@ export const invoicesRouter = router({
       if (!existingInvoice[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Invoice not found"
+          message: "Invoice not found",
         });
       }
 

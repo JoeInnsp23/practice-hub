@@ -34,7 +34,7 @@ const timeEntrySchema = z.object({
   description: z.string().min(1, "Description is required"),
   hours: z.string().min(0.1, "Hours must be greater than 0"),
   date: z.string(),
-  billable: z.boolean().default(true),
+  billable: z.boolean(),
 });
 
 type TimeEntryFormValues = z.infer<typeof timeEntrySchema>;

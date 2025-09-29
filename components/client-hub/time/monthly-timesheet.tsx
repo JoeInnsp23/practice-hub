@@ -16,7 +16,10 @@ import {
   getDay,
 } from "date-fns";
 import { TimeEntryModal } from "./time-entry-modal";
-import { useTimeEntries, useCreateTimeEntry } from "@/lib/hooks/use-time-entries";
+import {
+  useTimeEntries,
+  useCreateTimeEntry,
+} from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
 import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 
@@ -55,7 +58,7 @@ export function MonthlyTimesheet({
   const { data: timeEntries } = useTimeEntries(
     format(monthStart, "yyyy-MM-dd"),
     format(monthEnd, "yyyy-MM-dd"),
-    refreshKey
+    refreshKey,
   );
 
   // Get entries for a specific day
@@ -88,7 +91,7 @@ export function MonthlyTimesheet({
   const handleSaveEntry = async (entry: any) => {
     try {
       await createTimeEntry.mutateAsync(entry);
-      setRefreshKey(prev => prev + 1); // Trigger data refresh
+      setRefreshKey((prev) => prev + 1); // Trigger data refresh
       setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to save time entry:", error);
@@ -143,14 +146,20 @@ export function MonthlyTimesheet({
       <div className="flex items-center space-x-6 px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded"></div>
-          <span className="text-sm text-slate-700 dark:text-slate-300">Billable</span>
+          <span className="text-sm text-slate-700 dark:text-slate-300">
+            Billable
+          </span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 bg-slate-400 dark:bg-slate-500 rounded"></div>
-          <span className="text-sm text-slate-700 dark:text-slate-300">Non-Billable</span>
+          <span className="text-sm text-slate-700 dark:text-slate-300">
+            Non-Billable
+          </span>
         </div>
         <div className="text-sm text-slate-600 dark:text-slate-400">
-          Total: {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0} hours
+          Total:{" "}
+          {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0}{" "}
+          hours
         </div>
       </div>
 
@@ -211,9 +220,14 @@ export function MonthlyTimesheet({
                   className={cn(
                     "border-r border-b border-slate-200 dark:border-slate-700 last:border-r-0 min-h-[120px] p-2 cursor-pointer",
                     "hover:bg-slate-50 dark:hover:bg-slate-700/30",
-                    !isCurrentMonth && "bg-slate-50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500",
-                    isToday && "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/50",
-                    isWeekend && isCurrentMonth && !isToday && "bg-slate-50 dark:bg-slate-800/50"
+                    !isCurrentMonth &&
+                      "bg-slate-50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500",
+                    isToday &&
+                      "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/50",
+                    isWeekend &&
+                      isCurrentMonth &&
+                      !isToday &&
+                      "bg-slate-50 dark:bg-slate-800/50",
                   )}
                   onClick={() => openModal(day)}
                 >
@@ -222,8 +236,9 @@ export function MonthlyTimesheet({
                     <span
                       className={cn(
                         "text-sm font-medium",
-                        isToday && "bg-blue-600 dark:bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs",
-                        !isCurrentMonth && "text-slate-400 dark:text-slate-500"
+                        isToday &&
+                          "bg-blue-600 dark:bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                        !isCurrentMonth && "text-slate-400 dark:text-slate-500",
                       )}
                     >
                       {format(day, "d")}
@@ -238,8 +253,12 @@ export function MonthlyTimesheet({
                   {/* Time Entries */}
                   <div className="space-y-1">
                     {dayEntries.slice(0, 3).map((entry, entryIndex) => {
-                      const workTypeColor = getWorkTypeColor(entry.workType || "work");
-                      const workTypeLabel = getWorkTypeLabel(entry.workType || "work");
+                      const workTypeColor = getWorkTypeColor(
+                        entry.workType || "work",
+                      );
+                      const workTypeLabel = getWorkTypeLabel(
+                        entry.workType || "work",
+                      );
 
                       return (
                         <div
@@ -259,13 +278,15 @@ export function MonthlyTimesheet({
                             <div
                               className={cn(
                                 "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                                entry.billable ? "bg-red-500" : "bg-blue-500"
+                                entry.billable ? "bg-red-500" : "bg-blue-500",
                               )}
                             />
                             <span className="font-medium text-slate-800 dark:text-slate-200 flex-1 min-w-0 truncate">
                               {workTypeLabel}
                             </span>
-                            <span className="text-slate-600 dark:text-slate-400">{entry.hours}h</span>
+                            <span className="text-slate-600 dark:text-slate-400">
+                              {entry.hours}h
+                            </span>
                           </div>
                           {entry.description && (
                             <div className="text-[10px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
@@ -297,8 +318,8 @@ export function MonthlyTimesheet({
           setSelectedDate(null);
         }}
         onSave={handleSaveEntry}
-        onUpdate={() => setRefreshKey(prev => prev + 1)}
-        onDelete={() => setRefreshKey(prev => prev + 1)}
+        onUpdate={() => setRefreshKey((prev) => prev + 1)}
+        onDelete={() => setRefreshKey((prev) => prev + 1)}
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
         selectedHour={null}

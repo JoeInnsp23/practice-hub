@@ -3,16 +3,25 @@ import { type LucideIcon } from "lucide-react";
 
 // Get all icon names from Lucide
 export const getAllIconNames = (): string[] => {
-  return Object.keys(Icons).filter(
-    (key) => {
+  return Object.keys(Icons)
+    .filter((key) => {
       // Filter out non-icon exports
-      if (["default", "icons", "aliases", "createLucideIcon", "LucideIcon", "Icon"].includes(key)) {
+      if (
+        [
+          "default",
+          "icons",
+          "aliases",
+          "createLucideIcon",
+          "LucideIcon",
+          "Icon",
+        ].includes(key)
+      ) {
         return false;
       }
       // Check if it's a function (component)
       return typeof (Icons as any)[key] === "function";
-    }
-  ).sort();
+    })
+    .sort();
 };
 
 // Icon aliases for better search
@@ -144,13 +153,16 @@ const iconAliases: Record<string, string[]> = {
 };
 
 // Fuzzy search function
-export const fuzzySearchIcons = (query: string, allIconNames: string[]): string[] => {
+export const fuzzySearchIcons = (
+  query: string,
+  allIconNames: string[],
+): string[] => {
   if (!query.trim()) return [];
 
   const searchTerm = query.toLowerCase().trim();
   const results = new Map<string, number>();
 
-  allIconNames.forEach(iconName => {
+  allIconNames.forEach((iconName) => {
     let score = 0;
     const lowerIconName = iconName.toLowerCase();
 
@@ -168,21 +180,21 @@ export const fuzzySearchIcons = (query: string, allIconNames: string[]): string[
     }
     // Split PascalCase and check each word
     else {
-      const words = iconName.split(/(?=[A-Z])/).map(w => w.toLowerCase());
-      if (words.some(w => w.startsWith(searchTerm))) {
+      const words = iconName.split(/(?=[A-Z])/).map((w) => w.toLowerCase());
+      if (words.some((w) => w.startsWith(searchTerm))) {
         score = 60;
-      } else if (words.some(w => w.includes(searchTerm))) {
+      } else if (words.some((w) => w.includes(searchTerm))) {
         score = 50;
       }
     }
 
     // Check aliases
     const aliases = iconAliases[iconName] || [];
-    if (aliases.some(alias => alias === searchTerm)) {
+    if (aliases.some((alias) => alias === searchTerm)) {
       score = Math.max(score, 95);
-    } else if (aliases.some(alias => alias.startsWith(searchTerm))) {
+    } else if (aliases.some((alias) => alias.startsWith(searchTerm))) {
       score = Math.max(score, 85);
-    } else if (aliases.some(alias => alias.includes(searchTerm))) {
+    } else if (aliases.some((alias) => alias.includes(searchTerm))) {
       score = Math.max(score, 65);
     }
 
@@ -190,9 +202,13 @@ export const fuzzySearchIcons = (query: string, allIconNames: string[]): string[
     if (score === 0) {
       let fuzzyScore = 0;
       let searchIndex = 0;
-      for (let i = 0; i < lowerIconName.length && searchIndex < searchTerm.length; i++) {
+      for (
+        let i = 0;
+        i < lowerIconName.length && searchIndex < searchTerm.length;
+        i++
+      ) {
         if (lowerIconName[i] === searchTerm[searchIndex]) {
-          fuzzyScore += (searchIndex === 0 && i === 0) ? 10 : 5;
+          fuzzyScore += searchIndex === 0 && i === 0 ? 10 : 5;
           searchIndex++;
         }
       }
@@ -220,21 +236,69 @@ export const getIconComponent = (name: string): LucideIcon | null => {
 // Common/popular icons for quick access
 export const getCommonIconNames = (): string[] => {
   return [
-    "FileText", "File", "Folder", "FolderOpen",
-    "Save", "Download", "Upload", "Share2",
-    "Calendar", "Clock", "Bell", "Mail",
-    "User", "Users", "UserCheck", "Building2",
-    "Home", "Settings", "Search", "Filter",
-    "Database", "Server", "Shield", "Lock",
-    "CreditCard", "DollarSign", "Receipt", "ShoppingCart",
-    "BarChart", "PieChart", "TrendingUp", "Activity",
-    "Check", "X", "Plus", "Minus",
-    "Edit", "Trash2", "Copy", "Clipboard",
-    "Eye", "EyeOff", "Heart", "Star",
-    "AlertCircle", "HelpCircle", "Info", "CheckCircle",
-    "ArrowRight", "ArrowLeft", "ChevronDown", "ChevronRight",
-    "ExternalLink", "Link", "Globe", "Map",
-    "Phone", "MessageSquare", "Send", "Wifi",
-    "Github", "Code", "Terminal", "Layers"
+    "FileText",
+    "File",
+    "Folder",
+    "FolderOpen",
+    "Save",
+    "Download",
+    "Upload",
+    "Share2",
+    "Calendar",
+    "Clock",
+    "Bell",
+    "Mail",
+    "User",
+    "Users",
+    "UserCheck",
+    "Building2",
+    "Home",
+    "Settings",
+    "Search",
+    "Filter",
+    "Database",
+    "Server",
+    "Shield",
+    "Lock",
+    "CreditCard",
+    "DollarSign",
+    "Receipt",
+    "ShoppingCart",
+    "BarChart",
+    "PieChart",
+    "TrendingUp",
+    "Activity",
+    "Check",
+    "X",
+    "Plus",
+    "Minus",
+    "Edit",
+    "Trash2",
+    "Copy",
+    "Clipboard",
+    "Eye",
+    "EyeOff",
+    "Heart",
+    "Star",
+    "AlertCircle",
+    "HelpCircle",
+    "Info",
+    "CheckCircle",
+    "ArrowRight",
+    "ArrowLeft",
+    "ChevronDown",
+    "ChevronRight",
+    "ExternalLink",
+    "Link",
+    "Globe",
+    "Map",
+    "Phone",
+    "MessageSquare",
+    "Send",
+    "Wifi",
+    "Github",
+    "Code",
+    "Terminal",
+    "Layers",
   ];
 };

@@ -44,7 +44,10 @@ export class ErrorBoundary extends React.Component<
     console.error("Error caught by boundary:", error, errorInfo);
 
     // Send error to monitoring service (e.g., Sentry, LogRocket)
-    if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname !== "localhost"
+    ) {
       // Production error reporting
       this.reportError(error, errorInfo);
     }
@@ -90,7 +93,9 @@ export class ErrorBoundary extends React.Component<
         );
       }
 
-      return <DefaultErrorFallback error={this.state.error} reset={this.reset} />;
+      return (
+        <DefaultErrorFallback error={this.state.error} reset={this.reset} />
+      );
     }
 
     return this.props.children;

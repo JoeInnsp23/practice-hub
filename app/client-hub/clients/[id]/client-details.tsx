@@ -36,18 +36,16 @@ interface ClientDetailsProps {
   clientId: string;
 }
 
-
-
-
-
-
-
 export default function ClientDetails({ clientId }: ClientDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch client from database using tRPC
-  const { data: client, isLoading, error } = trpc.clients.getById.useQuery(clientId);
+  const {
+    data: client,
+    isLoading,
+    error,
+  } = trpc.clients.getById.useQuery(clientId);
 
   if (isLoading) {
     return (
@@ -85,7 +83,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       prospect: { label: "Prospect", variant: "outline" as const },
       archived: { label: "Archived", variant: "destructive" as const },
     };
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -96,14 +95,27 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       trust: "Trust",
       partnership: "Partnership",
     };
-    return <Badge variant="secondary">{typeLabels[type as keyof typeof typeLabels]}</Badge>;
+    return (
+      <Badge variant="secondary">
+        {typeLabels[type as keyof typeof typeLabels]}
+      </Badge>
+    );
   };
 
   const getTaskStatusBadge = (status: string) => {
     const statusConfig = {
-      completed: { label: "Completed", className: "bg-green-100 text-green-800" },
-      in_progress: { label: "In Progress", className: "bg-blue-100 text-blue-800" },
-      not_started: { label: "Not Started", className: "bg-gray-100 text-gray-800" },
+      completed: {
+        label: "Completed",
+        className: "bg-green-100 text-green-800",
+      },
+      in_progress: {
+        label: "In Progress",
+        className: "bg-blue-100 text-blue-800",
+      },
+      not_started: {
+        label: "Not Started",
+        className: "bg-gray-100 text-gray-800",
+      },
     };
     const config = statusConfig[status as keyof typeof statusConfig];
     return (
@@ -149,7 +161,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <div className="flex items-center gap-4 mt-2 text-muted-foreground">
               <span className="font-mono">{client.clientCode}</span>
               <span>•</span>
-              <span>Managed by {client.accountManagerId || 'Unassigned'}</span>
+              <span>Managed by {client.accountManagerId || "Unassigned"}</span>
             </div>
           </div>
         </div>
@@ -215,7 +227,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Active Tasks</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Active Tasks
+                </CardTitle>
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -225,7 +239,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
             <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Overdue Tasks</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Overdue Tasks
+                </CardTitle>
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
@@ -235,7 +251,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
             <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Unbilled Hours</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Unbilled Hours
+                </CardTitle>
                 <Clock className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
@@ -245,7 +263,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
             <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Health Score</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Health Score
+                </CardTitle>
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -268,27 +288,40 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   <>
                     {client.registrationNumber && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Company Number</p>
-                        <p className="font-medium">{client.registrationNumber}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Company Number
+                        </p>
+                        <p className="font-medium">
+                          {client.registrationNumber}
+                        </p>
                       </div>
                     )}
                     {client.incorporationDate && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Incorporated</p>
+                        <p className="text-sm text-muted-foreground">
+                          Incorporated
+                        </p>
                         <p className="font-medium">
-                          {format(new Date(client.incorporationDate), "dd/MM/yyyy")}
+                          {format(
+                            new Date(client.incorporationDate),
+                            "dd/MM/yyyy",
+                          )}
                         </p>
                       </div>
                     )}
                     {client.yearEnd && (
                       <div>
-                        <p className="text-sm text-muted-foreground">Year End</p>
+                        <p className="text-sm text-muted-foreground">
+                          Year End
+                        </p>
                         <p className="font-medium">{client.yearEnd}</p>
                       </div>
                     )}
                     {client.vatNumber && (
                       <div>
-                        <p className="text-sm text-muted-foreground">VAT Number</p>
+                        <p className="text-sm text-muted-foreground">
+                          VAT Number
+                        </p>
                         <p className="font-medium">{client.vatNumber}</p>
                       </div>
                     )}
@@ -296,7 +329,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 )}
                 {(client.addressLine1 || client.city) && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Registered Address</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Registered Address
+                    </p>
                     <div className="space-y-1">
                       {client.addressLine1 && <p>{client.addressLine1}</p>}
                       {client.addressLine2 && <p>{client.addressLine2}</p>}
@@ -319,10 +354,12 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {(client.email || client.phone) ? (
+                {client.email || client.phone ? (
                   <>
                     <div>
-                      <p className="text-sm text-muted-foreground">Contact Details</p>
+                      <p className="text-sm text-muted-foreground">
+                        Contact Details
+                      </p>
                       <p className="font-medium">{client.name}</p>
                     </div>
                     {client.email && (
@@ -351,7 +388,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 ) : (
                   <div className="text-center py-4">
                     <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground">No contact information available</p>
+                    <p className="text-muted-foreground">
+                      No contact information available
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -407,7 +446,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <CardContent>
               <div className="text-center py-12">
                 <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No tasks found for this client</p>
+                <p className="text-muted-foreground">
+                  No tasks found for this client
+                </p>
                 <Button className="mt-4" size="sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Create First Task
@@ -422,7 +463,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="glass-card">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Hours
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">0.0</p>
@@ -431,7 +474,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             </Card>
             <Card className="glass-card">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Billable Hours</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Billable Hours
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">0.0</p>
@@ -440,7 +485,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             </Card>
             <Card className="glass-card">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Unbilled Hours</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Unbilled Hours
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">0.0</p>
@@ -506,9 +553,12 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <CardContent>
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">Document System Coming Soon</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  Document System Coming Soon
+                </h3>
                 <p className="text-muted-foreground mb-4">
-                  Document management and storage will be available in a future update.
+                  Document management and storage will be available in a future
+                  update.
                 </p>
                 <div className="bg-muted/50 p-4 rounded-lg text-left max-w-md mx-auto">
                   <h4 className="font-medium mb-2">Planned Features:</h4>

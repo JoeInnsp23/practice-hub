@@ -13,7 +13,10 @@ import {
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { TimeEntryModal } from "./time-entry-modal";
-import { useTimeEntries, useCreateTimeEntry } from "@/lib/hooks/use-time-entries";
+import {
+  useTimeEntries,
+  useCreateTimeEntry,
+} from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
 import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
 
@@ -27,7 +30,7 @@ export function HourlyTimesheet({
   onViewChange,
 }: HourlyTimesheetProps) {
   const [currentWeek, setCurrentWeek] = useState(
-    startOfWeek(initialWeekStart, { weekStartsOn: 1 })
+    startOfWeek(initialWeekStart, { weekStartsOn: 1 }),
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -56,10 +59,10 @@ export function HourlyTimesheet({
       hour === 0
         ? "12am"
         : hour < 12
-        ? `${hour}am`
-        : hour === 12
-        ? "12pm"
-        : `${hour - 12}pm`;
+          ? `${hour}am`
+          : hour === 12
+            ? "12pm"
+            : `${hour - 12}pm`;
     return { hour, display };
   });
 
@@ -77,7 +80,7 @@ export function HourlyTimesheet({
 
         // Check if entry falls within the specified hour
         if (sameDay && entry.startTime) {
-          const [entryHour] = entry.startTime.split(':').map(Number);
+          const [entryHour] = entry.startTime.split(":").map(Number);
           return entryHour === hour;
         }
 
@@ -100,7 +103,7 @@ export function HourlyTimesheet({
   const handleSaveEntry = async (entry: any) => {
     try {
       await createTimeEntry.mutateAsync(entry);
-      setRefreshKey(prev => prev + 1); // Trigger data refresh
+      setRefreshKey((prev) => prev + 1); // Trigger data refresh
       setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to save time entry:", error);
@@ -115,7 +118,7 @@ export function HourlyTimesheet({
     if (gridRef.current) {
       const currentHour = now.getHours();
       const hourElement = gridRef.current.querySelector(
-        `[data-hour="${currentHour}"]`
+        `[data-hour="${currentHour}"]`,
       );
       if (hourElement) {
         hourElement.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -183,7 +186,9 @@ export function HourlyTimesheet({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+            onClick={() =>
+              setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))
+            }
             className="text-blue-600 dark:text-blue-400"
           >
             Today
@@ -196,24 +201,34 @@ export function HourlyTimesheet({
         <div className="flex items-center gap-6">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span className="text-sm text-slate-700 dark:text-slate-300">Billable</span>
+            <span className="text-sm text-slate-700 dark:text-slate-300">
+              Billable
+            </span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-blue-500 rounded"></div>
-            <span className="text-sm text-slate-700 dark:text-slate-300">Non-Billable</span>
+            <span className="text-sm text-slate-700 dark:text-slate-300">
+              Non-Billable
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-4 ml-auto text-sm">
           <div className="text-slate-600 dark:text-slate-400">
             <span className="font-medium">Week Total:</span>
             <span className="ml-2 font-bold text-slate-800 dark:text-slate-200">
-              {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0}h
+              {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) ||
+                0}
+              h
             </span>
           </div>
           <div className="text-slate-600 dark:text-slate-400">
             <span className="font-medium">Billable:</span>
             <span className="ml-2 font-bold text-green-600 dark:text-green-400">
-              {timeEntries?.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0}h
+              {timeEntries
+                ?.filter((e) => e.billable)
+                .reduce((sum, e) => sum + e.hours, 0)
+                .toFixed(1) || 0}
+              h
             </span>
           </div>
         </div>
@@ -236,19 +251,28 @@ export function HourlyTimesheet({
                   className={cn(
                     "p-3 text-center text-sm font-medium border-r border-slate-200 dark:border-slate-700 last:border-r-0",
                     isToday && "bg-blue-50 dark:bg-blue-500/10",
-                    isWeekend && !isToday && "bg-slate-100 dark:bg-slate-800/70"
+                    isWeekend &&
+                      !isToday &&
+                      "bg-slate-100 dark:bg-slate-800/70",
                   )}
                 >
-                  <div className={cn(
-                    "text-slate-700 dark:text-slate-300",
-                    isToday && "text-blue-600 dark:text-blue-400 font-semibold"
-                  )}>
+                  <div
+                    className={cn(
+                      "text-slate-700 dark:text-slate-300",
+                      isToday &&
+                        "text-blue-600 dark:text-blue-400 font-semibold",
+                    )}
+                  >
                     {format(day, "EEE")}
                   </div>
-                  <div className={cn(
-                    "text-xs",
-                    isToday ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
-                  )}>
+                  <div
+                    className={cn(
+                      "text-xs",
+                      isToday
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-slate-500 dark:text-slate-400",
+                    )}
+                  >
                     {format(day, "MMM d")}
                   </div>
                 </div>
@@ -258,7 +282,8 @@ export function HourlyTimesheet({
 
           {/* Hour Rows */}
           {timeSlots.map((slot) => {
-            const isCurrentHour = currentTime && slot.hour === currentTime.getHours();
+            const isCurrentHour =
+              currentTime && slot.hour === currentTime.getHours();
             return (
               <div
                 key={slot.hour}
@@ -268,7 +293,8 @@ export function HourlyTimesheet({
                 <div
                   className={cn(
                     "p-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700",
-                    isCurrentHour && "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                    isCurrentHour &&
+                      "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400",
                   )}
                 >
                   {slot.display}
@@ -285,15 +311,21 @@ export function HourlyTimesheet({
                         "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer",
                         "hover:bg-slate-100 dark:hover:bg-slate-700/50",
                         isWeekend && "bg-slate-50 dark:bg-slate-800/50",
-                        isToday && isCurrentHour && "bg-orange-50 dark:bg-orange-500/10"
+                        isToday &&
+                          isCurrentHour &&
+                          "bg-orange-50 dark:bg-orange-500/10",
                       )}
                       onClick={() => openModal(day, slot.hour)}
                     >
                       {entries.length > 0 && (
                         <div className="space-y-1">
                           {entries.slice(0, 2).map((entry, idx) => {
-                            const workTypeColor = getWorkTypeColor(entry.workType || "work");
-                            const workTypeLabel = getWorkTypeLabel(entry.workType || "work");
+                            const workTypeColor = getWorkTypeColor(
+                              entry.workType || "work",
+                            );
+                            const workTypeLabel = getWorkTypeLabel(
+                              entry.workType || "work",
+                            );
 
                             return (
                               <div
@@ -314,14 +346,18 @@ export function HourlyTimesheet({
                                   <div
                                     className={cn(
                                       "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                                      entry.billable ? "bg-red-500" : "bg-blue-500"
+                                      entry.billable
+                                        ? "bg-red-500"
+                                        : "bg-blue-500",
                                     )}
                                   />
                                   <span className="font-medium truncate flex-1">
                                     {workTypeLabel}
                                   </span>
                                   {entry.hours && (
-                                    <span className="text-[10px]">{entry.hours}h</span>
+                                    <span className="text-[10px]">
+                                      {entry.hours}h
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -351,17 +387,24 @@ export function HourlyTimesheet({
           </div>
           {weekDays.map((day) => {
             const dayEntries = getEntriesForSlot(day); // Get all entries for the day
-            const dayTotal = dayEntries.reduce((sum, entry) => sum + entry.hours, 0);
-            const billableTotal = dayEntries.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0);
+            const dayTotal = dayEntries.reduce(
+              (sum, entry) => sum + entry.hours,
+              0,
+            );
+            const billableTotal = dayEntries
+              .filter((e) => e.billable)
+              .reduce((sum, e) => sum + e.hours, 0);
 
             return (
               <div key={day.toISOString()} className="text-center text-xs">
                 <div className="font-semibold text-slate-800 dark:text-slate-200">
-                  {dayTotal > 0 ? `${dayTotal.toFixed(1)}h` : '-'}
+                  {dayTotal > 0 ? `${dayTotal.toFixed(1)}h` : "-"}
                 </div>
                 {dayTotal > 0 && (
                   <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">
-                    {billableTotal > 0 ? `${billableTotal.toFixed(1)}h billable` : 'Non-billable'}
+                    {billableTotal > 0
+                      ? `${billableTotal.toFixed(1)}h billable`
+                      : "Non-billable"}
                   </div>
                 )}
               </div>
@@ -380,8 +423,8 @@ export function HourlyTimesheet({
           setSelectedDate(null);
         }}
         onSave={handleSaveEntry}
-        onUpdate={() => setRefreshKey(prev => prev + 1)}
-        onDelete={() => setRefreshKey(prev => prev + 1)}
+        onUpdate={() => setRefreshKey((prev) => prev + 1)}
+        onDelete={() => setRefreshKey((prev) => prev + 1)}
         selectedDate={selectedDate || undefined}
         selectedEntry={selectedEntry}
         selectedHour={selectedHour}

@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
-import { portalCategories, portalLinks, userFavorites, users } from "@/lib/db/schema";
+import {
+  portalCategories,
+  portalLinks,
+  userFavorites,
+  users,
+} from "@/lib/db/schema";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -14,8 +19,8 @@ export const portalRouter = router({
       .where(
         and(
           eq(portalCategories.tenantId, ctx.authContext.tenantId),
-          eq(portalCategories.isActive, true)
-        )
+          eq(portalCategories.isActive, true),
+        ),
       )
       .orderBy(asc(portalCategories.sortOrder));
 
@@ -25,8 +30,8 @@ export const portalRouter = router({
       .where(
         and(
           eq(portalLinks.tenantId, ctx.authContext.tenantId),
-          eq(portalLinks.isActive, true)
-        )
+          eq(portalLinks.isActive, true),
+        ),
       )
       .orderBy(asc(portalLinks.sortOrder));
 
@@ -72,9 +77,12 @@ export const portalRouter = router({
         name: z.string().min(1).max(100),
         description: z.string().optional(),
         iconName: z.string().optional(),
-        colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+        colorHex: z
+          .string()
+          .regex(/^#[0-9A-Fa-f]{6}$/)
+          .optional(),
         sortOrder: z.number().int().min(0).default(0),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -104,10 +112,13 @@ export const portalRouter = router({
         name: z.string().min(1).max(100),
         description: z.string().optional(),
         iconName: z.string().optional(),
-        colorHex: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+        colorHex: z
+          .string()
+          .regex(/^#[0-9A-Fa-f]{6}$/)
+          .optional(),
         sortOrder: z.number().int().min(0),
         isActive: z.boolean(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -128,8 +139,8 @@ export const portalRouter = router({
         .where(
           and(
             eq(portalCategories.id, id),
-            eq(portalCategories.tenantId, ctx.authContext.tenantId)
-          )
+            eq(portalCategories.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .returning();
 
@@ -152,8 +163,8 @@ export const portalRouter = router({
         .where(
           and(
             eq(portalCategories.id, input.id),
-            eq(portalCategories.tenantId, ctx.authContext.tenantId)
-          )
+            eq(portalCategories.tenantId, ctx.authContext.tenantId),
+          ),
         );
 
       return { success: true };
@@ -164,7 +175,7 @@ export const portalRouter = router({
     .input(
       z.object({
         categoryId: z.string().uuid().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -201,7 +212,7 @@ export const portalRouter = router({
         targetBlank: z.boolean().default(true),
         requiresAuth: z.boolean().default(false),
         allowedRoles: z.array(z.string()).optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -240,7 +251,7 @@ export const portalRouter = router({
         targetBlank: z.boolean(),
         requiresAuth: z.boolean(),
         allowedRoles: z.array(z.string()).optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -260,7 +271,10 @@ export const portalRouter = router({
           updatedAt: new Date(),
         })
         .where(
-          and(eq(portalLinks.id, id), eq(portalLinks.tenantId, ctx.authContext.tenantId))
+          and(
+            eq(portalLinks.id, id),
+            eq(portalLinks.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .returning();
 
@@ -283,8 +297,8 @@ export const portalRouter = router({
         .where(
           and(
             eq(portalLinks.id, input.id),
-            eq(portalLinks.tenantId, ctx.authContext.tenantId)
-          )
+            eq(portalLinks.tenantId, ctx.authContext.tenantId),
+          ),
         );
 
       return { success: true };
@@ -298,9 +312,9 @@ export const portalRouter = router({
           z.object({
             id: z.string().uuid(),
             sortOrder: z.number().int().min(0),
-          })
+          }),
         ),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -322,10 +336,10 @@ export const portalRouter = router({
             .where(
               and(
                 eq(portalCategories.id, cat.id),
-                eq(portalCategories.tenantId, ctx.authContext.tenantId)
-              )
-            )
-        )
+                eq(portalCategories.tenantId, ctx.authContext.tenantId),
+              ),
+            ),
+        ),
       );
 
       return { success: true };
@@ -339,9 +353,9 @@ export const portalRouter = router({
           z.object({
             id: z.string().uuid(),
             sortOrder: z.number().int().min(0),
-          })
+          }),
         ),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       if (ctx.authContext.role !== "admin") {
@@ -363,10 +377,10 @@ export const portalRouter = router({
             .where(
               and(
                 eq(portalLinks.id, link.id),
-                eq(portalLinks.tenantId, ctx.authContext.tenantId)
-              )
-            )
-        )
+                eq(portalLinks.tenantId, ctx.authContext.tenantId),
+              ),
+            ),
+        ),
       );
 
       return { success: true };
@@ -423,8 +437,8 @@ export const portalRouter = router({
         .where(
           and(
             eq(userFavorites.userId, user[0].id),
-            eq(userFavorites.linkId, input.linkId)
-          )
+            eq(userFavorites.linkId, input.linkId),
+          ),
         )
         .limit(1);
 

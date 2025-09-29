@@ -95,6 +95,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.5
         version: 0.44.5(@types/pg@8.15.5)(postgres@3.4.7)
+      drizzle-zod:
+        specifier: ^0.8.3
+        version: 0.8.3(drizzle-orm@0.44.5(@types/pg@8.15.5)(postgres@3.4.7))(zod@4.1.11)
       framer-motion:
         specifier: ^12.23.22
         version: 12.23.22(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1582,6 +1585,12 @@ packages:
         optional: true
       sqlite3:
         optional: true
+
+  drizzle-zod@0.8.3:
+    resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: ^3.25.0 || ^4.0.0
 
   enhanced-resolve@5.18.3:
     resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
@@ -3085,6 +3094,11 @@ snapshots:
     optionalDependencies:
       '@types/pg': 8.15.5
       postgres: 3.4.7
+
+  drizzle-zod@0.8.3(drizzle-orm@0.44.5(@types/pg@8.15.5)(postgres@3.4.7))(zod@4.1.11):
+    dependencies:
+      drizzle-orm: 0.44.5(@types/pg@8.15.5)(postgres@3.4.7)
+      zod: 4.1.11
 
   enhanced-resolve@5.18.3:
     dependencies:

@@ -8,16 +8,7 @@ import { ChevronLeft, ChevronRight, Calendar, AlertCircle } from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-
-interface ComplianceItem {
-  id: string;
-  title: string;
-  client: string;
-  type: string;
-  dueDate: Date;
-  status: "pending" | "in_progress" | "completed" | "overdue";
-  priority: "low" | "medium" | "high" | "urgent";
-}
+import type { ComplianceItem } from "./compliance-list";
 
 interface ComplianceCalendarProps {
   items: ComplianceItem[];
@@ -65,7 +56,8 @@ export function ComplianceCalendar({
     const grouped: Record<string, ComplianceItem[]> = {};
 
     items.forEach((item) => {
-      const dateKey = item.dueDate.toISOString().split("T")[0];
+      const date = new Date(item.dueDate);
+      const dateKey = date.toISOString().split("T")[0];
       if (!grouped[dateKey]) {
         grouped[dateKey] = [];
       }
@@ -203,7 +195,7 @@ export function ComplianceCalendar({
                           getPriorityColor(item.priority),
                         )}
                       >
-                        <span className="truncate">{item.client}</span>
+                        <span className="truncate">{item.title}</span>
                       </Badge>
                     </div>
                   ))}

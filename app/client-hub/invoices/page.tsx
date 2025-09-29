@@ -34,45 +34,109 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 
+type Invoice = {
+  id: string;
+  tenantId: string;
+  invoiceNumber: string;
+  clientId: string;
+  issueDate: string | Date;
+  dueDate: string | Date;
+  paidDate: string | Date | null;
+  subtotal: string;
+  taxRate: string | null;
+  taxAmount: string | null;
+  discount: string | null;
+  total: string;
+  amountPaid: string | null;
+  status: "draft" | "sent" | "viewed" | "partial" | "paid" | "overdue" | "cancelled";
+  currency: string | null;
+  notes: string | null;
+  terms: string | null;
+  purchaseOrderNumber: string | null;
+  metadata: any;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string | null;
+};
 
 export default function InvoicesPage() {
   const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingInvoice, setEditingInvoice] = useState<any>(null);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch invoices using tRPC
-  const { data: invoicesData, isLoading: loading } = trpc.invoices.list.useQuery({
-    search: debouncedSearchTerm || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
-  });
+  const { data: invoicesData, isLoading: loading } =
+    trpc.invoices.list.useQuery({
+      search: debouncedSearchTerm || undefined,
+      status: statusFilter !== "all" ? statusFilter : undefined,
+    });
 
   const invoices = invoicesData?.invoices || [];
 
-  // Filter invoices (already filtered by tRPC query)
+  // tRPC mutations
+  const createMutation = trpc.invoices.create.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice created successfully");
+      utils.invoices.list.invalidate();
+      setIsFormOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to create invoice: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.invoices.update.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice updated successfully");
+      utils.invoices.list.invalidate();
+      setIsFormOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to update invoice: ${error.message}`);
+    },
+  });
+
+  const deleteMutation = trpc.invoices.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice deleted");
+      utils.invoices.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete invoice: ${error.message}`);
+    },
+  });
+
+  const updateStatusMutation = trpc.invoices.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice status updated");
+      utils.invoices.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(`Failed to update status: ${error.message}`);
+    },
+  });
+
+  // Invoices already filtered by tRPC query
   const filteredInvoices = useMemo(() => {
     return invoices;
-
-    return filtered.sort(
-      (a, b) => b.issueDate.getTime() - a.issueDate.getTime(),
-    );
-  }, [invoices, searchTerm, statusFilter]);
+  }, [invoices]);
 
   // Calculate stats
   const stats = useMemo(() => {
-    const total = invoices.reduce((sum, inv) => sum + inv.total, 0);
+    const total = invoices.reduce((sum, inv) => sum + parseFloat(inv.total), 0);
     const paid = invoices
       .filter((inv) => inv.status === "paid")
-      .reduce((sum, inv) => sum + inv.total, 0);
+      .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
     const pending = invoices
       .filter((inv) => inv.status === "sent")
-      .reduce((sum, inv) => sum + inv.total, 0);
+      .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
     const overdue = invoices
       .filter((inv) => inv.status === "overdue")
-      .reduce((sum, inv) => sum + inv.total, 0);
+      .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
 
     return {
       total,
@@ -94,73 +158,61 @@ export default function InvoicesPage() {
     setIsFormOpen(true);
   };
 
-  const handleEditInvoice = (invoice: any) => {
+  const handleEditInvoice = (invoice: Invoice) => {
     setEditingInvoice(invoice);
     setIsFormOpen(true);
   };
 
   const handleSaveInvoice = (data: any) => {
     if (editingInvoice) {
-      setInvoices((prev) =>
-        prev.map((inv) =>
-          inv.id === editingInvoice.id
-            ? {
-                ...inv,
-                ...data,
-                issueDate: new Date(data.issueDate),
-                dueDate: new Date(data.dueDate),
-              }
-            : inv,
-        ),
-      );
-      toast.success("Invoice updated successfully");
+      updateMutation.mutate({
+        id: editingInvoice.id,
+        data,
+      });
     } else {
-      const newInvoice = {
-        ...data,
-        id: Date.now().toString(),
-        issueDate: new Date(data.issueDate),
-        dueDate: new Date(data.dueDate),
-      };
-      setInvoices((prev) => [...prev, newInvoice]);
-      toast.success("Invoice created successfully");
+      createMutation.mutate(data);
     }
-    setIsFormOpen(false);
   };
 
-  const handleViewInvoice = (invoice: any) => {
+  const handleViewInvoice = (invoice: Invoice) => {
     toast.success(`Viewing invoice ${invoice.invoiceNumber}`);
   };
 
-  const handleDuplicateInvoice = (invoice: any) => {
-    const newInvoice = {
-      ...invoice,
-      id: Date.now().toString(),
+  const handleDuplicateInvoice = (invoice: Invoice) => {
+    const duplicateData = {
       invoiceNumber: `${invoice.invoiceNumber}-COPY`,
+      clientId: invoice.clientId,
+      issueDate: new Date().toISOString().split("T")[0],
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      subtotal: invoice.subtotal,
+      taxRate: invoice.taxRate,
+      taxAmount: invoice.taxAmount,
+      discount: invoice.discount,
+      total: invoice.total,
+      amountPaid: "0",
       status: "draft" as const,
-      issueDate: new Date(),
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      currency: invoice.currency,
+      notes: invoice.notes,
+      terms: invoice.terms,
+      purchaseOrderNumber: invoice.purchaseOrderNumber,
     };
-    setInvoices((prev) => [...prev, newInvoice]);
-    toast.success("Invoice duplicated");
+    createMutation.mutate(duplicateData);
   };
 
-  const handleSendInvoice = (invoice: any) => {
-    setInvoices((prev) =>
-      prev.map((inv) =>
-        inv.id === invoice.id ? { ...inv, status: "sent" as const } : inv,
-      ),
-    );
-    toast.success(`Invoice ${invoice.invoiceNumber} sent to client`);
+  const handleSendInvoice = (invoice: Invoice) => {
+    updateStatusMutation.mutate({
+      id: invoice.id,
+      status: "sent",
+    });
   };
 
-  const handleDownloadInvoice = (invoice: any) => {
+  const handleDownloadInvoice = (invoice: Invoice) => {
     toast.success(`Downloading ${invoice.invoiceNumber}.pdf`);
   };
 
-  const handleDeleteInvoice = (invoice: any) => {
+  const handleDeleteInvoice = (invoice: Invoice) => {
     if (window.confirm(`Delete invoice ${invoice.invoiceNumber}?`)) {
-      setInvoices((prev) => prev.filter((inv) => inv.id !== invoice.id));
-      toast.success("Invoice deleted");
+      deleteMutation.mutate(invoice.id);
     }
   };
 

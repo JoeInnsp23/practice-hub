@@ -20,7 +20,7 @@ class ApiClient {
     this.defaultOptions = {
       headers: {
         "Content-Type": "application/json",
-      } as HeadersInit,
+      },
       retry: 3,
       retryDelay: 1000,
       timeout: 30000,
@@ -199,7 +199,7 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Remove content-type header for multipart/form-data
-    const headers = { ...(this.defaultOptions.headers as Record<string, string>) };
+    const headers = { ...this.defaultOptions.headers } as Record<string, string>;
     delete headers["Content-Type"];
 
     const xhr = new XMLHttpRequest();

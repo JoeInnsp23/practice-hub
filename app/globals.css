@@ -166,7 +166,9 @@
   .glass-card {
     background: rgb(255, 255, 255);
     border: 1px solid rgb(226, 232, 240);
-    box-shadow: 0 10px 40px rgba(148, 163, 184, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 10px 40px rgba(148, 163, 184, 0.1),
+      0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
   /* Subtle style - for headers, sidebars */
@@ -180,7 +182,9 @@
   .glass-strong {
     background: rgb(255, 255, 255);
     border: 1px solid rgb(226, 232, 240);
-    box-shadow: 0 10px 40px rgba(148, 163, 184, 0.2), 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow:
+      0 10px 40px rgba(148, 163, 184, 0.2),
+      0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   /* Table container style - consistent with cards */
@@ -188,7 +192,9 @@
     background: rgb(255, 255, 255);
     border: 1px solid rgb(226, 232, 240);
     border-radius: 0.75rem;
-    box-shadow: 0 10px 40px rgba(148, 163, 184, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 10px 40px rgba(148, 163, 184, 0.1),
+      0 1px 3px rgba(0, 0, 0, 0.04);
     overflow: hidden;
   }
 
@@ -213,7 +219,9 @@
   .dark .glass-card {
     background: rgb(30, 41, 59);
     border: 1px solid rgb(51, 65, 85);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .dark .glass-subtle {
@@ -225,13 +233,17 @@
   .dark .glass-strong {
     background: rgb(30, 41, 59);
     border: 1px solid rgb(51, 65, 85);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.5),
+      0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .dark .glass-table {
     background: rgb(30, 41, 59);
     border: 1px solid rgb(51, 65, 85);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .glass-primary {

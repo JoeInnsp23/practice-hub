@@ -26,9 +26,22 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+interface Document {
+  id: string;
+  name: string;
+  type: "folder" | "file";
+  fileType?: string;
+  size?: number;
+  parentId: string | null;
+  createdAt: Date;
+  modifiedAt: Date;
+  client?: string;
+  tags?: string[];
+  sharedWith?: string[];
+}
 
 export default function DocumentsPage() {
-  const [documents, setDocuments] = useState([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");

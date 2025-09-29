@@ -44,9 +44,11 @@ export function ActivityFeed({
   };
 
   const getActivityColor = (entityType: string, color?: string) => {
-    if (color === "success") return "text-green-600 dark:text-green-400 bg-green-600/10 dark:bg-green-400/10";
+    if (color === "success")
+      return "text-green-600 dark:text-green-400 bg-green-600/10 dark:bg-green-400/10";
     if (color === "destructive") return "text-destructive bg-destructive/10";
-    if (color === "warning") return "text-orange-600 dark:text-orange-400 bg-orange-600/10 dark:bg-orange-400/10";
+    if (color === "warning")
+      return "text-orange-600 dark:text-orange-400 bg-orange-600/10 dark:bg-orange-400/10";
 
     switch (entityType) {
       case "task":

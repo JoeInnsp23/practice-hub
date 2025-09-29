@@ -114,7 +114,7 @@ export function DataImportModal({
 
       if (data.success && !isDryRun) {
         toast.success(
-          `Successfully imported ${data.summary.successful} ${entityName}`
+          `Successfully imported ${data.summary.successful} ${entityName}`,
         );
         if (onSuccess) {
           onSuccess();
@@ -163,7 +163,8 @@ export function DataImportModal({
         <DialogHeader>
           <DialogTitle>Import {entityName}</DialogTitle>
           <DialogDescription>
-            Upload a CSV file to import multiple {entityName.toLowerCase()} at once
+            Upload a CSV file to import multiple {entityName.toLowerCase()} at
+            once
           </DialogDescription>
         </DialogHeader>
 

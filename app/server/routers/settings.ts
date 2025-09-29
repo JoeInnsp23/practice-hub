@@ -4,32 +4,16 @@ import { tenants, activityLogs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const tenantSettingsSchema = z.object({
-  name: z.string(),
-  slug: z.string(),
-  domain: z.string().optional(),
-  logoUrl: z.string().optional(),
-  primaryColor: z.string().optional(),
-  settings: z.object({
-    invoicePrefix: z.string().optional(),
-    defaultPaymentTerms: z.number().optional(),
-    defaultTaxRate: z.number().optional(),
-    timeTrackingEnabled: z.boolean().optional(),
-    complianceEnabled: z.boolean().optional(),
-    workflowsEnabled: z.boolean().optional(),
-    portalEnabled: z.boolean().optional(),
-    billingEmail: z.string().email().optional(),
-    supportEmail: z.string().email().optional(),
-    address: z.object({
-      line1: z.string().optional(),
-      line2: z.string().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      postalCode: z.string().optional(),
-      country: z.string().optional(),
-    }).optional(),
-  }).optional(),
+// Generate schema from Drizzle table definition
+const insertTenantSchema = createInsertSchema(tenants);
+
+// Schema for tenant settings (omit auto-generated fields)
+const tenantSettingsSchema = insertTenantSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const settingsRouter = router({
@@ -45,7 +29,7 @@ export const settingsRouter = router({
     if (!tenant[0]) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "Tenant not found"
+        message: "Tenant not found",
       });
     }
 
@@ -67,7 +51,7 @@ export const settingsRouter = router({
       if (!existingTenant[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Tenant not found"
+          message: "Tenant not found",
         });
       }
 
@@ -75,11 +59,8 @@ export const settingsRouter = router({
       const [updatedTenant] = await db
         .update(tenants)
         .set({
-          ...input,
-          settings: input.settings ? {
-            ...existingTenant[0].settings,
-            ...input.settings,
-          } : existingTenant[0].settings,
+          name: input.name,
+          slug: input.slug,
           updatedAt: new Date(),
         })
         .where(eq(tenants.id, tenantId))
@@ -133,30 +114,38 @@ export const settingsRouter = router({
   }),
 
   updateNotificationSettings: protectedProcedure
-    .input(z.object({
-      emailNotifications: z.object({
-        taskAssigned: z.boolean().optional(),
-        taskCompleted: z.boolean().optional(),
-        taskOverdue: z.boolean().optional(),
-        invoiceCreated: z.boolean().optional(),
-        invoicePaid: z.boolean().optional(),
-        clientAdded: z.boolean().optional(),
-        reportGenerated: z.boolean().optional(),
-      }).optional(),
-      inAppNotifications: z.object({
-        taskAssigned: z.boolean().optional(),
-        taskCompleted: z.boolean().optional(),
-        taskOverdue: z.boolean().optional(),
-        invoiceCreated: z.boolean().optional(),
-        invoicePaid: z.boolean().optional(),
-        clientAdded: z.boolean().optional(),
-        reportGenerated: z.boolean().optional(),
-      }).optional(),
-      digestEmail: z.object({
-        enabled: z.boolean().optional(),
-        frequency: z.enum(["daily", "weekly", "monthly"]).optional(),
-      }).optional(),
-    }))
+    .input(
+      z.object({
+        emailNotifications: z
+          .object({
+            taskAssigned: z.boolean().optional(),
+            taskCompleted: z.boolean().optional(),
+            taskOverdue: z.boolean().optional(),
+            invoiceCreated: z.boolean().optional(),
+            invoicePaid: z.boolean().optional(),
+            clientAdded: z.boolean().optional(),
+            reportGenerated: z.boolean().optional(),
+          })
+          .optional(),
+        inAppNotifications: z
+          .object({
+            taskAssigned: z.boolean().optional(),
+            taskCompleted: z.boolean().optional(),
+            taskOverdue: z.boolean().optional(),
+            invoiceCreated: z.boolean().optional(),
+            invoicePaid: z.boolean().optional(),
+            clientAdded: z.boolean().optional(),
+            reportGenerated: z.boolean().optional(),
+          })
+          .optional(),
+        digestEmail: z
+          .object({
+            enabled: z.boolean().optional(),
+            frequency: z.enum(["daily", "weekly", "monthly"]).optional(),
+          })
+          .optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 

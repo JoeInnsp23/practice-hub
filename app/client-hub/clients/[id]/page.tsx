@@ -10,7 +10,9 @@ interface ClientDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ClientDetailPage({ params }: ClientDetailPageProps) {
+export default async function ClientDetailPage({
+  params,
+}: ClientDetailPageProps) {
   const { id } = await params;
 
   // In a real app, fetch client data from database here

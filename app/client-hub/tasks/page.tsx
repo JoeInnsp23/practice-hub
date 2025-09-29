@@ -89,10 +89,7 @@ export default function TasksPage() {
       }
 
       // Assignee filter
-      if (
-        assigneeFilter !== "all" &&
-        task.assignee?.name !== assigneeFilter
-      ) {
+      if (assigneeFilter !== "all" && task.assignee?.name !== assigneeFilter) {
         return false;
       }
 
@@ -102,7 +99,7 @@ export default function TasksPage() {
 
   // Get unique assignees for filter
   const uniqueAssignees = Array.from(
-    new Set(tasks.map((t) => t.assignee?.name).filter(Boolean))
+    new Set(tasks.map((t) => t.assignee?.name).filter(Boolean)),
   );
 
   // Task statistics
@@ -111,17 +108,11 @@ export default function TasksPage() {
       title: "Total Tasks",
       value: tasks.length.toString(),
       icon: CheckSquare,
-      change: "",
-      changeType: "neutral" as const,
     },
     {
       title: "In Progress",
-      value: tasks
-        .filter((t) => t.status === "in_progress")
-        .length.toString(),
+      value: tasks.filter((t) => t.status === "in_progress").length.toString(),
       icon: Clock,
-      change: "",
-      changeType: "neutral" as const,
     },
     {
       title: "Due This Week",
@@ -129,24 +120,20 @@ export default function TasksPage() {
         .filter((t) => {
           const dueDate = new Date(t.dueDate);
           const today = new Date();
-          const nextWeek = new Date(
-            today.getTime() + 7 * 24 * 60 * 60 * 1000
-          );
+          const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
           return dueDate >= today && dueDate <= nextWeek;
         })
         .length.toString(),
       icon: Calendar,
-      change: "",
-      changeType: "neutral" as const,
     },
     {
       title: "Overdue",
       value: tasks
-        .filter((t) => new Date(t.dueDate) < new Date() && t.status !== "completed")
+        .filter(
+          (t) => new Date(t.dueDate) < new Date() && t.status !== "completed",
+        )
         .length.toString(),
       icon: AlertTriangle,
-      change: "",
-      changeType: "negative" as const,
     },
   ];
 
@@ -175,8 +162,11 @@ export default function TasksPage() {
   });
 
   const handleDeleteTask = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task && window.confirm(`Are you sure you want to delete "${task.title}"?`)) {
+    const task = tasks.find((t) => t.id === taskId);
+    if (
+      task &&
+      window.confirm(`Are you sure you want to delete "${task.title}"?`)
+    ) {
       deleteMutation.mutate(taskId);
     }
   };
@@ -282,8 +272,6 @@ export default function TasksPage() {
             title={stat.title}
             value={stat.value}
             icon={stat.icon}
-            change={stat.change}
-            changeType={stat.changeType}
           />
         ))}
       </div>
@@ -380,7 +368,8 @@ export default function TasksPage() {
           {selectedTaskIds.length > 0 && viewMode === "list" && (
             <div className="mb-4 p-3 bg-muted rounded-lg flex items-center justify-between">
               <span className="text-sm font-medium">
-                {selectedTaskIds.length} task{selectedTaskIds.length > 1 ? "s" : ""} selected
+                {selectedTaskIds.length} task
+                {selectedTaskIds.length > 1 ? "s" : ""} selected
               </span>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline">
@@ -448,7 +437,9 @@ export default function TasksPage() {
           showCloseButton={true}
         >
           <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle className="text-2xl font-bold">Tasks - Kanban View</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">
+              Tasks - Kanban View
+            </DialogTitle>
           </DialogHeader>
           <div className="p-6 h-[calc(100vh-80px)] overflow-hidden">
             <TaskBoard

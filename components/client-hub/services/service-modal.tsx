@@ -42,7 +42,7 @@ const serviceSchema = z.object({
   price: z.string().min(0, "Price is required"),
   priceType: z.enum(["fixed", "hourly", "monthly", "project"]),
   duration: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;

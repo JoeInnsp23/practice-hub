@@ -198,16 +198,18 @@ export function ClientWizardModal({
     metadata: client?.metadata || {},
   });
 
-  const [stepValidation, setStepValidation] = useState<Record<number, boolean>>({
-    0: false, // Basic Info - required
-    1: true,  // Service Selection - optional
-    2: true,  // Service Configuration - optional
-    3: true,  // Pricing Configuration - optional
-    4: true,  // Registration details - optional
-    5: true,  // Directors & shareholders - optional
-    6: true,  // Contact info - optional
-    7: true,  // Review step
-  });
+  const [stepValidation, setStepValidation] = useState<Record<number, boolean>>(
+    {
+      0: false, // Basic Info - required
+      1: true, // Service Selection - optional
+      2: true, // Service Configuration - optional
+      3: true, // Pricing Configuration - optional
+      4: true, // Registration details - optional
+      5: true, // Directors & shareholders - optional
+      6: true, // Contact info - optional
+      7: true, // Review step
+    },
+  );
 
   const updateFormData = (updates: Partial<WizardFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -216,7 +218,12 @@ export function ClientWizardModal({
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 0: // Basic Info
-        return !!(formData.name && formData.type && formData.status && formData.clientManagerId);
+        return !!(
+          formData.name &&
+          formData.type &&
+          formData.status &&
+          formData.clientManagerId
+        );
       case 1: // Service Selection
         return true; // Optional step
       case 2: // Service Configuration
@@ -257,16 +264,20 @@ export function ClientWizardModal({
       ...formData,
       // Convert "none" values to null for proper database handling
       vatPeriods: formData.vatPeriods === "none" ? null : formData.vatPeriods,
-      payePeriods: formData.payePeriods === "none" ? null : formData.payePeriods,
+      payePeriods:
+        formData.payePeriods === "none" ? null : formData.payePeriods,
       // Convert metadata to include contact info and other details
       metadata: {
         ...formData.metadata,
         contact: {
-          primaryContactName: [
-            formData.primaryContactFirstName,
-            formData.primaryContactMiddleName,
-            formData.primaryContactLastName,
-          ].filter(Boolean).join(" ") || formData.primaryContactName,
+          primaryContactName:
+            [
+              formData.primaryContactFirstName,
+              formData.primaryContactMiddleName,
+              formData.primaryContactLastName,
+            ]
+              .filter(Boolean)
+              .join(" ") || formData.primaryContactName,
           primaryContactFirstName: formData.primaryContactFirstName,
           primaryContactMiddleName: formData.primaryContactMiddleName,
           primaryContactLastName: formData.primaryContactLastName,
@@ -395,7 +406,10 @@ export function ClientWizardModal({
                 {Math.round(progressValue)}% Complete
               </span>
             </div>
-            <Progress value={progressValue} className="h-2 bg-slate-200 dark:bg-slate-700" />
+            <Progress
+              value={progressValue}
+              className="h-2 bg-slate-200 dark:bg-slate-700"
+            />
 
             {/* Step Indicators */}
             <div className="flex justify-center">
@@ -404,18 +418,22 @@ export function ClientWizardModal({
                   <button
                     key={step.id}
                     onClick={() => {
-                      if (index < currentStep || (index === 0 && stepValidation[0])) {
+                      if (
+                        index < currentStep ||
+                        (index === 0 && stepValidation[0])
+                      ) {
                         setCurrentStep(index);
                       }
                     }}
                     disabled={index > currentStep && !stepValidation[index - 1]}
                     className={`
                       flex-shrink-0 flex flex-col items-center justify-center p-2 rounded-lg transition-all w-[110px] h-[80px]
-                      ${index === currentStep
-                        ? "bg-blue-50 dark:bg-blue-950 border-2 border-blue-500"
-                        : index < currentStep
-                          ? "bg-green-50 dark:bg-green-950 border border-green-500 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900"
-                          : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                      ${
+                        index === currentStep
+                          ? "bg-blue-50 dark:bg-blue-950 border-2 border-blue-500"
+                          : index < currentStep
+                            ? "bg-green-50 dark:bg-green-950 border border-green-500 cursor-pointer hover:bg-green-100 dark:hover:bg-green-900"
+                            : "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                       }
                       ${index > currentStep && !stepValidation[index - 1] ? "opacity-50 cursor-not-allowed" : ""}
                     `}

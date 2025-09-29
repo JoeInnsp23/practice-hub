@@ -9,6 +9,8 @@ export interface AuthContext {
   organizationName?: string;
   role: string;
   email: string;
+  firstName: string | null;
+  lastName: string | null;
 }
 
 export async function getAuthContext(): Promise<AuthContext | null> {
@@ -27,6 +29,8 @@ export async function getAuthContext(): Promise<AuthContext | null> {
         tenantId: users.tenantId,
         role: users.role,
         email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
         tenantName: tenants.name,
       })
       .from(users)
@@ -46,9 +50,13 @@ export async function getAuthContext(): Promise<AuthContext | null> {
         if (defaultTenant.length === 0) {
           console.info("Auth: Creating default tenant");
 
-          // Use default values for development
-          const orgName = "Default Organization";
-          const orgSlug = "default";
+          // Use Clerk organization data if available, otherwise use defaults
+          const orgName =
+            (clerkUser as any).organizationMemberships?.[0]?.organization?.name ||
+            "Default Organization";
+          const orgSlug =
+            (clerkUser as any).organizationMemberships?.[0]?.organization?.slug ||
+            "default";
 
           defaultTenant = await db
             .insert(tenants)
@@ -92,6 +100,8 @@ export async function getAuthContext(): Promise<AuthContext | null> {
             organizationName: defaultTenant[0].name,
             role: userRole,
             email: newUser[0].email,
+            firstName: newUser[0].firstName,
+            lastName: newUser[0].lastName,
           };
         }
       }
@@ -99,7 +109,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       return null;
     }
 
-    const { tenantId, role, email, tenantName } = userRecord[0];
+    const { tenantId, role, email, firstName, lastName, tenantName } = userRecord[0];
 
     return {
       userId: clerkUser.id,
@@ -107,6 +117,8 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       organizationName: tenantName,
       role,
       email,
+      firstName,
+      lastName,
     };
   } catch (error) {
     console.error("Auth: Failed to get auth context", error);

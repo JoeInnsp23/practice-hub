@@ -16,7 +16,7 @@ const isAuthed = t.middleware(({ next, ctx }) => {
   if (!ctx.authContext) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "User not found in organization"
+      message: "User not found in organization",
     });
   }
 
@@ -37,15 +37,18 @@ const isAdmin = t.middleware(({ next, ctx }) => {
   if (!ctx.authContext) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "User not found in organization"
+      message: "User not found in organization",
     });
   }
 
   // Check for admin role
-  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+  if (
+    ctx.authContext.role !== "admin" &&
+    ctx.authContext.role !== "org:admin"
+  ) {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Admin access required"
+      message: "Admin access required",
     });
   }
 

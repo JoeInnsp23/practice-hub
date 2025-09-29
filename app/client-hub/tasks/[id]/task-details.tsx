@@ -40,7 +40,6 @@ interface TaskDetailsProps {
   taskId: string;
 }
 
-
 export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
@@ -48,7 +47,12 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
 
   // Fetch task from database using tRPC
-  const { data: task, isLoading, error, refetch } = trpc.tasks.getById.useQuery(taskId);
+  const {
+    data: task,
+    isLoading,
+    error,
+    refetch,
+  } = trpc.tasks.getById.useQuery(taskId);
   const updateStatusMutation = trpc.tasks.updateStatus.useMutation();
   const updateChecklistMutation = trpc.tasks.updateChecklistItem.useMutation();
 
@@ -57,13 +61,18 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
     if (!task) return 0;
     if (!task.workflowInstance) return task.progress || 0;
 
-    const allItems = task.workflowInstance.template.stages.flatMap((stage: any) => stage.checklist_items);
+    const allItems = task.workflowInstance.template.stages.flatMap(
+      (stage: any) => stage.checklist_items,
+    );
     const completedItems = allItems.filter((item: any) => item.completed);
 
     return Math.round((completedItems.length / allItems.length) * 100);
   }, [task]);
 
-  const currentProgress = useMemo(() => calculateProgress(), [calculateProgress]);
+  const currentProgress = useMemo(
+    () => calculateProgress(),
+    [calculateProgress],
+  );
 
   // Toggle stage expansion
   const toggleStage = (stageId: string) => {
@@ -77,7 +86,11 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Handle checklist item toggle
-  const handleChecklistToggle = async (stageId: string, itemId: string, currentStatus: boolean) => {
+  const handleChecklistToggle = async (
+    stageId: string,
+    itemId: string,
+    currentStatus: boolean,
+  ) => {
     try {
       await updateChecklistMutation.mutateAsync({
         taskId,
@@ -99,7 +112,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
         id: taskId,
         status: newStatus as any,
       });
-      toast.success(`Task status updated to ${newStatus.replace('_', ' ')}`);
+      toast.success(`Task status updated to ${newStatus.replace("_", " ")}`);
       refetch();
     } catch (error) {
       toast.error("Failed to update task status");
@@ -110,9 +123,15 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       pending: { label: "Not Started", className: "bg-gray-100 text-gray-800" },
-      in_progress: { label: "In Progress", className: "bg-blue-100 text-blue-800" },
+      in_progress: {
+        label: "In Progress",
+        className: "bg-blue-100 text-blue-800",
+      },
       review: { label: "Review", className: "bg-amber-100 text-amber-800" },
-      completed: { label: "Completed", className: "bg-green-100 text-green-800" },
+      completed: {
+        label: "Completed",
+        className: "bg-green-100 text-green-800",
+      },
       blocked: { label: "Blocked", className: "bg-red-100 text-red-800" },
     };
     const config = statusConfig[status as keyof typeof statusConfig];
@@ -126,10 +145,22 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   // Get priority badge config
   const getPriorityBadge = (priority: string) => {
     const priorityConfig = {
-      urgent: { label: "Urgent", className: "bg-red-100 text-red-800 border-red-300" },
-      high: { label: "High", className: "bg-orange-100 text-orange-800 border-orange-300" },
-      medium: { label: "Medium", className: "bg-yellow-100 text-yellow-800 border-yellow-300" },
-      low: { label: "Low", className: "bg-blue-100 text-blue-800 border-blue-300" },
+      urgent: {
+        label: "Urgent",
+        className: "bg-red-100 text-red-800 border-red-300",
+      },
+      high: {
+        label: "High",
+        className: "bg-orange-100 text-orange-800 border-orange-300",
+      },
+      medium: {
+        label: "Medium",
+        className: "bg-yellow-100 text-yellow-800 border-yellow-300",
+      },
+      low: {
+        label: "Low",
+        className: "bg-blue-100 text-blue-800 border-blue-300",
+      },
     };
     const config = priorityConfig[priority as keyof typeof priorityConfig];
     return (
@@ -142,7 +173,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   // Calculate days until dates
   const getDaysUntil = (date: Date | string | null | undefined) => {
     if (!date) return null;
-    const targetDate = typeof date === 'string' ? new Date(date) : date;
+    const targetDate = typeof date === "string" ? new Date(date) : date;
     const today = new Date();
     const diffTime = targetDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -151,7 +182,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
 
   // Calculate stage progress
   const getStageProgress = (stage: any) => {
-    const completedItems = stage.checklist_items.filter((item: any) => item.completed).length;
+    const completedItems = stage.checklist_items.filter(
+      (item: any) => item.completed,
+    ).length;
     return Math.round((completedItems / stage.checklist_items.length) * 100);
   };
 
@@ -185,7 +218,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   }
 
   const daysUntilDue = task.dueDate ? getDaysUntil(task.dueDate) : null;
-  const daysUntilTarget = task.targetDate ? getDaysUntil(task.targetDate) : null;
+  const daysUntilTarget = task.targetDate
+    ? getDaysUntil(task.targetDate)
+    : null;
 
   return (
     <div className="p-6 space-y-6">
@@ -201,7 +236,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
           Tasks
         </Button>
         <span>/</span>
-        <span className="text-foreground font-medium truncate max-w-md">{task.title}</span>
+        <span className="text-foreground font-medium truncate max-w-md">
+          {task.title}
+        </span>
       </div>
 
       {/* Header Card */}
@@ -235,23 +272,38 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             {/* Target Date */}
             {task.targetDate && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Target Date</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Target Date
+                </p>
                 <div className="flex items-center gap-2">
-                  <AlertCircle className={cn(
-                    "h-4 w-4",
-                    daysUntilTarget && daysUntilTarget < 0 ? "text-amber-600" : "text-amber-500"
-                  )} />
+                  <AlertCircle
+                    className={cn(
+                      "h-4 w-4",
+                      daysUntilTarget && daysUntilTarget < 0
+                        ? "text-amber-600"
+                        : "text-amber-500",
+                    )}
+                  />
                   <div>
-                    <span className={cn(
-                      daysUntilTarget && daysUntilTarget < 0 && "text-amber-600 font-medium"
-                    )}>
+                    <span
+                      className={cn(
+                        daysUntilTarget &&
+                          daysUntilTarget < 0 &&
+                          "text-amber-600 font-medium",
+                      )}
+                    >
                       {format(new Date(task.targetDate), "dd/MM/yyyy")}
                     </span>
                     <div className="text-xs text-muted-foreground">
-                      {daysUntilTarget === 0 ? "Today" :
-                       daysUntilTarget === 1 ? "Tomorrow" :
-                       daysUntilTarget && daysUntilTarget > 0 ? `${daysUntilTarget} days` :
-                       daysUntilTarget && daysUntilTarget < 0 ? `${Math.abs(daysUntilTarget)} days past` : ""}
+                      {daysUntilTarget === 0
+                        ? "Today"
+                        : daysUntilTarget === 1
+                          ? "Tomorrow"
+                          : daysUntilTarget && daysUntilTarget > 0
+                            ? `${daysUntilTarget} days`
+                            : daysUntilTarget && daysUntilTarget < 0
+                              ? `${Math.abs(daysUntilTarget)} days past`
+                              : ""}
                     </div>
                   </div>
                 </div>
@@ -261,23 +313,38 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             {/* Due Date */}
             {task.dueDate && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Due Date</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Due Date
+                </p>
                 <div className="flex items-center gap-2">
-                  <Calendar className={cn(
-                    "h-4 w-4",
-                    daysUntilDue && daysUntilDue < 0 ? "text-red-600" : "text-red-500"
-                  )} />
+                  <Calendar
+                    className={cn(
+                      "h-4 w-4",
+                      daysUntilDue && daysUntilDue < 0
+                        ? "text-red-600"
+                        : "text-red-500",
+                    )}
+                  />
                   <div>
-                    <span className={cn(
-                      daysUntilDue && daysUntilDue < 0 && "text-red-600 font-medium"
-                    )}>
+                    <span
+                      className={cn(
+                        daysUntilDue &&
+                          daysUntilDue < 0 &&
+                          "text-red-600 font-medium",
+                      )}
+                    >
                       {format(new Date(task.dueDate), "dd/MM/yyyy")}
                     </span>
                     <div className="text-xs text-muted-foreground">
-                      {daysUntilDue === 0 ? "Today" :
-                       daysUntilDue === 1 ? "Tomorrow" :
-                       daysUntilDue && daysUntilDue > 0 ? `${daysUntilDue} days` :
-                       daysUntilDue ? `${Math.abs(daysUntilDue)} days overdue` : ""}
+                      {daysUntilDue === 0
+                        ? "Today"
+                        : daysUntilDue === 1
+                          ? "Tomorrow"
+                          : daysUntilDue && daysUntilDue > 0
+                            ? `${daysUntilDue} days`
+                            : daysUntilDue
+                              ? `${Math.abs(daysUntilDue)} days overdue`
+                              : ""}
                     </div>
                   </div>
                 </div>
@@ -286,22 +353,34 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
 
             {/* Progress */}
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Progress</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Progress
+              </p>
               <div className="space-y-1">
                 <Progress value={currentProgress} className="h-2" />
-                <p className="text-xs text-muted-foreground">{currentProgress}% Complete</p>
+                <p className="text-xs text-muted-foreground">
+                  {currentProgress}% Complete
+                </p>
               </div>
             </div>
 
             {/* Estimated Time */}
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Time Tracking</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Time Tracking
+              </p>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-blue-500" />
                 <div>
-                  <span>{task.actualHours || 0} / {task.estimatedHours} hours</span>
+                  <span>
+                    {task.actualHours || 0} / {task.estimatedHours} hours
+                  </span>
                   <div className="text-xs text-muted-foreground">
-                    {((task.actualHours || 0) / task.estimatedHours * 100).toFixed(0)}% time used
+                    {(
+                      ((task.actualHours || 0) / task.estimatedHours) *
+                      100
+                    ).toFixed(0)}
+                    % time used
                   </div>
                 </div>
               </div>
@@ -311,24 +390,34 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
           {/* Assignees */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Preparer</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Preparer
+              </p>
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-blue-500" />
                 <span>{task.assignee?.name || "Unassigned"}</span>
                 {!task.assignee && (
-                  <Badge variant="outline" className="text-amber-600 border-amber-600">
+                  <Badge
+                    variant="outline"
+                    className="text-amber-600 border-amber-600"
+                  >
                     Needs Assignment
                   </Badge>
                 )}
               </div>
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Reviewer</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Reviewer
+              </p>
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-green-500" />
                 <span>{task.reviewer?.name || "Unassigned"}</span>
                 {!task.reviewer && (
-                  <Badge variant="outline" className="text-amber-600 border-amber-600">
+                  <Badge
+                    variant="outline"
+                    className="text-amber-600 border-amber-600"
+                  >
                     Needs Assignment
                   </Badge>
                 )}
@@ -339,7 +428,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
           {/* Description */}
           {task.description && (
             <div className="mt-6 pt-6 border-t">
-              <p className="text-sm font-medium text-muted-foreground mb-2">Description</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">
+                Description
+              </p>
               <p className="text-foreground">{task.description}</p>
             </div>
           )}
@@ -427,24 +518,32 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Client Details</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Client Details
+                    </label>
                     <div className="mt-1">
                       <div className="font-medium">{task.client.name}</div>
-                      <div className="text-sm text-muted-foreground">Code: {task.client.code}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Code: {task.client.code}
+                      </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Service Information</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Service Information
+                    </label>
                     <div className="mt-1">
                       <div>{task.service?.name || "No service"}</div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Tags</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Tags
+                    </label>
                     <div className="mt-1 flex gap-2">
-                      {task.tags.map((tag) => (
+                      {task.tags.map((tag: string) => (
                         <Badge key={tag} variant="outline">
                           {tag}
                         </Badge>
@@ -455,22 +554,30 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Task Details</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Task Details
+                    </label>
                     <div className="mt-1 space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Created:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Created:
+                        </span>
                         <span className="text-sm">
                           {format(new Date(task.createdAt), "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Last Updated:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Last Updated:
+                        </span>
                         <span className="text-sm">
                           {format(new Date(task.updatedAt), "dd/MM/yyyy HH:mm")}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Task Type:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Task Type:
+                        </span>
                         <span className="text-sm capitalize">
                           {task.task_type || "General"}
                         </span>
@@ -525,7 +632,13 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                                 </div>
                               </div>
                               <div className="flex items-center gap-4">
-                                <Badge variant={stageProgress === 100 ? "default" : "secondary"}>
+                                <Badge
+                                  variant={
+                                    stageProgress === 100
+                                      ? "default"
+                                      : "secondary"
+                                  }
+                                >
                                   {stageProgress}%
                                 </Badge>
                                 {stage.is_required && (
@@ -537,27 +650,40 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                           {isExpanded && (
                             <CardContent>
                               <div className="space-y-3">
-                                {stage.checklist_items.map((item) => (
+                                {stage.checklist_items.map((item: any) => (
                                   <div
                                     key={item.id}
                                     className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                                   >
                                     <Checkbox
                                       checked={item.completed}
-                                      onCheckedChange={() => handleChecklistToggle(stage.id, item.id, item.completed)}
+                                      onCheckedChange={() =>
+                                        handleChecklistToggle(
+                                          stage.id,
+                                          item.id,
+                                          item.completed,
+                                        )
+                                      }
                                       className="mt-0.5"
                                     />
                                     <div className="flex-1">
-                                      <p className={cn(
-                                        "text-sm",
-                                        item.completed && "line-through text-muted-foreground"
-                                      )}>
+                                      <p
+                                        className={cn(
+                                          "text-sm",
+                                          item.completed &&
+                                            "line-through text-muted-foreground",
+                                        )}
+                                      >
                                         {item.text}
                                       </p>
                                       {item.completed && item.completedBy && (
                                         <p className="text-xs text-muted-foreground mt-1">
                                           Completed by {item.completedBy} on{" "}
-                                          {item.completedAt && format(new Date(item.completedAt), "dd/MM/yyyy")}
+                                          {item.completedAt &&
+                                            format(
+                                              new Date(item.completedAt),
+                                              "dd/MM/yyyy",
+                                            )}
                                         </p>
                                       )}
                                     </div>
@@ -578,7 +704,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
               <CardContent className="py-12">
                 <div className="text-center">
                   <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Workflow Assigned</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No Workflow Assigned
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     This task doesn't have a workflow checklist assigned.
                   </p>
@@ -609,7 +737,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             <CardContent>
               {task.timeEntries && task.timeEntries.length > 0 ? (
                 <div className="space-y-3">
-                  {task.timeEntries.map((entry) => (
+                  {task.timeEntries.map((entry: any) => (
                     <div
                       key={entry.id}
                       className="flex items-center justify-between p-3 border rounded-lg"
@@ -617,7 +745,8 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                       <div className="flex-1">
                         <p className="font-medium">{entry.description}</p>
                         <p className="text-sm text-muted-foreground">
-                          {entry.user} • {format(new Date(entry.date), "dd/MM/yyyy")}
+                          {entry.user} •{" "}
+                          {format(new Date(entry.date), "dd/MM/yyyy")}
                         </p>
                       </div>
                       <Badge variant="outline">{entry.hours}h</Badge>
@@ -656,16 +785,21 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             <CardContent>
               {task.notes && task.notes.length > 0 ? (
                 <div className="space-y-4">
-                  {task.notes.map((note) => (
+                  {task.notes.map((note: any) => (
                     <div key={note.id} className="flex gap-3">
                       <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <User className="h-4 w-4" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">{note.author}</span>
+                          <span className="font-medium text-sm">
+                            {note.author}
+                          </span>
                           <span className="text-xs text-muted-foreground">
-                            {format(new Date(note.createdAt), "dd/MM/yyyy 'at' HH:mm")}
+                            {format(
+                              new Date(note.createdAt),
+                              "dd/MM/yyyy 'at' HH:mm",
+                            )}
                           </span>
                         </div>
                         <p className="text-sm">{note.content}</p>

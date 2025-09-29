@@ -4,28 +4,33 @@ import { timeEntries, activityLogs } from "@/lib/db/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createInsertSchema } from "drizzle-zod";
 
-const timeEntrySchema = z.object({
+// Generate schema from Drizzle table definition
+const insertTimeEntrySchema = createInsertSchema(timeEntries, {
   date: z.string(),
-  clientId: z.string().optional(),
-  serviceId: z.string().optional(),
-  taskId: z.string().optional(),
-  description: z.string(),
-  hours: z.number(),
-  minutes: z.number(),
-  billable: z.boolean(),
-  rate: z.number().optional(),
+});
+
+// Schema for create/update operations (omit auto-generated fields)
+const timeEntrySchema = insertTimeEntrySchema.omit({
+  id: true,
+  tenantId: true,
+  userId: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const timesheetsRouter = router({
   list: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      userId: z.string().optional(),
-      clientId: z.string().optional(),
-      billable: z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        userId: z.string().optional(),
+        clientId: z.string().optional(),
+        billable: z.boolean().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
       const { startDate, endDate, userId, clientId, billable } = input;
@@ -76,7 +81,7 @@ export const timesheetsRouter = router({
       if (!entry[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Time entry not found"
+          message: "Time entry not found",
         });
       }
 
@@ -100,9 +105,13 @@ export const timesheetsRouter = router({
           taskId: input.taskId,
           description: input.description,
           hours: input.hours,
-          minutes: input.minutes,
           billable: input.billable,
           rate: input.rate,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          status: input.status,
+          notes: input.notes,
+          metadata: input.metadata,
         })
         .returning();
 
@@ -112,20 +121,25 @@ export const timesheetsRouter = router({
         entityType: "timeEntry",
         entityId: newEntry.id,
         action: "created",
-        description: `Logged ${input.hours}h ${input.minutes}m for ${input.description}`,
+        description: `Logged ${input.hours}h for ${input.description}`,
         userId,
         userName: `${firstName} ${lastName}`,
-        newValues: { hours: input.hours, minutes: input.minutes, billable: input.billable }
+        newValues: {
+          hours: input.hours,
+          billable: input.billable,
+        },
       });
 
       return { success: true, timeEntry: newEntry };
     }),
 
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      data: timeEntrySchema.partial(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        data: timeEntrySchema.partial(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
@@ -133,13 +147,15 @@ export const timesheetsRouter = router({
       const existingEntry = await db
         .select()
         .from(timeEntries)
-        .where(and(eq(timeEntries.id, input.id), eq(timeEntries.tenantId, tenantId)))
+        .where(
+          and(eq(timeEntries.id, input.id), eq(timeEntries.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!existingEntry[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Time entry not found"
+          message: "Time entry not found",
         });
       }
 
@@ -184,7 +200,7 @@ export const timesheetsRouter = router({
       if (!existingEntry[0]) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Time entry not found"
+          message: "Time entry not found",
         });
       }
 
@@ -197,7 +213,7 @@ export const timesheetsRouter = router({
         entityType: "timeEntry",
         entityId: id,
         action: "deleted",
-        description: `Deleted time entry (${existingEntry[0].hours}h ${existingEntry[0].minutes}m)`,
+        description: `Deleted time entry (${existingEntry[0].hours}h)`,
         userId,
         userName: `${firstName} ${lastName}`,
       });
@@ -206,11 +222,13 @@ export const timesheetsRouter = router({
     }),
 
   summary: protectedProcedure
-    .input(z.object({
-      startDate: z.string(),
-      endDate: z.string(),
-      userId: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        startDate: z.string(),
+        endDate: z.string(),
+        userId: z.string().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
       const { startDate, endDate, userId } = input;
@@ -219,9 +237,9 @@ export const timesheetsRouter = router({
       const result = await db.execute(sql`
         SELECT
           COUNT(*) as total_entries,
-          SUM(hours + minutes / 60.0) as total_hours,
-          SUM(CASE WHEN billable THEN hours + minutes / 60.0 ELSE 0 END) as billable_hours,
-          SUM(CASE WHEN NOT billable THEN hours + minutes / 60.0 ELSE 0 END) as non_billable_hours,
+          SUM(CAST(hours AS DECIMAL)) as total_hours,
+          SUM(CASE WHEN billable THEN CAST(hours AS DECIMAL) ELSE 0 END) as billable_hours,
+          SUM(CASE WHEN NOT billable THEN CAST(hours AS DECIMAL) ELSE 0 END) as non_billable_hours,
           COUNT(DISTINCT date) as days_worked,
           COUNT(DISTINCT client_id) as unique_clients
         FROM time_entries
