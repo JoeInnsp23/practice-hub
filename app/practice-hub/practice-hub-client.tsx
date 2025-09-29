@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { ClientOnly } from "@/components/client-only";
 import { api } from "@/lib/trpc/client";
 import { Folder, ExternalLink } from "lucide-react";
-import { getIconByName } from "@/app/admin/portal-links/icon-registry";
+import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
@@ -59,7 +59,7 @@ export function PracticeHubClient({
   const practiceHubApps = practiceHubCategory?.links.map(link => {
     // Get the appropriate icon
     const IconComponent = link.iconName
-      ? getIconByName(link.iconName) || ExternalLink
+      ? getIconComponent(link.iconName) || ExternalLink
       : ExternalLink;
 
     // Determine status from description
@@ -216,7 +216,7 @@ export function PracticeHubClient({
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {category.links.map((link) => {
                         const LinkIcon = link.iconName
-                          ? getIconByName(link.iconName) || ExternalLink
+                          ? getIconComponent(link.iconName) || ExternalLink
                           : ExternalLink;
 
                         return (

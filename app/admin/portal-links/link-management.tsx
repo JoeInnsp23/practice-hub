@@ -59,7 +59,7 @@ import {
 import toast from "react-hot-toast";
 import { IconPicker } from "./icon-picker";
 import { cn } from "@/lib/utils";
-import { getIconByName } from "./icon-registry";
+import { getIconComponent } from "./icon-utils";
 import { Folder } from "lucide-react";
 
 const linkFormSchema = z.object({
@@ -271,7 +271,7 @@ export function LinkManagement() {
         <div className="space-y-6">
           {linksByCategory.map((group: any) => {
             const CategoryIcon = group.category.iconName
-              ? getIconByName(group.category.iconName) || Folder
+              ? getIconComponent(group.category.iconName) || Folder
               : Folder;
             const isCollapsed = collapsedCategories.has(group.category.id);
 
@@ -332,7 +332,7 @@ export function LinkManagement() {
                   <TableBody>
                     {group.links.map((link: any, index: number) => {
                       const LinkIconComponent = link.iconName
-                        ? getIconByName(link.iconName)
+                        ? getIconComponent(link.iconName)
                         : null;
 
                       return (
