@@ -57,16 +57,72 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Admin Panel: `#f97316` (orange)
    - Practice Hub: Primary theme color
 
-8. **Authentication patterns** - Protected routes must use server-side auth checks in layout.tsx, with client components separated into dedicated files.
+8. **Authentication patterns** - Follow Clerk's standard implementation patterns:
+
+   **Middleware Setup:**
+   ```tsx
+   // middleware.ts
+   import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+   const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
+   const isApiRoute = createRouteMatcher(["/api(.*)"]);
+
+   export default clerkMiddleware(async (auth, request) => {
+     if (!isPublicRoute(request) && !isApiRoute(request)) {
+       await auth.protect();
+     }
+   });
+   ```
+
+   **Root Layout:**
+   ```tsx
+   // app/layout.tsx
+   import { ClerkProvider } from "@clerk/nextjs";
+   import { TRPCProvider } from "@/app/providers/trpc-provider";
+
+   export default function RootLayout({ children }: { children: React.ReactNode }) {
+     return (
+       <ClerkProvider>
+         <TRPCProvider>
+           {children}
+         </TRPCProvider>
+       </ClerkProvider>
+     );
+   }
+   ```
+
+   **Custom Auth Pages:**
+   ```tsx
+   // app/(auth)/sign-in/[[...sign-in]]/page.tsx
+   import { SignIn } from "@clerk/nextjs";
+
+   export default function SignInPage() {
+     return <SignIn />;
+   }
+   ```
+
+   **Module-Level Protection (Server-Side):**
+   ```tsx
+   // app/admin/layout.tsx
+   import { redirect } from "next/navigation";
+   import { getAuthContext } from "@/lib/auth";
+
+   export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+     const authContext = await getAuthContext();
+
+     if (!authContext || (authContext.role !== "admin" && authContext.role !== "org:admin")) {
+       redirect("/");
+     }
+
+     return <AdminLayoutClient>{children}</AdminLayoutClient>;
+   }
+   ```
 
 ## Development Commands
 
 ```bash
 # Install dependencies
 pnpm install
-
-# Run development server with Turbopack
-pnpm dev
 
 # Build for production with Turbopack
 pnpm build
@@ -79,7 +135,7 @@ pnpm lint        # Run Biome linter
 pnpm format      # Format code with Biome
 
 # Database management
-docker-compose up -d  # Start PostgreSQL database
+docker compose up -d  # Start PostgreSQL database
 ```
 
 ## Architecture Overview
@@ -121,6 +177,282 @@ The app is organized into distinct hub modules under `app/`:
 - Clerk middleware protects all routes except `/`, `/sign-in`, `/sign-up`
 - User session linked to tenant context
 - Protected routes automatically enforce authentication via middleware
+
+### tRPC + Clerk Integration
+The application uses tRPC for type-safe API calls with Clerk authentication integrated at the context level.
+
+**Context Creation:**
+```tsx
+// app/server/context.ts
+import { auth } from "@clerk/nextjs/server";
+import { getAuthContext } from "@/lib/auth";
+
+export const createContext = async () => {
+  const clerkAuth = await auth();
+  const authContext = await getAuthContext();
+
+  return {
+    auth: clerkAuth,
+    authContext,
+  };
+};
+
+export type Context = Awaited<ReturnType<typeof createContext>>;
+```
+
+**Protected Procedures:**
+```tsx
+// app/server/trpc.ts
+import { initTRPC, TRPCError } from "@trpc/server";
+import { Context } from "./context";
+
+const t = initTRPC.context<Context>().create();
+
+// Authenticated user middleware
+const isAuthed = t.middleware(({ next, ctx }) => {
+  if (!ctx.auth?.userId || !ctx.authContext) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({ ctx: { auth: ctx.auth, authContext: ctx.authContext } });
+});
+
+// Admin-only middleware
+const isAdmin = t.middleware(({ next, ctx }) => {
+  if (!ctx.auth?.userId || !ctx.authContext) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+  }
+  return next({ ctx: { auth: ctx.auth, authContext: ctx.authContext } });
+});
+
+export const router = t.router;
+export const publicProcedure = t.procedure;
+export const protectedProcedure = t.procedure.use(isAuthed);
+export const adminProcedure = t.procedure.use(isAdmin);
+```
+
+**Usage in Routers:**
+```tsx
+// Example router using protected procedures
+import { router, protectedProcedure, adminProcedure } from "../trpc";
+
+export const exampleRouter = router({
+  getUserData: protectedProcedure.query(({ ctx }) => {
+    // ctx.auth contains Clerk Auth object
+    // ctx.authContext contains tenant and role information
+    return { userId: ctx.auth.userId, tenantId: ctx.authContext.tenantId };
+  }),
+
+  adminAction: adminProcedure.mutation(({ ctx }) => {
+    // Only admins can access this
+    return { success: true };
+  }),
+});
+```
+
+### Accessing Session and User Data
+
+**Server-Side (App Router):**
+
+Use `auth()` to access authentication state and `currentUser()` to get full user details.
+
+```tsx
+// Server Components / Route Handlers
+import { auth, currentUser } from "@clerk/nextjs/server";
+
+export default async function ServerComponent() {
+  // Use auth() for authentication checks (lightweight)
+  const { isAuthenticated, userId } = await auth();
+
+  if (!isAuthenticated) {
+    return <div>Sign in required</div>;
+  }
+
+  // Use currentUser() only when you need full user details
+  // Note: This counts toward Backend API rate limits
+  const user = await currentUser();
+
+  return <div>Hello {user?.firstName}!</div>;
+}
+```
+
+**Server-Side (Custom Helpers):**
+
+For multi-tenant operations, use the custom `getAuthContext()` helper:
+
+```tsx
+// Server Components requiring tenant context
+import { getAuthContext } from "@/lib/auth";
+
+export default async function TenantAwareComponent() {
+  const authContext = await getAuthContext();
+
+  if (!authContext) {
+    return <div>Not authenticated</div>;
+  }
+
+  return (
+    <div>
+      User: {authContext.userId}
+      Tenant: {authContext.tenantId}
+      Role: {authContext.role}
+    </div>
+  );
+}
+```
+
+**Client-Side:**
+
+Use React hooks for client-side authentication state:
+
+```tsx
+"use client";
+import { useAuth, useUser } from "@clerk/nextjs";
+
+export function ClientComponent() {
+  // useAuth() - Lightweight, for auth state and session management
+  const { isLoaded, isSignedIn, userId, getToken } = useAuth();
+
+  // useUser() - Full user object (for displaying user information)
+  const { user } = useUser();
+
+  if (!isLoaded) return <div>Loading...</div>;
+  if (!isSignedIn) return <div>Sign in required</div>;
+
+  return <div>Hello {user?.firstName}!</div>;
+}
+```
+
+**When to Use Each:**
+- **Server-side:**
+  - `auth()` - Check authentication status, get user/session IDs (use this by default)
+  - `currentUser()` - When you need full user details (counts toward API limits)
+  - `getAuthContext()` - For multi-tenant operations requiring tenant context
+- **Client-side:**
+  - `useAuth()` - Authentication state, session tokens, lightweight checks
+  - `useUser()` - Display user information in UI components
+
+### Multi-Tenancy Implementation
+
+The application implements multi-tenancy through a custom `getAuthContext()` helper that extends Clerk's authentication with tenant-specific context.
+
+**Auth Context Interface:**
+```tsx
+// lib/auth.ts
+export interface AuthContext {
+  userId: string;
+  tenantId: string;
+  organizationName?: string;
+  role: string;
+  email: string;
+}
+```
+
+**Implementation Pattern:**
+
+The `getAuthContext()` function:
+1. Retrieves the current Clerk user with `currentUser()`
+2. Looks up the user's tenant and role from the database
+3. Returns combined authentication and tenant context
+4. In development mode, auto-registers new users to the default tenant
+
+```tsx
+// lib/auth.ts
+import { currentUser } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
+
+export async function getAuthContext(): Promise<AuthContext | null> {
+  const clerkUser = await currentUser();
+  if (!clerkUser) return null;
+
+  // Look up user's tenant from database
+  const userRecord = await db
+    .select({
+      tenantId: users.tenantId,
+      role: users.role,
+      email: users.email,
+      tenantName: tenants.name,
+    })
+    .from(users)
+    .innerJoin(tenants, eq(users.tenantId, tenants.id))
+    .where(eq(users.clerkId, clerkUser.id))
+    .limit(1);
+
+  if (!userRecord.length) {
+    // Development auto-registration logic
+    return null;
+  }
+
+  return {
+    userId: clerkUser.id,
+    tenantId: userRecord[0].tenantId,
+    organizationName: userRecord[0].tenantName,
+    role: userRecord[0].role,
+    email: userRecord[0].email,
+  };
+}
+```
+
+**Helper Functions:**
+
+```tsx
+// Require authentication (throw if not authenticated)
+export async function requireAuth(): Promise<AuthContext> {
+  const authContext = await getAuthContext();
+  if (!authContext) throw new Error("Unauthorized");
+  return authContext;
+}
+
+// Require admin role (throw if not admin)
+export async function requireAdmin(): Promise<AuthContext> {
+  const authContext = await requireAuth();
+  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
+    throw new Error("Forbidden: Admin access required");
+  }
+  return authContext;
+}
+```
+
+**Usage in Application:**
+
+This pattern ensures all data operations are tenant-scoped:
+
+```tsx
+// Server component with tenant isolation
+import { getAuthContext } from "@/lib/auth";
+
+export default async function ClientsPage() {
+  const authContext = await getAuthContext();
+  if (!authContext) redirect("/sign-in");
+
+  // All database queries should filter by tenantId
+  const clients = await db
+    .select()
+    .from(clientsTable)
+    .where(eq(clientsTable.tenantId, authContext.tenantId));
+
+  return <ClientsList clients={clients} />;
+}
+```
+
+**Integration with tRPC:**
+
+The auth context is automatically available in all tRPC procedures:
+
+```tsx
+// tRPC router with automatic tenant scoping
+export const clientsRouter = router({
+  list: protectedProcedure.query(({ ctx }) => {
+    // ctx.authContext is automatically populated
+    return db
+      .select()
+      .from(clients)
+      .where(eq(clients.tenantId, ctx.authContext.tenantId));
+  }),
+});
+```
 
 ## Environment Setup
 
