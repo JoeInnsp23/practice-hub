@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { WorkflowAssignmentModal } from "@/components/client-hub/workflows/workflow-assignment-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
 
   // Fetch task from database using tRPC
   const { data: task, isLoading, error, refetch } = trpc.tasks.getById.useQuery(taskId);
@@ -580,7 +582,10 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                   <p className="text-muted-foreground mb-4">
                     This task doesn't have a workflow checklist assigned.
                   </p>
-                  <Button variant="outline">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsWorkflowModalOpen(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Assign Workflow
                   </Button>
@@ -678,6 +683,20 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Workflow Assignment Modal */}
+      {task && (
+        <WorkflowAssignmentModal
+          isOpen={isWorkflowModalOpen}
+          onClose={() => setIsWorkflowModalOpen(false)}
+          taskId={taskId}
+          taskTitle={task.title}
+          onAssigned={() => {
+            refetch();
+            setIsWorkflowModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

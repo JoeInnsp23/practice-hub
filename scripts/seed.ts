@@ -17,6 +17,7 @@ import {
   workflows,
   workflowStages,
   activityLogs,
+  taskWorkflowInstances,
 } from "../lib/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -31,6 +32,7 @@ async function clearDatabase() {
   await db.delete(invoiceItems);
   await db.delete(invoices);
   await db.delete(timeEntries);
+  await db.delete(taskWorkflowInstances);
   await db.delete(workflowStages);
   await db.delete(workflows);
   await db.delete(documents);
@@ -546,6 +548,68 @@ async function seedDatabase() {
       });
     }
   }
+
+  // 11.5. Assign workflows to tasks and create instances
+  console.log("Assigning workflows to tasks...");
+
+  // Get the created workflows
+  const taxWorkflow = workflowTemplates.find(w => w.name.includes("Tax Return"));
+  const bookkeepingWorkflow = workflowTemplates.find(w => w.name.includes("Bookkeeping"));
+  const onboardingWorkflow = workflowTemplates.find(w => w.name.includes("Onboarding"));
+
+  // Get workflow IDs from database
+  const createdWorkflows = await db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.tenantId, tenant.id));
+
+  const taxWorkflowDb = createdWorkflows.find(w => w.name.includes("Tax Return"));
+  const bookkeepingWorkflowDb = createdWorkflows.find(w => w.name.includes("Bookkeeping"));
+  const onboardingWorkflowDb = createdWorkflows.find(w => w.name.includes("Onboarding"));
+
+  // Assign workflows to matching tasks
+  for (const task of createdTasks) {
+    let workflowToAssign = null;
+
+    if (task.title.includes("Tax Return") && taxWorkflowDb) {
+      workflowToAssign = taxWorkflowDb;
+    } else if (task.title.includes("Bookkeeping") && bookkeepingWorkflowDb) {
+      workflowToAssign = bookkeepingWorkflowDb;
+    } else if (task.title.includes("Client Meeting") && onboardingWorkflowDb) {
+      workflowToAssign = onboardingWorkflowDb;
+    }
+
+    if (workflowToAssign) {
+      // Update task with workflow ID
+      await db
+        .update(tasks)
+        .set({ workflowId: workflowToAssign.id })
+        .where(eq(tasks.id, task.id));
+
+      // Get workflow stages
+      const stages = await db
+        .select()
+        .from(workflowStages)
+        .where(eq(workflowStages.workflowId, workflowToAssign.id))
+        .orderBy(workflowStages.stageOrder);
+
+      // Create workflow instance
+      await db.insert(taskWorkflowInstances).values({
+        taskId: task.id,
+        workflowId: workflowToAssign.id,
+        currentStageId: stages[0]?.id || null,
+        status: "active",
+        stageProgress: {},
+      });
+    }
+  }
+
+  const workflowInstanceCount = await db
+    .select()
+    .from(taskWorkflowInstances)
+    .then(r => r.length);
+
+  console.log(`✓ ${workflowInstanceCount} Workflow instances created`);
 
   // 12. Create Documents
   console.log("Creating documents...");

@@ -17,6 +17,7 @@ import {
   User,
   AlertCircle,
   CheckCircle,
+  GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
@@ -168,6 +169,15 @@ export function TaskCard({
                 {tag}
               </Badge>
             ))}
+          </div>
+        )}
+
+        {task.workflowInstance && (
+          <div className="flex items-center gap-1 mb-3">
+            <GitBranch className="h-3 w-3 text-blue-600" />
+            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              {task.workflowInstance.name || "Workflow"}
+            </Badge>
           </div>
         )}
 
