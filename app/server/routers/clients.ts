@@ -340,4 +340,76 @@ export const clientsRouter = router({
 
       return { pscs: pscsList };
     }),
+
+  updateContact: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        data: z.object({
+          title: z.string().optional(),
+          firstName: z.string().optional(),
+          middleName: z.string().optional(),
+          lastName: z.string().optional(),
+          email: z.string().optional(),
+          phone: z.string().optional(),
+          mobile: z.string().optional(),
+          jobTitle: z.string().optional(),
+          position: z.string().optional(),
+          isPrimary: z.boolean().optional(),
+          addressLine1: z.string().optional(),
+          addressLine2: z.string().optional(),
+          city: z.string().optional(),
+          region: z.string().optional(),
+          postalCode: z.string().optional(),
+          country: z.string().optional(),
+        }),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check contact exists and belongs to tenant
+      const existingContact = await db
+        .select()
+        .from(clientContacts)
+        .where(
+          and(
+            eq(clientContacts.id, input.id),
+            eq(clientContacts.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!existingContact[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Contact not found",
+        });
+      }
+
+      // Update contact
+      const [updatedContact] = await db
+        .update(clientContacts)
+        .set({
+          ...input.data,
+          updatedAt: new Date(),
+        })
+        .where(eq(clientContacts.id, input.id))
+        .returning();
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "client_contact",
+        entityId: input.id,
+        action: "updated",
+        description: `Updated contact ${updatedContact.firstName} ${updatedContact.lastName}`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        oldValues: existingContact[0],
+        newValues: input.data,
+      });
+
+      return { success: true, contact: updatedContact };
+    }),
 });

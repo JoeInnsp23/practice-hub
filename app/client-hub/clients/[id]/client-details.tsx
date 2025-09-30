@@ -10,6 +10,7 @@ import {
   Clock,
   DollarSign,
   Edit,
+  ExternalLink,
   FileText,
   Loader2,
   Mail,
@@ -18,6 +19,7 @@ import {
   Trash2,
   TrendingUp,
   Users,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -26,15 +28,61 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ClientDetailsProps {
   clientId: string;
 }
 
+// Helper function to parse full name into parts
+function parseFullName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length === 1) {
+    return { first: parts[0], middle: "", last: "" };
+  }
+  if (parts.length === 2) {
+    return { first: parts[0], middle: "", last: parts[1] };
+  }
+  return {
+    first: parts[0],
+    middle: parts.slice(1, -1).join(" "),
+    last: parts[parts.length - 1],
+  };
+}
+
 export default function ClientDetails({ clientId }: ClientDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Editing state
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editedClient, setEditedClient] = useState<any>(null);
+  const [editedContact, setEditedContact] = useState<any>(null);
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [contactPrePopulationSource, setContactPrePopulationSource] =
+    useState("manual");
+
+  // Dialog state
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Fetch client from database using tRPC
   const {
@@ -59,6 +107,53 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
   // Fetch invoices for this client
   const { data: invoicesData, isLoading: invoicesLoading } =
     trpc.invoices.list.useQuery({ clientId });
+
+  // Fetch contacts for this client
+  const { data: contactsData, isLoading: contactsLoading } =
+    trpc.clients.getClientContacts.useQuery(clientId);
+
+  // Fetch directors for this client
+  const { data: directorsData, isLoading: directorsLoading } =
+    trpc.clients.getClientDirectors.useQuery(clientId);
+
+  // Fetch PSCs for this client
+  const { data: pscsData, isLoading: pscsLoading } =
+    trpc.clients.getClientPSCs.useQuery(clientId);
+
+  // Fetch users for account manager dropdown
+  const { data: usersData } = trpc.users.list.useQuery({});
+
+  // Mutations
+  const utils = trpc.useUtils();
+  const updateClientMutation = trpc.clients.update.useMutation({
+    onSuccess: () => {
+      utils.clients.getById.invalidate(clientId);
+      toast.success("Client updated successfully");
+    },
+    onError: (error) => {
+      toast.error(`Failed to update client: ${error.message}`);
+    },
+  });
+
+  const updateContactMutation = trpc.clients.updateContact.useMutation({
+    onSuccess: () => {
+      utils.clients.getClientContacts.invalidate(clientId);
+      toast.success("Contact updated successfully");
+    },
+    onError: (error) => {
+      toast.error(`Failed to update contact: ${error.message}`);
+    },
+  });
+
+  const deleteClientMutation = trpc.clients.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Client archived successfully");
+      router.push("/client-hub/clients");
+    },
+    onError: (error) => {
+      toast.error(`Failed to archive client: ${error.message}`);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -138,19 +233,90 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
     );
   };
 
-  const handleEdit = () => {
-    toast.success("Edit functionality coming soon");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Save client changes
+      if (editedClient) {
+        await updateClientMutation.mutateAsync({
+          id: clientId,
+          data: {
+            name: editedClient.name,
+            status: editedClient.status,
+            accountManagerId: editedClient.accountManagerId,
+          },
+        });
+      }
+
+      // Save contact changes if editing
+      if (isEditingContact && editedContact) {
+        await updateContactMutation.mutateAsync({
+          id: editedContact.id,
+          data: {
+            firstName: editedContact.firstName,
+            middleName: editedContact.middleName,
+            lastName: editedContact.lastName,
+            email: editedContact.email,
+            phone: editedContact.phone,
+            jobTitle: editedContact.jobTitle,
+            isPrimary: editedContact.isPrimary,
+            addressLine1: editedContact.addressLine1,
+            addressLine2: editedContact.addressLine2,
+            city: editedContact.city,
+            region: editedContact.region,
+            postalCode: editedContact.postalCode,
+            country: editedContact.country,
+          },
+        });
+      }
+
+      // Reset all editing states
+      setIsEditing(false);
+      setEditedClient(null);
+      setIsEditingContact(false);
+      setEditedContact(null);
+      setContactPrePopulationSource("manual");
+    } catch (error) {
+      console.error("Save error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedClient(null);
+    setIsEditingContact(false);
+    setEditedContact(null);
+    setContactPrePopulationSource("manual");
+  };
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    setEditedClient({ ...client });
+    // Automatically enable contact editing for first contact
+    if (contactsData?.contacts && contactsData.contacts.length > 0) {
+      setEditedContact({ ...contactsData.contacts[0] });
+      setIsEditingContact(true);
+    }
   };
 
   const handleArchive = () => {
-    toast.success("Archive functionality coming soon");
+    setShowArchiveDialog(true);
   };
 
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this client?")) {
-      toast.success("Delete functionality coming soon");
-      router.push("/client-hub/clients");
-    }
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmArchive = async () => {
+    await deleteClientMutation.mutateAsync(clientId);
+    setShowArchiveDialog(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    await deleteClientMutation.mutateAsync(clientId);
+    setShowDeleteDialog(false);
   };
 
   // Calculate metrics
@@ -313,12 +479,28 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Active Services
+                  Health Score
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{clientServices.length}</div>
+                <div className="text-2xl font-bold">
+                  {client.healthScore || 50}/100
+                </div>
+                <div className="mt-2">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all ${
+                        (client.healthScore || 50) >= 75
+                          ? "bg-green-500"
+                          : (client.healthScore || 50) >= 50
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                      }`}
+                      style={{ width: `${client.healthScore || 50}%` }}
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -332,63 +514,86 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   Company Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {client.type === "company" && (
-                  <>
-                    {client.registrationNumber && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Company Number
-                        </p>
-                        <p className="font-medium">
-                          {client.registrationNumber}
-                        </p>
-                      </div>
-                    )}
-                    {client.incorporationDate && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Incorporated
-                        </p>
-                        <p className="font-medium">
-                          {format(
-                            new Date(client.incorporationDate),
-                            "dd/MM/yyyy",
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    {client.yearEnd && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Year End
-                        </p>
-                        <p className="font-medium">{client.yearEnd}</p>
-                      </div>
-                    )}
-                    {client.vatNumber && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          VAT Number
-                        </p>
-                        <p className="font-medium">{client.vatNumber}</p>
-                      </div>
-                    )}
-                  </>
-                )}
-                {(client.addressLine1 || client.city) && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Registered Address
-                    </p>
-                    <div className="space-y-1">
-                      {client.addressLine1 && <p>{client.addressLine1}</p>}
-                      {client.addressLine2 && <p>{client.addressLine2}</p>}
-                      {client.city && <p>{client.city}</p>}
-                      {client.state && <p>{client.state}</p>}
-                      {client.postalCode && <p>{client.postalCode}</p>}
-                      {client.country && <p>{client.country}</p>}
+              <CardContent>
+                {client.type === "company" || client.type === "partnership" ? (
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    {/* Left Column */}
+                    <div className="space-y-4">
+                      {client.registrationNumber && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Company Number
+                          </p>
+                          <p className="font-medium">
+                            {client.registrationNumber}
+                          </p>
+                        </div>
+                      )}
+                      {client.incorporationDate && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Incorporated
+                          </p>
+                          <p className="font-medium">
+                            {format(
+                              new Date(client.incorporationDate),
+                              "dd/MM/yyyy",
+                            )}
+                          </p>
+                        </div>
+                      )}
+                      {client.yearEnd && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Year End
+                          </p>
+                          <p className="font-medium">{client.yearEnd}</p>
+                        </div>
+                      )}
+                      {client.vatNumber && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            VAT Number
+                          </p>
+                          <p className="font-medium">{client.vatNumber}</p>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Right Column - Registered Office Address */}
+                    {(client.addressLine1 || client.city) && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Registered Office Address
+                        </p>
+                        <div className="space-y-1 text-sm">
+                          {client.addressLine1 && <p>{client.addressLine1}</p>}
+                          {client.addressLine2 && <p>{client.addressLine2}</p>}
+                          {client.city && <p>{client.city}</p>}
+                          {client.state && <p>{client.state}</p>}
+                          {client.postalCode && <p>{client.postalCode}</p>}
+                          {client.country && <p>{client.country}</p>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {(client.addressLine1 || client.city) && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Address
+                        </p>
+                        <div className="space-y-1">
+                          {client.addressLine1 && <p>{client.addressLine1}</p>}
+                          {client.addressLine2 && <p>{client.addressLine2}</p>}
+                          {client.city && <p>{client.city}</p>}
+                          {client.state && <p>{client.state}</p>}
+                          {client.postalCode && <p>{client.postalCode}</p>}
+                          {client.country && <p>{client.country}</p>}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -402,38 +607,92 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   Contact Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {client.email || client.phone ? (
-                  <>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Contact Details
-                      </p>
-                      <p className="font-medium">{client.name}</p>
-                    </div>
-                    {client.email && (
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`mailto:${client.email}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {client.email}
-                        </a>
+              <CardContent>
+                {contactsLoading ? (
+                  <div className="text-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  </div>
+                ) : contactsData?.contacts &&
+                  contactsData.contacts.length > 0 ? (
+                  <div className="space-y-6">
+                    {contactsData.contacts.map((contact) => (
+                      <div
+                        key={contact.id}
+                        className="pb-6 border-b last:border-b-0 last:pb-0"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold">
+                                {contact.title && `${contact.title} `}
+                                {contact.firstName}
+                                {contact.middleName && ` ${contact.middleName}`}{" "}
+                                {contact.lastName}
+                              </p>
+                              {contact.isPrimary && (
+                                <Badge
+                                  variant="default"
+                                  className="text-xs px-2 py-0"
+                                >
+                                  Primary
+                                </Badge>
+                              )}
+                            </div>
+                            {contact.jobTitle && (
+                              <p className="text-sm text-muted-foreground">
+                                {contact.jobTitle}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          {contact.email && (
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                              <a
+                                href={`mailto:${contact.email}`}
+                                className="text-blue-600 hover:underline"
+                              >
+                                {contact.email}
+                              </a>
+                            </div>
+                          )}
+                          {contact.phone && (
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                              <a
+                                href={`tel:${contact.phone}`}
+                                className="text-blue-600 hover:underline"
+                              >
+                                {contact.phone}
+                              </a>
+                            </div>
+                          )}
+                          {(contact.addressLine1 || contact.city) && (
+                            <div className="mt-2 pt-2 border-t">
+                              <p className="text-xs text-muted-foreground mb-1">
+                                Address
+                              </p>
+                              <div className="text-xs space-y-0.5">
+                                {contact.addressLine1 && (
+                                  <p>{contact.addressLine1}</p>
+                                )}
+                                {contact.addressLine2 && (
+                                  <p>{contact.addressLine2}</p>
+                                )}
+                                {contact.city && <p>{contact.city}</p>}
+                                {contact.region && <p>{contact.region}</p>}
+                                {contact.postalCode && (
+                                  <p>{contact.postalCode}</p>
+                                )}
+                                {contact.country && <p>{contact.country}</p>}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    {client.phone && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <a
-                          href={`tel:${client.phone}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {client.phone}
-                        </a>
-                      </div>
-                    )}
-                  </>
+                    ))}
+                  </div>
                 ) : (
                   <div className="text-center py-4">
                     <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
@@ -446,15 +705,314 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
             </Card>
           </div>
 
+          {/* Directors & Officers - Only show for companies/partnerships */}
+          {(client.type === "company" || client.type === "partnership") && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Directors & Officers
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {directorsLoading ? (
+                    <div className="text-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    </div>
+                  ) : directorsData?.directors &&
+                    directorsData.directors.length > 0 ? (
+                    <div className="space-y-4">
+                      {directorsData.directors.map((director) => (
+                        <div
+                          key={director.id}
+                          className="pb-4 border-b last:border-b-0 last:pb-0"
+                        >
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold">{director.name}</p>
+                                {!director.isActive && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    Resigned
+                                  </Badge>
+                                )}
+                              </div>
+                              {director.officerRole && (
+                                <p className="text-sm text-muted-foreground capitalize">
+                                  {director.officerRole}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs mt-2">
+                            {director.appointedOn && (
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Appointed:{" "}
+                                </span>
+                                <span>
+                                  {format(
+                                    new Date(director.appointedOn),
+                                    "dd/MM/yyyy",
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                            {director.resignedOn && (
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Resigned:{" "}
+                                </span>
+                                <span>
+                                  {format(
+                                    new Date(director.resignedOn),
+                                    "dd/MM/yyyy",
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                            {director.nationality && (
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Nationality:{" "}
+                                </span>
+                                <span>{director.nationality}</span>
+                              </div>
+                            )}
+                            {director.occupation && (
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Occupation:{" "}
+                                </span>
+                                <span>{director.occupation}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        No directors found
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* PSCs (Persons with Significant Control) */}
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Shareholders & PSCs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {pscsLoading ? (
+                    <div className="text-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    </div>
+                  ) : pscsData?.pscs && pscsData.pscs.length > 0 ? (
+                    <div className="space-y-4">
+                      {pscsData.pscs.map((psc) => (
+                        <div
+                          key={psc.id}
+                          className="pb-4 border-b last:border-b-0 last:pb-0"
+                        >
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold">{psc.name}</p>
+                                {!psc.isActive && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    Ceased
+                                  </Badge>
+                                )}
+                              </div>
+                              {psc.kind && (
+                                <p className="text-xs text-muted-foreground">
+                                  {psc.kind
+                                    .replace(/-/g, " ")
+                                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-2 space-y-1">
+                            {psc.naturesOfControl &&
+                              Array.isArray(psc.naturesOfControl) &&
+                              psc.naturesOfControl.length > 0 && (
+                                <div className="text-xs">
+                                  <span className="text-muted-foreground">
+                                    Control:{" "}
+                                  </span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {psc.naturesOfControl.map(
+                                      (nature: string, idx: number) => (
+                                        <Badge
+                                          key={idx}
+                                          variant="outline"
+                                          className="text-xs px-2 py-0"
+                                        >
+                                          {nature
+                                            .replace(/-/g, " ")
+                                            .replace(/\b\w/g, (l) =>
+                                              l.toUpperCase(),
+                                            )}
+                                        </Badge>
+                                      ),
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            <div className="grid grid-cols-2 gap-x-4 text-xs mt-2">
+                              {psc.notifiedOn && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Notified:{" "}
+                                  </span>
+                                  <span>
+                                    {format(
+                                      new Date(psc.notifiedOn),
+                                      "dd/MM/yyyy",
+                                    )}
+                                  </span>
+                                </div>
+                              )}
+                              {psc.nationality && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Nationality:{" "}
+                                  </span>
+                                  <span>{psc.nationality}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        No PSCs found
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Recent Tasks */}
           <Card className="glass-card">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
               <CardTitle>Recent Tasks</CardTitle>
+              {clientTasks.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab("tasks")}
+                >
+                  View All Tasks
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No recent tasks found</p>
-              </div>
+              {tasksLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">Loading tasks...</p>
+                </div>
+              ) : clientTasks.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No tasks found</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() =>
+                      toast.success("Add task functionality coming soon")
+                    }
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Task
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {clientTasks.slice(0, 5).map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-start justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() =>
+                        router.push(`/practice-hub/tasks/${task.id}`)
+                      }
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-medium text-sm">{task.title}</p>
+                          <Badge
+                            variant={
+                              task.status === "completed"
+                                ? "default"
+                                : task.status === "in_progress"
+                                  ? "secondary"
+                                  : "outline"
+                            }
+                            className="text-xs"
+                          >
+                            {task.status.replace("_", " ")}
+                          </Badge>
+                          {task.priority === "urgent" && (
+                            <Badge variant="destructive" className="text-xs">
+                              Urgent
+                            </Badge>
+                          )}
+                        </div>
+                        {task.targetDate && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>
+                              Due:{" "}
+                              {format(new Date(task.targetDate), "dd MMM yyyy")}
+                            </span>
+                            {new Date(task.targetDate) < new Date() &&
+                              task.status !== "completed" && (
+                                <span className="text-red-600 font-medium ml-1">
+                                  (Overdue)
+                                </span>
+                              )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {clientTasks.length > 5 && (
+                    <div className="text-center pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setActiveTab("tasks")}
+                      >
+                        View {clientTasks.length - 5} more tasks
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -495,7 +1053,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   </thead>
                   <tbody>
                     {clientServices.map((service) => (
-                      <tr key={service.id} className="border-b hover:bg-muted/50">
+                      <tr
+                        key={service.id}
+                        className="border-b hover:bg-muted/50"
+                      >
                         <td className="p-3">
                           <div>
                             <div className="font-medium">
@@ -508,17 +1069,12 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                         </td>
                         <td className="p-3">{service.serviceCategory}</td>
                         <td className="p-3">
-                          £
-                          {service.customRate ||
-                            service.defaultRate ||
-                            "0.00"}
+                          £{service.customRate || service.defaultRate || "0.00"}
                         </td>
                         <td className="p-3 capitalize">{service.priceType}</td>
                         <td className="p-3 text-center">
                           <Badge
-                            variant={
-                              service.isActive ? "default" : "secondary"
-                            }
+                            variant={service.isActive ? "default" : "secondary"}
                           >
                             {service.isActive ? "Active" : "Inactive"}
                           </Badge>
@@ -770,7 +1326,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   </thead>
                   <tbody>
                     {clientInvoices.map((invoice) => (
-                      <tr key={invoice.id} className="border-b hover:bg-muted/50">
+                      <tr
+                        key={invoice.id}
+                        className="border-b hover:bg-muted/50"
+                      >
                         <td className="p-3 font-medium">
                           {invoice.invoiceNumber}
                         </td>

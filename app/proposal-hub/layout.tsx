@@ -1,14 +1,31 @@
 "use client";
 
-import { FileText, Home, UserPlus, Users } from "lucide-react";
+import {
+  Calculator,
+  FileText,
+  Home,
+  TrendingUp,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 
 const navigation = [
   { name: "Overview", href: "/proposal-hub", icon: Home },
-  { name: "Leads", href: "/proposal-hub/leads", icon: Users },
+  { name: "Calculator", href: "/proposal-hub/calculator", icon: Calculator },
   { name: "Proposals", href: "/proposal-hub/proposals", icon: FileText },
-  { name: "Onboarding", href: "/proposal-hub/onboarding", icon: UserPlus },
+  { name: "Leads", href: "/proposal-hub/leads", icon: Users },
+];
+
+const sections = [
+  {
+    title: "Management",
+    items: [
+      { name: "Onboarding", href: "/proposal-hub/onboarding", icon: UserPlus },
+      { name: "Pipeline", href: "/proposal-hub/pipeline", icon: TrendingUp },
+    ],
+  },
 ];
 
 export default function ProposalHubLayout({
@@ -30,10 +47,13 @@ export default function ProposalHubLayout({
           moduleName="Proposal Hub"
           baseHref="/proposal-hub"
           navigation={navigation}
+          sections={sections}
           moduleColor="#ec4899"
         />
 
-        <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
+        <main className="flex-1 min-w-0 overflow-x-hidden p-8 max-w-7xl mx-auto">
+          {children}
+        </main>
       </div>
     </div>
   );
