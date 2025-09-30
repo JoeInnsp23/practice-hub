@@ -17,8 +17,6 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -251,36 +249,37 @@ export default function OnboardingDetailPage({
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      <Checkbox
-                        id={task.id}
-                        checked={task.done}
-                        onCheckedChange={(checked) =>
-                          handleTaskToggle(task.id, checked === true)
-                        }
-                      />
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleTaskToggle(task.id, !task.done)}
+                      className="mt-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full"
+                    >
+                      {task.done ? (
+                        <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-6 w-6 text-muted-foreground flex-shrink-0 hover:text-primary transition-colors" />
+                      )}
+                    </button>
                     <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <Label
-                          htmlFor={task.id}
-                          className={`text-base font-medium cursor-pointer ${
-                            task.done ? "line-through text-muted-foreground" : ""
-                          }`}
-                        >
-                          <span className="text-xs text-muted-foreground mr-2">
-                            {task.sequence}.
-                          </span>
-                          {task.taskName}
-                          {task.required && (
-                            <span className="text-red-500 ml-1">*</span>
-                          )}
-                        </Label>
-                        {task.done ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        )}
+                      <div
+                        onClick={() => handleTaskToggle(task.id, !task.done)}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div
+                            className={`text-base font-medium ${
+                              task.done ? "line-through text-muted-foreground" : ""
+                            }`}
+                          >
+                            <span className="text-xs text-muted-foreground mr-2">
+                              {task.sequence}.
+                            </span>
+                            {task.taskName}
+                            {task.required && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {task.description && (
