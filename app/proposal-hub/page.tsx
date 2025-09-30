@@ -189,7 +189,7 @@ export default function ProposalHubPage() {
             View All
           </Button>
         </div>
-        <div className="glass-table">
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

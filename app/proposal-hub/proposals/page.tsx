@@ -187,7 +187,7 @@ export default function ProposalsPage() {
           </div>
         </div>
 
-        <div className="glass-table">
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

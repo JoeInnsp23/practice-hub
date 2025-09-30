@@ -360,37 +360,157 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
-            size="icon"
+            size="lg"
             onClick={() => router.push("/client-hub/clients")}
+            className="rounded-full p-3 hover:bg-primary/10"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-8 w-8" strokeWidth={3} />
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{client.name}</h1>
-              {getTypeBadge(client.type)}
-              {getStatusBadge(client.status)}
+          <div className="border-l pl-4">
+            {isEditing ? (
+              <Input
+                value={editedClient?.name || ""}
+                onChange={(e) =>
+                  setEditedClient((prev: any) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
+                className="text-2xl font-bold h-auto py-2"
+              />
+            ) : (
+              <h1 className="text-3xl font-bold flex items-center gap-3">
+                {client.name}
+                {(client.type === "company" || client.type === "partnership") &&
+                  client.registrationNumber && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-primary hover:bg-primary hover:text-white p-2"
+                      onClick={() =>
+                        window.open(
+                          `https://find-and-update.company-information.service.gov.uk/company/${client.registrationNumber}`,
+                          "_blank",
+                        )
+                      }
+                    >
+                      <ExternalLink className="h-5 w-5" />
+                    </Button>
+                  )}
+              </h1>
+            )}
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-sm text-muted-foreground font-mono">
+                {client.clientCode}
+              </span>
+              {isEditing ? (
+                <Select
+                  value={editedClient?.status || "active"}
+                  onValueChange={(value) =>
+                    setEditedClient((prev: any) => ({
+                      ...prev,
+                      status: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="w-32 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="prospect">Prospect</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <>
+                  {getTypeBadge(client.type)}
+                  {getStatusBadge(client.status)}
+                </>
+              )}
             </div>
-            <div className="flex items-center gap-4 mt-2 text-muted-foreground">
-              <span className="font-mono">{client.clientCode}</span>
-              <span>•</span>
-              <span>Managed by {client.accountManagerId || "Unassigned"}</span>
+            <div className="mt-2">
+              {isEditing ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">
+                    Account Manager:
+                  </span>
+                  <Select
+                    value={editedClient?.accountManagerId || "unassigned"}
+                    onValueChange={(value) =>
+                      setEditedClient((prev: any) => ({
+                        ...prev,
+                        accountManagerId:
+                          value === "unassigned" ? null : value,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select manager..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {usersData?.users
+                        .filter((user) => user.isActive)
+                        .map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.firstName} {user.lastName} ({user.role})
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  Account Manager: {client.accountManagerId || "Unassigned"}
+                </span>
+              )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleEdit} variant="outline">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-          <Button onClick={handleArchive} variant="outline">
-            <Archive className="h-4 w-4 mr-2" />
-            Archive
-          </Button>
-          <Button onClick={handleDelete} variant="destructive">
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
+          {isEditing ? (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCancelEdit}
+                disabled={isSaving}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Save
+                  </>
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={handleStartEdit} variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+              <Button onClick={handleArchive} variant="outline">
+                <Archive className="h-4 w-4 mr-2" />
+                Archive
+              </Button>
+              <Button onClick={handleDelete} variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -516,81 +636,84 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </CardHeader>
               <CardContent>
                 {client.type === "company" || client.type === "partnership" ? (
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                    {/* Left Column */}
-                    <div className="space-y-4">
-                      {client.registrationNumber && (
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <h4 className="text-sm font-medium mb-3">
+                      Company Details
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                      {/* Left Column */}
+                      <div className="space-y-3">
+                        {client.registrationNumber && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-muted-foreground min-w-[110px]">
+                              Company Number:
+                            </span>
+                            <span className="font-medium">
+                              {client.registrationNumber}
+                            </span>
+                          </div>
+                        )}
+                        {client.incorporationDate && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-muted-foreground min-w-[110px]">
+                              Incorporated:
+                            </span>
+                            <span className="font-medium">
+                              {format(
+                                new Date(client.incorporationDate),
+                                "dd/MM/yyyy",
+                              )}
+                            </span>
+                          </div>
+                        )}
+                        {client.yearEnd && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-muted-foreground min-w-[110px]">
+                              Year End:
+                            </span>
+                            <span className="font-medium">{client.yearEnd}</span>
+                          </div>
+                        )}
+                        {client.vatNumber && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-muted-foreground min-w-[110px]">
+                              VAT Number:
+                            </span>
+                            <span className="font-medium">{client.vatNumber}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right Column - Registered Office Address */}
+                      {(client.addressLine1 || client.city) && (
                         <div>
-                          <p className="text-sm text-muted-foreground">
-                            Company Number
-                          </p>
-                          <p className="font-medium">
-                            {client.registrationNumber}
-                          </p>
-                        </div>
-                      )}
-                      {client.incorporationDate && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Incorporated
-                          </p>
-                          <p className="font-medium">
-                            {format(
-                              new Date(client.incorporationDate),
-                              "dd/MM/yyyy",
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      {client.yearEnd && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Year End
-                          </p>
-                          <p className="font-medium">{client.yearEnd}</p>
-                        </div>
-                      )}
-                      {client.vatNumber && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            VAT Number
-                          </p>
-                          <p className="font-medium">{client.vatNumber}</p>
+                          <h5 className="text-sm font-medium mb-2">
+                            Registered Office
+                          </h5>
+                          <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
+                            {client.addressLine1 && <div>{client.addressLine1}</div>}
+                            {client.addressLine2 && <div>{client.addressLine2}</div>}
+                            {client.city && <div>{client.city}</div>}
+                            {client.state && <div>{client.state}</div>}
+                            {client.postalCode && <div>{client.postalCode}</div>}
+                            {client.country && <div>{client.country}</div>}
+                          </div>
                         </div>
                       )}
                     </div>
-
-                    {/* Right Column - Registered Office Address */}
-                    {(client.addressLine1 || client.city) && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Registered Office Address
-                        </p>
-                        <div className="space-y-1 text-sm">
-                          {client.addressLine1 && <p>{client.addressLine1}</p>}
-                          {client.addressLine2 && <p>{client.addressLine2}</p>}
-                          {client.city && <p>{client.city}</p>}
-                          {client.state && <p>{client.state}</p>}
-                          {client.postalCode && <p>{client.postalCode}</p>}
-                          {client.country && <p>{client.country}</p>}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg border">
                     {(client.addressLine1 || client.city) && (
                       <div>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Address
-                        </p>
-                        <div className="space-y-1">
-                          {client.addressLine1 && <p>{client.addressLine1}</p>}
-                          {client.addressLine2 && <p>{client.addressLine2}</p>}
-                          {client.city && <p>{client.city}</p>}
-                          {client.state && <p>{client.state}</p>}
-                          {client.postalCode && <p>{client.postalCode}</p>}
-                          {client.country && <p>{client.country}</p>}
+                        <h5 className="text-sm font-medium mb-2">Address</h5>
+                        <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
+                          {client.addressLine1 && <div>{client.addressLine1}</div>}
+                          {client.addressLine2 && <div>{client.addressLine2}</div>}
+                          {client.city && <div>{client.city}</div>}
+                          {client.state && <div>{client.state}</div>}
+                          {client.postalCode && <div>{client.postalCode}</div>}
+                          {client.country && <div>{client.country}</div>}
                         </div>
                       </div>
                     )}
@@ -614,84 +737,368 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   </div>
                 ) : contactsData?.contacts &&
                   contactsData.contacts.length > 0 ? (
-                  <div className="space-y-6">
-                    {contactsData.contacts.map((contact) => (
-                      <div
-                        key={contact.id}
-                        className="pb-6 border-b last:border-b-0 last:pb-0"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold">
-                                {contact.title && `${contact.title} `}
-                                {contact.firstName}
-                                {contact.middleName && ` ${contact.middleName}`}{" "}
-                                {contact.lastName}
-                              </p>
-                              {contact.isPrimary && (
-                                <Badge
-                                  variant="default"
-                                  className="text-xs px-2 py-0"
-                                >
-                                  Primary
-                                </Badge>
+                  <div className="space-y-4">
+                    {/* Pre-populate Contact Dropdown - Only show when editing */}
+                    {isEditing && (
+                      <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <h4 className="text-sm font-medium mb-2">
+                          Pre-populate contact from:
+                        </h4>
+                        <Select
+                          value={contactPrePopulationSource}
+                          onValueChange={(value) => {
+                            setContactPrePopulationSource(value);
+                            if (value.startsWith("director-")) {
+                              const directorId = value.replace("director-", "");
+                              const director = directorsData?.directors.find(
+                                (d) => d.id === directorId,
+                              );
+                              if (director && contactsData.contacts[0]) {
+                                const names = parseFullName(director.name);
+                                setEditedContact({
+                                  ...contactsData.contacts[0],
+                                  firstName: names.first,
+                                  middleName: names.middle,
+                                  lastName: names.last,
+                                  jobTitle: director.officerRole,
+                                  country:
+                                    director.nationality || "United Kingdom",
+                                  email: "",
+                                  phone: "",
+                                });
+                                setIsEditingContact(true);
+                              }
+                            } else if (value.startsWith("psc-")) {
+                              const pscId = value.replace("psc-", "");
+                              const psc = pscsData?.pscs.find(
+                                (p) => p.id === pscId,
+                              );
+                              if (psc && contactsData.contacts[0]) {
+                                const names = parseFullName(psc.name);
+                                setEditedContact({
+                                  ...contactsData.contacts[0],
+                                  firstName: names.first,
+                                  middleName: names.middle,
+                                  lastName: names.last,
+                                  jobTitle: "Person with Significant Control",
+                                  country: psc.nationality || "United Kingdom",
+                                  email: "",
+                                  phone: "",
+                                });
+                                setIsEditingContact(true);
+                              }
+                            } else if (value === "manual") {
+                              if (contactsData.contacts[0]) {
+                                setEditedContact({
+                                  ...contactsData.contacts[0],
+                                });
+                                setIsEditingContact(true);
+                              }
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose source..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">
+                              📝 Enter Manually
+                            </SelectItem>
+                            {directorsData?.directors.map((director) => (
+                              <SelectItem
+                                key={director.id}
+                                value={`director-${director.id}`}
+                              >
+                                📋 {director.name} (Director)
+                              </SelectItem>
+                            ))}
+                            {pscsData?.pscs.map((psc) => (
+                              <SelectItem key={psc.id} value={`psc-${psc.id}`}>
+                                🏢 {psc.name} (PSC)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {contactsData.contacts.map((contact) => {
+                      const isThisContactBeingEdited =
+                        isEditingContact && editedContact?.id === contact.id;
+
+                      return (
+                        <div
+                          key={contact.id}
+                          className="p-4 bg-muted/50 rounded-lg border"
+                        >
+                          {isThisContactBeingEdited && editedContact ? (
+                            /* Edit Mode */
+                            <div className="space-y-4">
+                              {/* Name Fields */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                  <Label className="text-xs">First Name</Label>
+                                  <Input
+                                    value={editedContact.firstName || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        firstName: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="First name"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs">Middle Name</Label>
+                                  <Input
+                                    value={editedContact.middleName || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        middleName: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Middle (optional)"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs">Last Name</Label>
+                                  <Input
+                                    value={editedContact.lastName || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        lastName: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Last name"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Job Title and Primary Toggle */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs">Job Title</Label>
+                                  <Input
+                                    value={editedContact.jobTitle || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        jobTitle: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Job title"
+                                  />
+                                </div>
+                                <div className="flex items-end space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    id="isPrimary"
+                                    checked={editedContact.isPrimary}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        isPrimary: e.target.checked,
+                                      }))
+                                    }
+                                    className="rounded"
+                                  />
+                                  <Label htmlFor="isPrimary" className="text-sm">
+                                    Primary Contact
+                                  </Label>
+                                </div>
+                              </div>
+
+                              {/* Contact Details */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs">Email</Label>
+                                  <Input
+                                    type="email"
+                                    value={editedContact.email || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        email: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="email@example.com"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs">Phone</Label>
+                                  <Input
+                                    type="tel"
+                                    value={editedContact.phone || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        phone: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Phone number"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Address */}
+                              <div className="space-y-3">
+                                <h4 className="text-sm font-medium">Address</h4>
+                                <div className="grid grid-cols-1 gap-3">
+                                  <Input
+                                    value={editedContact.addressLine1 || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        addressLine1: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Address Line 1"
+                                  />
+                                  <Input
+                                    value={editedContact.addressLine2 || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        addressLine2: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Address Line 2 (optional)"
+                                  />
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <Input
+                                      value={editedContact.city || ""}
+                                      onChange={(e) =>
+                                        setEditedContact((prev: any) => ({
+                                          ...prev,
+                                          city: e.target.value,
+                                        }))
+                                      }
+                                      placeholder="City"
+                                    />
+                                    <Input
+                                      value={editedContact.region || ""}
+                                      onChange={(e) =>
+                                        setEditedContact((prev: any) => ({
+                                          ...prev,
+                                          region: e.target.value,
+                                        }))
+                                      }
+                                      placeholder="Region/State"
+                                    />
+                                    <Input
+                                      value={editedContact.postalCode || ""}
+                                      onChange={(e) =>
+                                        setEditedContact((prev: any) => ({
+                                          ...prev,
+                                          postalCode: e.target.value,
+                                        }))
+                                      }
+                                      placeholder="Postal Code"
+                                    />
+                                  </div>
+                                  <Input
+                                    value={editedContact.country || ""}
+                                    onChange={(e) =>
+                                      setEditedContact((prev: any) => ({
+                                        ...prev,
+                                        country: e.target.value,
+                                      }))
+                                    }
+                                    placeholder="Country"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            /* Display Mode */
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <p className="font-semibold text-lg">
+                                  {contact.title && `${contact.title} `}
+                                  {contact.firstName}
+                                  {contact.middleName &&
+                                    ` ${contact.middleName}`}{" "}
+                                  {contact.lastName}
+                                </p>
+                                {contact.isPrimary && (
+                                  <Badge variant="default" className="text-xs">
+                                    Primary
+                                  </Badge>
+                                )}
+                              </div>
+
+                              {contact.jobTitle && (
+                                <p className="text-sm text-muted-foreground mb-3 font-medium">
+                                  {contact.jobTitle}
+                                </p>
                               )}
-                            </div>
-                            {contact.jobTitle && (
-                              <p className="text-sm text-muted-foreground">
-                                {contact.jobTitle}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          {contact.email && (
-                            <div className="flex items-center gap-2">
-                              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                              <a
-                                href={`mailto:${contact.email}`}
-                                className="text-blue-600 hover:underline"
-                              >
-                                {contact.email}
-                              </a>
-                            </div>
-                          )}
-                          {contact.phone && (
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                              <a
-                                href={`tel:${contact.phone}`}
-                                className="text-blue-600 hover:underline"
-                              >
-                                {contact.phone}
-                              </a>
-                            </div>
-                          )}
-                          {(contact.addressLine1 || contact.city) && (
-                            <div className="mt-2 pt-2 border-t">
-                              <p className="text-xs text-muted-foreground mb-1">
-                                Address
-                              </p>
-                              <div className="text-xs space-y-0.5">
-                                {contact.addressLine1 && (
-                                  <p>{contact.addressLine1}</p>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Contact Details */}
+                                <div className="space-y-2">
+                                  <h4 className="text-sm font-medium mb-2">
+                                    Contact Details
+                                  </h4>
+                                  {contact.email && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <a
+                                        href={`mailto:${contact.email}`}
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        {contact.email}
+                                      </a>
+                                    </div>
+                                  )}
+                                  {contact.phone && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <a
+                                        href={`tel:${contact.phone}`}
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        {contact.phone}
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Address */}
+                                {(contact.addressLine1 || contact.city) && (
+                                  <div className="space-y-2">
+                                    <h4 className="text-sm font-medium mb-2">
+                                      Address
+                                    </h4>
+                                    <div className="text-sm text-muted-foreground leading-relaxed space-y-0.5">
+                                      {contact.addressLine1 && (
+                                        <div>{contact.addressLine1}</div>
+                                      )}
+                                      {contact.addressLine2 && (
+                                        <div>{contact.addressLine2}</div>
+                                      )}
+                                      {contact.city && <div>{contact.city}</div>}
+                                      {contact.region && (
+                                        <div>
+                                          {contact.region}{" "}
+                                          {contact.postalCode &&
+                                            contact.postalCode}
+                                        </div>
+                                      )}
+                                      {contact.country && (
+                                        <div>{contact.country}</div>
+                                      )}
+                                    </div>
+                                  </div>
                                 )}
-                                {contact.addressLine2 && (
-                                  <p>{contact.addressLine2}</p>
-                                )}
-                                {contact.city && <p>{contact.city}</p>}
-                                {contact.region && <p>{contact.region}</p>}
-                                {contact.postalCode && (
-                                  <p>{contact.postalCode}</p>
-                                )}
-                                {contact.country && <p>{contact.country}</p>}
                               </div>
                             </div>
                           )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-4">
