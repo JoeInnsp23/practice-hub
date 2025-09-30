@@ -227,9 +227,12 @@ export const onboardingRouter = router({
           clientPhone: clients.phone,
           clientCode: clients.clientCode,
           clientCreatedAt: clients.createdAt,
+          // Account Manager info
+          accountManagerName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
         })
         .from(onboardingSessions)
         .innerJoin(clients, eq(onboardingSessions.clientId, clients.id))
+        .leftJoin(users, eq(onboardingSessions.assignedToId, users.id))
         .where(
           and(
             eq(onboardingSessions.id, input),

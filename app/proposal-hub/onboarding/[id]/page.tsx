@@ -1,14 +1,17 @@
 "use client";
 
 import {
+  Building,
   Calendar,
   CheckCircle2,
   ChevronLeft,
   Circle,
   Clock,
+  FileText,
   Mail,
   Phone,
   UserCheck,
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
@@ -16,7 +19,7 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -150,7 +153,7 @@ export default function OnboardingDetailPage({
   const totalTasks = sessionData.tasks.length;
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -230,25 +233,38 @@ export default function OnboardingDetailPage({
         {/* Left Column - Checklist */}
         <div className="lg:col-span-2 space-y-6">
           {/* Progress Overview */}
-          <Card className="glass-card p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Onboarding Progress</h2>
-                <span className="text-2xl font-bold text-primary">
-                  {sessionData.progress}%
-                </span>
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5" />
+                Onboarding Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {completedTasks} of {totalTasks} tasks completed
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    {sessionData.progress}%
+                  </span>
+                </div>
+                <Progress value={sessionData.progress} className="h-3" />
               </div>
-              <Progress value={sessionData.progress} className="h-3" />
-              <p className="text-sm text-muted-foreground">
-                {completedTasks} of {totalTasks} tasks completed
-              </p>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Task Checklist */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-6">Onboarding Checklist</h2>
-            <div className="space-y-4">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Onboarding Checklist
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
               {sessionData.tasks.map((task) => (
                 <div
                   key={task.id}
@@ -344,16 +360,23 @@ export default function OnboardingDetailPage({
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
         {/* Right Column - Session Info */}
         <div className="space-y-6">
           {/* Client Information */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Client Information</h2>
-            <div className="space-y-3">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Client Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
               {sessionData.clientEmail && (
                 <div className="flex items-start gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -387,13 +410,27 @@ export default function OnboardingDetailPage({
                   </p>
                 </div>
               </div>
-            </div>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Session Details */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Session Details</h2>
-            <div className="space-y-4">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                Session Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Account Manager</p>
+                <p className="text-sm font-medium">
+                  {sessionData.accountManagerName || "Unassigned"}
+                </p>
+              </div>
+
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Start Date</p>
                 <p className="text-sm font-medium">
@@ -414,13 +451,20 @@ export default function OnboardingDetailPage({
                   </p>
                 </div>
               )}
-            </div>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Actions */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Actions</h2>
-            <div className="space-y-3">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
               <div className="space-y-2">
                 <Label className="text-sm">Update Status</Label>
                 <Select
@@ -464,7 +508,8 @@ export default function OnboardingDetailPage({
               >
                 View Client Record
               </Button>
-            </div>
+              </div>
+            </CardContent>
           </Card>
         </div>
       </div>
