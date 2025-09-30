@@ -10,6 +10,7 @@ import {
   workflowStages,
   workflows,
 } from "@/lib/db/schema";
+import { getTasksList } from "@/lib/db/queries/task-queries";
 import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
@@ -29,6 +30,28 @@ const taskSchema = insertTaskSchema.omit({
 
 export const tasksRouter = router({
   list: protectedProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        status: z.string().optional(),
+        priority: z.string().optional(),
+        assigneeId: z.string().optional(),
+        clientId: z.string().optional(),
+        overdue: z.boolean().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Use typed query function
+      const tasks = await getTasksList(tenantId, input);
+
+      return { tasks };
+    }),
+
+  // Note: Keeping original ordering logic for reference
+  // If custom ordering is needed, it can be added to getTasksList function
+  listOld: protectedProcedure
     .input(
       z.object({
         search: z.string().optional(),

@@ -1,0 +1,20 @@
+id,uuid,createdAt,updatedAt,taskName,description,required,sequence,days,progress
+17,rec45ni7ama3y610k,"30/04/2025, 14:03","30/04/2025, 14:45",Confirm information received,"Confirm all outstanding information received before proceeding (Professional Clearance, UTRs, Authorisation codes etc)",True,95,10,5
+16,rec45ni7ama3y3hfi,"30/04/2025, 14:01","30/04/2025, 14:45",Confirm Signing of LoE,Confirm the signing of Letter of Engagement before proceeding,True,55,7,5
+15,recjlgr69ma3y1y2b,"30/04/2025, 14:00","30/04/2025, 14:44",Receive and Save client ID documents,Save client ID documents to client AML folder on OneDrive,True,25,2,5
+14,recewhlam9a42n1v,"09/04/2025, 16:55","30/04/2025, 14:45",Assign Client Manager,Discuss internally to decide which person will take on the new client,True,51,4,5
+13,rec1vcg9m98rmez8,"08/04/2025, 18:19","30/04/2025, 14:45",Change client status to Active,Update client status when onboarding is complete,True,130,10,10
+12,recf35x9m98rm6r9,"08/04/2025, 18:19","30/04/2025, 14:45",Set up tasks for recurring services,Create recurring tasks for ongoing services,True,120,10,5
+11,rec1lzd1r9m98rldir,"08/04/2025, 18:18","30/04/2025, 14:45",Register for additional HMRC services,"Register for additional services such as Income Tax record, MTD for IT, CIS etc
+",True,110,10,5
+10,rec70ak9m98rkthg,"08/04/2025, 18:18","30/04/2025, 14:45",Register for necessary taxes,"Register for applicable taxes (VAT, PAYE, etc.) Check with client manager for which period the taxes should fall under
+",,100,10,5
+9,rec1lzd1r9m98rkbkc,"08/04/2025, 18:17","30/04/2025, 14:45",Setup GoCardless Direct Debit,Setup client on GoCardless and send DD mandate,True,90,7,10
+8,rec1lzd1r9m98rk1lu,"08/04/2025, 18:17","30/04/2025, 14:45",Request Agent Authorisation Codes,Obtain codes for HMRC agent services,True,80,7,5
+7,recz5sj5vw9m98re824,"08/04/2025, 18:13","30/04/2025, 14:45",Request and confirm relevant UTRs,"Ask client for all applicable UTRs, or register if needed",True,70,7,5
+6,rec1d7mlf9m98rdbl0,"08/04/2025, 18:12","30/04/2025, 14:45",Request previous accountant clearance,Contact previous accountant for professional clearance,,60,7,5
+5,rec1lumyk8m98rchmp,"08/04/2025, 18:11","30/04/2025, 14:44",Send Letter of Engagement,"Send LoE detailing scope of work, from Bright Manager and ensure it is signed",True,50,4,8
+4,rec1lumyk8m98rble7,"08/04/2025, 18:11","30/04/2025, 14:44",Perform client risk assessment and grading,"Assess client risk factors and determine risk level (Low/Medium/High), also a assign client a grade based off current communication quality",True,40,4,6
+3,rec1lzd1r9m98r9v5g,"08/04/2025, 18:09","30/04/2025, 14:44",Complete AML ID check,Verify identity documents and complete AML compliance check,True,30,4,6
+2,rec1ltrc9m98r9kjg,"08/04/2025, 18:09","30/04/2025, 14:44",Request client ID documents,Request passport/driving license and proof of address,True,20,0,5
+1,rec32qhch39m98qzf5k,"08/04/2025, 18:01","30/04/2025, 14:44",Ensure Client is Setup in Bright Manager,"Check client is in Bright Manager with appropriate client information, services and pricing filled in",True,10,0,5

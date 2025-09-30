@@ -1,3 +1,7 @@
+-- Custom migration: Create database views for business logic consistency
+-- This migration creates all necessary views for the CRM system
+
+-- Client Details View (with account manager information)
 CREATE VIEW "client_details_view" AS
 SELECT
     c.*,

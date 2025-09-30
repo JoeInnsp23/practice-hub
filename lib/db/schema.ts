@@ -7,6 +7,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  pgView,
   text,
   timestamp,
   uniqueIndex,
@@ -714,6 +715,296 @@ export const compliance = pgTable(
   }),
 );
 
+// ============================================
+// PROPOSAL HUB & PRICING SYSTEM
+// ============================================
+
+// Service Component Category Enum
+export const serviceComponentCategoryEnum = pgEnum(
+  "service_component_category",
+  [
+    "compliance",
+    "vat",
+    "bookkeeping",
+    "payroll",
+    "management",
+    "secretarial",
+    "tax_planning",
+    "addon",
+  ],
+);
+
+// Pricing Model Enum
+export const pricingModelEnum = pgEnum("pricing_model", [
+  "turnover",
+  "transaction",
+  "both",
+  "fixed",
+]);
+
+// Pricing Rule Type Enum
+export const pricingRuleTypeEnum = pgEnum("pricing_rule_type", [
+  "turnover_band",
+  "transaction_band",
+  "per_unit",
+  "fixed",
+]);
+
+// Proposal Status Enum
+export const proposalStatusEnum = pgEnum("proposal_status", [
+  "draft",
+  "sent",
+  "viewed",
+  "signed",
+  "rejected",
+  "expired",
+]);
+
+// Transaction Data Source Enum
+export const transactionDataSourceEnum = pgEnum("transaction_data_source", [
+  "xero",
+  "manual",
+  "estimated",
+]);
+
+// Service Components table - catalog of all services
+export const serviceComponents = pgTable(
+  "service_components",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Core fields
+    code: varchar("code", { length: 50 }).notNull(), // e.g., 'COMP_ACCOUNTS', 'BOOK_BASIC'
+    name: varchar("name", { length: 255 }).notNull(),
+    category: serviceComponentCategoryEnum("category").notNull(),
+    description: text("description"),
+
+    // Pricing configuration
+    pricingModel: pricingModelEnum("pricing_model").notNull(),
+    basePrice: decimal("base_price", { precision: 10, scale: 2 }),
+    supportsComplexity: boolean("supports_complexity").default(false).notNull(),
+
+    // Status
+    isActive: boolean("is_active").default(true).notNull(),
+
+    // Metadata
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantCodeIdx: uniqueIndex("idx_service_component_code").on(
+      table.tenantId,
+      table.code,
+    ),
+    categoryIdx: index("idx_service_component_category").on(table.category),
+    activeIdx: index("idx_service_component_active").on(table.isActive),
+  }),
+);
+
+// Pricing Rules table - defines pricing for each service component
+export const pricingRules = pgTable(
+  "pricing_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    componentId: uuid("component_id")
+      .references(() => serviceComponents.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Rule type and range
+    ruleType: pricingRuleTypeEnum("rule_type").notNull(),
+    minValue: decimal("min_value", { precision: 15, scale: 2 }), // For bands
+    maxValue: decimal("max_value", { precision: 15, scale: 2 }), // For bands
+    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+
+    // Optional complexity level
+    complexityLevel: varchar("complexity_level", { length: 50 }), // clean, average, complex, disaster
+
+    // Additional configuration
+    metadata: jsonb("metadata"), // Additional rule config
+    isActive: boolean("is_active").default(true).notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    componentIdx: index("idx_pricing_rule_component").on(table.componentId),
+    ruleTypeIdx: index("idx_pricing_rule_type").on(table.ruleType),
+    activeIdx: index("idx_pricing_rule_active").on(table.isActive),
+  }),
+);
+
+// Proposals table - main proposal records
+export const proposals = pgTable(
+  "proposals",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Relationships
+    leadId: uuid("lead_id"), // Future: reference to leads table
+    quoteId: uuid("quote_id"), // Future: reference to quotes table
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "set null",
+    }),
+
+    // Proposal details
+    title: varchar("title", { length: 255 }).notNull(),
+    status: proposalStatusEnum("status").default("draft").notNull(),
+
+    // Pricing information
+    pricingModelUsed: varchar("pricing_model_used", { length: 10 }), // 'A' or 'B'
+    monthlyTotal: decimal("monthly_total", { precision: 10, scale: 2 }).notNull(),
+    annualTotal: decimal("annual_total", { precision: 10, scale: 2 }).notNull(),
+
+    // Document URLs
+    pdfUrl: text("pdf_url"),
+    signedPdfUrl: text("signed_pdf_url"),
+
+    // Template and content
+    templateId: uuid("template_id"),
+    customTerms: text("custom_terms"),
+    notes: text("notes"),
+
+    // Version control
+    version: integer("version").default(1).notNull(),
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    sentAt: timestamp("sent_at"),
+    viewedAt: timestamp("viewed_at"),
+    signedAt: timestamp("signed_at"),
+    expiresAt: timestamp("expires_at"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+    // Creator
+    createdById: uuid("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => ({
+    tenantIdx: index("idx_proposal_tenant").on(table.tenantId),
+    clientIdx: index("idx_proposal_client").on(table.clientId),
+    statusIdx: index("idx_proposal_status").on(table.status),
+    createdAtIdx: index("idx_proposal_created").on(table.createdAt),
+  }),
+);
+
+// Proposal Services table - individual services in a proposal
+export const proposalServices = pgTable(
+  "proposal_services",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    proposalId: uuid("proposal_id")
+      .references(() => proposals.id, { onDelete: "cascade" })
+      .notNull(),
+    componentId: uuid("component_id")
+      .references(() => serviceComponents.id, { onDelete: "restrict" })
+      .notNull(),
+
+    // Service details
+    quantity: decimal("quantity", { precision: 10, scale: 2 }).default("1"),
+    unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+    monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
+
+    // Pricing model used for this specific service
+    pricingModel: varchar("pricing_model", { length: 10 }), // 'A' or 'B'
+
+    // Optional notes
+    customNotes: text("custom_notes"),
+
+    // Sort order
+    sortOrder: integer("sort_order").default(0),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    proposalIdx: index("idx_proposal_service_proposal").on(table.proposalId),
+    componentIdx: index("idx_proposal_service_component").on(table.componentId),
+  }),
+);
+
+// Client Transaction Data table - stores transaction volume data for pricing
+export const clientTransactionData = pgTable(
+  "client_transaction_data",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Relationships
+    leadId: uuid("lead_id"), // Future: reference to leads table
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "cascade",
+    }),
+
+    // Transaction data
+    monthlyTransactions: integer("monthly_transactions").notNull(),
+    dataSource: transactionDataSourceEnum("data_source").notNull(),
+
+    // Raw data from Xero (if applicable)
+    xeroDataJson: jsonb("xero_data_json"),
+
+    // Timestamps
+    lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_transaction_data_tenant").on(table.tenantId),
+    clientIdx: index("idx_transaction_data_client").on(table.clientId),
+    leadIdx: index("idx_transaction_data_lead").on(table.leadId),
+  }),
+);
+
+// Proposal Signatures table - tracks e-signature status
+export const proposalSignatures = pgTable(
+  "proposal_signatures",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    proposalId: uuid("proposal_id")
+      .references(() => proposals.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Signer information
+    signerEmail: varchar("signer_email", { length: 255 }).notNull(),
+    signerName: varchar("signer_name", { length: 255 }).notNull(),
+    signerRole: varchar("signer_role", { length: 100 }), // director, authorised_signatory
+
+    // Signature details
+    signedAt: timestamp("signed_at"),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    signatureImageUrl: text("signature_image_url"),
+
+    // DocuSeal integration
+    docusealSignatureId: varchar("docuseal_signature_id", { length: 255 }),
+
+    // Status
+    status: varchar("status", { length: 50 }).default("pending").notNull(), // pending, completed, declined
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    proposalIdx: index("idx_signature_proposal").on(table.proposalId),
+    statusIdx: index("idx_signature_status").on(table.status),
+    docusealIdx: index("idx_signature_docuseal").on(table.docusealSignatureId),
+  }),
+);
+
+// ============================================
+// END PROPOSAL HUB & PRICING SYSTEM
+// ============================================
+
 // Workflow Stages table
 export const workflowStages = pgTable(
   "workflow_stages",
@@ -934,3 +1225,230 @@ export const userFavorites = pgTable(
     linkIdx: index("idx_user_favorites_link").on(table.linkId),
   }),
 );
+
+// ============================================
+// DATABASE VIEWS
+// ============================================
+// Views are created via custom SQL migrations and managed with .existing()
+// flag to prevent drizzle-kit from trying to recreate them
+
+// Dashboard KPI View - aggregated metrics for dashboard
+export const dashboardKpiView = pgView("dashboard_kpi_view", {
+  tenantId: uuid("tenant_id").notNull(),
+  totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }),
+  collectedRevenue: decimal("collected_revenue", { precision: 10, scale: 2 }),
+  outstandingRevenue: decimal("outstanding_revenue", { precision: 10, scale: 2 }),
+  activeClients: integer("active_clients"),
+  newClients30d: integer("new_clients_30d"),
+  pendingTasks: integer("pending_tasks"),
+  inProgressTasks: integer("in_progress_tasks"),
+  completedTasks30d: integer("completed_tasks_30d"),
+  overdueTasks: integer("overdue_tasks"),
+  totalHours30d: decimal("total_hours_30d", { precision: 10, scale: 2 }),
+  billableHours30d: decimal("billable_hours_30d", { precision: 10, scale: 2 }),
+  upcomingCompliance30d: integer("upcoming_compliance_30d"),
+  overdueCompliance: integer("overdue_compliance"),
+}).existing();
+
+// Activity Feed View - activity logs with entity names and user info
+export const activityFeedView = pgView("activity_feed_view", {
+  id: uuid("id").notNull(),
+  tenantId: uuid("tenant_id").notNull(),
+  entityType: varchar("entity_type", { length: 50 }).notNull(),
+  entityId: uuid("entity_id").notNull(),
+  entityName: text("entity_name"),
+  action: varchar("action", { length: 50 }).notNull(),
+  description: text("description"),
+  userId: uuid("user_id"),
+  userName: varchar("user_name", { length: 255 }),
+  userDisplayName: text("user_display_name"),
+  userEmail: text("user_email"),
+  oldValues: jsonb("old_values"),
+  newValues: jsonb("new_values"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull(),
+}).existing();
+
+// Task Details View - tasks with client and assignee names
+export const taskDetailsView = pgView("task_details_view", {
+  // All task fields
+  id: uuid("id").notNull(),
+  tenantId: uuid("tenant_id").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: varchar("status", { length: 50 }),
+  priority: varchar("priority", { length: 50 }),
+  clientId: uuid("client_id"),
+  assignedToId: uuid("assigned_to_id"),
+  reviewerId: uuid("reviewer_id"),
+  createdById: uuid("created_by_id").notNull(),
+  dueDate: timestamp("due_date"),
+  targetDate: timestamp("target_date"),
+  completedAt: timestamp("completed_at"),
+  estimatedHours: decimal("estimated_hours", { precision: 5, scale: 2 }),
+  actualHours: decimal("actual_hours", { precision: 5, scale: 2 }),
+  progress: integer("progress"),
+  taskType: varchar("task_type", { length: 100 }),
+  category: varchar("category", { length: 100 }),
+  tags: jsonb("tags"),
+  parentTaskId: uuid("parent_task_id"),
+  workflowId: uuid("workflow_id"),
+  isRecurring: boolean("is_recurring"),
+  recurringPattern: jsonb("recurring_pattern"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  // Joined fields
+  clientName: varchar("client_name", { length: 255 }),
+  clientCode: varchar("client_code", { length: 50 }),
+  assigneeName: text("assignee_name"),
+  assigneeEmail: text("assignee_email"),
+  reviewerName: text("reviewer_name"),
+  reviewerEmail: text("reviewer_email"),
+  creatorName: text("creator_name"),
+  workflowName: varchar("workflow_name", { length: 255 }),
+  parentTaskTitle: varchar("parent_task_title", { length: 255 }),
+}).existing();
+
+// Client Details View - clients with account manager information
+export const clientDetailsView = pgView("client_details_view", {
+  // All client fields
+  id: uuid("id").notNull(),
+  tenantId: uuid("tenant_id").notNull(),
+  clientCode: varchar("client_code", { length: 50 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: varchar("type", { length: 50 }),
+  status: varchar("status", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  website: varchar("website", { length: 255 }),
+  vatNumber: varchar("vat_number", { length: 50 }),
+  registrationNumber: varchar("registration_number", { length: 50 }),
+  addressLine1: varchar("address_line1", { length: 255 }),
+  addressLine2: varchar("address_line2", { length: 255 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  postalCode: varchar("postal_code", { length: 20 }),
+  country: varchar("country", { length: 100 }),
+  accountManagerId: uuid("account_manager_id"),
+  parentClientId: uuid("parent_client_id"),
+  incorporationDate: date("incorporation_date"),
+  yearEnd: varchar("year_end", { length: 10 }),
+  notes: text("notes"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  createdBy: uuid("created_by"),
+  // Joined fields
+  accountManagerFirstName: varchar("account_manager_first_name", { length: 100 }),
+  accountManagerLastName: varchar("account_manager_last_name", { length: 100 }),
+  accountManagerName: text("account_manager_name"),
+  accountManagerEmail: text("account_manager_email"),
+}).existing();
+
+// Compliance Details View - compliance items with client and assignee info
+export const complianceDetailsView = pgView("compliance_details_view", {
+  id: uuid("id").notNull(),
+  tenantId: uuid("tenant_id").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  type: varchar("type", { length: 100 }).notNull(),
+  description: text("description"),
+  clientId: uuid("client_id").notNull(),
+  assignedToId: uuid("assigned_to_id"),
+  dueDate: timestamp("due_date").notNull(),
+  completedDate: timestamp("completed_date"),
+  reminderDate: timestamp("reminder_date"),
+  status: varchar("status", { length: 50 }),
+  priority: varchar("priority", { length: 50 }),
+  notes: text("notes"),
+  attachments: jsonb("attachments"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  createdById: uuid("created_by_id"),
+  // Joined fields
+  clientName: varchar("client_name", { length: 255 }),
+  clientCode: varchar("client_code", { length: 50 }),
+  assigneeName: text("assignee_name"),
+  assigneeEmail: text("assignee_email"),
+  creatorName: text("creator_name"),
+  isOverdue: boolean("is_overdue"),
+}).existing();
+
+// Time Entries View - time entries with user, client, and task names
+export const timeEntriesView = pgView("time_entries_view", {
+  id: uuid("id").notNull(),
+  tenantId: uuid("tenant_id").notNull(),
+  userId: uuid("user_id").notNull(),
+  clientId: uuid("client_id"),
+  taskId: uuid("task_id"),
+  serviceId: uuid("service_id"),
+  date: date("date").notNull(),
+  startTime: varchar("start_time", { length: 8 }),
+  endTime: varchar("end_time", { length: 8 }),
+  hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
+  workType: varchar("work_type", { length: 50 }),
+  billable: boolean("billable"),
+  billed: boolean("billed"),
+  rate: decimal("rate", { precision: 10, scale: 2 }),
+  amount: decimal("amount", { precision: 10, scale: 2 }),
+  invoiceId: uuid("invoice_id"),
+  description: text("description"),
+  notes: text("notes"),
+  status: varchar("status", { length: 50 }),
+  submittedAt: timestamp("submitted_at"),
+  approvedById: uuid("approved_by_id"),
+  approvedAt: timestamp("approved_at"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  // Joined fields
+  userName: text("user_name"),
+  userEmail: text("user_email"),
+  clientName: varchar("client_name", { length: 255 }),
+  clientCode: varchar("client_code", { length: 50 }),
+  taskTitle: varchar("task_title", { length: 255 }),
+  serviceName: varchar("service_name", { length: 255 }),
+  serviceCode: varchar("service_code", { length: 50 }),
+  approverName: text("approver_name"),
+}).existing();
+
+// Invoice Details View - invoices with client information
+export const invoiceDetailsView = pgView("invoice_details_view", {
+  id: uuid("id").notNull(),
+  tenantId: uuid("tenant_id").notNull(),
+  invoiceNumber: varchar("invoice_number", { length: 50 }).notNull(),
+  clientId: uuid("client_id").notNull(),
+  issueDate: date("issue_date").notNull(),
+  dueDate: date("due_date").notNull(),
+  paidDate: date("paid_date"),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  taxRate: decimal("tax_rate", { precision: 5, scale: 2 }),
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
+  discount: decimal("discount", { precision: 10, scale: 2 }),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+  status: varchar("status", { length: 50 }),
+  currency: varchar("currency", { length: 3 }),
+  notes: text("notes"),
+  terms: text("terms"),
+  purchaseOrderNumber: varchar("po_number", { length: 100 }),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  createdById: uuid("created_by_id"),
+  // Joined fields
+  clientName: varchar("client_name", { length: 255 }),
+  clientCode: varchar("client_code", { length: 50 }),
+  clientEmail: varchar("client_email", { length: 255 }),
+  clientVatNumber: varchar("client_vat_number", { length: 50 }),
+  clientAddressLine1: varchar("client_address_line1", { length: 255 }),
+  clientAddressLine2: varchar("client_address_line2", { length: 255 }),
+  clientCity: varchar("client_city", { length: 100 }),
+  clientPostalCode: varchar("client_postal_code", { length: 20 }),
+  clientCountry: varchar("client_country", { length: 100 }),
+  createdByName: text("created_by_name"),
+  balanceDue: decimal("balance_due", { precision: 10, scale: 2 }),
+}).existing();
