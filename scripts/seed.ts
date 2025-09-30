@@ -13,6 +13,7 @@ import {
   documents,
   invoiceItems,
   invoices,
+  leads,
   services,
   tasks,
   taskWorkflowInstances,
@@ -47,6 +48,7 @@ async function clearDatabase() {
   await db.delete(clientDirectors);
   await db.delete(clientContacts);
   await db.delete(clients);
+  await db.delete(leads);
   await db.delete(services);
   await db.delete(users);
   await db.delete(tenants);
@@ -400,6 +402,97 @@ async function seedDatabase() {
       });
     }
   }
+
+  // 6. Create Leads
+  console.log("Creating leads...");
+  const leadStatuses = [
+    "new",
+    "contacted",
+    "qualified",
+    "proposal_sent",
+    "negotiating",
+  ] as const;
+  const leadSources = [
+    "Website Enquiry",
+    "Referral",
+    "Cold Call",
+    "LinkedIn",
+    "Networking Event",
+    "Google Search",
+  ];
+  const industries = [
+    "Technology",
+    "Retail",
+    "Healthcare",
+    "Manufacturing",
+    "Professional Services",
+    "Hospitality",
+    "Construction",
+    "E-commerce",
+  ];
+
+  const leadsList = [];
+  for (let i = 0; i < 15; i++) {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const companyName = faker.company.name();
+    const industry = faker.helpers.arrayElement(industries);
+    const status = faker.helpers.arrayElement(leadStatuses);
+    const turnover = faker.number.int({ min: 50000, max: 5000000 });
+
+    const [lead] = await db
+      .insert(leads)
+      .values({
+        tenantId: tenant.id,
+        firstName,
+        lastName,
+        email: faker.internet.email({
+          firstName,
+          lastName,
+          provider: companyName.toLowerCase().replace(/\s+/g, "") + ".com",
+        }),
+        phone: faker.phone.number(),
+        mobile: faker.phone.number(),
+        companyName,
+        position: faker.person.jobTitle(),
+        website: `https://www.${companyName.toLowerCase().replace(/\s+/g, "")}.com`,
+        status,
+        source: faker.helpers.arrayElement(leadSources),
+        industry,
+        estimatedTurnover: turnover.toString(),
+        estimatedEmployees: faker.number.int({ min: 1, max: 200 }),
+        qualificationScore: faker.number.int({ min: 1, max: 10 }),
+        interestedServices: faker.helpers.arrayElements(
+          ["COMP_ACCOUNTS", "BOOK_BASIC", "VAT_STANDARD", "PAYROLL", "TAX_PLANNING"],
+          { min: 1, max: 3 },
+        ),
+        notes: `Lead from ${faker.helpers.arrayElement(leadSources)}. ${
+          status === "qualified"
+            ? "High potential client, ready for proposal."
+            : status === "contacted"
+              ? "Initial contact made, awaiting follow-up."
+              : status === "proposal_sent"
+                ? "Proposal sent, awaiting response."
+                : status === "negotiating"
+                  ? "In active negotiations on pricing and services."
+                  : "New lead, needs initial assessment."
+        }`,
+        lastContactedAt:
+          status !== "new" ? faker.date.recent({ days: 30 }) : undefined,
+        nextFollowUpAt: ["new", "contacted", "qualified"].includes(status)
+          ? faker.date.soon({ days: 14 })
+          : undefined,
+        assignedToId: faker.helpers.arrayElement([
+          ...createdUsers.map((u) => u.id),
+        ]),
+        createdBy: createdUsers[0].id,
+      })
+      .returning();
+
+    leadsList.push(lead);
+  }
+
+  console.log(`✅ Created ${leadsList.length} leads`);
 
   // 7. Create Tasks
   console.log("Creating tasks...");

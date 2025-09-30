@@ -822,6 +822,17 @@ export const pricingRuleTypeEnum = pgEnum("pricing_rule_type", [
   "fixed",
 ]);
 
+// Lead Status Enum
+export const leadStatusEnum = pgEnum("lead_status", [
+  "new",
+  "contacted",
+  "qualified",
+  "proposal_sent",
+  "negotiating",
+  "converted",
+  "lost",
+]);
+
 // Proposal Status Enum
 export const proposalStatusEnum = pgEnum("proposal_status", [
   "draft",
@@ -912,6 +923,70 @@ export const pricingRules = pgTable(
   }),
 );
 
+// Leads table - prospect/lead management
+export const leads = pgTable(
+  "leads",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Lead information
+    firstName: varchar("first_name", { length: 100 }).notNull(),
+    lastName: varchar("last_name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    phone: varchar("phone", { length: 50 }),
+    mobile: varchar("mobile", { length: 50 }),
+
+    // Company information
+    companyName: varchar("company_name", { length: 255 }),
+    position: varchar("position", { length: 100 }),
+    website: varchar("website", { length: 255 }),
+
+    // Lead details
+    status: leadStatusEnum("status").default("new").notNull(),
+    source: varchar("source", { length: 100 }), // referral, website, cold_call, etc.
+    industry: varchar("industry", { length: 100 }),
+    estimatedTurnover: decimal("estimated_turnover", { precision: 15, scale: 2 }),
+    estimatedEmployees: integer("estimated_employees"),
+
+    // Lead qualification
+    qualificationScore: integer("qualification_score"), // 1-10 rating
+    interestedServices: jsonb("interested_services"), // Array of service codes
+
+    // Tracking
+    notes: text("notes"),
+    lastContactedAt: timestamp("last_contacted_at"),
+    nextFollowUpAt: timestamp("next_follow_up_at"),
+
+    // Assignment
+    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    // Conversion
+    convertedToClientId: uuid("converted_to_client_id").references(() => clients.id, {
+      onDelete: "set null",
+    }),
+    convertedAt: timestamp("converted_at"),
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdBy: uuid("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => ({
+    tenantIdx: index("idx_lead_tenant").on(table.tenantId),
+    statusIdx: index("idx_lead_status").on(table.status),
+    emailIdx: index("idx_lead_email").on(table.email),
+    assignedIdx: index("idx_lead_assigned").on(table.assignedToId),
+    createdAtIdx: index("idx_lead_created").on(table.createdAt),
+  }),
+);
+
 // Proposals table - main proposal records
 export const proposals = pgTable(
   "proposals",
@@ -922,15 +997,23 @@ export const proposals = pgTable(
       .notNull(),
 
     // Relationships
-    leadId: uuid("lead_id"), // Future: reference to leads table
+    leadId: uuid("lead_id").references(() => leads.id, {
+      onDelete: "set null",
+    }),
     quoteId: uuid("quote_id"), // Future: reference to quotes table
     clientId: uuid("client_id").references(() => clients.id, {
       onDelete: "set null",
     }),
 
     // Proposal details
+    proposalNumber: varchar("proposal_number", { length: 50 }).notNull(),
     title: varchar("title", { length: 255 }).notNull(),
     status: proposalStatusEnum("status").default("draft").notNull(),
+
+    // Business context (from lead/client)
+    turnover: varchar("turnover", { length: 100 }),
+    industry: varchar("industry", { length: 100 }),
+    monthlyTransactions: integer("monthly_transactions"),
 
     // Pricing information
     pricingModelUsed: varchar("pricing_model_used", { length: 10 }), // 'A' or 'B'
@@ -947,7 +1030,9 @@ export const proposals = pgTable(
     // Template and content
     templateId: uuid("template_id"),
     customTerms: text("custom_terms"),
+    termsAndConditions: text("terms_and_conditions"),
     notes: text("notes"),
+    validUntil: timestamp("valid_until"),
 
     // Version control
     version: integer("version").default(1).notNull(),
@@ -967,9 +1052,11 @@ export const proposals = pgTable(
   },
   (table) => ({
     tenantIdx: index("idx_proposal_tenant").on(table.tenantId),
+    leadIdx: index("idx_proposal_lead").on(table.leadId),
     clientIdx: index("idx_proposal_client").on(table.clientId),
     statusIdx: index("idx_proposal_status").on(table.status),
     createdAtIdx: index("idx_proposal_created").on(table.createdAt),
+    proposalNumberIdx: uniqueIndex("idx_proposal_number").on(table.tenantId, table.proposalNumber),
   }),
 );
 
@@ -978,26 +1065,19 @@ export const proposalServices = pgTable(
   "proposal_services",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
     proposalId: uuid("proposal_id")
       .references(() => proposals.id, { onDelete: "cascade" })
       .notNull(),
-    componentId: uuid("component_id")
-      .references(() => serviceComponents.id, { onDelete: "restrict" })
-      .notNull(),
 
-    // Service details
-    quantity: decimal("quantity", { precision: 10, scale: 2 }).default("1"),
-    unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
-    monthlyPrice: decimal("monthly_price", {
-      precision: 10,
-      scale: 2,
-    }).notNull(),
-
-    // Pricing model used for this specific service
-    pricingModel: varchar("pricing_model", { length: 10 }), // 'A' or 'B'
-
-    // Optional notes
-    customNotes: text("custom_notes"),
+    // Service details (denormalized for snapshot)
+    componentCode: varchar("component_code", { length: 50 }).notNull(),
+    componentName: varchar("component_name", { length: 255 }).notNull(),
+    calculation: text("calculation"), // Description of how price was calculated
+    price: varchar("price", { length: 50 }).notNull(), // Stored as string for flexibility
+    config: jsonb("config"), // Service-specific configuration (complexity, employees, etc.)
 
     // Sort order
     sortOrder: integer("sort_order").default(0),
@@ -1007,7 +1087,7 @@ export const proposalServices = pgTable(
   },
   (table) => ({
     proposalIdx: index("idx_proposal_service_proposal").on(table.proposalId),
-    componentIdx: index("idx_proposal_service_component").on(table.componentId),
+    componentCodeIdx: index("idx_proposal_service_code").on(table.componentCode),
   }),
 );
 
@@ -1021,7 +1101,9 @@ export const clientTransactionData = pgTable(
       .notNull(),
 
     // Relationships
-    leadId: uuid("lead_id"), // Future: reference to leads table
+    leadId: uuid("lead_id").references(() => leads.id, {
+      onDelete: "set null",
+    }),
     clientId: uuid("client_id").references(() => clients.id, {
       onDelete: "cascade",
     }),
@@ -1049,6 +1131,9 @@ export const proposalSignatures = pgTable(
   "proposal_signatures",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
     proposalId: uuid("proposal_id")
       .references(() => proposals.id, { onDelete: "cascade" })
       .notNull(),
@@ -1056,26 +1141,17 @@ export const proposalSignatures = pgTable(
     // Signer information
     signerEmail: varchar("signer_email", { length: 255 }).notNull(),
     signerName: varchar("signer_name", { length: 255 }).notNull(),
-    signerRole: varchar("signer_role", { length: 100 }), // director, authorised_signatory
 
     // Signature details
-    signedAt: timestamp("signed_at"),
+    signatureData: text("signature_data").notNull(), // Base64 signature image
+    signedAt: timestamp("signed_at").notNull(),
     ipAddress: varchar("ip_address", { length: 45 }),
-    signatureImageUrl: text("signature_image_url"),
-
-    // DocuSeal integration
-    docusealSignatureId: varchar("docuseal_signature_id", { length: 255 }),
-
-    // Status
-    status: varchar("status", { length: 50 }).default("pending").notNull(), // pending, completed, declined
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
     proposalIdx: index("idx_signature_proposal").on(table.proposalId),
-    statusIdx: index("idx_signature_status").on(table.status),
-    docusealIdx: index("idx_signature_docuseal").on(table.docusealSignatureId),
   }),
 );
 

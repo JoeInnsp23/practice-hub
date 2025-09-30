@@ -2,6 +2,7 @@ import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
 import { invoicesRouter } from "./routers/invoices";
+import { leadsRouter } from "./routers/leads";
 import { portalRouter } from "./routers/portal";
 import { pricingRouter } from "./routers/pricing";
 import { proposalsRouter } from "./routers/proposals";
@@ -29,6 +30,7 @@ export const appRouter = router({
   pricing: pricingRouter,
   proposals: proposalsRouter,
   transactionData: transactionDataRouter,
+  leads: leadsRouter,
 });
 
 export type AppRouter = typeof appRouter;
