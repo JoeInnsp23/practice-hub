@@ -297,7 +297,24 @@ async function calculateModelA(
       continue;
     }
 
-    // Get pricing rule for turnover band
+    // Handle fixed-price services (no pricing rules needed)
+    if (component.pricingModel === "fixed") {
+      const fixedPrice = component.price ? Number(component.price) : 0;
+
+      services.push({
+        componentCode: service.componentCode,
+        componentName: component.name,
+        calculation: `Fixed price`,
+        basePrice: fixedPrice,
+        adjustments: [],
+        finalPrice: fixedPrice,
+      });
+
+      subtotal += fixedPrice;
+      continue;
+    }
+
+    // Get pricing rule for turnover band (for turnover/both pricing models)
     const turnoverBand = parseTurnoverBand(input.turnover);
     const rules = await db
       .select()
@@ -398,13 +415,49 @@ async function calculateModelB(
 
     if (!component) continue;
 
+    // Special handling for payroll (same as Model A)
+    if (component.code.startsWith("PAYROLL")) {
+      const payrollPrice = calculatePayroll(
+        service.config?.employees || 0,
+        service.config?.payrollFrequency || "monthly",
+      );
+
+      services.push({
+        componentCode: service.componentCode,
+        componentName: component.name,
+        calculation: `${service.config?.employees || 0} employees, ${service.config?.payrollFrequency || "monthly"}`,
+        basePrice: payrollPrice,
+        adjustments: [],
+        finalPrice: payrollPrice,
+      });
+
+      subtotal += payrollPrice;
+      continue;
+    }
+
+    // Handle fixed-price services (same as Model A)
+    if (component.pricingModel === "fixed") {
+      const fixedPrice = component.price ? Number(component.price) : 0;
+
+      services.push({
+        componentCode: service.componentCode,
+        componentName: component.name,
+        calculation: `Fixed price`,
+        basePrice: fixedPrice,
+        adjustments: [],
+        finalPrice: fixedPrice,
+      });
+
+      subtotal += fixedPrice;
+      continue;
+    }
+
     // Check if component supports transaction-based pricing
     if (
       component.pricingModel !== "transaction" &&
       component.pricingModel !== "both"
     ) {
-      // Fall back to Model A pricing for this service
-      // For simplicity, skip detailed calc - would need to call calculateModelA for single service
+      // Skip turnover-only services in Model B (not applicable)
       continue;
     }
 
