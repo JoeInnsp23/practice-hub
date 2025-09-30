@@ -27,7 +27,7 @@ const proposalSchema = insertProposalSchema
     tenantId: true,
     createdAt: true,
     updatedAt: true,
-    createdBy: true,
+    createdById: true,
   })
   .extend({
     services: z
@@ -141,7 +141,7 @@ export const proposalsRouter = router({
         signedAt: proposals.signedAt,
         createdAt: proposals.createdAt,
         updatedAt: proposals.updatedAt,
-        createdBy: proposals.createdBy,
+        createdById: proposals.createdById,
       })
       .from(proposals)
       .leftJoin(clients, eq(proposals.clientId, clients.id))
@@ -204,7 +204,7 @@ export const proposalsRouter = router({
             notes: input.notes,
             termsAndConditions: input.termsAndConditions,
             validUntil: input.validUntil,
-            createdBy: userId,
+            createdById: userId,
           })
           .returning();
 
