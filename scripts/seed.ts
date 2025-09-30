@@ -318,15 +318,18 @@ async function seedDatabase() {
       to: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
     });
 
+    // Select the client first to ensure title matches assigned client
+    const assignedClient = faker.helpers.arrayElement(createdClients);
+
     const task = await db
       .insert(tasks)
       .values({
         tenantId: tenant.id,
-        title: `${faker.helpers.arrayElement(taskTypes)} - ${faker.company.name()}`,
+        title: `${faker.helpers.arrayElement(taskTypes)} - ${assignedClient.name}`,
         description: faker.lorem.paragraph(),
         status,
         priority: faker.helpers.arrayElement(taskPriorities),
-        clientId: faker.helpers.arrayElement(createdClients).id,
+        clientId: assignedClient.id,
         assignedToId: faker.helpers.arrayElement(createdUsers).id,
         reviewerId: faker.datatype.boolean()
           ? faker.helpers.arrayElement(createdUsers).id
