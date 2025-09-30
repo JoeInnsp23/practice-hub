@@ -209,6 +209,7 @@ export const clients = pgTable(
     incorporationDate: date("incorporation_date"),
     yearEnd: varchar("year_end", { length: 10 }), // MM-DD format
     notes: text("notes"),
+    healthScore: integer("health_score").default(50), // 0-100 scale for client health
     metadata: jsonb("metadata"),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -240,12 +241,23 @@ export const clientContacts = pgTable(
     isPrimary: boolean("is_primary").default(false).notNull(),
     title: varchar("title", { length: 50 }),
     firstName: varchar("first_name", { length: 100 }).notNull(),
+    middleName: varchar("middle_name", { length: 100 }),
     lastName: varchar("last_name", { length: 100 }).notNull(),
     email: varchar("email", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
     mobile: varchar("mobile", { length: 50 }),
+    jobTitle: varchar("job_title", { length: 100 }),
     position: varchar("position", { length: 100 }),
     department: varchar("department", { length: 100 }),
+
+    // Address fields
+    addressLine1: varchar("address_line_1", { length: 255 }),
+    addressLine2: varchar("address_line_2", { length: 255 }),
+    city: varchar("city", { length: 100 }),
+    region: varchar("region", { length: 100 }),
+    postalCode: varchar("postal_code", { length: 20 }),
+    country: varchar("country", { length: 100 }),
+
     notes: text("notes"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -257,6 +269,66 @@ export const clientContacts = pgTable(
       table.clientId,
       table.isPrimary,
     ),
+  }),
+);
+
+// Client Directors table
+export const clientDirectors = pgTable(
+  "client_directors",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    officerRole: varchar("officer_role", { length: 100 }), // director, secretary, etc.
+    appointedOn: date("appointed_on"),
+    resignedOn: date("resigned_on"),
+    isActive: boolean("is_active").default(true).notNull(),
+    nationality: varchar("nationality", { length: 100 }),
+    occupation: varchar("occupation", { length: 100 }),
+    dateOfBirth: varchar("date_of_birth", { length: 20 }), // Month and year only from Companies House
+    address: text("address"), // Service address
+    metadata: jsonb("metadata"), // For additional Companies House data
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    clientDirectorIdx: index("idx_client_director").on(table.clientId),
+    activeIdx: index("idx_director_active").on(table.isActive),
+  }),
+);
+
+// Client PSCs (Persons with Significant Control) table
+export const clientPSCs = pgTable(
+  "client_pscs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    kind: varchar("kind", { length: 100 }), // individual-person-with-significant-control, corporate-entity-person-with-significant-control
+    notifiedOn: date("notified_on"),
+    ceasedOn: date("ceased_on"),
+    isActive: boolean("is_active").default(true).notNull(),
+    nationality: varchar("nationality", { length: 100 }),
+    dateOfBirth: varchar("date_of_birth", { length: 20 }), // Month and year only
+    naturesOfControl: jsonb("natures_of_control"), // Array of control types
+    address: text("address"), // Service address
+    metadata: jsonb("metadata"), // For additional Companies House data
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    clientPSCIdx: index("idx_client_psc").on(table.clientId),
+    activeIdx: index("idx_psc_active").on(table.isActive),
   }),
 );
 
@@ -862,7 +934,10 @@ export const proposals = pgTable(
 
     // Pricing information
     pricingModelUsed: varchar("pricing_model_used", { length: 10 }), // 'A' or 'B'
-    monthlyTotal: decimal("monthly_total", { precision: 10, scale: 2 }).notNull(),
+    monthlyTotal: decimal("monthly_total", {
+      precision: 10,
+      scale: 2,
+    }).notNull(),
     annualTotal: decimal("annual_total", { precision: 10, scale: 2 }).notNull(),
 
     // Document URLs
@@ -913,7 +988,10 @@ export const proposalServices = pgTable(
     // Service details
     quantity: decimal("quantity", { precision: 10, scale: 2 }).default("1"),
     unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
-    monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
+    monthlyPrice: decimal("monthly_price", {
+      precision: 10,
+      scale: 2,
+    }).notNull(),
 
     // Pricing model used for this specific service
     pricingModel: varchar("pricing_model", { length: 10 }), // 'A' or 'B'
@@ -1237,7 +1315,10 @@ export const dashboardKpiView = pgView("dashboard_kpi_view", {
   tenantId: uuid("tenant_id").notNull(),
   totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }),
   collectedRevenue: decimal("collected_revenue", { precision: 10, scale: 2 }),
-  outstandingRevenue: decimal("outstanding_revenue", { precision: 10, scale: 2 }),
+  outstandingRevenue: decimal("outstanding_revenue", {
+    precision: 10,
+    scale: 2,
+  }),
   activeClients: integer("active_clients"),
   newClients30d: integer("new_clients_30d"),
   pendingTasks: integer("pending_tasks"),
@@ -1342,7 +1423,9 @@ export const clientDetailsView = pgView("client_details_view", {
   updatedAt: timestamp("updated_at").notNull(),
   createdBy: uuid("created_by"),
   // Joined fields
-  accountManagerFirstName: varchar("account_manager_first_name", { length: 100 }),
+  accountManagerFirstName: varchar("account_manager_first_name", {
+    length: 100,
+  }),
   accountManagerLastName: varchar("account_manager_last_name", { length: 100 }),
   accountManagerName: text("account_manager_name"),
   accountManagerEmail: text("account_manager_email"),

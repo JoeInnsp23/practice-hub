@@ -5,6 +5,8 @@ import { db } from "../lib/db";
 import {
   activityLogs,
   clientContacts,
+  clientDirectors,
+  clientPSCs,
   clientServices,
   clients,
   compliance,
@@ -39,6 +41,8 @@ async function clearDatabase() {
   await db.delete(compliance);
   await db.delete(clientServices);
   await db.delete(tasks);
+  await db.delete(clientPSCs);
+  await db.delete(clientDirectors);
   await db.delete(clientContacts);
   await db.delete(clients);
   await db.delete(services);
@@ -226,6 +230,7 @@ async function seedDatabase() {
       yearEnd: isCompany
         ? faker.date.future({ years: 1 }).toISOString().slice(5, 10)
         : null,
+      healthScore: faker.number.int({ min: 30, max: 100 }),
       notes: faker.lorem.sentence(),
     });
   }
@@ -247,18 +252,122 @@ async function seedDatabase() {
     // Create 1-3 contacts per client
     const contactCount = faker.number.int({ min: 1, max: 3 });
     for (let i = 0; i < contactCount; i++) {
+      const hasMiddleName = faker.datatype.boolean({ probability: 0.3 });
+      const jobTitle = faker.person.jobTitle();
       await db.insert(clientContacts).values({
         tenantId: tenant.id,
         clientId: client.id,
         isPrimary: i === 0,
         firstName: faker.person.firstName(),
+        middleName: hasMiddleName ? faker.person.middleName() : null,
         lastName: faker.person.lastName(),
         email: faker.internet.email(),
         phone: faker.phone.number(),
         mobile: faker.phone.number(),
-        position: faker.person.jobTitle(),
+        jobTitle,
+        position: jobTitle,
         department: faker.commerce.department(),
+        addressLine1: faker.location.streetAddress(),
+        addressLine2: faker.datatype.boolean({ probability: 0.3 })
+          ? faker.location.secondaryAddress()
+          : null,
+        city: faker.location.city(),
+        region: faker.location.state(),
+        postalCode: faker.location.zipCode("??# #??"),
+        country: "United Kingdom",
         isActive: true,
+      });
+    }
+  }
+
+  // 5.5. Create Directors for Company Clients
+  console.log("Creating client directors...");
+  const companyClients = createdClients.filter(
+    (c) => c.type === "company" || c.type === "partnership",
+  );
+  for (const client of companyClients) {
+    // Create 1-4 directors per company
+    const directorCount = faker.number.int({ min: 1, max: 4 });
+    for (let i = 0; i < directorCount; i++) {
+      const isActive = faker.datatype.boolean({ probability: 0.9 });
+      const appointedDate = faker.date.past({ years: 10 });
+      await db.insert(clientDirectors).values({
+        tenantId: tenant.id,
+        clientId: client.id,
+        name: faker.person.fullName(),
+        officerRole: faker.helpers.arrayElement([
+          "director",
+          "secretary",
+          "member",
+        ]),
+        appointedOn: appointedDate.toISOString().split("T")[0],
+        resignedOn: isActive
+          ? null
+          : faker.date
+              .between({ from: appointedDate, to: new Date() })
+              .toISOString()
+              .split("T")[0],
+        isActive,
+        nationality: faker.helpers.arrayElement([
+          "British",
+          "Irish",
+          "American",
+          "Canadian",
+          "Australian",
+        ]),
+        occupation: faker.person.jobType(),
+        dateOfBirth: `${faker.date.birthdate({ min: 25, max: 75, mode: "age" }).toISOString().slice(0, 7)}`,
+        address: faker.location.streetAddress(true),
+      });
+    }
+  }
+
+  // 5.6. Create PSCs for Company Clients
+  console.log("Creating client PSCs...");
+  for (const client of companyClients) {
+    // Create 1-3 PSCs per company
+    const pscCount = faker.number.int({ min: 1, max: 3 });
+    for (let i = 0; i < pscCount; i++) {
+      const isActive = faker.datatype.boolean({ probability: 0.95 });
+      const notifiedDate = faker.date.past({ years: 8 });
+      await db.insert(clientPSCs).values({
+        tenantId: tenant.id,
+        clientId: client.id,
+        name: faker.person.fullName(),
+        kind: faker.helpers.arrayElement([
+          "individual-person-with-significant-control",
+          "corporate-entity-person-with-significant-control",
+        ]),
+        notifiedOn: notifiedDate.toISOString().split("T")[0],
+        ceasedOn: isActive
+          ? null
+          : faker.date
+              .between({ from: notifiedDate, to: new Date() })
+              .toISOString()
+              .split("T")[0],
+        isActive,
+        nationality: faker.helpers.arrayElement([
+          "British",
+          "Irish",
+          "American",
+          "Canadian",
+          "Australian",
+        ]),
+        dateOfBirth: `${faker.date.birthdate({ min: 25, max: 75, mode: "age" }).toISOString().slice(0, 7)}`,
+        naturesOfControl: faker.helpers.arrayElements(
+          [
+            "ownership-of-shares-75-to-100-percent",
+            "ownership-of-shares-50-to-75-percent",
+            "ownership-of-shares-25-to-50-percent",
+            "voting-rights-75-to-100-percent",
+            "voting-rights-50-to-75-percent",
+            "voting-rights-25-to-50-percent",
+            "right-to-appoint-and-remove-directors",
+            "significant-influence-or-control",
+          ],
+          { min: 1, max: 3 },
+        ),
+        address: faker.location.streetAddress(true),
       });
     }
   }

@@ -3,8 +3,16 @@ import { and, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, clientContacts, clientServices, clients, services } from "@/lib/db/schema";
 import { getClientsList } from "@/lib/db/queries/client-queries";
+import {
+  activityLogs,
+  clientContacts,
+  clientDirectors,
+  clientPSCs,
+  clientServices,
+  clients,
+  services,
+} from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
@@ -45,39 +53,7 @@ export const clientsRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
-      const { search, type, status } = input;
-
-      // Build query using the client details view
-      let query = sql`
-        SELECT * FROM client_details_view
-        WHERE tenant_id = ${tenantId}
-      `;
-
-      // Add filters
-      const conditions = [];
-      if (search) {
-        conditions.push(sql`(
-          name ILIKE ${`%${search}%`} OR
-          client_code ILIKE ${`%${search}%`} OR
-          email ILIKE ${`%${search}%`}
-        )`);
-      }
-      if (type && type !== "all") {
-        conditions.push(sql`type = ${type}`);
-      }
-      if (status && status !== "all") {
-        conditions.push(sql`status = ${status}`);
-      }
-
-      // Combine conditions
-      if (conditions.length > 0) {
-        query = sql`
-          SELECT * FROM client_details_view
-          WHERE tenant_id = ${tenantId}
-            AND ${sql.join(conditions, sql` AND `)}
-        `;
-      }
+      const { tenantId } = ctx.authContext;
 
       // Use typed query function
       const clients = await getClientsList(tenantId, input);
@@ -305,5 +281,63 @@ export const clientsRouter = router({
         .orderBy(clientServices.createdAt);
 
       return { services: clientServicesList };
+    }),
+
+  getClientContacts: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: clientId }) => {
+      const { tenantId } = ctx.authContext;
+
+      const contactsList = await db
+        .select()
+        .from(clientContacts)
+        .where(
+          and(
+            eq(clientContacts.clientId, clientId),
+            eq(clientContacts.tenantId, tenantId),
+            eq(clientContacts.isActive, true),
+          ),
+        )
+        .orderBy(clientContacts.isPrimary);
+
+      return { contacts: contactsList };
+    }),
+
+  getClientDirectors: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: clientId }) => {
+      const { tenantId } = ctx.authContext;
+
+      const directorsList = await db
+        .select()
+        .from(clientDirectors)
+        .where(
+          and(
+            eq(clientDirectors.clientId, clientId),
+            eq(clientDirectors.tenantId, tenantId),
+          ),
+        )
+        .orderBy(clientDirectors.isActive);
+
+      return { directors: directorsList };
+    }),
+
+  getClientPSCs: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: clientId }) => {
+      const { tenantId } = ctx.authContext;
+
+      const pscsList = await db
+        .select()
+        .from(clientPSCs)
+        .where(
+          and(
+            eq(clientPSCs.clientId, clientId),
+            eq(clientPSCs.tenantId, tenantId),
+          ),
+        )
+        .orderBy(clientPSCs.isActive);
+
+      return { pscs: pscsList };
     }),
 });
