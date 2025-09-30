@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, DollarSign, Loader2, Send } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -78,35 +78,35 @@ export function FloatingPriceWidget({
       {isMinimized ? (
         /* Minimized View */
         <div
-          className="flex flex-col items-center py-4 gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
+          className="flex flex-col items-center py-4 gap-3 cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => setIsMinimized(false)}
         >
           <DollarSign className="h-5 w-5 text-primary" />
 
-          {/* Vertical Price */}
+          {/* Horizontal Price (Smaller Font) */}
           {!isLoading && recommendedModel && (
-            <div className="flex flex-col items-center gap-1">
-              <div
-                className="text-xl font-bold text-green-600 dark:text-green-400"
-                style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
-              >
-                £{recommendedModel.monthlyTotal.toFixed(0)}
+            <div className="text-center px-1">
+              <div className="text-xs font-semibold text-green-600 dark:text-green-400">
+                £{Math.floor(recommendedModel.monthlyTotal)}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                /mo
               </div>
             </div>
           )}
 
           {isLoading && (
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
           )}
 
           {/* Service Count */}
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
             {services.length}
           </Badge>
 
-          {/* Expand Button */}
-          <div className="mt-auto pt-2">
-            <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+          {/* Expand Button - More Prominent */}
+          <div className="mt-auto pt-2 border-t border-border w-full flex justify-center">
+            <ChevronsLeft className="h-5 w-5 text-primary animate-pulse" />
           </div>
         </div>
       ) : (
@@ -121,10 +121,11 @@ export function FloatingPriceWidget({
             {/* Minimize Button */}
             <button
               onClick={() => setIsMinimized(true)}
-              className="hover:bg-accent rounded p-1 transition-colors"
+              className="hover:bg-accent rounded p-1 transition-colors group"
               aria-label="Minimize widget"
+              title="Minimize"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronsRight className="h-4 w-4 group-hover:text-primary transition-colors" />
             </button>
           </div>
 
