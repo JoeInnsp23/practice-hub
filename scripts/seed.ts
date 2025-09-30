@@ -14,6 +14,8 @@ import {
   invoiceItems,
   invoices,
   leads,
+  onboardingSessions,
+  onboardingTasks,
   portalCategories,
   portalLinks,
   services,
@@ -44,6 +46,8 @@ async function clearDatabase() {
   await db.delete(compliance);
   await db.delete(clientServices);
   await db.delete(tasks);
+  await db.delete(onboardingTasks);
+  await db.delete(onboardingSessions);
   await db.delete(clientPSCs);
   await db.delete(clientDirectors);
   await db.delete(clientContacts);
@@ -746,7 +750,216 @@ async function seedDatabase() {
 
   console.log(`✅ Created ${leadsList.length} leads`);
 
-  // 7. Create Tasks
+  // 7. Create Onboarding Sessions (for 5 recent clients)
+  console.log("Creating onboarding sessions...");
+
+  const ONBOARDING_TEMPLATE_TASKS = [
+    {
+      sequence: 10,
+      taskName: "Ensure Client is Setup in Bright Manager",
+      description:
+        "Check client is in Bright Manager with appropriate client information, services and pricing filled in",
+      required: true,
+      days: 0,
+      progressWeight: 5,
+    },
+    {
+      sequence: 20,
+      taskName: "Request client ID documents",
+      description: "Request passport/driving license and proof of address",
+      required: true,
+      days: 0,
+      progressWeight: 5,
+    },
+    {
+      sequence: 25,
+      taskName: "Receive and Save client ID documents",
+      description: "Save client ID documents to client AML folder on OneDrive",
+      required: true,
+      days: 2,
+      progressWeight: 5,
+    },
+    {
+      sequence: 30,
+      taskName: "Complete AML ID check",
+      description:
+        "Verify identity documents and complete AML compliance check",
+      required: true,
+      days: 4,
+      progressWeight: 6,
+    },
+    {
+      sequence: 40,
+      taskName: "Perform client risk assessment and grading",
+      description:
+        "Assess client risk factors and determine risk level (Low/Medium/High), also a assign client a grade based off current communication quality",
+      required: true,
+      days: 4,
+      progressWeight: 6,
+    },
+    {
+      sequence: 50,
+      taskName: "Send Letter of Engagement",
+      description:
+        "Send LoE detailing scope of work, from Bright Manager and ensure it is signed",
+      required: true,
+      days: 4,
+      progressWeight: 8,
+    },
+    {
+      sequence: 51,
+      taskName: "Assign Client Manager",
+      description:
+        "Discuss internally to decide which person will take on the new client",
+      required: true,
+      days: 4,
+      progressWeight: 5,
+    },
+    {
+      sequence: 55,
+      taskName: "Confirm Signing of LoE",
+      description:
+        "Confirm the signing of Letter of Engagement before proceeding",
+      required: true,
+      days: 7,
+      progressWeight: 5,
+    },
+    {
+      sequence: 60,
+      taskName: "Request previous accountant clearance",
+      description: "Contact previous accountant for professional clearance",
+      required: false,
+      days: 7,
+      progressWeight: 5,
+    },
+    {
+      sequence: 70,
+      taskName: "Request and confirm relevant UTRs",
+      description: "Ask client for all applicable UTRs, or register if needed",
+      required: true,
+      days: 7,
+      progressWeight: 5,
+    },
+    {
+      sequence: 80,
+      taskName: "Request Agent Authorisation Codes",
+      description: "Obtain codes for HMRC agent services",
+      required: true,
+      days: 7,
+      progressWeight: 5,
+    },
+    {
+      sequence: 90,
+      taskName: "Setup GoCardless Direct Debit",
+      description: "Setup client on GoCardless and send DD mandate",
+      required: true,
+      days: 7,
+      progressWeight: 10,
+    },
+    {
+      sequence: 95,
+      taskName: "Confirm information received",
+      description:
+        "Confirm all outstanding information received before proceeding (Professional Clearance, UTRs, Authorisation codes etc)",
+      required: true,
+      days: 10,
+      progressWeight: 5,
+    },
+    {
+      sequence: 100,
+      taskName: "Register for necessary taxes",
+      description:
+        "Register for applicable taxes (VAT, PAYE, etc.) Check with client manager for which period the taxes should fall under",
+      required: false,
+      days: 10,
+      progressWeight: 5,
+    },
+    {
+      sequence: 110,
+      taskName: "Register for additional HMRC services",
+      description:
+        "Register for additional services such as Income Tax record, MTD for IT, CIS etc",
+      required: true,
+      days: 10,
+      progressWeight: 5,
+    },
+    {
+      sequence: 120,
+      taskName: "Set up tasks for recurring services",
+      description: "Create recurring tasks for ongoing services",
+      required: true,
+      days: 10,
+      progressWeight: 5,
+    },
+    {
+      sequence: 130,
+      taskName: "Change client status to Active",
+      description: "Update client status when onboarding is complete",
+      required: true,
+      days: 10,
+      progressWeight: 10,
+    },
+  ];
+
+  // Create sessions for 5 recent clients
+  const recentClients = createdClients.slice(-5);
+  for (const client of recentClients) {
+    const startDate = new Date(client.createdAt);
+    const targetCompletion = new Date(
+      startDate.getTime() + 14 * 24 * 60 * 60 * 1000,
+    );
+
+    const [session] = await db
+      .insert(onboardingSessions)
+      .values({
+        tenantId: tenant.id,
+        clientId: client.id,
+        startDate,
+        targetCompletionDate: targetCompletion,
+        assignedToId: client.accountManagerId,
+        priority: faker.helpers.arrayElement(["low", "medium", "high"]),
+        status: faker.helpers.arrayElement([
+          "not_started",
+          "in_progress",
+          "in_progress",
+        ]),
+        progress: faker.number.int({ min: 0, max: 60 }),
+      })
+      .returning();
+
+    // Create all 17 tasks for this session
+    const tasksToInsert = ONBOARDING_TEMPLATE_TASKS.map((template) => {
+      const dueDate = new Date(
+        startDate.getTime() + template.days * 24 * 60 * 60 * 1000,
+      );
+      // Randomly mark some tasks as done
+      const done = faker.datatype.boolean({ probability: 0.3 });
+
+      return {
+        tenantId: tenant.id,
+        sessionId: session.id,
+        taskName: template.taskName,
+        description: template.description,
+        required: template.required,
+        sequence: template.sequence,
+        days: template.days,
+        progressWeight: template.progressWeight,
+        assignedToId: client.accountManagerId,
+        dueDate,
+        done,
+        completionDate: done
+          ? faker.date.recent({ days: Math.max(1, template.days) })
+          : null,
+        notes: done ? faker.lorem.sentence() : null,
+      };
+    });
+
+    await db.insert(onboardingTasks).values(tasksToInsert);
+  }
+
+  console.log(`✅ Created ${recentClients.length} onboarding sessions with tasks`);
+
+  // 8. Create Tasks
   console.log("Creating tasks...");
   const taskStatuses = [
     "pending",

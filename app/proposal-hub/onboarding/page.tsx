@@ -21,37 +21,18 @@ import { format } from "date-fns";
 export default function OnboardingPage() {
   const router = useRouter();
 
-  // Fetch recent clients (last 30 days)
-  const { data: clientsData, isLoading } = trpc.clients.list.useQuery({});
-  const allClients = clientsData?.clients || [];
+  // Fetch onboarding sessions
+  const { data: sessionsData, isLoading: sessionsLoading } =
+    trpc.onboarding.list.useQuery({});
+  const sessions = sessionsData?.sessions || [];
 
-  // Filter to recently created clients (within last 30 days)
-  const recentClients = allClients.filter((client) => {
-    const createdDate = new Date(client.createdAt);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return createdDate >= thirtyDaysAgo;
-  });
+  // Fetch stats
+  const { data: statsData } = trpc.onboarding.getStats.useQuery();
 
-  // Mock onboarding steps (in a real app, this would come from the database)
-  const getOnboardingSteps = (clientId: string) => {
-    // This is a simplified version - in production you'd have an onboarding table
-    return [
-      { id: "welcome", label: "Welcome Email Sent", completed: true },
-      { id: "documents", label: "Documents Collected", completed: false },
-      { id: "setup", label: "Systems Setup", completed: false },
-      { id: "training", label: "Client Training", completed: false },
-      { id: "first_service", label: "First Service Delivered", completed: false },
-    ];
-  };
+  // Fetch all clients for total count
+  const { data: clientsData } = trpc.clients.list.useQuery({});
 
-  const getOnboardingProgress = (clientId: string) => {
-    const steps = getOnboardingSteps(clientId);
-    const completed = steps.filter((s) => s.completed).length;
-    return (completed / steps.length) * 100;
-  };
-
-  if (isLoading) {
+  if (sessionsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-muted-foreground">Loading onboarding queue...</div>
@@ -86,33 +67,37 @@ export default function OnboardingPage() {
               New Clients (30d)
             </span>
           </div>
-          <p className="text-2xl font-bold">{recentClients.length}</p>
+          <p className="text-2xl font-bold">{statsData?.recent || 0}</p>
         </Card>
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">In Progress</span>
           </div>
-          <p className="text-2xl font-bold">{recentClients.length}</p>
+          <p className="text-2xl font-bold">{statsData?.inProgress || 0}</p>
         </Card>
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Completed</span>
           </div>
-          <p className="text-2xl font-bold text-green-600">0</p>
+          <p className="text-2xl font-bold text-green-600">
+            {statsData?.completed || 0}
+          </p>
         </Card>
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Total Clients</span>
           </div>
-          <p className="text-2xl font-bold">{allClients.length}</p>
+          <p className="text-2xl font-bold">
+            {clientsData?.clients?.length || 0}
+          </p>
         </Card>
       </div>
 
       {/* Onboarding Queue */}
-      {recentClients.length === 0 ? (
+      {sessions.length === 0 ? (
         <Card className="glass-card p-12">
           <div className="flex flex-col items-center gap-4">
             <UserCheck className="h-16 w-16 text-muted-foreground/50" />
@@ -128,47 +113,74 @@ export default function OnboardingPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {recentClients.map((client) => {
-            const steps = getOnboardingSteps(client.id);
-            const progress = getOnboardingProgress(client.id);
-
+          {sessions.map((session) => {
             return (
               <Card
-                key={client.id}
+                key={session.id}
                 className="glass-card p-6 cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => router.push(`/client-hub/clients/${client.id}`)}
+                onClick={() =>
+                  router.push(`/proposal-hub/onboarding/${session.id}`)
+                }
               >
                 <div className="space-y-4">
                   {/* Client Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold">{client.name}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {session.clientName}
+                        </h3>
                         <Badge
                           variant={
-                            client.status === "active" ? "default" : "secondary"
+                            session.status === "completed"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className={
+                            session.status === "completed"
+                              ? "text-green-600"
+                              : session.status === "in_progress"
+                                ? "text-blue-600"
+                                : "text-slate-600"
                           }
                         >
-                          {client.status}
+                          {session.status
+                            .split("_")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() + word.slice(1),
+                            )
+                            .join(" ")}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        {client.email && (
+                        {session.clientEmail && (
                           <div className="flex items-center gap-1">
                             <Mail className="h-3 w-3" />
-                            {client.email}
+                            {session.clientEmail}
                           </div>
                         )}
-                        {client.phone && (
+                        {session.clientPhone && (
                           <div className="flex items-center gap-1">
                             <Phone className="h-3 w-3" />
-                            {client.phone}
+                            {session.clientPhone}
                           </div>
                         )}
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          Added {format(new Date(client.createdAt), "MMM d, yyyy")}
+                          Started{" "}
+                          {format(new Date(session.startDate), "MMM d, yyyy")}
                         </div>
+                        {session.targetCompletionDate && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            Target:{" "}
+                            {format(
+                              new Date(session.targetCompletionDate),
+                              "MMM d",
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -179,34 +191,9 @@ export default function OnboardingPage() {
                       <span className="text-muted-foreground">
                         Onboarding Progress
                       </span>
-                      <span className="font-medium">{Math.round(progress)}%</span>
+                      <span className="font-medium">{session.progress}%</span>
                     </div>
-                    <Progress value={progress} className="h-2" />
-                  </div>
-
-                  {/* Onboarding Steps */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    {steps.map((step) => (
-                      <div
-                        key={step.id}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        {step.completed ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <Circle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        )}
-                        <span
-                          className={
-                            step.completed
-                              ? "text-muted-foreground line-through"
-                              : ""
-                          }
-                        >
-                          {step.label}
-                        </span>
-                      </div>
-                    ))}
+                    <Progress value={session.progress} className="h-2" />
                   </div>
 
                   {/* Actions */}
@@ -216,17 +203,16 @@ export default function OnboardingPage() {
                       variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/client-hub/clients/${client.id}`);
+                        router.push(`/client-hub/clients/${session.clientId}`);
                       }}
                     >
                       View Client
                     </Button>
                     <Button
                       size="sm"
-                      variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        // In a real app, this would open an onboarding checklist
+                        router.push(`/proposal-hub/onboarding/${session.id}`);
                       }}
                     >
                       Update Progress

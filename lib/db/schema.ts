@@ -1159,6 +1159,120 @@ export const proposalSignatures = pgTable(
 // END PROPOSAL HUB & PRICING SYSTEM
 // ============================================
 
+// ============================================
+// ONBOARDING SYSTEM
+// ============================================
+
+// Onboarding Status Enum
+export const onboardingStatusEnum = pgEnum("onboarding_status", [
+  "not_started",
+  "in_progress",
+  "completed",
+]);
+
+// Onboarding Priority Enum
+export const onboardingPriorityEnum = pgEnum("onboarding_priority", [
+  "low",
+  "medium",
+  "high",
+]);
+
+// Onboarding Sessions table - tracks onboarding progress for each client
+export const onboardingSessions = pgTable(
+  "onboarding_sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Client relationship
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Session details
+    startDate: timestamp("start_date").notNull(),
+    targetCompletionDate: timestamp("target_completion_date"),
+    actualCompletionDate: timestamp("actual_completion_date"),
+
+    // Status and priority
+    status: onboardingStatusEnum("status").default("not_started").notNull(),
+    priority: onboardingPriorityEnum("priority").default("medium").notNull(),
+
+    // Assignment
+    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    // Progress tracking
+    progress: integer("progress").default(0).notNull(), // 0-100 percentage
+    notes: text("notes"),
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_onboarding_session_tenant").on(table.tenantId),
+    clientIdx: index("idx_onboarding_session_client").on(table.clientId),
+    statusIdx: index("idx_onboarding_session_status").on(table.status),
+    assignedIdx: index("idx_onboarding_session_assigned").on(table.assignedToId),
+  }),
+);
+
+// Onboarding Tasks table - individual checklist items for each session
+export const onboardingTasks = pgTable(
+  "onboarding_tasks",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    sessionId: uuid("session_id")
+      .references(() => onboardingSessions.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Task details (from template)
+    taskName: varchar("task_name", { length: 255 }).notNull(),
+    description: text("description"),
+    required: boolean("required").default(true).notNull(),
+    sequence: integer("sequence").notNull(), // Order of task
+    days: integer("days").default(0).notNull(), // Days offset from start
+
+    // Tracking
+    dueDate: timestamp("due_date"),
+    completionDate: timestamp("completion_date"),
+    done: boolean("done").default(false).notNull(),
+    notes: text("notes"),
+
+    // Assignment
+    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+
+    // Progress weight for calculating overall session progress
+    progressWeight: integer("progress_weight").default(5).notNull(), // 1-10 scale
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    sessionIdx: index("idx_onboarding_task_session").on(table.sessionId),
+    sequenceIdx: index("idx_onboarding_task_sequence").on(
+      table.sessionId,
+      table.sequence,
+    ),
+    assignedIdx: index("idx_onboarding_task_assigned").on(table.assignedToId),
+    doneIdx: index("idx_onboarding_task_done").on(table.done),
+  }),
+);
+
+// ============================================
+// END ONBOARDING SYSTEM
+// ============================================
+
 // Workflow Stages table
 export const workflowStages = pgTable(
   "workflow_stages",

@@ -24,6 +24,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 9. **Never use quick fixes** - Never use quick patches or fixes, only use complete fixes even if it means database schema updates.
 
+10. **Always update schema first** - Always update schema first database is still in dev and we are using seed data.
+
+11. **Always check seed data** - Always update seed data after any database schema changes ensure everything is always linked.
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
