@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  ArrowLeft,
   Calendar,
   CheckCircle2,
+  ChevronLeft,
   Circle,
   Clock,
   Mail,
@@ -90,37 +90,39 @@ export default function OnboardingDetailPage({
     updateSession({ sessionId: id, priority });
   };
 
-  const getStatusDisplay = (status: string) => {
-    const colors: Record<string, string> = {
-      not_started: "text-slate-600",
-      in_progress: "text-blue-600",
-      completed: "text-green-600",
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      not_started: { label: "Not Started", variant: "secondary" as const },
+      in_progress: { label: "In Progress", variant: "default" as const },
+      completed: { label: "Completed", variant: "default" as const },
     };
-
-    const label = status
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.not_started;
     return (
-      <p className={`text-2xl font-bold ${colors[status] || colors.not_started}`}>
-        {label}
-      </p>
+      <Badge
+        variant={config.variant}
+        className={
+          status === "completed"
+            ? "bg-green-600 hover:bg-green-700"
+            : status === "in_progress"
+              ? "bg-blue-600 hover:bg-blue-700"
+              : ""
+        }
+      >
+        {config.label}
+      </Badge>
     );
   };
 
-  const getPriorityDisplay = (priority: string) => {
-    const colors: Record<string, string> = {
-      low: "text-slate-600",
-      medium: "text-blue-600",
-      high: "text-red-600",
+  const getPriorityBadge = (priority: string) => {
+    const priorityConfig = {
+      low: { label: "Low", variant: "outline" as const },
+      medium: { label: "Medium", variant: "secondary" as const },
+      high: { label: "High", variant: "destructive" as const },
     };
-
-    return (
-      <p className={`text-2xl font-bold ${colors[priority] || colors.medium}`}>
-        {priority.charAt(0).toUpperCase() + priority.slice(1)}
-      </p>
-    );
+    const config =
+      priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.medium;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   if (isLoading) {
@@ -154,47 +156,57 @@ export default function OnboardingDetailPage({
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
-            size="icon"
+            size="lg"
             onClick={() => router.push("/proposal-hub/onboarding")}
+            className="rounded-full p-3 hover:bg-primary/10"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ChevronLeft className="h-8 w-8" strokeWidth={3} />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
+          <div className="border-l pl-4">
+            <h1 className="text-3xl font-bold flex items-center gap-3">
               {sessionData.clientName}
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Client Code: {sessionData.clientCode}
-            </p>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-sm text-muted-foreground font-mono">
+                {sessionData.clientCode}
+              </span>
+              {getStatusBadge(sessionData.status)}
+              {getPriorityBadge(sessionData.priority)}
+            </div>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/client-hub/clients/${sessionData.clientId}`)}
+          >
+            View Client Record
+          </Button>
         </div>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Status</span>
-          </div>
-          {getStatusDisplay(sessionData.status)}
-        </Card>
-
-        <Card className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Priority</span>
-          </div>
-          {getPriorityDisplay(sessionData.priority)}
-        </Card>
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <UserCheck className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Progress</span>
           </div>
           <p className="text-2xl font-bold">
-            {completedTasks}/{totalTasks}
+            {completedTasks}/{totalTasks} tasks
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {sessionData.progress}% complete
+          </p>
+        </Card>
+
+        <Card className="glass-card p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Start Date</span>
+          </div>
+          <p className="text-lg font-medium">
+            {format(new Date(sessionData.startDate), "MMM d, yyyy")}
           </p>
         </Card>
 
