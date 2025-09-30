@@ -51,6 +51,8 @@ export default function ProposalsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+  const utils = trpc.useUtils();
+
   // Fetch proposals
   const { data: proposalsData, isLoading } = trpc.proposals.list.useQuery({
     search: debouncedSearchTerm || undefined,
@@ -58,6 +60,17 @@ export default function ProposalsPage() {
   });
 
   const proposals = proposalsData?.proposals || [];
+
+  // Archive proposal mutation
+  const { mutate: archiveProposal } = trpc.proposals.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Proposal archived successfully");
+      utils.proposals.list.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to archive proposal");
+    },
+  });
 
   // Calculate KPIs
   const kpis = [
@@ -288,7 +301,16 @@ export default function ProposalsPage() {
                             Send to Client
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            disabled
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (
+                                confirm(
+                                  `Are you sure you want to archive "${proposal.title}"?`,
+                                )
+                              ) {
+                                archiveProposal(proposal.id);
+                              }
+                            }}
                             className="text-destructive"
                           >
                             <XCircle className="h-4 w-4 mr-2" />

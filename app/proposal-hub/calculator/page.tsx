@@ -1,6 +1,7 @@
 "use client";
 
 import { Calculator as CalculatorIcon, Save, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/select";
 
 export default function CalculatorPage() {
+  const router = useRouter();
   const [clientId, setClientId] = useState("");
   const [turnover, setTurnover] = useState("90k-149k");
   const [industry, setIndustry] = useState("standard");
@@ -36,6 +38,31 @@ export default function CalculatorPage() {
 
   const { data: clientsData } = trpc.clients.list.useQuery({});
   const clients = clientsData?.clients || [];
+
+  // Get pricing calculation
+  const { data: pricingData } = trpc.pricing.calculate.useQuery(
+    {
+      turnover,
+      industry,
+      services: selectedServices,
+      transactionData: transactionData || undefined,
+    },
+    {
+      enabled: selectedServices.length > 0,
+    },
+  );
+
+  // Create proposal mutation
+  const { mutate: createProposal, isPending: isCreating } =
+    trpc.proposals.create.useMutation({
+      onSuccess: (data) => {
+        toast.success("Proposal created successfully");
+        router.push(`/proposal-hub/proposals/${data.proposal.id}`);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to create proposal");
+      },
+    });
 
   // Estimate transactions mutation
   const { mutate: estimateTransactions, isPending: isEstimating } =
@@ -77,13 +104,85 @@ export default function CalculatorPage() {
   };
 
   const handleSaveDraft = () => {
-    toast.success("Draft saved successfully");
-    // TODO: Implement save draft
+    if (!clientId) {
+      toast.error("Please select a client");
+      return;
+    }
+    if (selectedServices.length === 0) {
+      toast.error("Please select at least one service");
+      return;
+    }
+    if (!pricingData) {
+      toast.error("Please wait for pricing calculation to complete");
+      return;
+    }
+
+    // Use recommended model or default to Model A
+    const recommendedModel =
+      pricingData.recommendation?.model === "B" && pricingData.modelB
+        ? pricingData.modelB
+        : pricingData.modelA;
+
+    const client = clients.find((c) => c.id === clientId);
+
+    createProposal({
+      clientId,
+      title: `Proposal for ${client?.name || "Client"}`,
+      status: "draft",
+      pricingModelUsed: pricingData.recommendation?.model || "A",
+      turnover,
+      industry,
+      monthlyTransactions: transactionData?.monthlyTransactions,
+      monthlyTotal: recommendedModel.monthlyTotal.toString(),
+      annualTotal: recommendedModel.annualTotal.toString(),
+      services: recommendedModel.services.map((service) => ({
+        componentCode: service.componentCode,
+        componentName: service.componentName,
+        calculation: service.calculation,
+        price: service.finalPrice,
+      })),
+    });
   };
 
   const handleCreateProposal = () => {
-    toast.success("Proposal created successfully");
-    // TODO: Implement create proposal
+    if (!clientId) {
+      toast.error("Please select a client");
+      return;
+    }
+    if (selectedServices.length === 0) {
+      toast.error("Please select at least one service");
+      return;
+    }
+    if (!pricingData) {
+      toast.error("Please wait for pricing calculation to complete");
+      return;
+    }
+
+    // Use recommended model or default to Model A
+    const recommendedModel =
+      pricingData.recommendation?.model === "B" && pricingData.modelB
+        ? pricingData.modelB
+        : pricingData.modelA;
+
+    const client = clients.find((c) => c.id === clientId);
+
+    createProposal({
+      clientId,
+      title: `Proposal for ${client?.name || "Client"}`,
+      status: "draft",
+      pricingModelUsed: pricingData.recommendation?.model || "A",
+      turnover,
+      industry,
+      monthlyTransactions: transactionData?.monthlyTransactions,
+      monthlyTotal: recommendedModel.monthlyTotal.toString(),
+      annualTotal: recommendedModel.annualTotal.toString(),
+      services: recommendedModel.services.map((service) => ({
+        componentCode: service.componentCode,
+        componentName: service.componentName,
+        calculation: service.calculation,
+        price: service.finalPrice,
+      })),
+    });
   };
 
   return (
@@ -99,13 +198,20 @@ export default function CalculatorPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSaveDraft}>
+          <Button
+            variant="outline"
+            onClick={handleSaveDraft}
+            disabled={!clientId || selectedServices.length === 0 || isCreating}
+          >
             <Save className="h-4 w-4 mr-2" />
-            Save Draft
+            {isCreating ? "Saving..." : "Save Draft"}
           </Button>
-          <Button onClick={handleCreateProposal} disabled={!clientId || selectedServices.length === 0}>
+          <Button
+            onClick={handleCreateProposal}
+            disabled={!clientId || selectedServices.length === 0 || isCreating}
+          >
             <Send className="h-4 w-4 mr-2" />
-            Create Proposal
+            {isCreating ? "Creating..." : "Create Proposal"}
           </Button>
         </div>
       </div>

@@ -12,11 +12,23 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { use } from "react";
+import { use, useState } from "react";
+import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { SendProposalDialog } from "@/components/proposal-hub/send-proposal-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
 export default function ProposalDetailPage({
@@ -27,9 +39,27 @@ export default function ProposalDetailPage({
   const router = useRouter();
   const resolvedParams = use(params);
   const { id } = resolvedParams;
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+
+  const utils = trpc.useUtils();
 
   // Fetch proposal details
   const { data: proposalData, isLoading } = trpc.proposals.getById.useQuery(id);
+
+  // Archive proposal mutation
+  const { mutate: archiveProposal, isPending: isArchiving } =
+    trpc.proposals.delete.useMutation({
+      onSuccess: () => {
+        toast.success("Proposal archived successfully");
+        utils.proposals.getById.invalidate(id);
+        utils.proposals.list.invalidate();
+        setShowArchiveDialog(false);
+        router.push("/proposal-hub/proposals");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to archive proposal");
+      },
+    });
 
   if (isLoading) {
     return (
@@ -99,10 +129,11 @@ export default function ProposalDetailPage({
             Edit
           </Button>
           {proposalData.status === "draft" && (
-            <Button disabled>
-              <Send className="h-4 w-4 mr-2" />
-              Send to Client
-            </Button>
+            <SendProposalDialog
+              proposalId={proposalData.id}
+              proposalTitle={proposalData.title}
+              clientName={proposalData.clientName || undefined}
+            />
           )}
           <Button variant="outline" disabled>
             <Download className="h-4 w-4 mr-2" />
@@ -372,10 +403,11 @@ export default function ProposalDetailPage({
             <h2 className="text-lg font-semibold mb-4">Actions</h2>
             <div className="space-y-2">
               {proposalData.status === "draft" && (
-                <Button className="w-full" disabled>
-                  <Send className="h-4 w-4 mr-2" />
-                  Send to Client
-                </Button>
+                <SendProposalDialog
+                  proposalId={proposalData.id}
+                  proposalTitle={proposalData.title}
+                  clientName={proposalData.clientName || undefined}
+                />
               )}
               <Button variant="outline" className="w-full" disabled>
                 <Download className="h-4 w-4 mr-2" />
@@ -385,7 +417,7 @@ export default function ProposalDetailPage({
                 <Button
                   variant="destructive"
                   className="w-full"
-                  disabled
+                  onClick={() => setShowArchiveDialog(true)}
                 >
                   <XCircle className="h-4 w-4 mr-2" />
                   Archive Proposal
@@ -395,6 +427,29 @@ export default function ProposalDetailPage({
           </Card>
         </div>
       </div>
+
+      {/* Archive Confirmation Dialog */}
+      <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Archive Proposal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to archive this proposal? This will mark the
+              proposal as archived and remove it from the active proposals list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => archiveProposal(proposalData.id)}
+              disabled={isArchiving}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isArchiving ? "Archiving..." : "Archive"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
