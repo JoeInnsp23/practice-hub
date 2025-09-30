@@ -176,6 +176,11 @@ export default function OnboardingDetailPage({
               {getStatusBadge(sessionData.status)}
               {getPriorityBadge(sessionData.priority)}
             </div>
+            <div className="mt-2">
+              <span className="text-sm text-muted-foreground">
+                Account Manager: {sessionData.accountManagerName || "Unassigned"}
+              </span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
