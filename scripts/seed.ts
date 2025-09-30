@@ -18,6 +18,8 @@ import {
   onboardingTasks,
   portalCategories,
   portalLinks,
+  pricingRules,
+  serviceComponents,
   services,
   tasks,
   taskWorkflowInstances,
@@ -53,6 +55,8 @@ async function clearDatabase() {
   await db.delete(clientContacts);
   await db.delete(clients);
   await db.delete(leads);
+  await db.delete(pricingRules);
+  await db.delete(serviceComponents);
   await db.delete(services);
 
   // Clear portal data
@@ -375,78 +379,634 @@ async function seedDatabase() {
     `✓ Created ${practiceHubLinks.length + externalToolsLinks.length + practiceResourcesLinks.length} portal links across 3 categories`,
   );
 
-  // 3. Create Services
-  console.log("Creating services...");
-  const serviceList = [
+  // 3. Create Service Components (modular pricing)
+  console.log("Creating service components...");
+  const serviceComponentsList = [
+    // COMPLIANCE SERVICES
     {
-      code: "TAX-PREP",
-      name: "Tax Preparation",
-      description: "Annual tax return preparation and filing",
-      category: "Tax Services",
-      defaultRate: "250",
-      priceType: "hourly" as const,
-      duration: 180,
-    },
-    {
-      code: "BOOKKEEP",
-      name: "Bookkeeping",
-      description: "Monthly bookkeeping and reconciliation",
-      category: "Accounting",
-      defaultRate: "150",
-      priceType: "hourly" as const,
-      duration: 240,
-    },
-    {
-      code: "VAT-RET",
-      name: "VAT Returns",
-      description: "Quarterly VAT return preparation and submission",
-      category: "Tax Services",
-      defaultRate: "500",
+      code: "COMP_ACCOUNTS",
+      name: "Annual Accounts & Corporation Tax",
+      category: "compliance" as const,
+      description:
+        "Year-end accounts preparation and Corporation Tax return filing",
+      pricingModel: "both" as const, // Supports both turnover and transaction-based
+      basePrice: "30", // Base for Model B
+      price: "49", // Base for Model A (£0-89k)
       priceType: "fixed" as const,
-      duration: 120,
+      supportsComplexity: false,
+      tags: ["compliance", "accounts", "corporation-tax"],
     },
     {
-      code: "PAYROLL",
-      name: "Payroll Processing",
-      description: "Monthly payroll processing and submissions",
-      category: "Payroll",
-      defaultRate: "200",
+      code: "COMP_CONFIRMATION",
+      name: "Confirmation Statement",
+      category: "compliance" as const,
+      description: "Annual Companies House confirmation statement filing",
+      pricingModel: "fixed" as const,
+      basePrice: "5",
+      price: "5",
       priceType: "fixed" as const,
-      duration: 60,
+      supportsComplexity: false,
+      tags: ["compliance", "companies-house"],
     },
     {
-      code: "AUDIT",
-      name: "Annual Audit",
-      description: "Complete annual audit and certification",
-      category: "Audit",
-      defaultRate: "5000",
-      priceType: "project" as const,
-      duration: 2400,
+      code: "COMP_SATR",
+      name: "Self-Assessment Tax Returns",
+      category: "compliance" as const,
+      description: "Personal tax return for directors/shareholders",
+      pricingModel: "fixed" as const,
+      basePrice: "16.67",
+      price: "16.67",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["compliance", "self-assessment", "personal-tax"],
+    },
+
+    // VAT SERVICES
+    {
+      code: "VAT_STANDARD",
+      name: "Quarterly VAT Returns",
+      category: "vat" as const,
+      description: "Preparation and filing of quarterly VAT returns to HMRC",
+      pricingModel: "both" as const,
+      basePrice: "20", // Min for Model B
+      price: "25", // Base for Model A (£85k-149k)
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["vat", "returns", "mtd"],
+    },
+
+    // BOOKKEEPING SERVICES
+    {
+      code: "BOOK_BASIC",
+      name: "Basic Bookkeeping (Cash Coding)",
+      category: "bookkeeping" as const,
+      description: "Transaction categorization and basic reconciliation in Xero",
+      pricingModel: "both" as const,
+      basePrice: "40", // Min for Model B (0-25 transactions)
+      price: "80", // Base for Model A (£0-89k)
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["bookkeeping", "basic", "xero"],
     },
     {
-      code: "CONSULT",
-      name: "Business Consultation",
-      description: "Strategic business and financial consulting",
-      category: "Advisory",
-      defaultRate: "200",
-      priceType: "hourly" as const,
-      duration: 60,
+      code: "BOOK_FULL",
+      name: "Full Bookkeeping (Comprehensive)",
+      category: "bookkeeping" as const,
+      description:
+        "Complete bookkeeping service with proactive financial management",
+      pricingModel: "both" as const,
+      basePrice: "120", // Min for Model B (0-25 clean)
+      price: "180", // Base for Model A (£0-89k average)
+      priceType: "fixed" as const,
+      supportsComplexity: true, // Supports complexity multipliers
+      tags: ["bookkeeping", "full-service", "xero"],
+    },
+
+    // PAYROLL SERVICES
+    {
+      code: "PAYROLL_STANDARD",
+      name: "Standard Payroll Processing",
+      category: "payroll" as const,
+      description: "Full payroll processing including RTI submissions to HMRC",
+      pricingModel: "fixed" as const,
+      basePrice: "18", // Director only monthly
+      price: "18",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["payroll", "rti", "paye"],
+    },
+    {
+      code: "PAYROLL_PENSION",
+      name: "Auto-Enrolment Pension Administration",
+      category: "payroll" as const,
+      description: "Pension scheme administration and compliance",
+      pricingModel: "fixed" as const,
+      basePrice: "2", // Per employee per month
+      price: "2",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["payroll", "pension", "auto-enrolment"],
+    },
+
+    // MANAGEMENT REPORTING
+    {
+      code: "MGMT_MONTHLY",
+      name: "Monthly Management Accounts",
+      category: "management" as const,
+      description: "Comprehensive management reporting package",
+      pricingModel: "turnover" as const,
+      basePrice: "150",
+      price: "150",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["management-accounts", "reporting", "kpi"],
+    },
+    {
+      code: "MGMT_QUARTERLY",
+      name: "Quarterly Management Accounts",
+      category: "management" as const,
+      description: "Quarterly management reporting package",
+      pricingModel: "turnover" as const,
+      basePrice: "75", // 50% of monthly
+      price: "75",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["management-accounts", "reporting"],
+    },
+
+    // COMPANY SECRETARIAL
+    {
+      code: "SEC_BASIC",
+      name: "Basic Company Secretarial",
+      category: "secretarial" as const,
+      description: "Annual return, share changes, basic filings",
+      pricingModel: "fixed" as const,
+      basePrice: "15",
+      price: "15",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["secretarial", "companies-house"],
+    },
+    {
+      code: "SEC_FULL",
+      name: "Full Company Secretarial",
+      category: "secretarial" as const,
+      description:
+        "Minutes, resolutions, register maintenance, all filings",
+      pricingModel: "fixed" as const,
+      basePrice: "35",
+      price: "35",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["secretarial", "minutes", "resolutions"],
+    },
+    {
+      code: "SEC_COMPLEX",
+      name: "Complex Company Secretarial",
+      category: "secretarial" as const,
+      description:
+        "Group structures, multiple entities, complex changes",
+      pricingModel: "fixed" as const,
+      basePrice: "60",
+      price: "60",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["secretarial", "complex", "group-structures"],
+    },
+
+    // TAX PLANNING & ADVISORY
+    {
+      code: "TAX_ANNUAL",
+      name: "Annual Tax Planning Review",
+      category: "tax_planning" as const,
+      description: "Annual tax planning review and optimization",
+      pricingModel: "fixed" as const,
+      basePrice: "50",
+      price: "50",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["tax-planning", "advisory"],
+    },
+    {
+      code: "TAX_QUARTERLY",
+      name: "Quarterly Tax Planning",
+      category: "tax_planning" as const,
+      description: "Quarterly tax planning and optimization",
+      pricingModel: "fixed" as const,
+      basePrice: "100",
+      price: "100",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["tax-planning", "advisory", "quarterly"],
+    },
+    {
+      code: "TAX_RD",
+      name: "R&D Tax Claims",
+      category: "tax_planning" as const,
+      description: "Research & Development tax claim preparation",
+      pricingModel: "fixed" as const,
+      basePrice: "1500", // Minimum
+      price: "1500",
+      priceType: "percentage" as const,
+      supportsComplexity: false,
+      tags: ["tax-planning", "rd-claims"],
+      metadata: { percentage: 18 }, // 18% of claim value
+    },
+
+    // SPECIALIST ADD-ONS
+    {
+      code: "ADDON_CIS",
+      name: "CIS Returns",
+      category: "addon" as const,
+      description: "Construction Industry Scheme returns",
+      pricingModel: "fixed" as const,
+      basePrice: "40",
+      price: "40",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "cis", "construction"],
+    },
+    {
+      code: "ADDON_RENTAL",
+      name: "Additional Rental Properties",
+      category: "addon" as const,
+      description: "Per additional rental property on SATR (beyond 2)",
+      pricingModel: "fixed" as const,
+      basePrice: "4",
+      price: "4",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "rental", "property"],
+    },
+    {
+      code: "ADDON_VAT_REG",
+      name: "VAT Registration",
+      category: "addon" as const,
+      description: "VAT registration service",
+      pricingModel: "fixed" as const,
+      basePrice: "5", // Monthly admin
+      price: "5",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "vat", "registration"],
+      metadata: { oneOffSetupFee: 75 },
+    },
+    {
+      code: "ADDON_PAYE_REG",
+      name: "PAYE Registration",
+      category: "addon" as const,
+      description: "PAYE registration service",
+      pricingModel: "fixed" as const,
+      basePrice: "5", // Monthly admin
+      price: "5",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "paye", "registration"],
+      metadata: { oneOffSetupFee: 75 },
+    },
+    {
+      code: "ADDON_MTD_SETUP",
+      name: "Making Tax Digital Setup",
+      category: "addon" as const,
+      description: "MTD setup and training",
+      pricingModel: "fixed" as const,
+      basePrice: "200",
+      price: "200",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "mtd", "setup"],
+    },
+    {
+      code: "ADDON_XERO_SETUP",
+      name: "Xero Setup & Training",
+      category: "addon" as const,
+      description: "Xero setup and training (3 hours)",
+      pricingModel: "fixed" as const,
+      basePrice: "300",
+      price: "300",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "xero", "setup", "training"],
+    },
+    {
+      code: "ADDON_MODULR_WEEKLY",
+      name: "Modulr - Weekly",
+      category: "addon" as const,
+      description: "Modulr payment processing - weekly",
+      pricingModel: "fixed" as const,
+      basePrice: "60",
+      price: "60",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "modulr", "payments"],
+    },
+    {
+      code: "ADDON_MODULR_BIWEEKLY",
+      name: "Modulr - Bi-Weekly",
+      category: "addon" as const,
+      description: "Modulr payment processing - bi-weekly",
+      pricingModel: "fixed" as const,
+      basePrice: "30",
+      price: "30",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "modulr", "payments"],
+    },
+    {
+      code: "ADDON_MODULR_MONTHLY",
+      name: "Modulr - Monthly",
+      category: "addon" as const,
+      description: "Modulr payment processing - monthly",
+      pricingModel: "fixed" as const,
+      basePrice: "10",
+      price: "10",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "modulr", "payments"],
+    },
+    {
+      code: "ADDON_VAT_REVIEW",
+      name: "VAT Return Review",
+      category: "addon" as const,
+      description: "VAT return review service",
+      pricingModel: "fixed" as const,
+      basePrice: "60",
+      price: "60",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "vat", "review"],
+    },
+    {
+      code: "ADDON_VAT_1614_REG",
+      name: "VAT 1614 Registration",
+      category: "addon" as const,
+      description: "VAT 1614 (flat rate scheme) registration",
+      pricingModel: "fixed" as const,
+      basePrice: "5",
+      price: "5",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "vat", "registration", "flat-rate"],
+    },
+    {
+      code: "ADDON_SATR_REG",
+      name: "SATR Registration",
+      category: "addon" as const,
+      description: "Self-assessment tax return registration",
+      pricingModel: "fixed" as const,
+      basePrice: "5",
+      price: "5",
+      priceType: "fixed" as const,
+      supportsComplexity: false,
+      tags: ["addon", "satr", "registration"],
     },
   ];
 
-  const createdServices = await db
-    .insert(services)
+  const createdServiceComponents = await db
+    .insert(serviceComponents)
     .values(
-      serviceList.map((service) => ({
-        ...service,
+      serviceComponentsList.map((component) => ({
+        ...component,
         tenantId: tenant.id,
         isActive: true,
-        tags: [service.category],
       })),
     )
     .returning();
 
-  // 4. Create Clients
+  console.log(`✓ Created ${createdServiceComponents.length} service components`);
+
+  // 4. Create Pricing Rules
+  console.log("Creating pricing rules...");
+
+  // Helper to find component by code
+  const getComponent = (code: string) =>
+    createdServiceComponents.find((c) => c.code === code)!;
+
+  // Turnover bands for Model A pricing
+  const turnoverBands = [
+    { min: 0, max: 89999, label: "£0-89k" },
+    { min: 90000, max: 149999, label: "£90k-149k" },
+    { min: 150000, max: 249999, label: "£150k-249k" },
+    { min: 250000, max: 499999, label: "£250k-499k" },
+    { min: 500000, max: 749999, label: "£500k-749k" },
+    { min: 750000, max: 999999, label: "£750k-999k" },
+    { min: 1000000, max: 999999999, label: "£1M+" },
+  ];
+
+  const pricingRulesList: any[] = [];
+
+  // COMP_ACCOUNTS - Turnover-based pricing
+  const accountsPrices = [49, 59, 79, 99, 119, 139, 159];
+  turnoverBands.forEach((band, index) => {
+    pricingRulesList.push({
+      componentId: getComponent("COMP_ACCOUNTS").id,
+      ruleType: "turnover_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: accountsPrices[index].toString(),
+    });
+  });
+
+  // COMP_ACCOUNTS - Transaction-based pricing (Model B)
+  // Base £30 + £0.15 per transaction
+  pricingRulesList.push({
+    componentId: getComponent("COMP_ACCOUNTS").id,
+    ruleType: "per_unit" as const,
+    price: "0.15",
+    metadata: { basePrice: 30, description: "Per transaction" },
+  });
+
+  // VAT_STANDARD - Turnover-based pricing
+  const vatPrices = [25, 35, 45, 55];
+  const vatTurnoverBands = [
+    { min: 85000, max: 149999 },
+    { min: 150000, max: 249999 },
+    { min: 250000, max: 499999 },
+    { min: 500000, max: 999999999 },
+  ];
+  vatTurnoverBands.forEach((band, index) => {
+    pricingRulesList.push({
+      componentId: getComponent("VAT_STANDARD").id,
+      ruleType: "turnover_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: vatPrices[index].toString(),
+    });
+  });
+
+  // VAT_STANDARD - Transaction-based pricing (Model B)
+  // £0.10 per transaction (minimum £20)
+  pricingRulesList.push({
+    componentId: getComponent("VAT_STANDARD").id,
+    ruleType: "per_unit" as const,
+    price: "0.10",
+    metadata: { minimumPrice: 20, description: "Per transaction" },
+  });
+
+  // BOOK_BASIC - Turnover-based pricing
+  const bookBasicPrices = [80, 100, 130, 160, 200];
+  const bookBasicTurnoverBands = [
+    { min: 0, max: 89999 },
+    { min: 90000, max: 149999 },
+    { min: 150000, max: 249999 },
+    { min: 250000, max: 499999 },
+    { min: 500000, max: 999999999 },
+  ];
+  bookBasicTurnoverBands.forEach((band, index) => {
+    pricingRulesList.push({
+      componentId: getComponent("BOOK_BASIC").id,
+      ruleType: "turnover_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: bookBasicPrices[index].toString(),
+    });
+  });
+
+  // BOOK_BASIC - Transaction-based pricing bands (Model B)
+  const bookBasicTransactionBands = [
+    { min: 0, max: 25, price: 40 },
+    { min: 26, max: 50, price: 60 },
+    { min: 51, max: 75, price: 80 },
+    { min: 76, max: 100, price: 100 },
+    { min: 101, max: 150, price: 130 },
+    { min: 151, max: 200, price: 160 },
+    { min: 201, max: 300, price: 200 },
+    { min: 301, max: 400, price: 250 },
+    { min: 401, max: 500, price: 300 },
+  ];
+  bookBasicTransactionBands.forEach((band) => {
+    pricingRulesList.push({
+      componentId: getComponent("BOOK_BASIC").id,
+      ruleType: "transaction_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: band.price.toString(),
+    });
+  });
+
+  // BOOK_BASIC - High volume transaction pricing (500+)
+  pricingRulesList.push({
+    componentId: getComponent("BOOK_BASIC").id,
+    ruleType: "per_unit" as const,
+    minValue: "501",
+    price: "0.60",
+    metadata: { description: "Per transaction over 500" },
+  });
+
+  // BOOK_FULL - Turnover-based pricing with complexity levels
+  const bookFullPrices = {
+    clean: [150, 200, 250, 320, 400, 480, 560],
+    average: [180, 240, 300, 380, 480, 580, 680],
+    complex: [220, 290, 360, 460, 580, 700, 820],
+    disaster: [280, 370, 460, 590, 740, 900, 1050],
+  };
+
+  Object.entries(bookFullPrices).forEach(([complexity, prices]) => {
+    turnoverBands.forEach((band, index) => {
+      pricingRulesList.push({
+        componentId: getComponent("BOOK_FULL").id,
+        ruleType: "turnover_band" as const,
+        minValue: band.min.toString(),
+        maxValue: band.max.toString(),
+        price: prices[index].toString(),
+        complexityLevel: complexity,
+      });
+    });
+  });
+
+  // BOOK_FULL - Transaction-based pricing with complexity (Model B)
+  const bookFullTransactionBands = {
+    clean: [
+      { min: 0, max: 25, price: 120 },
+      { min: 26, max: 50, price: 180 },
+      { min: 51, max: 75, price: 240 },
+      { min: 76, max: 100, price: 300 },
+      { min: 101, max: 150, price: 380 },
+      { min: 151, max: 200, price: 460 },
+      { min: 201, max: 300, price: 580 },
+      { min: 301, max: 400, price: 700 },
+      { min: 401, max: 500, price: 820 },
+    ],
+    average: [
+      { min: 0, max: 25, price: 140 },
+      { min: 26, max: 50, price: 210 },
+      { min: 51, max: 75, price: 280 },
+      { min: 76, max: 100, price: 350 },
+      { min: 101, max: 150, price: 440 },
+      { min: 151, max: 200, price: 530 },
+      { min: 201, max: 300, price: 670 },
+      { min: 301, max: 400, price: 810 },
+      { min: 401, max: 500, price: 950 },
+    ],
+    complex: [
+      { min: 0, max: 25, price: 170 },
+      { min: 26, max: 50, price: 250 },
+      { min: 51, max: 75, price: 340 },
+      { min: 76, max: 100, price: 420 },
+      { min: 101, max: 150, price: 530 },
+      { min: 151, max: 200, price: 640 },
+      { min: 201, max: 300, price: 810 },
+      { min: 301, max: 400, price: 980 },
+      { min: 401, max: 500, price: 1150 },
+    ],
+    disaster: [
+      { min: 0, max: 25, price: 210 },
+      { min: 26, max: 50, price: 310 },
+      { min: 51, max: 75, price: 420 },
+      { min: 76, max: 100, price: 520 },
+      { min: 101, max: 150, price: 660 },
+      { min: 151, max: 200, price: 800 },
+      { min: 201, max: 300, price: 1010 },
+      { min: 301, max: 400, price: 1220 },
+      { min: 401, max: 500, price: 1430 },
+    ],
+  };
+
+  Object.entries(bookFullTransactionBands).forEach(([complexity, bands]) => {
+    bands.forEach((band) => {
+      pricingRulesList.push({
+        componentId: getComponent("BOOK_FULL").id,
+        ruleType: "transaction_band" as const,
+        minValue: band.min.toString(),
+        maxValue: band.max.toString(),
+        price: band.price.toString(),
+        complexityLevel: complexity,
+      });
+    });
+  });
+
+  // BOOK_FULL - High volume transaction pricing (500+) with complexity
+  const bookFullHighVolumeRates = {
+    clean: 1.5,
+    average: 1.75,
+    complex: 2.1,
+    disaster: 2.6,
+  };
+  Object.entries(bookFullHighVolumeRates).forEach(([complexity, rate]) => {
+    pricingRulesList.push({
+      componentId: getComponent("BOOK_FULL").id,
+      ruleType: "per_unit" as const,
+      minValue: "501",
+      price: rate.toString(),
+      complexityLevel: complexity,
+      metadata: { description: `Per transaction over 500 (${complexity})` },
+    });
+  });
+
+  // MGMT_MONTHLY - Turnover-based pricing
+  const mgmtMonthlyPrices = [150, 200, 250, 350, 450];
+  const mgmtMonthlyTurnoverBands = [
+    { min: 0, max: 249999 },
+    { min: 250000, max: 499999 },
+    { min: 500000, max: 999999 },
+    { min: 1000000, max: 1999999 },
+    { min: 2000000, max: 999999999 },
+  ];
+  mgmtMonthlyTurnoverBands.forEach((band, index) => {
+    pricingRulesList.push({
+      componentId: getComponent("MGMT_MONTHLY").id,
+      ruleType: "turnover_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: mgmtMonthlyPrices[index].toString(),
+    });
+  });
+
+  // Insert all pricing rules
+  const createdPricingRules = await db
+    .insert(pricingRules)
+    .values(
+      pricingRulesList.map((rule) => ({
+        ...rule,
+        tenantId: tenant.id,
+        isActive: true,
+      })),
+    )
+    .returning();
+
+  console.log(`✓ Created ${createdPricingRules.length} pricing rules`);
+
+  // 5. Create Clients
   console.log("Creating clients...");
   const clientList = [];
   const _clientTypes = [
@@ -632,24 +1192,24 @@ async function seedDatabase() {
     }
   }
 
-  // 6. Assign Services to Clients
-  console.log("Assigning services to clients...");
+  // 6. Assign Service Components to Clients
+  console.log("Assigning service components to clients...");
   for (const client of createdClients) {
-    // Each client gets 1-4 services
+    // Each client gets 1-4 service components
     const serviceCount = faker.number.int({ min: 1, max: 4 });
-    const selectedServices = faker.helpers.arrayElements(
-      createdServices,
+    const selectedComponents = faker.helpers.arrayElements(
+      createdServiceComponents,
       serviceCount,
     );
 
-    for (const service of selectedServices) {
+    for (const component of selectedComponents) {
       await db.insert(clientServices).values({
         tenantId: tenant.id,
         clientId: client.id,
-        serviceId: service.id,
+        serviceComponentId: component.id,
         customRate: faker.datatype.boolean()
           ? String(
-              Number(service.defaultRate) *
+              Number(component.price) *
                 faker.number.float({ min: 0.8, max: 1.2 }),
             )
           : null,
@@ -1097,7 +1657,8 @@ async function seedDatabase() {
           userId: user.id,
           clientId: client.id,
           taskId: task?.id || null,
-          serviceId: faker.helpers.arrayElement(createdServices).id,
+          serviceComponentId: faker.helpers.arrayElement(createdServiceComponents)
+            .id,
           date: dateStr,
           hours: String(hours),
           workType: faker.helpers.arrayElement(workTypes),
@@ -1189,7 +1750,8 @@ async function seedDatabase() {
         quantity: String(quantity),
         rate: String(rate),
         amount: String(itemAmount),
-        serviceId: faker.helpers.arrayElement(createdServices).id,
+        serviceComponentId: faker.helpers.arrayElement(createdServiceComponents)
+          .id,
         sortOrder: j,
       });
 
@@ -1711,14 +2273,14 @@ async function seedDatabase() {
   ];
 
   for (const template of workflowTemplates) {
-    // Find the service if specified
-    let serviceId = null;
+    // Find the service component if specified
+    let serviceComponentId = null;
     if (template.serviceCode) {
-      const service = createdServices.find(
+      const component = createdServiceComponents.find(
         (s) => s.code === template.serviceCode,
       );
-      if (service) {
-        serviceId = service.id;
+      if (component) {
+        serviceComponentId = component.id;
       }
     }
 
@@ -1731,7 +2293,7 @@ async function seedDatabase() {
         type: template.type as any,
         trigger: template.trigger as any,
         estimatedDays: template.estimatedDays,
-        serviceId,
+        serviceComponentId,
         isActive: true,
         config: {},
         createdById: adminUser.id,
@@ -1962,7 +2524,10 @@ async function seedDatabase() {
   console.log(`✓ ${createdUsers.length} Users created`);
   console.log(`✓ 3 Portal categories created`);
   console.log(`✓ 20 Portal links created (internal modules + external tools)`);
-  console.log(`✓ ${createdServices.length} Services created`);
+  console.log(
+    `✓ ${createdServiceComponents.length} Service Components created`,
+  );
+  console.log(`✓ ${createdPricingRules.length} Pricing Rules created`);
   console.log(`✓ ${createdClients.length} Clients created`);
   console.log(`✓ ${createdTasks.length} Tasks created`);
   console.log(`✓ 30 Invoices created`);

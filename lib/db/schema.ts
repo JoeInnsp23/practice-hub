@@ -388,8 +388,8 @@ export const clientServices = pgTable(
     clientId: uuid("client_id")
       .references(() => clients.id, { onDelete: "cascade" })
       .notNull(),
-    serviceId: uuid("service_id")
-      .references(() => services.id, { onDelete: "cascade" })
+    serviceComponentId: uuid("service_component_id")
+      .references(() => serviceComponents.id, { onDelete: "cascade" })
       .notNull(),
     customRate: decimal("custom_rate", { precision: 10, scale: 2 }),
     startDate: date("start_date"),
@@ -401,7 +401,7 @@ export const clientServices = pgTable(
   (table) => ({
     clientServiceIdx: uniqueIndex("idx_client_service").on(
       table.clientId,
-      table.serviceId,
+      table.serviceComponentId,
     ),
   }),
 );
@@ -488,9 +488,10 @@ export const timeEntries = pgTable(
     taskId: uuid("task_id").references(() => tasks.id, {
       onDelete: "set null",
     }),
-    serviceId: uuid("service_id").references(() => services.id, {
-      onDelete: "set null",
-    }),
+    serviceComponentId: uuid("service_component_id").references(
+      () => serviceComponents.id,
+      { onDelete: "set null" },
+    ),
 
     // Time tracking
     date: date("date").notNull(),
@@ -664,9 +665,10 @@ export const invoiceItems = pgTable(
     timeEntryId: uuid("time_entry_id").references(() => timeEntries.id, {
       onDelete: "set null",
     }),
-    serviceId: uuid("service_id").references(() => services.id, {
-      onDelete: "set null",
-    }),
+    serviceComponentId: uuid("service_component_id").references(
+      () => serviceComponents.id,
+      { onDelete: "set null" },
+    ),
 
     sortOrder: integer("sort_order").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -693,9 +695,10 @@ export const workflows = pgTable(
     estimatedDays: integer("estimated_days"),
 
     // Service association
-    serviceId: uuid("service_id").references(() => services.id, {
-      onDelete: "set null",
-    }),
+    serviceComponentId: uuid("service_component_id").references(
+      () => serviceComponents.id,
+      { onDelete: "set null" },
+    ),
 
     // Configuration
     config: jsonb("config").notNull(), // Workflow-specific configuration
@@ -712,7 +715,7 @@ export const workflows = pgTable(
   (table) => ({
     typeIdx: index("idx_workflow_type").on(table.type),
     activeIdx: index("idx_workflow_active").on(table.isActive),
-    serviceIdx: index("idx_workflow_service").on(table.serviceId),
+    serviceIdx: index("idx_workflow_service").on(table.serviceComponentId),
   }),
 );
 
@@ -851,7 +854,7 @@ export const transactionDataSourceEnum = pgEnum("transaction_data_source", [
   "estimated",
 ]);
 
-// Service Components table - catalog of all services
+// Service Components table - catalog of all services (master table)
 export const serviceComponents = pgTable(
   "service_components",
   {
@@ -869,7 +872,14 @@ export const serviceComponents = pgTable(
     // Pricing configuration
     pricingModel: pricingModelEnum("pricing_model").notNull(),
     basePrice: decimal("base_price", { precision: 10, scale: 2 }),
+    price: decimal("price", { precision: 10, scale: 2 }), // Alias for basePrice
+    priceType: servicePriceTypeEnum("price_type").default("fixed"),
+    defaultRate: decimal("default_rate", { precision: 10, scale: 2 }),
+    duration: integer("duration"), // Duration in minutes
     supportsComplexity: boolean("supports_complexity").default(false).notNull(),
+
+    // Additional fields
+    tags: jsonb("tags"), // Array of strings
 
     // Status
     isActive: boolean("is_active").default(true).notNull(),

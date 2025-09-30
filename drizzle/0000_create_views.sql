@@ -49,7 +49,7 @@ FROM time_entries te
 LEFT JOIN users u ON te.user_id = u.id
 LEFT JOIN clients c ON te.client_id = c.id
 LEFT JOIN tasks t ON te.task_id = t.id
-LEFT JOIN services s ON te.service_id = s.id
+LEFT JOIN service_components s ON te.service_component_id = s.id
 LEFT JOIN users a ON te.approved_by_id = a.id;--> statement-breakpoint
 
 -- Invoice Details View (with client information)
@@ -83,7 +83,7 @@ SELECT
     s.category AS service_category
 FROM invoice_items ii
 LEFT JOIN invoices i ON ii.invoice_id = i.id
-LEFT JOIN services s ON ii.service_id = s.id;--> statement-breakpoint
+LEFT JOIN service_components s ON ii.service_component_id = s.id;--> statement-breakpoint
 
 -- Client Services View (with full service details)
 CREATE VIEW "client_services_view" AS
@@ -95,10 +95,10 @@ SELECT
     s.code AS service_code,
     s.description AS service_description,
     s.category AS service_category,
-    COALESCE(cs.custom_rate, s.default_rate) AS effective_rate
+    COALESCE(cs.custom_rate, s.price) AS effective_rate
 FROM client_services cs
 LEFT JOIN clients c ON cs.client_id = c.id
-LEFT JOIN services s ON cs.service_id = s.id;--> statement-breakpoint
+LEFT JOIN service_components s ON cs.service_component_id = s.id;--> statement-breakpoint
 
 -- Compliance Details View
 CREATE VIEW "compliance_details_view" AS
@@ -285,7 +285,7 @@ SELECT
     td.*,
     c.name AS client_name,
     c.client_code,
-    CONCAT(u.first_name, ' ', u.last_name) AS created_by_name
-FROM transaction_data td
+    l.company_name AS lead_company_name
+FROM client_transaction_data td
 LEFT JOIN clients c ON td.client_id = c.id
-LEFT JOIN users u ON td.created_by_id = u.id;
+LEFT JOIN leads l ON td.lead_id = l.id;

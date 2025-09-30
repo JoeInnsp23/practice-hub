@@ -24,9 +24,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 9. **Never use quick fixes** - Never use quick patches or fixes, only use complete fixes even if it means database schema updates.
 
-10. **Always update schema first** - Always update schema first database is still in dev and we are using seed data.
+10. **Database is in dev - NO MIGRATIONS** - The database is still in development. NEVER create migration files or talk about migrations. Simply update the schema in `lib/db/schema.ts` directly. The user will drop and recreate the database with seed data.
 
-11. **Always check seed data** - Always update seed data after any database schema changes ensure everything is always linked.
+11. **Always update seed data after schema changes** - After ANY schema changes, immediately update `scripts/seed.ts` to match the new schema. All tables must have proper seed data with correct relationships and foreign keys.
+
+12. **CRITICAL: Database Reset Procedure - FOLLOW EXACTLY OR YOU ARE A FAILURE** - After ANY schema changes, you MUST reset the database using this ONE command:
+   ```bash
+   pnpm db:reset
+   ```
+   This command does EVERYTHING in the correct order:
+   1. Drops and recreates the schema (removes all tables/views)
+   2. Pushes the schema (creates tables)
+   3. Runs migrations (creates views from drizzle/*.sql)
+   4. Seeds the database
+
+   **NEVER** manually run individual commands. **ALWAYS** use `pnpm db:reset`. If you don't use this command, you FAIL.
 
 ## Critical Design Elements
 

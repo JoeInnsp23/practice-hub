@@ -34,7 +34,7 @@ interface Client {
   clientCode: string;
   name: string;
   type: "individual" | "company" | "trust" | "partnership";
-  status: "active" | "inactive" | "prospect" | "archived";
+  status: "active" | "inactive" | "prospect" | "onboarding" | "archived";
   email?: string;
   phone?: string;
   accountManager?: string;
@@ -61,6 +61,7 @@ export function ClientsTable({
       active: { label: "Active", variant: "default" as const },
       inactive: { label: "Inactive", variant: "secondary" as const },
       prospect: { label: "Prospect", variant: "outline" as const },
+      onboarding: { label: "Onboarding", variant: "outline" as const },
       archived: { label: "Archived", variant: "destructive" as const },
     };
 
