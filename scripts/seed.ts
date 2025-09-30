@@ -30,6 +30,8 @@ async function clearDatabase() {
   console.log("🗑️  Clearing existing data...");
 
   // Delete in reverse order of dependencies
+  // NOTE: Portal data (portal_categories, portal_links, user_favorites) is NOT cleared
+  // as it's managed via migrations (drizzle/0002_portal_production_data.sql)
   await db.delete(activityLogs);
   await db.delete(invoiceItems);
   await db.delete(invoices);
@@ -49,7 +51,7 @@ async function clearDatabase() {
   await db.delete(users);
   await db.delete(tenants);
 
-  console.log("✅ Database cleared");
+  console.log("✅ Database cleared (portal data preserved)");
 }
 
 async function seedDatabase() {
@@ -1378,6 +1380,9 @@ async function seedDatabase() {
   }
 
   console.log("✅ Database seeding completed!");
+  console.log(
+    "\nNote: Portal categories and links are managed via migrations (drizzle/0002_portal_production_data.sql)",
+  );
 
   // Print summary
   console.log("\n📊 Seed Summary:");

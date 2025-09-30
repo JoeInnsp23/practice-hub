@@ -3,6 +3,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { Home, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { ClientOnly } from "@/components/client-only";
 import { DateTimeDisplay } from "./DateTimeDisplay";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -85,16 +86,18 @@ export function GlobalHeader({
 
         {/* Right Section */}
         <div className="flex items-center space-x-4 px-4 sm:px-6 lg:px-8">
-          <DateTimeDisplay />
-          <ThemeToggle />
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "h-9 w-9",
-              },
-            }}
-          />
+          <ClientOnly>
+            <DateTimeDisplay />
+            <ThemeToggle />
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "h-9 w-9",
+                },
+              }}
+            />
+          </ClientOnly>
         </div>
       </div>
     </header>
