@@ -134,6 +134,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    }
    ```
 
+9. **Checklist Components** - All checklist-type UI components must follow this design language:
+
+   **Completed items:**
+   ```tsx
+   <div className="bg-muted/50 border-green-200 dark:border-green-900 border rounded-lg p-4">
+     <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
+     <span className="line-through text-muted-foreground">Task name</span>
+   </div>
+   ```
+
+   **Uncompleted items:**
+   ```tsx
+   <div className="border-border border rounded-lg p-4">
+     <Circle className="h-6 w-6 text-muted-foreground hover:text-primary flex-shrink-0 transition-colors" />
+     <span>Task name</span>
+   </div>
+   ```
+
+   **Required styling:**
+   - Completed: Green circle (`CheckCircle2` with `text-green-600`), green border (`border-green-200 dark:border-green-900`), muted background (`bg-muted/50`)
+   - Uncompleted: Empty circle (`Circle` with `text-muted-foreground`), standard border
+   - Icons: Always `h-6 w-6 flex-shrink-0` for consistency
+   - Interactive: Clickable to toggle state, with hover effects
+
+   **Examples:** Onboarding checklists, proposal calculator service selection, task lists
+
 ## Development Commands
 
 ```bash
