@@ -1129,11 +1129,11 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                     </div>
                   ) : directorsData?.directors &&
                     directorsData.directors.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {directorsData.directors.map((director) => (
                         <div
                           key={director.id}
-                          className="pb-4 border-b last:border-b-0 last:pb-0"
+                          className="p-3 bg-muted/50 rounded-lg border"
                         >
                           <div className="flex items-start justify-between mb-1">
                             <div className="flex-1">
@@ -1227,11 +1227,11 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                       <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                     </div>
                   ) : pscsData?.pscs && pscsData.pscs.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {pscsData.pscs.map((psc) => (
                         <div
                           key={psc.id}
-                          className="pb-4 border-b last:border-b-0 last:pb-0"
+                          className="p-3 bg-muted/50 rounded-lg border"
                         >
                           <div className="flex items-start justify-between mb-1">
                             <div className="flex-1">
@@ -1809,6 +1809,71 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Archive Confirmation Dialog */}
+      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {client.status === "archived"
+                ? "Restore Client?"
+                : "Archive Client?"}
+            </DialogTitle>
+            <DialogDescription>
+              {client.status === "archived"
+                ? "Are you sure you want to restore this client? They will become active again."
+                : "Are you sure you want to archive this client? They will no longer appear in active client lists."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowArchiveDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmArchive}>
+              {client.status === "archived" ? "Restore" : "Archive"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Client?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently archive this client? This
+              action cannot be easily undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 my-4">
+            <p className="text-sm text-red-800 dark:text-red-300">
+              <strong>Warning:</strong> This will archive all associated data:
+            </p>
+            <ul className="text-sm text-red-700 dark:text-red-400 mt-2 list-disc list-inside">
+              <li>Tasks and workflows</li>
+              <li>Time entries</li>
+              <li>Invoices</li>
+              <li>Documents</li>
+              <li>Contact information</li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Archive Permanently
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
