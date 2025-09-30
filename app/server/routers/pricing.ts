@@ -155,7 +155,7 @@ function buildCalculationString(
   rule: any,
   adjustments: Adjustment[],
 ): string {
-  let calc = `Base: £${rule.price.toFixed(2)}`;
+  let calc = `Base: £${Number(rule.price).toFixed(2)}`;
   for (const adj of adjustments) {
     if (adj.multiplier) {
       calc += ` × ${adj.multiplier} (${adj.description})`;

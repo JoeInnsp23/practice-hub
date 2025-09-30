@@ -2,9 +2,10 @@
 
 import { Calculator as CalculatorIcon, Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { FloatingPriceWidget } from "@/components/proposal-hub/calculator/floating-price-widget";
 import { PricingCalculator } from "@/components/proposal-hub/calculator/pricing-calculator";
 import { ServiceSelector } from "@/components/proposal-hub/calculator/service-selector";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
 
 export default function CalculatorPage() {
   const router = useRouter();
+  const breakdownRef = useRef<HTMLDivElement>(null);
   const [clientId, setClientId] = useState("");
   const [turnover, setTurnover] = useState("90k-149k");
   const [industry, setIndustry] = useState("standard");
@@ -185,6 +187,10 @@ export default function CalculatorPage() {
     });
   };
 
+  const handleViewBreakdown = () => {
+    breakdownRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -322,13 +328,25 @@ export default function CalculatorPage() {
 
       {/* Pricing Calculator Results */}
       {clientId && selectedServices.length > 0 && (
-        <PricingCalculator
-          turnover={turnover}
-          industry={industry}
-          services={selectedServices}
-          transactionData={transactionData || undefined}
-        />
+        <div ref={breakdownRef}>
+          <PricingCalculator
+            turnover={turnover}
+            industry={industry}
+            services={selectedServices}
+            transactionData={transactionData || undefined}
+          />
+        </div>
       )}
+
+      {/* Floating Price Widget */}
+      <FloatingPriceWidget
+        turnover={turnover}
+        industry={industry}
+        services={selectedServices}
+        transactionData={transactionData || undefined}
+        onCreateProposal={handleCreateProposal}
+        onViewBreakdown={handleViewBreakdown}
+      />
     </div>
   );
 }
