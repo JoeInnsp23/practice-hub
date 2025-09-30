@@ -214,8 +214,8 @@ export default function ClientsPage() {
       </div>
 
       {/* Client List with Filters and Table */}
-      <Card className="glass-card">
-        <CardHeader>
+      <Card className="glass-card overflow-hidden">
+        <div className="px-6 py-4 border-b">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
@@ -269,15 +269,15 @@ export default function ClientsPage() {
               </Button>
             )}
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
+        </div>
+        <div className="overflow-x-auto">
           <ClientsTable
             clients={filteredClients}
             onView={handleViewClient}
             onEdit={handleEditClient}
             onDelete={handleDeleteClient}
           />
-        </CardContent>
+        </div>
       </Card>
 
       {/* Client Wizard Modal */}

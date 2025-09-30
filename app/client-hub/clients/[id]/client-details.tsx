@@ -460,167 +460,163 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
         </TabsContent>
 
         <TabsContent value="services" className="space-y-4">
-          <Card className="glass-card">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
+          <Card className="glass-card overflow-hidden">
+            <div className="px-6 py-4 border-b flex justify-between items-center">
+              <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Active Services
-              </CardTitle>
+                <h3 className="text-lg font-semibold">Active Services</h3>
+              </div>
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Service
               </Button>
-            </CardHeader>
-            <CardContent>
-              {servicesLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">Loading services...</p>
-                </div>
-              ) : clientServices.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No services configured</p>
-                </div>
-              ) : (
-                <div className="glass-table">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-3">Service</th>
-                        <th className="text-left p-3">Category</th>
-                        <th className="text-left p-3">Rate</th>
-                        <th className="text-left p-3">Type</th>
-                        <th className="text-center p-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {clientServices.map((service) => (
-                        <tr key={service.id} className="border-b hover:bg-muted/50">
-                          <td className="p-3">
-                            <div>
-                              <div className="font-medium">
-                                {service.serviceName}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {service.serviceCode}
-                              </div>
+            </div>
+            {servicesLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                <p className="text-muted-foreground">Loading services...</p>
+              </div>
+            ) : clientServices.length === 0 ? (
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No services configured</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3">Service</th>
+                      <th className="text-left p-3">Category</th>
+                      <th className="text-left p-3">Rate</th>
+                      <th className="text-left p-3">Type</th>
+                      <th className="text-center p-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clientServices.map((service) => (
+                      <tr key={service.id} className="border-b hover:bg-muted/50">
+                        <td className="p-3">
+                          <div>
+                            <div className="font-medium">
+                              {service.serviceName}
                             </div>
-                          </td>
-                          <td className="p-3">{service.serviceCategory}</td>
-                          <td className="p-3">
-                            £
-                            {service.customRate ||
-                              service.defaultRate ||
-                              "0.00"}
-                          </td>
-                          <td className="p-3 capitalize">{service.priceType}</td>
-                          <td className="p-3 text-center">
-                            <Badge
-                              variant={
-                                service.isActive ? "default" : "secondary"
-                              }
-                            >
-                              {service.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
+                            <div className="text-sm text-muted-foreground">
+                              {service.serviceCode}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-3">{service.serviceCategory}</td>
+                        <td className="p-3">
+                          £
+                          {service.customRate ||
+                            service.defaultRate ||
+                            "0.00"}
+                        </td>
+                        <td className="p-3 capitalize">{service.priceType}</td>
+                        <td className="p-3 text-center">
+                          <Badge
+                            variant={
+                              service.isActive ? "default" : "secondary"
+                            }
+                          >
+                            {service.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
-          <Card className="glass-card">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
+          <Card className="glass-card overflow-hidden">
+            <div className="px-6 py-4 border-b flex justify-between items-center">
+              <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
-                All Tasks
-              </CardTitle>
+                <h3 className="text-lg font-semibold">All Tasks</h3>
+              </div>
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Task
               </Button>
-            </CardHeader>
-            <CardContent>
-              {tasksLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">Loading tasks...</p>
-                </div>
-              ) : clientTasks.length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    No tasks found for this client
-                  </p>
-                  <Button className="mt-4" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create First Task
-                  </Button>
-                </div>
-              ) : (
-                <div className="glass-table">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-3">Title</th>
-                        <th className="text-left p-3">Status</th>
-                        <th className="text-left p-3">Priority</th>
-                        <th className="text-left p-3">Due Date</th>
-                        <th className="text-left p-3">Assignee</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {clientTasks.map((task) => (
-                        <tr key={task.id} className="border-b hover:bg-muted/50">
-                          <td className="p-3">
-                            <div className="font-medium">{task.title}</div>
-                          </td>
-                          <td className="p-3">
-                            <Badge
-                              variant={
-                                task.status === "completed"
-                                  ? "default"
-                                  : task.status === "in_progress"
-                                    ? "secondary"
-                                    : "outline"
-                              }
-                            >
-                              {task.status?.replace("_", " ")}
-                            </Badge>
-                          </td>
-                          <td className="p-3">
-                            <Badge
-                              variant={
-                                task.priority === "urgent" ||
-                                task.priority === "high"
-                                  ? "destructive"
+            </div>
+            {tasksLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                <p className="text-muted-foreground">Loading tasks...</p>
+              </div>
+            ) : clientTasks.length === 0 ? (
+              <div className="text-center py-12">
+                <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  No tasks found for this client
+                </p>
+                <Button className="mt-4" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Task
+                </Button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3">Title</th>
+                      <th className="text-left p-3">Status</th>
+                      <th className="text-left p-3">Priority</th>
+                      <th className="text-left p-3">Due Date</th>
+                      <th className="text-left p-3">Assignee</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clientTasks.map((task) => (
+                      <tr key={task.id} className="border-b hover:bg-muted/50">
+                        <td className="p-3">
+                          <div className="font-medium">{task.title}</div>
+                        </td>
+                        <td className="p-3">
+                          <Badge
+                            variant={
+                              task.status === "completed"
+                                ? "default"
+                                : task.status === "in_progress"
+                                  ? "secondary"
                                   : "outline"
-                              }
-                            >
-                              {task.priority}
-                            </Badge>
-                          </td>
-                          <td className="p-3">
-                            {task.dueDate
-                              ? format(new Date(task.dueDate), "dd/MM/yyyy")
-                              : "-"}
-                          </td>
-                          <td className="p-3">
-                            {(task as any).assigneeName || "Unassigned"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
+                            }
+                          >
+                            {task.status?.replace("_", " ")}
+                          </Badge>
+                        </td>
+                        <td className="p-3">
+                          <Badge
+                            variant={
+                              task.priority === "urgent" ||
+                              task.priority === "high"
+                                ? "destructive"
+                                : "outline"
+                            }
+                          >
+                            {task.priority}
+                          </Badge>
+                        </td>
+                        <td className="p-3">
+                          {task.dueDate
+                            ? format(new Date(task.dueDate), "dd/MM/yyyy")
+                            : "-"}
+                        </td>
+                        <td className="p-3">
+                          {(task as any).assigneeName || "Unassigned"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
@@ -663,155 +659,151 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
           </div>
 
           {/* Time Entries List */}
-          <Card className="glass-card">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
+          <Card className="glass-card overflow-hidden">
+            <div className="px-6 py-4 border-b flex justify-between items-center">
+              <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                Recent Time Entries
-              </CardTitle>
+                <h3 className="text-lg font-semibold">Recent Time Entries</h3>
+              </div>
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Time
               </Button>
-            </CardHeader>
-            <CardContent>
-              {timeEntriesLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">Loading time entries...</p>
-                </div>
-              ) : clientTimeEntries.length === 0 ? (
-                <div className="text-center py-12">
-                  <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No time entries found</p>
-                </div>
-              ) : (
-                <div className="glass-table">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-3">Date</th>
-                        <th className="text-left p-3">Description</th>
-                        <th className="text-right p-3">Hours</th>
-                        <th className="text-center p-3">Billable</th>
-                        <th className="text-center p-3">Billed</th>
+            </div>
+            {timeEntriesLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                <p className="text-muted-foreground">Loading time entries...</p>
+              </div>
+            ) : clientTimeEntries.length === 0 ? (
+              <div className="text-center py-12">
+                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No time entries found</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3">Date</th>
+                      <th className="text-left p-3">Description</th>
+                      <th className="text-right p-3">Hours</th>
+                      <th className="text-center p-3">Billable</th>
+                      <th className="text-center p-3">Billed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clientTimeEntries.slice(0, 20).map((entry) => (
+                      <tr key={entry.id} className="border-b hover:bg-muted/50">
+                        <td className="p-3">
+                          {format(new Date(entry.date), "dd/MM/yyyy")}
+                        </td>
+                        <td className="p-3">
+                          <div className="max-w-md truncate">
+                            {entry.description}
+                          </div>
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          {Number(entry.hours).toFixed(2)}h
+                        </td>
+                        <td className="p-3 text-center">
+                          {entry.billable ? (
+                            <Badge variant="default">Yes</Badge>
+                          ) : (
+                            <Badge variant="outline">No</Badge>
+                          )}
+                        </td>
+                        <td className="p-3 text-center">
+                          {entry.billed ? (
+                            <Badge variant="default">Yes</Badge>
+                          ) : (
+                            <Badge variant="secondary">Pending</Badge>
+                          )}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {clientTimeEntries.slice(0, 20).map((entry) => (
-                        <tr key={entry.id} className="border-b hover:bg-muted/50">
-                          <td className="p-3">
-                            {format(new Date(entry.date), "dd/MM/yyyy")}
-                          </td>
-                          <td className="p-3">
-                            <div className="max-w-md truncate">
-                              {entry.description}
-                            </div>
-                          </td>
-                          <td className="p-3 text-right font-medium">
-                            {Number(entry.hours).toFixed(2)}h
-                          </td>
-                          <td className="p-3 text-center">
-                            {entry.billable ? (
-                              <Badge variant="default">Yes</Badge>
-                            ) : (
-                              <Badge variant="outline">No</Badge>
-                            )}
-                          </td>
-                          <td className="p-3 text-center">
-                            {entry.billed ? (
-                              <Badge variant="default">Yes</Badge>
-                            ) : (
-                              <Badge variant="secondary">Pending</Badge>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {clientTimeEntries.length > 20 && (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                      Showing first 20 of {clientTimeEntries.length} entries
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
+                    ))}
+                  </tbody>
+                </table>
+                {clientTimeEntries.length > 20 && (
+                  <div className="text-center py-4 text-sm text-muted-foreground border-t">
+                    Showing first 20 of {clientTimeEntries.length} entries
+                  </div>
+                )}
+              </div>
+            )}
           </Card>
         </TabsContent>
 
         <TabsContent value="invoices" className="space-y-4">
-          <Card className="glass-card">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
+          <Card className="glass-card overflow-hidden">
+            <div className="px-6 py-4 border-b flex justify-between items-center">
+              <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
-                Invoices
-              </CardTitle>
+                <h3 className="text-lg font-semibold">Invoices</h3>
+              </div>
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Invoice
               </Button>
-            </CardHeader>
-            <CardContent>
-              {invoicesLoading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">Loading invoices...</p>
-                </div>
-              ) : clientInvoices.length === 0 ? (
-                <div className="text-center py-12">
-                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No invoices found</p>
-                </div>
-              ) : (
-                <div className="glass-table">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-3">Invoice #</th>
-                        <th className="text-left p-3">Issue Date</th>
-                        <th className="text-left p-3">Due Date</th>
-                        <th className="text-right p-3">Amount</th>
-                        <th className="text-center p-3">Status</th>
+            </div>
+            {invoicesLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                <p className="text-muted-foreground">Loading invoices...</p>
+              </div>
+            ) : clientInvoices.length === 0 ? (
+              <div className="text-center py-12">
+                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No invoices found</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3">Invoice #</th>
+                      <th className="text-left p-3">Issue Date</th>
+                      <th className="text-left p-3">Due Date</th>
+                      <th className="text-right p-3">Amount</th>
+                      <th className="text-center p-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clientInvoices.map((invoice) => (
+                      <tr key={invoice.id} className="border-b hover:bg-muted/50">
+                        <td className="p-3 font-medium">
+                          {invoice.invoiceNumber}
+                        </td>
+                        <td className="p-3">
+                          {format(new Date(invoice.issueDate), "dd/MM/yyyy")}
+                        </td>
+                        <td className="p-3">
+                          {format(new Date(invoice.dueDate), "dd/MM/yyyy")}
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          £{Number(invoice.total).toFixed(2)}
+                        </td>
+                        <td className="p-3 text-center">
+                          <Badge
+                            variant={
+                              invoice.status === "paid"
+                                ? "default"
+                                : invoice.status === "overdue"
+                                  ? "destructive"
+                                  : invoice.status === "sent"
+                                    ? "secondary"
+                                    : "outline"
+                            }
+                          >
+                            {invoice.status}
+                          </Badge>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {clientInvoices.map((invoice) => (
-                        <tr key={invoice.id} className="border-b hover:bg-muted/50">
-                          <td className="p-3 font-medium">
-                            {invoice.invoiceNumber}
-                          </td>
-                          <td className="p-3">
-                            {format(new Date(invoice.issueDate), "dd/MM/yyyy")}
-                          </td>
-                          <td className="p-3">
-                            {format(new Date(invoice.dueDate), "dd/MM/yyyy")}
-                          </td>
-                          <td className="p-3 text-right font-medium">
-                            £{Number(invoice.total).toFixed(2)}
-                          </td>
-                          <td className="p-3 text-center">
-                            <Badge
-                              variant={
-                                invoice.status === "paid"
-                                  ? "default"
-                                  : invoice.status === "overdue"
-                                    ? "destructive"
-                                    : invoice.status === "sent"
-                                      ? "secondary"
-                                      : "outline"
-                              }
-                            >
-                              {invoice.status}
-                            </Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </TabsContent>
 

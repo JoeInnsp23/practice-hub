@@ -273,10 +273,10 @@ export default function CompliancePage() {
       </div>
 
       {/* Filters and View Toggle */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <div className="px-6 py-4 border-b">
           <div className="flex justify-between items-center">
-            <CardTitle>Compliance Items</CardTitle>
+            <h3 className="text-lg font-semibold">Compliance Items</h3>
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -329,8 +329,8 @@ export default function CompliancePage() {
               </Tabs>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="overflow-x-auto">
           {viewMode === "list" ? (
             <ComplianceList
               items={updatedItems}
@@ -340,12 +340,14 @@ export default function CompliancePage() {
               onComplete={handleCompleteItem}
             />
           ) : (
-            <ComplianceCalendar
-              items={updatedItems}
-              onItemClick={handleItemClick}
-            />
+            <div className="p-6">
+              <ComplianceCalendar
+                items={updatedItems}
+                onItemClick={handleItemClick}
+              />
+            </div>
           )}
-        </CardContent>
+        </div>
       </Card>
     </div>
   );

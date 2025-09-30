@@ -276,37 +276,35 @@ export default function TasksPage() {
       </div>
 
       {/* Main Content */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <div className="px-6 py-4 border-b">
           <div className="flex justify-between items-center mb-4">
-            <CardTitle>All Tasks</CardTitle>
+            <h3 className="text-lg font-semibold">All Tasks</h3>
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === "board" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("board")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              {viewMode === "board" && (
                 <Button
-                  variant={viewMode === "board" ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
-                  onClick={() => setViewMode("board")}
+                  onClick={() => setIsFullscreenOpen(true)}
+                  title="Fullscreen Kanban View"
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <Maximize2 className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                {viewMode === "board" && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsFullscreenOpen(true)}
-                    title="Fullscreen Kanban View"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
           </div>
 
@@ -361,11 +359,11 @@ export default function TasksPage() {
               </SelectContent>
             </Select>
           </div>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
+        </div>
+        <div className="overflow-x-auto">
           {/* Bulk Actions */}
           {selectedTaskIds.length > 0 && viewMode === "list" && (
-            <div className="mb-4 p-3 bg-muted rounded-lg flex items-center justify-between">
+            <div className="mx-6 my-4 p-3 bg-muted rounded-lg flex items-center justify-between">
               <span className="text-sm font-medium">
                 {selectedTaskIds.length} task
                 {selectedTaskIds.length > 1 ? "s" : ""} selected
@@ -390,12 +388,14 @@ export default function TasksPage() {
 
           {/* Task View */}
           {viewMode === "board" ? (
-            <TaskBoard
-              tasks={filteredTasks}
-              onEditTask={handleEditTask}
-              onDeleteTask={(task) => handleDeleteTask(task.id)}
-              onStatusChange={handleStatusChange}
-            />
+            <div className="p-6">
+              <TaskBoard
+                tasks={filteredTasks}
+                onEditTask={handleEditTask}
+                onDeleteTask={(task) => handleDeleteTask(task.id)}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
           ) : (
             <TaskList
               tasks={filteredTasks}
@@ -405,7 +405,7 @@ export default function TasksPage() {
               onBulkSelect={handleBulkSelect}
             />
           )}
-        </CardContent>
+        </div>
       </Card>
 
       {/* Task Modal */}
