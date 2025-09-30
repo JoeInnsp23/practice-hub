@@ -3,7 +3,8 @@ import { and, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, clientContacts, clients } from "@/lib/db/schema";
+import { activityLogs, clientContacts, clientServices, clients, services } from "@/lib/db/schema";
+import { getClientsList } from "@/lib/db/queries/client-queries";
 import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
@@ -78,39 +79,10 @@ export const clientsRouter = router({
         `;
       }
 
-      // Add ordering
-      query = sql`${query} ORDER BY created_at DESC`;
+      // Use typed query function
+      const clients = await getClientsList(tenantId, input);
 
-      const result = await db.execute(query);
-
-      // Format the response
-      const clientsList = result.map((client: any) => ({
-        id: client.id,
-        clientCode: client.client_code,
-        name: client.name,
-        type: client.type,
-        status: client.status,
-        email: client.email,
-        phone: client.phone,
-        website: client.website,
-        vatNumber: client.vat_number,
-        registrationNumber: client.registration_number,
-        addressLine1: client.address_line1,
-        addressLine2: client.address_line2,
-        city: client.city,
-        state: client.state,
-        postalCode: client.postal_code,
-        country: client.country,
-        accountManagerId: client.account_manager_id,
-        accountManagerName: client.account_manager_name,
-        incorporationDate: client.incorporation_date,
-        yearEnd: client.year_end,
-        notes: client.notes,
-        createdAt: client.created_at,
-        updatedAt: client.updated_at,
-      }));
-
-      return { clients: clientsList };
+      return { clients };
     }),
 
   getById: protectedProcedure
@@ -297,5 +269,41 @@ export const clientsRouter = router({
       });
 
       return { success: true };
+    }),
+
+  getClientServices: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: clientId }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Get client services with service details
+      const clientServicesList = await db
+        .select({
+          id: clientServices.id,
+          serviceId: services.id,
+          serviceName: services.name,
+          serviceCode: services.code,
+          serviceCategory: services.category,
+          serviceDescription: services.description,
+          defaultRate: services.defaultRate,
+          customRate: clientServices.customRate,
+          priceType: services.priceType,
+          duration: services.duration,
+          startDate: clientServices.startDate,
+          endDate: clientServices.endDate,
+          isActive: clientServices.isActive,
+          createdAt: clientServices.createdAt,
+        })
+        .from(clientServices)
+        .innerJoin(services, eq(clientServices.serviceId, services.id))
+        .where(
+          and(
+            eq(clientServices.clientId, clientId),
+            eq(clientServices.tenantId, tenantId),
+          ),
+        )
+        .orderBy(clientServices.createdAt);
+
+      return { services: clientServicesList };
     }),
 });

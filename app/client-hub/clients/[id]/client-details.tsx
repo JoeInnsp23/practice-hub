@@ -43,6 +43,23 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
     error,
   } = trpc.clients.getById.useQuery(clientId);
 
+  // Fetch client services
+  const { data: servicesData, isLoading: servicesLoading } =
+    trpc.clients.getClientServices.useQuery(clientId);
+
+  // Fetch tasks for this client
+  const { data: tasksData, isLoading: tasksLoading } = trpc.tasks.list.useQuery(
+    { clientId },
+  );
+
+  // Fetch time entries for this client
+  const { data: timeEntriesData, isLoading: timeEntriesLoading } =
+    trpc.timesheets.list.useQuery({ clientId });
+
+  // Fetch invoices for this client
+  const { data: invoicesData, isLoading: invoicesLoading } =
+    trpc.invoices.list.useQuery({ clientId });
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -135,6 +152,40 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       router.push("/client-hub/clients");
     }
   };
+
+  // Calculate metrics
+  const clientServices = servicesData?.services || [];
+  const clientTasks = tasksData?.tasks || [];
+  const clientTimeEntries = timeEntriesData?.timeEntries || [];
+  const clientInvoices = invoicesData?.invoices || [];
+
+  const activeTasks = clientTasks.filter(
+    (t) =>
+      t.status === "in_progress" ||
+      t.status === "pending" ||
+      t.status === "review",
+  ).length;
+
+  const overdueTasks = clientTasks.filter(
+    (t) =>
+      (t.status === "in_progress" || t.status === "pending") &&
+      t.targetDate &&
+      new Date(t.targetDate) < new Date(),
+  ).length;
+
+  const unbilledHours = clientTimeEntries
+    .filter((entry) => entry.billable && !entry.billed)
+    .reduce((sum, entry) => sum + (Number(entry.hours) || 0), 0);
+
+  // Calculate time entry metrics
+  const totalHours = clientTimeEntries.reduce(
+    (sum, entry) => sum + (Number(entry.hours) || 0),
+    0,
+  );
+
+  const billableHours = clientTimeEntries
+    .filter((entry) => entry.billable)
+    .reduce((sum, entry) => sum + (Number(entry.hours) || 0), 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -229,7 +280,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
+                <div className="text-2xl font-bold">{activeTasks}</div>
               </CardContent>
             </Card>
 
@@ -241,7 +292,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
+                <div className="text-2xl font-bold">{overdueTasks}</div>
               </CardContent>
             </Card>
 
@@ -253,19 +304,21 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <Clock className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
+                <div className="text-2xl font-bold">
+                  {unbilledHours.toFixed(1)}
+                </div>
               </CardContent>
             </Card>
 
             <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Health Score
+                  Active Services
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0/100</div>
+                <div className="text-2xl font-bold">{clientServices.length}</div>
               </CardContent>
             </Card>
           </div>
@@ -419,10 +472,64 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No services configured</p>
-              </div>
+              {servicesLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">Loading services...</p>
+                </div>
+              ) : clientServices.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No services configured</p>
+                </div>
+              ) : (
+                <div className="glass-table">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-3">Service</th>
+                        <th className="text-left p-3">Category</th>
+                        <th className="text-left p-3">Rate</th>
+                        <th className="text-left p-3">Type</th>
+                        <th className="text-center p-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clientServices.map((service) => (
+                        <tr key={service.id} className="border-b hover:bg-muted/50">
+                          <td className="p-3">
+                            <div>
+                              <div className="font-medium">
+                                {service.serviceName}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {service.serviceCode}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3">{service.serviceCategory}</td>
+                          <td className="p-3">
+                            £
+                            {service.customRate ||
+                              service.defaultRate ||
+                              "0.00"}
+                          </td>
+                          <td className="p-3 capitalize">{service.priceType}</td>
+                          <td className="p-3 text-center">
+                            <Badge
+                              variant={
+                                service.isActive ? "default" : "secondary"
+                              }
+                            >
+                              {service.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -440,16 +547,79 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  No tasks found for this client
-                </p>
-                <Button className="mt-4" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create First Task
-                </Button>
-              </div>
+              {tasksLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">Loading tasks...</p>
+                </div>
+              ) : clientTasks.length === 0 ? (
+                <div className="text-center py-12">
+                  <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    No tasks found for this client
+                  </p>
+                  <Button className="mt-4" size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First Task
+                  </Button>
+                </div>
+              ) : (
+                <div className="glass-table">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-3">Title</th>
+                        <th className="text-left p-3">Status</th>
+                        <th className="text-left p-3">Priority</th>
+                        <th className="text-left p-3">Due Date</th>
+                        <th className="text-left p-3">Assignee</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clientTasks.map((task) => (
+                        <tr key={task.id} className="border-b hover:bg-muted/50">
+                          <td className="p-3">
+                            <div className="font-medium">{task.title}</div>
+                          </td>
+                          <td className="p-3">
+                            <Badge
+                              variant={
+                                task.status === "completed"
+                                  ? "default"
+                                  : task.status === "in_progress"
+                                    ? "secondary"
+                                    : "outline"
+                              }
+                            >
+                              {task.status?.replace("_", " ")}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
+                            <Badge
+                              variant={
+                                task.priority === "urgent" ||
+                                task.priority === "high"
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                            >
+                              {task.priority}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
+                            {task.dueDate
+                              ? format(new Date(task.dueDate), "dd/MM/yyyy")
+                              : "-"}
+                          </td>
+                          <td className="p-3">
+                            {(task as any).assigneeName || "Unassigned"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -464,8 +634,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">0.0</p>
-                <p className="text-xs text-muted-foreground">This month</p>
+                <p className="text-2xl font-bold">{totalHours.toFixed(1)}</p>
+                <p className="text-xs text-muted-foreground">All time</p>
               </CardContent>
             </Card>
             <Card className="glass-card">
@@ -475,8 +645,8 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">0.0</p>
-                <p className="text-xs text-muted-foreground">This month</p>
+                <p className="text-2xl font-bold">{billableHours.toFixed(1)}</p>
+                <p className="text-xs text-muted-foreground">All time</p>
               </CardContent>
             </Card>
             <Card className="glass-card">
@@ -486,7 +656,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">0.0</p>
+                <p className="text-2xl font-bold">{unbilledHours.toFixed(1)}</p>
                 <p className="text-xs text-muted-foreground">To be invoiced</p>
               </CardContent>
             </Card>
@@ -505,10 +675,67 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No time entries found</p>
-              </div>
+              {timeEntriesLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">Loading time entries...</p>
+                </div>
+              ) : clientTimeEntries.length === 0 ? (
+                <div className="text-center py-12">
+                  <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No time entries found</p>
+                </div>
+              ) : (
+                <div className="glass-table">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-3">Date</th>
+                        <th className="text-left p-3">Description</th>
+                        <th className="text-right p-3">Hours</th>
+                        <th className="text-center p-3">Billable</th>
+                        <th className="text-center p-3">Billed</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clientTimeEntries.slice(0, 20).map((entry) => (
+                        <tr key={entry.id} className="border-b hover:bg-muted/50">
+                          <td className="p-3">
+                            {format(new Date(entry.date), "dd/MM/yyyy")}
+                          </td>
+                          <td className="p-3">
+                            <div className="max-w-md truncate">
+                              {entry.description}
+                            </div>
+                          </td>
+                          <td className="p-3 text-right font-medium">
+                            {Number(entry.hours).toFixed(2)}h
+                          </td>
+                          <td className="p-3 text-center">
+                            {entry.billable ? (
+                              <Badge variant="default">Yes</Badge>
+                            ) : (
+                              <Badge variant="outline">No</Badge>
+                            )}
+                          </td>
+                          <td className="p-3 text-center">
+                            {entry.billed ? (
+                              <Badge variant="default">Yes</Badge>
+                            ) : (
+                              <Badge variant="secondary">Pending</Badge>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {clientTimeEntries.length > 20 && (
+                    <div className="text-center py-4 text-sm text-muted-foreground">
+                      Showing first 20 of {clientTimeEntries.length} entries
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -526,10 +753,64 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No invoices found</p>
-              </div>
+              {invoicesLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">Loading invoices...</p>
+                </div>
+              ) : clientInvoices.length === 0 ? (
+                <div className="text-center py-12">
+                  <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No invoices found</p>
+                </div>
+              ) : (
+                <div className="glass-table">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-3">Invoice #</th>
+                        <th className="text-left p-3">Issue Date</th>
+                        <th className="text-left p-3">Due Date</th>
+                        <th className="text-right p-3">Amount</th>
+                        <th className="text-center p-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clientInvoices.map((invoice) => (
+                        <tr key={invoice.id} className="border-b hover:bg-muted/50">
+                          <td className="p-3 font-medium">
+                            {invoice.invoiceNumber}
+                          </td>
+                          <td className="p-3">
+                            {format(new Date(invoice.issueDate), "dd/MM/yyyy")}
+                          </td>
+                          <td className="p-3">
+                            {format(new Date(invoice.dueDate), "dd/MM/yyyy")}
+                          </td>
+                          <td className="p-3 text-right font-medium">
+                            £{Number(invoice.total).toFixed(2)}
+                          </td>
+                          <td className="p-3 text-center">
+                            <Badge
+                              variant={
+                                invoice.status === "paid"
+                                  ? "default"
+                                  : invoice.status === "overdue"
+                                    ? "destructive"
+                                    : invoice.status === "sent"
+                                      ? "secondary"
+                                      : "outline"
+                              }
+                            >
+                              {invoice.status}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
