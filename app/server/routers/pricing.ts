@@ -307,8 +307,8 @@ async function calculateModelA(
           eq(pricingRules.componentId, component.id),
           eq(pricingRules.ruleType, "turnover_band"),
           eq(pricingRules.isActive, true),
-          gte(pricingRules.minValue, turnoverBand.min),
-          turnoverBand.max ? lte(pricingRules.maxValue, turnoverBand.max) : undefined,
+          lte(pricingRules.minValue, turnoverBand.min),
+          gte(pricingRules.maxValue, turnoverBand.min),
         ),
       )
       .limit(1);
