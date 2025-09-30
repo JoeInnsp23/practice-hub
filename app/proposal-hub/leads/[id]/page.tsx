@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { ConvertToClientDialog } from "@/components/proposal-hub/convert-to-client-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -131,10 +132,16 @@ export default function LeadDetailPage({
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
-          <Button disabled>
-            <UserCheck className="h-4 w-4 mr-2" />
-            Convert to Client
-          </Button>
+          {!leadData.convertedToClientId && (
+            <ConvertToClientDialog
+              leadId={leadData.id}
+              leadName={`${leadData.firstName} ${leadData.lastName}`}
+              companyName={leadData.companyName || undefined}
+              onSuccess={(clientId) => {
+                router.push(`/client-hub/clients/${clientId}`);
+              }}
+            />
+          )}
         </div>
       </div>
 
