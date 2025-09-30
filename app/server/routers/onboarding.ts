@@ -228,7 +228,8 @@ export const onboardingRouter = router({
           clientCode: clients.clientCode,
           clientCreatedAt: clients.createdAt,
           // Account Manager info
-          accountManagerName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+          accountManagerFirstName: users.firstName,
+          accountManagerLastName: users.lastName,
         })
         .from(onboardingSessions)
         .innerJoin(clients, eq(onboardingSessions.clientId, clients.id))
@@ -273,8 +274,15 @@ export const onboardingRouter = router({
         .where(eq(onboardingTasks.sessionId, session.id))
         .orderBy(onboardingTasks.sequence);
 
+      // Concatenate account manager name
+      const accountManagerName =
+        session.accountManagerFirstName && session.accountManagerLastName
+          ? `${session.accountManagerFirstName} ${session.accountManagerLastName}`
+          : null;
+
       return {
         ...session,
+        accountManagerName,
         tasks,
       };
     }),
