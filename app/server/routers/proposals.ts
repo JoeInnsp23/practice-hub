@@ -25,6 +25,7 @@ const proposalSchema = insertProposalSchema
   .omit({
     id: true,
     tenantId: true,
+    proposalNumber: true,
     createdAt: true,
     updatedAt: true,
     createdById: true,
