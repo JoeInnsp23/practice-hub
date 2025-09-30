@@ -78,18 +78,18 @@ export function FloatingPriceWidget({
       {isMinimized ? (
         /* Minimized View */
         <div
-          className="flex flex-col items-center py-4 gap-3 cursor-pointer hover:bg-accent/50 transition-colors"
+          className="flex flex-col items-center py-2 gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => setIsMinimized(false)}
         >
           <DollarSign className="h-5 w-5 text-primary" />
 
-          {/* Horizontal Price (Smaller Font) */}
+          {/* Horizontal Price */}
           {!isLoading && recommendedModel && (
             <div className="text-center px-1">
-              <div className="text-sm font-semibold text-green-600 dark:text-green-400">
+              <div className="text-base font-semibold text-green-600 dark:text-green-400">
                 £{Math.floor(recommendedModel.monthlyTotal)}
               </div>
-              <div className="text-xs text-muted-foreground mt-0.5">
+              <div className="text-sm text-muted-foreground mt-0.5">
                 /mo
               </div>
             </div>
@@ -105,7 +105,7 @@ export function FloatingPriceWidget({
           </Badge>
 
           {/* Expand Button - More Prominent */}
-          <div className="mt-auto pt-2 border-t border-border w-full flex justify-center">
+          <div className="mt-auto pt-1.5 border-t border-border w-full flex justify-center">
             <ChevronsLeft className="h-5 w-5 text-primary animate-pulse" />
           </div>
         </div>
