@@ -14,6 +14,8 @@ import {
   invoiceItems,
   invoices,
   leads,
+  portalCategories,
+  portalLinks,
   services,
   tasks,
   taskWorkflowInstances,
@@ -31,8 +33,6 @@ async function clearDatabase() {
   console.log("🗑️  Clearing existing data...");
 
   // Delete in reverse order of dependencies
-  // NOTE: Portal data (portal_categories, portal_links, user_favorites) is NOT cleared
-  // as it's managed via migrations (drizzle/0002_portal_production_data.sql)
   await db.delete(activityLogs);
   await db.delete(invoiceItems);
   await db.delete(invoices);
@@ -50,10 +50,15 @@ async function clearDatabase() {
   await db.delete(clients);
   await db.delete(leads);
   await db.delete(services);
+
+  // Clear portal data
+  await db.delete(portalLinks);
+  await db.delete(portalCategories);
+
   await db.delete(users);
   await db.delete(tenants);
 
-  console.log("✅ Database cleared (portal data preserved)");
+  console.log("✅ Database cleared");
 }
 
 async function seedDatabase() {
@@ -118,6 +123,253 @@ async function seedDatabase() {
     .returning();
 
   const [adminUser, _sarah, _mike, _emily] = createdUsers;
+
+  // 2.5. Create Portal Categories and Links
+  console.log("Creating portal categories and links...");
+
+  // Create Portal Categories
+  const [practiceHubCategory] = await db
+    .insert(portalCategories)
+    .values({
+      tenantId: tenant.id,
+      name: "Practice Hub",
+      description: "Internal practice management modules",
+      iconName: "LayoutGrid",
+      colorHex: "#ff8609",
+      sortOrder: 1,
+      isActive: true,
+      createdById: adminUser.id,
+    })
+    .returning();
+
+  const [externalToolsCategory] = await db
+    .insert(portalCategories)
+    .values({
+      tenantId: tenant.id,
+      name: "External Tools",
+      description: "Government and regulatory services",
+      iconName: "ExternalLink",
+      colorHex: "#3b82f6",
+      sortOrder: 2,
+      isActive: true,
+      createdById: adminUser.id,
+    })
+    .returning();
+
+  const [practiceResourcesCategory] = await db
+    .insert(portalCategories)
+    .values({
+      tenantId: tenant.id,
+      name: "Practice Resources",
+      description: "Professional bodies and resources",
+      iconName: "BookOpen",
+      colorHex: "#8b5cf6",
+      sortOrder: 3,
+      isActive: true,
+      createdById: adminUser.id,
+    })
+    .returning();
+
+  // Create Practice Hub internal module links
+  const practiceHubLinks = [
+    {
+      title: "Client Hub",
+      description: "Manage clients, contacts, and relationships",
+      url: "/client-hub",
+      iconName: "Users",
+      sortOrder: 1,
+    },
+    {
+      title: "Proposal Hub",
+      description: "Create and manage client proposals",
+      url: "/proposal-hub",
+      iconName: "FileText",
+      sortOrder: 2,
+    },
+    {
+      title: "Social Hub",
+      description: "Practice social features (coming soon)",
+      url: "/social-hub",
+      iconName: "Share2",
+      sortOrder: 3,
+    },
+    {
+      title: "Bookkeeping Hub",
+      description: "Bookkeeping and reconciliation (coming soon)",
+      url: "/bookkeeping",
+      iconName: "Calculator",
+      sortOrder: 4,
+    },
+    {
+      title: "Accounts Hub",
+      description: "Annual accounts preparation (coming soon)",
+      url: "/accounts-hub",
+      iconName: "Building",
+      sortOrder: 5,
+    },
+    {
+      title: "Payroll Hub",
+      description: "Payroll processing and RTI (coming soon)",
+      url: "/payroll",
+      iconName: "DollarSign",
+      sortOrder: 6,
+    },
+    {
+      title: "Employee Portal",
+      description: "Employee self-service portal (coming soon)",
+      url: "/employee-portal",
+      iconName: "Briefcase",
+      sortOrder: 7,
+    },
+    {
+      title: "Client Portal",
+      description: "Client self-service portal",
+      url: "/client-portal",
+      iconName: "UserCircle",
+      sortOrder: 8,
+    },
+    {
+      title: "Admin Panel",
+      description: "System administration and configuration",
+      url: "/admin",
+      iconName: "Settings",
+      sortOrder: 9,
+    },
+  ];
+
+  await db.insert(portalLinks).values(
+    practiceHubLinks.map((link) => ({
+      tenantId: tenant.id,
+      categoryId: practiceHubCategory.id,
+      title: link.title,
+      description: link.description,
+      url: link.url,
+      isInternal: true,
+      iconName: link.iconName,
+      sortOrder: link.sortOrder,
+      isActive: true,
+      createdById: adminUser.id,
+    })),
+  );
+
+  // Create External Tools links (UK-specific)
+  const externalToolsLinks = [
+    {
+      title: "HMRC Online Services",
+      description: "Access HMRC tax services and submissions",
+      url: "https://www.tax.service.gov.uk/account",
+      iconName: "ExternalLink",
+      sortOrder: 1,
+    },
+    {
+      title: "Companies House",
+      description: "Search company information and file documents",
+      url: "https://www.gov.uk/government/organisations/companies-house",
+      iconName: "Building2",
+      sortOrder: 2,
+    },
+    {
+      title: "WebFiling Service",
+      description: "Companies House online filing service",
+      url: "https://ewf.companieshouse.gov.uk/",
+      iconName: "Upload",
+      sortOrder: 3,
+    },
+    {
+      title: "VAT Online",
+      description: "Submit VAT returns and view account",
+      url: "https://www.tax.service.gov.uk/vat-through-software/overview",
+      iconName: "FileCheck",
+      sortOrder: 4,
+    },
+    {
+      title: "PAYE for Employers",
+      description: "PAYE online services and RTI submissions",
+      url: "https://www.gov.uk/paye-online",
+      iconName: "Users2",
+      sortOrder: 5,
+    },
+    {
+      title: "Self Assessment",
+      description: "Self Assessment online services",
+      url: "https://www.gov.uk/log-in-file-self-assessment-tax-return",
+      iconName: "Receipt",
+      sortOrder: 6,
+    },
+    {
+      title: "Making Tax Digital",
+      description: "MTD for Income Tax and VAT",
+      url: "https://www.gov.uk/guidance/use-software-to-send-income-tax-updates",
+      iconName: "CloudUpload",
+      sortOrder: 7,
+    },
+  ];
+
+  await db.insert(portalLinks).values(
+    externalToolsLinks.map((link) => ({
+      tenantId: tenant.id,
+      categoryId: externalToolsCategory.id,
+      title: link.title,
+      description: link.description,
+      url: link.url,
+      isInternal: false,
+      iconName: link.iconName,
+      sortOrder: link.sortOrder,
+      isActive: true,
+      createdById: adminUser.id,
+    })),
+  );
+
+  // Create Practice Resources links
+  const practiceResourcesLinks = [
+    {
+      title: "ICAEW",
+      description: "Institute of Chartered Accountants in England and Wales",
+      url: "https://www.icaew.com/",
+      iconName: "GraduationCap",
+      sortOrder: 1,
+    },
+    {
+      title: "ACCA",
+      description: "Association of Chartered Certified Accountants",
+      url: "https://www.accaglobal.com/",
+      iconName: "Award",
+      sortOrder: 2,
+    },
+    {
+      title: "AAT",
+      description: "Association of Accounting Technicians",
+      url: "https://www.aat.org.uk/",
+      iconName: "BookmarkCheck",
+      sortOrder: 3,
+    },
+    {
+      title: "GOV.UK",
+      description: "Official UK government website",
+      url: "https://www.gov.uk/",
+      iconName: "Home",
+      sortOrder: 4,
+    },
+  ];
+
+  await db.insert(portalLinks).values(
+    practiceResourcesLinks.map((link) => ({
+      tenantId: tenant.id,
+      categoryId: practiceResourcesCategory.id,
+      title: link.title,
+      description: link.description,
+      url: link.url,
+      isInternal: false,
+      iconName: link.iconName,
+      sortOrder: link.sortOrder,
+      isActive: true,
+      createdById: adminUser.id,
+    })),
+  );
+
+  console.log(
+    `✓ Created ${practiceHubLinks.length + externalToolsLinks.length + practiceResourcesLinks.length} portal links across 3 categories`,
+  );
 
   // 3. Create Services
   console.log("Creating services...");
@@ -1473,15 +1725,14 @@ async function seedDatabase() {
   }
 
   console.log("✅ Database seeding completed!");
-  console.log(
-    "\nNote: Portal categories and links are managed via migrations (drizzle/0002_portal_production_data.sql)",
-  );
 
   // Print summary
   console.log("\n📊 Seed Summary:");
   console.log("================");
   console.log(`✓ 1 Tenant created`);
   console.log(`✓ ${createdUsers.length} Users created`);
+  console.log(`✓ 3 Portal categories created`);
+  console.log(`✓ 20 Portal links created (internal modules + external tools)`);
   console.log(`✓ ${createdServices.length} Services created`);
   console.log(`✓ ${createdClients.length} Clients created`);
   console.log(`✓ ${createdTasks.length} Tasks created`);
