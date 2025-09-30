@@ -12,6 +12,7 @@ import {
   clientServices,
   clients,
   services,
+  users,
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
@@ -66,20 +67,58 @@ export const clientsRouter = router({
     .query(async ({ ctx, input: id }) => {
       const { tenantId } = ctx.authContext;
 
-      const client = await db
-        .select()
+      const [client] = await db
+        .select({
+          id: clients.id,
+          tenantId: clients.tenantId,
+          clientCode: clients.clientCode,
+          name: clients.name,
+          type: clients.type,
+          status: clients.status,
+          email: clients.email,
+          phone: clients.phone,
+          website: clients.website,
+          vatNumber: clients.vatNumber,
+          registrationNumber: clients.registrationNumber,
+          addressLine1: clients.addressLine1,
+          addressLine2: clients.addressLine2,
+          city: clients.city,
+          state: clients.state,
+          postalCode: clients.postalCode,
+          country: clients.country,
+          accountManagerId: clients.accountManagerId,
+          incorporationDate: clients.incorporationDate,
+          yearEnd: clients.yearEnd,
+          notes: clients.notes,
+          healthScore: clients.healthScore,
+          createdAt: clients.createdAt,
+          updatedAt: clients.updatedAt,
+          // Account Manager info
+          accountManagerFirstName: users.firstName,
+          accountManagerLastName: users.lastName,
+        })
         .from(clients)
+        .leftJoin(users, eq(clients.accountManagerId, users.id))
         .where(and(eq(clients.id, id), eq(clients.tenantId, tenantId)))
         .limit(1);
 
-      if (!client[0]) {
+      if (!client) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Client not found",
         });
       }
 
-      return client[0];
+      // Concatenate account manager name
+      const accountManagerName =
+        client.accountManagerFirstName && client.accountManagerLastName
+          ? `${client.accountManagerFirstName} ${client.accountManagerLastName}`
+          : null;
+
+      return {
+        ...client,
+        accountManagerName,
+      };
     }),
 
   create: protectedProcedure

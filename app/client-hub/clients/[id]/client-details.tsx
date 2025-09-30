@@ -463,7 +463,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 </div>
               ) : (
                 <span className="text-sm text-muted-foreground">
-                  Account Manager: {client.accountManagerId || "Unassigned"}
+                  Account Manager: {client.accountManagerName || "Unassigned"}
                 </span>
               )}
             </div>
