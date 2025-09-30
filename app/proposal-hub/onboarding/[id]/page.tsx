@@ -90,39 +90,36 @@ export default function OnboardingDetailPage({
     updateSession({ sessionId: id, priority });
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
-      not_started: { variant: "secondary", color: "text-slate-600" },
-      in_progress: { variant: "default", color: "text-blue-600" },
-      completed: { variant: "default", color: "text-green-600" },
+  const getStatusDisplay = (status: string) => {
+    const colors: Record<string, string> = {
+      not_started: "text-slate-600",
+      in_progress: "text-blue-600",
+      completed: "text-green-600",
     };
 
-    const config = variants[status] || variants.not_started;
     const label = status
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
 
     return (
-      <Badge variant={config.variant} className={config.color}>
+      <p className={`text-2xl font-bold ${colors[status] || colors.not_started}`}>
         {label}
-      </Badge>
+      </p>
     );
   };
 
-  const getPriorityBadge = (priority: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
-      low: { variant: "secondary", color: "text-slate-600" },
-      medium: { variant: "default", color: "text-blue-600" },
-      high: { variant: "default", color: "text-red-600" },
+  const getPriorityDisplay = (priority: string) => {
+    const colors: Record<string, string> = {
+      low: "text-slate-600",
+      medium: "text-blue-600",
+      high: "text-red-600",
     };
 
-    const config = variants[priority] || variants.medium;
-
     return (
-      <Badge variant={config.variant} className={config.color}>
+      <p className={`text-2xl font-bold ${colors[priority] || colors.medium}`}>
         {priority.charAt(0).toUpperCase() + priority.slice(1)}
-      </Badge>
+      </p>
     );
   };
 
@@ -180,7 +177,7 @@ export default function OnboardingDetailPage({
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Status</span>
           </div>
-          {getStatusBadge(sessionData.status)}
+          {getStatusDisplay(sessionData.status)}
         </Card>
 
         <Card className="glass-card p-4">
@@ -188,7 +185,7 @@ export default function OnboardingDetailPage({
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Priority</span>
           </div>
-          {getPriorityBadge(sessionData.priority)}
+          {getPriorityDisplay(sessionData.priority)}
         </Card>
 
         <Card className="glass-card p-4">
