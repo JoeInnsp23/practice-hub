@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -75,22 +75,22 @@ export function TimeEntryModal({
   const updateTimeEntry = useUpdateTimeEntry();
   const deleteTimeEntry = useDeleteTimeEntry();
 
-  const getDefaultStartTime = () => {
+  const getDefaultStartTime = useCallback(() => {
     if (selectedEntry?.startTime) return selectedEntry.startTime;
     if (selectedHour !== null && selectedHour !== undefined) {
       return `${selectedHour.toString().padStart(2, "0")}:00`;
     }
     return "09:00";
-  };
+  }, [selectedEntry, selectedHour]);
 
-  const getDefaultEndTime = () => {
+  const getDefaultEndTime = useCallback(() => {
     if (selectedEntry?.endTime) return selectedEntry.endTime;
     if (selectedHour !== null && selectedHour !== undefined) {
       const endHour = selectedHour + 1;
       return `${endHour.toString().padStart(2, "0")}:00`;
     }
     return "10:00";
-  };
+  }, [selectedEntry, selectedHour]);
 
   const [formData, setFormData] = useState({
     date: selectedEntry?.date || selectedDate,

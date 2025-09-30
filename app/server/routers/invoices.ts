@@ -52,7 +52,7 @@ export const invoicesRouter = router({
       const conditions = [eq(invoices.tenantId, tenantId)];
 
       if (search) {
-        conditions.push(or(ilike(invoices.invoiceNumber, `%${search}%`))!);
+        conditions.push(ilike(invoices.invoiceNumber, `%${search}%`));
       }
 
       if (status && status !== "all") {
@@ -64,12 +64,11 @@ export const invoicesRouter = router({
       }
 
       if (overdue) {
-        conditions.push(
-          and(
-            eq(invoices.status, "sent"),
-            sql`${invoices.dueDate} < CURRENT_DATE`,
-          )!,
+        const overdueCondition = and(
+          eq(invoices.status, "sent"),
+          sql`${invoices.dueDate} < CURRENT_DATE`,
         );
+        if (overdueCondition) conditions.push(overdueCondition);
       }
 
       const invoicesList = await db

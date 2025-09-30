@@ -34,13 +34,12 @@ export const servicesRouter = router({
       const conditions = [eq(services.tenantId, tenantId)];
 
       if (search) {
-        conditions.push(
-          or(
-            ilike(services.name, `%${search}%`),
-            ilike(services.code, `%${search}%`),
-            ilike(services.description, `%${search}%`),
-          )!,
+        const searchCondition = or(
+          ilike(services.name, `%${search}%`),
+          ilike(services.code, `%${search}%`),
+          ilike(services.description, `%${search}%`),
         );
+        if (searchCondition) conditions.push(searchCondition);
       }
 
       if (category && category !== "all") {

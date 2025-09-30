@@ -33,13 +33,12 @@ export const usersRouter = router({
       const conditions = [eq(users.tenantId, tenantId)];
 
       if (search) {
-        conditions.push(
-          or(
-            ilike(users.firstName, `%${search}%`),
-            ilike(users.lastName, `%${search}%`),
-            ilike(users.email, `%${search}%`),
-          )!,
+        const searchCondition = or(
+          ilike(users.firstName, `%${search}%`),
+          ilike(users.lastName, `%${search}%`),
+          ilike(users.email, `%${search}%`),
         );
+        if (searchCondition) conditions.push(searchCondition);
       }
 
       if (role && role !== "all") {

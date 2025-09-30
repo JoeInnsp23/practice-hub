@@ -42,12 +42,11 @@ export const complianceRouter = router({
       const conditions = [eq(compliance.tenantId, tenantId)];
 
       if (search) {
-        conditions.push(
-          or(
-            ilike(compliance.title, `%${search}%`),
-            ilike(compliance.description, `%${search}%`),
-          )!,
+        const searchCondition = or(
+          ilike(compliance.title, `%${search}%`),
+          ilike(compliance.description, `%${search}%`),
         );
+        if (searchCondition) conditions.push(searchCondition);
       }
 
       if (type && type !== "all") {
@@ -67,12 +66,11 @@ export const complianceRouter = router({
       }
 
       if (overdue) {
-        conditions.push(
-          and(
-            sql`${compliance.dueDate} < CURRENT_DATE`,
-            sql`${compliance.status} NOT IN ('completed', 'cancelled')`,
-          )!,
+        const overdueCondition = and(
+          sql`${compliance.dueDate} < CURRENT_DATE`,
+          sql`${compliance.status} NOT IN ('completed', 'cancelled')`,
         );
+        if (overdueCondition) conditions.push(overdueCondition);
       }
 
       const complianceList = await db
