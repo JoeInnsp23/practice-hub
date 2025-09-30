@@ -1,11 +1,10 @@
 "use client";
 
-import { Briefcase, ChevronDown, ChevronRight, Package } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronRight, Circle, Package } from "lucide-react";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -142,134 +141,148 @@ export function ServiceSelector({
             {expandedCategories.has(category) && (
               <div className="p-4 pt-0 space-y-4">
                 {comps.map((comp) => (
-                  <div key={comp.code} className="space-y-2">
-                    {/* Service Checkbox */}
-                    <div className="flex items-start gap-2">
-                      <Checkbox
-                        id={comp.code}
-                        checked={isServiceSelected(comp.code)}
-                        onCheckedChange={() => handleToggleService(comp.code)}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <Label
-                          htmlFor={comp.code}
-                          className="cursor-pointer font-medium"
+                  <div
+                    key={comp.code}
+                    className={`border rounded-lg p-4 transition-colors ${
+                      isServiceSelected(comp.code)
+                        ? "bg-muted/50 border-green-200 dark:border-green-900"
+                        : "border-border"
+                    }`}
+                  >
+                    {/* Service Item */}
+                    <div className="flex items-start gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleService(comp.code)}
+                        className="mt-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full"
+                      >
+                        {isServiceSelected(comp.code) ? (
+                          <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-6 w-6 text-muted-foreground flex-shrink-0 hover:text-primary transition-colors" />
+                        )}
+                      </button>
+                      <div className="flex-1 space-y-2">
+                        <div
+                          onClick={() => handleToggleService(comp.code)}
+                          className="cursor-pointer"
                         >
-                          {comp.name}
-                        </Label>
-                        {comp.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {comp.description}
+                          <p className="text-base font-medium">
+                            {comp.name}
                           </p>
+                          {comp.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {comp.description}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Service Configuration */}
+                        {isServiceSelected(comp.code) && (
+                          <div className="space-y-3 mt-3">
+                            {/* Complexity selector for bookkeeping */}
+                            {comp.supportsComplexity &&
+                              (comp.code.includes("BOOK") ||
+                                comp.code.includes("ACCOUNTS")) && (
+                                <div>
+                                  <Label className="text-sm">
+                                    Complexity Level
+                                  </Label>
+                                  <Select
+                                    value={
+                                      getServiceConfig(comp.code)?.complexity ||
+                                      "average"
+                                    }
+                                    onValueChange={(value) =>
+                                      handleUpdateConfig(comp.code, {
+                                        ...getServiceConfig(comp.code),
+                                        complexity: value as ServiceConfig["complexity"],
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger className="mt-1">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="clean">
+                                        Clean (Well organized, up to date)
+                                      </SelectItem>
+                                      <SelectItem value="average">
+                                        Average (Mostly okay)
+                                      </SelectItem>
+                                      <SelectItem value="complex">
+                                        Complex (Behind, needs work)
+                                      </SelectItem>
+                                      <SelectItem value="disaster">
+                                        Disaster (Major cleanup needed)
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+
+                            {/* Payroll configuration */}
+                            {comp.code.includes("PAYROLL") && (
+                              <>
+                                <div>
+                                  <Label className="text-sm">
+                                    Number of Employees
+                                  </Label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    value={
+                                      getServiceConfig(comp.code)?.employees || 1
+                                    }
+                                    onChange={(e) =>
+                                      handleUpdateConfig(comp.code, {
+                                        ...getServiceConfig(comp.code),
+                                        employees: Number.parseInt(e.target.value),
+                                      })
+                                    }
+                                    className="mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-sm">
+                                    Payroll Frequency
+                                  </Label>
+                                  <Select
+                                    value={
+                                      getServiceConfig(comp.code)?.payrollFrequency ||
+                                      "monthly"
+                                    }
+                                    onValueChange={(value) =>
+                                      handleUpdateConfig(comp.code, {
+                                        ...getServiceConfig(comp.code),
+                                        payrollFrequency:
+                                          value as ServiceConfig["payrollFrequency"],
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger className="mt-1">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="monthly">Monthly</SelectItem>
+                                      <SelectItem value="weekly">
+                                        Weekly (3x monthly rate)
+                                      </SelectItem>
+                                      <SelectItem value="fortnightly">
+                                        Fortnightly (2x monthly rate)
+                                      </SelectItem>
+                                      <SelectItem value="4weekly">
+                                        4-Weekly (2x monthly rate)
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    {/* Service Configuration */}
-                    {isServiceSelected(comp.code) && (
-                      <div className="ml-6 pl-4 border-l-2 border-primary/20 space-y-3">
-                        {/* Complexity selector for bookkeeping */}
-                        {comp.supportsComplexity &&
-                          (comp.code.includes("BOOK") ||
-                            comp.code.includes("ACCOUNTS")) && (
-                            <div>
-                              <Label className="text-sm">
-                                Complexity Level
-                              </Label>
-                              <Select
-                                value={
-                                  getServiceConfig(comp.code)?.complexity ||
-                                  "average"
-                                }
-                                onValueChange={(value) =>
-                                  handleUpdateConfig(comp.code, {
-                                    ...getServiceConfig(comp.code),
-                                    complexity: value as ServiceConfig["complexity"],
-                                  })
-                                }
-                              >
-                                <SelectTrigger className="mt-1">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="clean">
-                                    Clean (Well organized, up to date)
-                                  </SelectItem>
-                                  <SelectItem value="average">
-                                    Average (Mostly okay)
-                                  </SelectItem>
-                                  <SelectItem value="complex">
-                                    Complex (Behind, needs work)
-                                  </SelectItem>
-                                  <SelectItem value="disaster">
-                                    Disaster (Major cleanup needed)
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-
-                        {/* Payroll configuration */}
-                        {comp.code.includes("PAYROLL") && (
-                          <>
-                            <div>
-                              <Label className="text-sm">
-                                Number of Employees
-                              </Label>
-                              <Input
-                                type="number"
-                                min="0"
-                                value={
-                                  getServiceConfig(comp.code)?.employees || 1
-                                }
-                                onChange={(e) =>
-                                  handleUpdateConfig(comp.code, {
-                                    ...getServiceConfig(comp.code),
-                                    employees: Number.parseInt(e.target.value),
-                                  })
-                                }
-                                className="mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-sm">
-                                Payroll Frequency
-                              </Label>
-                              <Select
-                                value={
-                                  getServiceConfig(comp.code)?.payrollFrequency ||
-                                  "monthly"
-                                }
-                                onValueChange={(value) =>
-                                  handleUpdateConfig(comp.code, {
-                                    ...getServiceConfig(comp.code),
-                                    payrollFrequency:
-                                      value as ServiceConfig["payrollFrequency"],
-                                  })
-                                }
-                              >
-                                <SelectTrigger className="mt-1">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="monthly">Monthly</SelectItem>
-                                  <SelectItem value="weekly">
-                                    Weekly (3x monthly rate)
-                                  </SelectItem>
-                                  <SelectItem value="fortnightly">
-                                    Fortnightly (2x monthly rate)
-                                  </SelectItem>
-                                  <SelectItem value="4weekly">
-                                    4-Weekly (2x monthly rate)
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
