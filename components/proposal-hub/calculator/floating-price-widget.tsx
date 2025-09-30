@@ -78,7 +78,7 @@ export function FloatingPriceWidget({
       {isMinimized ? (
         /* Minimized View */
         <div
-          className="flex flex-col items-center py-2 gap-2 cursor-pointer hover:bg-accent/50 transition-colors"
+          className="flex flex-col items-center py-1.5 gap-1.5 cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => setIsMinimized(false)}
         >
           <DollarSign className="h-5 w-5 text-primary" />
@@ -105,7 +105,7 @@ export function FloatingPriceWidget({
           </Badge>
 
           {/* Expand Button - More Prominent */}
-          <div className="mt-auto pt-1.5 border-t border-border w-full flex justify-center">
+          <div className="mt-auto pt-1 border-t border-border w-full flex justify-center">
             <ChevronsLeft className="h-5 w-5 text-primary animate-pulse" />
           </div>
         </div>
