@@ -86,10 +86,10 @@ export function FloatingPriceWidget({
           {/* Horizontal Price (Smaller Font) */}
           {!isLoading && recommendedModel && (
             <div className="text-center px-1">
-              <div className="text-xs font-semibold text-green-600 dark:text-green-400">
+              <div className="text-sm font-semibold text-green-600 dark:text-green-400">
                 £{Math.floor(recommendedModel.monthlyTotal)}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
+              <div className="text-xs text-muted-foreground mt-0.5">
                 /mo
               </div>
             </div>
@@ -100,7 +100,7 @@ export function FloatingPriceWidget({
           )}
 
           {/* Service Count */}
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+          <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
             {services.length}
           </Badge>
 
