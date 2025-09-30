@@ -10,7 +10,8 @@ SELECT
     CONCAT(u.first_name, ' ', u.last_name) AS account_manager_name,
     u.email AS account_manager_email
 FROM clients c
-LEFT JOIN users u ON c.account_manager_id = u.id;--> statement-breakpoint
+LEFT JOIN users u ON c.account_manager_id = u.id;
+--> statement-breakpoint
 
 -- Task Details View (with client and assignee names)
 CREATE VIEW "task_details_view" AS
@@ -31,7 +32,8 @@ LEFT JOIN users u1 ON t.assigned_to_id = u1.id
 LEFT JOIN users u2 ON t.reviewer_id = u2.id
 LEFT JOIN users u3 ON t.created_by_id = u3.id
 LEFT JOIN workflows w ON t.workflow_id = w.id
-LEFT JOIN tasks pt ON t.parent_task_id = pt.id;--> statement-breakpoint
+LEFT JOIN tasks pt ON t.parent_task_id = pt.id;
+--> statement-breakpoint
 
 -- Time Entries View (with user, client, task names)
 CREATE VIEW "time_entries_view" AS
@@ -50,7 +52,8 @@ LEFT JOIN users u ON te.user_id = u.id
 LEFT JOIN clients c ON te.client_id = c.id
 LEFT JOIN tasks t ON te.task_id = t.id
 LEFT JOIN service_components s ON te.service_component_id = s.id
-LEFT JOIN users a ON te.approved_by_id = a.id;--> statement-breakpoint
+LEFT JOIN users a ON te.approved_by_id = a.id;
+--> statement-breakpoint
 
 -- Invoice Details View (with client information)
 CREATE VIEW "invoice_details_view" AS
@@ -69,7 +72,8 @@ SELECT
     (i.total - i.amount_paid) AS balance_due
 FROM invoices i
 LEFT JOIN clients c ON i.client_id = c.id
-LEFT JOIN users u ON i.created_by_id = u.id;--> statement-breakpoint
+LEFT JOIN users u ON i.created_by_id = u.id;
+--> statement-breakpoint
 
 -- Invoice Items View (with service details)
 CREATE VIEW "invoice_items_view" AS
@@ -83,7 +87,8 @@ SELECT
     s.category AS service_category
 FROM invoice_items ii
 LEFT JOIN invoices i ON ii.invoice_id = i.id
-LEFT JOIN service_components s ON ii.service_component_id = s.id;--> statement-breakpoint
+LEFT JOIN service_components s ON ii.service_component_id = s.id;
+--> statement-breakpoint
 
 -- Client Services View (with full service details)
 CREATE VIEW "client_services_view" AS
@@ -98,7 +103,8 @@ SELECT
     COALESCE(cs.custom_rate, s.price) AS effective_rate
 FROM client_services cs
 LEFT JOIN clients c ON cs.client_id = c.id
-LEFT JOIN service_components s ON cs.service_component_id = s.id;--> statement-breakpoint
+LEFT JOIN service_components s ON cs.service_component_id = s.id;
+--> statement-breakpoint
 
 -- Compliance Details View
 CREATE VIEW "compliance_details_view" AS
@@ -116,7 +122,8 @@ SELECT
 FROM compliance comp
 LEFT JOIN clients c ON comp.client_id = c.id
 LEFT JOIN users u1 ON comp.assigned_to_id = u1.id
-LEFT JOIN users u2 ON comp.created_by_id = u2.id;--> statement-breakpoint
+LEFT JOIN users u2 ON comp.created_by_id = u2.id;
+--> statement-breakpoint
 
 -- Activity Feed View (for dashboard)
 CREATE VIEW "activity_feed_view" AS
@@ -133,7 +140,8 @@ SELECT
     CONCAT(u.first_name, ' ', u.last_name) AS user_display_name
 FROM activity_logs al
 LEFT JOIN users u ON al.user_id = u.id
-ORDER BY al.created_at DESC;--> statement-breakpoint
+ORDER BY al.created_at DESC;
+--> statement-breakpoint
 
 -- Task Workflow View (tasks with workflow progress)
 CREATE VIEW "task_workflow_view" AS
@@ -156,7 +164,8 @@ LEFT JOIN workflow_stages ws ON twi.current_stage_id = ws.id
 LEFT JOIN workflow_stages ws2 ON ws2.workflow_id = w.id
 WHERE t.workflow_id IS NOT NULL
 GROUP BY t.id, t.title, t.status, t.progress, w.name, w.type,
-         twi.status, ws.name, ws.stage_order, twi.stage_progress;--> statement-breakpoint
+         twi.status, ws.name, ws.stage_order, twi.stage_progress;
+--> statement-breakpoint
 
 -- Dashboard KPI View (aggregated metrics)
 CREATE VIEW "dashboard_kpi_view" AS
@@ -202,7 +211,8 @@ SELECT
     (SELECT COUNT(*) FROM compliance
      WHERE tenant_id = t.id AND status != 'completed'
      AND due_date < CURRENT_DATE) AS overdue_compliance
-FROM tenants t;--> statement-breakpoint
+FROM tenants t;
+--> statement-breakpoint
 
 -- Monthly Revenue View (for charts)
 CREATE VIEW "monthly_revenue_view" AS
@@ -215,7 +225,8 @@ SELECT
     COUNT(DISTINCT client_id) AS unique_clients
 FROM invoices
 GROUP BY tenant_id, DATE_TRUNC('month', issue_date)
-ORDER BY tenant_id, month DESC;--> statement-breakpoint
+ORDER BY tenant_id, month DESC;
+--> statement-breakpoint
 
 -- Client Revenue View (for client breakdown charts)
 CREATE VIEW "client_revenue_view" AS
@@ -233,7 +244,8 @@ SELECT
 FROM invoices i
 LEFT JOIN clients c ON i.client_id = c.id
 WHERE i.status IN ('sent', 'paid', 'overdue')
-GROUP BY i.tenant_id, i.client_id, c.name, c.client_code;--> statement-breakpoint
+GROUP BY i.tenant_id, i.client_id, c.name, c.client_code;
+--> statement-breakpoint
 
 -- Leads Details View (with assigned user information)
 CREATE VIEW "leads_details_view" AS
@@ -245,7 +257,8 @@ SELECT
     c.client_code AS converted_client_code
 FROM leads l
 LEFT JOIN users u ON l.assigned_to_id = u.id
-LEFT JOIN clients c ON l.converted_to_client_id = c.id;--> statement-breakpoint
+LEFT JOIN clients c ON l.converted_to_client_id = c.id;
+--> statement-breakpoint
 
 -- Proposals Details View (with client/lead and creator information)
 CREATE VIEW "proposals_details_view" AS
@@ -260,7 +273,8 @@ SELECT
 FROM proposals p
 LEFT JOIN clients c ON p.client_id = c.id
 LEFT JOIN leads l ON p.lead_id = l.id
-LEFT JOIN users u ON p.created_by_id = u.id;--> statement-breakpoint
+LEFT JOIN users u ON p.created_by_id = u.id;
+--> statement-breakpoint
 
 -- Onboarding Sessions View (with client and account manager details)
 CREATE VIEW "onboarding_sessions_view" AS
@@ -277,7 +291,8 @@ SELECT
     (SELECT COUNT(*) FROM onboarding_tasks WHERE session_id = os.id AND done = true) AS completed_tasks
 FROM onboarding_sessions os
 LEFT JOIN clients c ON os.client_id = c.id
-LEFT JOIN users u ON os.assigned_to_id = u.id;--> statement-breakpoint
+LEFT JOIN users u ON os.assigned_to_id = u.id;
+--> statement-breakpoint
 
 -- Transaction Data Summary View (with client information)
 CREATE VIEW "transaction_data_summary_view" AS
