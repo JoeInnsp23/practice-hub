@@ -449,6 +449,26 @@ export const onboardingRouter = router({
         updateData.status = input.status;
         if (input.status === "completed") {
           updateData.actualCompletionDate = new Date();
+
+          // Get the session to find the client ID
+          const [session] = await db
+            .select({ clientId: onboardingSessions.clientId })
+            .from(onboardingSessions)
+            .where(
+              and(
+                eq(onboardingSessions.id, input.sessionId),
+                eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+              ),
+            )
+            .limit(1);
+
+          // Update client status to active when onboarding completes
+          if (session) {
+            await db
+              .update(clients)
+              .set({ status: "active", updatedAt: new Date() })
+              .where(eq(clients.id, session.clientId));
+          }
         }
       }
 

@@ -490,7 +490,7 @@ export const leadsRouter = router({
             clientCode: input.clientData.clientCode,
             name: lead.companyName || `${lead.firstName} ${lead.lastName}`,
             type: input.clientData.type,
-            status: "active",
+            status: "onboarding",
             email: lead.email,
             phone: lead.phone,
             website: lead.website,
@@ -551,7 +551,7 @@ export const leadsRouter = router({
           userName: `${firstName} ${lastName}`,
           newValues: {
             name: newClient.name,
-            status: "active",
+            status: "onboarding",
             source: "lead_conversion",
           },
         });

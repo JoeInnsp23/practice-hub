@@ -186,9 +186,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
+      prospect: { label: "Prospect", variant: "outline" as const },
+      onboarding: { label: "Onboarding", variant: "secondary" as const },
       active: { label: "Active", variant: "default" as const },
       inactive: { label: "Inactive", variant: "secondary" as const },
-      prospect: { label: "Prospect", variant: "outline" as const },
       archived: { label: "Archived", variant: "destructive" as const },
     };
     const config =
@@ -417,9 +418,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="prospect">Prospect</SelectItem>
+                    <SelectItem value="onboarding">Onboarding</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="prospect">Prospect</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>

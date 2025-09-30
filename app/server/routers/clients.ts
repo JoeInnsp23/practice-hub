@@ -11,6 +11,7 @@ import {
   clientPSCs,
   clientServices,
   clients,
+  onboardingSessions,
   services,
   users,
 } from "@/lib/db/schema";
@@ -215,6 +216,23 @@ export const clientsRouter = router({
           code: "NOT_FOUND",
           message: "Client not found",
         });
+      }
+
+      // Validate: Cannot set status to active if onboarding not complete
+      if (input.data.status === "active") {
+        const [onboardingSession] = await db
+          .select()
+          .from(onboardingSessions)
+          .where(eq(onboardingSessions.clientId, input.id))
+          .limit(1);
+
+        if (onboardingSession && onboardingSession.status !== "completed") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Cannot set client to active status until onboarding is completed",
+          });
+        }
       }
 
       // Update client

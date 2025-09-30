@@ -456,8 +456,8 @@ async function seedDatabase() {
     "partnership",
   ] as const;
   const clientStatuses = [
-    "active",
-    "active",
+    "onboarding",
+    "onboarding",
     "active",
     "prospect",
     "inactive",
@@ -909,6 +909,13 @@ async function seedDatabase() {
       startDate.getTime() + 14 * 24 * 60 * 60 * 1000,
     );
 
+    const sessionStatus = faker.helpers.arrayElement([
+      "not_started",
+      "in_progress",
+      "in_progress",
+      "completed",
+    ]);
+
     const [session] = await db
       .insert(onboardingSessions)
       .values({
@@ -918,14 +925,23 @@ async function seedDatabase() {
         targetCompletionDate: targetCompletion,
         assignedToId: client.accountManagerId,
         priority: faker.helpers.arrayElement(["low", "medium", "high"]),
-        status: faker.helpers.arrayElement([
-          "not_started",
-          "in_progress",
-          "in_progress",
-        ]),
-        progress: faker.number.int({ min: 0, max: 60 }),
+        status: sessionStatus,
+        progress:
+          sessionStatus === "completed"
+            ? 100
+            : faker.number.int({ min: 0, max: 60 }),
+        actualCompletionDate:
+          sessionStatus === "completed" ? targetCompletion : null,
       })
       .returning();
+
+    // Update client status based on onboarding status
+    await db
+      .update(clients)
+      .set({
+        status: sessionStatus === "completed" ? "active" : "onboarding",
+      })
+      .where(eq(clients.id, client.id));
 
     // Create all 17 tasks for this session
     const tasksToInsert = ONBOARDING_TEMPLATE_TASKS.map((template) => {

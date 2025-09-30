@@ -120,9 +120,10 @@ export const clientTypeEnum = pgEnum("client_type", [
   "partnership",
 ]);
 export const clientStatusEnum = pgEnum("client_status", [
+  "prospect",
+  "onboarding",
   "active",
   "inactive",
-  "prospect",
   "archived",
 ]);
 export const taskStatusEnum = pgEnum("task_status", [
@@ -184,7 +185,7 @@ export const clients = pgTable(
     clientCode: varchar("client_code", { length: 50 }).notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     type: clientTypeEnum("type").notNull(),
-    status: clientStatusEnum("status").default("active").notNull(),
+    status: clientStatusEnum("status").default("onboarding").notNull(),
     email: varchar("email", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
     website: varchar("website", { length: 255 }),
