@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertCircle, ChevronDown, DollarSign, Loader2, Send } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, DollarSign, Loader2, Send } from "lucide-react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -31,12 +32,27 @@ export function FloatingPriceWidget({
   onCreateProposal,
   onViewBreakdown,
 }: FloatingPriceWidgetProps) {
+  const [isMinimized, setIsMinimized] = useState(() => {
+    // Persist to localStorage
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('priceWidgetMinimized') === 'true';
+    }
+    return false;
+  });
+
   const { data, isLoading, error } = trpc.pricing.calculate.useQuery({
     turnover,
     industry,
     services,
     transactionData,
   });
+
+  // Save minimized state to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('priceWidgetMinimized', String(isMinimized));
+    }
+  }, [isMinimized]);
 
   // Don't show widget if no services selected
   if (services.length === 0) {
@@ -49,17 +65,71 @@ export function FloatingPriceWidget({
       : data?.modelA;
 
   return (
-    <Card className="glass-card fixed right-6 top-24 z-50 w-80 shadow-2xl hidden lg:block">
-      {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-2">
+    <Card
+      className={`
+        glass-card fixed top-24 z-50 shadow-2xl hidden lg:block
+        transition-all duration-300 ease-in-out
+        ${isMinimized
+          ? 'right-0 w-14'
+          : 'right-6 w-80'
+        }
+      `}
+    >
+      {isMinimized ? (
+        /* Minimized View */
+        <div
+          className="flex flex-col items-center py-4 gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => setIsMinimized(false)}
+        >
           <DollarSign className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">Live Pricing</h3>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="p-4 space-y-4">
+          {/* Vertical Price */}
+          {!isLoading && recommendedModel && (
+            <div className="flex flex-col items-center gap-1">
+              <div
+                className="text-xl font-bold text-green-600 dark:text-green-400"
+                style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+              >
+                £{recommendedModel.monthlyTotal.toFixed(0)}
+              </div>
+            </div>
+          )}
+
+          {isLoading && (
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          )}
+
+          {/* Service Count */}
+          <Badge variant="secondary" className="text-xs">
+            {services.length}
+          </Badge>
+
+          {/* Expand Button */}
+          <div className="mt-auto pt-2">
+            <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </div>
+      ) : (
+        /* Expanded View */
+        <>
+          {/* Header */}
+          <div className="p-4 border-b flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Live Pricing</h3>
+            </div>
+            {/* Minimize Button */}
+            <button
+              onClick={() => setIsMinimized(true)}
+              className="hover:bg-accent rounded p-1 transition-colors"
+              aria-label="Minimize widget"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-4 space-y-4">
         {/* Service Count */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">Services Selected</span>
@@ -131,29 +201,31 @@ export function FloatingPriceWidget({
           </div>
         )}
 
-        {/* Actions */}
-        <div className="space-y-2 pt-2 border-t">
-          <Button
-            variant="outline"
-            className="w-full"
-            size="sm"
-            onClick={onViewBreakdown}
-            disabled={isLoading || !data}
-          >
-            <ChevronDown className="h-4 w-4 mr-2" />
-            View Full Breakdown
-          </Button>
-          <Button
-            className="w-full"
-            size="sm"
-            onClick={onCreateProposal}
-            disabled={isLoading || !data}
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Create Proposal
-          </Button>
-        </div>
-      </div>
+            {/* Actions */}
+            <div className="space-y-2 pt-2 border-t">
+              <Button
+                variant="outline"
+                className="w-full"
+                size="sm"
+                onClick={onViewBreakdown}
+                disabled={isLoading || !data}
+              >
+                <ChevronDown className="h-4 w-4 mr-2" />
+                View Full Breakdown
+              </Button>
+              <Button
+                className="w-full"
+                size="sm"
+                onClick={onCreateProposal}
+                disabled={isLoading || !data}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Create Proposal
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </Card>
   );
 }
