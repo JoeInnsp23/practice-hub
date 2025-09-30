@@ -15,20 +15,6 @@
       "when": 1759254246724,
       "tag": "0001_misty_korg",
       "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1759258000000,
-      "tag": "0002_add_leads",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1759260000000,
-      "tag": "0003_add_onboarding",
-      "breakpoints": true
     }
   ]
 }

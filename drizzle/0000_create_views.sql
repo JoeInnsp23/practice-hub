@@ -233,4 +233,59 @@ SELECT
 FROM invoices i
 LEFT JOIN clients c ON i.client_id = c.id
 WHERE i.status IN ('sent', 'paid', 'overdue')
-GROUP BY i.tenant_id, i.client_id, c.name, c.client_code;
+GROUP BY i.tenant_id, i.client_id, c.name, c.client_code;--> statement-breakpoint
+
+-- Leads Details View (with assigned user information)
+CREATE VIEW "leads_details_view" AS
+SELECT
+    l.*,
+    CONCAT(u.first_name, ' ', u.last_name) AS assigned_to_name,
+    u.email AS assigned_to_email,
+    c.name AS converted_client_name,
+    c.client_code AS converted_client_code
+FROM leads l
+LEFT JOIN users u ON l.assigned_to_id = u.id
+LEFT JOIN clients c ON l.converted_to_client_id = c.id;--> statement-breakpoint
+
+-- Proposals Details View (with client/lead and creator information)
+CREATE VIEW "proposals_details_view" AS
+SELECT
+    p.*,
+    COALESCE(c.name, l.company_name, CONCAT(l.first_name, ' ', l.last_name)) AS prospect_name,
+    c.client_code,
+    c.email AS client_email,
+    l.email AS lead_email,
+    CONCAT(u.first_name, ' ', u.last_name) AS created_by_name,
+    u.email AS created_by_email
+FROM proposals p
+LEFT JOIN clients c ON p.client_id = c.id
+LEFT JOIN leads l ON p.lead_id = l.id
+LEFT JOIN users u ON p.created_by_id = u.id;--> statement-breakpoint
+
+-- Onboarding Sessions View (with client and account manager details)
+CREATE VIEW "onboarding_sessions_view" AS
+SELECT
+    os.*,
+    c.name AS client_name,
+    c.client_code,
+    c.email AS client_email,
+    c.phone AS client_phone,
+    c.created_at AS client_created_at,
+    CONCAT(u.first_name, ' ', u.last_name) AS account_manager_name,
+    u.email AS account_manager_email,
+    (SELECT COUNT(*) FROM onboarding_tasks WHERE session_id = os.id) AS total_tasks,
+    (SELECT COUNT(*) FROM onboarding_tasks WHERE session_id = os.id AND done = true) AS completed_tasks
+FROM onboarding_sessions os
+LEFT JOIN clients c ON os.client_id = c.id
+LEFT JOIN users u ON os.assigned_to_id = u.id;--> statement-breakpoint
+
+-- Transaction Data Summary View (with client information)
+CREATE VIEW "transaction_data_summary_view" AS
+SELECT
+    td.*,
+    c.name AS client_name,
+    c.client_code,
+    CONCAT(u.first_name, ' ', u.last_name) AS created_by_name
+FROM transaction_data td
+LEFT JOIN clients c ON td.client_id = c.id
+LEFT JOIN users u ON td.created_by_id = u.id;
