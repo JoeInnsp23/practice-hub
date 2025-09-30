@@ -95,7 +95,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
           console.info(`Auth: User registered with role: ${userRole}`);
 
           return {
-            userId: clerkUser.id,
+            userId: newUser[0].id,
             tenantId: defaultTenant[0].id,
             organizationName: defaultTenant[0].name,
             role: userRole,
@@ -109,11 +109,11 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       return null;
     }
 
-    const { tenantId, role, email, firstName, lastName, tenantName } =
+    const { id, tenantId, role, email, firstName, lastName, tenantName } =
       userRecord[0];
 
     return {
-      userId: clerkUser.id,
+      userId: id,
       tenantId,
       organizationName: tenantName,
       role,
