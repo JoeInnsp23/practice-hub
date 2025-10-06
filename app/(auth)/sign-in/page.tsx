@@ -52,7 +52,7 @@ function SignInFormContent() {
       });
 
       if (result.error) {
-        toast.error(result.error.message || "Failed to sign in");
+        toast.error(result.error.message || "Invalid email or password");
         return;
       }
 
@@ -61,80 +61,240 @@ function SignInFormContent() {
       router.refresh();
     } catch (error) {
       console.error("Sign in error:", error);
-      toast.error("An unexpected error occurred");
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-xl">
-        <CardHeader className="space-y-2 pb-6">
-          <CardTitle className="text-3xl font-bold">Sign In</CardTitle>
-          <CardDescription className="text-base">
-            Enter your email and password to access your account
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-5 pb-6">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                {...register("email")}
-                disabled={isLoading}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+    <div className="flex min-h-screen">
+      {/* Left side - Branding/Info */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-12 flex-col justify-between text-white">
+        <div>
+          <h1 className="text-4xl font-bold mb-4">Practice Hub</h1>
+          <p className="text-blue-100 text-lg">
+            Streamline your practice management with our comprehensive platform
+          </p>
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register("password")}
-                disabled={isLoading}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4 pt-6">
-            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
-
-            <p className="text-base text-center text-muted-foreground">
-              Don't have an account?{" "}
-              <Link
-                href="/sign-up"
-                className="text-primary hover:underline font-medium"
+        <div className="space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">Client Management</h3>
+              <p className="text-blue-100 text-sm">
+                Manage all your clients and their data in one place
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">Time Tracking</h3>
+              <p className="text-blue-100 text-sm">
+                Track billable hours and generate accurate invoices
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-1">Reports & Analytics</h3>
+              <p className="text-blue-100 text-sm">
+                Gain insights with powerful reporting tools
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-blue-100 text-sm">
+          © 2025 Practice Hub. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right side - Sign in form */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <Card className="w-full max-w-md shadow-xl border-0">
+          <CardHeader className="space-y-3 pb-8 pt-8">
+            <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center mb-2">
+              <svg
+                className="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
+              Sign in to your account to continue
+            </CardDescription>
+          </CardHeader>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email address
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  {...register("email")}
+                  disabled={isLoading}
+                  className="h-11"
+                  autoComplete="email"
+                  autoFocus
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm font-medium">
+                    Password
+                  </Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  {...register("password")}
+                  disabled={isLoading}
+                  className="h-11"
+                  autoComplete="current-password"
+                />
+                {errors.password && (
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col space-y-4 pb-8">
+              <Button
+                type="submit"
+                className="w-full h-12 text-base font-semibold"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+
+              <div className="text-center text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Link
+                  href="/sign-up"
+                  className="text-primary hover:underline font-semibold"
+                >
+                  Create account
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        </div>
+      }
+    >
       <SignInFormContent />
     </Suspense>
   );
