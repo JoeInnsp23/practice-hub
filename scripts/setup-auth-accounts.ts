@@ -15,23 +15,28 @@ async function setupAuthAccounts() {
   const seedUsers = await db.select().from(users);
 
   const defaultPassword = "password123"; // Default password for all seed users
+  const joePassword = "Innspired@321"; // Special password for joe@pageivy.com
 
   for (const user of seedUsers) {
+    // Use special password for Joe, default for everyone else
+    const password = user.email === "joe@pageivy.com" ? joePassword : defaultPassword;
+
     // Create account record for email/password auth
     await db.insert(accounts).values({
       id: crypto.randomUUID(),
       accountId: user.email,
       providerId: "credential", // Better Auth uses "credential" for email/password
       userId: user.id,
-      password: hashPassword(defaultPassword),
+      password: hashPassword(password),
     });
 
     console.log(`✓ Created auth account for ${user.email}`);
   }
 
   console.log("\n✅ Auth accounts setup complete!");
-  console.log("\n📧 All users can sign in with:");
-  console.log("Password: password123\n");
+  console.log("\n📧 Users can sign in with:");
+  console.log("- joe@pageivy.com: Innspired@321");
+  console.log("- Other users: password123\n");
   console.log("Users:");
   seedUsers.forEach((user) => {
     console.log(`  - ${user.email} (${user.role})`);

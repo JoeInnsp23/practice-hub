@@ -69,15 +69,15 @@ function SignInFormContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign In</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-xl">
+        <CardHeader className="space-y-2 pb-6">
+          <CardTitle className="text-3xl font-bold">Sign In</CardTitle>
+          <CardDescription className="text-base">
             Enter your email and password to access your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 pb-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -111,12 +111,12 @@ function SignInFormContent() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          <CardFooter className="flex flex-col space-y-4 pt-6">
+            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
 
-            <p className="text-sm text-center text-muted-foreground">
+            <p className="text-base text-center text-muted-foreground">
               Don't have an account?{" "}
               <Link
                 href="/sign-up"

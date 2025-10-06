@@ -88,8 +88,8 @@ async function seedDatabase() {
     {
       email: "joe@pageivy.com",
       firstName: "Joe",
-      lastName: "User",
-      name: "Joe User",
+      lastName: "Test",
+      name: "Joe Test",
       role: "org:admin",
       hourlyRate: "150",
       emailVerified: true,

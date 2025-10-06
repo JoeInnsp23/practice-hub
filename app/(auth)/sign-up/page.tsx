@@ -94,15 +94,15 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-xl">
+        <CardHeader className="space-y-2 pb-6">
+          <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
+          <CardDescription className="text-base">
             Get started with Practice Hub by creating your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 pb-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -199,12 +199,12 @@ export default function SignUpPage() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          <CardFooter className="flex flex-col space-y-4 pt-6">
+            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
 
-            <p className="text-sm text-center text-muted-foreground">
+            <p className="text-base text-center text-muted-foreground">
               Already have an account?{" "}
               <Link
                 href="/sign-in"
