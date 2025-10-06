@@ -57,7 +57,7 @@ class ConsoleCapture {
   }
 
   private captureLog(type: ConsoleLog["type"]) {
-    return (...args: any[]) => {
+    return (...args: unknown[]) => {
       // Call original console method
       this.originalConsole[type](...args);
 

@@ -39,6 +39,7 @@ async function runMigrations() {
 
   console.log("\n🔄 Running migrations (creating views)...");
 
+  // biome-ignore lint/style/noNonNullAssertion: DATABASE_URL required for migrations
   const databaseUrl = process.env.DATABASE_URL!;
   const sql = postgres(databaseUrl, { max: 1 });
   const db = drizzle(sql);

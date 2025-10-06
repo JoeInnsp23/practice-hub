@@ -52,11 +52,25 @@ const categoryFormSchema = z.object({
 
 type CategoryFormData = z.infer<typeof categoryFormSchema>;
 
+interface Category {
+  id: string;
+  name: string;
+  description?: string | null;
+  iconName?: string | null;
+  colorHex?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
 export function CategoryManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<any>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null,
+  );
 
   const {
     data: categories,
@@ -80,7 +94,7 @@ export function CategoryManagement() {
     },
   });
 
-  const handleEdit = (category: any) => {
+  const handleEdit = (category: Category) => {
     setSelectedCategory(category);
     form.reset({
       name: category.name,
@@ -140,7 +154,7 @@ export function CategoryManagement() {
   };
 
   const handleReorder = async (
-    categories: any[],
+    categories: Category[],
     index: number,
     direction: "up" | "down",
   ) => {
@@ -201,7 +215,7 @@ export function CategoryManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories?.map((category: any, index: number) => (
+            {categories?.map((category: Category, index: number) => (
               <TableRow key={category.id}>
                 <TableCell>
                   <div className="flex flex-col gap-1">
@@ -244,8 +258,8 @@ export function CategoryManagement() {
                 <TableCell>
                   <div
                     className="h-6 w-6 rounded border"
-                    style={{ backgroundColor: category.colorHex }}
-                    title={category.colorHex}
+                    style={{ backgroundColor: category.colorHex || undefined }}
+                    title={category.colorHex || undefined}
                   />
                 </TableCell>
                 <TableCell>

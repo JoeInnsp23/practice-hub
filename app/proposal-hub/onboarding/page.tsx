@@ -1,10 +1,10 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   Building2,
   Calendar,
   CheckCircle2,
-  Circle,
   Clock,
   Mail,
   Phone,
@@ -17,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { format } from "date-fns";
 
 export default function OnboardingPage() {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { and, eq, ilike, sql, or } from "drizzle-orm";
+import { and, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { taskDetailsView } from "@/lib/db/schema";
 
@@ -21,12 +21,13 @@ export async function getTasksList(
 
   // Search filter (title or description)
   if (filters.search) {
-    conditions.push(
-      or(
-        ilike(taskDetailsView.title, `%${filters.search}%`),
-        ilike(taskDetailsView.description, `%${filters.search}%`),
-      )!,
+    const searchCondition = or(
+      ilike(taskDetailsView.title, `%${filters.search}%`),
+      ilike(taskDetailsView.description, `%${filters.search}%`),
     );
+    if (searchCondition) {
+      conditions.push(searchCondition);
+    }
   }
 
   // Status filter

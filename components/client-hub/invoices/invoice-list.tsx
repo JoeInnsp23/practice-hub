@@ -42,19 +42,12 @@ interface Invoice {
   discount: string | null;
   total: string;
   amountPaid: string | null;
-  status:
-    | "draft"
-    | "sent"
-    | "viewed"
-    | "partial"
-    | "paid"
-    | "overdue"
-    | "cancelled";
+  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
   currency: string | null;
   notes: string | null;
   terms: string | null;
   purchaseOrderNumber: string | null;
-  metadata: any;
+  metadata: unknown;
   createdAt: Date;
   updatedAt: Date;
   createdById: string | null;
@@ -83,11 +76,6 @@ export function InvoiceList({
     const config = {
       draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
       sent: { label: "Sent", className: "bg-primary/10 text-primary" },
-      viewed: { label: "Viewed", className: "bg-blue-600/10 text-blue-600" },
-      partial: {
-        label: "Partial",
-        className: "bg-yellow-600/10 text-yellow-600",
-      },
       paid: {
         label: "Paid",
         className:

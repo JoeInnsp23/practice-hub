@@ -116,8 +116,13 @@ export const feedback = pgTable(
 export const clientTypeEnum = pgEnum("client_type", [
   "individual",
   "company",
-  "trust",
+  "limited_company",
+  "sole_trader",
   "partnership",
+  "llp",
+  "trust",
+  "charity",
+  "other",
 ]);
 export const clientStatusEnum = pgEnum("client_status", [
   "prospect",
@@ -959,7 +964,10 @@ export const leads = pgTable(
     status: leadStatusEnum("status").default("new").notNull(),
     source: varchar("source", { length: 100 }), // referral, website, cold_call, etc.
     industry: varchar("industry", { length: 100 }),
-    estimatedTurnover: decimal("estimated_turnover", { precision: 15, scale: 2 }),
+    estimatedTurnover: decimal("estimated_turnover", {
+      precision: 15,
+      scale: 2,
+    }),
     estimatedEmployees: integer("estimated_employees"),
 
     // Lead qualification
@@ -977,9 +985,12 @@ export const leads = pgTable(
     }),
 
     // Conversion
-    convertedToClientId: uuid("converted_to_client_id").references(() => clients.id, {
-      onDelete: "set null",
-    }),
+    convertedToClientId: uuid("converted_to_client_id").references(
+      () => clients.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     convertedAt: timestamp("converted_at"),
 
     // Timestamps
@@ -1067,7 +1078,10 @@ export const proposals = pgTable(
     clientIdx: index("idx_proposal_client").on(table.clientId),
     statusIdx: index("idx_proposal_status").on(table.status),
     createdAtIdx: index("idx_proposal_created").on(table.createdAt),
-    proposalNumberIdx: uniqueIndex("idx_proposal_number").on(table.tenantId, table.proposalNumber),
+    proposalNumberIdx: uniqueIndex("idx_proposal_number").on(
+      table.tenantId,
+      table.proposalNumber,
+    ),
   }),
 );
 
@@ -1098,7 +1112,9 @@ export const proposalServices = pgTable(
   },
   (table) => ({
     proposalIdx: index("idx_proposal_service_proposal").on(table.proposalId),
-    componentCodeIdx: index("idx_proposal_service_code").on(table.componentCode),
+    componentCodeIdx: index("idx_proposal_service_code").on(
+      table.componentCode,
+    ),
   }),
 );
 
@@ -1228,7 +1244,9 @@ export const onboardingSessions = pgTable(
     tenantIdx: index("idx_onboarding_session_tenant").on(table.tenantId),
     clientIdx: index("idx_onboarding_session_client").on(table.clientId),
     statusIdx: index("idx_onboarding_session_status").on(table.status),
-    assignedIdx: index("idx_onboarding_session_assigned").on(table.assignedToId),
+    assignedIdx: index("idx_onboarding_session_assigned").on(
+      table.assignedToId,
+    ),
   }),
 );
 

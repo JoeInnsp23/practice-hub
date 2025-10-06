@@ -35,36 +35,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status:
-    | "pending"
-    | "in_progress"
-    | "review"
-    | "completed"
-    | "cancelled"
-    | "blocked"
-    | "records_received"
-    | "queries_sent"
-    | "queries_received";
-  priority: "low" | "medium" | "high" | "urgent" | "critical";
-  dueDate: Date;
-  targetDate?: Date;
-  assignee?: { name: string };
-  reviewer?: { name: string };
-  client: string;
-  estimatedHours?: number;
-  tags?: string[];
-  progress?: number;
-  workflowInstance?: any;
-}
+import type { TaskStatus, TaskSummary } from "./types";
 
 interface TaskListProps {
-  tasks: Task[];
-  onEdit: (task: Task) => void;
+  tasks: TaskSummary[];
+  onEdit: (task: TaskSummary) => void;
   onDelete: (taskId: string) => void;
   isLoading?: boolean;
   selectedTaskIds?: string[];
@@ -97,8 +72,12 @@ export function TaskList({
     onBulkSelect?.(newSelection);
   };
 
-  const getStatusBadge = (status: Task["status"]) => {
-    const statusConfig = {
+  const getStatusBadge = (status: TaskStatus | null | undefined) => {
+    if (!status) {
+      return <Badge variant="secondary">Unknown</Badge>;
+    }
+
+    const statusConfig: Record<string, { label: string; className: string }> = {
       pending: { label: "Not Started", className: "bg-gray-100 text-gray-800" },
       in_progress: {
         label: "In Progress",
@@ -124,7 +103,12 @@ export function TaskList({
       },
       cancelled: { label: "Cancelled", className: "bg-gray-200 text-gray-700" },
     };
+
     const config = statusConfig[status];
+    if (!config) {
+      return <Badge variant="secondary">{status}</Badge>;
+    }
+
     return (
       <Badge variant="secondary" className={config.className}>
         {config.label}
@@ -132,30 +116,40 @@ export function TaskList({
     );
   };
 
-  const getPriorityBadge = (priority: Task["priority"]) => {
-    const priorityConfig = {
-      critical: {
-        label: "Critical",
-        className: "bg-red-100 text-red-800 border-red-300",
-      },
-      urgent: {
-        label: "Urgent",
-        className: "bg-red-100 text-red-800 border-red-300",
-      },
-      high: {
-        label: "High",
-        className: "bg-orange-100 text-orange-800 border-orange-300",
-      },
-      medium: {
-        label: "Medium",
-        className: "bg-yellow-100 text-yellow-800 border-yellow-300",
-      },
-      low: {
-        label: "Low",
-        className: "bg-blue-100 text-blue-800 border-blue-300",
-      },
-    };
+  const getPriorityBadge = (priority: TaskSummary["priority"]) => {
+    if (!priority) {
+      return <Badge variant="secondary">Unknown</Badge>;
+    }
+
+    const priorityConfig: Record<string, { label: string; className: string }> =
+      {
+        critical: {
+          label: "Critical",
+          className: "bg-red-100 text-red-800 border-red-300",
+        },
+        urgent: {
+          label: "Urgent",
+          className: "bg-red-100 text-red-800 border-red-300",
+        },
+        high: {
+          label: "High",
+          className: "bg-orange-100 text-orange-800 border-orange-300",
+        },
+        medium: {
+          label: "Medium",
+          className: "bg-yellow-100 text-yellow-800 border-yellow-300",
+        },
+        low: {
+          label: "Low",
+          className: "bg-blue-100 text-blue-800 border-blue-300",
+        },
+      };
+
     const config = priorityConfig[priority];
+    if (!config) {
+      return <Badge variant="secondary">{priority}</Badge>;
+    }
+
     return (
       <Badge variant="outline" className={config.className}>
         {config.label}
@@ -163,14 +157,14 @@ export function TaskList({
     );
   };
 
-  const isOverdue = (date: Date) => {
+  const isOverdue = (date: Date | string) => {
     return (
       new Date(date) < new Date() &&
       new Date(date).toDateString() !== new Date().toDateString()
     );
   };
 
-  const formatDueDate = (date: Date) => {
+  const formatDueDate = (date: Date | string) => {
     const dueDate = new Date(date);
     const today = new Date();
     const diffDays = Math.ceil(
@@ -258,7 +252,7 @@ export function TaskList({
                     {task.description}
                   </p>
                 )}
-                {task.tags && task.tags.length > 0 && (
+                {Array.isArray(task.tags) && task.tags.length > 0 && (
                   <div className="flex gap-1 mt-1">
                     {task.tags.slice(0, 3).map((tag) => (
                       <Badge key={tag} variant="outline" className="text-xs">
@@ -267,42 +261,46 @@ export function TaskList({
                     ))}
                   </div>
                 )}
-                {task.workflowInstance && (
+                {task.workflowName && (
                   <div className="flex items-center gap-1 mt-1">
                     <GitBranch className="h-3 w-3 text-blue-600" />
                     <Badge
                       variant="secondary"
                       className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                     >
-                      {task.workflowInstance.template.name}
+                      {task.workflowName}
                     </Badge>
                   </div>
                 )}
               </div>
             </TableCell>
-            <TableCell>{task.client}</TableCell>
+            <TableCell>{task.clientName || "—"}</TableCell>
             <TableCell>{getStatusBadge(task.status)}</TableCell>
             <TableCell>{getPriorityBadge(task.priority)}</TableCell>
             <TableCell>
-              <div className="flex items-center gap-1">
-                {isOverdue(task.dueDate) && (
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                )}
-                <span
-                  className={cn(
-                    "text-sm",
-                    isOverdue(task.dueDate) && "text-red-600 font-medium",
+              {task.dueDate ? (
+                <div className="flex items-center gap-1">
+                  {isOverdue(task.dueDate) && (
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
                   )}
-                >
-                  {formatDueDate(task.dueDate)}
-                </span>
-              </div>
+                  <span
+                    className={cn(
+                      "text-sm",
+                      isOverdue(task.dueDate) && "text-red-600 font-medium",
+                    )}
+                  >
+                    {formatDueDate(task.dueDate)}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-sm text-muted-foreground">—</span>
+              )}
             </TableCell>
             <TableCell>
-              {task.assignee ? (
+              {task.assigneeName ? (
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{task.assignee.name}</span>
+                  <span className="text-sm">{task.assigneeName}</span>
                 </div>
               ) : (
                 <span className="text-sm text-muted-foreground">
@@ -350,7 +348,7 @@ export function TaskList({
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  {!task.workflowInstance && (
+                  {!task.workflowName && (
                     <>
                       <DropdownMenuItem
                         onClick={(e) => {

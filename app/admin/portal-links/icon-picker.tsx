@@ -75,12 +75,13 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
         </div>
         <div className="flex items-center gap-1">
           {value && (
-            <div
+            <button
+              type="button"
               className="p-1 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
               onClick={handleClear}
             >
               <X className="h-3 w-3" />
-            </div>
+            </button>
           )}
           {isOpen ? (
             <ChevronUp className="h-4 w-4 opacity-50" />

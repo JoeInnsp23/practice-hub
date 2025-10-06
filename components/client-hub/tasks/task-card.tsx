@@ -19,39 +19,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
+import type { TaskStatus, TaskSummary } from "./types";
 
 interface TaskCardProps {
-  task: {
-    id: string;
-    title: string;
-    description?: string;
-    status:
-      | "pending"
-      | "in_progress"
-      | "review"
-      | "completed"
-      | "cancelled"
-      | "blocked"
-      | "records_received"
-      | "queries_sent"
-      | "queries_received";
-    priority: "low" | "medium" | "high" | "urgent";
-    dueDate?: Date;
-    assignee?: {
-      name: string;
-      avatar?: string;
-    };
-    client?: string;
-    estimatedHours?: number;
-    actualHours?: number;
-    tags?: string[];
-    workflowInstance?: {
-      name?: string;
-    };
-  };
-  onEdit: (task: any) => void;
-  onDelete: (task: any) => void;
-  onStatusChange: (taskId: string, status: string) => void;
+  task: TaskSummary;
+  onEdit: (task: TaskSummary) => void;
+  onDelete: (taskId: string) => void;
+  onStatusChange: (taskId: string, status: TaskStatus) => void;
 }
 
 export function TaskCard({
@@ -76,7 +50,7 @@ export function TaskCard({
   };
 
   const getPriorityBadge = (priority: string) => {
-    const config = {
+    const config: Record<string, { label: string; className: string }> = {
       urgent: {
         label: "Urgent",
         className: "bg-destructive/10 text-destructive",
@@ -98,10 +72,13 @@ export function TaskCard({
       },
     };
 
-    const { label, className } = config[priority as keyof typeof config];
+    const priorityConfig = config[priority];
+    if (!priorityConfig) {
+      return <Badge variant="secondary">{priority}</Badge>;
+    }
     return (
-      <Badge variant="secondary" className={cn(className)}>
-        {label}
+      <Badge variant="secondary" className={cn(priorityConfig.className)}>
+        {priorityConfig.label}
       </Badge>
     );
   };
@@ -115,16 +92,16 @@ export function TaskCard({
     <Card
       className={cn(
         "cursor-move hover:shadow-md transition-shadow",
-        getPriorityColor(task.priority),
+        task.priority ? getPriorityColor(task.priority) : "",
       )}
     >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <h4 className="font-medium text-sm line-clamp-2">{task.title}</h4>
-            {task.client && (
+            {task.clientName && (
               <p className="text-xs text-muted-foreground mt-1">
-                {task.client}
+                {task.clientName}
               </p>
             )}
           </div>
@@ -144,7 +121,7 @@ export function TaskCard({
                 Mark Complete
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => onDelete(task)}
+                onClick={() => onDelete(task.id)}
                 className="text-destructive"
               >
                 Delete
@@ -162,7 +139,7 @@ export function TaskCard({
 
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            {getPriorityBadge(task.priority)}
+            {task.priority && getPriorityBadge(task.priority)}
             {isOverdue && (
               <Badge variant="destructive" className="text-xs">
                 <AlertCircle className="h-3 w-3 mr-1" />
@@ -172,7 +149,7 @@ export function TaskCard({
           </div>
         </div>
 
-        {task.tags && task.tags.length > 0 && (
+        {Array.isArray(task.tags) && task.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {task.tags.map((tag) => (
               <Badge key={tag} variant="outline" className="text-xs">
@@ -182,14 +159,14 @@ export function TaskCard({
           </div>
         )}
 
-        {task.workflowInstance && (
+        {task.workflowName && (
           <div className="flex items-center gap-1 mb-3">
             <GitBranch className="h-3 w-3 text-blue-600" />
             <Badge
               variant="secondary"
               className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
             >
-              {task.workflowInstance.name || "Workflow"}
+              {task.workflowName}
             </Badge>
           </div>
         )}
@@ -209,11 +186,11 @@ export function TaskCard({
               </div>
             )}
           </div>
-          {task.assignee && (
+          {task.assigneeName && (
             <div className="flex items-center gap-1">
               <Avatar className="h-5 w-5">
                 <AvatarFallback className="text-[10px]">
-                  {task.assignee.name
+                  {task.assigneeName
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}

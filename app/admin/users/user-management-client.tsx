@@ -73,9 +73,9 @@ interface UserManagementClientProps {
 
 export function UserManagementClient({
   initialUsers,
-  stats: initialStats,
-  currentUserId,
-  tenantId,
+  stats: _initialStats,
+  currentUserId: _currentUserId,
+  tenantId: _tenantId,
 }: UserManagementClientProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
@@ -94,15 +94,15 @@ export function UserManagementClient({
   const stats = useMemo(() => {
     return {
       total: users.length,
-      active: users.filter((u: any) => u.isActive).length,
+      active: users.filter((u: User) => u.isActive).length,
       admins: users.filter(
-        (u: any) => u.role === "admin" || u.role === "org:admin",
+        (u: User) => u.role === "admin" || u.role === "org:admin",
       ).length,
       accountants: users.filter(
-        (u: any) => u.role === "accountant" || u.role === "org:accountant",
+        (u: User) => u.role === "accountant" || u.role === "org:accountant",
       ).length,
       members: users.filter(
-        (u: any) => u.role === "member" || u.role === "org:member",
+        (u: User) => u.role === "member" || u.role === "org:member",
       ).length,
     };
   }, [users]);
@@ -113,7 +113,7 @@ export function UserManagementClient({
 
     const query = searchQuery.toLowerCase();
     return users.filter(
-      (user: any) =>
+      (user: User) =>
         user.email.toLowerCase().includes(query) ||
         user.firstName?.toLowerCase().includes(query) ||
         user.lastName?.toLowerCase().includes(query) ||
@@ -126,14 +126,14 @@ export function UserManagementClient({
       toast.success("User removed successfully");
       utils.users.list.invalidate();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Failed to delete user:", error);
       toast.error("Failed to remove user");
     },
   });
 
   const handleDeleteUser = async (userId: string) => {
-    const user = users.find((u: any) => u.id === userId);
+    const user = users.find((u: User) => u.id === userId);
     if (!user) return;
 
     if (
@@ -291,7 +291,7 @@ export function UserManagementClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user: any) => (
+                {filteredUsers.map((user: User) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -340,14 +340,14 @@ export function UserManagementClient({
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => setEditingUser(user)}
-                            disabled={user.clerkId === currentUserId}
+                            disabled={user.clerkId === _currentUserId}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit User
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteUser(user.id)}
-                            disabled={user.clerkId === currentUserId}
+                            disabled={user.clerkId === _currentUserId}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

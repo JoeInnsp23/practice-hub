@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   Building,
   Calendar,
@@ -30,7 +31,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { format } from "date-fns";
 
 export default function OnboardingDetailPage({
   params,
@@ -93,6 +93,22 @@ export default function OnboardingDetailPage({
     updateSession({ sessionId: id, priority });
   };
 
+  const handleStatusSelect = (value: string) => {
+    if (
+      value === "not_started" ||
+      value === "in_progress" ||
+      value === "completed"
+    ) {
+      handleStatusChange(value);
+    }
+  };
+
+  const handlePrioritySelect = (value: string) => {
+    if (value === "low" || value === "medium" || value === "high") {
+      handlePriorityChange(value);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       not_started: { label: "Not Started", variant: "secondary" as const },
@@ -100,7 +116,8 @@ export default function OnboardingDetailPage({
       completed: { label: "Completed", variant: "default" as const },
     };
     const config =
-      statusConfig[status as keyof typeof statusConfig] || statusConfig.not_started;
+      statusConfig[status as keyof typeof statusConfig] ||
+      statusConfig.not_started;
     return (
       <Badge
         variant={config.variant}
@@ -124,7 +141,8 @@ export default function OnboardingDetailPage({
       high: { label: "High", variant: "destructive" as const },
     };
     const config =
-      priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.medium;
+      priorityConfig[priority as keyof typeof priorityConfig] ||
+      priorityConfig.medium;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -178,7 +196,8 @@ export default function OnboardingDetailPage({
             </div>
             <div className="mt-2">
               <span className="text-sm text-muted-foreground">
-                Account Manager: {sessionData.accountManagerName || "Unassigned"}
+                Account Manager:{" "}
+                {sessionData.accountManagerName || "Unassigned"}
               </span>
             </div>
           </div>
@@ -186,7 +205,9 @@ export default function OnboardingDetailPage({
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={() => router.push(`/client-hub/clients/${sessionData.clientId}`)}
+            onClick={() =>
+              router.push(`/client-hub/clients/${sessionData.clientId}`)
+            }
           >
             View Client Record
           </Button>
@@ -227,7 +248,10 @@ export default function OnboardingDetailPage({
           </div>
           <p className="text-lg font-medium">
             {sessionData.targetCompletionDate
-              ? format(new Date(sessionData.targetCompletionDate), "MMM d, yyyy")
+              ? format(
+                  new Date(sessionData.targetCompletionDate),
+                  "MMM d, yyyy",
+                )
               : "—"}
           </p>
         </Card>
@@ -270,101 +294,104 @@ export default function OnboardingDetailPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-              {sessionData.tasks.map((task) => (
-                <div
-                  key={task.id}
-                  className={`border rounded-lg p-4 transition-colors ${
-                    task.done
-                      ? "bg-muted/50 border-green-200 dark:border-green-900"
-                      : "border-border"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleTaskToggle(task.id, !task.done)}
-                      className="mt-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full"
-                    >
-                      {task.done ? (
-                        <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
-                      ) : (
-                        <Circle className="h-6 w-6 text-muted-foreground flex-shrink-0 hover:text-primary transition-colors" />
-                      )}
-                    </button>
-                    <div className="flex-1 space-y-2">
-                      <div
+                {sessionData.tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className={`border rounded-lg p-4 transition-colors ${
+                      task.done
+                        ? "bg-muted/50 border-green-200 dark:border-green-900"
+                        : "border-border"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <button
+                        type="button"
                         onClick={() => handleTaskToggle(task.id, !task.done)}
-                        className="cursor-pointer"
+                        className="mt-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div
-                            className={`text-base font-medium ${
-                              task.done ? "line-through text-muted-foreground" : ""
-                            }`}
-                          >
-                            <span className="text-xs text-muted-foreground mr-2">
-                              {task.sequence}.
-                            </span>
-                            {task.taskName}
-                            {task.required && (
-                              <span className="text-red-500 ml-1">*</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {task.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {task.description}
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                        {task.dueDate && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>
-                              Due: {format(new Date(task.dueDate), "MMM d")}
-                            </span>
-                          </div>
+                        {task.done ? (
+                          <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-6 w-6 text-muted-foreground flex-shrink-0 hover:text-primary transition-colors" />
                         )}
-                        {task.completionDate && (
-                          <div className="flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3" />
-                            <span>
-                              Completed:{" "}
-                              {format(new Date(task.completionDate), "MMM d")}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor={`notes-${task.id}`}
-                          className="text-xs text-muted-foreground"
+                      </button>
+                      <div className="flex-1 space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => handleTaskToggle(task.id, !task.done)}
+                          className="w-full text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md"
                         >
-                          Notes
-                        </Label>
-                        <Textarea
-                          id={`notes-${task.id}`}
-                          placeholder="Add notes..."
-                          value={taskNotes[task.id] ?? task.notes ?? ""}
-                          onChange={(e) =>
-                            setTaskNotes({
-                              ...taskNotes,
-                              [task.id]: e.target.value,
-                            })
-                          }
-                          onBlur={() => handleTaskNotesBlur(task.id)}
-                          rows={2}
-                          className="text-sm"
-                        />
+                          <div className="flex items-start justify-between gap-2">
+                            <div
+                              className={`text-base font-medium ${
+                                task.done
+                                  ? "line-through text-muted-foreground"
+                                  : ""
+                              }`}
+                            >
+                              <span className="text-xs text-muted-foreground mr-2">
+                                {task.sequence}.
+                              </span>
+                              {task.taskName}
+                              {task.required && (
+                                <span className="text-red-500 ml-1">*</span>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+
+                        {task.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {task.description}
+                          </p>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                          {task.dueDate && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              <span>
+                                Due: {format(new Date(task.dueDate), "MMM d")}
+                              </span>
+                            </div>
+                          )}
+                          {task.completionDate && (
+                            <div className="flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              <span>
+                                Completed:{" "}
+                                {format(new Date(task.completionDate), "MMM d")}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor={`notes-${task.id}`}
+                            className="text-xs text-muted-foreground"
+                          >
+                            Notes
+                          </Label>
+                          <Textarea
+                            id={`notes-${task.id}`}
+                            placeholder="Add notes..."
+                            value={taskNotes[task.id] ?? task.notes ?? ""}
+                            onChange={(e) =>
+                              setTaskNotes({
+                                ...taskNotes,
+                                [task.id]: e.target.value,
+                              })
+                            }
+                            onBlur={() => handleTaskNotesBlur(task.id)}
+                            rows={2}
+                            className="text-sm"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -382,39 +409,44 @@ export default function OnboardingDetailPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-              {sessionData.clientEmail && (
+                {sessionData.clientEmail && (
+                  <div className="flex items-start gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="font-medium text-sm">
+                        {sessionData.clientEmail}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {sessionData.clientPhone && (
+                  <div className="flex items-start gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Phone</p>
+                      <p className="font-medium text-sm">
+                        {sessionData.clientPhone}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-start gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="text-sm text-muted-foreground">
+                      Client Added
+                    </p>
                     <p className="font-medium text-sm">
-                      {sessionData.clientEmail}
+                      {format(
+                        new Date(sessionData.clientCreatedAt),
+                        "MMM d, yyyy",
+                      )}
                     </p>
                   </div>
                 </div>
-              )}
-
-              {sessionData.clientPhone && (
-                <div className="flex items-start gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium text-sm">
-                      {sessionData.clientPhone}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-start gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Client Added</p>
-                  <p className="font-medium text-sm">
-                    {format(new Date(sessionData.clientCreatedAt), "MMM d, yyyy")}
-                  </p>
-                </div>
-              </div>
               </div>
             </CardContent>
           </Card>
@@ -429,33 +461,37 @@ export default function OnboardingDetailPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Account Manager</p>
-                <p className="text-sm font-medium">
-                  {sessionData.accountManagerName || "Unassigned"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Start Date</p>
-                <p className="text-sm font-medium">
-                  {format(new Date(sessionData.startDate), "MMM d, yyyy")}
-                </p>
-              </div>
-
-              {sessionData.actualCompletionDate && (
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">
-                    Completed On
+                    Account Manager
                   </p>
                   <p className="text-sm font-medium">
-                    {format(
-                      new Date(sessionData.actualCompletionDate),
-                      "MMM d, yyyy",
-                    )}
+                    {sessionData.accountManagerName || "Unassigned"}
                   </p>
                 </div>
-              )}
+
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Start Date
+                  </p>
+                  <p className="text-sm font-medium">
+                    {format(new Date(sessionData.startDate), "MMM d, yyyy")}
+                  </p>
+                </div>
+
+                {sessionData.actualCompletionDate && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Completed On
+                    </p>
+                    <p className="text-sm font-medium">
+                      {format(
+                        new Date(sessionData.actualCompletionDate),
+                        "MMM d, yyyy",
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -470,49 +506,49 @@ export default function OnboardingDetailPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-              <div className="space-y-2">
-                <Label className="text-sm">Update Status</Label>
-                <Select
-                  value={sessionData.status}
-                  onValueChange={(value: any) => handleStatusChange(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not_started">Not Started</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">Update Status</Label>
+                  <Select
+                    value={sessionData.status}
+                    onValueChange={handleStatusSelect}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="not_started">Not Started</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm">Change Priority</Label>
-                <Select
-                  value={sessionData.priority}
-                  onValueChange={(value: any) => handlePriorityChange(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">Change Priority</Label>
+                  <Select
+                    value={sessionData.priority}
+                    onValueChange={handlePrioritySelect}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() =>
-                  router.push(`/client-hub/clients/${sessionData.clientId}`)
-                }
-              >
-                View Client Record
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() =>
+                    router.push(`/client-hub/clients/${sessionData.clientId}`)
+                  }
+                >
+                  View Client Record
+                </Button>
               </div>
             </CardContent>
           </Card>

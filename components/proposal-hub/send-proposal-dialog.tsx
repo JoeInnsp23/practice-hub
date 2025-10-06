@@ -1,8 +1,8 @@
 "use client";
 
+import { addDays, format } from "date-fns";
 import { Send } from "lucide-react";
 import { useState } from "react";
-import { addDays, format } from "date-fns";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface SendProposalDialogProps {
   proposalId: string;

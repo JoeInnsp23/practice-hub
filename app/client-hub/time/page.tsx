@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 export default function TimePage() {
   return (
     <div>
@@ -5,9 +7,12 @@ export default function TimePage() {
         <h1 className="text-3xl font-bold text-card-foreground">
           Time Tracking
         </h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+        <Button
+          type="button"
+          className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        >
           Start Timer
-        </button>
+        </Button>
       </div>
       <div className="bg-card rounded-lg shadow dark:shadow-slate-900/50">
         <div className="px-6 py-4 border-b border">

@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   CheckCircle,
   Clock,
@@ -13,12 +14,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -43,7 +44,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDebounce } from "@/lib/hooks/use-debounce";
-import { format } from "date-fns";
+
+type StatusBadgeConfig = {
+  variant: "default" | "secondary" | "outline" | "destructive";
+  color: string;
+};
 
 export default function ProposalsPage() {
   const router = useRouter();
@@ -56,7 +61,16 @@ export default function ProposalsPage() {
   // Fetch proposals
   const { data: proposalsData, isLoading } = trpc.proposals.list.useQuery({
     search: debouncedSearchTerm || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
+    status:
+      statusFilter !== "all"
+        ? (statusFilter as
+            | "draft"
+            | "sent"
+            | "viewed"
+            | "signed"
+            | "rejected"
+            | "expired")
+        : undefined,
   });
 
   const proposals = proposalsData?.proposals || [];
@@ -106,7 +120,7 @@ export default function ProposalsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
+    const variants: Record<string, StatusBadgeConfig> = {
       draft: { variant: "secondary", color: "text-slate-600" },
       sent: { variant: "default", color: "text-blue-600" },
       viewed: { variant: "default", color: "text-indigo-600" },

@@ -5,9 +5,9 @@ import toast from "react-hot-toast";
 
 interface SSEMessage {
   type: string;
-  data?: any;
+  data?: unknown;
   timestamp?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UseSSEOptions {
@@ -66,22 +66,24 @@ export function useSSE(url: string = "/api/sse", options: UseSSEOptions = {}) {
               // Heartbeat to keep connection alive
               break;
 
-            case "notification":
+            case "notification": {
               // Show toast for notifications
-              if (message.data?.message) {
-                const notificationType = message.data.level || "info";
+              const data = message.data as { message?: string; level?: string };
+              if (data?.message) {
+                const notificationType = data.level || "info";
                 switch (notificationType) {
                   case "success":
-                    toast.success(message.data.message);
+                    toast.success(data.message);
                     break;
                   case "error":
-                    toast.error(message.data.message);
+                    toast.error(data.message);
                     break;
                   default:
-                    toast(message.data.message);
+                    toast(data.message);
                 }
               }
               break;
+            }
 
             default:
               // Pass to custom handler

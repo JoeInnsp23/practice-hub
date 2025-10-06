@@ -42,9 +42,9 @@ type Service = {
   price: string | null;
   priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
   duration: number | null;
-  tags: any;
+  tags: string[] | null;
   isActive: boolean;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -59,12 +59,17 @@ export default function ServicesPage() {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+  const handleViewModeChange = (value: string) => {
+    if (value === "grid" || value === "list") {
+      setViewMode(value);
+    }
+  };
+
   // Fetch services using tRPC
-  const { data: servicesData, isLoading: loading } =
-    trpc.services.list.useQuery({
-      search: debouncedSearchTerm || undefined,
-      category: categoryFilter !== "all" ? categoryFilter : undefined,
-    });
+  const { data: servicesData } = trpc.services.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    category: categoryFilter !== "all" ? categoryFilter : undefined,
+  });
 
   const services = servicesData?.services || [];
 
@@ -172,25 +177,31 @@ export default function ServicesPage() {
     setIsModalOpen(true);
   };
 
-  const handleEditService = (service: Service) => {
-    setEditingService(service);
+  const handleEditService = (service: (typeof services)[number]) => {
+    // Type assertion to ensure tags is properly typed
+    setEditingService(service as Service);
     setIsModalOpen(true);
   };
 
-  const handleDeleteService = (service: Service) => {
+  const handleDeleteService = (service: (typeof services)[number]) => {
     if (window.confirm(`Delete service "${service.name}"?`)) {
       deleteMutation.mutate(service.id);
     }
   };
 
-  const handleSaveService = (data: any) => {
+  const handleSaveService = (data: Partial<Service>) => {
     if (editingService) {
       updateMutation.mutate({
         id: editingService.id,
         data,
       });
     } else {
-      createMutation.mutate(data);
+      // Ensure required fields are present for creation
+      if (data.name && data.code) {
+        createMutation.mutate(
+          data as Required<Pick<Service, "name" | "code">> & Partial<Service>,
+        );
+      }
     }
   };
 
@@ -292,10 +303,7 @@ export default function ServicesPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Tabs
-                value={viewMode}
-                onValueChange={(v) => setViewMode(v as "grid" | "list")}
-              >
+              <Tabs value={viewMode} onValueChange={handleViewModeChange}>
                 <TabsList>
                   <TabsTrigger value="grid">
                     <Grid className="h-4 w-4" />

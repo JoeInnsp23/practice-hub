@@ -24,6 +24,25 @@ export interface TimeEntry {
   endTime?: string;
 }
 
+interface TimeEntryAPIResponse {
+  id: string;
+  date: string;
+  clientName?: string;
+  clientId?: string;
+  taskTitle?: string;
+  taskId?: string;
+  description?: string;
+  hours: number;
+  billable: boolean;
+  billed: boolean;
+  status?: "draft" | "submitted" | "approved" | "rejected";
+  userId?: string;
+  userName?: string;
+  workType?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
 interface TimeEntryInput {
   date: Date;
   clientId?: string;
@@ -67,24 +86,26 @@ export function useTimeEntries(
         if (response.ok) {
           const data = await response.json();
           // Transform API response to match our interface
-          const entries: TimeEntry[] = data.entries.map((e: any) => ({
-            id: e.id,
-            date: new Date(e.date),
-            client: e.clientName,
-            clientId: e.clientId,
-            task: e.taskTitle,
-            taskId: e.taskId,
-            description: e.description,
-            hours: e.hours,
-            billable: e.billable,
-            billed: e.billed,
-            status: e.status,
-            userId: e.userId,
-            user: e.userName,
-            workType: e.workType,
-            startTime: e.startTime,
-            endTime: e.endTime,
-          }));
+          const entries: TimeEntry[] = data.entries.map(
+            (e: TimeEntryAPIResponse) => ({
+              id: e.id,
+              date: new Date(e.date),
+              client: e.clientName,
+              clientId: e.clientId,
+              task: e.taskTitle,
+              taskId: e.taskId,
+              description: e.description,
+              hours: e.hours,
+              billable: e.billable,
+              billed: e.billed,
+              status: e.status,
+              userId: e.userId,
+              user: e.userName,
+              workType: e.workType,
+              startTime: e.startTime,
+              endTime: e.endTime,
+            }),
+          );
           setData(entries);
         } else {
           throw new Error("Failed to fetch time entries");
@@ -234,8 +255,8 @@ export function useCopyPreviousWeek() {
   const { userId } = useAuth();
 
   const mutateAsync = async ({
-    sourceWeekStart,
-    targetWeekStart,
+    sourceWeekStart: _sourceWeekStart,
+    targetWeekStart: _targetWeekStart,
   }: {
     sourceWeekStart: string;
     targetWeekStart: string;

@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import type { TaskSummary } from "@/components/client-hub/tasks/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,8 +75,12 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
   // Editing state
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editedClient, setEditedClient] = useState<any>(null);
-  const [editedContact, setEditedContact] = useState<any>(null);
+  const [editedClient, setEditedClient] = useState<Partial<
+    typeof client
+  > | null>(null);
+  const [editedContact, setEditedContact] = useState<Partial<
+    NonNullable<typeof contactsData>["contacts"][0]
+  > | null>(null);
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [contactPrePopulationSource, setContactPrePopulationSource] =
     useState("manual");
@@ -250,23 +255,23 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       }
 
       // Save contact changes if editing
-      if (isEditingContact && editedContact) {
+      if (isEditingContact && editedContact && editedContact.id) {
         await updateContactMutation.mutateAsync({
           id: editedContact.id,
           data: {
-            firstName: editedContact.firstName,
-            middleName: editedContact.middleName,
-            lastName: editedContact.lastName,
-            email: editedContact.email,
-            phone: editedContact.phone,
-            jobTitle: editedContact.jobTitle,
-            isPrimary: editedContact.isPrimary,
-            addressLine1: editedContact.addressLine1,
-            addressLine2: editedContact.addressLine2,
-            city: editedContact.city,
-            region: editedContact.region,
-            postalCode: editedContact.postalCode,
-            country: editedContact.country,
+            firstName: editedContact.firstName ?? undefined,
+            middleName: editedContact.middleName ?? undefined,
+            lastName: editedContact.lastName ?? undefined,
+            email: editedContact.email ?? undefined,
+            phone: editedContact.phone ?? undefined,
+            jobTitle: editedContact.jobTitle ?? undefined,
+            isPrimary: editedContact.isPrimary ?? undefined,
+            addressLine1: editedContact.addressLine1 ?? undefined,
+            addressLine2: editedContact.addressLine2 ?? undefined,
+            city: editedContact.city ?? undefined,
+            region: editedContact.region ?? undefined,
+            postalCode: editedContact.postalCode ?? undefined,
+            country: editedContact.country ?? undefined,
           },
         });
       }
@@ -322,7 +327,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
 
   // Calculate metrics
   const clientServices = servicesData?.services || [];
-  const clientTasks = tasksData?.tasks || [];
+  const clientTasks: TaskSummary[] = (tasksData?.tasks as TaskSummary[]) || [];
   const clientTimeEntries = timeEntriesData?.timeEntries || [];
   const clientInvoices = invoicesData?.invoices || [];
 
@@ -372,7 +377,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               <Input
                 value={editedClient?.name || ""}
                 onChange={(e) =>
-                  setEditedClient((prev: any) => ({
+                  setEditedClient((prev) => ({
                     ...prev,
                     name: e.target.value,
                   }))
@@ -408,9 +413,14 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <Select
                   value={editedClient?.status || "active"}
                   onValueChange={(value) =>
-                    setEditedClient((prev: any) => ({
+                    setEditedClient((prev) => ({
                       ...prev,
-                      status: value,
+                      status: value as
+                        | "prospect"
+                        | "onboarding"
+                        | "active"
+                        | "inactive"
+                        | "archived",
                     }))
                   }
                 >
@@ -441,10 +451,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   <Select
                     value={editedClient?.accountManagerId || "unassigned"}
                     onValueChange={(value) =>
-                      setEditedClient((prev: any) => ({
+                      setEditedClient((prev) => ({
                         ...prev,
-                        accountManagerId:
-                          value === "unassigned" ? null : value,
+                        accountManagerId: value === "unassigned" ? null : value,
                       }))
                     }
                   >
@@ -673,7 +682,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                             <span className="text-muted-foreground min-w-[110px]">
                               Year End:
                             </span>
-                            <span className="font-medium">{client.yearEnd}</span>
+                            <span className="font-medium">
+                              {client.yearEnd}
+                            </span>
                           </div>
                         )}
                         {client.vatNumber && (
@@ -681,7 +692,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                             <span className="text-muted-foreground min-w-[110px]">
                               VAT Number:
                             </span>
-                            <span className="font-medium">{client.vatNumber}</span>
+                            <span className="font-medium">
+                              {client.vatNumber}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -693,11 +706,17 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                             Registered Office
                           </h5>
                           <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
-                            {client.addressLine1 && <div>{client.addressLine1}</div>}
-                            {client.addressLine2 && <div>{client.addressLine2}</div>}
+                            {client.addressLine1 && (
+                              <div>{client.addressLine1}</div>
+                            )}
+                            {client.addressLine2 && (
+                              <div>{client.addressLine2}</div>
+                            )}
                             {client.city && <div>{client.city}</div>}
                             {client.state && <div>{client.state}</div>}
-                            {client.postalCode && <div>{client.postalCode}</div>}
+                            {client.postalCode && (
+                              <div>{client.postalCode}</div>
+                            )}
                             {client.country && <div>{client.country}</div>}
                           </div>
                         </div>
@@ -710,8 +729,12 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                       <div>
                         <h5 className="text-sm font-medium mb-2">Address</h5>
                         <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
-                          {client.addressLine1 && <div>{client.addressLine1}</div>}
-                          {client.addressLine2 && <div>{client.addressLine2}</div>}
+                          {client.addressLine1 && (
+                            <div>{client.addressLine1}</div>
+                          )}
+                          {client.addressLine2 && (
+                            <div>{client.addressLine2}</div>
+                          )}
                           {client.city && <div>{client.city}</div>}
                           {client.state && <div>{client.state}</div>}
                           {client.postalCode && <div>{client.postalCode}</div>}
@@ -843,7 +866,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.firstName || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         firstName: e.target.value,
                                       }))
@@ -856,7 +879,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.middleName || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         middleName: e.target.value,
                                       }))
@@ -869,7 +892,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.lastName || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         lastName: e.target.value,
                                       }))
@@ -886,7 +909,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.jobTitle || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         jobTitle: e.target.value,
                                       }))
@@ -900,14 +923,17 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                     id="isPrimary"
                                     checked={editedContact.isPrimary}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         isPrimary: e.target.checked,
                                       }))
                                     }
                                     className="rounded"
                                   />
-                                  <Label htmlFor="isPrimary" className="text-sm">
+                                  <Label
+                                    htmlFor="isPrimary"
+                                    className="text-sm"
+                                  >
                                     Primary Contact
                                   </Label>
                                 </div>
@@ -921,7 +947,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                     type="email"
                                     value={editedContact.email || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         email: e.target.value,
                                       }))
@@ -935,7 +961,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                     type="tel"
                                     value={editedContact.phone || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         phone: e.target.value,
                                       }))
@@ -952,7 +978,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.addressLine1 || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         addressLine1: e.target.value,
                                       }))
@@ -962,7 +988,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.addressLine2 || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         addressLine2: e.target.value,
                                       }))
@@ -973,7 +999,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                     <Input
                                       value={editedContact.city || ""}
                                       onChange={(e) =>
-                                        setEditedContact((prev: any) => ({
+                                        setEditedContact((prev) => ({
                                           ...prev,
                                           city: e.target.value,
                                         }))
@@ -983,7 +1009,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                     <Input
                                       value={editedContact.region || ""}
                                       onChange={(e) =>
-                                        setEditedContact((prev: any) => ({
+                                        setEditedContact((prev) => ({
                                           ...prev,
                                           region: e.target.value,
                                         }))
@@ -993,7 +1019,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                     <Input
                                       value={editedContact.postalCode || ""}
                                       onChange={(e) =>
-                                        setEditedContact((prev: any) => ({
+                                        setEditedContact((prev) => ({
                                           ...prev,
                                           postalCode: e.target.value,
                                         }))
@@ -1004,7 +1030,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                   <Input
                                     value={editedContact.country || ""}
                                     onChange={(e) =>
-                                      setEditedContact((prev: any) => ({
+                                      setEditedContact((prev) => ({
                                         ...prev,
                                         country: e.target.value,
                                       }))
@@ -1081,7 +1107,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                       {contact.addressLine2 && (
                                         <div>{contact.addressLine2}</div>
                                       )}
-                                      {contact.city && <div>{contact.city}</div>}
+                                      {contact.city && (
+                                        <div>{contact.city}</div>
+                                      )}
                                       {contact.region && (
                                         <div>
                                           {contact.region}{" "}
@@ -1259,31 +1287,31 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                           </div>
                           <div className="mt-2 space-y-1">
                             {psc.naturesOfControl &&
-                              Array.isArray(psc.naturesOfControl) &&
-                              psc.naturesOfControl.length > 0 && (
-                                <div className="text-xs">
-                                  <span className="text-muted-foreground">
-                                    Control:{" "}
-                                  </span>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {psc.naturesOfControl.map(
-                                      (nature: string, idx: number) => (
-                                        <Badge
-                                          key={idx}
-                                          variant="outline"
-                                          className="text-xs px-2 py-0"
-                                        >
-                                          {nature
-                                            .replace(/-/g, " ")
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase(),
-                                            )}
-                                        </Badge>
-                                      ),
-                                    )}
-                                  </div>
+                            Array.isArray(psc.naturesOfControl) &&
+                            psc.naturesOfControl.length > 0 ? (
+                              <div className="text-xs">
+                                <span className="text-muted-foreground">
+                                  Control:{" "}
+                                </span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {psc.naturesOfControl.map(
+                                    (nature: string) => (
+                                      <Badge
+                                        key={nature}
+                                        variant="outline"
+                                        className="text-xs px-2 py-0"
+                                      >
+                                        {nature
+                                          .replace(/-/g, " ")
+                                          .replace(/\b\w/g, (l) =>
+                                            l.toUpperCase(),
+                                          )}
+                                      </Badge>
+                                    ),
+                                  )}
                                 </div>
-                              )}
+                              </div>
+                            ) : null}
                             <div className="grid grid-cols-2 gap-x-4 text-xs mt-2">
                               {psc.notifiedOn && (
                                 <div>
@@ -1363,9 +1391,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               ) : (
                 <div className="space-y-3">
                   {clientTasks.slice(0, 5).map((task) => (
-                    <div
+                    <button
+                      type="button"
                       key={task.id}
-                      className="flex items-start justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                      className="flex w-full items-start justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors text-left"
                       onClick={() =>
                         router.push(`/practice-hub/tasks/${task.id}`)
                       }
@@ -1383,7 +1412,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                             }
                             className="text-xs"
                           >
-                            {task.status.replace("_", " ")}
+                            {task.status?.replace("_", " ") || "No status"}
                           </Badge>
                           {task.priority === "urgent" && (
                             <Badge variant="destructive" className="text-xs">
@@ -1407,7 +1436,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </button>
                   ))}
                   {clientTasks.length > 5 && (
                     <div className="text-center pt-2">
@@ -1574,7 +1603,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                             : "-"}
                         </td>
                         <td className="p-3">
-                          {(task as any).assigneeName || "Unassigned"}
+                          {task.assigneeName || "Unassigned"}
                         </td>
                       </tr>
                     ))}

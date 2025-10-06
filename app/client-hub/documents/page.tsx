@@ -40,6 +40,12 @@ interface Document {
   sharedWith?: string[];
 }
 
+interface UploadMetadata {
+  parentId: string | null;
+  client?: string;
+  tags?: string[];
+}
+
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
@@ -130,7 +136,7 @@ export default function DocumentsPage() {
     }
   };
 
-  const handleUpload = async (files: FileList, metadata: any) => {
+  const handleUpload = async (files: FileList, metadata: UploadMetadata) => {
     const newDocs = Array.from(files).map((file) => ({
       id: Date.now().toString() + Math.random(),
       name: file.name,
@@ -147,11 +153,11 @@ export default function DocumentsPage() {
     setDocuments((prev) => [...prev, ...newDocs]);
   };
 
-  const handleView = (doc: any) => {
+  const handleView = (doc: Document) => {
     toast.success(`Opening ${doc.name}`);
   };
 
-  const handleEdit = (doc: any) => {
+  const handleEdit = (doc: Document) => {
     const newName = window.prompt("Enter new name:", doc.name);
     if (newName && newName !== doc.name) {
       setDocuments((prev) =>
@@ -161,18 +167,18 @@ export default function DocumentsPage() {
     }
   };
 
-  const handleDelete = (doc: any) => {
+  const handleDelete = (doc: Document) => {
     if (window.confirm(`Delete "${doc.name}"?`)) {
       setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
       toast.success("Deleted successfully");
     }
   };
 
-  const handleShare = (doc: any) => {
+  const handleShare = (doc: Document) => {
     toast.success(`Sharing ${doc.name}`);
   };
 
-  const handleDownload = (doc: any) => {
+  const handleDownload = (doc: Document) => {
     toast.success(`Downloading ${doc.name}`);
   };
 
@@ -290,7 +296,7 @@ export default function DocumentsPage() {
               </div>
               <Tabs
                 value={viewMode}
-                onValueChange={(v) => setViewMode(v as any)}
+                onValueChange={(v) => setViewMode(v as "grid" | "list")}
               >
                 <TabsList>
                   <TabsTrigger value="grid">

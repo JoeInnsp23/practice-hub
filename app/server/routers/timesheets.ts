@@ -101,7 +101,7 @@ export const timesheetsRouter = router({
           userId,
           date: input.date,
           clientId: input.clientId,
-          serviceId: input.serviceId,
+          serviceComponentId: input.serviceComponentId,
           taskId: input.taskId,
           description: input.description,
           hours: input.hours,

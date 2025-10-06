@@ -58,12 +58,12 @@ export function EditUserDialog({
   });
 
   const updateMutation = trpc.users.update.useMutation({
-    onSuccess: (data: any) => {
+    onSuccess: (data) => {
       toast.success("User updated successfully");
       onSuccess(data.user);
       onClose();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Failed to update user:", error);
       toast.error(error.message || "Failed to update user");
     },
@@ -77,7 +77,7 @@ export function EditUserDialog({
       data: {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        role: formData.role as any,
+        role: formData.role as "admin" | "member" | "client",
       },
     });
   };

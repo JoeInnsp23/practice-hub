@@ -19,7 +19,7 @@ export const getAllIconNames = (): string[] => {
         return false;
       }
       // Check if it's a function (component)
-      return typeof (Icons as any)[key] === "function";
+      return typeof (Icons as Record<string, unknown>)[key] === "function";
     })
     .sort();
 };
@@ -230,7 +230,7 @@ export const fuzzySearchIcons = (
 
 // Get icon component dynamically
 export const getIconComponent = (name: string): LucideIcon | null => {
-  return (Icons as any)[name] || null;
+  return (Icons as unknown as Record<string, LucideIcon>)[name] || null;
 };
 
 // Common/popular icons for quick access

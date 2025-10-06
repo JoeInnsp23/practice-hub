@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
@@ -31,6 +32,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type {
+  TaskFormPayload,
+  TaskFormPriority,
+  TaskFormStatus,
+  TaskSummary,
+} from "./types";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -49,30 +56,77 @@ type TaskFormValues = z.infer<typeof taskSchema>;
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
-  task?: any;
+  onSave: (data: TaskFormPayload) => void | Promise<void>;
+  task?: TaskSummary | null;
 }
+
+const normalizeStatus = (status?: string | null): TaskFormStatus => {
+  if (
+    status === "in_progress" ||
+    status === "completed" ||
+    status === "cancelled"
+  ) {
+    return status;
+  }
+  if (
+    status === "review" ||
+    status === "records_received" ||
+    status === "queries_sent" ||
+    status === "queries_received" ||
+    status === "blocked"
+  ) {
+    return "in_progress";
+  }
+  return "pending";
+};
+
+const normalizePriority = (priority?: string | null): TaskFormPriority => {
+  if (
+    priority === "low" ||
+    priority === "medium" ||
+    priority === "high" ||
+    priority === "urgent"
+  ) {
+    return priority;
+  }
+  if (priority === "critical") {
+    return "urgent";
+  }
+  return "medium";
+};
+
+const getDefaultValues = (
+  currentTask?: TaskSummary | null,
+): TaskFormValues => ({
+  title: currentTask?.title || "",
+  description: currentTask?.description || "",
+  status: normalizeStatus(currentTask?.status),
+  priority: normalizePriority(currentTask?.priority),
+  client: currentTask?.clientName || "",
+  assignee: currentTask?.assigneeName || "",
+  dueDate: currentTask?.dueDate
+    ? new Date(currentTask.dueDate).toISOString().split("T")[0]
+    : "",
+  estimatedHours:
+    currentTask?.estimatedHours !== undefined &&
+    currentTask?.estimatedHours !== null
+      ? String(currentTask.estimatedHours)
+      : "",
+  category: currentTask?.category ? String(currentTask.category) : "",
+});
 
 export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: task?.title || "",
-      description: task?.description || "",
-      status: task?.status || "pending",
-      priority: task?.priority || "medium",
-      client: task?.client || "",
-      assignee: task?.assignee?.name || "",
-      dueDate: task?.dueDate
-        ? new Date(task.dueDate).toISOString().split("T")[0]
-        : "",
-      estimatedHours: task?.estimatedHours?.toString() || "",
-      category: task?.category || "",
-    },
+    defaultValues: getDefaultValues(task),
   });
 
+  useEffect(() => {
+    form.reset(getDefaultValues(task));
+  }, [task, form]);
+
   const onSubmit = async (data: TaskFormValues) => {
-    const taskData = {
+    const taskData: TaskFormPayload = {
       ...data,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
       estimatedHours: data.estimatedHours

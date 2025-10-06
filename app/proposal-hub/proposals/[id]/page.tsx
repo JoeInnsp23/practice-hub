@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   ArrowLeft,
   Building2,
@@ -8,7 +9,6 @@ import {
   Edit,
   FileText,
   Mail,
-  Send,
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,9 +16,6 @@ import { use, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { SendProposalDialog } from "@/components/proposal-hub/send-proposal-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +26,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+type StatusBadgeConfig = {
+  variant: "default" | "secondary" | "outline" | "destructive";
+  color: string;
+};
 
 export default function ProposalDetailPage({
   params,
@@ -81,7 +85,7 @@ export default function ProposalDetailPage({
   }
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
+    const variants: Record<string, StatusBadgeConfig> = {
       draft: { variant: "secondary", color: "text-slate-600" },
       sent: { variant: "default", color: "text-blue-600" },
       viewed: { variant: "default", color: "text-indigo-600" },
@@ -147,9 +151,7 @@ export default function ProposalDetailPage({
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <FileText className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              Pricing Model
-            </span>
+            <span className="text-sm text-muted-foreground">Pricing Model</span>
           </div>
           <p className="text-lg font-bold">
             Model {proposalData.pricingModelUsed || "—"}
@@ -256,7 +258,7 @@ export default function ProposalDetailPage({
             <h2 className="text-lg font-semibold mb-4">Services Included</h2>
             {proposalData.services && proposalData.services.length > 0 ? (
               <div className="space-y-4">
-                {proposalData.services.map((service, index) => (
+                {proposalData.services.map((service, _index) => (
                   <div
                     key={service.id}
                     className="flex justify-between items-start pb-4 border-b last:border-b-0 last:pb-0"
@@ -286,9 +288,7 @@ export default function ProposalDetailPage({
           {/* Terms & Conditions */}
           {proposalData.termsAndConditions && (
             <Card className="glass-card p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Terms & Conditions
-              </h2>
+              <h2 className="text-lg font-semibold mb-4">Terms & Conditions</h2>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                 {proposalData.termsAndConditions}
               </p>
@@ -349,7 +349,10 @@ export default function ProposalDetailPage({
                 <div>
                   <p className="text-sm font-medium">Created</p>
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(proposalData.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                    {format(
+                      new Date(proposalData.createdAt),
+                      "MMM d, yyyy 'at' h:mm a",
+                    )}
                   </p>
                 </div>
               </div>
@@ -362,7 +365,10 @@ export default function ProposalDetailPage({
                   <div>
                     <p className="text-sm font-medium">Sent to Client</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(proposalData.sentAt), "MMM d, yyyy 'at' h:mm a")}
+                      {format(
+                        new Date(proposalData.sentAt),
+                        "MMM d, yyyy 'at' h:mm a",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -376,7 +382,10 @@ export default function ProposalDetailPage({
                   <div>
                     <p className="text-sm font-medium">Viewed by Client</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(proposalData.viewedAt), "MMM d, yyyy 'at' h:mm a")}
+                      {format(
+                        new Date(proposalData.viewedAt),
+                        "MMM d, yyyy 'at' h:mm a",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -390,7 +399,10 @@ export default function ProposalDetailPage({
                   <div>
                     <p className="text-sm font-medium">Signed</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(proposalData.signedAt), "MMM d, yyyy 'at' h:mm a")}
+                      {format(
+                        new Date(proposalData.signedAt),
+                        "MMM d, yyyy 'at' h:mm a",
+                      )}
                     </p>
                   </div>
                 </div>

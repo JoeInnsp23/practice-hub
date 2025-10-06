@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   ArrowLeft,
   Building2,
@@ -12,11 +13,9 @@ import {
   Phone,
   Star,
   TrendingUp,
-  UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { ConvertToClientDialog } from "@/components/proposal-hub/convert-to-client-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
+
+type StatusBadgeConfig = {
+  variant: "default" | "secondary" | "outline" | "destructive";
+  color: string;
+};
 
 export default function LeadDetailPage({
   params,
@@ -64,7 +67,7 @@ export default function LeadDetailPage({
   }
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
+    const variants: Record<string, StatusBadgeConfig> = {
       new: { variant: "default", color: "text-blue-600" },
       contacted: { variant: "secondary", color: "text-slate-600" },
       qualified: { variant: "default", color: "text-green-600" },
@@ -88,7 +91,7 @@ export default function LeadDetailPage({
   };
 
   const getProposalStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
+    const variants: Record<string, StatusBadgeConfig> = {
       draft: { variant: "secondary", color: "text-slate-600" },
       sent: { variant: "default", color: "text-blue-600" },
       viewed: { variant: "default", color: "text-indigo-600" },
@@ -180,9 +183,7 @@ export default function LeadDetailPage({
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              Est. Turnover
-            </span>
+            <span className="text-sm text-muted-foreground">Est. Turnover</span>
           </div>
           <p className="text-lg font-medium">
             {leadData.estimatedTurnover
@@ -368,10 +369,7 @@ export default function LeadDetailPage({
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">
-                      {format(
-                        new Date(leadData.nextFollowUpAt),
-                        "MMM d, yyyy",
-                      )}
+                      {format(new Date(leadData.nextFollowUpAt), "MMM d, yyyy")}
                     </span>
                   </div>
                 </div>

@@ -10,6 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function TimeTrackingPage() {
   const [view, setView] = useState<"daily" | "weekly" | "monthly">("weekly");
 
+  const handleViewChange = (value: string) => {
+    if (value === "daily" || value === "weekly" || value === "monthly") {
+      setView(value);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -21,7 +27,7 @@ export default function TimeTrackingPage() {
       </div>
 
       {/* Main Content with View Toggle */}
-      <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+      <Tabs value={view} onValueChange={handleViewChange}>
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="weekly">
             <Clock className="h-4 w-4 mr-2" />

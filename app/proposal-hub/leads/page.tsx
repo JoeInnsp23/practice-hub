@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   Clock,
   Eye,
@@ -18,8 +19,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -44,7 +45,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDebounce } from "@/lib/hooks/use-debounce";
-import { format } from "date-fns";
+
+type StatusBadgeConfig = {
+  variant: "default" | "secondary" | "outline" | "destructive";
+  color: string;
+};
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -55,7 +60,17 @@ export default function LeadsPage() {
   // Fetch leads
   const { data: leadsData, isLoading } = trpc.leads.list.useQuery({
     search: debouncedSearchTerm || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
+    status:
+      statusFilter !== "all"
+        ? (statusFilter as
+            | "new"
+            | "contacted"
+            | "qualified"
+            | "proposal_sent"
+            | "negotiating"
+            | "converted"
+            | "lost")
+        : undefined,
   });
 
   const leads = leadsData?.leads || [];
@@ -94,7 +109,7 @@ export default function LeadsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
+    const variants: Record<string, StatusBadgeConfig> = {
       new: { variant: "default", color: "text-blue-600" },
       contacted: { variant: "secondary", color: "text-slate-600" },
       qualified: { variant: "default", color: "text-green-600" },
@@ -235,7 +250,9 @@ export default function LeadsPage() {
                   <TableRow
                     key={lead.id}
                     className="cursor-pointer hover:bg-accent/50"
-                    onClick={() => router.push(`/proposal-hub/leads/${lead.id}`)}
+                    onClick={() =>
+                      router.push(`/proposal-hub/leads/${lead.id}`)
+                    }
                   >
                     <TableCell>
                       <div>
@@ -255,9 +272,7 @@ export default function LeadsPage() {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">
-                          {lead.companyName || "—"}
-                        </p>
+                        <p className="font-medium">{lead.companyName || "—"}</p>
                         {lead.industry && (
                           <p className="text-xs text-muted-foreground">
                             {lead.industry}

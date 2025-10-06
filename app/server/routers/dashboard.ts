@@ -1,6 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { getDashboardKpis, getActivityFeed } from "@/lib/db/queries/dashboard-queries";
+import {
+  getActivityFeed,
+  getDashboardKpis,
+} from "@/lib/db/queries/dashboard-queries";
 import { protectedProcedure, router } from "../trpc";
 
 export const dashboardRouter = router({

@@ -33,14 +33,20 @@ export function RealtimeNotifications() {
   const { isConnected } = useSSE("/api/sse", {
     onMessage: (message) => {
       if (message.type === "notification") {
+        const data = message.data as {
+          type?: "success" | "error" | "info" | "warning";
+          title?: string;
+          message?: string;
+          actionUrl?: string;
+        };
         const newNotification: Notification = {
           id: `notif-${Date.now()}`,
-          type: message.data.type || "info",
-          title: message.data.title || "New Notification",
-          message: message.data.message,
+          type: data.type || "info",
+          title: data.title || "New Notification",
+          message: data.message || "",
           timestamp: new Date(),
           read: false,
-          actionUrl: message.data.actionUrl,
+          actionUrl: data.actionUrl,
         };
 
         setNotifications((prev) => [newNotification, ...prev].slice(0, 50)); // Keep last 50

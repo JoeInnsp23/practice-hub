@@ -440,7 +440,8 @@ async function seedDatabase() {
       code: "BOOK_BASIC",
       name: "Basic Bookkeeping (Cash Coding)",
       category: "bookkeeping" as const,
-      description: "Transaction categorization and basic reconciliation in Xero",
+      description:
+        "Transaction categorization and basic reconciliation in Xero",
       pricingModel: "both" as const,
       basePrice: "40", // Min for Model B (0-25 transactions)
       price: "80", // Base for Model A (£0-89k)
@@ -531,8 +532,7 @@ async function seedDatabase() {
       code: "SEC_FULL",
       name: "Full Company Secretarial",
       category: "secretarial" as const,
-      description:
-        "Minutes, resolutions, register maintenance, all filings",
+      description: "Minutes, resolutions, register maintenance, all filings",
       pricingModel: "fixed" as const,
       basePrice: "35",
       price: "35",
@@ -544,8 +544,7 @@ async function seedDatabase() {
       code: "SEC_COMPLEX",
       name: "Complex Company Secretarial",
       category: "secretarial" as const,
-      description:
-        "Group structures, multiple entities, complex changes",
+      description: "Group structures, multiple entities, complex changes",
       pricingModel: "fixed" as const,
       basePrice: "60",
       price: "60",
@@ -753,13 +752,16 @@ async function seedDatabase() {
     )
     .returning();
 
-  console.log(`✓ Created ${createdServiceComponents.length} service components`);
+  console.log(
+    `✓ Created ${createdServiceComponents.length} service components`,
+  );
 
   // 4. Create Pricing Rules
   console.log("Creating pricing rules...");
 
   // Helper to find component by code
   const getComponent = (code: string) =>
+    // biome-ignore lint/style/noNonNullAssertion: seed data - components guaranteed to exist
     createdServiceComponents.find((c) => c.code === code)!;
 
   // Turnover bands for Model A pricing
@@ -773,6 +775,7 @@ async function seedDatabase() {
     { min: 1000000, max: 999999999, label: "£1M+" },
   ];
 
+  // biome-ignore lint/suspicious/noExplicitAny: seed data only
   const pricingRulesList: any[] = [];
 
   // COMP_ACCOUNTS - Turnover-based pricing
@@ -1265,7 +1268,7 @@ async function seedDatabase() {
         email: faker.internet.email({
           firstName,
           lastName,
-          provider: companyName.toLowerCase().replace(/\s+/g, "") + ".com",
+          provider: `${companyName.toLowerCase().replace(/\s+/g, "")}.com`,
         }),
         phone: faker.phone.number(),
         mobile: faker.phone.number(),
@@ -1279,7 +1282,13 @@ async function seedDatabase() {
         estimatedEmployees: faker.number.int({ min: 1, max: 200 }),
         qualificationScore: faker.number.int({ min: 1, max: 10 }),
         interestedServices: faker.helpers.arrayElements(
-          ["COMP_ACCOUNTS", "BOOK_BASIC", "VAT_STANDARD", "PAYROLL", "TAX_PLANNING"],
+          [
+            "COMP_ACCOUNTS",
+            "BOOK_BASIC",
+            "VAT_STANDARD",
+            "PAYROLL",
+            "TAX_PLANNING",
+          ],
           { min: 1, max: 3 },
         ),
         notes: `Lead from ${faker.helpers.arrayElement(leadSources)}. ${
@@ -1533,7 +1542,9 @@ async function seedDatabase() {
     await db.insert(onboardingTasks).values(tasksToInsert);
   }
 
-  console.log(`✅ Created ${recentClients.length} onboarding sessions with tasks`);
+  console.log(
+    `✅ Created ${recentClients.length} onboarding sessions with tasks`,
+  );
 
   // 8. Create Tasks
   console.log("Creating tasks...");
@@ -1657,8 +1668,9 @@ async function seedDatabase() {
           userId: user.id,
           clientId: client.id,
           taskId: task?.id || null,
-          serviceComponentId: faker.helpers.arrayElement(createdServiceComponents)
-            .id,
+          serviceComponentId: faker.helpers.arrayElement(
+            createdServiceComponents,
+          ).id,
           date: dateStr,
           hours: String(hours),
           workType: faker.helpers.arrayElement(workTypes),
@@ -2290,7 +2302,9 @@ async function seedDatabase() {
         tenantId: tenant.id,
         name: template.name,
         description: template.description,
+        // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
         type: template.type as any,
+        // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
         trigger: template.trigger as any,
         estimatedDays: template.estimatedDays,
         serviceComponentId,
@@ -2331,6 +2345,7 @@ async function seedDatabase() {
     .where(eq(workflows.tenantId, tenant.id));
 
   // Create a map of task types to workflows
+  // biome-ignore lint/suspicious/noExplicitAny: seed data workflow mapping
   const workflowMap: { [key: string]: any } = {
     "Tax Return": createdWorkflows.find((w) => w.name.includes("Tax Return")),
     "VAT Return": createdWorkflows.find((w) => w.name.includes("VAT Return")),

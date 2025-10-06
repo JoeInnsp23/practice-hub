@@ -33,11 +33,11 @@ interface Client {
   id: string;
   clientCode: string;
   name: string;
-  type: "individual" | "company" | "trust" | "partnership";
-  status: "active" | "inactive" | "prospect" | "onboarding" | "archived";
-  email?: string;
-  phone?: string;
-  accountManager?: string;
+  type: string | null;
+  status: string | null;
+  email?: string | null;
+  phone?: string | null;
+  accountManager?: string | null;
   createdAt: Date;
 }
 
@@ -57,7 +57,17 @@ export function ClientsTable({
   const router = useRouter();
 
   const getStatusBadge = (status: Client["status"]) => {
-    const statusConfig = {
+    if (!status) {
+      return <Badge variant="secondary">Unknown</Badge>;
+    }
+
+    const statusConfig: Record<
+      string,
+      {
+        label: string;
+        variant: "default" | "secondary" | "outline" | "destructive";
+      }
+    > = {
       active: { label: "Active", variant: "default" as const },
       inactive: { label: "Inactive", variant: "secondary" as const },
       prospect: { label: "Prospect", variant: "outline" as const },
@@ -66,11 +76,18 @@ export function ClientsTable({
     };
 
     const config = statusConfig[status];
+    if (!config) {
+      return <Badge variant="secondary">{status}</Badge>;
+    }
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   const getTypeBadge = (type: Client["type"]) => {
-    const typeConfig = {
+    if (!type) {
+      return <Badge variant="secondary">Unknown</Badge>;
+    }
+
+    const typeConfig: Record<string, { label: string }> = {
       individual: { label: "Individual" },
       company: { label: "Company" },
       trust: { label: "Trust" },
@@ -78,6 +95,9 @@ export function ClientsTable({
     };
 
     const config = typeConfig[type];
+    if (!config) {
+      return <Badge variant="secondary">{type}</Badge>;
+    }
     return <Badge variant="secondary">{config.label}</Badge>;
   };
 

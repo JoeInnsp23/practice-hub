@@ -21,8 +21,13 @@ import { DataImportModal } from "@/components/client-hub/data-import-modal";
 import { TaskBoard } from "@/components/client-hub/tasks/task-board";
 import { TaskList } from "@/components/client-hub/tasks/task-list";
 import { TaskModal } from "@/components/client-hub/tasks/task-modal";
+import type {
+  TaskFormPayload,
+  TaskStatus,
+  TaskSummary,
+} from "@/components/client-hub/tasks/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +52,7 @@ export default function TasksPage() {
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<any>(null);
+  const [editingTask, setEditingTask] = useState<TaskSummary | null>(null);
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
@@ -55,23 +60,23 @@ export default function TasksPage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch tasks using tRPC
-  const { data: tasksData, isLoading: loading } = trpc.tasks.list.useQuery({
+  const { data: tasksData } = trpc.tasks.list.useQuery({
     search: debouncedSearchTerm || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
     priority: priorityFilter !== "all" ? priorityFilter : undefined,
     assigneeId: assigneeFilter !== "all" ? assigneeFilter : undefined,
   });
 
-  const tasks = tasksData?.tasks || [];
+  const tasks: TaskSummary[] = (tasksData?.tasks as TaskSummary[]) || [];
 
   // Filter tasks based on search and filters
-  const filteredTasks = useMemo(() => {
+  const filteredTasks: TaskSummary[] = useMemo(() => {
     return tasks.filter((task) => {
       // Search filter
       if (
         searchTerm &&
         !task.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !task.client?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !task.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) &&
         !task.description?.toLowerCase().includes(searchTerm.toLowerCase())
       ) {
         return false;
@@ -88,7 +93,7 @@ export default function TasksPage() {
       }
 
       // Assignee filter
-      if (assigneeFilter !== "all" && task.assignee?.name !== assigneeFilter) {
+      if (assigneeFilter !== "all" && task.assigneeName !== assigneeFilter) {
         return false;
       }
 
@@ -98,7 +103,7 @@ export default function TasksPage() {
 
   // Get unique assignees for filter
   const uniqueAssignees = Array.from(
-    new Set(tasks.map((t) => t.assignee?.name).filter(Boolean)),
+    new Set(tasks.map((t) => t.assigneeName).filter(Boolean)),
   );
 
   // Task statistics
@@ -117,6 +122,7 @@ export default function TasksPage() {
       title: "Due This Week",
       value: tasks
         .filter((t) => {
+          if (!t.dueDate) return false;
           const dueDate = new Date(t.dueDate);
           const today = new Date();
           const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -129,7 +135,10 @@ export default function TasksPage() {
       title: "Overdue",
       value: tasks
         .filter(
-          (t) => new Date(t.dueDate) < new Date() && t.status !== "completed",
+          (t) =>
+            t.dueDate &&
+            new Date(t.dueDate) < new Date() &&
+            t.status !== "completed",
         )
         .length.toString(),
       icon: AlertTriangle,
@@ -144,7 +153,7 @@ export default function TasksPage() {
     setSelectedTaskIds([]);
   };
 
-  const handleEditTask = (task: any) => {
+  const handleEditTask = (task: TaskSummary) => {
     setEditingTask(task);
     setIsModalOpen(true);
   };
@@ -196,14 +205,25 @@ export default function TasksPage() {
     },
   });
 
-  const handleSaveTask = async (data: any) => {
+  const handleSaveTask = async (data: TaskFormPayload) => {
     if (editingTask) {
       updateMutation.mutate({
         id: editingTask.id,
-        data,
+        data: data as Record<string, unknown>,
       });
     } else {
-      createMutation.mutate(data);
+      // Ensure required fields are present - must have title
+      if (!data.title) {
+        return;
+      }
+      const taskData: Record<string, unknown> = {
+        ...data,
+        title: data.title,
+        createdById: data.createdById,
+      };
+      createMutation.mutate(
+        taskData as Parameters<typeof createMutation.mutate>[0],
+      );
     }
   };
 
@@ -218,10 +238,10 @@ export default function TasksPage() {
     },
   });
 
-  const handleStatusChange = async (taskId: string, status: string) => {
+  const handleStatusChange = async (taskId: string, status: TaskStatus) => {
     updateStatusMutation.mutate({
       id: taskId,
-      status: status as any,
+      status,
     });
   };
 
@@ -392,7 +412,7 @@ export default function TasksPage() {
               <TaskBoard
                 tasks={filteredTasks}
                 onEditTask={handleEditTask}
-                onDeleteTask={(task) => handleDeleteTask(task.id)}
+                onDeleteTask={handleDeleteTask}
                 onStatusChange={handleStatusChange}
               />
             </div>
@@ -444,7 +464,7 @@ export default function TasksPage() {
             <TaskBoard
               tasks={filteredTasks}
               onEditTask={handleEditTask}
-              onDeleteTask={(task) => handleDeleteTask(task.id)}
+              onDeleteTask={handleDeleteTask}
               onStatusChange={handleStatusChange}
             />
           </div>

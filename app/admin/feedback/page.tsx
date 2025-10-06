@@ -9,11 +9,17 @@ export default async function FeedbackPage() {
   if (!authContext) return null;
 
   // Get all feedback for this tenant
-  const feedbackItems = await db
+  const feedbackItemsRaw = await db
     .select()
     .from(feedback)
     .where(eq(feedback.tenantId, authContext.tenantId))
     .orderBy(desc(feedback.createdAt));
+
+  // Cast metadata to expected type
+  const feedbackItems = feedbackItemsRaw.map((item) => ({
+    ...item,
+    metadata: item.metadata as Record<string, unknown> | null,
+  }));
 
   // Calculate stats
   const stats = {

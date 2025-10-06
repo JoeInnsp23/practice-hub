@@ -24,7 +24,7 @@ interface PracticeHubClientProps {
 }
 
 export function PracticeHubClient({
-  userRole,
+  userRole: _userRole,
   userName,
 }: PracticeHubClientProps) {
   const { user } = useUser();
@@ -84,11 +84,12 @@ export function PracticeHubClient({
         id: link.id,
         name: link.title,
         description: link.description || "",
-        icon: IconComponent as any,
+        icon: IconComponent,
         color: moduleColor,
         url: link.url,
         status,
-        isFavorite: favorites?.some((f: any) => f.linkId === link.id) || false,
+        isFavorite:
+          favorites?.some((favorite) => favorite.linkId === link.id) || false,
       };
     }) || [];
 

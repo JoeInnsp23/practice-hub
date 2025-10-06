@@ -30,20 +30,19 @@ interface BasicInfoStepProps {
 const generateClientCode = (name: string, type: string): string => {
   if (!name || !type) return "";
 
-  const prefix =
-    type === "individual"
-      ? "IND"
-      : type === "limited_company"
-        ? "LTD"
-        : type === "partnership"
-          ? "PART"
-          : type === "trust"
-            ? "TR"
-            : type === "charity"
-              ? "CH"
-              : type === "sole_trader"
-                ? "ST"
-                : "CO";
+  const prefixMap: Record<string, string> = {
+    individual: "IND",
+    company: "CO",
+    limited_company: "LTD",
+    sole_trader: "ST",
+    partnership: "PART",
+    llp: "LLP",
+    trust: "TR",
+    charity: "CH",
+    other: "OTH",
+  };
+
+  const prefix = prefixMap[type] || "CO";
 
   const namePart = name
     .substring(0, 4)
@@ -183,7 +182,9 @@ export function BasicInfoStep({
             </Label>
             <Select
               value={formData.type}
-              onValueChange={(value) => updateFormData({ type: value })}
+              onValueChange={(value) =>
+                updateFormData({ type: value as WizardFormData["type"] })
+              }
             >
               <SelectTrigger
                 id="clientType"
@@ -194,6 +195,7 @@ export function BasicInfoStep({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="limited_company">Limited Company</SelectItem>
+                <SelectItem value="company">Company</SelectItem>
                 <SelectItem value="individual">Individual</SelectItem>
                 <SelectItem value="sole_trader">Sole Trader</SelectItem>
                 <SelectItem value="partnership">Partnership</SelectItem>
@@ -213,7 +215,9 @@ export function BasicInfoStep({
             </Label>
             <Select
               value={formData.status}
-              onValueChange={(value) => updateFormData({ status: value })}
+              onValueChange={(value) =>
+                updateFormData({ status: value as WizardFormData["status"] })
+              }
             >
               <SelectTrigger
                 id="clientStatus"

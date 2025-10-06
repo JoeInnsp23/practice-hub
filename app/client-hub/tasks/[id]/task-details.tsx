@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import type { TaskStatus } from "@/components/client-hub/tasks/types";
 import { WorkflowAssignmentModal } from "@/components/client-hub/workflows/workflow-assignment-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,89 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+
+interface TaskChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  completedBy?: string | null;
+  completedAt?: string | null;
+}
+
+interface TaskWorkflowStage {
+  id: string;
+  name: string;
+  description?: string | null;
+  is_required?: boolean | null;
+  checklist_items: TaskChecklistItem[];
+}
+
+interface TaskWorkflowTemplate {
+  stages: TaskWorkflowStage[];
+}
+
+interface TaskWorkflowInstance {
+  id: string;
+  name: string;
+  template: TaskWorkflowTemplate;
+}
+
+interface TaskAssigneeInfo {
+  id: string | null;
+  name: string;
+}
+
+interface TaskClientInfo {
+  id: string | null;
+  name: string;
+  code: string;
+}
+
+interface TaskServiceInfo {
+  id: string | null;
+  name: string;
+}
+
+interface TaskTimeEntry {
+  id: string;
+  description: string;
+  user: string;
+  date: string | Date;
+  hours: number;
+}
+
+interface TaskNote {
+  id: string;
+  author: string;
+  createdAt: string | Date;
+  content: string;
+}
+
+interface TaskDetailsData {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: TaskStatus | null;
+  priority?: string | null;
+  dueDate?: string | Date | null;
+  targetDate?: string | Date | null;
+  startDate?: string | Date | null;
+  completedDate?: string | Date | null;
+  estimatedHours?: number | string | null;
+  actualHours?: number | string | null;
+  progress: number;
+  tags?: string[] | null;
+  notes?: TaskNote[] | null;
+  task_type?: string | null;
+  assignee: TaskAssigneeInfo | null;
+  reviewer: TaskAssigneeInfo | null;
+  client: TaskClientInfo;
+  service: TaskServiceInfo | null;
+  workflowInstance: TaskWorkflowInstance | null;
+  timeEntries: TaskTimeEntry[];
+  createdAt?: string | Date | null;
+  updatedAt?: string | Date | null;
+}
 
 interface TaskDetailsProps {
   taskId: string;
@@ -45,12 +129,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
 
   // Fetch task from database using tRPC
-  const {
-    data: task,
-    isLoading,
-    error,
-    refetch,
-  } = trpc.tasks.getById.useQuery(taskId);
+  const taskQuery = trpc.tasks.getById.useQuery(taskId);
+  const task = taskQuery.data as TaskDetailsData | undefined;
+  const { isLoading, error, refetch } = taskQuery;
   const updateStatusMutation = trpc.tasks.updateStatus.useMutation();
   const updateChecklistMutation = trpc.tasks.updateChecklistItem.useMutation();
 
@@ -60,9 +141,13 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
     if (!task.workflowInstance) return task.progress || 0;
 
     const allItems = task.workflowInstance.template.stages.flatMap(
-      (stage: any) => stage.checklist_items,
+      (stage) => stage.checklist_items,
     );
-    const completedItems = allItems.filter((item: any) => item.completed);
+    if (allItems.length === 0) {
+      return task.progress || 0;
+    }
+
+    const completedItems = allItems.filter((item) => item.completed);
 
     return Math.round((completedItems.length / allItems.length) * 100);
   }, [task]);
@@ -104,11 +189,11 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Handle status update
-  const handleStatusUpdate = async (newStatus: string) => {
+  const handleStatusUpdate = async (newStatus: TaskStatus) => {
     try {
       await updateStatusMutation.mutateAsync({
         id: taskId,
-        status: newStatus as any,
+        status: newStatus,
       });
       toast.success(`Task status updated to ${newStatus.replace("_", " ")}`);
       refetch();
@@ -118,7 +203,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Get status badge config
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: TaskStatus | null | undefined) => {
     const statusConfig = {
       pending: { label: "Not Started", className: "bg-gray-100 text-gray-800" },
       in_progress: {
@@ -141,7 +226,8 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Get priority badge config
-  const getPriorityBadge = (priority: string) => {
+  const getPriorityBadge = (priority: string | null | undefined) => {
+    if (!priority) return null;
     const priorityConfig = {
       urgent: {
         label: "Urgent",
@@ -179,9 +265,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   };
 
   // Calculate stage progress
-  const getStageProgress = (stage: any) => {
+  const getStageProgress = (stage: TaskWorkflowStage) => {
     const completedItems = stage.checklist_items.filter(
-      (item: any) => item.completed,
+      (item) => item.completed,
     ).length;
     return Math.round((completedItems / stage.checklist_items.length) * 100);
   };
@@ -219,6 +305,12 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const daysUntilTarget = task.targetDate
     ? getDaysUntil(task.targetDate)
     : null;
+
+  const estimatedHoursValue = Number(task.estimatedHours) || 0;
+  const actualHoursValue = Number(task.actualHours) || 0;
+  const timeUsedPercentage = estimatedHoursValue
+    ? Math.round((actualHoursValue / estimatedHoursValue) * 100)
+    : 0;
 
   return (
     <div className="p-6 space-y-6">
@@ -371,14 +463,10 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                 <Clock className="h-4 w-4 text-blue-500" />
                 <div>
                   <span>
-                    {task.actualHours || 0} / {task.estimatedHours} hours
+                    {actualHoursValue} / {estimatedHoursValue || "-"} hours
                   </span>
                   <div className="text-xs text-muted-foreground">
-                    {(
-                      ((task.actualHours || 0) / task.estimatedHours) *
-                      100
-                    ).toFixed(0)}
-                    % time used
+                    {timeUsedPercentage}% time used
                   </div>
                 </div>
               </div>
@@ -516,9 +604,9 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-medium text-muted-foreground">
                       Client Details
-                    </label>
+                    </p>
                     <div className="mt-1">
                       <div className="font-medium">{task.client.name}</div>
                       <div className="text-sm text-muted-foreground">
@@ -528,40 +616,49 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-medium text-muted-foreground">
                       Service Information
-                    </label>
+                    </p>
                     <div className="mt-1">
                       <div>{task.service?.name || "No service"}</div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Tags
-                    </label>
-                    <div className="mt-1 flex gap-2">
-                      {task.tags.map((tag: string) => (
-                        <Badge key={tag} variant="outline">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                  {task.tags &&
+                    Array.isArray(task.tags) &&
+                    task.tags.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Tags
+                        </p>
+                        <div className="mt-1 flex gap-2">
+                          {task.tags.map((tag: string) => (
+                            <Badge key={tag} variant="outline">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-medium text-muted-foreground">
                       Task Details
-                    </label>
+                    </p>
                     <div className="mt-1 space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">
                           Created:
                         </span>
                         <span className="text-sm">
-                          {format(new Date(task.createdAt), "dd/MM/yyyy HH:mm")}
+                          {task.createdAt
+                            ? format(
+                                new Date(task.createdAt),
+                                "dd/MM/yyyy HH:mm",
+                              )
+                            : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -569,7 +666,12 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                           Last Updated:
                         </span>
                         <span className="text-sm">
-                          {format(new Date(task.updatedAt), "dd/MM/yyyy HH:mm")}
+                          {task.updatedAt
+                            ? format(
+                                new Date(task.updatedAt),
+                                "dd/MM/yyyy HH:mm",
+                              )
+                            : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -648,7 +750,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                           {isExpanded && (
                             <CardContent>
                               <div className="space-y-3">
-                                {stage.checklist_items.map((item: any) => (
+                                {stage.checklist_items.map((item) => (
                                   <div
                                     key={item.id}
                                     className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
@@ -735,7 +837,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             <CardContent>
               {task.timeEntries && task.timeEntries.length > 0 ? (
                 <div className="space-y-3">
-                  {task.timeEntries.map((entry: any) => (
+                  {task.timeEntries.map((entry) => (
                     <div
                       key={entry.id}
                       className="flex items-center justify-between p-3 border rounded-lg"
@@ -783,7 +885,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
             <CardContent>
               {task.notes && task.notes.length > 0 ? (
                 <div className="space-y-4">
-                  {task.notes.map((note: any) => (
+                  {task.notes.map((note) => (
                     <div key={note.id} className="flex gap-3">
                       <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <User className="h-4 w-4" />

@@ -8,11 +8,11 @@ interface Activity {
   id: string;
   entityType: string;
   entityId: string;
-  entityName?: string;
+  entityName?: string | null;
   action: string;
-  description: string;
-  userName: string;
-  userEmail?: string;
+  description: string | null;
+  userName: string | null;
+  userEmail?: string | null;
   createdAt: string | Date;
   icon?: string;
   color?: string;
@@ -76,8 +76,8 @@ export function ActivityFeed({
           <div className="space-y-4">
             {loading ? (
               // Loading skeletons
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={`skeleton-${i}`} className="flex gap-3 pb-4 border-b">
+              ["s1", "s2", "s3", "s4", "s5"].map((skeletonId) => (
+                <div key={skeletonId} className="flex gap-3 pb-4 border-b">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="flex-1 space-y-2">
                     <Skeleton className="h-4 w-3/4" />
@@ -105,10 +105,12 @@ export function ActivityFeed({
                   </div>
                   <div className="flex-1 space-y-1 min-w-0">
                     <p className="text-sm font-medium text-foreground break-words">
-                      {activity.description}
+                      {activity.description || "No description"}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="truncate">{activity.userName}</span>
+                      <span className="truncate">
+                        {activity.userName || "Unknown user"}
+                      </span>
                       <span>•</span>
                       <span>{formatDateTime(activity.createdAt)}</span>
                     </div>

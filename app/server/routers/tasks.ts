@@ -3,6 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { getTasksList } from "@/lib/db/queries/task-queries";
 import {
   activityLogs,
   tasks,
@@ -10,8 +11,30 @@ import {
   workflowStages,
   workflows,
 } from "@/lib/db/schema";
-import { getTasksList } from "@/lib/db/queries/task-queries";
 import { protectedProcedure, router } from "../trpc";
+
+// Type definitions for JSON fields
+interface ChecklistItem {
+  id: string;
+  text: string;
+  completed?: boolean;
+  completedBy?: string | null;
+  completedAt?: string | null;
+}
+
+interface StageProgressItem {
+  completed: boolean;
+  completedBy: string | null;
+  completedAt: string | null;
+}
+
+interface StageProgress {
+  [stageId: string]: {
+    checklistItems: {
+      [itemId: string]: StageProgressItem;
+    };
+  };
+}
 
 // Generate schema from Drizzle table definition
 const insertTaskSchema = createInsertSchema(tasks, {
@@ -127,37 +150,39 @@ export const tasksRouter = router({
       const result = await db.execute(query);
 
       // Format the response
-      const tasksList = result.map((task: any) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        priority: task.priority,
-        dueDate: task.due_date,
-        targetDate: task.target_date,
-        assignee: task.assignee_name
-          ? {
-              name: task.assignee_name,
-            }
-          : undefined,
-        reviewer: task.reviewer_name
-          ? {
-              name: task.reviewer_name,
-            }
-          : undefined,
-        client: task.client_name,
-        clientId: task.client_id,
-        clientCode: task.client_code,
-        assignedToId: task.assigned_to_id,
-        reviewerId: task.reviewer_id,
-        estimatedHours: task.estimated_hours,
-        actualHours: task.actual_hours,
-        progress: task.progress,
-        tags: task.tags,
-        completedAt: task.completed_at,
-        createdAt: task.created_at,
-        updatedAt: task.updated_at,
-      }));
+      const tasksList = (result as Array<Record<string, unknown>>).map(
+        (task) => ({
+          id: task.id as string,
+          title: task.title as string,
+          description: task.description as string | null,
+          status: task.status as string | null,
+          priority: task.priority as string | null,
+          dueDate: task.due_date as string | Date | null,
+          targetDate: task.target_date as string | Date | null,
+          assignee: task.assignee_name
+            ? {
+                name: task.assignee_name as string,
+              }
+            : undefined,
+          reviewer: task.reviewer_name
+            ? {
+                name: task.reviewer_name as string,
+              }
+            : undefined,
+          client: task.client_name as string | null,
+          clientId: task.client_id as string | null,
+          clientCode: task.client_code as string | null,
+          assignedToId: task.assigned_to_id as string | null,
+          reviewerId: task.reviewer_id as string | null,
+          estimatedHours: task.estimated_hours as number | string | null,
+          actualHours: task.actual_hours as number | string | null,
+          progress: (task.progress as number | null) ?? 0,
+          tags: task.tags as string[] | null,
+          completedAt: task.completed_at as string | Date | null,
+          createdAt: task.created_at as string | Date,
+          updatedAt: task.updated_at as string | Date,
+        }),
+      );
 
       return { tasks: tasksList };
     }),
@@ -183,11 +208,12 @@ export const tasksRouter = router({
         });
       }
 
-      const task = result[0] as any;
+      const task = result[0] as Record<string, unknown>;
 
       // Get workflow instance if exists
       let workflowInstance = null;
       if (task.workflow_id) {
+        const workflowId = task.workflow_id as string;
         const instance = await db
           .select()
           .from(taskWorkflowInstances)
@@ -198,13 +224,13 @@ export const tasksRouter = router({
           const workflow = await db
             .select()
             .from(workflows)
-            .where(eq(workflows.id, task.workflow_id))
+            .where(eq(workflows.id, workflowId))
             .limit(1);
 
           const stages = await db
             .select()
             .from(workflowStages)
-            .where(eq(workflowStages.workflowId, task.workflow_id))
+            .where(eq(workflowStages.workflowId, workflowId))
             .orderBy(workflowStages.stageOrder);
 
           workflowInstance = {
@@ -216,20 +242,20 @@ export const tasksRouter = router({
                 name: stage.name,
                 description: stage.description,
                 is_required: stage.isRequired,
-                checklist_items: ((stage.checklistItems as any) || []).map(
-                  (item: any) => {
-                    const progress = (instance[0].stageProgress as any)?.[
-                      stage.id
-                    ]?.checklistItems?.[item.id];
-                    return {
-                      id: item.id,
-                      text: item.text,
-                      completed: progress?.completed || false,
-                      completedBy: progress?.completedBy,
-                      completedAt: progress?.completedAt,
-                    };
-                  },
-                ),
+                checklist_items: (
+                  (stage.checklistItems as ChecklistItem[]) || []
+                ).map((item: ChecklistItem) => {
+                  const progress = (
+                    instance[0].stageProgress as StageProgress
+                  )?.[stage.id]?.checklistItems?.[item.id];
+                  return {
+                    id: item.id,
+                    text: item.text,
+                    completed: progress?.completed || false,
+                    completedBy: progress?.completedBy,
+                    completedAt: progress?.completedAt,
+                  };
+                }),
               })),
             },
           };
@@ -362,7 +388,7 @@ export const tasksRouter = router({
       }
 
       // Update task
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         ...input.data,
         updatedAt: new Date(),
       };
@@ -651,7 +677,7 @@ export const tasksRouter = router({
       }
 
       // Update stage progress
-      const stageProgress = (instance[0].stageProgress as any) || {};
+      const stageProgress = (instance[0].stageProgress as StageProgress) || {};
       if (!stageProgress[input.stageId]) {
         stageProgress[input.stageId] = {
           checklistItems: {},
@@ -688,7 +714,7 @@ export const tasksRouter = router({
       let completedItems = 0;
 
       for (const stage of stages) {
-        const checklistItems = (stage.checklistItems as any) || [];
+        const checklistItems = (stage.checklistItems as ChecklistItem[]) || [];
         totalItems += checklistItems.length;
 
         const stageProgressData = stageProgress[stage.id];

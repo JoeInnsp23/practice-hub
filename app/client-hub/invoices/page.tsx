@@ -47,19 +47,12 @@ type Invoice = {
   discount: string | null;
   total: string;
   amountPaid: string | null;
-  status:
-    | "draft"
-    | "sent"
-    | "viewed"
-    | "partial"
-    | "paid"
-    | "overdue"
-    | "cancelled";
+  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
   currency: string | null;
   notes: string | null;
   terms: string | null;
   purchaseOrderNumber: string | null;
-  metadata: any;
+  metadata: unknown;
   createdAt: Date;
   updatedAt: Date;
   createdById: string | null;
@@ -68,18 +61,22 @@ type Invoice = {
 export default function InvoicesPage() {
   const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "draft" | "sent" | "paid" | "overdue" | "cancelled"
+  >("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch invoices using tRPC
-  const { data: invoicesData, isLoading: loading } =
-    trpc.invoices.list.useQuery({
-      search: debouncedSearchTerm || undefined,
-      status: statusFilter !== "all" ? statusFilter : undefined,
-    });
+  const { data: invoicesData } = trpc.invoices.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    status:
+      statusFilter !== "all"
+        ? (statusFilter as "draft" | "sent" | "paid" | "overdue" | "cancelled")
+        : undefined,
+  });
 
   const invoices = invoicesData?.invoices || [];
 
@@ -169,14 +166,42 @@ export default function InvoicesPage() {
     setIsFormOpen(true);
   };
 
-  const handleSaveInvoice = (data: any) => {
+  const handleSaveInvoice = (data: Partial<Invoice>) => {
+    // Transform null values to undefined and Dates to strings for API compatibility
+    const transformedData = {
+      ...data,
+      issueDate:
+        data.issueDate instanceof Date
+          ? data.issueDate.toISOString()
+          : data.issueDate,
+      dueDate:
+        data.dueDate instanceof Date
+          ? data.dueDate.toISOString()
+          : data.dueDate,
+      paidDate:
+        data.paidDate instanceof Date
+          ? data.paidDate.toISOString()
+          : (data.paidDate ?? undefined),
+      taxRate: data.taxRate ?? undefined,
+      taxAmount: data.taxAmount ?? undefined,
+      discount: data.discount ?? undefined,
+      currency: data.currency ?? undefined,
+      notes: data.notes ?? undefined,
+      terms: data.terms ?? undefined,
+      purchaseOrderNumber: data.purchaseOrderNumber ?? undefined,
+      amountPaid: data.amountPaid ?? undefined,
+      metadata: data.metadata ?? undefined,
+    };
+
     if (editingInvoice) {
       updateMutation.mutate({
         id: editingInvoice.id,
-        data,
+        // biome-ignore lint/suspicious/noExplicitAny: Transforming null to undefined for API compatibility
+        data: transformedData as any,
       });
     } else {
-      createMutation.mutate(data);
+      // biome-ignore lint/suspicious/noExplicitAny: Transforming null to undefined for API compatibility
+      createMutation.mutate(transformedData as any);
     }
   };
 
@@ -318,7 +343,12 @@ export default function InvoicesPage() {
                   className="pl-10 w-64"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select
+                value={statusFilter}
+                onValueChange={(value) =>
+                  setStatusFilter(value as typeof statusFilter)
+                }
+              >
                 <SelectTrigger className="w-32">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />

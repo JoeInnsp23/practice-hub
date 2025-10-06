@@ -82,9 +82,7 @@ export const settingsRouter = router({
       return { success: true, tenant: updatedTenant };
     }),
 
-  getNotificationSettings: protectedProcedure.query(async ({ ctx }) => {
-    const { tenantId, userId } = ctx.authContext;
-
+  getNotificationSettings: protectedProcedure.query(async () => {
     // For now, return default settings
     // In production, these would be stored in a user_settings table
     return {

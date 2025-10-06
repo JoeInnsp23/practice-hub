@@ -47,14 +47,27 @@ import {
 } from "@/lib/hooks/use-time-entries";
 import { cn } from "@/lib/utils";
 
+export interface TimeEntryFormData {
+  date: Date;
+  clientId?: string;
+  taskId?: string;
+  description: string;
+  hours: number;
+  billable: boolean;
+  workType: string;
+  startTime: string;
+  endTime: string;
+  fullDescription: string;
+}
+
 interface TimeEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (entry: any) => void;
+  onSave: (entry: TimeEntryFormData) => void;
   onUpdate?: () => void;
   onDelete?: () => void;
   selectedDate?: Date;
-  selectedEntry?: any;
+  selectedEntry?: Partial<TimeEntryFormData> & { id?: string };
   selectedHour?: number | null;
   clients?: Array<{ id: string; name: string }>;
   tasks?: Array<{ id: string; name: string; clientId?: string }>;
@@ -92,7 +105,7 @@ export function TimeEntryModal({
     return "10:00";
   }, [selectedEntry, selectedHour]);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TimeEntryFormData>({
     date: selectedEntry?.date || selectedDate,
     clientId: selectedEntry?.clientId || "none",
     taskId: selectedEntry?.taskId || "none",
@@ -202,7 +215,7 @@ export function TimeEntryModal({
           : undefined,
     };
 
-    if (selectedEntry) {
+    if (selectedEntry && selectedEntry.id) {
       await updateTimeEntry.mutateAsync(selectedEntry.id, entryData);
       if (onUpdate) onUpdate();
       toast.success("Time entry updated");

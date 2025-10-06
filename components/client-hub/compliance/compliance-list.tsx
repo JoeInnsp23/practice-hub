@@ -43,8 +43,8 @@ export interface ComplianceItem {
   status: "pending" | "in_progress" | "completed" | "overdue";
   priority: "low" | "medium" | "high" | "critical";
   notes: string | null;
-  attachments: any;
-  metadata: any;
+  attachments: unknown;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
   createdById: string | null;

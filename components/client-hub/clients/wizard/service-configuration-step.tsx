@@ -36,7 +36,7 @@ const SERVICE_DETAILS: Record<
 
 export function ServiceConfigurationStep({
   formData,
-  updateFormData,
+  updateFormData: _updateFormData,
 }: ServiceConfigurationStepProps) {
   const selectedServices = formData.selectedServices || [];
 

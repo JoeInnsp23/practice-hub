@@ -25,7 +25,9 @@ export default function CalculatorPage() {
   const breakdownRef = useRef<HTMLDivElement>(null);
   const [clientId, setClientId] = useState("");
   const [turnover, setTurnover] = useState("90k-149k");
-  const [industry, setIndustry] = useState("standard");
+  const [industry, setIndustry] = useState<
+    "simple" | "standard" | "complex" | "regulated"
+  >("standard");
   const [transactionData, setTransactionData] = useState<{
     monthlyTransactions: number;
     source: "xero" | "manual" | "estimated";
@@ -34,7 +36,7 @@ export default function CalculatorPage() {
     Array<{
       componentCode: string;
       quantity?: number;
-      config?: Record<string, any>;
+      config?: Record<string, unknown>;
     }>
   >([]);
 
@@ -45,7 +47,7 @@ export default function CalculatorPage() {
   const { data: pricingData } = trpc.pricing.calculate.useQuery(
     {
       turnover,
-      industry,
+      industry: industry as "simple" | "standard" | "complex" | "regulated",
       services: selectedServices,
       transactionData: transactionData || undefined,
     },
@@ -99,7 +101,7 @@ export default function CalculatorPage() {
     services: Array<{
       componentCode: string;
       quantity?: number;
-      config?: Record<string, any>;
+      config?: Record<string, unknown>;
     }>,
   ) => {
     setSelectedServices(services);
@@ -188,7 +190,10 @@ export default function CalculatorPage() {
   };
 
   const handleViewBreakdown = () => {
-    breakdownRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    breakdownRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   return (
@@ -269,12 +274,21 @@ export default function CalculatorPage() {
           {/* Industry */}
           <div>
             <Label htmlFor="industry">Industry Type *</Label>
-            <Select value={industry} onValueChange={setIndustry}>
+            <Select
+              value={industry}
+              onValueChange={(value) =>
+                setIndustry(
+                  value as "simple" | "standard" | "complex" | "regulated",
+                )
+              }
+            >
               <SelectTrigger id="industry">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simple">Simple (Consultancy, B2B)</SelectItem>
+                <SelectItem value="simple">
+                  Simple (Consultancy, B2B)
+                </SelectItem>
                 <SelectItem value="standard">Standard</SelectItem>
                 <SelectItem value="complex">
                   Complex (Retail, E-commerce)
@@ -297,7 +311,7 @@ export default function CalculatorPage() {
                 value={transactionData?.monthlyTransactions || ""}
                 onChange={(e) =>
                   setTransactionData({
-                    monthlyTransactions: Number.parseInt(e.target.value),
+                    monthlyTransactions: Number.parseInt(e.target.value, 10),
                     source: "manual",
                   })
                 }

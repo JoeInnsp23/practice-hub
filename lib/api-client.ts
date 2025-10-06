@@ -8,7 +8,7 @@ interface FetchOptions extends RequestInit {
 
 interface ApiError extends Error {
   status?: number;
-  data?: any;
+  data?: unknown;
 }
 
 class ApiClient {
@@ -70,10 +70,12 @@ class ApiClient {
         }
 
         return response;
-      } catch (error: any) {
-        lastError = error;
+      } catch (error: unknown) {
+        const resolvedError =
+          error instanceof Error ? error : new Error("Unknown request error");
+        lastError = resolvedError;
 
-        if (error.name === "AbortError") {
+        if (resolvedError.name === "AbortError") {
           lastError = new Error(`Request timeout after ${timeout}ms`);
         }
 
@@ -95,9 +97,12 @@ class ApiClient {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private async handleResponse<T = any>(response: Response): Promise<T> {
+  private async handleResponse<T = unknown>(response: Response): Promise<T> {
     if (!response.ok) {
-      let errorData: { error?: string; message?: string; [key: string]: any };
+      let errorData: Record<string, unknown> & {
+        error?: string;
+        message?: string;
+      };
       try {
         errorData = await response.json();
       } catch {
@@ -122,13 +127,13 @@ class ApiClient {
 
     const contentType = response.headers.get("content-type");
     if (contentType?.includes("application/json")) {
-      return response.json();
+      return response.json() as Promise<T>;
     }
 
-    return response.text() as T;
+    return (await response.text()) as T;
   }
 
-  async get<T = any>(endpoint: string, options?: FetchOptions): Promise<T> {
+  async get<T = unknown>(endpoint: string, options?: FetchOptions): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const response = await this.fetchWithRetry(url, {
       ...options,
@@ -137,9 +142,9 @@ class ApiClient {
     return this.handleResponse<T>(response);
   }
 
-  async post<T = any>(
+  async post<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: FetchOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
@@ -151,9 +156,9 @@ class ApiClient {
     return this.handleResponse<T>(response);
   }
 
-  async put<T = any>(
+  async put<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: FetchOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
@@ -165,9 +170,9 @@ class ApiClient {
     return this.handleResponse<T>(response);
   }
 
-  async patch<T = any>(
+  async patch<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     options?: FetchOptions,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
@@ -179,7 +184,10 @@ class ApiClient {
     return this.handleResponse<T>(response);
   }
 
-  async delete<T = any>(endpoint: string, options?: FetchOptions): Promise<T> {
+  async delete<T = unknown>(
+    endpoint: string,
+    options?: FetchOptions,
+  ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const response = await this.fetchWithRetry(url, {
       ...options,
@@ -195,15 +203,12 @@ class ApiClient {
     options?: FetchOptions & {
       onProgress?: (progress: number) => void;
     },
-  ): Promise<any> {
+  ): Promise<unknown> {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Remove content-type header for multipart/form-data
-    const headers = { ...this.defaultOptions.headers } as Record<
-      string,
-      string
-    >;
-    delete headers["Content-Type"];
+    const headers = new Headers(this.defaultOptions.headers);
+    headers.delete("Content-Type");
 
     const xhr = new XMLHttpRequest();
 
@@ -251,8 +256,10 @@ class ApiClient {
       xhr.open("POST", url);
 
       // Set headers
-      Object.entries(headers).forEach(([key, value]) => {
-        if (value) xhr.setRequestHeader(key, value as string);
+      headers.forEach((value, key) => {
+        if (value) {
+          xhr.setRequestHeader(key, value);
+        }
       });
 
       // Set timeout
@@ -267,7 +274,7 @@ class ApiClient {
 const apiClient = new ApiClient("/api");
 
 // Helper functions with error handling
-export async function fetchWithErrorHandling<T = any>(
+export async function fetchWithErrorHandling<T = unknown>(
   fetcher: () => Promise<T>,
   options?: {
     showError?: boolean;
@@ -279,13 +286,20 @@ export async function fetchWithErrorHandling<T = any>(
 
   try {
     return await fetcher();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("API Error:", error);
 
-    if (showError) {
-      const message = errorMessage || error.message || "An error occurred";
+    const apiError = (
+      error instanceof Error ? error : new Error("An error occurred")
+    ) as ApiError;
+    const message = errorMessage || apiError.message || "An error occurred";
 
-      if (retryable && error.status >= 500) {
+    if (showError) {
+      if (
+        retryable &&
+        typeof apiError.status === "number" &&
+        apiError.status >= 500
+      ) {
         toast.error(`${message}. Please try again.`, {
           duration: 5000,
         });
@@ -295,7 +309,7 @@ export async function fetchWithErrorHandling<T = any>(
     }
 
     // Re-throw for component to handle if needed
-    throw error;
+    throw apiError;
   }
 }
 

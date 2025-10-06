@@ -1,5 +1,6 @@
 "use client";
 
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import {
   Activity,
   Copy,
@@ -16,6 +17,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import type { AppRouter } from "@/app/server";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { WorkflowTemplateModal } from "@/components/client-hub/workflows/workflow-template-modal";
 import { Badge } from "@/components/ui/badge";
@@ -30,9 +32,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
+type WorkflowTemplate =
+  inferRouterOutputs<AppRouter>["workflows"]["list"][number];
+type WorkflowCreateInput = inferRouterInputs<AppRouter>["workflows"]["create"];
+type WorkflowUpdateArgs = inferRouterInputs<AppRouter>["workflows"]["update"];
+type WorkflowUpdateInput = WorkflowUpdateArgs["data"];
+
 export default function WorkflowsPage() {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [editingTemplate, setEditingTemplate] =
+    useState<WorkflowTemplate | null>(null);
 
   // Fetch workflows from database
   const { data: workflowTemplates = [], refetch } =
@@ -84,7 +93,7 @@ export default function WorkflowsPage() {
           type: template.type,
           config: {},
           trigger: template.trigger,
-          serviceId: template.serviceId,
+          serviceComponentId: template.serviceComponentId,
           isActive: template.isActive,
           estimatedDays: template.estimatedDays,
         });
@@ -121,16 +130,18 @@ export default function WorkflowsPage() {
     },
   ];
 
-  const handleSaveTemplate = async (data: any) => {
+  const handleSaveTemplate = async (
+    data: WorkflowCreateInput | WorkflowUpdateInput,
+  ) => {
     try {
       if (editingTemplate) {
         await updateWorkflowMutation.mutateAsync({
           id: editingTemplate.id,
-          data,
+          data: data as WorkflowUpdateInput,
         });
         toast.success("Template updated successfully");
       } else {
-        await createWorkflowMutation.mutateAsync(data);
+        await createWorkflowMutation.mutateAsync(data as WorkflowCreateInput);
         toast.success("Template created successfully");
       }
       setIsTemplateModalOpen(false);

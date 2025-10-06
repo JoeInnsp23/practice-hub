@@ -13,6 +13,17 @@ import {
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
+// Status enum for filtering
+const leadStatusEnum = z.enum([
+  "new",
+  "contacted",
+  "qualified",
+  "proposal_sent",
+  "negotiating",
+  "converted",
+  "lost",
+]);
+
 // Onboarding task template - 17 standard tasks
 const ONBOARDING_TEMPLATE_TASKS = [
   {
@@ -43,8 +54,7 @@ const ONBOARDING_TEMPLATE_TASKS = [
   {
     sequence: 30,
     taskName: "Complete AML ID check",
-    description:
-      "Verify identity documents and complete AML compliance check",
+    description: "Verify identity documents and complete AML compliance check",
     required: true,
     days: 4,
     progressWeight: 6,
@@ -170,16 +180,15 @@ const insertLeadSchema = createInsertSchema(leads, {
 });
 
 // Schema for create/update operations
-const leadSchema = insertLeadSchema
-  .omit({
-    id: true,
-    tenantId: true,
-    createdAt: true,
-    updatedAt: true,
-    createdBy: true,
-    convertedToClientId: true,
-    convertedAt: true,
-  });
+const leadSchema = insertLeadSchema.omit({
+  id: true,
+  tenantId: true,
+  createdAt: true,
+  updatedAt: true,
+  createdBy: true,
+  convertedToClientId: true,
+  convertedAt: true,
+});
 
 export const leadsRouter = router({
   // List all leads
@@ -188,7 +197,7 @@ export const leadsRouter = router({
       z
         .object({
           search: z.string().optional(),
-          status: z.string().optional(),
+          status: leadStatusEnum.optional(),
           assignedToId: z.string().optional(),
         })
         .optional(),
@@ -278,9 +287,7 @@ export const leadsRouter = router({
           createdAt: proposals.createdAt,
         })
         .from(proposals)
-        .where(
-          and(eq(proposals.leadId, id), eq(proposals.tenantId, tenantId)),
-        )
+        .where(and(eq(proposals.leadId, id), eq(proposals.tenantId, tenantId)))
         .orderBy(desc(proposals.createdAt));
 
       // Get converted client if exists
@@ -316,6 +323,12 @@ export const leadsRouter = router({
         .insert(leads)
         .values({
           ...input,
+          lastContactedAt: input.lastContactedAt
+            ? new Date(input.lastContactedAt)
+            : undefined,
+          nextFollowUpAt: input.nextFollowUpAt
+            ? new Date(input.nextFollowUpAt)
+            : undefined,
           tenantId,
           createdBy: userId,
         })
@@ -370,6 +383,12 @@ export const leadsRouter = router({
         .update(leads)
         .set({
           ...input.data,
+          lastContactedAt: input.data.lastContactedAt
+            ? new Date(input.data.lastContactedAt)
+            : undefined,
+          nextFollowUpAt: input.data.nextFollowUpAt
+            ? new Date(input.data.nextFollowUpAt)
+            : undefined,
           updatedAt: new Date(),
         })
         .where(eq(leads.id, input.id))
@@ -489,7 +508,16 @@ export const leadsRouter = router({
             tenantId,
             clientCode: input.clientData.clientCode,
             name: lead.companyName || `${lead.firstName} ${lead.lastName}`,
-            type: input.clientData.type,
+            type: input.clientData.type as
+              | "individual"
+              | "company"
+              | "limited_company"
+              | "sole_trader"
+              | "partnership"
+              | "llp"
+              | "trust"
+              | "charity"
+              | "other",
             status: "onboarding",
             email: lead.email,
             phone: lead.phone,

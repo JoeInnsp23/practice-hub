@@ -40,8 +40,7 @@ const ONBOARDING_TEMPLATE_TASKS = [
   {
     sequence: 30,
     taskName: "Complete AML ID check",
-    description:
-      "Verify identity documents and complete AML compliance check",
+    description: "Verify identity documents and complete AML compliance check",
     required: true,
     days: 4,
     progressWeight: 6,
@@ -164,9 +163,7 @@ export const onboardingRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        status: z
-          .enum(["not_started", "in_progress", "completed"])
-          .optional(),
+        status: z.enum(["not_started", "in_progress", "completed"]).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -352,7 +349,7 @@ export const onboardingRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         updatedAt: new Date(),
       };
 
@@ -441,7 +438,7 @@ export const onboardingRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         updatedAt: new Date(),
       };
 

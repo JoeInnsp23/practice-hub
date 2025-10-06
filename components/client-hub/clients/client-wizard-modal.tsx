@@ -25,16 +25,25 @@ import { ServiceSelectionStep } from "./wizard/service-selection-step";
 interface ClientWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (clientData: any) => void;
-  client?: any;
+  onSave: (clientData: WizardFormData) => void;
+  client?: Partial<WizardFormData>;
 }
 
 export interface WizardFormData {
   // Basic Info
-  clientCode?: string;
+  clientCode: string;
   name: string;
-  type: string;
-  status: string;
+  type:
+    | "individual"
+    | "company"
+    | "limited_company"
+    | "sole_trader"
+    | "partnership"
+    | "llp"
+    | "trust"
+    | "charity"
+    | "other";
+  status: "prospect" | "onboarding" | "active" | "inactive" | "archived";
   accountManager?: string;
   clientManagerId?: string;
 
@@ -120,7 +129,7 @@ export interface WizardFormData {
   notes?: string;
 
   // Metadata
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 const STEPS = [
@@ -259,12 +268,13 @@ export function ClientWizardModal({
 
   const handleSubmit = () => {
     // Prepare final data for submission
-    const finalData = {
+    const finalData: WizardFormData = {
       ...formData,
-      // Convert "none" values to null for proper database handling
-      vatPeriods: formData.vatPeriods === "none" ? null : formData.vatPeriods,
+      // Convert "none" values to undefined for proper database handling
+      vatPeriods:
+        formData.vatPeriods === "none" ? undefined : formData.vatPeriods,
       payePeriods:
-        formData.payePeriods === "none" ? null : formData.payePeriods,
+        formData.payePeriods === "none" ? undefined : formData.payePeriods,
       // Convert metadata to include contact info and other details
       metadata: {
         ...formData.metadata,
@@ -415,6 +425,7 @@ export function ClientWizardModal({
               <div className="flex gap-2 overflow-x-auto pb-2 px-4">
                 {STEPS.map((step, index) => (
                   <button
+                    type="button"
                     key={step.id}
                     onClick={() => {
                       if (

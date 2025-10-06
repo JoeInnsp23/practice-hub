@@ -96,9 +96,7 @@ export function ConvertToClientDialog({
               id="clientCode"
               placeholder="e.g., CLT001"
               value={clientCode}
-              onChange={(e) =>
-                setClientCode(e.target.value.toUpperCase())
-              }
+              onChange={(e) => setClientCode(e.target.value.toUpperCase())}
             />
             <p className="text-xs text-muted-foreground">
               Unique identifier for the client

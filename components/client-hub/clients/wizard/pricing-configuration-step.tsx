@@ -23,6 +23,16 @@ export function PricingConfigurationStep({
   formData,
   updateFormData,
 }: PricingConfigurationStepProps) {
+  const handleBillingStrategyChange = (value: string) => {
+    if (
+      value === "ad_hoc_hourly" ||
+      value === "fixed_per_service" ||
+      value === "monthly_retainer"
+    ) {
+      updateFormData({ billingStrategy: value });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -38,9 +48,7 @@ export function PricingConfigurationStep({
         <CardContent>
           <RadioGroup
             value={formData.billingStrategy || "fixed"}
-            onValueChange={(value: any) =>
-              updateFormData({ billingStrategy: value })
-            }
+            onValueChange={handleBillingStrategyChange}
           >
             <div className="space-y-3">
               <div className="flex items-start space-x-3">

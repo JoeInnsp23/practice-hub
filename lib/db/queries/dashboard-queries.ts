@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { dashboardKpiView, activityFeedView } from "@/lib/db/schema";
+import { activityFeedView, dashboardKpiView } from "@/lib/db/schema";
 
 /**
  * Fetch dashboard KPIs for a given tenant

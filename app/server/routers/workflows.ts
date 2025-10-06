@@ -70,7 +70,7 @@ export const workflowsRouter = router({
           )`,
         })
         .from(workflows)
-        .leftJoin(services, eq(workflows.serviceId, services.id))
+        .leftJoin(services, eq(workflows.serviceComponentId, services.id))
         .where(and(...conditions))
         .orderBy(desc(workflows.createdAt));
 
@@ -108,11 +108,11 @@ export const workflowsRouter = router({
 
       // Get service if exists
       let service = null;
-      if (workflow[0].serviceId) {
+      if (workflow[0].serviceComponentId) {
         const serviceResult = await db
           .select()
           .from(services)
-          .where(eq(services.id, workflow[0].serviceId))
+          .where(eq(services.id, workflow[0].serviceComponentId))
           .limit(1);
         service = serviceResult[0];
       }
@@ -138,7 +138,7 @@ export const workflowsRouter = router({
           description: input.description,
           type: input.type,
           trigger: input.trigger || "manual",
-          serviceId: input.serviceId,
+          serviceComponentId: input.serviceComponentId,
           isActive: input.isActive,
           estimatedDays: input.estimatedDays,
           config: {},

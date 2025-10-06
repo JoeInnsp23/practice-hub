@@ -13,6 +13,17 @@ export interface AuthContext {
   lastName: string | null;
 }
 
+interface ClerkOrganizationMembership {
+  organization?: {
+    name?: string | null;
+    slug?: string | null;
+  } | null;
+}
+
+interface ClerkUserWithOrganizations {
+  organizationMemberships?: ClerkOrganizationMembership[] | null;
+}
+
 export async function getAuthContext(): Promise<AuthContext | null> {
   try {
     const clerkUser = await currentUser();
@@ -51,12 +62,11 @@ export async function getAuthContext(): Promise<AuthContext | null> {
           console.info("Auth: Creating default tenant");
 
           // Use Clerk organization data if available, otherwise use defaults
-          const orgName =
-            (clerkUser as any).organizationMemberships?.[0]?.organization
-              ?.name || "Default Organization";
-          const orgSlug =
-            (clerkUser as any).organizationMemberships?.[0]?.organization
-              ?.slug || "default";
+          const orgMemberships = (clerkUser as ClerkUserWithOrganizations)
+            .organizationMemberships;
+          const firstOrganization = orgMemberships?.[0]?.organization;
+          const orgName = firstOrganization?.name || "Default Organization";
+          const orgSlug = firstOrganization?.slug || "default";
 
           defaultTenant = await db
             .insert(tenants)
@@ -121,7 +131,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       firstName,
       lastName,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Auth: Failed to get auth context", error);
     return null;
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   Calculator,
   CheckCircle,
@@ -11,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,8 +23,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+
+type StatusBadgeConfig = {
+  variant: "default" | "secondary" | "outline" | "destructive";
+  color: string;
+};
 
 export default function ProposalHubPage() {
   const router = useRouter();
@@ -68,7 +73,7 @@ export default function ProposalHubPage() {
       value: `£${(totalValue / 12).toFixed(0)}`,
       icon: TrendingUp,
       iconColor: "text-violet-600",
-      subtitle: "/month",
+      subtext: "/month",
     },
   ];
 
@@ -81,7 +86,7 @@ export default function ProposalHubPage() {
     .slice(0, 5);
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; color: string }> = {
+    const variants: Record<string, StatusBadgeConfig> = {
       draft: { variant: "secondary", color: "text-slate-600" },
       sent: { variant: "default", color: "text-blue-600" },
       viewed: { variant: "default", color: "text-indigo-600" },
@@ -124,7 +129,7 @@ export default function ProposalHubPage() {
             value={kpi.value}
             icon={kpi.icon}
             iconColor={kpi.iconColor}
-            subtitle={kpi.subtitle}
+            subtext={kpi.subtext}
           />
         ))}
       </div>
@@ -206,9 +211,7 @@ export default function ProposalHubPage() {
                   <TableCell colSpan={5} className="text-center py-8">
                     <div className="flex flex-col items-center gap-2">
                       <FileText className="h-12 w-12 text-muted-foreground/50" />
-                      <p className="text-muted-foreground">
-                        No proposals yet
-                      </p>
+                      <p className="text-muted-foreground">No proposals yet</p>
                       <Button
                         variant="outline"
                         size="sm"

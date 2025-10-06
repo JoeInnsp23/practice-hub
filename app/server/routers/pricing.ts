@@ -11,10 +11,14 @@ const serviceSelectionSchema = z.object({
   quantity: z.number().optional(),
   config: z
     .object({
-      complexity: z.enum(["clean", "average", "complex", "disaster"]).optional(),
+      complexity: z
+        .enum(["clean", "average", "complex", "disaster"])
+        .optional(),
       frequency: z.enum(["monthly", "quarterly", "annual"]).optional(),
       employees: z.number().optional(),
-      payrollFrequency: z.enum(["monthly", "weekly", "fortnightly", "4weekly"]).optional(),
+      payrollFrequency: z
+        .enum(["monthly", "weekly", "fortnightly", "4weekly"])
+        .optional(),
     })
     .passthrough()
     .optional(),
@@ -127,7 +131,10 @@ function calculatePayroll(employees: number, frequency: string): number {
   return basePrice;
 }
 
-function parseTurnoverBand(turnover: string): { min: number; max: number | null } {
+function parseTurnoverBand(turnover: string): {
+  min: number;
+  max: number | null;
+} {
   // Handle formats like "0-89k", "90k-149k", "1m+"
   if (turnover === "1m+") {
     return { min: 1000000, max: null };
@@ -136,12 +143,12 @@ function parseTurnoverBand(turnover: string): { min: number; max: number | null 
   const parts = turnover.split("-");
   const parseValue = (val: string): number => {
     if (val.endsWith("k")) {
-      return Number.parseInt(val.slice(0, -1)) * 1000;
+      return Number.parseInt(val.slice(0, -1), 10) * 1000;
     }
     if (val.endsWith("m")) {
-      return Number.parseInt(val.slice(0, -1)) * 1000000;
+      return Number.parseInt(val.slice(0, -1), 10) * 1000000;
     }
-    return Number.parseInt(val);
+    return Number.parseInt(val, 10);
   };
 
   return {
@@ -151,8 +158,7 @@ function parseTurnoverBand(turnover: string): { min: number; max: number | null 
 }
 
 function buildCalculationString(
-  component: any,
-  rule: any,
+  rule: { price: string | number },
   adjustments: Adjustment[],
 ): string {
   let calc = `Base: £${Number(rule.price).toFixed(2)}`;
@@ -165,9 +171,7 @@ function buildCalculationString(
 }
 
 function buildTransactionCalculationString(
-  component: any,
   basePrice: number,
-  transactionFee: number,
   adjustments: Adjustment[],
 ): string {
   let calc = `Base: £${basePrice.toFixed(2)}`;
@@ -176,7 +180,7 @@ function buildTransactionCalculationString(
     calc += ` + ${volumeAdj.description}`;
   }
   const complexityAdj = adjustments.find((a) => a.type === "complexity");
-  if (complexityAdj && complexityAdj.multiplier) {
+  if (complexityAdj?.multiplier) {
     calc += ` × ${complexityAdj.multiplier} (${complexityAdj.description})`;
   }
   return calc;
@@ -324,8 +328,8 @@ async function calculateModelA(
           eq(pricingRules.componentId, component.id),
           eq(pricingRules.ruleType, "turnover_band"),
           eq(pricingRules.isActive, true),
-          lte(pricingRules.minValue, turnoverBand.min),
-          gte(pricingRules.maxValue, turnoverBand.min),
+          lte(pricingRules.minValue, turnoverBand.min.toString()),
+          gte(pricingRules.maxValue, turnoverBand.min.toString()),
         ),
       )
       .limit(1);
@@ -343,7 +347,9 @@ async function calculateModelA(
 
     // Apply complexity multiplier
     if (service.config?.complexity && component.supportsComplexity) {
-      const complexityMultiplier = getComplexityMultiplier(service.config.complexity);
+      const complexityMultiplier = getComplexityMultiplier(
+        service.config.complexity,
+      );
       adjustments.push({
         type: "complexity",
         description: `${service.config.complexity} books`,
@@ -366,7 +372,7 @@ async function calculateModelA(
     services.push({
       componentCode: service.componentCode,
       componentName: component.name,
-      calculation: buildCalculationString(component, rule, adjustments),
+      calculation: buildCalculationString(rule, adjustments),
       basePrice: Number(rule.price),
       adjustments,
       finalPrice: basePrice,
@@ -480,7 +486,7 @@ async function calculateModelB(
     const rule = rules[0];
     if (!rule) continue;
 
-    let basePrice = component.basePrice ? Number(component.basePrice) : 0;
+    const basePrice = component.basePrice ? Number(component.basePrice) : 0;
     let transactionFee = 0;
     const adjustments: Adjustment[] = [];
 
@@ -515,12 +521,7 @@ async function calculateModelB(
     services.push({
       componentCode: service.componentCode,
       componentName: component.name,
-      calculation: buildTransactionCalculationString(
-        component,
-        basePrice,
-        transactionFee,
-        adjustments,
-      ),
+      calculation: buildTransactionCalculationString(basePrice, adjustments),
       basePrice,
       adjustments,
       finalPrice,
@@ -623,21 +624,23 @@ function estimateMonthlyTransactions(
 // Router definition
 export const pricingRouter = router({
   // Calculate pricing
-  calculate: protectedProcedure.input(pricingInputSchema).query(async ({ ctx, input }) => {
-    const { tenantId } = ctx.authContext;
+  calculate: protectedProcedure
+    .input(pricingInputSchema)
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
 
-    const modelA = await calculateModelA(input, tenantId);
-    const modelB = input.transactionData
-      ? await calculateModelB(input, tenantId)
-      : null;
-    const recommendation = compareModels(modelA, modelB);
+      const modelA = await calculateModelA(input, tenantId);
+      const modelB = input.transactionData
+        ? await calculateModelB(input, tenantId)
+        : null;
+      const recommendation = compareModels(modelA, modelB);
 
-    return {
-      modelA,
-      modelB,
-      recommendation,
-    };
-  }),
+      return {
+        modelA,
+        modelB,
+        recommendation,
+      };
+    }),
 
   // Get all service components
   getComponents: protectedProcedure.query(async ({ ctx }) => {
@@ -658,7 +661,7 @@ export const pricingRouter = router({
   // Get pricing rules for a component
   getRules: protectedProcedure
     .input(z.object({ componentId: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return await db
         .select()
         .from(pricingRules)
@@ -679,7 +682,7 @@ export const pricingRouter = router({
         vatRegistered: z.boolean(),
       }),
     )
-    .query(async ({ _ctx, input }) => {
+    .query(async ({ input }) => {
       return {
         estimated: estimateMonthlyTransactions(
           input.turnover,

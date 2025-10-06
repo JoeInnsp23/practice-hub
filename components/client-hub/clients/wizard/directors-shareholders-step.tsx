@@ -67,7 +67,11 @@ export function DirectorsShareholdersStep({
     updateFormData({ shareholders: updated });
   };
 
-  const updateShareholder = (id: string, field: string, value: any) => {
+  const updateShareholder = (
+    id: string,
+    field: string,
+    value: string | number | boolean | null,
+  ) => {
     const updated = shareholders.map((s) =>
       s.id === id ? { ...s, [field]: value } : s,
     );

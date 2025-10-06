@@ -149,7 +149,7 @@ export function ComplianceCalendar({
           ))}
 
           {/* Calendar days */}
-          {calendarDays.map((day, index) => {
+          {calendarDays.map((day, _index) => {
             const dateKey = day.toISOString().split("T")[0];
             const dayItems = itemsByDate[dateKey] || [];
             const hasOverdue = dayItems.some(
@@ -182,9 +182,10 @@ export function ComplianceCalendar({
                 </div>
                 <div className="space-y-1">
                   {dayItems.slice(0, 3).map((item) => (
-                    <div
+                    <button
+                      type="button"
                       key={item.id}
-                      className="cursor-pointer hover:opacity-80"
+                      className="w-full cursor-pointer hover:opacity-80 text-left"
                       onClick={() => onItemClick(item)}
                     >
                       <Badge
@@ -196,7 +197,7 @@ export function ComplianceCalendar({
                       >
                         <span className="truncate">{item.title}</span>
                       </Badge>
-                    </div>
+                    </button>
                   ))}
                   {dayItems.length > 3 && (
                     <span className="text-xs text-muted-foreground">

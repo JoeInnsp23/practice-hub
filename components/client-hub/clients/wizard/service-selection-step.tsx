@@ -142,10 +142,11 @@ export function ServiceSelectionStep({
                 const isSelected = selectedServices.includes(service.id);
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={service.id}
                     className={`
-                        flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                        flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all text-left
                         ${
                           isSelected
                             ? "bg-blue-50 border-blue-400 dark:bg-blue-950/30 dark:border-blue-600 shadow-sm"
@@ -173,7 +174,7 @@ export function ServiceSelectionStep({
                         {service.description}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

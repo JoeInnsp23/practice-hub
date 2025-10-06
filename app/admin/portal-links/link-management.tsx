@@ -77,6 +77,31 @@ const linkFormSchema = z.object({
 
 type LinkFormData = z.infer<typeof linkFormSchema>;
 
+interface Category {
+  id: string;
+  name: string;
+  description?: string | null;
+  iconName?: string | null;
+  colorHex?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+interface Link {
+  id: string;
+  categoryId: string;
+  title: string;
+  description?: string | null;
+  url: string;
+  isInternal: boolean;
+  iconName?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  targetBlank: boolean;
+  requiresAuth: boolean;
+  allowedRoles?: unknown;
+}
+
 const roleOptions = [
   { value: "admin", label: "Admin" },
   { value: "member", label: "Member" },
@@ -85,9 +110,9 @@ const roleOptions = [
 
 export function LinkManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedLink, setSelectedLink] = useState<any>(null);
+  const [selectedLink, setSelectedLink] = useState<Link | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [linkToDelete, setLinkToDelete] = useState<any>(null);
+  const [linkToDelete, setLinkToDelete] = useState<Link | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
     new Set(),
@@ -111,15 +136,17 @@ export function LinkManagement() {
     if (!links || !categories) return [];
 
     const grouped = categories
-      .filter((cat: any) => !selectedCategory || cat.id === selectedCategory)
-      .map((category: any) => ({
+      .filter(
+        (cat: Category) => !selectedCategory || cat.id === selectedCategory,
+      )
+      .map((category: Category) => ({
         category,
         links: links
-          .filter((link: any) => link.categoryId === category.id)
-          .sort((a: any, b: any) => a.sortOrder - b.sortOrder),
+          .filter((link) => link.categoryId === category.id)
+          .sort((a, b) => a.sortOrder - b.sortOrder),
       }))
-      .filter((group: any) => group.links.length > 0)
-      .sort((a: any, b: any) => a.category.sortOrder - b.category.sortOrder);
+      .filter((group) => group.links.length > 0)
+      .sort((a, b) => a.category.sortOrder - b.category.sortOrder);
 
     return grouped;
   }, [links, categories, selectedCategory]);
@@ -141,7 +168,7 @@ export function LinkManagement() {
     },
   });
 
-  const handleEdit = (link: any) => {
+  const handleEdit = (link: Link) => {
     setSelectedLink(link);
     form.reset({
       categoryId: link.categoryId,
@@ -154,7 +181,7 @@ export function LinkManagement() {
       isActive: link.isActive,
       targetBlank: link.targetBlank,
       requiresAuth: link.requiresAuth,
-      allowedRoles: link.allowedRoles || [],
+      allowedRoles: (link.allowedRoles as string[] | null) || [],
     });
     setIsModalOpen(true);
   };
@@ -211,7 +238,7 @@ export function LinkManagement() {
   };
 
   const handleReorder = async (
-    links: any[],
+    links: Link[],
     index: number,
     direction: "up" | "down",
   ) => {
@@ -240,7 +267,7 @@ export function LinkManagement() {
 
   // Get category name for display
   const _getCategoryName = (categoryId: string) => {
-    const category = categories?.find((c: any) => c.id === categoryId);
+    const category = categories?.find((c: Category) => c.id === categoryId);
     return category?.name || "Unknown";
   };
 
@@ -265,7 +292,7 @@ export function LinkManagement() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value=" ">All Categories</SelectItem>
-              {categories?.map((category: any) => (
+              {categories?.map((category: Category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}
                 </SelectItem>
@@ -281,7 +308,7 @@ export function LinkManagement() {
 
       {linksByCategory.length > 0 ? (
         <div className="space-y-6">
-          {linksByCategory.map((group: any) => {
+          {linksByCategory.map((group) => {
             const CategoryIcon = group.category.iconName
               ? getIconComponent(group.category.iconName) || Folder
               : Folder;
@@ -290,8 +317,9 @@ export function LinkManagement() {
             return (
               <Card key={group.category.id} className="overflow-hidden">
                 {/* Category Header */}
-                <div
-                  className="px-6 py-3 border-b flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
+                <button
+                  type="button"
+                  className="w-full px-6 py-3 border-b flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity text-left"
                   style={{
                     backgroundColor: `${group.category.colorHex}10`,
                     borderColor: `${group.category.colorHex}30`,
@@ -315,7 +343,9 @@ export function LinkManagement() {
                   </Button>
                   <div
                     className="h-8 w-8 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: group.category.colorHex }}
+                    style={{
+                      backgroundColor: group.category.colorHex || undefined,
+                    }}
                   >
                     <CategoryIcon className="h-4 w-4 text-white" />
                   </div>
@@ -328,7 +358,7 @@ export function LinkManagement() {
                     )}
                   </div>
                   <Badge variant="secondary">{group.links.length} links</Badge>
-                </div>
+                </button>
 
                 {/* Links Table */}
                 {!isCollapsed && (
@@ -344,7 +374,7 @@ export function LinkManagement() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {group.links.map((link: any, index: number) => {
+                      {group.links.map((link, index) => {
                         const LinkIconComponent = link.iconName
                           ? getIconComponent(link.iconName)
                           : null;
@@ -481,7 +511,7 @@ export function LinkManagement() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories?.map((category: any) => (
+                        {categories?.map((category: Category) => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.name}
                           </SelectItem>
@@ -695,6 +725,7 @@ export function LinkManagement() {
                           className="flex items-center space-x-2"
                         >
                           <Checkbox
+                            id={`role-${role.value}`}
                             checked={field.value?.includes(role.value)}
                             onCheckedChange={(checked) => {
                               const current = field.value || [];
@@ -707,7 +738,10 @@ export function LinkManagement() {
                               }
                             }}
                           />
-                          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          <label
+                            htmlFor={`role-${role.value}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
                             {role.label}
                           </label>
                         </div>

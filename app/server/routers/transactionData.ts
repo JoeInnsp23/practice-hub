@@ -3,13 +3,11 @@ import { and, desc, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, clientTransactionData, clients } from "@/lib/db/schema";
+import { activityLogs, clients, clientTransactionData } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
-const insertTransactionDataSchema = createInsertSchema(clientTransactionData, {
-  dataDate: z.string(),
-});
+const insertTransactionDataSchema = createInsertSchema(clientTransactionData);
 
 // Schema for create/update operations
 const transactionDataSchema = insertTransactionDataSchema.omit({
@@ -61,7 +59,7 @@ export const transactionDataRouter = router({
   getByClient: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input: clientId }) => {
-      const { tenantId } = ctx.authContext;
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
       // Get latest transaction data
       const transactionData = await db
@@ -73,7 +71,7 @@ export const transactionDataRouter = router({
             eq(clientTransactionData.tenantId, tenantId),
           ),
         )
-        .orderBy(desc(clientTransactionData.dataDate))
+        .orderBy(desc(clientTransactionData.lastUpdated))
         .limit(1);
 
       return { transactionData: transactionData[0] || null };
@@ -83,7 +81,7 @@ export const transactionDataRouter = router({
   getHistory: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input: clientId }) => {
-      const { tenantId } = ctx.authContext;
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
       const history = await db
         .select()
@@ -94,7 +92,7 @@ export const transactionDataRouter = router({
             eq(clientTransactionData.tenantId, tenantId),
           ),
         )
-        .orderBy(desc(clientTransactionData.dataDate));
+        .orderBy(desc(clientTransactionData.lastUpdated));
 
       return { history };
     }),
@@ -106,10 +104,19 @@ export const transactionDataRouter = router({
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
       // Check if client exists
+      if (!input.clientId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Client ID is required",
+        });
+      }
+
       const [client] = await db
         .select()
         .from(clients)
-        .where(and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)))
+        .where(
+          and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!client) {
@@ -127,12 +134,11 @@ export const transactionDataRouter = router({
           and(
             eq(clientTransactionData.clientId, input.clientId),
             eq(clientTransactionData.tenantId, tenantId),
-            eq(clientTransactionData.dataDate, new Date(input.dataDate)),
           ),
         )
         .limit(1);
 
-      let result;
+      let result: typeof clientTransactionData.$inferSelect;
 
       if (existing) {
         // Update existing record
@@ -140,7 +146,7 @@ export const transactionDataRouter = router({
           .update(clientTransactionData)
           .set({
             ...input,
-            updatedAt: new Date(),
+            lastUpdated: new Date(),
           })
           .where(eq(clientTransactionData.id, existing.id))
           .returning();
@@ -164,7 +170,6 @@ export const transactionDataRouter = router({
           .values({
             tenantId,
             ...input,
-            createdBy: userId,
           })
           .returning();
 
@@ -237,7 +242,9 @@ export const transactionDataRouter = router({
       const [client] = await db
         .select()
         .from(clients)
-        .where(and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)))
+        .where(
+          and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!client) {
@@ -261,15 +268,13 @@ export const transactionDataRouter = router({
           .values({
             tenantId,
             clientId: input.clientId,
-            source: "estimated",
+            dataSource: "estimated",
             monthlyTransactions: estimated,
-            dataDate: new Date(),
-            metadata: {
+            xeroDataJson: {
               turnover: input.turnover,
               industry: input.industry,
               vatRegistered: input.vatRegistered,
             },
-            createdBy: userId,
           })
           .returning();
 
@@ -304,44 +309,48 @@ export const transactionDataRouter = router({
     }),
 
   // Delete transaction data
-  delete: protectedProcedure.input(z.string()).mutation(async ({ ctx, input: id }) => {
-    const { tenantId, userId, firstName, lastName } = ctx.authContext;
+  delete: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input: id }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-    // Check if transaction data exists
-    const [existing] = await db
-      .select()
-      .from(clientTransactionData)
-      .where(
-        and(
-          eq(clientTransactionData.id, id),
-          eq(clientTransactionData.tenantId, tenantId),
-        ),
-      )
-      .limit(1);
+      // Check if transaction data exists
+      const [existing] = await db
+        .select()
+        .from(clientTransactionData)
+        .where(
+          and(
+            eq(clientTransactionData.id, id),
+            eq(clientTransactionData.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
 
-    if (!existing) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Transaction data not found",
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Transaction data not found",
+        });
+      }
+
+      // Delete transaction data
+      await db
+        .delete(clientTransactionData)
+        .where(eq(clientTransactionData.id, id));
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "transaction_data",
+        entityId: id,
+        action: "deleted",
+        description: "Deleted transaction data",
+        userId,
+        userName: `${firstName} ${lastName}`,
       });
-    }
 
-    // Delete transaction data
-    await db.delete(clientTransactionData).where(eq(clientTransactionData.id, id));
-
-    // Log activity
-    await db.insert(activityLogs).values({
-      tenantId,
-      entityType: "transaction_data",
-      entityId: id,
-      action: "deleted",
-      description: "Deleted transaction data",
-      userId,
-      userName: `${firstName} ${lastName}`,
-    });
-
-    return { success: true };
-  }),
+      return { success: true };
+    }),
 
   // Get all clients with their latest transaction data
   getAllWithData: protectedProcedure.query(async ({ ctx }) => {
@@ -371,7 +380,7 @@ export const transactionDataRouter = router({
               eq(clientTransactionData.tenantId, tenantId),
             ),
           )
-          .orderBy(desc(clientTransactionData.dataDate))
+          .orderBy(desc(clientTransactionData.lastUpdated))
           .limit(1);
 
         return {

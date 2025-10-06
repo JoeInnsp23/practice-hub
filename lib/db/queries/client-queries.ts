@@ -18,13 +18,14 @@ export async function getClientsList(
 
   // Search filter (name, client code, or email)
   if (filters.search) {
-    conditions.push(
-      or(
-        ilike(clientDetailsView.name, `%${filters.search}%`),
-        ilike(clientDetailsView.clientCode, `%${filters.search}%`),
-        ilike(clientDetailsView.email, `%${filters.search}%`),
-      )!,
+    const searchCondition = or(
+      ilike(clientDetailsView.name, `%${filters.search}%`),
+      ilike(clientDetailsView.clientCode, `%${filters.search}%`),
+      ilike(clientDetailsView.email, `%${filters.search}%`),
     );
+    if (searchCondition) {
+      conditions.push(searchCondition);
+    }
   }
 
   // Type filter

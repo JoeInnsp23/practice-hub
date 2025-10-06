@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -328,7 +328,7 @@ export const clientsRouter = router({
           createdAt: clientServices.createdAt,
         })
         .from(clientServices)
-        .innerJoin(services, eq(clientServices.serviceId, services.id))
+        .innerJoin(services, eq(clientServices.serviceComponentId, services.id))
         .where(
           and(
             eq(clientServices.clientId, clientId),

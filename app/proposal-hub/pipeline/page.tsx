@@ -1,12 +1,12 @@
 "use client";
 
+import { format } from "date-fns";
 import { FileText, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { format } from "date-fns";
 
 export default function PipelinePage() {
   const router = useRouter();
@@ -134,9 +134,7 @@ export default function PipelinePage() {
             <div className="space-y-3 min-h-[200px]">
               {column.proposals.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
-                  <p className="text-sm text-muted-foreground">
-                    No proposals
-                  </p>
+                  <p className="text-sm text-muted-foreground">No proposals</p>
                 </div>
               ) : (
                 column.proposals.map((proposal) => (

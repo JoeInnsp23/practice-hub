@@ -6,11 +6,21 @@ import { db } from "@/lib/db";
 import {
   activityLogs,
   clients,
-  proposals,
   proposalServices,
   proposalSignatures,
+  proposals,
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
+
+// Status enum for filtering
+const proposalStatusEnum = z.enum([
+  "draft",
+  "sent",
+  "viewed",
+  "signed",
+  "rejected",
+  "expired",
+]);
 
 // Generate schema from Drizzle table definition
 const insertProposalSchema = createInsertSchema(proposals, {
@@ -38,18 +48,18 @@ const proposalSchema = insertProposalSchema
           componentName: z.string(),
           calculation: z.string().optional(),
           price: z.number(),
-          config: z.record(z.any()).optional(),
+          config: z.record(z.string(), z.any()).optional(),
         }),
       )
       .optional(),
   });
 
-const proposalServiceSchema = z.object({
+const _proposalServiceSchema = z.object({
   componentCode: z.string(),
   componentName: z.string(),
   calculation: z.string().optional(),
   price: z.number(),
-  config: z.record(z.any()).optional(),
+  config: z.record(z.string(), z.any()).optional(),
 });
 
 export const proposalsRouter = router({
@@ -59,7 +69,7 @@ export const proposalsRouter = router({
       z
         .object({
           clientId: z.string().optional(),
-          status: z.string().optional(),
+          status: proposalStatusEnum.optional(),
           search: z.string().optional(),
         })
         .optional(),
@@ -113,57 +123,59 @@ export const proposalsRouter = router({
     }),
 
   // Get proposal by ID
-  getById: protectedProcedure.input(z.string()).query(async ({ ctx, input: id }) => {
-    const { tenantId } = ctx.authContext;
+  getById: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: id }) => {
+      const { tenantId } = ctx.authContext;
 
-    // Get proposal with client information
-    const [proposal] = await db
-      .select({
-        id: proposals.id,
-        proposalNumber: proposals.proposalNumber,
-        title: proposals.title,
-        clientId: proposals.clientId,
-        clientName: clients.name,
-        clientEmail: clients.email,
-        status: proposals.status,
-        pricingModelUsed: proposals.pricingModelUsed,
-        turnover: proposals.turnover,
-        industry: proposals.industry,
-        monthlyTransactions: proposals.monthlyTransactions,
-        monthlyTotal: proposals.monthlyTotal,
-        annualTotal: proposals.annualTotal,
-        notes: proposals.notes,
-        termsAndConditions: proposals.termsAndConditions,
-        pdfUrl: proposals.pdfUrl,
-        signedPdfUrl: proposals.signedPdfUrl,
-        validUntil: proposals.validUntil,
-        sentAt: proposals.sentAt,
-        viewedAt: proposals.viewedAt,
-        signedAt: proposals.signedAt,
-        createdAt: proposals.createdAt,
-        updatedAt: proposals.updatedAt,
-        createdById: proposals.createdById,
-      })
-      .from(proposals)
-      .leftJoin(clients, eq(proposals.clientId, clients.id))
-      .where(and(eq(proposals.id, id), eq(proposals.tenantId, tenantId)))
-      .limit(1);
+      // Get proposal with client information
+      const [proposal] = await db
+        .select({
+          id: proposals.id,
+          proposalNumber: proposals.proposalNumber,
+          title: proposals.title,
+          clientId: proposals.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          status: proposals.status,
+          pricingModelUsed: proposals.pricingModelUsed,
+          turnover: proposals.turnover,
+          industry: proposals.industry,
+          monthlyTransactions: proposals.monthlyTransactions,
+          monthlyTotal: proposals.monthlyTotal,
+          annualTotal: proposals.annualTotal,
+          notes: proposals.notes,
+          termsAndConditions: proposals.termsAndConditions,
+          pdfUrl: proposals.pdfUrl,
+          signedPdfUrl: proposals.signedPdfUrl,
+          validUntil: proposals.validUntil,
+          sentAt: proposals.sentAt,
+          viewedAt: proposals.viewedAt,
+          signedAt: proposals.signedAt,
+          createdAt: proposals.createdAt,
+          updatedAt: proposals.updatedAt,
+          createdById: proposals.createdById,
+        })
+        .from(proposals)
+        .leftJoin(clients, eq(proposals.clientId, clients.id))
+        .where(and(eq(proposals.id, id), eq(proposals.tenantId, tenantId)))
+        .limit(1);
 
-    if (!proposal) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Proposal not found",
-      });
-    }
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
 
-    // Get proposal services
-    const services = await db
-      .select()
-      .from(proposalServices)
-      .where(eq(proposalServices.proposalId, id));
+      // Get proposal services
+      const services = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, id));
 
-    return { ...proposal, services };
-  }),
+      return { ...proposal, services };
+    }),
 
   // Create new proposal
   create: protectedProcedure
@@ -181,7 +193,10 @@ export const proposalsRouter = router({
 
       let proposalNumber = "PROP-0001";
       if (lastProposal[0]?.proposalNumber) {
-        const lastNum = Number.parseInt(lastProposal[0].proposalNumber.split("-")[1]);
+        const lastNum = Number.parseInt(
+          lastProposal[0].proposalNumber.split("-")[1],
+          10,
+        );
         proposalNumber = `PROP-${String(lastNum + 1).padStart(4, "0")}`;
       }
 
@@ -204,7 +219,9 @@ export const proposalsRouter = router({
             annualTotal: input.annualTotal,
             notes: input.notes,
             termsAndConditions: input.termsAndConditions,
-            validUntil: input.validUntil,
+            validUntil: input.validUntil
+              ? new Date(input.validUntil)
+              : undefined,
             createdById: userId,
           })
           .returning();
@@ -261,7 +278,9 @@ export const proposalsRouter = router({
       const [existingProposal] = await db
         .select()
         .from(proposals)
-        .where(and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)))
+        .where(
+          and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!existingProposal) {
@@ -278,6 +297,16 @@ export const proposalsRouter = router({
           .update(proposals)
           .set({
             ...input.data,
+            validUntil: input.data.validUntil
+              ? new Date(input.data.validUntil)
+              : undefined,
+            sentAt: input.data.sentAt ? new Date(input.data.sentAt) : undefined,
+            viewedAt: input.data.viewedAt
+              ? new Date(input.data.viewedAt)
+              : undefined,
+            signedAt: input.data.signedAt
+              ? new Date(input.data.signedAt)
+              : undefined,
             updatedAt: new Date(),
           })
           .where(eq(proposals.id, input.id))
@@ -326,45 +355,47 @@ export const proposalsRouter = router({
     }),
 
   // Delete/archive proposal
-  delete: protectedProcedure.input(z.string()).mutation(async ({ ctx, input: id }) => {
-    const { tenantId, userId, firstName, lastName } = ctx.authContext;
+  delete: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input: id }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-    // Check proposal exists
-    const [existingProposal] = await db
-      .select()
-      .from(proposals)
-      .where(and(eq(proposals.id, id), eq(proposals.tenantId, tenantId)))
-      .limit(1);
+      // Check proposal exists
+      const [existingProposal] = await db
+        .select()
+        .from(proposals)
+        .where(and(eq(proposals.id, id), eq(proposals.tenantId, tenantId)))
+        .limit(1);
 
-    if (!existingProposal) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Proposal not found",
+      if (!existingProposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Archive proposal instead of hard delete
+      await db
+        .update(proposals)
+        .set({
+          status: "rejected", // Using rejected as archived status
+          updatedAt: new Date(),
+        })
+        .where(eq(proposals.id, id));
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: id,
+        action: "archived",
+        description: `Archived proposal "${existingProposal.title}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
       });
-    }
 
-    // Archive proposal instead of hard delete
-    await db
-      .update(proposals)
-      .set({
-        status: "archived",
-        updatedAt: new Date(),
-      })
-      .where(eq(proposals.id, id));
-
-    // Log activity
-    await db.insert(activityLogs).values({
-      tenantId,
-      entityType: "proposal",
-      entityId: id,
-      action: "archived",
-      description: `Archived proposal "${existingProposal.title}"`,
-      userId,
-      userName: `${firstName} ${lastName}`,
-    });
-
-    return { success: true };
-  }),
+      return { success: true };
+    }),
 
   // Send proposal to client
   send: protectedProcedure
@@ -381,7 +412,9 @@ export const proposalsRouter = router({
       const [existingProposal] = await db
         .select()
         .from(proposals)
-        .where(and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)))
+        .where(
+          and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
+        )
         .limit(1);
 
       if (!existingProposal) {
@@ -473,7 +506,10 @@ export const proposalsRouter = router({
         .select()
         .from(proposals)
         .where(
-          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+          and(
+            eq(proposals.id, input.proposalId),
+            eq(proposals.tenantId, tenantId),
+          ),
         )
         .limit(1);
 

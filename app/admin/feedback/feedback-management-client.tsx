@@ -60,7 +60,7 @@ interface Feedback {
   resolution: string | null;
   resolvedAt: Date | null;
   resolvedBy: string | null;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,7 +79,7 @@ interface FeedbackManagementClientProps {
 export function FeedbackManagementClient({
   initialFeedback,
   stats: initialStats,
-  currentUserId,
+  currentUserId: _currentUserId,
 }: FeedbackManagementClientProps) {
   const [feedbackItems, setFeedbackItems] =
     useState<Feedback[]>(initialFeedback);

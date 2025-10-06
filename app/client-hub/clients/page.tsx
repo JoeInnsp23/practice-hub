@@ -14,13 +14,16 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
+import {
+  ClientWizardModal,
+  type WizardFormData,
+} from "@/components/client-hub/clients/client-wizard-modal";
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 // import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
 import { DataImportModal } from "@/components/client-hub/data-import-modal";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -31,6 +34,18 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 
+interface Client {
+  id: string;
+  clientCode: string;
+  name: string;
+  type: string | null;
+  status: string | null;
+  email?: string | null;
+  phone?: string | null;
+  accountManager?: string | null;
+  createdAt: Date;
+}
+
 export default function ClientsPage() {
   const router = useRouter();
   const utils = trpc.useUtils();
@@ -39,12 +54,12 @@ export default function ClientsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<any>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch clients using tRPC
-  const { data: clientsData, isLoading: loading } = trpc.clients.list.useQuery({
+  const { data: clientsData } = trpc.clients.list.useQuery({
     search: debouncedSearchTerm || undefined,
     type: typeFilter !== "all" ? typeFilter : undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
@@ -104,7 +119,7 @@ export default function ClientsPage() {
     setIsModalOpen(true);
   };
 
-  const handleEditClient = (client: any) => {
+  const handleEditClient = (client: Client) => {
     setEditingClient(client);
     setIsModalOpen(true);
   };
@@ -120,7 +135,7 @@ export default function ClientsPage() {
     },
   });
 
-  const handleDeleteClient = async (client: any) => {
+  const handleDeleteClient = async (client: Client) => {
     if (window.confirm(`Are you sure you want to delete ${client.name}?`)) {
       deleteMutation.mutate(client.id);
     }
@@ -150,7 +165,7 @@ export default function ClientsPage() {
     },
   });
 
-  const handleSaveClient = async (data: any) => {
+  const handleSaveClient = async (data: WizardFormData) => {
     if (editingClient) {
       updateMutation.mutate({
         id: editingClient.id,
@@ -161,7 +176,7 @@ export default function ClientsPage() {
     }
   };
 
-  const handleViewClient = (client: any) => {
+  const handleViewClient = (client: Client) => {
     router.push(`/client-hub/clients/${client.id}`);
   };
 
@@ -285,7 +300,7 @@ export default function ClientsPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveClient}
-        client={editingClient}
+        client={editingClient as Partial<WizardFormData> | undefined}
       />
 
       {/* Import Modal */}

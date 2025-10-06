@@ -32,19 +32,23 @@ import { useDebounce } from "@/lib/hooks/use-debounce";
 export default function CompliancePage() {
   const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "pending" | "in_progress" | "completed" | "overdue"
+  >("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list");
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch compliance items using tRPC
-  const { data: complianceData, isLoading: loading } =
-    trpc.compliance.list.useQuery({
-      search: debouncedSearchTerm || undefined,
-      status: statusFilter !== "all" ? statusFilter : undefined,
-      type: typeFilter !== "all" ? typeFilter : undefined,
-    });
+  const { data: complianceData } = trpc.compliance.list.useQuery({
+    search: debouncedSearchTerm || undefined,
+    status:
+      statusFilter !== "all"
+        ? (statusFilter as "pending" | "in_progress" | "completed" | "overdue")
+        : undefined,
+    type: typeFilter !== "all" ? typeFilter : undefined,
+  });
 
   const items = (complianceData?.compliance || []) as ComplianceItem[];
 
@@ -141,7 +145,7 @@ export default function CompliancePage() {
       toast.success("Item deleted");
       utils.compliance.list.invalidate();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(error.message || "Failed to delete item");
     },
   });
@@ -151,34 +155,34 @@ export default function CompliancePage() {
       toast.success("Status updated");
       utils.compliance.list.invalidate();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(error.message || "Failed to update status");
     },
   });
 
-  const handleEditItem = (item: any) => {
+  const handleEditItem = (item: ComplianceItem) => {
     toast.success(`Editing ${item.title}`);
   };
 
-  const handleDeleteItem = (item: any) => {
+  const handleDeleteItem = (item: ComplianceItem) => {
     if (window.confirm(`Delete compliance item "${item.title}"?`)) {
       deleteMutation.mutate(item.id);
     }
   };
 
-  const handleStatusChange = (item: any, status: string) => {
+  const handleStatusChange = (item: ComplianceItem, status: string) => {
     updateStatusMutation.mutate({
       id: item.id,
       status: status as "pending" | "in_progress" | "completed" | "overdue",
     });
   };
 
-  const handleCompleteItem = (item: any) => {
+  const handleCompleteItem = (item: ComplianceItem) => {
     const newStatus = item.status === "completed" ? "pending" : "completed";
     handleStatusChange(item, newStatus);
   };
 
-  const handleItemClick = (item: any) => {
+  const handleItemClick = (item: ComplianceItem) => {
     toast.success(`Viewing ${item.title}`);
   };
 
@@ -288,7 +292,12 @@ export default function CompliancePage() {
                   className="pl-10 w-64"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select
+                value={statusFilter}
+                onValueChange={(value) =>
+                  setStatusFilter(value as typeof statusFilter)
+                }
+              >
                 <SelectTrigger className="w-32">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
@@ -316,7 +325,7 @@ export default function CompliancePage() {
               </Select>
               <Tabs
                 value={viewMode}
-                onValueChange={(v) => setViewMode(v as any)}
+                onValueChange={(v) => setViewMode(v as "calendar" | "list")}
               >
                 <TabsList>
                   <TabsTrigger value="list">

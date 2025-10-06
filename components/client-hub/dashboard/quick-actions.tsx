@@ -4,8 +4,11 @@ import { BarChart3, Clock, Plus, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import type { WizardFormData } from "@/components/client-hub/clients/client-wizard-modal";
 import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
 import { TaskModal } from "@/components/client-hub/tasks/task-modal";
+import type { TaskFormPayload } from "@/components/client-hub/tasks/types";
+import type { TimeEntryFormData } from "@/components/client-hub/time/time-entry-modal";
 import { TimeEntryModal } from "@/components/client-hub/time/time-entry-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,17 +23,17 @@ export function QuickActions({ className }: QuickActionsProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isTimeEntryModalOpen, setIsTimeEntryModalOpen] = useState(false);
 
-  const handleSaveClient = (_clientData: any) => {
+  const handleSaveClient = (_clientData: WizardFormData) => {
     toast.success("Client added successfully");
     setIsClientModalOpen(false);
   };
 
-  const handleSaveTask = (_taskData: any) => {
+  const handleSaveTask = (_taskData: TaskFormPayload) => {
     toast.success("Task created successfully");
     setIsTaskModalOpen(false);
   };
 
-  const handleSaveTimeEntry = (_timeData: any) => {
+  const handleSaveTimeEntry = (_timeData: TimeEntryFormData) => {
     toast.success("Time entry logged successfully");
     setIsTimeEntryModalOpen(false);
   };
