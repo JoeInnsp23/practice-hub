@@ -6,6 +6,9 @@ import { db } from "@/lib/db";
 import { activityLogs, users } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
 
+// Role enum for filtering
+const _userRoleEnum = z.enum(["admin", "member", "readonly", "org:admin"]);
+
 // Generate schema from Drizzle table definition
 const insertUserSchema = createInsertSchema(users);
 
@@ -22,7 +25,12 @@ export const usersRouter = router({
     .input(
       z.object({
         search: z.string().optional(),
-        role: z.string().optional(),
+        role: z
+          .union([
+            z.enum(["member", "admin", "org:admin", "readonly"]),
+            z.literal("all"),
+          ])
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -42,7 +50,7 @@ export const usersRouter = router({
       }
 
       if (role && role !== "all") {
-        conditions.push(eq(users.role, role as any));
+        conditions.push(eq(users.role, role));
       }
 
       const usersList = await db

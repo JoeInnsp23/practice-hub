@@ -27,6 +27,8 @@ export function AppCard({
 
   return (
     <div
+      role="button"
+      tabIndex={!isComingSoon ? 0 : -1}
       className={cn(
         "glass-card",
         "group relative overflow-hidden transition-all duration-300 rounded-xl",
@@ -35,6 +37,12 @@ export function AppCard({
         className,
       )}
       onClick={!isComingSoon ? onClick : undefined}
+      onKeyDown={(e) => {
+        if (!isComingSoon && onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       {/* Card Content */}
       <div className="relative p-6">

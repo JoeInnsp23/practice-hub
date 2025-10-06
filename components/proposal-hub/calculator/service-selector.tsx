@@ -1,9 +1,14 @@
 "use client";
 
-import { CheckCircle2, ChevronDown, ChevronRight, Circle, Package } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  Package,
+} from "lucide-react";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +24,7 @@ interface ServiceConfig {
   complexity?: "clean" | "average" | "complex" | "disaster";
   employees?: number;
   payrollFrequency?: "monthly" | "weekly" | "fortnightly" | "4weekly";
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface SelectedService {
@@ -41,8 +46,7 @@ export function ServiceSelector({
     new Set(["compliance", "bookkeeping"]),
   );
 
-  const { data: components, isLoading } =
-    trpc.pricing.getComponents.useQuery();
+  const { data: components, isLoading } = trpc.pricing.getComponents.useQuery();
 
   if (isLoading) {
     return (
@@ -129,7 +133,9 @@ export function ServiceSelector({
                 ) : (
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 )}
-                <span className="font-medium">{getCategoryLabel(category)}</span>
+                <span className="font-medium">
+                  {getCategoryLabel(category)}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   ({comps.filter((c) => isServiceSelected(c.code)).length}/
                   {comps.length})
@@ -164,12 +170,18 @@ export function ServiceSelector({
                       </button>
                       <div className="flex-1 space-y-2">
                         <div
+                          role="button"
+                          tabIndex={0}
                           onClick={() => handleToggleService(comp.code)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleToggleService(comp.code);
+                            }
+                          }}
                           className="cursor-pointer"
                         >
-                          <p className="text-base font-medium">
-                            {comp.name}
-                          </p>
+                          <p className="text-base font-medium">{comp.name}</p>
                           {comp.description && (
                             <p className="text-sm text-muted-foreground mt-1">
                               {comp.description}
@@ -196,7 +208,8 @@ export function ServiceSelector({
                                     onValueChange={(value) =>
                                       handleUpdateConfig(comp.code, {
                                         ...getServiceConfig(comp.code),
-                                        complexity: value as ServiceConfig["complexity"],
+                                        complexity:
+                                          value as ServiceConfig["complexity"],
                                       })
                                     }
                                   >
@@ -232,12 +245,16 @@ export function ServiceSelector({
                                     type="number"
                                     min="0"
                                     value={
-                                      getServiceConfig(comp.code)?.employees || 1
+                                      getServiceConfig(comp.code)?.employees ||
+                                      1
                                     }
                                     onChange={(e) =>
                                       handleUpdateConfig(comp.code, {
                                         ...getServiceConfig(comp.code),
-                                        employees: Number.parseInt(e.target.value),
+                                        employees: Number.parseInt(
+                                          e.target.value,
+                                          10,
+                                        ),
                                       })
                                     }
                                     className="mt-1"
@@ -249,8 +266,8 @@ export function ServiceSelector({
                                   </Label>
                                   <Select
                                     value={
-                                      getServiceConfig(comp.code)?.payrollFrequency ||
-                                      "monthly"
+                                      getServiceConfig(comp.code)
+                                        ?.payrollFrequency || "monthly"
                                     }
                                     onValueChange={(value) =>
                                       handleUpdateConfig(comp.code, {
@@ -264,7 +281,9 @@ export function ServiceSelector({
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="monthly">Monthly</SelectItem>
+                                      <SelectItem value="monthly">
+                                        Monthly
+                                      </SelectItem>
                                       <SelectItem value="weekly">
                                         Weekly (3x monthly rate)
                                       </SelectItem>
@@ -294,7 +313,8 @@ export function ServiceSelector({
       {selectedServices.length > 0 && (
         <div className="mt-6 pt-6 border-t">
           <p className="text-sm text-muted-foreground">
-            {selectedServices.length} service{selectedServices.length !== 1 ? "s" : ""} selected
+            {selectedServices.length} service
+            {selectedServices.length !== 1 ? "s" : ""} selected
           </p>
         </div>
       )}

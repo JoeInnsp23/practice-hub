@@ -6,6 +6,14 @@ import { db } from "@/lib/db";
 import { activityLogs, compliance } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
+// Status enum for filtering
+const _complianceStatusEnum = z.enum([
+  "pending",
+  "in_progress",
+  "completed",
+  "overdue",
+]);
+
 // Generate schema from Drizzle table definition
 const insertComplianceSchema = createInsertSchema(compliance, {
   dueDate: z.string(),
@@ -28,7 +36,12 @@ export const complianceRouter = router({
       z.object({
         search: z.string().optional(),
         type: z.string().optional(),
-        status: z.string().optional(),
+        status: z
+          .union([
+            z.enum(["pending", "in_progress", "completed", "overdue"]),
+            z.literal("all"),
+          ])
+          .optional(),
         clientId: z.string().optional(),
         assigneeId: z.string().optional(),
         overdue: z.boolean().optional(),
@@ -50,11 +63,11 @@ export const complianceRouter = router({
       }
 
       if (type && type !== "all") {
-        conditions.push(eq(compliance.type, type as any));
+        conditions.push(eq(compliance.type, type));
       }
 
       if (status && status !== "all") {
-        conditions.push(eq(compliance.status, status as any));
+        conditions.push(eq(compliance.status, status));
       }
 
       if (clientId) {
@@ -180,8 +193,14 @@ export const complianceRouter = router({
       }
 
       // Update item
-      const updateData: any = {
-        ...input.data,
+      const { completedDate: _ignoredCompletedDate, ...dataWithoutDate } =
+        input.data as { completedDate?: string; [key: string]: unknown };
+      const updateData: {
+        completedDate?: Date;
+        updatedAt: Date;
+        [key: string]: unknown;
+      } = {
+        ...dataWithoutDate,
         updatedAt: new Date(),
       };
 
@@ -190,7 +209,7 @@ export const complianceRouter = router({
         input.data.status === "completed" &&
         existingItem[0].status !== "completed"
       ) {
-        updateData.completedDate = new Date().toISOString();
+        updateData.completedDate = new Date();
       }
 
       const [updatedItem] = await db
@@ -278,7 +297,11 @@ export const complianceRouter = router({
       }
 
       // Update item
-      const updateData: any = {
+      const updateData: {
+        status: "pending" | "in_progress" | "completed" | "overdue";
+        completedDate?: Date;
+        updatedAt: Date;
+      } = {
         status: input.status,
         updatedAt: new Date(),
       };
@@ -288,7 +311,7 @@ export const complianceRouter = router({
         input.status === "completed" &&
         existingItem[0].status !== "completed"
       ) {
-        updateData.completedDate = new Date().toISOString();
+        updateData.completedDate = new Date();
       }
 
       const [updatedItem] = await db

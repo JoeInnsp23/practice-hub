@@ -6,44 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { TaskCard } from "./task-card";
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status:
-    | "pending"
-    | "in_progress"
-    | "review"
-    | "completed"
-    | "cancelled"
-    | "blocked"
-    | "records_received"
-    | "queries_sent"
-    | "queries_received";
-  priority: "low" | "medium" | "high" | "urgent";
-  dueDate?: Date;
-  assignee?: {
-    name: string;
-    avatar?: string;
-  };
-  client?: string;
-  estimatedHours?: number;
-  actualHours?: number;
-  tags?: string[];
-  workflowInstance?: {
-    name?: string;
-  };
-}
+import type { TaskStatus, TaskSummary } from "./types";
 
 interface TaskBoardProps {
-  tasks: Task[];
-  onEditTask: (task: Task) => void;
-  onDeleteTask: (task: Task) => void;
-  onStatusChange: (taskId: string, status: string) => void;
+  tasks: TaskSummary[];
+  onEditTask: (task: TaskSummary) => void;
+  onDeleteTask: (taskId: string) => void;
+  onStatusChange: (taskId: string, status: TaskStatus) => void;
 }
 
-const columns = [
+const columns: Array<{ id: TaskStatus; title: string; color: string }> = [
   { id: "pending", title: "To Do", color: "bg-gray-100 dark:bg-gray-800" },
   {
     id: "in_progress",
@@ -89,18 +61,18 @@ export function TaskBoard({
   onDeleteTask,
   onStatusChange,
 }: TaskBoardProps) {
-  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
-  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+  const [draggedTask, setDraggedTask] = useState<TaskSummary | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null);
 
-  const getTasksByStatus = (status: string) => {
+  const getTasksByStatus = (status: TaskStatus) => {
     return tasks.filter((task) => task.status === status);
   };
 
-  const handleDragStart = (task: Task) => {
+  const handleDragStart = (task: TaskSummary) => {
     setDraggedTask(task);
   };
 
-  const handleDragOver = (e: React.DragEvent, columnId: string) => {
+  const handleDragOver = (e: React.DragEvent, columnId: TaskStatus) => {
     e.preventDefault();
     setDragOverColumn(columnId);
   };
@@ -109,7 +81,7 @@ export function TaskBoard({
     setDragOverColumn(null);
   };
 
-  const handleDrop = (e: React.DragEvent, columnId: string) => {
+  const handleDrop = (e: React.DragEvent, columnId: TaskStatus) => {
     e.preventDefault();
     if (draggedTask) {
       onStatusChange(draggedTask.id, columnId);
@@ -158,8 +130,16 @@ export function TaskBoard({
                       columnTasks.map((task) => (
                         <div
                           key={task.id}
+                          role="button"
+                          tabIndex={0}
                           draggable
                           onDragStart={() => handleDragStart(task)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleDragStart(task);
+                            }
+                          }}
                           className="cursor-move"
                         >
                           <TaskCard

@@ -1,6 +1,14 @@
 "use client";
 
-import { AlertCircle, ChevronDown, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Send } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
+  DollarSign,
+  Loader2,
+  Send,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,11 +18,11 @@ import { Card } from "@/components/ui/card";
 
 interface FloatingPriceWidgetProps {
   turnover: string;
-  industry: string;
+  industry: "simple" | "standard" | "complex" | "regulated";
   services: Array<{
     componentCode: string;
     quantity?: number;
-    config?: Record<string, any>;
+    config?: Record<string, unknown>;
   }>;
   transactionData?: {
     monthlyTransactions: number;
@@ -34,8 +42,8 @@ export function FloatingPriceWidget({
 }: FloatingPriceWidgetProps) {
   const [isMinimized, setIsMinimized] = useState(() => {
     // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('priceWidgetMinimized') === 'true';
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("priceWidgetMinimized") === "true";
     }
     return false;
   });
@@ -49,8 +57,8 @@ export function FloatingPriceWidget({
 
   // Save minimized state to localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('priceWidgetMinimized', String(isMinimized));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("priceWidgetMinimized", String(isMinimized));
     }
   }, [isMinimized]);
 
@@ -69,17 +77,22 @@ export function FloatingPriceWidget({
       className={`
         glass-card fixed top-24 z-50 shadow-2xl hidden lg:block
         transition-all duration-300 ease-in-out
-        ${isMinimized
-          ? 'right-0 w-14'
-          : 'right-6 w-80'
-        }
+        ${isMinimized ? "right-0 w-14" : "right-6 w-80"}
       `}
     >
       {isMinimized ? (
         /* Minimized View */
         <div
+          role="button"
+          tabIndex={0}
           className="flex flex-col items-center py-1.5 gap-1.5 cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => setIsMinimized(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsMinimized(false);
+            }
+          }}
         >
           <DollarSign className="h-5 w-5 text-primary" />
 
@@ -89,9 +102,7 @@ export function FloatingPriceWidget({
               <div className="text-base font-semibold text-green-600 dark:text-green-400">
                 £{Math.floor(recommendedModel.monthlyTotal)}
               </div>
-              <div className="text-sm text-muted-foreground mt-0.5">
-                /mo
-              </div>
+              <div className="text-sm text-muted-foreground mt-0.5">/mo</div>
             </div>
           )}
 
@@ -120,6 +131,7 @@ export function FloatingPriceWidget({
             </div>
             {/* Minimize Button */}
             <button
+              type="button"
               onClick={() => setIsMinimized(true)}
               className="hover:bg-accent rounded p-1 transition-colors group"
               aria-label="Minimize widget"
@@ -131,76 +143,85 @@ export function FloatingPriceWidget({
 
           {/* Content */}
           <div className="p-4 space-y-4">
-        {/* Service Count */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Services Selected</span>
-          <Badge variant="secondary">{services.length}</Badge>
-        </div>
+            {/* Service Count */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Services Selected
+              </span>
+              <Badge variant="secondary">{services.length}</Badge>
+            </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <Alert variant="destructive" className="py-2">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              {error.message || "Failed to calculate pricing"}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Pricing Display */}
-        {data && recommendedModel && (
-          <div className="space-y-3">
-            {/* Recommended Model Badge */}
-            {data.recommendation && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
-                  Recommended:
-                </span>
-                <Badge className="bg-primary">
-                  Model {data.recommendation.model}
-                </Badge>
+            {/* Loading State */}
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             )}
 
-            {/* Monthly Total */}
-            <div className="space-y-1">
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm text-muted-foreground">Monthly</span>
-                <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  £{recommendedModel.monthlyTotal.toFixed(2)}
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm text-muted-foreground">Annual</span>
-                <span className="text-lg font-semibold">
-                  £{recommendedModel.annualTotal.toFixed(2)}
-                </span>
-              </div>
-            </div>
+            {/* Error State */}
+            {error && (
+              <Alert variant="destructive" className="py-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  {error.message || "Failed to calculate pricing"}
+                </AlertDescription>
+              </Alert>
+            )}
 
-            {/* Discount Info */}
-            {recommendedModel.discounts.length > 0 && (
-              <div className="text-xs text-muted-foreground">
-                {recommendedModel.discounts.reduce((sum, d) => sum + d.amount, 0) > 0 && (
-                  <p className="text-green-600 dark:text-green-400">
-                    💰 Saving £
-                    {recommendedModel.discounts
-                      .reduce((sum, d) => sum + d.amount, 0)
-                      .toFixed(2)}
-                    /month
-                  </p>
+            {/* Pricing Display */}
+            {data && recommendedModel && (
+              <div className="space-y-3">
+                {/* Recommended Model Badge */}
+                {data.recommendation && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      Recommended:
+                    </span>
+                    <Badge className="bg-primary">
+                      Model {data.recommendation.model}
+                    </Badge>
+                  </div>
+                )}
+
+                {/* Monthly Total */}
+                <div className="space-y-1">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Monthly
+                    </span>
+                    <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      £{recommendedModel.monthlyTotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Annual
+                    </span>
+                    <span className="text-lg font-semibold">
+                      £{recommendedModel.annualTotal.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Discount Info */}
+                {recommendedModel.discounts.length > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    {recommendedModel.discounts.reduce(
+                      (sum, d) => sum + d.amount,
+                      0,
+                    ) > 0 && (
+                      <p className="text-green-600 dark:text-green-400">
+                        💰 Saving £
+                        {recommendedModel.discounts
+                          .reduce((sum, d) => sum + d.amount, 0)
+                          .toFixed(2)}
+                        /month
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             )}
-          </div>
-        )}
 
             {/* Actions */}
             <div className="space-y-2 pt-2 border-t">

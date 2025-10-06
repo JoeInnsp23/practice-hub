@@ -1,10 +1,19 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { activityLogs, invoiceItems, invoices } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
+
+// Status enum for filtering
+const _invoiceStatusEnum = z.enum([
+  "draft",
+  "sent",
+  "paid",
+  "overdue",
+  "cancelled",
+]);
 
 // Generate schemas from Drizzle table definitions
 const insertInvoiceItemSchema = createInsertSchema(invoiceItems);
@@ -39,7 +48,12 @@ export const invoicesRouter = router({
     .input(
       z.object({
         search: z.string().optional(),
-        status: z.string().optional(),
+        status: z
+          .union([
+            z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+            z.literal("all"),
+          ])
+          .optional(),
         clientId: z.string().optional(),
         overdue: z.boolean().optional(),
       }),
@@ -56,7 +70,7 @@ export const invoicesRouter = router({
       }
 
       if (status && status !== "all") {
-        conditions.push(eq(invoices.status, status as any));
+        conditions.push(eq(invoices.status, status));
       }
 
       if (clientId) {

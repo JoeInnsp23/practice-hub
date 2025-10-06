@@ -97,8 +97,16 @@ export function WorkflowAssignmentModal({
                 {workflows.map((workflow) => (
                   <div
                     key={workflow.id}
+                    role="button"
+                    tabIndex={0}
                     className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                     onClick={() => setSelectedWorkflowId(workflow.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedWorkflowId(workflow.id);
+                      }
+                    }}
                   >
                     <RadioGroupItem value={workflow.id} id={workflow.id} />
                     <Label

@@ -121,9 +121,11 @@ export function DataImportModal({
         }
         handleClose();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Import error:", error);
-      toast.error(error.message || "Failed to import data");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to import data",
+      );
     } finally {
       setIsImporting(false);
       setProgress(0);

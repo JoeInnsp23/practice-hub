@@ -27,7 +27,14 @@ import { cn } from "@/lib/utils";
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (files: FileList, metadata: any) => Promise<void>;
+  onUpload: (
+    files: FileList,
+    metadata: {
+      client: string;
+      tags: string[];
+      parentId: string | null;
+    },
+  ) => Promise<void>;
   currentFolderId: string | null;
 }
 
@@ -126,7 +133,7 @@ export function UploadModal({
         setUploadProgress(0);
         onClose();
       }, 500);
-    } catch (_error) {
+    } catch {
       setIsUploading(false);
       setUploadProgress(0);
       toast.error("Failed to upload files");

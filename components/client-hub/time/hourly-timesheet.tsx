@@ -299,6 +299,8 @@ export function HourlyTimesheet({
                   return (
                     <div
                       key={day.toISOString()}
+                      role="button"
+                      tabIndex={0}
                       className={cn(
                         "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer",
                         "hover:bg-slate-100 dark:hover:bg-slate-700/50",
@@ -308,6 +310,12 @@ export function HourlyTimesheet({
                           "bg-orange-50 dark:bg-orange-500/10",
                       )}
                       onClick={() => openModal(day, slot.hour)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          openModal(day, slot.hour);
+                        }
+                      }}
                     >
                       {entries.length > 0 && (
                         <div className="space-y-1">
@@ -322,6 +330,8 @@ export function HourlyTimesheet({
                             return (
                               <div
                                 key={entry.id || `${entry.date}-${entry.hours}`}
+                                role="button"
+                                tabIndex={0}
                                 className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
                                 style={{
                                   backgroundColor: `${workTypeColor}20`,
@@ -332,6 +342,15 @@ export function HourlyTimesheet({
                                   setSelectedEntry(entry);
                                   setSelectedDate(new Date(entry.date));
                                   setIsModalOpen(true);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSelectedEntry(entry);
+                                    setSelectedDate(new Date(entry.date));
+                                    setIsModalOpen(true);
+                                  }
                                 }}
                               >
                                 <div className="flex items-center gap-1">

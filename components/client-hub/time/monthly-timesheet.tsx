@@ -217,6 +217,8 @@ export function MonthlyTimesheet({
               return (
                 <div
                   key={day.toISOString()}
+                  role="button"
+                  tabIndex={0}
                   className={cn(
                     "border-r border-b border-slate-200 dark:border-slate-700 last:border-r-0 min-h-[120px] p-2 cursor-pointer",
                     "hover:bg-slate-50 dark:hover:bg-slate-700/30",
@@ -230,6 +232,12 @@ export function MonthlyTimesheet({
                       "bg-slate-50 dark:bg-slate-800/50",
                   )}
                   onClick={() => openModal(day)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openModal(day);
+                    }
+                  }}
                 >
                   {/* Day Number */}
                   <div className="flex items-center justify-between mb-2">
@@ -263,6 +271,8 @@ export function MonthlyTimesheet({
                       return (
                         <div
                           key={entry.id || `${entry.date}-${entry.hours}`}
+                          role="button"
+                          tabIndex={0}
                           className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
                           style={{
                             backgroundColor: `${workTypeColor}20`,
@@ -271,6 +281,13 @@ export function MonthlyTimesheet({
                           onClick={(e) => {
                             e.stopPropagation();
                             openModal(day, entry);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              openModal(day, entry);
+                            }
                           }}
                         >
                           <div className="flex items-center gap-1">

@@ -1,6 +1,11 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, DollarSign, TrendingDown } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  DollarSign,
+  TrendingDown,
+} from "lucide-react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +13,11 @@ import { Card } from "@/components/ui/card";
 
 interface PricingCalculatorProps {
   turnover: string;
-  industry: string;
+  industry: "simple" | "standard" | "complex" | "regulated";
   services: Array<{
     componentCode: string;
     quantity?: number;
-    config?: Record<string, any>;
+    config?: Record<string, unknown>;
   }>;
   transactionData?: {
     monthlyTransactions: number;
@@ -79,7 +84,9 @@ export function PricingCalculator({
         <Alert className="border-primary/50 bg-primary/5">
           <CheckCircle2 className="h-4 w-4 text-primary" />
           <AlertDescription>
-            <span className="font-semibold">Recommended: Model {recommendation.model}</span>
+            <span className="font-semibold">
+              Recommended: Model {recommendation.model}
+            </span>
             {" - "}
             {recommendation.reason}
           </AlertDescription>
@@ -117,7 +124,8 @@ export function PricingCalculator({
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                Transaction data required for Model B calculation. Enter or estimate monthly transactions above.
+                Transaction data required for Model B calculation. Enter or
+                estimate monthly transactions above.
               </AlertDescription>
             </Alert>
           </Card>
@@ -176,9 +184,7 @@ function PricingModelCard({
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold">{label}</h3>
-            {isRecommended && (
-              <Badge className="bg-primary">Recommended</Badge>
-            )}
+            {isRecommended && <Badge className="bg-primary">Recommended</Badge>}
           </div>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
@@ -186,9 +192,9 @@ function PricingModelCard({
 
       {/* Services Breakdown */}
       <div className="space-y-3 mb-6">
-        {model.services.map((service, index) => (
+        {model.services.map((service, _index) => (
           <div
-            key={`${service.componentCode}-${index}`}
+            key={service.componentCode}
             className="flex justify-between items-start text-sm"
           >
             <div className="flex-1">
@@ -198,9 +204,9 @@ function PricingModelCard({
               </p>
               {service.adjustments.length > 0 && (
                 <div className="mt-1 space-y-0.5">
-                  {service.adjustments.map((adj, idx) => (
+                  {service.adjustments.map((adj) => (
                     <p
-                      key={idx}
+                      key={`${adj.type}-${adj.description}`}
                       className="text-xs text-muted-foreground italic"
                     >
                       • {adj.description}
@@ -226,8 +232,11 @@ function PricingModelCard({
         {/* Discounts */}
         {model.discounts.length > 0 && (
           <div className="space-y-1">
-            {model.discounts.map((discount, idx) => (
-              <div key={idx} className="flex justify-between text-sm">
+            {model.discounts.map((discount) => (
+              <div
+                key={`${discount.type}-${discount.description}`}
+                className="flex justify-between text-sm"
+              >
                 <p className="text-muted-foreground flex items-center gap-1">
                   {discount.amount < 0 ? (
                     <span className="text-orange-600">⚠</span>
