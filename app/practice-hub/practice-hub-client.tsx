@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
@@ -16,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
+import { useSession } from "@/lib/auth-client";
 import { api } from "@/lib/trpc/client";
 
 interface PracticeHubClientProps {
@@ -27,11 +27,11 @@ export function PracticeHubClient({
   userRole: _userRole,
   userName,
 }: PracticeHubClientProps) {
-  const { user } = useUser();
+  const { data: session } = useSession();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  // Use passed userName or fall back to Clerk user data
-  const displayName = userName || user?.firstName || "User";
+  // Use passed userName or fall back to session user data
+  const displayName = userName || session?.user?.name?.split(" ")[0] || "User";
 
   // Fetch portal data
   const { data: categoriesWithLinks, isLoading } =

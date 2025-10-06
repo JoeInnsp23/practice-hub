@@ -59,7 +59,7 @@ export const transactionDataRouter = router({
   getByClient: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input: clientId }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       // Get latest transaction data
       const transactionData = await db
@@ -81,7 +81,7 @@ export const transactionDataRouter = router({
   getHistory: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input: clientId }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       const history = await db
         .select()
@@ -193,7 +193,7 @@ export const transactionDataRouter = router({
   fetchFromXero: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input: clientId }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       // Check if client exists
       const [client] = await db

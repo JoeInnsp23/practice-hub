@@ -1,5 +1,3 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/themes";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -29,29 +27,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: shadcn,
-      }}
-    >
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TRPCProvider>
-              {children}
-              <FeedbackButton />
-              <Toaster position="top-right" />
-            </TRPCProvider>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+          <TRPCProvider>
+            {children}
+            <FeedbackButton />
+            <Toaster position="top-right" />
+          </TRPCProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

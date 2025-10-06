@@ -1,15 +1,16 @@
-import { auth } from "@clerk/nextjs/server";
-import { getAuthContext } from "@/lib/auth";
+import { auth, getAuthContext } from "@/lib/auth";
 
 export const createContext = async () => {
-  // Get Clerk auth object
-  const clerkAuth = await auth();
+  // Get Better Auth session
+  const session = await auth.api.getSession({
+    headers: await import("next/headers").then((mod) => mod.headers()),
+  });
 
   // Get our app's auth context (with tenant info)
   const authContext = await getAuthContext();
 
   return {
-    auth: clerkAuth,
+    session,
     authContext,
   };
 };

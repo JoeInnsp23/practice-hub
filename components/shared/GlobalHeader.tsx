@@ -1,11 +1,11 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
 import { Home, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { ClientOnly } from "@/components/client-only";
 import { DateTimeDisplay } from "./DateTimeDisplay";
 import { ThemeToggle } from "./theme-toggle";
+import { UserButton } from "./user-button";
 
 interface GlobalHeaderProps {
   title: string;
@@ -89,14 +89,7 @@ export function GlobalHeader({
           <ClientOnly>
             <DateTimeDisplay />
             <ThemeToggle />
-            <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: "h-9 w-9",
-                },
-              }}
-            />
+            <UserButton />
           </ClientOnly>
         </div>
       </div>

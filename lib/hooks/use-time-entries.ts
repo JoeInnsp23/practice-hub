@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSession } from "@/lib/auth-client";
 
 export interface TimeEntry {
   id: string;
@@ -64,7 +64,8 @@ export function useTimeEntries(
   const [data, setData] = useState<TimeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   useEffect(() => {
     async function fetchEntries() {
@@ -128,7 +129,8 @@ export function useTimeEntries(
 // Hook to create a time entry
 export function useCreateTimeEntry() {
   const [isLoading, setIsLoading] = useState(false);
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const mutateAsync = async (entry: TimeEntryInput) => {
     if (!userId) {
@@ -220,7 +222,8 @@ export function useDeleteTimeEntry() {
 // Hook to submit week for approval
 export function useSubmitWeekForApproval() {
   const [isLoading, setIsLoading] = useState(false);
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const mutateAsync = async (_weekStart: string) => {
     if (!userId) {
@@ -252,7 +255,8 @@ export function useSubmitWeekForApproval() {
 // Hook to copy previous week entries
 export function useCopyPreviousWeek() {
   const [isLoading, setIsLoading] = useState(false);
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const mutateAsync = async ({
     sourceWeekStart: _sourceWeekStart,

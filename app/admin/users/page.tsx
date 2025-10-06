@@ -12,7 +12,6 @@ export default async function UserManagementPage() {
   const allUsers = await db
     .select({
       id: users.id,
-      clerkId: users.clerkId,
       email: users.email,
       firstName: users.firstName,
       lastName: users.lastName,

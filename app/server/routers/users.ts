@@ -56,7 +56,6 @@ export const usersRouter = router({
       const usersList = await db
         .select({
           id: users.id,
-          clerkId: users.clerkId,
           email: users.email,
           firstName: users.firstName,
           lastName: users.lastName,
@@ -102,9 +101,7 @@ export const usersRouter = router({
     const existing = await db
       .select()
       .from(users)
-      .where(
-        and(eq(users.clerkId, input.clerkId), eq(users.tenantId, tenantId)),
-      )
+      .where(and(eq(users.email, input.email), eq(users.tenantId, tenantId)))
       .limit(1);
 
     if (existing[0]) {
@@ -119,7 +116,6 @@ export const usersRouter = router({
       .insert(users)
       .values({
         tenantId,
-        clerkId: input.clerkId,
         email: input.email,
         firstName: input.firstName,
         lastName: input.lastName,

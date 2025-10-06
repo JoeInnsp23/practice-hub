@@ -47,7 +47,6 @@ import { InviteUserDialog } from "./invite-user-dialog";
 
 interface User {
   id: string;
-  clerkId: string;
   email: string;
   firstName: string | null;
   lastName: string | null;
@@ -340,14 +339,14 @@ export function UserManagementClient({
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => setEditingUser(user)}
-                            disabled={user.clerkId === _currentUserId}
+                            disabled={user.id === _currentUserId}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit User
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteUser(user.id)}
-                            disabled={user.clerkId === _currentUserId}
+                            disabled={user.id === _currentUserId}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

@@ -24,18 +24,20 @@ export const tenants = pgTable("tenants", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Users table - linked to Clerk and tenants
+// Users table - linked to Better Auth and tenants
 export const users = pgTable(
   "users",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    clerkId: text("clerk_id").unique().notNull(),
     tenantId: uuid("tenant_id")
       .references(() => tenants.id)
       .notNull(),
     email: text("email").notNull(),
+    emailVerified: boolean("email_verified").default(false).notNull(),
+    name: text("name"),
     firstName: varchar("first_name", { length: 100 }),
     lastName: varchar("last_name", { length: 100 }),
+    image: text("image"),
     role: varchar("role", { length: 50 }).default("member").notNull(), // admin, accountant, member
     status: varchar("status", { length: 20 }).default("active").notNull(), // pending, active, inactive
     isActive: boolean("is_active").default(true).notNull(),
@@ -44,10 +46,6 @@ export const users = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    tenantUserIdx: uniqueIndex("idx_tenant_user").on(
-      table.tenantId,
-      table.clerkId,
-    ),
     emailTenantIdx: uniqueIndex("idx_tenant_email").on(
       table.tenantId,
       table.email,
@@ -55,6 +53,47 @@ export const users = pgTable(
     roleIdx: index("idx_user_role").on(table.role),
   }),
 );
+
+// Better Auth tables
+export const sessions = pgTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const accounts = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const verifications = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 // Feedback table - for user feedback and issues
 export const feedback = pgTable(
