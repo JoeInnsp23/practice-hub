@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { organization } from "better-auth/plugins";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 
@@ -17,6 +18,23 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Set to true in production
+    password: {
+      hash: async (password) => {
+        return await bcrypt.hash(password, 10);
+      },
+      verify: async ({ hash, password }) => {
+        return await bcrypt.compare(password, hash);
+      },
+    },
+  },
+  socialProviders: {
+    microsoft: {
+      clientId: process.env.MICROSOFT_CLIENT_ID as string,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
+      tenantId: "common", // Allows personal + work/school Microsoft accounts
+      authority: "https://login.microsoftonline.com",
+      prompt: "select_account", // Forces account selection every time
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days

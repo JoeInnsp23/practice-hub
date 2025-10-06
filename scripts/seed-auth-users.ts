@@ -38,9 +38,10 @@ async function seedAuthUsers() {
       const hashedPassword = await hashPassword(password);
 
       // Insert account directly into database
+      // For Better Auth credential provider, accountId typically stores email
       await db.insert(accounts).values({
         id: crypto.randomUUID(),
-        accountId: user.email, // Better Auth uses email as accountId
+        accountId: user.email, // For credential provider, use email as accountId
         providerId: "credential", // Email/password provider
         userId: user.id,
         password: hashedPassword,

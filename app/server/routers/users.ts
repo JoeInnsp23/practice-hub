@@ -115,6 +115,7 @@ export const usersRouter = router({
     const [newUser] = await db
       .insert(users)
       .values({
+        id: crypto.randomUUID(),
         tenantId,
         email: input.email,
         firstName: input.firstName,

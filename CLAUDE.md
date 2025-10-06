@@ -73,47 +73,79 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Admin Panel: `#f97316` (orange)
    - Practice Hub: Primary theme color
 
-8. **Authentication patterns** - Follow Clerk's standard implementation patterns:
+8. **Authentication patterns** - Follow Better Auth's standard implementation patterns (see detailed documentation in `/docs/MICROSOFT_OAUTH_SETUP.md`):
 
    **Middleware Setup:**
    ```tsx
    // middleware.ts
-   import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+   import { type NextRequest, NextResponse } from "next/server";
+   import { auth } from "@/lib/auth";
 
-   const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
-   const isApiRoute = createRouteMatcher(["/api(.*)"]);
+   const publicPaths = ["/", "/sign-in", "/sign-up"];
 
-   export default clerkMiddleware(async (auth, request) => {
-     if (!isPublicRoute(request) && !isApiRoute(request)) {
-       await auth.protect();
+   export default async function middleware(request: NextRequest) {
+     const { pathname } = request.nextUrl;
+
+     if (publicPaths.some((path) => pathname === path)) {
+       return NextResponse.next();
      }
-   });
+
+     if (pathname.startsWith("/api/")) {
+       return NextResponse.next();
+     }
+
+     const session = await auth.api.getSession({
+       headers: request.headers,
+     });
+
+     if (!session) {
+       const signInUrl = new URL("/sign-in", request.url);
+       signInUrl.searchParams.set("from", pathname);
+       return NextResponse.redirect(signInUrl);
+     }
+
+     return NextResponse.next();
+   }
+
+   export const config = {
+     runtime: "nodejs", // Required for Better Auth
+     matcher: ["/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)"],
+   };
    ```
 
-   **Root Layout:**
+   **Auth API Route:**
    ```tsx
-   // app/layout.tsx
-   import { ClerkProvider } from "@clerk/nextjs";
-   import { TRPCProvider } from "@/app/providers/trpc-provider";
+   // app/api/auth/[...all]/route.ts
+   import { toNextJsHandler } from "better-auth/next-js";
+   import { auth } from "@/lib/auth";
 
-   export default function RootLayout({ children }: { children: React.ReactNode }) {
-     return (
-       <ClerkProvider>
-         <TRPCProvider>
-           {children}
-         </TRPCProvider>
-       </ClerkProvider>
-     );
-   }
+   export const runtime = "nodejs";
+
+   export const { POST, GET } = toNextJsHandler(auth);
    ```
 
    **Custom Auth Pages:**
    ```tsx
-   // app/(auth)/sign-in/[[...sign-in]]/page.tsx
-   import { SignIn } from "@clerk/nextjs";
+   // app/(auth)/sign-in/page.tsx
+   "use client";
+   import { signIn } from "@/lib/auth-client";
 
    export default function SignInPage() {
-     return <SignIn />;
+     const onSubmit = async (data: SignInForm) => {
+       const result = await signIn.email({
+         email: data.email,
+         password: data.password,
+       });
+
+       if (result.error) {
+         toast.error(result.error.message);
+         return;
+       }
+
+       router.push("/");
+     };
+
+     return <SignInForm onSubmit={onSubmit} />;
    }
    ```
 
@@ -186,7 +218,7 @@ This is a multi-tenant practice management platform built with Next.js 15, using
 
 ### Core Technology Stack
 - **Framework**: Next.js 15 with Turbopack
-- **Authentication**: Clerk (integrated at middleware level)
+- **Authentication**: Better Auth with email/password and bcrypt hashing
 - **Database**: PostgreSQL with Drizzle ORM
 - **Styling**: Tailwind CSS v4
 - **Code Quality**: Biome for linting and formatting
@@ -197,7 +229,7 @@ This is a multi-tenant practice management platform built with Next.js 15, using
 ### Multi-Tenancy Architecture
 The application implements multi-tenancy through:
 - `tenants` table with unique slugs for each organization
-- `users` table linking Clerk authentication to tenant membership
+- `users` table with Better Auth authentication linked to tenant membership
 - All database entities should reference `tenantId` for data isolation
 
 ### Application Modules
@@ -216,25 +248,30 @@ The app is organized into distinct hub modules under `app/`:
 - Requires `DATABASE_URL` environment variable
 
 ### Authentication Flow
-- Clerk middleware protects all routes except `/`, `/sign-in`, `/sign-up`
+- Better Auth middleware protects all routes except `/`, `/sign-in`, `/sign-up`
+- Middleware runs in Node.js runtime (required for Better Auth)
 - User session linked to tenant context
 - Protected routes automatically enforce authentication via middleware
 
-### tRPC + Clerk Integration
-The application uses tRPC for type-safe API calls with Clerk authentication integrated at the context level.
+### tRPC + Better Auth Integration
+The application uses tRPC for type-safe API calls with Better Auth session integrated at the context level.
 
 **Context Creation:**
 ```tsx
 // app/server/context.ts
-import { auth } from "@clerk/nextjs/server";
-import { getAuthContext } from "@/lib/auth";
+import { auth, getAuthContext } from "@/lib/auth";
 
 export const createContext = async () => {
-  const clerkAuth = await auth();
+  // Get Better Auth session
+  const session = await auth.api.getSession({
+    headers: await import("next/headers").then((mod) => mod.headers()),
+  });
+
+  // Get our app's auth context (with tenant info)
   const authContext = await getAuthContext();
 
   return {
-    auth: clerkAuth,
+    session,
     authContext,
   };
 };
@@ -246,27 +283,60 @@ export type Context = Awaited<ReturnType<typeof createContext>>;
 ```tsx
 // app/server/trpc.ts
 import { initTRPC, TRPCError } from "@trpc/server";
-import { Context } from "./context";
+import superjson from "superjson";
+import type { Context } from "./context";
 
-const t = initTRPC.context<Context>().create();
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+});
 
 // Authenticated user middleware
 const isAuthed = t.middleware(({ next, ctx }) => {
-  if (!ctx.auth?.userId || !ctx.authContext) {
+  if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  return next({ ctx: { auth: ctx.auth, authContext: ctx.authContext } });
+
+  if (!ctx.authContext) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User not found in organization",
+    });
+  }
+
+  return next({
+    ctx: {
+      session: ctx.session,
+      authContext: ctx.authContext,
+    },
+  });
 });
 
 // Admin-only middleware
 const isAdmin = t.middleware(({ next, ctx }) => {
-  if (!ctx.auth?.userId || !ctx.authContext) {
+  if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+
+  if (!ctx.authContext) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User not found in organization",
+    });
   }
-  return next({ ctx: { auth: ctx.auth, authContext: ctx.authContext } });
+
+  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access required",
+    });
+  }
+
+  return next({
+    ctx: {
+      session: ctx.session,
+      authContext: ctx.authContext,
+    },
+  });
 });
 
 export const router = t.router;
@@ -282,9 +352,9 @@ import { router, protectedProcedure, adminProcedure } from "../trpc";
 
 export const exampleRouter = router({
   getUserData: protectedProcedure.query(({ ctx }) => {
-    // ctx.auth contains Clerk Auth object
+    // ctx.session contains Better Auth session
     // ctx.authContext contains tenant and role information
-    return { userId: ctx.auth.userId, tenantId: ctx.authContext.tenantId };
+    return { userId: ctx.session.user.id, tenantId: ctx.authContext.tenantId };
   }),
 
   adminAction: adminProcedure.mutation(({ ctx }) => {
@@ -298,25 +368,23 @@ export const exampleRouter = router({
 
 **Server-Side (App Router):**
 
-Use `auth()` to access authentication state and `currentUser()` to get full user details.
+Use `auth.api.getSession()` to access authentication state and user details.
 
 ```tsx
 // Server Components / Route Handlers
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function ServerComponent() {
-  // Use auth() for authentication checks (lightweight)
-  const { isAuthenticated, userId } = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!isAuthenticated) {
+  if (!session) {
     return <div>Sign in required</div>;
   }
 
-  // Use currentUser() only when you need full user details
-  // Note: This counts toward Backend API rate limits
-  const user = await currentUser();
-
-  return <div>Hello {user?.firstName}!</div>;
+  return <div>Hello {session.user.name}!</div>;
 }
 ```
 
@@ -340,6 +408,7 @@ export default async function TenantAwareComponent() {
       User: {authContext.userId}
       Tenant: {authContext.tenantId}
       Role: {authContext.role}
+      Email: {authContext.email}
     </div>
   );
 }
@@ -347,38 +416,33 @@ export default async function TenantAwareComponent() {
 
 **Client-Side:**
 
-Use React hooks for client-side authentication state:
+Use Better Auth React hooks for client-side authentication state:
 
 ```tsx
 "use client";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useSession } from "@/lib/auth-client";
 
 export function ClientComponent() {
-  // useAuth() - Lightweight, for auth state and session management
-  const { isLoaded, isSignedIn, userId, getToken } = useAuth();
+  const { data: session, isPending } = useSession();
 
-  // useUser() - Full user object (for displaying user information)
-  const { user } = useUser();
+  if (isPending) return <div>Loading...</div>;
+  if (!session) return <div>Sign in required</div>;
 
-  if (!isLoaded) return <div>Loading...</div>;
-  if (!isSignedIn) return <div>Sign in required</div>;
-
-  return <div>Hello {user?.firstName}!</div>;
+  return <div>Hello {session.user.name}!</div>;
 }
 ```
 
 **When to Use Each:**
 - **Server-side:**
-  - `auth()` - Check authentication status, get user/session IDs (use this by default)
-  - `currentUser()` - When you need full user details (counts toward API limits)
+  - `auth.api.getSession()` - Check authentication status and get session details
   - `getAuthContext()` - For multi-tenant operations requiring tenant context
 - **Client-side:**
-  - `useAuth()` - Authentication state, session tokens, lightweight checks
-  - `useUser()` - Display user information in UI components
+  - `useSession()` - Access session state and user information in components
+  - `signIn()`, `signOut()`, `signUp()` - Authentication actions from `@/lib/auth-client`
 
 ### Multi-Tenancy Implementation
 
-The application implements multi-tenancy through a custom `getAuthContext()` helper that extends Clerk's authentication with tenant-specific context.
+The application implements multi-tenancy through a custom `getAuthContext()` helper that extends Better Auth's session with tenant-specific context.
 
 **Auth Context Interface:**
 ```tsx
@@ -389,50 +453,63 @@ export interface AuthContext {
   organizationName?: string;
   role: string;
   email: string;
+  firstName: string | null;
+  lastName: string | null;
 }
 ```
 
 **Implementation Pattern:**
 
 The `getAuthContext()` function:
-1. Retrieves the current Clerk user with `currentUser()`
+1. Retrieves the current Better Auth session with `auth.api.getSession()`
 2. Looks up the user's tenant and role from the database
 3. Returns combined authentication and tenant context
-4. In development mode, auto-registers new users to the default tenant
 
 ```tsx
 // lib/auth.ts
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export async function getAuthContext(): Promise<AuthContext | null> {
-  const clerkUser = await currentUser();
-  if (!clerkUser) return null;
+  const session = await auth.api.getSession({
+    headers: await import("next/headers").then((mod) => mod.headers()),
+  });
+
+  if (!session || !session.user) {
+    return null;
+  }
 
   // Look up user's tenant from database
   const userRecord = await db
     .select({
+      id: users.id,
       tenantId: users.tenantId,
       role: users.role,
       email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
       tenantName: tenants.name,
     })
     .from(users)
     .innerJoin(tenants, eq(users.tenantId, tenants.id))
-    .where(eq(users.clerkId, clerkUser.id))
+    .where(eq(users.id, session.user.id))
     .limit(1);
 
-  if (!userRecord.length) {
-    // Development auto-registration logic
+  if (userRecord.length === 0) {
+    console.warn("Auth: User not found in users table");
     return null;
   }
 
+  const { id, tenantId, role, email, firstName, lastName, tenantName } = userRecord[0];
+
   return {
-    userId: clerkUser.id,
-    tenantId: userRecord[0].tenantId,
-    organizationName: userRecord[0].tenantName,
-    role: userRecord[0].role,
-    email: userRecord[0].email,
+    userId: id,
+    tenantId,
+    organizationName: tenantName,
+    role,
+    email,
+    firstName,
+    lastName,
   };
 }
 ```
@@ -500,8 +577,9 @@ export const clientsRouter = router({
 
 Required environment variables in `.env.local`:
 - `DATABASE_URL` - PostgreSQL connection string (format: `postgresql://postgres:password@localhost:5432/practice_hub`)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk public key
-- `CLERK_SECRET_KEY` - Clerk secret key
+- `BETTER_AUTH_SECRET` - Better Auth secret key (generate with `openssl rand -base64 32`)
+- `BETTER_AUTH_URL` - Better Auth server URL (e.g., `http://localhost:3000`)
+- `NEXT_PUBLIC_BETTER_AUTH_URL` - Better Auth client URL (e.g., `http://localhost:3000`)
 
 ## Code Conventions
 

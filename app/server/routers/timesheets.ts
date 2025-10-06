@@ -248,7 +248,7 @@ export const timesheetsRouter = router({
           ${userId ? sql`AND user_id = ${userId}` : sql``}
       `);
 
-      const summary = result[0] || {
+      const summary = result.rows[0] || {
         total_entries: 0,
         total_hours: 0,
         billable_hours: 0,

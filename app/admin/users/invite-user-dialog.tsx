@@ -52,7 +52,7 @@ export function InviteUserDialog({
     setLoading(true);
     try {
       // For now, we'll just create the user directly
-      // In a production app, you would use Clerk's invitation API
+      // In a production app, you would use Better Auth's invitation API
       const response = await fetch("/api/admin/users/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

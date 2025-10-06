@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signUp } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 
 const signUpSchema = z
   .object({
@@ -92,6 +92,18 @@ export default function SignUpPage() {
     }
   };
 
+  const handleMicrosoftSignUp = async () => {
+    try {
+      await signIn.social({
+        provider: "microsoft",
+        callbackURL: "/oauth-setup", // Will check if tenant setup needed
+      });
+    } catch (error) {
+      console.error("Microsoft sign up error:", error);
+      toast.error("Failed to sign up with Microsoft");
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-xl">
@@ -101,8 +113,43 @@ export default function SignUpPage() {
             Get started with Practice Hub by creating your account
           </CardDescription>
         </CardHeader>
+
+        <CardContent className="space-y-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11"
+            onClick={handleMicrosoftSignUp}
+            disabled={isLoading}
+          >
+            <svg
+              className="mr-2 h-5 w-5"
+              viewBox="0 0 23 23"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M11 0H0V11H11V0Z" fill="#F25022" />
+              <path d="M23 0H12V11H23V0Z" fill="#7FBA00" />
+              <path d="M11 12H0V23H11V12Z" fill="#00A4EF" />
+              <path d="M23 12H12V23H23V12Z" fill="#FFB900" />
+            </svg>
+            Continue with Microsoft
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or create account with email
+              </span>
+            </div>
+          </div>
+        </CardContent>
+
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-5 pb-6">
+          <CardContent className="space-y-5 pb-6 pt-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>

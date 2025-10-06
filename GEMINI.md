@@ -4,7 +4,7 @@ This document provides context for the Gemini AI assistant to understand the `pr
 
 ## Project Overview
 
-`practice-hub` is a multi-tenant business management application for UK accountancy firms. The project is a full-stack Next.js application built with TypeScript, React, and Node.js. It uses a PostgreSQL database with Drizzle ORM, tRPC for API communication, and Clerk for user authentication. The application is designed to be deployed with Docker.
+`practice-hub` is a multi-tenant business management application for UK accountancy firms. The project is a full-stack Next.js application built with TypeScript, React, and Node.js. It uses a PostgreSQL database with Drizzle ORM, tRPC for API communication, and Better Auth for user authentication. The application is designed to be deployed with Docker.
 
 The application provides a comprehensive suite of features, including:
 
@@ -49,7 +49,7 @@ The project uses `npm` for package management and `docker-compose` for running t
     -   **API**: tRPC
     -   **Database**: PostgreSQL
     -   **ORM**: Drizzle ORM
-    -   **Authentication**: Clerk
+    -   **Authentication**: Better Auth
     -   **Containerization**: Docker
 -   **Code Style**: The project uses Biome for code linting and formatting. Configuration can be found in the `biome.json` file.
 -   **Database Schema**: The database schema is defined in `lib/db/schema.ts` using Drizzle ORM.

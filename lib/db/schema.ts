@@ -17,22 +17,22 @@ import {
 
 // Tenants table - for multi-tenancy
 export const tenants = pgTable("tenants", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: text("id").primaryKey(), // Changed from uuid to text for Better Auth compatibility
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Users table - linked to Better Auth and tenants
+// Users table - Better Auth compatible schema with tenant extension
 export const users = pgTable(
   "users",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    id: text("id").primaryKey(), // Better Auth requires text ID
+    tenantId: text("tenant_id")
       .references(() => tenants.id)
       .notNull(),
-    email: text("email").notNull(),
+    email: text("email").notNull().unique(),
     emailVerified: boolean("email_verified").default(false).notNull(),
     name: text("name"),
     firstName: varchar("first_name", { length: 100 }),
@@ -43,7 +43,10 @@ export const users = pgTable(
     isActive: boolean("is_active").default(true).notNull(),
     hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => ({
     emailTenantIdx: uniqueIndex("idx_tenant_email").on(
@@ -54,25 +57,29 @@ export const users = pgTable(
   }),
 );
 
-// Better Auth tables
+// Better Auth tables - Using official generated schema
 export const sessions = pgTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
-  userId: uuid("user_id")
+  userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  activeOrganizationId: text("active_organization_id"), // Better Auth organization plugin
 });
 
 export const accounts = pgTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
-  userId: uuid("user_id")
+  userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),
@@ -83,7 +90,10 @@ export const accounts = pgTable("account", {
   scope: text("scope"),
   password: text("password"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const verifications = pgTable("verification", {
@@ -91,8 +101,11 @@ export const verifications = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 // Feedback table - for user feedback and issues
@@ -100,12 +113,12 @@ export const feedback = pgTable(
   "feedback",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
     // User Information
-    userId: varchar("user_id", { length: 255 }).notNull(), // Clerk user ID
+    userId: varchar("user_id", { length: 255 }).notNull(),
     userEmail: varchar("user_email", { length: 255 }).notNull(),
     userName: varchar("user_name", { length: 255 }),
     userRole: varchar("user_role", { length: 50 }),
@@ -223,7 +236,7 @@ export const clients = pgTable(
   "clients",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     clientCode: varchar("client_code", { length: 50 }).notNull(),
@@ -245,7 +258,7 @@ export const clients = pgTable(
     country: varchar("country", { length: 100 }),
 
     // Relationship fields
-    accountManagerId: uuid("account_manager_id").references(() => users.id, {
+    accountManagerId: text("account_manager_id").references(() => users.id, {
       onDelete: "set null",
     }),
     parentClientId: uuid("parent_client_id"),
@@ -259,7 +272,7 @@ export const clients = pgTable(
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdBy: uuid("created_by").references(() => users.id),
+    createdBy: text("created_by").references(() => users.id),
   },
   (table) => ({
     tenantClientCodeIdx: uniqueIndex("idx_tenant_client_code").on(
@@ -277,7 +290,7 @@ export const clientContacts = pgTable(
   "client_contacts",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     clientId: uuid("client_id")
@@ -322,7 +335,7 @@ export const clientDirectors = pgTable(
   "client_directors",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     clientId: uuid("client_id")
@@ -352,7 +365,7 @@ export const clientPSCs = pgTable(
   "client_pscs",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     clientId: uuid("client_id")
@@ -391,7 +404,7 @@ export const services = pgTable(
   "services",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     code: varchar("code", { length: 50 }).notNull(),
@@ -426,7 +439,7 @@ export const clientServices = pgTable(
   "client_services",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     clientId: uuid("client_id")
@@ -455,7 +468,7 @@ export const tasks = pgTable(
   "tasks",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     title: varchar("title", { length: 255 }).notNull(),
@@ -467,13 +480,13 @@ export const tasks = pgTable(
     clientId: uuid("client_id").references(() => clients.id, {
       onDelete: "set null",
     }),
-    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+    assignedToId: text("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
-    reviewerId: uuid("reviewer_id").references(() => users.id, {
+    reviewerId: text("reviewer_id").references(() => users.id, {
       onDelete: "set null",
     }),
-    createdById: uuid("created_by_id")
+    createdById: text("created_by_id")
       .references(() => users.id, { onDelete: "set null" })
       .notNull(),
 
@@ -520,10 +533,10 @@ export const timeEntries = pgTable(
   "time_entries",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     clientId: uuid("client_id").references(() => clients.id, {
@@ -559,7 +572,7 @@ export const timeEntries = pgTable(
     // Approval workflow
     status: timeEntryStatusEnum("status").default("draft").notNull(),
     submittedAt: timestamp("submitted_at"),
-    approvedById: uuid("approved_by_id").references(() => users.id, {
+    approvedById: text("approved_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
     approvedAt: timestamp("approved_at"),
@@ -585,7 +598,7 @@ export const documents = pgTable(
   "documents",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     name: varchar("name", { length: 255 }).notNull(),
@@ -619,7 +632,7 @@ export const documents = pgTable(
     shareExpiresAt: timestamp("share_expires_at"),
 
     // Upload info
-    uploadedById: uuid("uploaded_by_id")
+    uploadedById: text("uploaded_by_id")
       .references(() => users.id, { onDelete: "set null" })
       .notNull(),
 
@@ -641,7 +654,7 @@ export const invoices = pgTable(
   "invoices",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     invoiceNumber: varchar("invoice_number", { length: 50 }).notNull(),
@@ -677,7 +690,7 @@ export const invoices = pgTable(
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdById: uuid("created_by_id").references(() => users.id, {
+    createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
   },
@@ -728,7 +741,7 @@ export const workflows = pgTable(
   "workflows",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     name: varchar("name", { length: 255 }).notNull(),
@@ -752,7 +765,7 @@ export const workflows = pgTable(
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdById: uuid("created_by_id").references(() => users.id, {
+    createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
   },
@@ -788,7 +801,7 @@ export const compliance = pgTable(
   "compliance",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -801,7 +814,7 @@ export const compliance = pgTable(
     clientId: uuid("client_id")
       .references(() => clients.id, { onDelete: "cascade" })
       .notNull(),
-    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+    assignedToId: text("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
 
@@ -822,7 +835,7 @@ export const compliance = pgTable(
     // Timestamps
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdById: uuid("created_by_id").references(() => users.id, {
+    createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
   },
@@ -903,7 +916,7 @@ export const serviceComponents = pgTable(
   "service_components",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -948,7 +961,7 @@ export const pricingRules = pgTable(
   "pricing_rules",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     componentId: uuid("component_id")
@@ -983,7 +996,7 @@ export const leads = pgTable(
   "leads",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1019,7 +1032,7 @@ export const leads = pgTable(
     nextFollowUpAt: timestamp("next_follow_up_at"),
 
     // Assignment
-    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+    assignedToId: text("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
 
@@ -1035,7 +1048,7 @@ export const leads = pgTable(
     // Timestamps
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    createdBy: uuid("created_by").references(() => users.id, {
+    createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
     }),
   },
@@ -1053,7 +1066,7 @@ export const proposals = pgTable(
   "proposals",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1107,7 +1120,7 @@ export const proposals = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 
     // Creator
-    createdById: uuid("created_by_id").references(() => users.id, {
+    createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
   },
@@ -1129,7 +1142,7 @@ export const proposalServices = pgTable(
   "proposal_services",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     proposalId: uuid("proposal_id")
@@ -1162,7 +1175,7 @@ export const clientTransactionData = pgTable(
   "client_transaction_data",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1197,7 +1210,7 @@ export const proposalSignatures = pgTable(
   "proposal_signatures",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     proposalId: uuid("proposal_id")
@@ -1248,7 +1261,7 @@ export const onboardingSessions = pgTable(
   "onboarding_sessions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1267,7 +1280,7 @@ export const onboardingSessions = pgTable(
     priority: onboardingPriorityEnum("priority").default("medium").notNull(),
 
     // Assignment
-    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+    assignedToId: text("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
 
@@ -1294,7 +1307,7 @@ export const onboardingTasks = pgTable(
   "onboarding_tasks",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     sessionId: uuid("session_id")
@@ -1315,7 +1328,7 @@ export const onboardingTasks = pgTable(
     notes: text("notes"),
 
     // Assignment
-    assignedToId: uuid("assigned_to_id").references(() => users.id, {
+    assignedToId: text("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
 
@@ -1421,7 +1434,7 @@ export const activityLogs = pgTable(
   "activity_logs",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1434,7 +1447,7 @@ export const activityLogs = pgTable(
     description: text("description"),
 
     // User who performed action
-    userId: uuid("user_id").references(() => users.id, {
+    userId: text("user_id").references(() => users.id, {
       onDelete: "set null",
     }),
     userName: varchar("user_name", { length: 255 }), // Denormalized for performance
@@ -1471,7 +1484,7 @@ export const portalCategories = pgTable(
   "portal_categories",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1484,7 +1497,7 @@ export const portalCategories = pgTable(
     isActive: boolean("is_active").default(true).notNull(),
 
     // Metadata
-    createdById: uuid("created_by_id").references(() => users.id, {
+    createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -1502,7 +1515,7 @@ export const portalLinks = pgTable(
   "portal_links",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: uuid("tenant_id")
+    tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
     categoryId: uuid("category_id")
@@ -1524,7 +1537,7 @@ export const portalLinks = pgTable(
     allowedRoles: jsonb("allowed_roles"), // Array of roles that can see this link
 
     // Metadata
-    createdById: uuid("created_by_id").references(() => users.id, {
+    createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -1544,7 +1557,7 @@ export const userFavorites = pgTable(
   "user_favorites",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
+    userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     linkId: uuid("link_id")
@@ -1570,7 +1583,7 @@ export const userFavorites = pgTable(
 
 // Dashboard KPI View - aggregated metrics for dashboard
 export const dashboardKpiView = pgView("dashboard_kpi_view", {
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
   totalRevenue: decimal("total_revenue", { precision: 10, scale: 2 }),
   collectedRevenue: decimal("collected_revenue", { precision: 10, scale: 2 }),
   outstandingRevenue: decimal("outstanding_revenue", {
@@ -1592,13 +1605,13 @@ export const dashboardKpiView = pgView("dashboard_kpi_view", {
 // Activity Feed View - activity logs with entity names and user info
 export const activityFeedView = pgView("activity_feed_view", {
   id: uuid("id").notNull(),
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
   entityType: varchar("entity_type", { length: 50 }).notNull(),
   entityId: uuid("entity_id").notNull(),
   entityName: text("entity_name"),
   action: varchar("action", { length: 50 }).notNull(),
   description: text("description"),
-  userId: uuid("user_id"),
+  userId: text("user_id"),
   userName: varchar("user_name", { length: 255 }),
   userDisplayName: text("user_display_name"),
   userEmail: text("user_email"),
@@ -1614,15 +1627,15 @@ export const activityFeedView = pgView("activity_feed_view", {
 export const taskDetailsView = pgView("task_details_view", {
   // All task fields
   id: uuid("id").notNull(),
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   status: varchar("status", { length: 50 }),
   priority: varchar("priority", { length: 50 }),
   clientId: uuid("client_id"),
-  assignedToId: uuid("assigned_to_id"),
-  reviewerId: uuid("reviewer_id"),
-  createdById: uuid("created_by_id").notNull(),
+  assignedToId: text("assigned_to_id"),
+  reviewerId: text("reviewer_id"),
+  createdById: text("created_by_id").notNull(),
   dueDate: timestamp("due_date"),
   targetDate: timestamp("target_date"),
   completedAt: timestamp("completed_at"),
@@ -1655,7 +1668,7 @@ export const taskDetailsView = pgView("task_details_view", {
 export const clientDetailsView = pgView("client_details_view", {
   // All client fields
   id: uuid("id").notNull(),
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
   clientCode: varchar("client_code", { length: 50 }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   type: varchar("type", { length: 50 }),
@@ -1671,7 +1684,7 @@ export const clientDetailsView = pgView("client_details_view", {
   state: varchar("state", { length: 100 }),
   postalCode: varchar("postal_code", { length: 20 }),
   country: varchar("country", { length: 100 }),
-  accountManagerId: uuid("account_manager_id"),
+  accountManagerId: text("account_manager_id"),
   parentClientId: uuid("parent_client_id"),
   incorporationDate: date("incorporation_date"),
   yearEnd: varchar("year_end", { length: 10 }),
@@ -1679,7 +1692,7 @@ export const clientDetailsView = pgView("client_details_view", {
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-  createdBy: uuid("created_by"),
+  createdBy: text("created_by"),
   // Joined fields
   accountManagerFirstName: varchar("account_manager_first_name", {
     length: 100,
@@ -1692,12 +1705,12 @@ export const clientDetailsView = pgView("client_details_view", {
 // Compliance Details View - compliance items with client and assignee info
 export const complianceDetailsView = pgView("compliance_details_view", {
   id: uuid("id").notNull(),
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   type: varchar("type", { length: 100 }).notNull(),
   description: text("description"),
   clientId: uuid("client_id").notNull(),
-  assignedToId: uuid("assigned_to_id"),
+  assignedToId: text("assigned_to_id"),
   dueDate: timestamp("due_date").notNull(),
   completedDate: timestamp("completed_date"),
   reminderDate: timestamp("reminder_date"),
@@ -1708,7 +1721,7 @@ export const complianceDetailsView = pgView("compliance_details_view", {
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-  createdById: uuid("created_by_id"),
+  createdById: text("created_by_id"),
   // Joined fields
   clientName: varchar("client_name", { length: 255 }),
   clientCode: varchar("client_code", { length: 50 }),
@@ -1721,8 +1734,8 @@ export const complianceDetailsView = pgView("compliance_details_view", {
 // Time Entries View - time entries with user, client, and task names
 export const timeEntriesView = pgView("time_entries_view", {
   id: uuid("id").notNull(),
-  tenantId: uuid("tenant_id").notNull(),
-  userId: uuid("user_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
+  userId: text("user_id").notNull(),
   clientId: uuid("client_id"),
   taskId: uuid("task_id"),
   serviceId: uuid("service_id"),
@@ -1740,7 +1753,7 @@ export const timeEntriesView = pgView("time_entries_view", {
   notes: text("notes"),
   status: varchar("status", { length: 50 }),
   submittedAt: timestamp("submitted_at"),
-  approvedById: uuid("approved_by_id"),
+  approvedById: text("approved_by_id"),
   approvedAt: timestamp("approved_at"),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull(),
@@ -1759,7 +1772,7 @@ export const timeEntriesView = pgView("time_entries_view", {
 // Invoice Details View - invoices with client information
 export const invoiceDetailsView = pgView("invoice_details_view", {
   id: uuid("id").notNull(),
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: text("tenant_id").notNull(),
   invoiceNumber: varchar("invoice_number", { length: 50 }).notNull(),
   clientId: uuid("client_id").notNull(),
   issueDate: date("issue_date").notNull(),
@@ -1779,7 +1792,7 @@ export const invoiceDetailsView = pgView("invoice_details_view", {
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-  createdById: uuid("created_by_id"),
+  createdById: text("created_by_id"),
   // Joined fields
   clientName: varchar("client_name", { length: 255 }),
   clientCode: varchar("client_code", { length: 50 }),

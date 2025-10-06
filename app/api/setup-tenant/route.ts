@@ -45,9 +45,13 @@ export async function POST(request: Request) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
+    // Generate a unique ID for the tenant
+    const tenantId = crypto.randomUUID();
+
     const [tenant] = await db
       .insert(tenants)
       .values({
+        id: tenantId,
         name: organizationName,
         slug,
       })

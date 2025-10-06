@@ -150,7 +150,7 @@ export const tasksRouter = router({
       const result = await db.execute(query);
 
       // Format the response
-      const tasksList = (result as Array<Record<string, unknown>>).map(
+      const tasksList = (result.rows as Array<Record<string, unknown>>).map(
         (task) => ({
           id: task.id as string,
           title: task.title as string,
@@ -201,14 +201,14 @@ export const tasksRouter = router({
 
       const result = await db.execute(query);
 
-      if (!result || result.length === 0) {
+      if (!result.rows || result.rows.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Task not found",
         });
       }
 
-      const task = result[0] as Record<string, unknown>;
+      const task = result.rows[0] as Record<string, unknown>;
 
       // Get workflow instance if exists
       let workflowInstance = null;

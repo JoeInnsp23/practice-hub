@@ -1,4 +1,5 @@
 // Environment variables are loaded via tsx -r dotenv/config in package.json
+import crypto from "node:crypto";
 import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
@@ -77,6 +78,7 @@ async function seedDatabase() {
   const [tenant] = await db
     .insert(tenants)
     .values({
+      id: crypto.randomUUID(), // Better Auth requires text ID
       name: "Demo Accounting Firm",
       slug: "demo-firm",
     })
@@ -127,6 +129,7 @@ async function seedDatabase() {
     .insert(users)
     .values(
       userList.map((user) => ({
+        id: crypto.randomUUID(), // Better Auth requires text ID
         ...user,
         tenantId: tenant.id,
         isActive: true,
