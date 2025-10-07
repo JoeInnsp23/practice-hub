@@ -51,7 +51,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import type { ServicePriceType } from "@/lib/db/schema";
 
 interface ServiceComponent {
   id: string;
@@ -336,12 +335,12 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
   const [formData, setFormData] = useState({
     code: component?.code || "",
     name: component?.name || "",
-    category: component?.category || "compliance",
+    category: (component?.category || "compliance") as "compliance" | "vat" | "bookkeeping" | "payroll" | "management" | "secretarial" | "tax_planning" | "addon",
     description: component?.description || "",
-    pricingModel: component?.pricingModel || ("fixed" as const),
+    pricingModel: (component?.pricingModel || "fixed") as "fixed" | "turnover" | "transaction" | "both",
     basePrice: component?.basePrice || "",
     price: component?.price || "",
-    priceType: component?.priceType || ("fixed" as const),
+    priceType: (component?.priceType || "fixed") as "fixed" | "hourly" | "retainer" | "project" | "percentage",
     supportsComplexity: component?.supportsComplexity || false,
     isActive: component?.isActive ?? true,
   });

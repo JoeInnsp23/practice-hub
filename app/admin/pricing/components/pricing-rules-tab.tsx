@@ -56,7 +56,7 @@ interface PricingRule {
   maxValue: string | null;
   price: string;
   complexityLevel: string | null;
-  metadata: Record<string, unknown> | null;
+  metadata: unknown;
   isActive: boolean;
 }
 
@@ -302,12 +302,12 @@ interface PricingRuleFormProps {
 function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFormProps) {
   const [formData, setFormData] = useState({
     componentId: rule?.componentId || "",
-    ruleType: rule?.ruleType || ("turnover_band" as const),
+    ruleType: (rule?.ruleType || "turnover_band") as "fixed" | "turnover_band" | "transaction_band" | "employee_band" | "per_unit",
     minValue: rule?.minValue || "",
     maxValue: rule?.maxValue || "",
     price: rule?.price || "",
     complexityLevel: rule?.complexityLevel || "",
-    metadata: rule?.metadata || {},
+    metadata: (rule?.metadata || {}) as Record<string, unknown>,
     isActive: rule?.isActive ?? true,
   });
 
