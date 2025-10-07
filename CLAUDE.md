@@ -210,7 +210,82 @@ pnpm format      # Format code with Biome
 
 # Database management
 docker compose up -d  # Start PostgreSQL database
+
+# Object Storage (MinIO for local development)
+docker compose up -d minio           # Start MinIO server
+./scripts/setup-minio.sh             # Initialize bucket (first time only)
+# MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
+# S3 API Endpoint: http://localhost:9000
 ```
+
+## MinIO Object Storage (Local Development)
+
+MinIO provides S3-compatible object storage for local development. It allows you to test PDF generation, file uploads, and storage operations without connecting to Hetzner S3.
+
+### Setup
+
+1. **Start MinIO:**
+   ```bash
+   docker compose up -d minio
+   ```
+
+2. **Initialize Bucket (first time only):**
+   ```bash
+   ./scripts/setup-minio.sh
+   ```
+   This creates the `practice-hub-proposals` bucket and sets public read permissions.
+
+3. **Access MinIO Console:**
+   - URL: http://localhost:9001
+   - Username: `minioadmin`
+   - Password: `minioadmin`
+
+### Configuration
+
+MinIO is configured via environment variables in `.env.local`:
+
+```bash
+S3_ENDPOINT="http://localhost:9000"
+S3_ACCESS_KEY_ID="minioadmin"
+S3_SECRET_ACCESS_KEY="minioadmin"
+S3_BUCKET_NAME="practice-hub-proposals"
+S3_REGION="us-east-1"
+```
+
+### Testing PDF Generation
+
+1. Create a proposal in the calculator
+2. Click "Generate PDF" on the proposal detail page
+3. View the generated PDF in MinIO Console → Buckets → practice-hub-proposals
+
+### Production Migration (Hetzner S3)
+
+For production deployment on Coolify/Hetzner, use `.env.production.example` as a template:
+
+```bash
+# Hetzner S3 Object Storage
+S3_ENDPOINT="https://fsn1.your-objectstorage.com"
+S3_ACCESS_KEY_ID="your-hetzner-access-key"
+S3_SECRET_ACCESS_KEY="your-hetzner-secret-key"
+S3_BUCKET_NAME="practice-hub-proposals"
+S3_REGION="eu-central"
+```
+
+**No code changes required** - the same S3 client works with both MinIO and Hetzner S3. Just update the environment variables.
+
+### Troubleshooting
+
+**Bucket not found:**
+- Run `./scripts/setup-minio.sh` to create the bucket
+- Verify bucket exists in MinIO console
+
+**Connection refused:**
+- Ensure MinIO is running: `docker ps | grep minio`
+- Check port 9000 is not in use: `lsof -i :9000`
+
+**Permission denied:**
+- Bucket policy may need updating
+- Run setup script again to reset permissions
 
 ## Architecture Overview
 

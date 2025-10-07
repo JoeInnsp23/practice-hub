@@ -10,6 +10,12 @@ import {
   proposalSignatures,
   proposals,
 } from "@/lib/db/schema";
+import {
+  sendProposalEmail,
+  sendSignedConfirmationEmail,
+  sendTeamNotificationEmail,
+} from "@/lib/email/send-proposal-email";
+import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
 import { protectedProcedure, router } from "../trpc";
 
 // Status enum for filtering
@@ -424,17 +430,51 @@ export const proposalsRouter = router({
         });
       }
 
-      // Update proposal status
+      // Verify client information exists
+      if (!existingProposal.clientName || !existingProposal.clientEmail) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Client name and email are required to send proposal",
+        });
+      }
+
+      // Generate PDF if not already generated
+      let pdfUrl = existingProposal.pdfUrl;
+      if (!pdfUrl) {
+        console.log("Generating PDF for proposal:", input.id);
+        const result = await generateProposalPdf({
+          proposalId: input.id,
+          companyName: "Innspired Accountancy",
+          preparedBy: "Joseph Stephenson-Mouzo, Managing Director",
+        });
+        pdfUrl = result.pdfUrl;
+      }
+
+      // Update proposal status and valid until date
       const [updatedProposal] = await db
         .update(proposals)
         .set({
           status: "sent",
           sentAt: new Date(),
           validUntil: new Date(input.validUntil),
+          pdfUrl,
           updatedAt: new Date(),
         })
         .where(eq(proposals.id, input.id))
         .returning();
+
+      // Send email notification to client
+      try {
+        await sendProposalEmail({
+          proposalId: input.id,
+          recipientEmail: existingProposal.clientEmail,
+          recipientName: existingProposal.clientName,
+        });
+      } catch (emailError) {
+        console.error("Failed to send proposal email:", emailError);
+        // Don't fail the mutation if email fails, just log it
+        // The proposal is still marked as sent
+      }
 
       // Log activity
       await db.insert(activityLogs).values({
@@ -442,13 +482,15 @@ export const proposalsRouter = router({
         entityType: "proposal",
         entityId: input.id,
         action: "sent",
-        description: `Sent proposal "${existingProposal.title}" to client`,
+        description: `Sent proposal "${existingProposal.title}" to ${existingProposal.clientEmail}`,
         userId,
         userName: `${firstName} ${lastName}`,
+        newValues: {
+          status: "sent",
+          sentAt: new Date(),
+          pdfUrl,
+        },
       });
-
-      // TODO: Send email notification to client
-      // TODO: Generate PDF if not already generated
 
       return { success: true, proposal: updatedProposal };
     }),
@@ -520,6 +562,8 @@ export const proposalsRouter = router({
         });
       }
 
+      const signedAt = new Date();
+
       // Start transaction
       const result = await db.transaction(async (tx) => {
         // Add signature record
@@ -532,7 +576,7 @@ export const proposalsRouter = router({
             signerEmail: input.signerEmail,
             signatureData: input.signatureData,
             ipAddress: input.ipAddress,
-            signedAt: new Date(),
+            signedAt,
           })
           .returning();
 
@@ -541,13 +585,39 @@ export const proposalsRouter = router({
           .update(proposals)
           .set({
             status: "signed",
-            signedAt: new Date(),
+            signedAt,
             updatedAt: new Date(),
           })
           .where(eq(proposals.id, input.proposalId));
 
         return signature;
       });
+
+      // Send confirmation email to client
+      try {
+        await sendSignedConfirmationEmail({
+          proposalId: input.proposalId,
+          signerName: input.signerName,
+          signerEmail: input.signerEmail,
+          signedAt,
+        });
+      } catch (emailError) {
+        console.error("Failed to send client confirmation email:", emailError);
+        // Don't fail the mutation if email fails
+      }
+
+      // Send notification to internal team
+      try {
+        await sendTeamNotificationEmail({
+          proposalId: input.proposalId,
+          signerName: input.signerName,
+          signerEmail: input.signerEmail,
+          signedAt,
+        });
+      } catch (emailError) {
+        console.error("Failed to send team notification email:", emailError);
+        // Don't fail the mutation if email fails
+      }
 
       return { success: true, signature: result };
     }),
@@ -568,4 +638,49 @@ export const proposalsRouter = router({
 
     return { stats };
   }),
+
+  // Generate PDF for proposal
+  generatePdf: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input: proposalId }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Verify proposal exists and belongs to tenant
+      const proposal = await db.query.proposals.findFirst({
+        where: and(
+          eq(proposals.id, proposalId),
+          eq(proposals.tenantId, tenantId),
+        ),
+      });
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Generate PDF
+      const { pdfUrl } = await generateProposalPdf({
+        proposalId,
+        companyName: "Innspired Accountancy",
+        preparedBy: "Joseph Stephenson-Mouzo, Managing Director",
+      });
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: proposalId,
+        action: "pdf_generated",
+        description: `Generated PDF for proposal "${proposal.title}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: {
+          pdfUrl,
+        },
+      });
+
+      return { success: true, pdfUrl };
+    }),
 });

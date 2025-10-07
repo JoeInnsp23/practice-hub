@@ -65,6 +65,32 @@ export default function ProposalDetailPage({
       },
     });
 
+  // Generate PDF mutation
+  const { mutate: generatePdf, isPending: isGeneratingPdf } =
+    trpc.proposals.generatePdf.useMutation({
+      onSuccess: (data) => {
+        toast.success("PDF generated successfully");
+        utils.proposals.getById.invalidate(id);
+        // Open PDF in new tab
+        if (data.pdfUrl) {
+          window.open(data.pdfUrl, "_blank");
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to generate PDF");
+      },
+    });
+
+  const handleDownloadPdf = () => {
+    if (proposalData?.pdfUrl) {
+      // If PDF already exists, download it
+      window.open(proposalData.pdfUrl, "_blank");
+    } else {
+      // Otherwise, generate it first
+      generatePdf(id);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -139,9 +165,13 @@ export default function ProposalDetailPage({
               clientName={proposalData.clientName || undefined}
             />
           )}
-          <Button variant="outline" disabled>
+          <Button
+            variant="outline"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+          >
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            {isGeneratingPdf ? "Generating..." : proposalData.pdfUrl ? "Download PDF" : "Generate PDF"}
           </Button>
         </div>
       </div>
@@ -421,9 +451,14 @@ export default function ProposalDetailPage({
                   clientName={proposalData.clientName || undefined}
                 />
               )}
-              <Button variant="outline" className="w-full" disabled>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleDownloadPdf}
+                disabled={isGeneratingPdf}
+              >
                 <Download className="h-4 w-4 mr-2" />
-                Download PDF
+                {isGeneratingPdf ? "Generating..." : proposalData.pdfUrl ? "Download PDF" : "Generate PDF"}
               </Button>
               {proposalData.status !== "signed" && (
                 <Button
