@@ -268,6 +268,13 @@ async function seedDatabase() {
       iconName: "UserCircle",
       sortOrder: 8,
     },
+    {
+      title: "Admin Panel",
+      description: "System administration and configuration",
+      url: "/admin",
+      iconName: "Settings",
+      sortOrder: 9,
+    },
   ];
 
   await db.insert(portalLinks).values(
