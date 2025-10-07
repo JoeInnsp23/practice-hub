@@ -1,5 +1,5 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { activityLogs, tenants } from "@/lib/db/schema";
 import { adminProcedure, router } from "../trpc";

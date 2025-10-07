@@ -1,11 +1,4 @@
-import {
-  Document,
-  Font,
-  Page,
-  StyleSheet,
-  Text,
-  View,
-} from "@react-pdf/renderer";
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 // Register fonts (optional - using default Helvetica for now)
 // You can add custom fonts later if needed
@@ -279,8 +272,8 @@ export function ProposalDocument({
           <Text style={styles.body}>
             {companyName} was founded with a clear mission: to provide
             specialised accounting and financial services to the hospitality
-            industry. With over 10 years of experience, we have developed a
-            deep understanding of the unique financial challenges faced by pubs,
+            industry. With over 10 years of experience, we have developed a deep
+            understanding of the unique financial challenges faced by pubs,
             hotels, restaurants, and other hospitality businesses.
           </Text>
           <Text style={styles.body}>
@@ -378,9 +371,7 @@ export function ProposalDocument({
           <View style={styles.table}>
             {/* Header */}
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableCellHeader, styles.col1]}>
-                Service
-              </Text>
+              <Text style={[styles.tableCellHeader, styles.col1]}>Service</Text>
               <Text style={[styles.tableCellHeader, styles.col2]}>Price</Text>
               <Text style={[styles.tableCellHeader, styles.col3]}>QTY</Text>
               <Text style={[styles.tableCellHeader, styles.col4]}>
@@ -426,14 +417,18 @@ export function ProposalDocument({
               <Text style={[styles.tableCell, styles.totalLabel]}>
                 Annual Total (inc. VAT)
               </Text>
-              <Text style={[styles.bodyBold, styles.totalAmount, { fontSize: 14 }]}>
+              <Text
+                style={[styles.bodyBold, styles.totalAmount, { fontSize: 14 }]}
+              >
                 {formatCurrency(proposal.annualTotal)}
               </Text>
             </View>
           </View>
 
           {/* Pricing Details */}
-          {(proposal.pricingModelUsed || proposal.industry || proposal.turnover) && (
+          {(proposal.pricingModelUsed ||
+            proposal.industry ||
+            proposal.turnover) && (
             <View style={[styles.section, { marginTop: 20 }]}>
               <Text style={styles.h3}>Pricing Details</Text>
               {proposal.pricingModelUsed && (
@@ -449,7 +444,8 @@ export function ProposalDocument({
               )}
               {proposal.monthlyTransactions && (
                 <Text style={styles.body}>
-                  Monthly Transactions: {proposal.monthlyTransactions.toLocaleString()}
+                  Monthly Transactions:{" "}
+                  {proposal.monthlyTransactions.toLocaleString()}
                 </Text>
               )}
             </View>

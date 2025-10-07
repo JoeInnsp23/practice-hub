@@ -1,7 +1,7 @@
 "use client";
 
-import { use } from "react";
 import { CheckCircle2, Mail, Phone } from "lucide-react";
+import { use } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -95,8 +95,8 @@ export default function ProposalSignedPage({
               <div>
                 <h3 className="font-semibold mb-1">Onboarding & Setup</h3>
                 <p className="text-sm text-muted-foreground">
-                  We'll set up your accounting systems and establish our workflow
-                  together.
+                  We'll set up your accounting systems and establish our
+                  workflow together.
                 </p>
               </div>
             </div>

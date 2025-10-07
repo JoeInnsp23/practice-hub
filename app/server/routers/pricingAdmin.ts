@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -208,7 +208,10 @@ export const pricingAdminRouter = router({
         .select()
         .from(serviceComponents)
         .where(
-          and(eq(serviceComponents.id, id), eq(serviceComponents.tenantId, tenantId)),
+          and(
+            eq(serviceComponents.id, id),
+            eq(serviceComponents.tenantId, tenantId),
+          ),
         )
         .limit(1);
 

@@ -1,5 +1,6 @@
 import {
   Body,
+  Button,
   Container,
   Head,
   Heading,
@@ -8,7 +9,6 @@ import {
   Preview,
   Section,
   Text,
-  Button,
 } from "@react-email/components";
 
 export interface NewLeadNotificationEmailProps {
@@ -137,7 +137,8 @@ export function NewLeadNotificationEmail({
           <Text style={footer}>
             Lead ID: {leadId}
             <br />
-            Submitted: {new Date().toLocaleString("en-GB", {
+            Submitted:{" "}
+            {new Date().toLocaleString("en-GB", {
               dateStyle: "medium",
               timeStyle: "short",
             })}

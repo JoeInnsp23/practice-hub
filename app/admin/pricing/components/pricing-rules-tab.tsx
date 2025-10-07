@@ -69,10 +69,13 @@ export function PricingRulesTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [componentFilter, setComponentFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
-  const [editingRule, setEditingRule] = useState<RuleWithComponent | null>(null);
+  const [editingRule, setEditingRule] = useState<RuleWithComponent | null>(
+    null,
+  );
 
   const { data, isLoading, refetch } = trpc.pricingAdmin.getAllRules.useQuery();
-  const { data: componentsData } = trpc.pricingAdmin.getAllComponents.useQuery();
+  const { data: componentsData } =
+    trpc.pricingAdmin.getAllComponents.useQuery();
   const deleteMutation = trpc.pricingAdmin.deleteRule.useMutation();
 
   const rules = (data?.rules || []).map((r) => ({
@@ -129,8 +132,12 @@ export function PricingRulesTab() {
     if (!rule.minValue && !rule.maxValue) return "N/A";
     if (rule.ruleType === "per_unit") return "Per unit";
 
-    const min = rule.minValue ? `£${Number(rule.minValue).toLocaleString()}` : "0";
-    const max = rule.maxValue ? `£${Number(rule.maxValue).toLocaleString()}` : "∞";
+    const min = rule.minValue
+      ? `£${Number(rule.minValue).toLocaleString()}`
+      : "0";
+    const max = rule.maxValue
+      ? `£${Number(rule.maxValue).toLocaleString()}`
+      : "∞";
     return `${min} - ${max}`;
   };
 
@@ -142,7 +149,8 @@ export function PricingRulesTab() {
           <div>
             <h2 className="text-2xl font-semibold">Pricing Rules</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {stats.total} total • {stats.active} active • {stats.inactive} inactive
+              {stats.total} total • {stats.active} active • {stats.inactive}{" "}
+              inactive
             </p>
           </div>
           <Button onClick={handleCreate}>
@@ -220,7 +228,9 @@ export function PricingRulesTab() {
                         {rule.ruleType.replace("_", " ")}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm">{formatRange(rule)}</TableCell>
+                    <TableCell className="text-sm">
+                      {formatRange(rule)}
+                    </TableCell>
                     <TableCell className="font-semibold">
                       £{Number(rule.price).toFixed(2)}
                     </TableCell>
@@ -236,7 +246,9 @@ export function PricingRulesTab() {
                     <TableCell>
                       <Badge
                         variant={rule.isActive ? "default" : "secondary"}
-                        className={rule.isActive ? "bg-green-600" : "bg-gray-500"}
+                        className={
+                          rule.isActive ? "bg-green-600" : "bg-gray-500"
+                        }
                       >
                         {rule.isActive ? "Active" : "Inactive"}
                       </Badge>
@@ -294,15 +306,30 @@ export function PricingRulesTab() {
 
 interface PricingRuleFormProps {
   rule: RuleWithComponent | null;
-  components: Array<{ id: string; code: string; name: string; pricingModel: string }>;
+  components: Array<{
+    id: string;
+    code: string;
+    name: string;
+    pricingModel: string;
+  }>;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFormProps) {
+function PricingRuleForm({
+  rule,
+  components,
+  onClose,
+  onSuccess,
+}: PricingRuleFormProps) {
   const [formData, setFormData] = useState({
     componentId: rule?.componentId || "",
-    ruleType: (rule?.ruleType || "turnover_band") as "fixed" | "turnover_band" | "transaction_band" | "employee_band" | "per_unit",
+    ruleType: (rule?.ruleType || "turnover_band") as
+      | "fixed"
+      | "turnover_band"
+      | "transaction_band"
+      | "employee_band"
+      | "per_unit",
     minValue: rule?.minValue || "",
     maxValue: rule?.maxValue || "",
     price: rule?.price || "",
@@ -346,7 +373,9 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-  const selectedComponent = components.find((c) => c.id === formData.componentId);
+  const selectedComponent = components.find(
+    (c) => c.id === formData.componentId,
+  );
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -398,7 +427,9 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="turnover_band">Turnover Band</SelectItem>
-                <SelectItem value="transaction_band">Transaction Band</SelectItem>
+                <SelectItem value="transaction_band">
+                  Transaction Band
+                </SelectItem>
                 <SelectItem value="employee_band">Employee Band</SelectItem>
                 <SelectItem value="per_unit">Per Unit</SelectItem>
                 <SelectItem value="fixed">Fixed</SelectItem>
@@ -406,36 +437,37 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
             </Select>
           </div>
 
-          {formData.ruleType !== "fixed" && formData.ruleType !== "per_unit" && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="minValue">Minimum Value</Label>
-                <Input
-                  id="minValue"
-                  type="number"
-                  step="0.01"
-                  value={formData.minValue}
-                  onChange={(e) =>
-                    setFormData({ ...formData, minValue: e.target.value })
-                  }
-                  placeholder="0"
-                />
+          {formData.ruleType !== "fixed" &&
+            formData.ruleType !== "per_unit" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="minValue">Minimum Value</Label>
+                  <Input
+                    id="minValue"
+                    type="number"
+                    step="0.01"
+                    value={formData.minValue}
+                    onChange={(e) =>
+                      setFormData({ ...formData, minValue: e.target.value })
+                    }
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="maxValue">Maximum Value</Label>
+                  <Input
+                    id="maxValue"
+                    type="number"
+                    step="0.01"
+                    value={formData.maxValue}
+                    onChange={(e) =>
+                      setFormData({ ...formData, maxValue: e.target.value })
+                    }
+                    placeholder="999999"
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="maxValue">Maximum Value</Label>
-                <Input
-                  id="maxValue"
-                  type="number"
-                  step="0.01"
-                  value={formData.maxValue}
-                  onChange={(e) =>
-                    setFormData({ ...formData, maxValue: e.target.value })
-                  }
-                  placeholder="999999"
-                />
-              </div>
-            </div>
-          )}
+            )}
 
           <div>
             <Label htmlFor="price">
@@ -447,7 +479,9 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
               step="0.01"
               min="0"
               value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, price: e.target.value })
+              }
               placeholder="0.00"
               required
             />
@@ -455,7 +489,9 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
 
           {selectedComponent?.pricingModel !== "fixed" && (
             <div>
-              <Label htmlFor="complexityLevel">Complexity Level (Optional)</Label>
+              <Label htmlFor="complexityLevel">
+                Complexity Level (Optional)
+              </Label>
               <Select
                 value={formData.complexityLevel}
                 onValueChange={(value) =>
@@ -495,7 +531,8 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Rule will apply to values from £{Number(formData.minValue).toLocaleString()} to £
+                Rule will apply to values from £
+                {Number(formData.minValue).toLocaleString()} to £
                 {Number(formData.maxValue).toLocaleString()}
               </AlertDescription>
             </Alert>
@@ -506,7 +543,11 @@ function PricingRuleForm({ rule, components, onClose, onSuccess }: PricingRuleFo
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : rule ? "Update Rule" : "Create Rule"}
+              {isSubmitting
+                ? "Saving..."
+                : rule
+                  ? "Update Rule"
+                  : "Create Rule"}
             </Button>
           </DialogFooter>
         </form>

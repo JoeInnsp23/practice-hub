@@ -2,7 +2,6 @@
 
 import { Settings2 } from "lucide-react";
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfigurationTab } from "./components/configuration-tab";
 import { PricingRulesTab } from "./components/pricing-rules-tab";
@@ -25,7 +24,11 @@ export function PricingManagementClient() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-3 lg:w-auto">
           <TabsTrigger value="services">Service Components</TabsTrigger>
           <TabsTrigger value="rules">Pricing Rules</TabsTrigger>

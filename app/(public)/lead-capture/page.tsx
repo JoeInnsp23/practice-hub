@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
@@ -188,7 +188,7 @@ export default function LeadCapturePage() {
       businessType: formData.businessType,
       industry: formData.industry,
       estimatedTurnover: parseFloat(formData.turnover) || 0,
-      estimatedEmployees: parseInt(formData.employees) || 0,
+      estimatedEmployees: parseInt(formData.employees, 10) || 0,
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
@@ -231,7 +231,9 @@ export default function LeadCapturePage() {
                 {step < 3 && (
                   <div
                     className={`h-0.5 w-16 mx-2 ${
-                      step < currentStep ? "bg-primary" : "bg-muted-foreground/30"
+                      step < currentStep
+                        ? "bg-primary"
+                        : "bg-muted-foreground/30"
                     }`}
                   />
                 )}
@@ -303,7 +305,9 @@ export default function LeadCapturePage() {
               </div>
 
               <div>
-                <Label htmlFor="turnover">Estimated Annual Turnover (£) *</Label>
+                <Label htmlFor="turnover">
+                  Estimated Annual Turnover (£) *
+                </Label>
                 <Input
                   id="turnover"
                   type="number"

@@ -85,9 +85,9 @@ export function LeadThankYouEmail({
           </Section>
 
           <Text style={text}>
-            If you have any urgent questions or need immediate assistance, please
-            don't hesitate to contact us directly at hello@innspiredaccountancy.com
-            or call us at +44 1234 567890.
+            If you have any urgent questions or need immediate assistance,
+            please don't hesitate to contact us directly at
+            hello@innspiredaccountancy.com or call us at +44 1234 567890.
           </Text>
 
           <Hr style={hr} />

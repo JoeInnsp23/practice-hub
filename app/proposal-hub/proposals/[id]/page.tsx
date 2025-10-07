@@ -171,7 +171,11 @@ export default function ProposalDetailPage({
             disabled={isGeneratingPdf}
           >
             <Download className="h-4 w-4 mr-2" />
-            {isGeneratingPdf ? "Generating..." : proposalData.pdfUrl ? "Download PDF" : "Generate PDF"}
+            {isGeneratingPdf
+              ? "Generating..."
+              : proposalData.pdfUrl
+                ? "Download PDF"
+                : "Generate PDF"}
           </Button>
         </div>
       </div>
@@ -458,7 +462,11 @@ export default function ProposalDetailPage({
                 disabled={isGeneratingPdf}
               >
                 <Download className="h-4 w-4 mr-2" />
-                {isGeneratingPdf ? "Generating..." : proposalData.pdfUrl ? "Download PDF" : "Generate PDF"}
+                {isGeneratingPdf
+                  ? "Generating..."
+                  : proposalData.pdfUrl
+                    ? "Download PDF"
+                    : "Generate PDF"}
               </Button>
               {proposalData.status !== "signed" && (
                 <Button

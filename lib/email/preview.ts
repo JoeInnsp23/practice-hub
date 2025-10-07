@@ -3,23 +3,23 @@ import { InvitationEmail } from "@/emails/invitation-email";
 
 // Email preview generator - returns HTML string for preview
 export interface InvitationEmailPreviewParams {
-	email: string;
-	invitedByName: string;
-	organizationName: string;
-	customMessage?: string;
+  email: string;
+  invitedByName: string;
+  organizationName: string;
+  customMessage?: string;
 }
 
 export async function generateInvitationEmailPreview(
-	params: InvitationEmailPreviewParams,
+  params: InvitationEmailPreviewParams,
 ): Promise<string> {
-	const html = await render(
-		InvitationEmail({
-			invitedByName: params.invitedByName,
-			organizationName: params.organizationName,
-			inviteLink: "[Your Invitation Link]",
-			customMessage: params.customMessage,
-		}),
-	);
+  const html = await render(
+    InvitationEmail({
+      invitedByName: params.invitedByName,
+      organizationName: params.organizationName,
+      inviteLink: "[Your Invitation Link]",
+      customMessage: params.customMessage,
+    }),
+  );
 
-	return html;
+  return html;
 }

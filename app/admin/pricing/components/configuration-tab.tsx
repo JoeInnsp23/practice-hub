@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  AlertCircle,
-  Download,
-  RefreshCcw,
-  Save,
-  Upload,
-} from "lucide-react";
+import { AlertCircle, Download, RefreshCcw, Save } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -25,12 +19,16 @@ import {
 
 export function ConfigurationTab() {
   const { data, isLoading, refetch } = trpc.pricingConfig.getConfig.useQuery();
-  const updateComplexityMutation = trpc.pricingConfig.updateComplexityMultipliers.useMutation();
-  const updateIndustryMutation = trpc.pricingConfig.updateIndustryMultipliers.useMutation();
-  const updateDiscountsMutation = trpc.pricingConfig.updateDiscountRules.useMutation();
-  const updateGlobalMutation = trpc.pricingConfig.updateGlobalSettings.useMutation();
+  const updateComplexityMutation =
+    trpc.pricingConfig.updateComplexityMultipliers.useMutation();
+  const updateIndustryMutation =
+    trpc.pricingConfig.updateIndustryMultipliers.useMutation();
+  const updateDiscountsMutation =
+    trpc.pricingConfig.updateDiscountRules.useMutation();
+  const updateGlobalMutation =
+    trpc.pricingConfig.updateGlobalSettings.useMutation();
   const resetMutation = trpc.pricingConfig.resetToDefaults.useMutation();
-  const exportMutation = trpc.pricingConfig.exportConfig.useQuery(undefined, {
+  const _exportMutation = trpc.pricingConfig.exportConfig.useQuery(undefined, {
     enabled: false,
   });
 
@@ -64,7 +62,9 @@ export function ConfigurationTab() {
         model,
         multipliers: model === "modelA" ? complexityA : complexityB,
       });
-      toast.success(`${model === "modelA" ? "Model A" : "Model B"} complexity multipliers saved`);
+      toast.success(
+        `${model === "modelA" ? "Model A" : "Model B"} complexity multipliers saved`,
+      );
       refetch();
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -215,8 +215,14 @@ export function ConfigurationTab() {
                 }
               />
               <p className="text-xs text-muted-foreground mt-1">
-                {(complexityA[level as keyof typeof complexityA] * 100 - 100) > 0 ? "+" : ""}
-                {((complexityA[level as keyof typeof complexityA] - 1) * 100).toFixed(0)}%
+                {complexityA[level as keyof typeof complexityA] * 100 - 100 > 0
+                  ? "+"
+                  : ""}
+                {(
+                  (complexityA[level as keyof typeof complexityA] - 1) *
+                  100
+                ).toFixed(0)}
+                %
               </p>
             </div>
           ))}
@@ -261,8 +267,14 @@ export function ConfigurationTab() {
                 }
               />
               <p className="text-xs text-muted-foreground mt-1">
-                {(complexityB[level as keyof typeof complexityB] * 100 - 100) > 0 ? "+" : ""}
-                {((complexityB[level as keyof typeof complexityB] - 1) * 100).toFixed(0)}%
+                {complexityB[level as keyof typeof complexityB] * 100 - 100 > 0
+                  ? "+"
+                  : ""}
+                {(
+                  (complexityB[level as keyof typeof complexityB] - 1) *
+                  100
+                ).toFixed(0)}
+                %
               </p>
             </div>
           ))}
@@ -305,8 +317,13 @@ export function ConfigurationTab() {
                 }
               />
               <p className="text-xs text-muted-foreground mt-1">
-                {(industry[type as keyof typeof industry] * 100 - 100) > 0 ? "+" : ""}
-                {((industry[type as keyof typeof industry] - 1) * 100).toFixed(0)}%
+                {industry[type as keyof typeof industry] * 100 - 100 > 0
+                  ? "+"
+                  : ""}
+                {((industry[type as keyof typeof industry] - 1) * 100).toFixed(
+                  0,
+                )}
+                %
               </p>
             </div>
           ))}
@@ -331,7 +348,9 @@ export function ConfigurationTab() {
         <div className="space-y-6">
           {/* Volume Tier 1 */}
           <div>
-            <Label className="text-base font-semibold">Volume Discount Tier 1</Label>
+            <Label className="text-base font-semibold">
+              Volume Discount Tier 1
+            </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <Label htmlFor="volume1-threshold">Threshold (£/month)</Label>
@@ -375,7 +394,9 @@ export function ConfigurationTab() {
 
           {/* Volume Tier 2 */}
           <div>
-            <Label className="text-base font-semibold">Volume Discount Tier 2</Label>
+            <Label className="text-base font-semibold">
+              Volume Discount Tier 2
+            </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <Label htmlFor="volume2-threshold">Threshold (£/month)</Label>
@@ -396,7 +417,9 @@ export function ConfigurationTab() {
                 />
               </div>
               <div>
-                <Label htmlFor="volume2-percentage">Additional Discount (%)</Label>
+                <Label htmlFor="volume2-percentage">
+                  Additional Discount (%)
+                </Label>
                 <Input
                   id="volume2-percentage"
                   type="number"
@@ -443,7 +466,9 @@ export function ConfigurationTab() {
 
           {/* New Client Discount */}
           <div>
-            <Label className="text-base font-semibold">New Client Discount</Label>
+            <Label className="text-base font-semibold">
+              New Client Discount
+            </Label>
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <Label htmlFor="newclient-percentage">Discount (%)</Label>
@@ -590,8 +615,8 @@ export function ConfigurationTab() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Changes to pricing configuration will affect all new quotes immediately. Existing
-          proposals will not be updated.
+          Changes to pricing configuration will affect all new quotes
+          immediately. Existing proposals will not be updated.
         </AlertDescription>
       </Alert>
     </div>

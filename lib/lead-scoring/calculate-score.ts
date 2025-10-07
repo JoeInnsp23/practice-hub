@@ -134,7 +134,10 @@ export function calculateLeadScore(input: LeadScoringInput): number {
     businessTypeScore;
 
   // Scale from 11-point range to 10-point range and ensure minimum of 1
-  const normalizedScore = Math.max(1, Math.min(10, Math.ceil((rawScore / 11) * 10)));
+  const normalizedScore = Math.max(
+    1,
+    Math.min(10, Math.ceil((rawScore / 11) * 10)),
+  );
 
   return normalizedScore;
 }

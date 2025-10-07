@@ -32,7 +32,12 @@ export interface UploadOptions {
  * @returns Public URL of the uploaded file
  */
 export async function uploadToS3(options: UploadOptions): Promise<string> {
-  const { fileName, buffer, contentType = "application/pdf", metadata } = options;
+  const {
+    fileName,
+    buffer,
+    contentType = "application/pdf",
+    metadata,
+  } = options;
 
   try {
     const command = new PutObjectCommand({
@@ -54,7 +59,9 @@ export async function uploadToS3(options: UploadOptions): Promise<string> {
     return publicUrl;
   } catch (error) {
     console.error("Error uploading to S3:", error);
-    throw new Error(`Failed to upload file to S3: ${error instanceof Error ? error.message : "Unknown error"}`);
+    throw new Error(
+      `Failed to upload file to S3: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -78,7 +85,9 @@ export async function getPresignedUrl(
     return url;
   } catch (error) {
     console.error("Error generating presigned URL:", error);
-    throw new Error(`Failed to generate presigned URL: ${error instanceof Error ? error.message : "Unknown error"}`);
+    throw new Error(
+      `Failed to generate presigned URL: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -96,7 +105,9 @@ export async function deleteFromS3(fileName: string): Promise<void> {
     await s3Client.send(command);
   } catch (error) {
     console.error("Error deleting from S3:", error);
-    throw new Error(`Failed to delete file from S3: ${error instanceof Error ? error.message : "Unknown error"}`);
+    throw new Error(
+      `Failed to delete file from S3: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -127,6 +138,8 @@ export async function getFromS3(fileName: string): Promise<Buffer> {
     return Buffer.concat(chunks);
   } catch (error) {
     console.error("Error retrieving from S3:", error);
-    throw new Error(`Failed to retrieve file from S3: ${error instanceof Error ? error.message : "Unknown error"}`);
+    throw new Error(
+      `Failed to retrieve file from S3: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

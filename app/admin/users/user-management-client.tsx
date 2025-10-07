@@ -206,7 +206,10 @@ export function UserManagementClient({
             Manage team members and their permissions
           </p>
         </div>
-        <Button onClick={() => router.push("/admin/invitations")} className="gap-2">
+        <Button
+          onClick={() => router.push("/admin/invitations")}
+          className="gap-2"
+        >
           <UserPlus className="h-4 w-4" />
           Invite User
         </Button>

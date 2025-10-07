@@ -1,23 +1,20 @@
-import { Resend } from "resend";
 import { render } from "@react-email/components";
 import { eq } from "drizzle-orm";
+import { Resend } from "resend";
 import { db } from "@/lib/db";
 import { proposals } from "@/lib/db/schema";
-import { getFromS3 } from "@/lib/storage/s3";
 import { ProposalSentEmail } from "./templates/proposal-sent";
-import {
-  ProposalSignedClientEmail,
-} from "./templates/proposal-signed-client";
-import {
-  ProposalSignedTeamEmail,
-} from "./templates/proposal-signed-team";
+import { ProposalSignedClientEmail } from "./templates/proposal-signed-client";
+import { ProposalSignedTeamEmail } from "./templates/proposal-signed-team";
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Configuration
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "proposals@innspiredaccountancy.com";
-const TEAM_EMAIL = process.env.RESEND_TEAM_EMAIL || "team@innspiredaccountancy.com";
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "proposals@innspiredaccountancy.com";
+const TEAM_EMAIL =
+  process.env.RESEND_TEAM_EMAIL || "team@innspiredaccountancy.com";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const COMPANY_NAME = "Innspired Accountancy";
 
@@ -75,7 +72,9 @@ export async function sendProposalEmail(
 
     // 4. Prepare PDF attachment
     // Extract filename from URL
-    const pdfFileName = proposal.pdfUrl.split("/").pop() || `proposal-${proposal.proposalNumber}.pdf`;
+    const _pdfFileName =
+      proposal.pdfUrl.split("/").pop() ||
+      `proposal-${proposal.proposalNumber}.pdf`;
 
     // 5. Send email with Resend
     const { data, error } = await resend.emails.send({

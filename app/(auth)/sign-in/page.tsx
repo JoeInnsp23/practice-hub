@@ -172,11 +172,7 @@ function SignInFormContent() {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 pt-2">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
 

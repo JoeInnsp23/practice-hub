@@ -4,8 +4,8 @@ import { db } from "@/lib/db";
 import { proposalServices, proposals } from "@/lib/db/schema";
 import { uploadToS3 } from "@/lib/storage/s3";
 import {
-  ProposalDocument,
   type ProposalData,
+  ProposalDocument,
   type ProposalService,
 } from "./proposal-template";
 
@@ -140,8 +140,8 @@ export async function regenerateProposalPdf(
  * (To be implemented for e-signature workflow)
  */
 export async function generateSignedProposalPdf(
-  proposalId: string,
-  signatureData: {
+  _proposalId: string,
+  _signatureData: {
     signerName: string;
     signerEmail: string;
     signatureImageUrl: string;

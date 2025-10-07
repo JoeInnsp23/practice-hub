@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Mail, Phone, Clock } from "lucide-react";
+import { CheckCircle2, Clock, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -41,7 +41,9 @@ export default function ThankYouPage() {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">We Review Your Information</h3>
+                <h3 className="font-semibold mb-1">
+                  We Review Your Information
+                </h3>
                 <p className="text-sm text-muted-foreground">
                   Our team will review your requirements and prepare a custom
                   proposal tailored to your business needs.
@@ -56,7 +58,9 @@ export default function ThankYouPage() {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">You'll Receive Your Proposal</h3>
+                <h3 className="font-semibold mb-1">
+                  You'll Receive Your Proposal
+                </h3>
                 <p className="text-sm text-muted-foreground">
                   Within 24-48 hours, we'll send you a detailed proposal
                   including pricing and service breakdown.
@@ -71,7 +75,9 @@ export default function ThankYouPage() {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Schedule a Discovery Call</h3>
+                <h3 className="font-semibold mb-1">
+                  Schedule a Discovery Call
+                </h3>
                 <p className="text-sm text-muted-foreground">
                   We'll reach out to schedule a call to discuss your proposal,
                   answer any questions, and refine the details.
@@ -128,13 +134,21 @@ export default function ThankYouPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button variant="outline" className="flex items-center gap-2" asChild>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              asChild
+            >
               <a href="mailto:hello@innspiredaccountancy.com">
                 <Mail className="h-4 w-4" />
                 Email Us
               </a>
             </Button>
-            <Button variant="outline" className="flex items-center gap-2" asChild>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              asChild
+            >
               <a href="tel:+441234567890">
                 <Phone className="h-4 w-4" />
                 Call Us

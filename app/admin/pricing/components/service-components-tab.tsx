@@ -70,10 +70,12 @@ export function ServiceComponentsTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
-  const [editingComponent, setEditingComponent] = useState<ServiceComponent | null>(null);
+  const [editingComponent, setEditingComponent] =
+    useState<ServiceComponent | null>(null);
 
-  const { data, isLoading, refetch } = trpc.pricingAdmin.getAllComponents.useQuery();
-  const createMutation = trpc.pricingAdmin.createComponent.useMutation();
+  const { data, isLoading, refetch } =
+    trpc.pricingAdmin.getAllComponents.useQuery();
+  const _createMutation = trpc.pricingAdmin.createComponent.useMutation();
   const updateMutation = trpc.pricingAdmin.updateComponent.useMutation();
   const deleteMutation = trpc.pricingAdmin.deleteComponent.useMutation();
   const cloneMutation = trpc.pricingAdmin.cloneComponent.useMutation();
@@ -85,7 +87,8 @@ export function ServiceComponentsTab() {
     const matchesSearch =
       comp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       comp.code.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || comp.category === categoryFilter;
+    const matchesCategory =
+      categoryFilter === "all" || comp.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
@@ -154,10 +157,7 @@ export function ServiceComponentsTab() {
     }
   };
 
-  const categories = [
-    "all",
-    ...new Set(components.map((c) => c.category)),
-  ];
+  const categories = ["all", ...new Set(components.map((c) => c.category))];
 
   return (
     <>
@@ -167,7 +167,8 @@ export function ServiceComponentsTab() {
           <div>
             <h2 className="text-2xl font-semibold">Service Components</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {stats.total} total • {stats.active} active • {stats.inactive} inactive
+              {stats.total} total • {stats.active} active • {stats.inactive}{" "}
+              inactive
             </p>
           </div>
           <Button onClick={handleCreate}>
@@ -236,7 +237,9 @@ export function ServiceComponentsTab() {
                     <TableCell className="font-mono text-xs">
                       {component.code}
                     </TableCell>
-                    <TableCell className="font-medium">{component.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {component.name}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{component.category}</Badge>
                     </TableCell>
@@ -264,11 +267,15 @@ export function ServiceComponentsTab() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(component)}>
+                          <DropdownMenuItem
+                            onClick={() => handleEdit(component)}
+                          >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleClone(component)}>
+                          <DropdownMenuItem
+                            onClick={() => handleClone(component)}
+                          >
                             <Copy className="h-4 w-4 mr-2" />
                             Clone
                           </DropdownMenuItem>
@@ -331,16 +338,37 @@ interface ServiceComponentFormProps {
   onSuccess: () => void;
 }
 
-function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponentFormProps) {
+function ServiceComponentForm({
+  component,
+  onClose,
+  onSuccess,
+}: ServiceComponentFormProps) {
   const [formData, setFormData] = useState({
     code: component?.code || "",
     name: component?.name || "",
-    category: (component?.category || "compliance") as "compliance" | "vat" | "bookkeeping" | "payroll" | "management" | "secretarial" | "tax_planning" | "addon",
+    category: (component?.category || "compliance") as
+      | "compliance"
+      | "vat"
+      | "bookkeeping"
+      | "payroll"
+      | "management"
+      | "secretarial"
+      | "tax_planning"
+      | "addon",
     description: component?.description || "",
-    pricingModel: (component?.pricingModel || "fixed") as "fixed" | "turnover" | "transaction" | "both",
+    pricingModel: (component?.pricingModel || "fixed") as
+      | "fixed"
+      | "turnover"
+      | "transaction"
+      | "both",
     basePrice: component?.basePrice || "",
     price: component?.price || "",
-    priceType: (component?.priceType || "fixed") as "fixed" | "hourly" | "retainer" | "project" | "percentage",
+    priceType: (component?.priceType || "fixed") as
+      | "fixed"
+      | "hourly"
+      | "retainer"
+      | "project"
+      | "percentage",
     supportsComplexity: component?.supportsComplexity || false,
     isActive: component?.isActive ?? true,
   });
@@ -388,13 +416,19 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="code">
-                Code * <span className="text-xs text-muted-foreground">(e.g., COMP_ACCOUNTS)</span>
+                Code *{" "}
+                <span className="text-xs text-muted-foreground">
+                  (e.g., COMP_ACCOUNTS)
+                </span>
               </Label>
               <Input
                 id="code"
                 value={formData.code}
                 onChange={(e) =>
-                  setFormData({ ...formData, code: e.target.value.toUpperCase() })
+                  setFormData({
+                    ...formData,
+                    code: e.target.value.toUpperCase(),
+                  })
                 }
                 placeholder="COMP_ACCOUNTS"
                 required
@@ -406,7 +440,9 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
               <Label htmlFor="category">Category *</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category: value })
+                }
               >
                 <SelectTrigger id="category">
                   <SelectValue />
@@ -430,7 +466,9 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="Annual Accounts & Corporation Tax"
               required
             />
@@ -441,7 +479,9 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Year-end accounts preparation and Corporation Tax return filing"
               rows={3}
             />
@@ -466,7 +506,9 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
                   <SelectItem value="fixed">Fixed</SelectItem>
                   <SelectItem value="turnover">Turnover-Based</SelectItem>
                   <SelectItem value="transaction">Transaction-Based</SelectItem>
-                  <SelectItem value="both">Both (Turnover & Transaction)</SelectItem>
+                  <SelectItem value="both">
+                    Both (Turnover & Transaction)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -497,11 +539,17 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
               id="supportsComplexity"
               checked={formData.supportsComplexity}
               onChange={(e) =>
-                setFormData({ ...formData, supportsComplexity: e.target.checked })
+                setFormData({
+                  ...formData,
+                  supportsComplexity: e.target.checked,
+                })
               }
               className="h-4 w-4"
             />
-            <Label htmlFor="supportsComplexity" className="font-normal cursor-pointer">
+            <Label
+              htmlFor="supportsComplexity"
+              className="font-normal cursor-pointer"
+            >
               Supports Complexity Multipliers
             </Label>
           </div>
@@ -523,13 +571,14 @@ function ServiceComponentForm({ component, onClose, onSuccess }: ServiceComponen
 
           {formData.pricingModel !== "fixed" &&
             formData.pricingModel !== "turnover" && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                You'll need to create pricing rules for this component after saving.
-              </AlertDescription>
-            </Alert>
-          )}
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  You'll need to create pricing rules for this component after
+                  saving.
+                </AlertDescription>
+              </Alert>
+            )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

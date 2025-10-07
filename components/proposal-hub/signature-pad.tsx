@@ -63,9 +63,7 @@ export function SignaturePad({ onSave, disabled = false }: SignaturePadProps) {
 
           {isEmpty && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <p className="text-muted-foreground text-sm">
-                Sign here
-              </p>
+              <p className="text-muted-foreground text-sm">Sign here</p>
             </div>
           )}
         </div>

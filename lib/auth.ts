@@ -1,7 +1,7 @@
+import bcrypt from "bcryptjs";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { organization } from "better-auth/plugins";
-import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 

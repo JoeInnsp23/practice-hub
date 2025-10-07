@@ -1040,13 +1040,38 @@ async function seedDatabase() {
 
   // PAYROLL_STANDARD - Employee count based pricing (Monthly frequency base)
   const payrollEmployeeBands = [
-    { minEmployees: 1, maxEmployees: 1, price: 18, description: "Director only" },
+    {
+      minEmployees: 1,
+      maxEmployees: 1,
+      price: 18,
+      description: "Director only",
+    },
     { minEmployees: 2, maxEmployees: 2, price: 35, description: "2 employees" },
     { minEmployees: 3, maxEmployees: 3, price: 50, description: "3 employees" },
-    { minEmployees: 4, maxEmployees: 5, price: 65, description: "4-5 employees" },
-    { minEmployees: 6, maxEmployees: 10, price: 90, description: "6-10 employees" },
-    { minEmployees: 11, maxEmployees: 15, price: 130, description: "11-15 employees" },
-    { minEmployees: 16, maxEmployees: 20, price: 170, description: "16-20 employees" },
+    {
+      minEmployees: 4,
+      maxEmployees: 5,
+      price: 65,
+      description: "4-5 employees",
+    },
+    {
+      minEmployees: 6,
+      maxEmployees: 10,
+      price: 90,
+      description: "6-10 employees",
+    },
+    {
+      minEmployees: 11,
+      maxEmployees: 15,
+      price: 130,
+      description: "11-15 employees",
+    },
+    {
+      minEmployees: 16,
+      maxEmployees: 20,
+      price: 170,
+      description: "16-20 employees",
+    },
   ];
 
   payrollEmployeeBands.forEach((band) => {

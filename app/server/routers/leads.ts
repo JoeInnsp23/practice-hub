@@ -216,7 +216,9 @@ export const leadsRouter = router({
         position: z.string().optional(),
 
         // Services
-        interestedServices: z.array(z.string()).min(1, "At least one service is required"),
+        interestedServices: z
+          .array(z.string())
+          .min(1, "At least one service is required"),
         notes: z.string().optional(),
       }),
     )

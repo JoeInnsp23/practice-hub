@@ -27,10 +27,7 @@ export const usersRouter = router({
       z.object({
         search: z.string().optional(),
         role: z
-          .union([
-            z.enum(["member", "admin", "accountant"]),
-            z.literal("all"),
-          ])
+          .union([z.enum(["member", "admin", "accountant"]), z.literal("all")])
           .optional(),
       }),
     )
