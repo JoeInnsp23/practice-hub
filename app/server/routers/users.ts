@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { activityLogs, users } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
@@ -284,5 +285,63 @@ export const usersRouter = router({
       });
 
       return { success: true, user: updatedUser };
+    }),
+
+  sendPasswordReset: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const {
+        tenantId,
+        userId: adminUserId,
+        firstName,
+        lastName,
+      } = ctx.authContext;
+
+      // Check user exists and belongs to tenant
+      const targetUser = await db
+        .select()
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, tenantId)))
+        .limit(1);
+
+      if (!targetUser[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      // Send password reset email using Better Auth
+      try {
+        await auth.api.forgetPassword({
+          body: {
+            email: targetUser[0].email,
+            redirectTo: "/reset-password",
+          },
+        });
+
+        // Log the activity
+        await db.insert(activityLogs).values({
+          tenantId,
+          entityType: "user",
+          entityId: input.userId,
+          action: "password_reset_sent",
+          description: `Sent password reset email to ${targetUser[0].firstName} ${targetUser[0].lastName}`,
+          userId: adminUserId,
+          userName: `${firstName} ${lastName}`,
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to send password reset email:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send password reset email",
+        });
+      }
     }),
 });
