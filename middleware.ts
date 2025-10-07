@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
-const publicPaths = ["/", "/sign-in", "/sign-up"];
+const publicPaths = ["/", "/sign-in", "/sign-up", "/accept-invitation"];
 const authApiPath = "/api/auth";
 
 export default async function middleware(request: NextRequest) {
@@ -9,6 +9,11 @@ export default async function middleware(request: NextRequest) {
 
   // Allow public routes
   if (publicPaths.some((path) => pathname === path)) {
+    return NextResponse.next();
+  }
+
+  // Allow accept-invitation with token parameter
+  if (pathname.startsWith("/accept-invitation/")) {
     return NextResponse.next();
   }
 

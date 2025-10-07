@@ -42,10 +42,7 @@ const isAdmin = t.middleware(({ next, ctx }) => {
   }
 
   // Check for admin role
-  if (
-    ctx.authContext.role !== "admin" &&
-    ctx.authContext.role !== "org:admin"
-  ) {
+  if (ctx.authContext.role !== "admin") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Admin access required",

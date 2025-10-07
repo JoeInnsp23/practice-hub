@@ -8,7 +8,7 @@ import { activityLogs, users } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Role enum for filtering
-const _userRoleEnum = z.enum(["admin", "member", "readonly", "org:admin"]);
+const _userRoleEnum = z.enum(["admin", "accountant", "member"]);
 
 // Generate schema from Drizzle table definition
 const insertUserSchema = createInsertSchema(users);
@@ -28,7 +28,7 @@ export const usersRouter = router({
         search: z.string().optional(),
         role: z
           .union([
-            z.enum(["member", "admin", "org:admin", "readonly"]),
+            z.enum(["member", "admin", "accountant"]),
             z.literal("all"),
           ])
           .optional(),
@@ -241,7 +241,7 @@ export const usersRouter = router({
     .input(
       z.object({
         id: z.string(),
-        role: z.enum(["admin", "member", "readonly", "org:admin"]),
+        role: z.enum(["admin", "accountant", "member"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {

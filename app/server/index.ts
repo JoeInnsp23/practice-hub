@@ -1,6 +1,7 @@
 import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
+import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
 import { onboardingRouter } from "./routers/onboarding";
@@ -33,6 +34,7 @@ export const appRouter = router({
   transactionData: transactionDataRouter,
   leads: leadsRouter,
   onboarding: onboardingRouter,
+  invitations: invitationsRouter,
 });
 
 export type AppRouter = typeof appRouter;

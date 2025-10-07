@@ -108,6 +108,40 @@ export const verifications = pgTable("verification", {
     .notNull(),
 });
 
+// Invitations table - for user invitations from admins
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    email: text("email").notNull(),
+    role: varchar("role", { length: 50 }).default("member").notNull(), // admin, accountant, member
+    token: text("token").notNull().unique(),
+    invitedBy: text("invited_by")
+      .references(() => users.id)
+      .notNull(),
+    customMessage: text("custom_message"), // Optional personalized message from admin
+    status: varchar("status", { length: 20 }).default("pending").notNull(), // pending, accepted, expired, cancelled
+    expiresAt: timestamp("expires_at").notNull(),
+    acceptedAt: timestamp("accepted_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tokenIdx: uniqueIndex("idx_invitation_token").on(table.token),
+    emailTenantIdx: index("idx_invitation_email_tenant").on(
+      table.email,
+      table.tenantId,
+    ),
+    statusIdx: index("idx_invitation_status").on(table.status),
+  }),
+);
+
 // Feedback table - for user feedback and issues
 export const feedback = pgTable(
   "feedback",

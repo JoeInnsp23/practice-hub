@@ -113,7 +113,7 @@ export function UserDetailsClient({
   const handleUpdateRole = () => {
     updateRoleMutation.mutate({
       id: user.id,
-      role: selectedRole as "admin" | "member" | "readonly" | "org:admin",
+      role: selectedRole as "admin" | "accountant" | "member",
     });
   };
 
@@ -128,10 +128,8 @@ export function UserDetailsClient({
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "admin":
-      case "org:admin":
         return "destructive";
       case "accountant":
-      case "org:accountant":
         return "secondary";
       default:
         return "outline";
@@ -343,7 +341,6 @@ export function UserDetailsClient({
                 <SelectContent>
                   <SelectItem value="member">Member</SelectItem>
                   <SelectItem value="accountant">Accountant</SelectItem>
-                  <SelectItem value="org:admin">Organization Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>

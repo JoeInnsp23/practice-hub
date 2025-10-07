@@ -62,7 +62,7 @@ import { formatDistanceToNow } from "date-fns";
 
 const invitationFormSchema = z.object({
 	email: z.string().email("Please enter a valid email address"),
-	role: z.enum(["admin", "org:admin", "accountant", "member"]),
+	role: z.enum(["admin", "accountant", "member"]),
 	customMessage: z.string().optional(),
 });
 
@@ -172,8 +172,6 @@ export default function InvitationsPage() {
 	const getRoleBadge = (role: string): React.ReactNode => {
 		const roleColors = {
 			admin: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-			"org:admin":
-				"bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
 			accountant:
 				"bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100",
 			member:
@@ -182,7 +180,6 @@ export default function InvitationsPage() {
 
 		const roleLabels = {
 			admin: "Admin",
-			"org:admin": "Organization Admin",
 			accountant: "Accountant",
 			member: "Member",
 		};
@@ -292,9 +289,6 @@ export default function InvitationsPage() {
 													<SelectItem value="member">Member</SelectItem>
 													<SelectItem value="accountant">
 														Accountant
-													</SelectItem>
-													<SelectItem value="org:admin">
-														Organization Admin
 													</SelectItem>
 													<SelectItem value="admin">Admin</SelectItem>
 												</SelectContent>

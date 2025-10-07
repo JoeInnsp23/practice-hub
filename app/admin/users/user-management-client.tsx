@@ -94,9 +94,7 @@ export function UserManagementClient({
     return {
       total: users.length,
       active: users.filter((u: User) => u.isActive).length,
-      admins: users.filter(
-        (u: User) => u.role === "admin" || u.role === "org:admin",
-      ).length,
+      admins: users.filter((u: User) => u.role === "admin").length,
       accountants: users.filter(
         (u: User) => u.role === "accountant" || u.role === "org:accountant",
       ).length,
@@ -179,10 +177,8 @@ export function UserManagementClient({
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "admin":
-      case "org:admin":
         return "destructive";
       case "accountant":
-      case "org:accountant":
         return "secondary";
       default:
         return "outline";
@@ -330,8 +326,7 @@ export function UserManagementClient({
                   </TableCell>
                   <TableCell>
                     <Badge variant={getRoleBadgeVariant(user.role)}>
-                      {(user.role === "admin" ||
-                        user.role === "org:admin") && (
+                      {user.role === "admin" && (
                         <Shield className="h-3 w-3 mr-1" />
                       )}
                       {getDisplayRole(user.role)}

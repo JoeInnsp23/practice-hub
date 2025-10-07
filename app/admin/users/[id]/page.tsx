@@ -16,7 +16,7 @@ export default async function UserDetailsPage({ params }: PageProps) {
     redirect("/sign-in");
   }
 
-  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
+  if (authContext.role !== "admin") {
     redirect("/");
   }
 

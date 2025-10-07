@@ -26,6 +26,26 @@ export const auth = betterAuth({
         return await bcrypt.compare(password, hash);
       },
     },
+    sendResetPassword: async ({ user, url }) => {
+      const { sendPasswordResetEmail } = await import("@/lib/email");
+      await sendPasswordResetEmail({
+        email: user.email,
+        userName: user.name,
+        resetLink: url,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const { sendVerificationEmail } = await import("@/lib/email");
+      await sendVerificationEmail({
+        email: user.email,
+        userName: user.name,
+        verificationLink: url,
+      });
+    },
+    autoSignInAfterVerification: true,
   },
   socialProviders: {
     microsoft: {
@@ -125,8 +145,7 @@ export async function requireAuth(): Promise<AuthContext> {
 export async function requireAdmin(): Promise<AuthContext> {
   const authContext = await requireAuth();
 
-  // Check for both old and new admin role formats
-  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
+  if (authContext.role !== "admin") {
     throw new Error("Forbidden: Admin access required");
   }
 

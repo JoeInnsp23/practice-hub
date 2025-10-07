@@ -139,24 +139,14 @@ export function EditUserDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="org:admin">
+                  <SelectItem value="admin">
                     <div className="flex items-center gap-2">
                       <Shield className="h-3 w-3" />
                       Admin
                     </div>
                   </SelectItem>
-                  <SelectItem value="org:accountant">Accountant</SelectItem>
-                  <SelectItem value="org:member">Member</SelectItem>
-                  {/* Support old format too */}
-                  <SelectItem value="admin" className="hidden">
-                    Admin (old)
-                  </SelectItem>
-                  <SelectItem value="accountant" className="hidden">
-                    Accountant (old)
-                  </SelectItem>
-                  <SelectItem value="member" className="hidden">
-                    Member (old)
-                  </SelectItem>
+                  <SelectItem value="accountant">Accountant</SelectItem>
+                  <SelectItem value="member">Member</SelectItem>
                 </SelectContent>
               </Select>
             </div>

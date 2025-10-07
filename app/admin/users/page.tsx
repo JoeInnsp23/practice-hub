@@ -24,18 +24,13 @@ export default async function UserManagementPage() {
     .from(users)
     .where(eq(users.tenantId, authContext.tenantId));
 
-  // Calculate stats (checking both old and new role formats)
+  // Calculate stats
   const stats = {
     total: allUsers.length,
     active: allUsers.filter((u) => u.isActive).length,
-    admins: allUsers.filter((u) => u.role === "admin" || u.role === "org:admin")
-      .length,
-    accountants: allUsers.filter(
-      (u) => u.role === "accountant" || u.role === "org:accountant",
-    ).length,
-    members: allUsers.filter(
-      (u) => u.role === "member" || u.role === "org:member",
-    ).length,
+    admins: allUsers.filter((u) => u.role === "admin").length,
+    accountants: allUsers.filter((u) => u.role === "accountant").length,
+    members: allUsers.filter((u) => u.role === "member").length,
   };
 
   return (

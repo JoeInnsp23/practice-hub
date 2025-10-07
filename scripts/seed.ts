@@ -12,6 +12,7 @@ import {
   clients,
   compliance,
   documents,
+  invitations,
   invoiceItems,
   invoices,
   leads,
@@ -64,6 +65,7 @@ async function clearDatabase() {
   await db.delete(portalLinks);
   await db.delete(portalCategories);
 
+  await db.delete(invitations);
   await db.delete(users);
   await db.delete(tenants);
 
@@ -92,7 +94,7 @@ async function seedDatabase() {
       firstName: "Joe",
       lastName: "Test",
       name: "Joe Test",
-      role: "org:admin",
+      role: "admin",
       hourlyRate: "150",
       emailVerified: true,
     },
@@ -139,7 +141,30 @@ async function seedDatabase() {
 
   const [adminUser, _sarah, _mike, _emily] = createdUsers;
 
-  // 2.5. Create Portal Categories and Links
+  // 2.5. Create Invitations
+  console.log("Creating invitations...");
+  await db.insert(invitations).values([
+    {
+      tenantId: tenant.id,
+      email: "newuser@example.com",
+      role: "accountant",
+      token: crypto.randomBytes(32).toString("hex"),
+      invitedBy: adminUser.id,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    },
+    {
+      tenantId: tenant.id,
+      email: "teammember@example.com",
+      role: "member",
+      token: crypto.randomBytes(32).toString("hex"),
+      invitedBy: adminUser.id,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    },
+  ]);
+
+  // 2.6. Create Portal Categories and Links
   console.log("Creating portal categories and links...");
 
   // Create Portal Categories

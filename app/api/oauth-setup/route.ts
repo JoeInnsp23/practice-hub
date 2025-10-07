@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         firstName: userFirstName,
         lastName: userLastName,
         name: session.user.name || `${userFirstName} ${userLastName}`,
-        role: "org:admin", // First user is admin
+        role: "admin", // First user is admin
       })
       .where(eq(users.id, session.user.id));
 
