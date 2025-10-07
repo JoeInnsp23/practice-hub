@@ -37,7 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/lib/trpc/client";
+import { trpc } from "@/app/providers/trpc-provider";
 import { IconPicker } from "./icon-picker";
 import { getIconComponent } from "./icon-utils";
 
@@ -76,11 +76,11 @@ export function CategoryManagement() {
     data: categories,
     isLoading,
     refetch,
-  } = api.portal.getCategories.useQuery();
-  const createMutation = api.portal.createCategory.useMutation();
-  const updateMutation = api.portal.updateCategory.useMutation();
-  const deleteMutation = api.portal.deleteCategory.useMutation();
-  const reorderMutation = api.portal.reorderCategories.useMutation();
+  } = trpc.portal.getCategories.useQuery();
+  const createMutation = trpc.portal.createCategory.useMutation();
+  const updateMutation = trpc.portal.updateCategory.useMutation();
+  const deleteMutation = trpc.portal.deleteCategory.useMutation();
+  const reorderMutation = trpc.portal.reorderCategories.useMutation();
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categoryFormSchema),

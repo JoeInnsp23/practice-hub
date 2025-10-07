@@ -57,7 +57,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/lib/trpc/client";
+import { trpc } from "@/app/providers/trpc-provider";
 import { IconPicker } from "./icon-picker";
 import { getIconComponent } from "./icon-utils";
 
@@ -118,18 +118,18 @@ export function LinkManagement() {
     new Set(),
   );
 
-  const { data: categories } = api.portal.getCategories.useQuery();
+  const { data: categories } = trpc.portal.getCategories.useQuery();
   const {
     data: links,
     isLoading,
     refetch,
-  } = api.portal.getLinks.useQuery({
+  } = trpc.portal.getLinks.useQuery({
     categoryId: selectedCategory || undefined,
   });
-  const createMutation = api.portal.createLink.useMutation();
-  const updateMutation = api.portal.updateLink.useMutation();
-  const deleteMutation = api.portal.deleteLink.useMutation();
-  const reorderMutation = api.portal.reorderLinks.useMutation();
+  const createMutation = trpc.portal.createLink.useMutation();
+  const updateMutation = trpc.portal.updateLink.useMutation();
+  const deleteMutation = trpc.portal.deleteLink.useMutation();
+  const reorderMutation = trpc.portal.reorderLinks.useMutation();
 
   // Group links by category
   const linksByCategory = React.useMemo(() => {
