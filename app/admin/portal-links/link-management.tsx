@@ -334,13 +334,13 @@ export function LinkManagement() {
                     setCollapsedCategories(newCollapsed);
                   }}
                 >
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
+                  <div className="p-0 h-auto">
                     {isCollapsed ? (
                       <ChevronRight className="h-4 w-4" />
                     ) : (
                       <ChevronDown className="h-4 w-4" />
                     )}
-                  </Button>
+                  </div>
                   <div
                     className="h-8 w-8 rounded-lg flex items-center justify-center"
                     style={{

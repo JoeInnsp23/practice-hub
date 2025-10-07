@@ -913,6 +913,7 @@ export const pricingModelEnum = pgEnum("pricing_model", [
 export const pricingRuleTypeEnum = pgEnum("pricing_rule_type", [
   "turnover_band",
   "transaction_band",
+  "employee_band",
   "per_unit",
   "fixed",
 ]);

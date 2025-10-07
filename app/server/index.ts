@@ -7,6 +7,8 @@ import { leadsRouter } from "./routers/leads";
 import { onboardingRouter } from "./routers/onboarding";
 import { portalRouter } from "./routers/portal";
 import { pricingRouter } from "./routers/pricing";
+import { pricingAdminRouter } from "./routers/pricingAdmin";
+import { pricingConfigRouter } from "./routers/pricingConfig";
 import { proposalsRouter } from "./routers/proposals";
 import { servicesRouter } from "./routers/services";
 import { settingsRouter } from "./routers/settings";
@@ -30,6 +32,8 @@ export const appRouter = router({
   workflows: workflowsRouter,
   portal: portalRouter,
   pricing: pricingRouter,
+  pricingAdmin: pricingAdminRouter,
+  pricingConfig: pricingConfigRouter,
   proposals: proposalsRouter,
   transactionData: transactionDataRouter,
   leads: leadsRouter,

@@ -1027,6 +1027,92 @@ async function seedDatabase() {
     });
   });
 
+  // MGMT_QUARTERLY - Turnover-based pricing (50% of monthly)
+  mgmtMonthlyTurnoverBands.forEach((band, index) => {
+    pricingRulesList.push({
+      componentId: getComponent("MGMT_QUARTERLY").id,
+      ruleType: "turnover_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: (mgmtMonthlyPrices[index] * 0.5).toString(),
+    });
+  });
+
+  // PAYROLL_STANDARD - Employee count based pricing (Monthly frequency base)
+  const payrollEmployeeBands = [
+    { minEmployees: 1, maxEmployees: 1, price: 18, description: "Director only" },
+    { minEmployees: 2, maxEmployees: 2, price: 35, description: "2 employees" },
+    { minEmployees: 3, maxEmployees: 3, price: 50, description: "3 employees" },
+    { minEmployees: 4, maxEmployees: 5, price: 65, description: "4-5 employees" },
+    { minEmployees: 6, maxEmployees: 10, price: 90, description: "6-10 employees" },
+    { minEmployees: 11, maxEmployees: 15, price: 130, description: "11-15 employees" },
+    { minEmployees: 16, maxEmployees: 20, price: 170, description: "16-20 employees" },
+  ];
+
+  payrollEmployeeBands.forEach((band) => {
+    // Monthly (base rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: band.price.toString(),
+      metadata: { frequency: "monthly", description: band.description },
+    });
+
+    // Weekly (3x monthly rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: (band.price * 3).toString(),
+      metadata: { frequency: "weekly", description: band.description },
+    });
+
+    // Fortnightly (2x monthly rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: (band.price * 2).toString(),
+      metadata: { frequency: "fortnightly", description: band.description },
+    });
+
+    // 4-Weekly (2x monthly rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: (band.price * 2).toString(),
+      metadata: { frequency: "4weekly", description: band.description },
+    });
+  });
+
+  // PAYROLL_STANDARD - Per employee pricing for 20+ employees
+  const payrollPerEmployeePricing = [
+    { frequency: "monthly", pricePerEmployee: 5, basePrice: 170 },
+    { frequency: "weekly", pricePerEmployee: 15, basePrice: 510 },
+    { frequency: "fortnightly", pricePerEmployee: 10, basePrice: 340 },
+    { frequency: "4weekly", pricePerEmployee: 10, basePrice: 340 },
+  ];
+
+  payrollPerEmployeePricing.forEach((pricing) => {
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "per_unit" as const,
+      minValue: "21",
+      price: pricing.pricePerEmployee.toString(),
+      metadata: {
+        frequency: pricing.frequency,
+        basePrice: pricing.basePrice,
+        description: `Per employee over 20 (${pricing.frequency})`,
+      },
+    });
+  });
+
   // Insert all pricing rules
   const createdPricingRules = await db
     .insert(pricingRules)
