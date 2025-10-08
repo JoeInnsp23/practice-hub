@@ -23,6 +23,9 @@ import { useState } from "react";
 import { AssignLeadDialog } from "@/app/proposal-hub/leads/components/assign-lead-dialog";
 import { ScheduleFollowUpDialog } from "@/app/proposal-hub/leads/components/schedule-follow-up-dialog";
 import { trpc } from "@/app/providers/trpc-provider";
+import { ActivityTimeline } from "@/components/proposal-hub/activity-timeline";
+import { TaskDialog } from "@/components/proposal-hub/task-dialog";
+import { TaskList } from "@/components/proposal-hub/task-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -48,6 +51,7 @@ export default function LeadDetailPage() {
 
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [followUpDialogOpen, setFollowUpDialogOpen] = useState(false);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
   // Fetch lead data
   const { data: leadData, isLoading } = trpc.leads.getById.useQuery(leadId);
@@ -219,9 +223,7 @@ export default function LeadDetailPage() {
           <TabsTrigger value="proposals">
             Proposals ({lead.proposals?.length || 0})
           </TabsTrigger>
-          <TabsTrigger value="activity" disabled>
-            Activity
-          </TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -390,6 +392,15 @@ export default function LeadDetailPage() {
               </Card>
             )}
 
+            {/* Tasks */}
+            <Card className="p-6 lg:col-span-2">
+              <TaskList
+                assignedToId={lead.assignedToId || undefined}
+                showAddButton={true}
+                onAddTask={() => setTaskDialogOpen(true)}
+              />
+            </Card>
+
             {/* Converted Client */}
             {lead.convertedClient && (
               <Card className="p-6 lg:col-span-2 border-green-200 dark:border-green-900">
@@ -473,13 +484,12 @@ export default function LeadDetailPage() {
         </TabsContent>
 
         <TabsContent value="activity">
-          <Card className="p-12">
-            <div className="flex flex-col items-center justify-center gap-4">
-              <Clock className="h-12 w-12 text-muted-foreground/50" />
-              <p className="text-muted-foreground">
-                Activity timeline coming soon
-              </p>
-            </div>
+          <Card className="p-6">
+            <ActivityTimeline
+              entityType="lead"
+              entityId={leadId}
+              showAddActivity={true}
+            />
           </Card>
         </TabsContent>
       </Tabs>
@@ -506,6 +516,13 @@ export default function LeadDetailPage() {
         }
         open={followUpDialogOpen}
         onOpenChange={setFollowUpDialogOpen}
+      />
+
+      {/* Task Dialog */}
+      <TaskDialog
+        open={taskDialogOpen}
+        onOpenChange={setTaskDialogOpen}
+        assignedToId={lead.assignedToId || undefined}
       />
     </div>
   );

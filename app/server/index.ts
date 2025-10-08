@@ -1,3 +1,4 @@
+import { activitiesRouter } from "./routers/activities";
 import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
@@ -5,6 +6,7 @@ import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
 import { onboardingRouter } from "./routers/onboarding";
+import { pipelineRouter } from "./routers/pipeline";
 import { portalRouter } from "./routers/portal";
 import { pricingRouter } from "./routers/pricing";
 import { pricingAdminRouter } from "./routers/pricingAdmin";
@@ -37,6 +39,8 @@ export const appRouter = router({
   proposals: proposalsRouter,
   transactionData: transactionDataRouter,
   leads: leadsRouter,
+  pipeline: pipelineRouter,
+  activities: activitiesRouter,
   onboarding: onboardingRouter,
   invitations: invitationsRouter,
 });
