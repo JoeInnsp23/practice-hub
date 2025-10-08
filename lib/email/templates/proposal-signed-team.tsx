@@ -89,11 +89,11 @@ export function ProposalSignedTeamEmail({
             </Section>
             <Section style={detailRow}>
               <Text style={detailLabel}>Monthly Fee:</Text>
-              <Text style={[detailValue, priceHighlight]}>£{monthlyTotal}</Text>
+              <Text style={{...detailValue, ...priceHighlight}}>£{monthlyTotal}</Text>
             </Section>
             <Section style={detailRow}>
               <Text style={detailLabel}>Annual Value:</Text>
-              <Text style={[detailValue, priceHighlight]}>£{annualTotal}</Text>
+              <Text style={{...detailValue, ...priceHighlight}}>£{annualTotal}</Text>
             </Section>
           </Section>
 

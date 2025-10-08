@@ -120,12 +120,12 @@ export const pricingConfigRouter = router({
       .where(eq(tenants.id, tenantId))
       .limit(1);
 
-    const config = tenant?.metadata?.pricingConfig || DEFAULT_CONFIG;
+    const config = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
 
     return {
       success: true,
       config,
-      isDefault: !tenant?.metadata?.pricingConfig,
+      isDefault: !(tenant?.metadata as any)?.pricingConfig,
     };
   }),
 
@@ -146,7 +146,7 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = tenant?.metadata?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldMultipliers = currentConfig.complexityMultipliers[input.model];
 
       const updatedConfig = {
@@ -195,7 +195,7 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = tenant?.metadata?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldMultipliers = currentConfig.industryMultipliers;
 
       const updatedConfig = {
@@ -241,7 +241,7 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = tenant?.metadata?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldRules = currentConfig.discountRules;
 
       const updatedConfig = {
@@ -287,7 +287,7 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = tenant?.metadata?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldSettings = currentConfig.globalSettings;
 
       const updatedConfig = {
@@ -331,7 +331,7 @@ export const pricingConfigRouter = router({
       .where(eq(tenants.id, tenantId))
       .limit(1);
 
-    const oldConfig = tenant?.metadata?.pricingConfig;
+    const oldConfig = (tenant?.metadata as any)?.pricingConfig;
 
     await db
       .update(tenants)
@@ -369,7 +369,7 @@ export const pricingConfigRouter = router({
       .where(eq(tenants.id, tenantId))
       .limit(1);
 
-    const config = tenant?.metadata?.pricingConfig || DEFAULT_CONFIG;
+    const config = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
 
     return {
       success: true,
@@ -403,7 +403,7 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const oldConfig = tenant?.metadata?.pricingConfig;
+      const oldConfig = (tenant?.metadata as any)?.pricingConfig;
 
       await db
         .update(tenants)

@@ -97,7 +97,7 @@ export function ModelComparisonChart({
             cy="50%"
             labelLine={false}
             label={(entry) => {
-              const percent = ((entry.value / total) * 100).toFixed(0);
+              const percent = (((entry.value as number) / total) * 100).toFixed(0);
               return `${entry.name} (${percent}%)`;
             }}
             outerRadius={100}

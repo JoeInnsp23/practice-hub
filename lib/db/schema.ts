@@ -1147,6 +1147,9 @@ export const proposals = pgTable(
     // Version control
     version: integer("version").default(1).notNull(),
 
+    // Additional data
+    metadata: jsonb("metadata"), // For storing discounts, custom fields, etc.
+
     // Timestamps
     createdAt: timestamp("created_at").defaultNow().notNull(),
     sentAt: timestamp("sent_at"),
