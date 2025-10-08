@@ -1,4 +1,5 @@
 import { activitiesRouter } from "./routers/activities";
+import { analyticsRouter } from "./routers/analytics";
 import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
@@ -41,6 +42,7 @@ export const appRouter = router({
   leads: leadsRouter,
   pipeline: pipelineRouter,
   activities: activitiesRouter,
+  analytics: analyticsRouter,
   onboarding: onboardingRouter,
   invitations: invitationsRouter,
 });
