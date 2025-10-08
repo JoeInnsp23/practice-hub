@@ -52,11 +52,22 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
+type ServicePriceType = "hourly" | "fixed" | "retainer";
+
 interface ServiceComponent {
   id: string;
+  tenantId?: string;
   code: string;
   name: string;
-  category: string;
+  category:
+    | "compliance"
+    | "vat"
+    | "bookkeeping"
+    | "payroll"
+    | "management"
+    | "secretarial"
+    | "tax_planning"
+    | "addon";
   description: string | null;
   pricingModel: "turnover" | "transaction" | "both" | "fixed";
   basePrice: string | null;
@@ -64,6 +75,10 @@ interface ServiceComponent {
   priceType: ServicePriceType | null;
   supportsComplexity: boolean;
   isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  pricingRulesCount?: number;
+  sortOrder?: number | null;
 }
 
 export function ServiceComponentsTab() {
@@ -268,19 +283,19 @@ export function ServiceComponentsTab() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleEdit(component)}
+                            onClick={() => handleEdit(component as ServiceComponent)}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleClone(component)}
+                            onClick={() => handleClone(component as ServiceComponent)}
                           >
                             <Copy className="h-4 w-4 mr-2" />
                             Clone
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleToggleActive(component)}
+                            onClick={() => handleToggleActive(component as ServiceComponent)}
                           >
                             {component.isActive ? (
                               <>
@@ -296,7 +311,7 @@ export function ServiceComponentsTab() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => handleDelete(component)}
+                            onClick={() => handleDelete(component as ServiceComponent)}
                             className="text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
@@ -441,7 +456,7 @@ function ServiceComponentForm({
               <Select
                 value={formData.category}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, category: value })
+                  setFormData({ ...formData, category: value as any })
                 }
               >
                 <SelectTrigger id="category">

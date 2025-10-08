@@ -272,8 +272,7 @@ export default function LeadDetailPage() {
               </div>
             </Card>
 
-            {/* Company Information */}
-            <Card className="p-6">
+            <Card className="p-6" key="company-info">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
                 Company Information
