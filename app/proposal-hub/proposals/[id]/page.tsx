@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { ActivityTimeline } from "@/components/proposal-hub/activity-timeline";
 import { SendProposalDialog } from "@/components/proposal-hub/send-proposal-dialog";
 import {
   AlertDialog,
@@ -29,6 +30,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -44,6 +51,7 @@ export default function ProposalDetailPage({
   const resolvedParams = use(params);
   const { id } = resolvedParams;
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const utils = trpc.useUtils();
 
@@ -223,8 +231,17 @@ export default function ProposalDetailPage({
         </Card>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Services & Pricing */}
         <div className="lg:col-span-2 space-y-6">
           {/* Client Information */}
@@ -482,6 +499,19 @@ export default function ProposalDetailPage({
           </Card>
         </div>
       </div>
+        </TabsContent>
+
+        {/* Activity Tab */}
+        <TabsContent value="activity" className="space-y-6">
+          <Card className="p-6">
+            <ActivityTimeline
+              entityType="proposal"
+              entityId={id}
+              showAddActivity={true}
+            />
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Archive Confirmation Dialog */}
       <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
