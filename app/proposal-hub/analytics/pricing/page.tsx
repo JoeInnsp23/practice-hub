@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Download, TrendingUp } from "lucide-react";
+import { Calendar as CalendarIcon, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { ComplexityChart } from "@/components/proposal-hub/charts/complexity-chart";
@@ -186,7 +186,9 @@ export default function PricingAnalyticsPage() {
         ) : discounts.length === 0 ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
-              <p className="text-muted-foreground">No discount data available</p>
+              <p className="text-muted-foreground">
+                No discount data available
+              </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Discounts will appear here when applied to proposals
               </p>

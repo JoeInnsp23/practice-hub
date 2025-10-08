@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/app/providers/trpc-provider";
+import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeadSourcesChart } from "@/components/proposal-hub/charts/lead-sources-chart";
 import { ProposalsStatusChart } from "@/components/proposal-hub/charts/proposals-status-chart";
 import { WinLossChart } from "@/components/proposal-hub/charts/win-loss-chart";
 import { RecentActivityFeed } from "@/components/proposal-hub/widgets/recent-activity-feed";
 import { TopServicesWidget } from "@/components/proposal-hub/widgets/top-services-widget";
 import { UpcomingTasksWidget } from "@/components/proposal-hub/widgets/upcoming-tasks-widget";
-import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -49,8 +49,10 @@ export default function ProposalHubPage() {
 
   // Fetch analytics data
   const { data: leadStatsData } = trpc.analytics.getLeadStats.useQuery();
-  const { data: proposalStatsData } = trpc.analytics.getProposalStats.useQuery();
-  const { data: conversionData } = trpc.analytics.getConversionMetrics.useQuery();
+  const { data: proposalStatsData } =
+    trpc.analytics.getProposalStats.useQuery();
+  const { data: conversionData } =
+    trpc.analytics.getConversionMetrics.useQuery();
 
   // Calculate metrics
   const draftCount = stats.find((s) => s.status === "draft")?.count || 0;
@@ -174,10 +176,7 @@ export default function ProposalHubPage() {
           isLoading={!proposalStatsData}
         />
         <div className="lg:col-span-2">
-          <WinLossChart
-            data={conversionData}
-            isLoading={!conversionData}
-          />
+          <WinLossChart data={conversionData} isLoading={!conversionData} />
         </div>
       </div>
 

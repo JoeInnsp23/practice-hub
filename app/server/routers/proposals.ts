@@ -683,4 +683,160 @@ export const proposalsRouter = router({
 
       return { success: true, pdfUrl };
     }),
+
+  // PUBLIC ENDPOINTS FOR E-SIGNATURE
+
+  // Get proposal for signature (public - no auth required)
+  getProposalForSignature: publicProcedure
+    .input(z.string())
+    .query(async ({ input: id }) => {
+      // Get proposal with client information (no tenant filter for public access)
+      const [proposal] = await db
+        .select({
+          id: proposals.id,
+          proposalNumber: proposals.proposalNumber,
+          title: proposals.title,
+          clientId: proposals.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          status: proposals.status,
+          pricingModelUsed: proposals.pricingModelUsed,
+          monthlyTotal: proposals.monthlyTotal,
+          annualTotal: proposals.annualTotal,
+          notes: proposals.notes,
+          termsAndConditions: proposals.termsAndConditions,
+          pdfUrl: proposals.pdfUrl,
+          validUntil: proposals.validUntil,
+          sentAt: proposals.sentAt,
+          signedAt: proposals.signedAt,
+          tenantId: proposals.tenantId,
+        })
+        .from(proposals)
+        .leftJoin(clients, eq(proposals.clientId, clients.id))
+        .where(eq(proposals.id, id))
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Don't allow signing if already signed
+      if (proposal.status === "signed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has already been signed",
+        });
+      }
+
+      // Check if proposal is expired
+      if (proposal.validUntil && new Date() > proposal.validUntil) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has expired",
+        });
+      }
+
+      return proposal;
+    }),
+
+  // Submit signature (public - no auth required)
+  submitSignature: publicProcedure
+    .input(
+      z.object({
+        proposalId: z.string(),
+        signerName: z.string(),
+        signerEmail: z.string(),
+        signatureData: z.string(),
+        ipAddress: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      // Get proposal first (includes tenant ID)
+      const [existingProposal] = await db
+        .select()
+        .from(proposals)
+        .where(eq(proposals.id, input.proposalId))
+        .limit(1);
+
+      if (!existingProposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Check if already signed
+      if (existingProposal.status === "signed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has already been signed",
+        });
+      }
+
+      // Check if expired
+      if (
+        existingProposal.validUntil &&
+        new Date() > existingProposal.validUntil
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has expired",
+        });
+      }
+
+      const signedAt = new Date();
+      const { tenantId } = existingProposal;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Add signature record
+        const [signature] = await tx
+          .insert(proposalSignatures)
+          .values({
+            tenantId,
+            proposalId: input.proposalId,
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+            signatureData: input.signatureData,
+            ipAddress: input.ipAddress,
+            signedAt,
+          })
+          .returning();
+
+        // Update proposal status
+        await tx
+          .update(proposals)
+          .set({
+            status: "signed",
+            signedAt,
+          })
+          .where(eq(proposals.id, input.proposalId));
+
+        // Log activity (no userId since this is public)
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: input.proposalId,
+          action: "proposal_signed",
+          description: `Proposal signed by ${input.signerName} (${input.signerEmail})`,
+          userId: null, // No user ID for public signature
+          userName: input.signerName,
+          newValues: {
+            status: "signed",
+            signedAt: signedAt.toISOString(),
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+          },
+        });
+
+        return signature;
+      });
+
+      // TODO: Send confirmation email to client and team
+
+      return { success: true, signature: result };
+    }),
 });

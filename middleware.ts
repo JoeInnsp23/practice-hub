@@ -17,6 +17,11 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Allow public proposal signature pages
+  if (pathname.startsWith("/proposals/sign/")) {
+    return NextResponse.next();
+  }
+
   // Allow auth API routes
   if (pathname.startsWith(authApiPath)) {
     return NextResponse.next();

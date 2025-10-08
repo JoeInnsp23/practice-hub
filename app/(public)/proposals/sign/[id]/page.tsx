@@ -26,12 +26,13 @@ export default function SignProposalPage({
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  // Fetch proposal data (public query)
-  const { data: proposalData, isLoading } = trpc.proposals.getById.useQuery(id);
+  // Fetch proposal data (public endpoint)
+  const { data: proposalData, isLoading } =
+    trpc.proposals.getProposalForSignature.useQuery(id);
 
-  // Sign proposal mutation
+  // Sign proposal mutation (public endpoint)
   const { mutate: signProposal, isPending: isSigning } =
-    trpc.proposals.addSignature.useMutation({
+    trpc.proposals.submitSignature.useMutation({
       onSuccess: () => {
         toast.success("Proposal signed successfully!");
         router.push(`/proposals/signed/${id}`);

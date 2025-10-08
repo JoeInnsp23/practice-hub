@@ -33,11 +33,11 @@ Phase 5 delivers a comprehensive analytics and reporting system that transforms 
 
 **KPI Cards (6 metrics):**
 1. **Total Leads** - Overall lead count
-2. **Total Proposals** - All proposals created
-3. **Conversion Rate** - Lead → Signed proposal percentage
-4. **Avg Deal Size** - Average proposal value
-5. **Total Pipeline Value** - Sum of all active proposal values
-6. **Active Tasks** - Pending task count
+2. **Draft Proposals** - Proposals in draft status
+3. **Sent Proposals** - Proposals sent to clients
+4. **Signed This Month** - Proposals signed in current month
+5. **Pipeline Value** - Sum of all active proposal values
+6. **Conversion Rate** - Lead → Signed proposal percentage
 
 **Charts Section (3 visualizations):**
 1. **Lead Sources Pie Chart** - Distribution of leads by source
