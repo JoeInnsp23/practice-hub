@@ -2,7 +2,6 @@
 
 import { format, isAfter, isBefore, isToday, startOfDay } from "date-fns";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
-import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Card } from "@/components/ui/card";
@@ -16,12 +15,12 @@ export function UpcomingTasksWidget() {
   });
 
   // Complete task mutation
-  const completeTask = trpc.tasks.complete.useMutation({
+  const completeTask = trpc.tasks.updateStatus.useMutation({
     onSuccess: () => {
       toast.success("Task completed");
       utils.tasks.list.invalidate();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || "Failed to complete task");
     },
   });
@@ -74,7 +73,7 @@ export function UpcomingTasksWidget() {
   const handleComplete = (taskId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    completeTask.mutate(taskId);
+    completeTask.mutate({ id: taskId, status: "completed" });
   };
 
   return (
@@ -91,18 +90,9 @@ export function UpcomingTasksWidget() {
           const isOverdue = dueDate && isBefore(dueDate, startOfDay(new Date()));
           const isDueToday = dueDate && isToday(dueDate);
 
-          // Build link to entity
-          let entityLink = "#";
-          if (task.entityType === "lead" && task.entityId) {
-            entityLink = `/proposal-hub/leads/${task.entityId}`;
-          } else if (task.entityType === "proposal" && task.entityId) {
-            entityLink = `/proposal-hub/proposals/${task.entityId}`;
-          }
-
           return (
-            <Link
+            <div
               key={task.id}
-              href={entityLink}
               className="block hover:bg-accent/50 rounded-lg p-3 transition-colors border"
             >
               <div className="flex items-start gap-3">
@@ -150,7 +140,7 @@ export function UpcomingTasksWidget() {
                   </div>
                 )}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
