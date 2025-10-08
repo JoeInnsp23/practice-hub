@@ -3478,15 +3478,16 @@ Currently exists. Enhance with:
 - ✅ Interactive Kanban board with drag-and-drop functionality using @dnd-kit
 - ✅ Pipeline router with getDeals (unified leads + proposals) and updateStage
 - ✅ 7 pipeline stages (new, contacted, qualified, proposal_sent, negotiating, converted, lost)
-- ✅ DealCard component (draggable) with contact info, value, score, follow-up dates
+- ✅ DealCard component (draggable) with contact info, value, score, follow-up dates, **days in stage**
 - ✅ KanbanColumn component (droppable) with stage stats and total value
 - ✅ KanbanBoard component managing DndContext and drag operations
 - ✅ Activities router with list, create, and getActivityCounts endpoints
 - ✅ ActivityTimeline component with date grouping and icon mapping (15+ action types)
-- ✅ Add Activity dialog for manual logging (notes, calls, emails, meetings)
+- ✅ **Enhanced Add Activity dialog with date/time picker, duration field (conditional), and outcome textarea**
 - ✅ TaskList component grouping by due date (overdue, today, tomorrow, week, later)
 - ✅ TaskDialog component for task creation with React Hook Form + Zod
-- ✅ Rebuilt pipeline page with filters (search, assignee) and statistics
+- ✅ **Rebuilt pipeline page with comprehensive filters (search, assignee, date range, value range) and statistics**
+- ✅ **Added average deal size statistic to pipeline dashboard**
 - ✅ Integrated activity timeline into lead detail page
 - ✅ Integrated task management into lead detail page
 - ✅ Full glass-card design system compliance
@@ -3515,14 +3516,16 @@ Currently exists. Enhance with:
 - ✅ Unified view of leads and proposals in single pipeline
 - ✅ Bi-directional status mapping (pipeline stage ↔ lead/proposal status)
 - ✅ Visual activity history with 15+ action type icons
-- ✅ Manual activity logging (notes, calls, emails, meetings, status changes)
+- ✅ **Enhanced manual activity logging with date/time picker, duration (conditional), and outcome tracking**
 - ✅ Task management with priority, status, due dates, and assignment
-- ✅ Pipeline filtering by assignee and search
-- ✅ Pipeline statistics (total deals, active value, conversion rate)
+- ✅ **Comprehensive pipeline filtering (assignee, search, date range, value range)**
+- ✅ **Pipeline statistics dashboard (total deals, active pipeline, total value, average deal size, conversion rate)**
+- ✅ **Days in stage calculation on deal cards**
 - ✅ Activity audit trail for compliance and follow-up
 - ✅ Task assignments preventing items falling through cracks
 - ✅ Complete tenant isolation in all queries
 - ✅ Activity logging for all stage changes
+- ✅ Metadata storage for enhanced activity reporting
 
 **Dependencies Added:**
 - ✅ @dnd-kit/core (v6.x)
