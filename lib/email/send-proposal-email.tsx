@@ -2,7 +2,7 @@ import { render } from "@react-email/components";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { db } from "@/lib/db";
-import { proposals } from "@/lib/db/schema";
+import { clients, proposals } from "@/lib/db/schema";
 import { ProposalSentEmail } from "./templates/proposal-sent";
 import { ProposalSignedClientEmail } from "./templates/proposal-signed-client";
 import { ProposalSignedTeamEmail } from "./templates/proposal-signed-team";
@@ -188,10 +188,21 @@ export async function sendTeamNotificationEmail(
   const { proposalId, signerName, signerEmail, signedAt } = options;
 
   try {
-    // Fetch proposal data
-    const proposal = await db.query.proposals.findFirst({
-      where: eq(proposals.id, proposalId),
-    });
+    // Fetch proposal data with client information
+    const [proposal] = await db
+      .select({
+        id: proposals.id,
+        proposalNumber: proposals.proposalNumber,
+        title: proposals.title,
+        clientName: clients.name,
+        clientEmail: clients.email,
+        monthlyTotal: proposals.monthlyTotal,
+        annualTotal: proposals.annualTotal,
+      })
+      .from(proposals)
+      .leftJoin(clients, eq(proposals.clientId, clients.id))
+      .where(eq(proposals.id, proposalId))
+      .limit(1);
 
     if (!proposal) {
       throw new Error(`Proposal not found: ${proposalId}`);

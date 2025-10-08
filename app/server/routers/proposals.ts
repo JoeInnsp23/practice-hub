@@ -414,10 +414,19 @@ export const proposalsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-      // Check proposal exists
+      // Check proposal exists and get client information
       const [existingProposal] = await db
-        .select()
+        .select({
+          id: proposals.id,
+          title: proposals.title,
+          status: proposals.status,
+          clientId: proposals.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          pdfUrl: proposals.pdfUrl,
+        })
         .from(proposals)
+        .leftJoin(clients, eq(proposals.clientId, clients.id))
         .where(
           and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
         )
@@ -739,7 +748,13 @@ export const proposalsRouter = router({
         });
       }
 
-      return proposal;
+      // Get proposal services
+      const services = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, id));
+
+      return { ...proposal, services };
     }),
 
   // Submit signature (public - no auth required)

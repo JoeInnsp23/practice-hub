@@ -1,7 +1,7 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { proposalServices, proposals } from "@/lib/db/schema";
+import { clients, proposalServices, proposals } from "@/lib/db/schema";
 import { uploadToS3 } from "@/lib/storage/s3";
 import {
   type ProposalData,
@@ -31,10 +31,29 @@ export async function generateProposalPdf(
   const { proposalId, companyName, preparedBy } = options;
 
   try {
-    // 1. Fetch proposal data from database
-    const proposal = await db.query.proposals.findFirst({
-      where: eq(proposals.id, proposalId),
-    });
+    // 1. Fetch proposal data from database with client information
+    const [proposal] = await db
+      .select({
+        id: proposals.id,
+        proposalNumber: proposals.proposalNumber,
+        title: proposals.title,
+        clientName: clients.name,
+        clientEmail: clients.email,
+        industry: proposals.industry,
+        turnover: proposals.turnover,
+        monthlyTransactions: proposals.monthlyTransactions,
+        monthlyTotal: proposals.monthlyTotal,
+        annualTotal: proposals.annualTotal,
+        pricingModelUsed: proposals.pricingModelUsed,
+        termsAndConditions: proposals.termsAndConditions,
+        notes: proposals.notes,
+        createdAt: proposals.createdAt,
+        validUntil: proposals.validUntil,
+      })
+      .from(proposals)
+      .leftJoin(clients, eq(proposals.clientId, clients.id))
+      .where(eq(proposals.id, proposalId))
+      .limit(1);
 
     if (!proposal) {
       throw new Error(`Proposal not found: ${proposalId}`);
