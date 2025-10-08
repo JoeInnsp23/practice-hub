@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import {
+  Calculator,
   Calendar as CalendarIcon,
   DollarSign,
   Plus,
@@ -85,6 +86,9 @@ export default function PipelinePage() {
   const conversionRate =
     closedDeals > 0 ? (convertedDeals / closedDeals) * 100 : 0;
 
+  // Calculate average deal size
+  const averageDealSize = totalDeals > 0 ? totalValue / totalDeals : 0;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -119,7 +123,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Pipeline Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -153,6 +157,21 @@ export default function PipelinePage() {
               <p className="text-xs text-muted-foreground">estimated</p>
             </div>
             <DollarSign className="h-8 w-8 text-green-500" />
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">
+                Avg Deal Size
+              </p>
+              <p className="text-2xl font-bold">
+                £{Math.round(averageDealSize).toLocaleString()}
+              </p>
+              <p className="text-xs text-muted-foreground">per deal</p>
+            </div>
+            <Calculator className="h-8 w-8 text-purple-500" />
           </div>
         </Card>
 
