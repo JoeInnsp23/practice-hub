@@ -572,6 +572,118 @@ export const leadsRouter = router({
       return { success: true };
     }),
 
+  // Assign lead to team member
+  assignLead: protectedProcedure
+    .input(
+      z.object({
+        leadId: z.string(),
+        assignedToId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check lead exists
+      const [existingLead] = await db
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, input.leadId), eq(leads.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingLead) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lead not found",
+        });
+      }
+
+      // Update lead with assigned user
+      const [updatedLead] = await db
+        .update(leads)
+        .set({
+          assignedToId: input.assignedToId,
+          updatedAt: new Date(),
+        })
+        .where(eq(leads.id, input.leadId))
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "lead",
+        entityId: input.leadId,
+        action: "assigned",
+        description: `Assigned lead "${existingLead.firstName} ${existingLead.lastName}" to team member`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: { assignedToId: input.assignedToId },
+      });
+
+      return { success: true, lead: updatedLead };
+    }),
+
+  // Schedule follow-up for lead
+  scheduleFollowUp: protectedProcedure
+    .input(
+      z.object({
+        leadId: z.string(),
+        nextFollowUpAt: z.string(),
+        notes: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check lead exists
+      const [existingLead] = await db
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, input.leadId), eq(leads.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingLead) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lead not found",
+        });
+      }
+
+      // Update lead with follow-up date and append notes if provided
+      const updatedNotes = input.notes
+        ? existingLead.notes
+          ? `${existingLead.notes}\n\n[Follow-up scheduled]: ${input.notes}`
+          : `[Follow-up scheduled]: ${input.notes}`
+        : existingLead.notes;
+
+      const [updatedLead] = await db
+        .update(leads)
+        .set({
+          nextFollowUpAt: new Date(input.nextFollowUpAt),
+          lastContactedAt: new Date(), // Mark as contacted when scheduling follow-up
+          notes: updatedNotes,
+          updatedAt: new Date(),
+        })
+        .where(eq(leads.id, input.leadId))
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "lead",
+        entityId: input.leadId,
+        action: "follow_up_scheduled",
+        description: `Scheduled follow-up for "${existingLead.firstName} ${existingLead.lastName}" on ${new Date(input.nextFollowUpAt).toLocaleString()}`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: {
+          nextFollowUpAt: input.nextFollowUpAt,
+          notes: input.notes,
+        },
+      });
+
+      return { success: true, lead: updatedLead };
+    }),
+
   // Convert lead to client
   convertToClient: protectedProcedure
     .input(
