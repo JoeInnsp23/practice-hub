@@ -51,6 +51,10 @@ export const pipelineRouter = router({
       z.object({
         assignedToId: z.string().optional(),
         search: z.string().optional(),
+        dateFrom: z.string().optional(), // ISO date string
+        dateTo: z.string().optional(), // ISO date string
+        minValue: z.number().optional(),
+        maxValue: z.number().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -206,9 +210,10 @@ export const pipelineRouter = router({
         };
       });
 
-      // Combine and apply search filter
+      // Combine and apply filters
       let allDeals = [...leadDeals, ...proposalDeals];
 
+      // Search filter
       if (input.search) {
         const searchLower = input.search.toLowerCase();
         allDeals = allDeals.filter(
@@ -217,6 +222,31 @@ export const pipelineRouter = router({
             deal.email.toLowerCase().includes(searchLower) ||
             deal.companyName?.toLowerCase().includes(searchLower),
         );
+      }
+
+      // Date range filter
+      if (input.dateFrom) {
+        const fromDate = new Date(input.dateFrom);
+        allDeals = allDeals.filter((deal) => deal.createdAt >= fromDate);
+      }
+      if (input.dateTo) {
+        const toDate = new Date(input.dateTo);
+        toDate.setHours(23, 59, 59, 999); // Include entire day
+        allDeals = allDeals.filter((deal) => deal.createdAt <= toDate);
+      }
+
+      // Value range filter
+      if (input.minValue !== undefined) {
+        allDeals = allDeals.filter((deal) => {
+          const value = Number.parseFloat(deal.value || "0");
+          return value >= input.minValue!;
+        });
+      }
+      if (input.maxValue !== undefined) {
+        allDeals = allDeals.filter((deal) => {
+          const value = Number.parseFloat(deal.value || "0");
+          return value <= input.maxValue!;
+        });
       }
 
       // Group by stage

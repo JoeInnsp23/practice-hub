@@ -1,13 +1,28 @@
 "use client";
 
-import { DollarSign, Plus, Target, TrendingUp, Users } from "lucide-react";
+import { format } from "date-fns";
+import {
+  Calendar as CalendarIcon,
+  DollarSign,
+  Plus,
+  Target,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KanbanBoard } from "@/components/proposal-hub/kanban/kanban-board";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,11 +37,19 @@ export default function PipelinePage() {
   const [assignedToFilter, setAssignedToFilter] = useState<
     string | undefined
   >();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [minValue, setMinValue] = useState<string>("");
+  const [maxValue, setMaxValue] = useState<string>("");
 
   // Fetch deals (leads + proposals)
   const { data: dealsData, isLoading } = trpc.pipeline.getDeals.useQuery({
     search,
     assignedToId: assignedToFilter,
+    dateFrom: dateFrom?.toISOString(),
+    dateTo: dateTo?.toISOString(),
+    minValue: minValue ? Number.parseFloat(minValue) : undefined,
+    maxValue: maxValue ? Number.parseFloat(maxValue) : undefined,
   });
 
   // Fetch team members for filter
@@ -153,32 +176,132 @@ export default function PipelinePage() {
 
       {/* Filters */}
       <Card className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder="Search by name, email, or company..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="space-y-4">
+          {/* Row 1: Search and Assigned To */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Search by name, email, or company..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Select
+              value={assignedToFilter}
+              onValueChange={(value) =>
+                setAssignedToFilter(value === "all" ? undefined : value)
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="All team members" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All team members</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.firstName} {user.lastName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <Select
-            value={assignedToFilter}
-            onValueChange={(value) =>
-              setAssignedToFilter(value === "all" ? undefined : value)
-            }
-          >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="All team members" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All team members</SelectItem>
-              {users.map((user) => (
-                <SelectItem key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+          {/* Row 2: Date Range and Value Range */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Date Range */}
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Created:
+              </span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom ? format(dateFrom, "PPP") : "From"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <span className="text-muted-foreground">to</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, "PPP") : "To"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Value Range */}
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Value:
+              </span>
+              <Input
+                type="number"
+                placeholder="Min £"
+                value={minValue}
+                onChange={(e) => setMinValue(e.target.value)}
+                className="w-28"
+              />
+              <span className="text-muted-foreground">to</span>
+              <Input
+                type="number"
+                placeholder="Max £"
+                value={maxValue}
+                onChange={(e) => setMaxValue(e.target.value)}
+                className="w-28"
+              />
+            </div>
+
+            {/* Clear Filters Button */}
+            {(search ||
+              assignedToFilter ||
+              dateFrom ||
+              dateTo ||
+              minValue ||
+              maxValue) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  setAssignedToFilter(undefined);
+                  setDateFrom(undefined);
+                  setDateTo(undefined);
+                  setMinValue("");
+                  setMaxValue("");
+                }}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
 
