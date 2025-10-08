@@ -44,6 +44,15 @@ export function DealCard({ deal }: DealCardProps) {
       ? `/proposal-hub/leads/${deal.id}`
       : `/proposal-hub/proposals/${deal.id}`;
 
+  // Calculate days since created (approximate days in stage)
+  const getDaysInStage = (createdAt: Date) => {
+    const now = new Date();
+    const diff = now.getTime() - new Date(createdAt).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const daysInStage = getDaysInStage(deal.createdAt);
+
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <Link href={detailUrl}>
@@ -107,25 +116,32 @@ export function DealCard({ deal }: DealCardProps) {
 
           {/* Footer Info */}
           <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t">
-            {deal.assignedToName ? (
-              <div className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                <span className="line-clamp-1">{deal.assignedToName}</span>
-              </div>
-            ) : (
-              <span className="text-muted-foreground/60">Unassigned</span>
-            )}
-            {deal.nextFollowUpAt && (
-              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                <Calendar className="h-3 w-3" />
-                <span>
-                  {new Date(deal.nextFollowUpAt).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-1">
+              {deal.assignedToName ? (
+                <>
+                  <User className="h-3 w-3" />
+                  <span className="line-clamp-1">{deal.assignedToName}</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground/60">Unassigned</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {deal.nextFollowUpAt && (
+                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                  <Calendar className="h-3 w-3" />
+                  <span>
+                    {new Date(deal.nextFollowUpAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                </div>
+              )}
+              <span className="text-muted-foreground/70">
+                {daysInStage} {daysInStage === 1 ? "day" : "days"}
+              </span>
+            </div>
           </div>
         </Card>
       </Link>
