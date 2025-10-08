@@ -489,4 +489,107 @@ export const analyticsRouter = router({
       dueThisWeek: tasksThisWeek[0]?.count || 0,
     };
   }),
+
+  /**
+   * Get complexity distribution (bookkeeping)
+   */
+  getComplexityDistribution: protectedProcedure
+    .input(dateRangeSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Build date filters
+      const filters = [eq(proposals.tenantId, tenantId)];
+      if (input?.startDate) {
+        filters.push(gte(proposals.createdAt, new Date(input.startDate)));
+      }
+      if (input?.endDate) {
+        filters.push(lte(proposals.createdAt, new Date(input.endDate)));
+      }
+
+      // Get all proposals with metadata
+      const proposalsWithMetadata = await db
+        .select({
+          id: proposals.id,
+          metadata: proposals.metadata,
+          monthlyTotal: proposals.monthlyTotal,
+        })
+        .from(proposals)
+        .where(and(...filters));
+
+      // Analyze complexity from metadata
+      const complexityStats: Record<
+        string,
+        { count: number; totalValue: number; avgValue: number }
+      > = {
+        clean: { count: 0, totalValue: 0, avgValue: 0 },
+        average: { count: 0, totalValue: 0, avgValue: 0 },
+        complex: { count: 0, totalValue: 0, avgValue: 0 },
+        disaster: { count: 0, totalValue: 0, avgValue: 0 },
+        unknown: { count: 0, totalValue: 0, avgValue: 0 },
+      };
+
+      for (const proposal of proposalsWithMetadata) {
+        const metadata = proposal.metadata as Record<string, unknown> | null;
+        const monthlyValue = Number(proposal.monthlyTotal);
+
+        // Extract complexity level from metadata
+        let complexity = "unknown";
+        if (metadata && typeof metadata === "object") {
+          // Check for bookkeepingComplexity field
+          if (
+            typeof metadata.bookkeepingComplexity === "string" &&
+            metadata.bookkeepingComplexity
+          ) {
+            complexity = metadata.bookkeepingComplexity.toLowerCase();
+          }
+          // Check for complexity field
+          else if (
+            typeof metadata.complexity === "string" &&
+            metadata.complexity
+          ) {
+            complexity = metadata.complexity.toLowerCase();
+          }
+        }
+
+        // Normalize complexity values
+        if (complexity === "clean" || complexity === "low") {
+          complexityStats.clean.count++;
+          complexityStats.clean.totalValue += monthlyValue;
+        } else if (complexity === "average" || complexity === "medium") {
+          complexityStats.average.count++;
+          complexityStats.average.totalValue += monthlyValue;
+        } else if (complexity === "complex" || complexity === "high") {
+          complexityStats.complex.count++;
+          complexityStats.complex.totalValue += monthlyValue;
+        } else if (complexity === "disaster" || complexity === "critical") {
+          complexityStats.disaster.count++;
+          complexityStats.disaster.totalValue += monthlyValue;
+        } else {
+          complexityStats.unknown.count++;
+          complexityStats.unknown.totalValue += monthlyValue;
+        }
+      }
+
+      // Calculate averages
+      for (const level of Object.keys(complexityStats)) {
+        const stats = complexityStats[level];
+        stats.avgValue = stats.count > 0 ? stats.totalValue / stats.count : 0;
+      }
+
+      // Filter out levels with no data (except unknown)
+      const distribution = Object.entries(complexityStats)
+        .filter(([level, stats]) => level === "unknown" || stats.count > 0)
+        .map(([level, stats]) => ({
+          complexity: level.charAt(0).toUpperCase() + level.slice(1),
+          count: stats.count,
+          totalValue: stats.totalValue,
+          avgValue: stats.avgValue,
+        }));
+
+      return {
+        distribution,
+        totalProposals: proposalsWithMetadata.length,
+      };
+    }),
 });
