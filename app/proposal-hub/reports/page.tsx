@@ -62,7 +62,8 @@ export default function ReportsPage() {
 
     const reportData = leadStats.bySource.map((item) => {
       const total = item.count;
-      const converted = item.convertedToProposal || 0;
+      // TODO: Analytics endpoint doesn't provide conversion data yet
+      const converted = 0; // item.convertedToProposal doesn't exist
       const conversionRate = total > 0 ? (converted / total) * 100 : 0;
 
       return {
@@ -78,16 +79,16 @@ export default function ReportsPage() {
   };
 
   const handleExportPipeline = () => {
-    if (!pipelineMetrics?.byStage || pipelineMetrics.byStage.length === 0) {
+    if (!pipelineMetrics?.leadsByStage || pipelineMetrics.leadsByStage.length === 0) {
       toast.error("No data to export");
       return;
     }
 
-    const reportData = pipelineMetrics.byStage.map((item) => ({
+    const reportData = pipelineMetrics.leadsByStage.map((item: any) => ({
       stage: item.stage,
       count: item.count,
       totalValue: item.totalValue || 0,
-      avgDealSize: item.avgDealSize || 0,
+      avgDealSize: item.totalValue && item.count ? item.totalValue / item.count : 0,
     }));
 
     exportReport("pipeline", reportData);
@@ -264,7 +265,8 @@ export default function ReportsPage() {
                   <TableBody>
                     {leadStats.bySource.map((source) => {
                       const total = source.count;
-                      const converted = source.convertedToProposal || 0;
+                      // TODO: Analytics endpoint doesn't provide conversion data yet
+                      const converted = 0; // source.convertedToProposal doesn't exist
                       const conversionRate =
                         total > 0 ? (converted / total) * 100 : 0;
 
@@ -318,8 +320,8 @@ export default function ReportsPage() {
                 onClick={handleExportPipeline}
                 disabled={
                   pipelineLoading ||
-                  !pipelineMetrics?.byStage ||
-                  pipelineMetrics.byStage.length === 0
+                  !pipelineMetrics?.leadsByStage ||
+                  pipelineMetrics.leadsByStage.length === 0
                 }
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -331,8 +333,8 @@ export default function ReportsPage() {
               <div className="flex items-center justify-center py-8">
                 <div className="text-muted-foreground">Loading report...</div>
               </div>
-            ) : !pipelineMetrics?.byStage ||
-              pipelineMetrics.byStage.length === 0 ? (
+            ) : !pipelineMetrics?.leadsByStage ||
+              pipelineMetrics.leadsByStage.length === 0 ? (
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <p className="text-muted-foreground">
@@ -357,7 +359,7 @@ export default function ReportsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pipelineMetrics.byStage.map((stage) => (
+                    {pipelineMetrics.leadsByStage.map((stage: any) => (
                       <TableRow key={stage.stage}>
                         <TableCell className="font-medium capitalize">
                           {stage.stage}
@@ -370,7 +372,11 @@ export default function ReportsPage() {
                         </TableCell>
                         <TableCell className="text-right font-semibold text-primary">
                           £
-                          {Math.round(stage.avgDealSize || 0).toLocaleString()}
+                          {Math.round(
+                            stage.totalValue && stage.count
+                              ? stage.totalValue / stage.count
+                              : 0,
+                          ).toLocaleString()}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -400,7 +406,7 @@ export default function ReportsPage() {
                   <p className="text-xl font-bold text-primary">
                     £
                     {Math.round(
-                      pipelineMetrics.avgDealSize || 0,
+                      pipelineMetrics.averageDealSize || 0,
                     ).toLocaleString()}
                   </p>
                 </div>
@@ -409,8 +415,8 @@ export default function ReportsPage() {
                     Total Deals
                   </p>
                   <p className="text-xl font-bold">
-                    {pipelineMetrics.byStage.reduce(
-                      (sum, s) => sum + s.count,
+                    {pipelineMetrics.leadsByStage.reduce(
+                      (sum: number, s: any) => sum + s.count,
                       0,
                     )}
                   </p>

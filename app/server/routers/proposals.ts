@@ -16,7 +16,7 @@ import {
   sendTeamNotificationEmail,
 } from "@/lib/email/send-proposal-email";
 import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
-import { protectedProcedure, router } from "../trpc";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 
 // Status enum for filtering
 const proposalStatusEnum = z.enum([

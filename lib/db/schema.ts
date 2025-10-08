@@ -20,6 +20,7 @@ export const tenants = pgTable("tenants", {
   id: text("id").primaryKey(), // Changed from uuid to text for Better Auth compatibility
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
+  metadata: jsonb("metadata"), // For storing pricing config and other tenant-specific data
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
