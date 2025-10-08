@@ -1,9 +1,10 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   Activity,
   ArrowRight,
-  Calendar,
+  Calendar as CalendarIcon,
   CheckCircle2,
   Clock,
   Edit,
@@ -21,6 +22,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -32,6 +34,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -136,6 +143,12 @@ export function ActivityTimeline({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newActivityAction, setNewActivityAction] = useState("note_added");
   const [newActivityDescription, setNewActivityDescription] = useState("");
+  const [activityDate, setActivityDate] = useState<Date>(new Date());
+  const [activityTime, setActivityTime] = useState<string>(
+    new Date().toTimeString().slice(0, 5),
+  );
+  const [duration, setDuration] = useState<string>("");
+  const [outcome, setOutcome] = useState<string>("");
 
   // Fetch activities
   const { data, isLoading } = trpc.activities.list.useQuery({
@@ -154,6 +167,10 @@ export function ActivityTimeline({
       setIsAddDialogOpen(false);
       setNewActivityDescription("");
       setNewActivityAction("note_added");
+      setActivityDate(new Date());
+      setActivityTime(new Date().toTimeString().slice(0, 5));
+      setDuration("");
+      setOutcome("");
     },
     onError: (error) => {
       toast.error(error.message || "Failed to add activity");
@@ -166,11 +183,31 @@ export function ActivityTimeline({
       return;
     }
 
+    // Build metadata object with date/time, duration, and outcome
+    const metadata: Record<string, string> = {};
+
+    // Combine date and time into ISO timestamp
+    if (activityDate && activityTime) {
+      const [hours, minutes] = activityTime.split(":");
+      const dateTime = new Date(activityDate);
+      dateTime.setHours(Number.parseInt(hours), Number.parseInt(minutes));
+      metadata.activityDateTime = dateTime.toISOString();
+    }
+
+    if (duration && duration.trim()) {
+      metadata.duration = duration;
+    }
+
+    if (outcome && outcome.trim()) {
+      metadata.outcome = outcome;
+    }
+
     createActivity.mutate({
       entityType,
       entityId,
       action: newActivityAction,
       description: newActivityDescription,
+      metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
     });
   };
 
@@ -324,6 +361,70 @@ export function ActivityTimeline({
                 value={newActivityDescription}
                 onChange={(e) => setNewActivityDescription(e.target.value)}
                 className="min-h-[100px]"
+              />
+            </div>
+
+            {/* Date/Time Picker */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {activityDate ? (
+                        format(activityDate, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={activityDate}
+                      onSelect={(date) => setActivityDate(date || new Date())}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <Label>Time</Label>
+                <Input
+                  type="time"
+                  value={activityTime}
+                  onChange={(e) => setActivityTime(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Duration (conditional on activity type) */}
+            {(newActivityAction === "phone_call" ||
+              newActivityAction === "meeting_scheduled") && (
+              <div>
+                <Label>Duration (minutes)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 30"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  min="1"
+                />
+              </div>
+            )}
+
+            {/* Outcome */}
+            <div>
+              <Label>Outcome / Result</Label>
+              <Textarea
+                placeholder="What was the outcome or result of this activity?"
+                value={outcome}
+                onChange={(e) => setOutcome(e.target.value)}
+                className="min-h-[80px]"
               />
             </div>
           </div>
