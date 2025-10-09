@@ -7,6 +7,7 @@ import { docusealClient } from "@/lib/docuseal/client";
 import { sendSignedConfirmation } from "@/lib/docuseal/email-handler";
 import { extractAuditTrail } from "@/lib/docuseal/uk-compliance-fields";
 import { uploadToS3 } from "@/lib/s3/upload";
+import { autoConvertLeadToClient } from "@/lib/client-portal/auto-convert-lead";
 
 export const runtime = "nodejs";
 
@@ -79,6 +80,18 @@ async function handleSubmissionCompleted(submission: any) {
   if (!proposalId || !tenantId) {
     console.error("Missing proposal_id or tenant_id in submission metadata");
     throw new Error("Invalid submission metadata");
+  }
+
+  // Get proposal details (including leadId for auto-conversion)
+  const [proposalDetails] = await db
+    .select()
+    .from(proposals)
+    .where(eq(proposals.id, proposalId))
+    .limit(1);
+
+  if (!proposalDetails) {
+    console.error("Proposal not found:", proposalId);
+    throw new Error("Proposal not found");
   }
 
   // Extract audit trail from submission
@@ -183,6 +196,33 @@ async function handleSubmissionCompleted(submission: any) {
   });
 
   console.log("Database updated successfully");
+
+  // Auto-convert lead to client if proposal has a leadId
+  if (proposalDetails.leadId) {
+    console.log("Proposal has leadId, attempting auto-conversion:", proposalDetails.leadId);
+    try {
+      const conversionResult = await autoConvertLeadToClient(
+        proposalId,
+        proposalDetails.leadId,
+        tenantId
+      );
+
+      if (conversionResult) {
+        console.log("Lead auto-converted to client successfully:", {
+          clientId: conversionResult.clientId,
+          portalUserId: conversionResult.portalUserId,
+          isNewPortalUser: conversionResult.isNewPortalUser,
+          onboardingSessionId: conversionResult.onboardingSessionId,
+        });
+      }
+    } catch (conversionError) {
+      console.error("Failed to auto-convert lead to client:", conversionError);
+      // Don't throw - conversion failure shouldn't break the webhook
+      // Staff can manually convert if needed
+    }
+  } else {
+    console.log("Proposal has no leadId, skipping auto-conversion");
+  }
 
   // Send confirmation email via Resend
   try {

@@ -1309,6 +1309,10 @@ export const proposalSignatures = pgTable(
 export const onboardingStatusEnum = pgEnum("onboarding_status", [
   "not_started",
   "in_progress",
+  "pending_questionnaire", // Client needs to complete AML questionnaire
+  "pending_approval", // Awaiting staff approval after AML check
+  "approved", // Onboarding approved, client has full access
+  "rejected", // Onboarding rejected
   "completed",
 ]);
 
@@ -1410,6 +1414,78 @@ export const onboardingTasks = pgTable(
     ),
     assignedIdx: index("idx_onboarding_task_assigned").on(table.assignedToId),
     doneIdx: index("idx_onboarding_task_done").on(table.done),
+  }),
+);
+
+// Onboarding Questionnaire Responses table
+export const onboardingResponses = pgTable(
+  "onboarding_responses",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    onboardingSessionId: uuid("onboarding_session_id")
+      .references(() => onboardingSessions.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Question and answer
+    questionKey: varchar("question_key", { length: 255 }).notNull(), // e.g., "company_name", "directors"
+    answerValue: jsonb("answer_value"), // Flexible storage for any answer type
+    extractedFromAi: boolean("extracted_from_ai").default(false), // AI pre-filled
+    verifiedByUser: boolean("verified_by_user").default(false), // User confirmed
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_onboarding_response_tenant").on(table.tenantId),
+    sessionIdx: index("idx_onboarding_response_session").on(table.onboardingSessionId),
+  }),
+);
+
+// AML Checks table - ComplyCube integration
+export const amlChecks = pgTable(
+  "aml_checks",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    onboardingSessionId: uuid("onboarding_session_id")
+      .references(() => onboardingSessions.id, { onDelete: "cascade" }),
+
+    // ComplyCube integration
+    provider: varchar("provider", { length: 50 }).default("complycube").notNull(),
+    checkId: varchar("check_id", { length: 255 }).notNull(), // ComplyCube check ID
+    status: varchar("status", { length: 50 }).notNull(), // pending, complete, failed
+    riskLevel: varchar("risk_level", { length: 50 }), // low, medium, high
+    outcome: varchar("outcome", { length: 50 }), // clear, consider, attention
+    reportUrl: text("report_url"), // S3 URL to PDF report
+
+    // Approval workflow
+    checkedAt: timestamp("checked_at"),
+    approvedBy: text("approved_by").references(() => users.id),
+    approvedAt: timestamp("approved_at"),
+    rejectionReason: text("rejection_reason"),
+
+    // Metadata
+    metadata: jsonb("metadata"), // Store full ComplyCube response
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_aml_check_tenant").on(table.tenantId),
+    clientIdx: index("idx_aml_check_client").on(table.clientId),
+    sessionIdx: index("idx_aml_check_session").on(table.onboardingSessionId),
+    statusIdx: index("idx_aml_check_status").on(table.status),
+    checkIdIdx: index("idx_aml_check_check_id").on(table.checkId),
   }),
 );
 
