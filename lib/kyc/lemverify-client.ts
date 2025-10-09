@@ -10,6 +10,18 @@
  * Documentation: https://lemverify.com/docs.html
  * Cost: £1 per verification (vs ComplyCube £4-6)
  * UK MLR 2017 compliant via LexisNexis partnership
+ *
+ * CURRENT IMPLEMENTATION (v1.0):
+ * - Uses LEM Verify hosted verification page
+ * - Client uploads documents to LEM Verify's platform
+ * - Results received via webhook
+ *
+ * FUTURE OPTIMIZATION (v2.0 - Pending API Documentation):
+ * - Direct document upload via API (no hosted page)
+ * - Unified experience within our app
+ * - TODO: Contact LEM Verify support for complete "Upload a Document" API docs
+ * - TODO: Add uploadDocument(), uploadSelfie(), uploadLivenessVideo() methods
+ * - See: /docs/kyc/LEMVERIFY_INTEGRATION.md for details
  */
 
 const LEMVERIFY_API_URL = process.env.LEMVERIFY_API_URL || "https://api.lemverify.com/v1";
