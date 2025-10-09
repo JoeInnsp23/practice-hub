@@ -1489,6 +1489,71 @@ export const amlChecks = pgTable(
   }),
 );
 
+// KYC Verifications table - LEM Verify integration
+export const kycVerifications = pgTable(
+  "kyc_verifications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    onboardingSessionId: uuid("onboarding_session_id")
+      .references(() => onboardingSessions.id, { onDelete: "cascade" }),
+
+    // LEM Verify integration
+    lemverifyId: varchar("lemverify_id", { length: 255 }).notNull(), // LEM Verify verification ID
+    clientRef: varchar("client_ref", { length: 255 }).notNull(), // Our reference
+    status: varchar("status", { length: 50 }).notNull(), // completed, pending, failed
+    outcome: varchar("outcome", { length: 50 }), // pass, fail, refer
+
+    // Document verification results
+    documentType: varchar("document_type", { length: 50 }), // passport, driving_licence
+    documentVerified: boolean("document_verified").default(false),
+    documentData: jsonb("document_data"), // Extracted document data
+
+    // Biometric verification results
+    facematchResult: varchar("facematch_result", { length: 50 }), // pass, fail
+    facematchScore: decimal("facematch_score", { precision: 5, scale: 2 }), // 0-100
+    livenessResult: varchar("liveness_result", { length: 50 }), // pass, fail
+    livenessScore: decimal("liveness_score", { precision: 5, scale: 2 }), // 0-100
+
+    // AML screening results (via LexisNexis)
+    amlResult: jsonb("aml_result"), // Full AML check response
+    amlStatus: varchar("aml_status", { length: 50 }), // clear, match, pep
+    pepMatch: boolean("pep_match").default(false),
+    sanctionsMatch: boolean("sanctions_match").default(false),
+    watchlistMatch: boolean("watchlist_match").default(false),
+    adverseMediaMatch: boolean("adverse_media_match").default(false),
+
+    // Documents and reports
+    reportUrl: text("report_url"), // PDF report URL
+    documentsUrl: jsonb("documents_url"), // URLs to uploaded documents
+
+    // Approval workflow
+    approvedBy: text("approved_by").references(() => users.id),
+    approvedAt: timestamp("approved_at"),
+    rejectionReason: text("rejection_reason"),
+
+    // Metadata
+    metadata: jsonb("metadata"), // Store full LEM Verify response
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    completedAt: timestamp("completed_at"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_kyc_verification_tenant").on(table.tenantId),
+    clientIdx: index("idx_kyc_verification_client").on(table.clientId),
+    sessionIdx: index("idx_kyc_verification_session").on(table.onboardingSessionId),
+    statusIdx: index("idx_kyc_verification_status").on(table.status),
+    lemverifyIdIdx: index("idx_kyc_verification_lemverify_id").on(table.lemverifyId),
+  }),
+);
+
 // ============================================
 // END ONBOARDING SYSTEM
 // ============================================

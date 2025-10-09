@@ -1,0 +1,314 @@
+import { NextResponse } from "next/server";
+import crypto from "crypto";
+import { db } from "@/lib/db";
+import { kycVerifications, onboardingSessions, clients, activityLogs } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
+
+export const runtime = "nodejs";
+
+/**
+ * LEM Verify Webhook Handler
+ *
+ * This endpoint receives verification results from LEM Verify:
+ * 1. Document verification (passport/driving license)
+ * 2. Face matching (biometric)
+ * 3. Liveness detection (video)
+ * 4. AML screening (via LexisNexis)
+ * 5. PEP screening
+ *
+ * Setup Instructions:
+ * 1. Deploy this endpoint to production
+ * 2. Register URL with LEM Verify: https://app.innspiredaccountancy.com/api/webhooks/lemverify
+ * 3. Get API key from LEM Verify dashboard
+ * 4. Add LEMVERIFY_WEBHOOK_SECRET to environment variables
+ * 5. Uncomment signature verification below
+ */
+
+interface LemVerifyWebhookEvent {
+  id: string; // Verification ID
+  clientRef: string; // Our client ID
+  status: "pending" | "in_progress" | "completed" | "failed";
+  outcome?: "pass" | "fail" | "refer";
+
+  // Document verification
+  documentVerification?: {
+    verified: boolean;
+    documentType: "passport" | "driving_licence";
+    extractedData?: Record<string, any>;
+  };
+
+  // Biometric verification
+  facematch?: {
+    result: "pass" | "fail";
+    score: number;
+  };
+
+  liveness?: {
+    result: "pass" | "fail";
+    score: number;
+  };
+
+  // AML screening
+  amlScreening?: {
+    status: "clear" | "match" | "pep";
+    pepMatch: boolean;
+    sanctionsMatch: boolean;
+    watchlistMatch: boolean;
+    adverseMediaMatch: boolean;
+    matches?: Array<{
+      type: string;
+      name: string;
+      score: number;
+    }>;
+  };
+
+  // URLs
+  reportUrl?: string;
+  documentUrls?: string[];
+
+  // Alert type (for AML alerts)
+  amlAlert?: boolean;
+
+  // Timestamps
+  completedAt?: string;
+  updatedAt: string;
+}
+
+async function handleVerificationCompleted(event: LemVerifyWebhookEvent) {
+  console.log("Processing completed verification:", event.id);
+
+  // Find the KYC verification record
+  const [verification] = await db
+    .select()
+    .from(kycVerifications)
+    .where(eq(kycVerifications.lemverifyId, event.id))
+    .limit(1);
+
+  if (!verification) {
+    console.error("KYC verification not found for LEM Verify ID:", event.id);
+    return;
+  }
+
+  console.log("Found KYC verification:", verification.id);
+
+  // Update verification record with results
+  await db
+    .update(kycVerifications)
+    .set({
+      status: event.status,
+      outcome: event.outcome,
+      documentType: event.documentVerification?.documentType,
+      documentVerified: event.documentVerification?.verified || false,
+      documentData: event.documentVerification?.extractedData,
+      facematchResult: event.facematch?.result,
+      facematchScore: event.facematch?.score.toString(),
+      livenessResult: event.liveness?.result,
+      livenessScore: event.liveness?.score.toString(),
+      amlResult: event.amlScreening as any,
+      amlStatus: event.amlScreening?.status,
+      pepMatch: event.amlScreening?.pepMatch || false,
+      sanctionsMatch: event.amlScreening?.sanctionsMatch || false,
+      watchlistMatch: event.amlScreening?.watchlistMatch || false,
+      adverseMediaMatch: event.amlScreening?.adverseMediaMatch || false,
+      reportUrl: event.reportUrl,
+      documentsUrl: event.documentUrls as any,
+      completedAt: event.completedAt ? new Date(event.completedAt) : new Date(),
+      updatedAt: new Date(),
+      metadata: event as any,
+    })
+    .where(eq(kycVerifications.id, verification.id));
+
+  console.log("Updated KYC verification record");
+
+  // Auto-approve or reject based on outcome
+  if (event.outcome === "pass" && event.amlScreening?.status === "clear") {
+    console.log("Auto-approving client (all checks passed)");
+
+    // Update onboarding session to approved
+    if (verification.onboardingSessionId) {
+      await db
+        .update(onboardingSessions)
+        .set({
+          status: "approved",
+          progress: 100,
+          actualCompletionDate: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(onboardingSessions.id, verification.onboardingSessionId));
+
+      console.log("Updated onboarding session to approved");
+    }
+
+    // Update client status to active
+    await db
+      .update(clients)
+      .set({
+        status: "active",
+        updatedAt: new Date(),
+      })
+      .where(eq(clients.id, verification.clientId));
+
+    console.log("Updated client status to active");
+
+    // Update verification with approval
+    await db
+      .update(kycVerifications)
+      .set({
+        approvedAt: new Date(),
+        approvedBy: null, // Auto-approved
+        updatedAt: new Date(),
+      })
+      .where(eq(kycVerifications.id, verification.id));
+
+    // Log activity
+    await db.insert(activityLogs).values({
+      tenantId: verification.tenantId,
+      entityType: "client",
+      entityId: verification.clientId,
+      action: "kyc_verification_approved",
+      description: "KYC verification passed - client auto-approved",
+      userId: null,
+      userName: "System",
+      metadata: {
+        verificationId: verification.id,
+        lemverifyId: event.id,
+        outcome: event.outcome,
+      },
+    });
+  } else {
+    console.log("Flagging for manual review (checks failed or alerts found)");
+
+    // Update onboarding session to pending manual approval
+    if (verification.onboardingSessionId) {
+      await db
+        .update(onboardingSessions)
+        .set({
+          status: "pending_approval",
+          progress: 90,
+          updatedAt: new Date(),
+        })
+        .where(eq(onboardingSessions.id, verification.onboardingSessionId));
+    }
+
+    // Log activity for manual review
+    await db.insert(activityLogs).values({
+      tenantId: verification.tenantId,
+      entityType: "client",
+      entityId: verification.clientId,
+      action: "kyc_verification_requires_review",
+      description: "KYC verification requires manual review - alerts or failures detected",
+      userId: null,
+      userName: "System",
+      metadata: {
+        verificationId: verification.id,
+        lemverifyId: event.id,
+        outcome: event.outcome,
+        amlStatus: event.amlScreening?.status,
+        pepMatch: event.amlScreening?.pepMatch,
+        sanctionsMatch: event.amlScreening?.sanctionsMatch,
+      },
+    });
+  }
+
+  console.log("Verification processing complete");
+}
+
+async function handleAMLAlert(event: LemVerifyWebhookEvent) {
+  console.log("Processing AML alert for verification:", event.id);
+
+  // Find the KYC verification record
+  const [verification] = await db
+    .select()
+    .from(kycVerifications)
+    .where(eq(kycVerifications.lemverifyId, event.id))
+    .limit(1);
+
+  if (!verification) {
+    console.error("KYC verification not found for LEM Verify ID:", event.id);
+    return;
+  }
+
+  // Log critical alert
+  await db.insert(activityLogs).values({
+    tenantId: verification.tenantId,
+    entityType: "client",
+    entityId: verification.clientId,
+    action: "kyc_aml_alert",
+    description: "AML ALERT: Immediate review required",
+    userId: null,
+    userName: "System",
+    metadata: {
+      verificationId: verification.id,
+      lemverifyId: event.id,
+      amlAlert: event.amlScreening,
+      severity: "critical",
+    },
+  });
+
+  console.log("AML alert logged - requires immediate attention");
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.text();
+
+    console.log("LEM Verify webhook received:", body);
+
+    // TODO: Add signature verification after getting API key
+    // Uncomment this section once you have LEMVERIFY_WEBHOOK_SECRET
+    // const signature = request.headers.get("x-lemverify-signature");
+    // if (!signature) {
+    //   console.error("Missing LEM Verify webhook signature");
+    //   return new Response("Missing signature", { status: 401 });
+    // }
+
+    // const webhookSecret = process.env.LEMVERIFY_WEBHOOK_SECRET;
+    // if (!webhookSecret) {
+    //   console.error("LEMVERIFY_WEBHOOK_SECRET not configured");
+    //   return new Response("Server configuration error", { status: 500 });
+    // }
+
+    // Verify signature (HMAC-SHA256)
+    // const expectedSignature = crypto
+    //   .createHmac("sha256", webhookSecret)
+    //   .update(body)
+    //   .digest("hex");
+
+    // if (signature !== expectedSignature) {
+    //   console.error("Invalid LEM Verify webhook signature");
+    //   return new Response("Invalid signature", { status: 401 });
+    // }
+
+    // Parse webhook event
+    let event: LemVerifyWebhookEvent;
+    try {
+      event = JSON.parse(body);
+      console.log("LEM Verify event:", {
+        id: event.id,
+        status: event.status,
+        outcome: event.outcome,
+        amlAlert: event.amlAlert,
+      });
+    } catch (parseError) {
+      console.error("Failed to parse webhook body:", parseError);
+      return new Response("Invalid JSON", { status: 400 });
+    }
+
+    // Handle different event types
+    if (event.status === "completed") {
+      await handleVerificationCompleted(event);
+    } else if (event.amlAlert) {
+      await handleAMLAlert(event);
+    } else {
+      console.log("Webhook event received but no action needed:", event.status);
+    }
+
+    // Always return 200 OK to LEM Verify
+    return new Response("OK", { status: 200 });
+  } catch (error) {
+    console.error("LEM Verify webhook error:", error);
+
+    // Still return 200 to prevent LEM Verify from retrying
+    return new Response("OK", { status: 200 });
+  }
+}

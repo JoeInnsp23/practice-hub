@@ -8,13 +8,14 @@ import {
   onboardingTasks,
   onboardingResponses,
   amlChecks,
+  kycVerifications,
   activityLogs,
   users,
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 import { getPrefilledQuestionnaire, validateQuestionnaireComplete } from "@/lib/ai/questionnaire-prefill";
 import { updateExtractedResponse, markResponseAsVerified } from "@/lib/ai/save-extracted-data";
-import { complycubeClient } from "@/lib/aml/complycube-client";
+import { lemverifyClient } from "@/lib/kyc/lemverify-client";
 
 // Onboarding task template - 17 standard tasks from CSV
 const ONBOARDING_TEMPLATE_TASKS = [
@@ -754,46 +755,45 @@ export const onboardingRouter = router({
         });
       }
 
-      console.log("Submitting questionnaire and initiating AML check for client:", client.id);
+      console.log("Submitting questionnaire and initiating KYC verification for client:", client.id);
 
-      // Extract data for ComplyCube
+      // Extract data for LEM Verify
       const firstName = prefilledData.fields.contact_first_name?.value || "";
       const lastName = prefilledData.fields.contact_last_name?.value || "";
-      const companyName = prefilledData.fields.company_name?.value;
-      const companyNumber = prefilledData.fields.company_number?.value;
-      const address = prefilledData.fields.company_registered_address?.value ||
-                     prefilledData.fields.contact_address?.value;
+      const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
+      const phoneNumber = prefilledData.fields.contact_phone?.value || client.phone;
 
       try {
-        // Create ComplyCube client
-        const complycubeClientData = await complycubeClient.createClient({
+        // Request verification from LEM Verify
+        const verificationRequest = await lemverifyClient.requestVerification({
+          clientRef: client.id,
           email: client.email || "",
           firstName,
           lastName,
-          companyName,
-          companyNumber,
-          address,
+          dateOfBirth,
+          phoneNumber: phoneNumber || undefined,
+          callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://app.innspiredaccountancy.com"}/api/webhooks/lemverify`,
+          metadata: {
+            tenantId: ctx.authContext.tenantId,
+            onboardingSessionId: sessionId,
+            clientCode: client.clientCode,
+          },
         });
 
-        console.log("ComplyCube client created:", complycubeClientData.id);
+        console.log("LEM Verify verification requested:", verificationRequest.id);
+        console.log("Verification URL:", verificationRequest.verificationUrl);
 
-        // Initiate AML check
-        const amlCheckResult = await complycubeClient.performAMLCheck(complycubeClientData.id);
-
-        console.log("AML check initiated:", amlCheckResult.id);
-
-        // Save AML check record
-        await db.insert(amlChecks).values({
+        // Create KYC verification record
+        await db.insert(kycVerifications).values({
           tenantId: ctx.authContext.tenantId,
           clientId: client.id,
           onboardingSessionId: sessionId,
-          provider: "complycube",
-          checkId: amlCheckResult.id,
-          status: amlCheckResult.status,
-          riskLevel: amlCheckResult.riskLevel,
-          outcome: amlCheckResult.outcome,
+          lemverifyId: verificationRequest.id,
+          clientRef: client.id,
+          status: "pending",
           metadata: {
-            complycubeClientId: complycubeClientData.id,
+            verificationUrl: verificationRequest.verificationUrl,
+            requestedAt: new Date().toISOString(),
           },
         });
 
@@ -801,8 +801,8 @@ export const onboardingRouter = router({
         await db
           .update(onboardingSessions)
           .set({
-            status: "pending_approval",
-            progress: 75, // Questionnaire complete, awaiting AML results
+            status: "pending_approval", // Awaiting client to complete verification
+            progress: 50, // Questionnaire complete, awaiting document upload
             updatedAt: new Date(),
           })
           .where(eq(onboardingSessions.id, sessionId));
@@ -812,24 +812,29 @@ export const onboardingRouter = router({
           tenantId: ctx.authContext.tenantId,
           entityType: "client",
           entityId: client.id,
-          action: "aml_check_initiated",
-          description: "Onboarding questionnaire submitted, AML check initiated",
+          action: "kyc_verification_initiated",
+          description: "Onboarding questionnaire submitted, KYC verification link sent to client",
           userId: ctx.authContext.userId,
           userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
           metadata: {
             sessionId,
-            complycubeClientId: complycubeClientData.id,
-            amlCheckId: amlCheckResult.id,
+            lemverifyId: verificationRequest.id,
           },
         });
 
+        // TODO: Send email to client with verification URL
+        // This should use your email service (e.g., Resend, SendGrid)
+        console.log(`TODO: Send verification email to ${client.email}`);
+        console.log(`Verification URL: ${verificationRequest.verificationUrl}`);
+
         return {
           success: true,
-          message: "Questionnaire submitted. Your application is now under review.",
+          message: "Questionnaire submitted. Please check your email to complete identity verification.",
           status: "pending_approval",
+          verificationUrl: verificationRequest.verificationUrl, // Can be used for immediate redirect
         };
       } catch (error) {
-        console.error("Failed to initiate AML check:", error);
+        console.error("Failed to initiate KYC verification:", error);
 
         // Update session with error status
         await db
@@ -845,8 +850,8 @@ export const onboardingRouter = router({
           tenantId: ctx.authContext.tenantId,
           entityType: "onboarding_session",
           entityId: sessionId,
-          action: "aml_check_failed",
-          description: "Failed to initiate AML check - requires manual review",
+          action: "kyc_verification_failed",
+          description: "Failed to initiate KYC verification - requires manual review",
           userId: ctx.authContext.userId,
           userName: "System",
           metadata: {
@@ -856,7 +861,7 @@ export const onboardingRouter = router({
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initiate compliance check. Please contact support.",
+          message: "Failed to initiate identity verification. Please contact support.",
         });
       }
     }),
@@ -892,23 +897,23 @@ export const onboardingRouter = router({
         };
       }
 
-      // Get AML check if exists
-      const [amlCheck] = await db
+      // Get KYC verification if exists
+      const [kycVerification] = await db
         .select()
-        .from(amlChecks)
-        .where(eq(amlChecks.onboardingSessionId, session.id))
-        .orderBy(desc(amlChecks.createdAt))
+        .from(kycVerifications)
+        .where(eq(kycVerifications.onboardingSessionId, session.id))
+        .orderBy(desc(kycVerifications.createdAt))
         .limit(1);
 
       return {
         hasOnboarding: true,
         session,
-        amlCheck,
+        kycVerification,
         canAccessPortal: session.status === "approved",
         blockingReason: session.status === "rejected"
           ? "Your application has been declined"
           : session.status === "pending_approval"
-          ? "Your application is under review"
+          ? "Your identity verification is under review"
           : session.status === "pending_questionnaire"
           ? "Please complete your onboarding questionnaire"
           : null,
