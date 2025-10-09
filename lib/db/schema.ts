@@ -1137,6 +1137,12 @@ export const proposals = pgTable(
     pdfUrl: text("pdf_url"),
     signedPdfUrl: text("signed_pdf_url"),
 
+    // DocuSeal integration
+    docusealTemplateId: text("docuseal_template_id"),
+    docusealSubmissionId: text("docuseal_submission_id"),
+    docusealSignedPdfUrl: text("docuseal_signed_pdf_url"),
+    documentHash: text("document_hash"), // SHA-256 hash of final signed PDF
+
     // Template and content
     templateId: uuid("template_id"),
     customTerms: text("custom_terms"),
@@ -1256,20 +1262,38 @@ export const proposalSignatures = pgTable(
       .references(() => proposals.id, { onDelete: "cascade" })
       .notNull(),
 
+    // DocuSeal integration
+    docusealSubmissionId: text("docuseal_submission_id").unique(),
+    signatureType: varchar("signature_type", { length: 50 })
+      .notNull()
+      .default("electronic"), // electronic | wet_ink
+    signatureMethod: varchar("signature_method", { length: 50 }).notNull(), // docuseal | canvas (legacy)
+
     // Signer information
     signerEmail: varchar("signer_email", { length: 255 }).notNull(),
     signerName: varchar("signer_name", { length: 255 }).notNull(),
 
-    // Signature details
-    signatureData: text("signature_data").notNull(), // Base64 signature image
+    // UK SES Compliance fields
+    signingCapacity: varchar("signing_capacity", { length: 100 }), // Director | Authorized Signatory
+    companyInfo: jsonb("company_info"), // { name, number, authority_check }
+    auditTrail: jsonb("audit_trail").notNull(), // Full audit metadata
+    documentHash: text("document_hash"), // SHA-256 of signed PDF
+
+    // Technical metadata
+    signatureData: text("signature_data").notNull(), // Base64 for legacy, DocuSeal ID for new
     signedAt: timestamp("signed_at").notNull(),
+    viewedAt: timestamp("viewed_at"), // When document was first viewed
     ipAddress: varchar("ip_address", { length: 45 }),
+    userAgent: text("user_agent"), // Browser/device information
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
     proposalIdx: index("idx_signature_proposal").on(table.proposalId),
+    docusealIdx: index("idx_signature_docuseal").on(
+      table.docusealSubmissionId,
+    ),
   }),
 );
 
@@ -1514,6 +1538,57 @@ export const activityLogs = pgTable(
       table.tenantId,
       table.entityType,
       table.entityId,
+    ),
+  }),
+);
+
+// User Permissions table - for granular permission control
+export const userPermissions = pgTable(
+  "user_permissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    module: varchar("module", { length: 50 }).notNull(), // "clients" | "tasks" | "invoices" | "proposals" | etc.
+    canView: boolean("can_view").notNull().default(true),
+    canCreate: boolean("can_create").notNull().default(false),
+    canEdit: boolean("can_edit").notNull().default(false),
+    canDelete: boolean("can_delete").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userModuleIdx: uniqueIndex("idx_user_module").on(table.userId, table.module),
+    tenantIdx: index("idx_permissions_tenant").on(table.tenantId),
+  }),
+);
+
+// Role Permissions table - for default role-based permissions
+export const rolePermissions = pgTable(
+  "role_permissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    role: varchar("role", { length: 50 }).notNull(), // "admin" | "org:admin" | "user" | "viewer"
+    module: varchar("module", { length: 50 }).notNull(),
+    canView: boolean("can_view").notNull().default(true),
+    canCreate: boolean("can_create").notNull().default(false),
+    canEdit: boolean("can_edit").notNull().default(false),
+    canDelete: boolean("can_delete").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    roleModuleIdx: uniqueIndex("idx_role_module").on(
+      table.tenantId,
+      table.role,
+      table.module,
     ),
   }),
 );
@@ -1845,3 +1920,160 @@ export const invoiceDetailsView = pgView("invoice_details_view", {
   createdByName: text("created_by_name"),
   balanceDue: decimal("balance_due", { precision: 10, scale: 2 }),
 }).existing();
+
+// ==================== CLIENT PORTAL TABLES ====================
+// External client portal with separate authentication
+
+// Client Portal Users - External client accounts (separate from staff users)
+export const clientPortalUsers = pgTable(
+  "client_portal_users",
+  {
+    id: text("id").primaryKey(), // Better Auth user ID
+    tenantId: text("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    email: text("email").notNull(),
+    firstName: varchar("first_name", { length: 100 }),
+    lastName: varchar("last_name", { length: 100 }),
+    phone: varchar("phone", { length: 50 }),
+    status: varchar("status", { length: 20 }).default("active").notNull(), // active, suspended, invited
+    lastLoginAt: timestamp("last_login_at"),
+    invitedBy: text("invited_by").references(() => users.id),
+    invitedAt: timestamp("invited_at"),
+    acceptedAt: timestamp("accepted_at"),
+    metadata: jsonb("metadata"), // Custom fields, preferences, etc.
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    emailIdx: index("client_portal_users_email_idx").on(table.email),
+    tenantIdx: index("client_portal_users_tenant_idx").on(table.tenantId),
+  }),
+);
+
+// Client Portal Access - Links portal users to clients (many-to-many)
+// Enables multi-client access for users who manage multiple entities
+export const clientPortalAccess = pgTable(
+  "client_portal_access",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    portalUserId: text("portal_user_id")
+      .references(() => clientPortalUsers.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    role: varchar("role", { length: 50 }).default("viewer").notNull(), // viewer, editor, admin
+    grantedBy: text("granted_by").references(() => users.id),
+    grantedAt: timestamp("granted_at").defaultNow().notNull(),
+    expiresAt: timestamp("expires_at"), // Optional expiration for temporary access
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    userClientIdx: uniqueIndex("client_portal_access_user_client_idx").on(
+      table.portalUserId,
+      table.clientId,
+    ),
+    clientIdx: index("client_portal_access_client_idx").on(table.clientId),
+    tenantIdx: index("client_portal_access_tenant_idx").on(table.tenantId),
+  }),
+);
+
+// Client Portal Invitations - Tracks invitation workflow
+export const clientPortalInvitations = pgTable(
+  "client_portal_invitations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    email: text("email").notNull(),
+    firstName: varchar("first_name", { length: 100 }),
+    lastName: varchar("last_name", { length: 100 }),
+    clientIds: jsonb("client_ids").notNull(), // Array of client UUIDs to grant access to
+    role: varchar("role", { length: 50 }).default("viewer").notNull(),
+    token: text("token").notNull().unique(), // Secure invitation token
+    invitedBy: text("invited_by")
+      .references(() => users.id)
+      .notNull(),
+    status: varchar("status", { length: 20 }).default("pending").notNull(), // pending, accepted, expired, revoked
+    sentAt: timestamp("sent_at").defaultNow().notNull(),
+    expiresAt: timestamp("expires_at").notNull(), // 7 days default
+    acceptedAt: timestamp("accepted_at"),
+    revokedAt: timestamp("revoked_at"),
+    revokedBy: text("revoked_by").references(() => users.id),
+    metadata: jsonb("metadata"), // Custom message, etc.
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    emailIdx: index("client_portal_invitations_email_idx").on(table.email),
+    tokenIdx: uniqueIndex("client_portal_invitations_token_idx").on(table.token),
+    statusIdx: index("client_portal_invitations_status_idx").on(table.status),
+    tenantIdx: index("client_portal_invitations_tenant_idx").on(table.tenantId),
+  }),
+);
+
+// Client Portal Better Auth tables - Separate from staff auth
+export const clientPortalSessions = pgTable("client_portal_session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => clientPortalUsers.id, { onDelete: "cascade" }),
+});
+
+export const clientPortalAccounts = pgTable("client_portal_account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => clientPortalUsers.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const clientPortalVerifications = pgTable("client_portal_verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});

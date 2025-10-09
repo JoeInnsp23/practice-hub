@@ -24,6 +24,7 @@ import { AssignLeadDialog } from "@/app/proposal-hub/leads/components/assign-lea
 import { ScheduleFollowUpDialog } from "@/app/proposal-hub/leads/components/schedule-follow-up-dialog";
 import { trpc } from "@/app/providers/trpc-provider";
 import { ActivityTimeline } from "@/components/proposal-hub/activity-timeline";
+import { CreateProposalFromLeadDialog } from "@/components/proposal-hub/create-proposal-from-lead-dialog";
 import { TaskDialog } from "@/components/proposal-hub/task-dialog";
 import { TaskList } from "@/components/proposal-hub/task-list";
 import { Badge } from "@/components/ui/badge";
@@ -131,6 +132,7 @@ export default function LeadDetailPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <CreateProposalFromLeadDialog lead={lead} />
           <Button variant="outline" onClick={() => setAssignDialogOpen(true)}>
             <UserCheck className="h-4 w-4 mr-2" />
             Assign Lead
@@ -146,10 +148,6 @@ export default function LeadDetailPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem disabled>
-                <FileText className="h-4 w-4 mr-2" />
-                Create Proposal
-              </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <UserCheck className="h-4 w-4 mr-2" />
                 Convert to Client
@@ -229,6 +227,7 @@ export default function LeadDetailPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Contact Information */}
+            {/* @ts-ignore TypeScript incorrectly infers type for sibling Cards in grid */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <User className="h-5 w-5" />
@@ -272,7 +271,7 @@ export default function LeadDetailPage() {
               </div>
             </Card>
 
-            <Card className="p-6" key="company-info">
+            <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
                 Company Information

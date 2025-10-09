@@ -10,6 +10,9 @@ import {
   clientPSCs,
   clientServices,
   clients,
+  clientPortalUsers,
+  clientPortalAccess,
+  clientPortalInvitations,
   compliance,
   documents,
   invitations,
@@ -262,10 +265,10 @@ async function seedDatabase() {
       sortOrder: 7,
     },
     {
-      title: "Client Portal",
-      description: "Client self-service portal",
-      url: "/client-portal",
-      iconName: "UserCircle",
+      title: "Client Admin",
+      description: "Manage external client portal users and access",
+      url: "/client-admin",
+      iconName: "Users",
       sortOrder: 8,
     },
     {
@@ -2672,6 +2675,90 @@ async function seedDatabase() {
       },
     });
   }
+
+  // 13. Client Portal Users and Access
+  console.log("Creating client portal users and access...");
+
+  // Create client portal users for some of the clients
+  const clientPortalUsersList = [
+    {
+      email: "john.smith@techstart.com",
+      firstName: "John",
+      lastName: "Smith",
+      phone: "+44 20 1234 5678",
+      status: "active",
+    },
+    {
+      email: "sarah.williams@techstart.com",
+      firstName: "Sarah",
+      lastName: "Williams",
+      phone: "+44 20 1234 5679",
+      status: "active",
+    },
+  ];
+
+  const createdPortalUsers = await db
+    .insert(clientPortalUsers)
+    .values(
+      clientPortalUsersList.map((user) => ({
+        id: crypto.randomUUID(),
+        ...user,
+        tenantId: tenant.id,
+        invitedBy: adminUser.id,
+        invitedAt: faker.date.recent({ days: 30 }),
+        acceptedAt: faker.date.recent({ days: 25 }),
+      })),
+    )
+    .returning();
+
+  // Grant access to clients (multi-client linking)
+  // First portal user has access to multiple clients
+  await db.insert(clientPortalAccess).values([
+    {
+      tenantId: tenant.id,
+      portalUserId: createdPortalUsers[0].id,
+      clientId: createdClients[0].id, // TechStart Solutions
+      role: "admin",
+      grantedBy: adminUser.id,
+      isActive: true,
+    },
+    {
+      tenantId: tenant.id,
+      portalUserId: createdPortalUsers[0].id,
+      clientId: createdClients[1].id, // Green Energy Ltd
+      role: "viewer",
+      grantedBy: adminUser.id,
+      isActive: true,
+    },
+  ]);
+
+  // Second portal user has access to one client
+  await db.insert(clientPortalAccess).values([
+    {
+      tenantId: tenant.id,
+      portalUserId: createdPortalUsers[1].id,
+      clientId: createdClients[0].id, // TechStart Solutions
+      role: "viewer",
+      grantedBy: adminUser.id,
+      isActive: true,
+    },
+  ]);
+
+  // Create pending client portal invitations
+  await db.insert(clientPortalInvitations).values([
+    {
+      tenantId: tenant.id,
+      email: "finance@retailco.com",
+      firstName: "Michael",
+      lastName: "Brown",
+      clientIds: [createdClients[2].id], // RetailCo Ltd
+      role: "admin",
+      token: crypto.randomBytes(32).toString("hex"),
+      invitedBy: adminUser.id,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  ]);
 
   console.log("✅ Database seeding completed!");
 

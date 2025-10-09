@@ -1,6 +1,8 @@
 import { activitiesRouter } from "./routers/activities";
 import { analyticsRouter } from "./routers/analytics";
 import { clientsRouter } from "./routers/clients";
+import { clientPortalRouter } from "./routers/clientPortal";
+import { clientPortalAdminRouter } from "./routers/clientPortalAdmin";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
 import { invitationsRouter } from "./routers/invitations";
@@ -45,6 +47,8 @@ export const appRouter = router({
   analytics: analyticsRouter,
   onboarding: onboardingRouter,
   invitations: invitationsRouter,
+  clientPortal: clientPortalRouter,
+  clientPortalAdmin: clientPortalAdminRouter,
 });
 
 export type AppRouter = typeof appRouter;

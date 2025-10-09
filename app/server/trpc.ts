@@ -57,7 +57,29 @@ const isAdmin = t.middleware(({ next, ctx }) => {
   });
 });
 
+// Middleware to check if client portal user is authenticated
+const isClientPortalAuthed = t.middleware(({ next, ctx }) => {
+  if (!ctx.clientPortalSession?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Client portal authentication required" });
+  }
+
+  if (!ctx.clientPortalAuthContext) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Client not found or access denied",
+    });
+  }
+
+  return next({
+    ctx: {
+      clientPortalSession: ctx.clientPortalSession,
+      clientPortalAuthContext: ctx.clientPortalAuthContext,
+    },
+  });
+});
+
 export const router = t.router;
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthed);
 export const adminProcedure = t.procedure.use(isAdmin);
+export const clientPortalProcedure = t.procedure.use(isClientPortalAuthed);

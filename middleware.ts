@@ -1,19 +1,35 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { clientPortalAuth } from "@/lib/client-portal-auth";
 
+// Public paths for staff authentication
 const publicPaths = ["/", "/sign-in", "/sign-up", "/accept-invitation"];
 const authApiPath = "/api/auth";
+
+// Public paths for client portal authentication
+const clientPortalPublicPaths = ["/portal/sign-in", "/portal/sign-up", "/portal/accept"];
+const clientPortalApiPath = "/api/client-portal-auth";
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public routes
+  // Allow public routes (staff)
   if (publicPaths.some((path) => pathname === path)) {
     return NextResponse.next();
   }
 
-  // Allow accept-invitation with token parameter
+  // Allow client portal public routes
+  if (clientPortalPublicPaths.some((path) => pathname === path)) {
+    return NextResponse.next();
+  }
+
+  // Allow accept-invitation with token parameter (staff)
   if (pathname.startsWith("/accept-invitation/")) {
+    return NextResponse.next();
+  }
+
+  // Allow client portal accept-invitation
+  if (pathname.startsWith("/portal/accept/")) {
     return NextResponse.next();
   }
 
@@ -22,8 +38,8 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow auth API routes
-  if (pathname.startsWith(authApiPath)) {
+  // Allow auth API routes (both staff and client portal)
+  if (pathname.startsWith(authApiPath) || pathname.startsWith(clientPortalApiPath)) {
     return NextResponse.next();
   }
 
@@ -32,25 +48,47 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Determine which auth system to use based on pathname
+  const isClientPortal = pathname.startsWith("/portal");
+
   // Check session for protected routes
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    if (isClientPortal) {
+      // Client Portal authentication
+      const session = await clientPortalAuth.api.getSession({
+        headers: request.headers,
+      });
 
-    if (!session) {
-      // No session - redirect to sign-in
-      const signInUrl = new URL("/sign-in", request.url);
-      signInUrl.searchParams.set("from", pathname);
-      return NextResponse.redirect(signInUrl);
+      if (!session) {
+        // No session - redirect to client portal sign-in
+        const signInUrl = new URL("/portal/sign-in", request.url);
+        signInUrl.searchParams.set("from", pathname);
+        return NextResponse.redirect(signInUrl);
+      }
+
+      // Session exists - allow access
+      return NextResponse.next();
+    } else {
+      // Staff authentication
+      const session = await auth.api.getSession({
+        headers: request.headers,
+      });
+
+      if (!session) {
+        // No session - redirect to staff sign-in
+        const signInUrl = new URL("/sign-in", request.url);
+        signInUrl.searchParams.set("from", pathname);
+        return NextResponse.redirect(signInUrl);
+      }
+
+      // Session exists - allow access
+      return NextResponse.next();
     }
-
-    // Session exists - allow access
-    return NextResponse.next();
   } catch (error) {
     console.error("Middleware auth error:", error);
-    // On error, redirect to sign-in
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    // On error, redirect to appropriate sign-in
+    const signInPath = isClientPortal ? "/portal/sign-in" : "/sign-in";
+    return NextResponse.redirect(new URL(signInPath, request.url));
   }
 }
 

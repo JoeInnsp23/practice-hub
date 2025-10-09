@@ -29,6 +29,22 @@ services:
       timeout: 5s
       retries: 5
 
+  docuseal:
+    image: docuseal/docuseal:latest
+    container_name: practice-hub-docuseal
+    ports:
+      - "127.0.0.1:3030:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:PgHub2024SecureDB9kL@postgres:5432/docuseal
+      - SECRET_KEY_BASE=${DOCUSEAL_SECRET_KEY:-changeme}
+      - HOST=${DOCUSEAL_HOST:-http://localhost:3030}
+    volumes:
+      - docuseal_data:/data
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   minio_data:
+  docuseal_data:

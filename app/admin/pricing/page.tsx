@@ -1,17 +1,8 @@
-import { redirect } from "next/navigation";
-import { getAuthContext } from "@/lib/auth";
-import { PricingManagementClient } from "./pricing-client";
-
-export default async function PricingSettingsPage() {
-  const authContext = await getAuthContext();
-
-  // Require admin access
-  if (
-    !authContext ||
-    (authContext.role !== "admin" && authContext.role !== "org:admin")
-  ) {
-    redirect("/");
-  }
-
-  return <PricingManagementClient />;
+export default function PricingPage() {
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold">Pricing Management</h1>
+      <p className="text-muted-foreground mt-2">Pricing management coming soon</p>
+    </div>
+  );
 }

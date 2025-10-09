@@ -4,6 +4,7 @@ import {
   Calculator,
   FileText,
   Home,
+  Settings,
   TrendingUp,
   UserPlus,
   Users,
@@ -24,6 +25,12 @@ const sections = [
     items: [
       { name: "Onboarding", href: "/proposal-hub/onboarding", icon: UserPlus },
       { name: "Pipeline", href: "/proposal-hub/pipeline", icon: TrendingUp },
+    ],
+  },
+  {
+    title: "Admin",
+    items: [
+      { name: "Pricing", href: "/proposal-hub/admin/pricing", icon: Settings },
     ],
   },
 ];

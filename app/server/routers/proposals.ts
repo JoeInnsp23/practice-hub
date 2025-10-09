@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import {
   activityLogs,
   clients,
+  leads,
   proposalServices,
   proposalSignatures,
   proposals,
@@ -15,6 +16,9 @@ import {
   sendSignedConfirmationEmail,
   sendTeamNotificationEmail,
 } from "@/lib/email/send-proposal-email";
+import { docusealClient } from "@/lib/docuseal/client";
+import { sendSigningInvitation } from "@/lib/docuseal/email-handler";
+import { getProposalSignatureFields } from "@/lib/docuseal/uk-compliance-fields";
 import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 
@@ -269,6 +273,110 @@ export const proposalsRouter = router({
       return { success: true, proposal: result };
     }),
 
+  // Create proposal from lead
+  createFromLead: protectedProcedure
+    .input(z.object({ leadId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get lead data
+      const [lead] = await db
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, input.leadId), eq(leads.tenantId, tenantId)))
+        .limit(1);
+
+      if (!lead) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lead not found",
+        });
+      }
+
+      // Generate proposal number
+      const lastProposal = await db
+        .select({ proposalNumber: proposals.proposalNumber })
+        .from(proposals)
+        .where(eq(proposals.tenantId, tenantId))
+        .orderBy(desc(proposals.createdAt))
+        .limit(1);
+
+      let proposalNumber = "PROP-0001";
+      if (lastProposal[0]?.proposalNumber) {
+        const lastNum = Number.parseInt(
+          lastProposal[0].proposalNumber.split("-")[1],
+          10,
+        );
+        proposalNumber = `PROP-${String(lastNum + 1).padStart(4, "0")}`;
+      }
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Create proposal with lead data pre-filled
+        const [newProposal] = await tx
+          .insert(proposals)
+          .values({
+            tenantId,
+            leadId: input.leadId,
+            proposalNumber,
+            title: `Proposal for ${lead.companyName || `${lead.firstName} ${lead.lastName}`}`,
+            clientId: null, // Will be set when client is created
+            status: "draft",
+            pricingModelUsed: "model_b", // Default
+            turnover: lead.estimatedTurnover || null,
+            industry: lead.industry || null,
+            monthlyTotal: "0",
+            annualTotal: "0",
+            createdById: userId,
+          })
+          .returning();
+
+        // Update lead status to proposal_sent
+        await tx
+          .update(leads)
+          .set({
+            status: "proposal_sent",
+            updatedAt: new Date(),
+          })
+          .where(eq(leads.id, input.leadId));
+
+        // Log activity for lead
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "lead",
+          entityId: input.leadId,
+          action: "proposal_created",
+          description: `Created proposal ${proposalNumber} from lead`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          newValues: {
+            proposalId: newProposal.id,
+            proposalNumber,
+          },
+        });
+
+        // Log activity for proposal
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: newProposal.id,
+          action: "created",
+          description: `Created from lead "${lead.companyName || `${lead.firstName} ${lead.lastName}`}"`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          newValues: {
+            leadId: input.leadId,
+            title: newProposal.title,
+            status: "draft",
+          },
+        });
+
+        return newProposal;
+      });
+
+      return { success: true, proposal: result };
+    }),
+
   // Update proposal
   update: protectedProcedure
     .input(
@@ -424,6 +532,8 @@ export const proposalsRouter = router({
           clientName: clients.name,
           clientEmail: clients.email,
           pdfUrl: proposals.pdfUrl,
+          proposalNumber: proposals.proposalNumber,
+          docusealTemplateId: proposals.docusealTemplateId,
         })
         .from(proposals)
         .leftJoin(clients, eq(proposals.clientId, clients.id))
@@ -459,7 +569,65 @@ export const proposalsRouter = router({
         pdfUrl = result.pdfUrl;
       }
 
-      // Update proposal status and valid until date
+      // Create or get DocuSeal template
+      let templateId: string = existingProposal.docusealTemplateId || "";
+
+      if (!templateId) {
+        try {
+          const template = await docusealClient.createTemplate({
+            name: `Proposal ${existingProposal.proposalNumber} - ${existingProposal.clientName}`,
+            fields: getProposalSignatureFields({
+              companyName: existingProposal.clientName || undefined,
+              clientName: existingProposal.clientName || undefined,
+            }),
+          });
+          templateId = template.id;
+        } catch (error) {
+          console.error("Failed to create DocuSeal template:", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create signature template",
+          });
+        }
+      }
+
+      // Ensure we have a templateId at this point
+      if (!templateId) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to obtain template ID",
+        });
+      }
+
+      // Create DocuSeal submission for signing
+      let submissionId: string;
+      try {
+        const submission = await docusealClient.createSubmission({
+          template_id: templateId,
+          send_email: false, // We'll send via Resend
+          submitters: [
+            {
+              email: existingProposal.clientEmail,
+              name: existingProposal.clientName,
+              role: "Client",
+            },
+          ],
+          metadata: {
+            proposal_id: input.id,
+            proposal_number: existingProposal.proposalNumber,
+            tenant_id: tenantId,
+          },
+        });
+        submissionId = submission.id;
+      } catch (error) {
+        console.error("Failed to create DocuSeal submission:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create signature submission",
+        });
+      }
+
+      // Update proposal status and DocuSeal IDs
       const [updatedProposal] = await db
         .update(proposals)
         .set({
@@ -467,20 +635,26 @@ export const proposalsRouter = router({
           sentAt: new Date(),
           validUntil: new Date(input.validUntil),
           pdfUrl,
+          docusealTemplateId: templateId,
+          docusealSubmissionId: submissionId,
           updatedAt: new Date(),
         })
         .where(eq(proposals.id, input.id))
         .returning();
 
-      // Send email notification to client
+      // Send signing invitation email via Resend
+      const embeddedSigningUrl = `${process.env.NEXT_PUBLIC_APP_URL}/proposals/sign/${input.id}`;
+
       try {
-        await sendProposalEmail({
+        await sendSigningInvitation({
           proposalId: input.id,
+          proposalNumber: existingProposal.proposalNumber,
           recipientEmail: existingProposal.clientEmail,
           recipientName: existingProposal.clientName,
+          embeddedSigningUrl,
         });
       } catch (emailError) {
-        console.error("Failed to send proposal email:", emailError);
+        console.error("Failed to send signing invitation email:", emailError);
         // Don't fail the mutation if email fails, just log it
         // The proposal is still marked as sent
       }
@@ -584,6 +758,14 @@ export const proposalsRouter = router({
             signerName: input.signerName,
             signerEmail: input.signerEmail,
             signatureData: input.signatureData,
+            signatureMethod: "canvas",
+            auditTrail: {
+              signedAt: signedAt.toISOString(),
+              signerName: input.signerName,
+              signerEmail: input.signerEmail,
+              ipAddress: input.ipAddress,
+              method: "manual_signature",
+            },
             ipAddress: input.ipAddress,
             signedAt,
           })
@@ -715,6 +897,7 @@ export const proposalsRouter = router({
           notes: proposals.notes,
           termsAndConditions: proposals.termsAndConditions,
           pdfUrl: proposals.pdfUrl,
+          docusealSubmissionId: proposals.docusealSubmissionId,
           validUntil: proposals.validUntil,
           sentAt: proposals.sentAt,
           signedAt: proposals.signedAt,
@@ -816,6 +999,14 @@ export const proposalsRouter = router({
             signerName: input.signerName,
             signerEmail: input.signerEmail,
             signatureData: input.signatureData,
+            signatureMethod: "canvas",
+            auditTrail: {
+              signedAt: signedAt.toISOString(),
+              signerName: input.signerName,
+              signerEmail: input.signerEmail,
+              ipAddress: input.ipAddress,
+              method: "manual_signature",
+            },
             ipAddress: input.ipAddress,
             signedAt,
           })
