@@ -4,12 +4,10 @@
  * Uses Gemini Flash 2.0 to extract structured data from uploaded documents
  * for AML compliance and client onboarding questionnaire pre-fill.
  *
- * Supported document types:
- * - Passport / Driver's License / National ID (individual identification)
- * - Certificate of Incorporation (company registration)
- * - Proof of Address (utility bills, bank statements)
- * - Beneficial Ownership Documents
- * - Bank Statements (source of funds verification)
+ * Supported document types (UK-specific):
+ * - Passport / UK Driving License (individual identification)
+ * - Certificate of Incorporation / Companies House extracts (includes beneficial ownership via PSC)
+ * - Proof of Address (utility bills, council tax, bank statements)
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -23,7 +21,7 @@ if (!GOOGLE_AI_API_KEY) {
 const genAI = GOOGLE_AI_API_KEY ? new GoogleGenerativeAI(GOOGLE_AI_API_KEY) : null;
 
 /**
- * Extracted individual data from ID documents
+ * Extracted individual data from ID documents (UK-specific)
  */
 export interface ExtractedIndividualData {
   firstName?: string;
@@ -31,7 +29,7 @@ export interface ExtractedIndividualData {
   dateOfBirth?: string;
   nationality?: string;
   documentNumber?: string;
-  documentType?: "passport" | "driving_licence" | "national_id";
+  documentType?: "passport" | "driving_licence";
   expiryDate?: string;
   address?: {
     line1?: string;
@@ -43,7 +41,8 @@ export interface ExtractedIndividualData {
 }
 
 /**
- * Extracted company data from incorporation certificates
+ * Extracted company data from incorporation certificates and Companies House extracts
+ * Note: Beneficial ownership (PSC) is included in Companies House extracts
  */
 export interface ExtractedCompanyData {
   companyName?: string;
@@ -61,26 +60,14 @@ export interface ExtractedCompanyData {
     name: string;
     appointedDate?: string;
   }>;
-  sicCodes?: string[];
-  natureOfBusiness?: string;
-}
-
-/**
- * Extracted beneficial ownership data
- */
-export interface ExtractedOwnershipData {
-  beneficialOwners?: Array<{
-    name: string;
-    dateOfBirth?: string;
-    nationality?: string;
-    ownershipPercentage?: number;
-    controlType?: string;
-  }>;
+  // Persons with Significant Control (PSC) from Companies House
   personsWithSignificantControl?: Array<{
     name: string;
     notifiedDate?: string;
     natureOfControl?: string[];
   }>;
+  sicCodes?: string[];
+  natureOfBusiness?: string;
 }
 
 /**
@@ -100,33 +87,14 @@ export interface ExtractedAddressData {
 }
 
 /**
- * Extracted source of funds data from bank statements
- */
-export interface ExtractedFundsData {
-  accountHolder?: string;
-  bankName?: string;
-  accountNumber?: string; // Last 4 digits only
-  sortCode?: string;
-  statementDate?: string;
-  averageBalance?: number;
-  largeTransactions?: Array<{
-    date: string;
-    amount: number;
-    description: string;
-  }>;
-}
-
-/**
- * Combined extraction result
+ * Combined extraction result (UK-specific document types)
  */
 export interface DocumentExtractionResult {
-  documentType: "individual_id" | "company_certificate" | "ownership" | "address_proof" | "bank_statement" | "unknown";
+  documentType: "individual_id" | "company_certificate" | "address_proof" | "unknown";
   confidence: "high" | "medium" | "low";
   individualData?: ExtractedIndividualData;
   companyData?: ExtractedCompanyData;
-  ownershipData?: ExtractedOwnershipData;
   addressData?: ExtractedAddressData;
-  fundsData?: ExtractedFundsData;
   rawText?: string; // For debugging
   warnings?: string[];
 }
@@ -151,72 +119,57 @@ export async function extractClientDataFromDocument(
   // Convert buffer to base64 for Gemini API
   const base64Data = fileBuffer.toString("base64");
 
-  const prompt = `You are a UK AML compliance assistant analyzing documents for client onboarding.
+  const prompt = `You are a UK AML compliance assistant analyzing documents for client onboarding at an accounting practice.
 
 Extract ALL available information from this document in a structured JSON format.
 
-Document types you may encounter:
-1. Individual ID (passport, driver's license, national ID card)
-2. Company Certificate (Certificate of Incorporation, Companies House extract)
-3. Beneficial Ownership Documents (PSC register, ownership structure)
-4. Proof of Address (utility bill, bank statement, council tax)
-5. Bank Statement (for source of funds verification)
+Document types you may encounter (UK-specific):
+1. Individual ID - UK passport or UK driving license ONLY (no national ID cards in UK)
+2. Company Certificate - Certificate of Incorporation or Companies House extract (may include PSC register)
+3. Proof of Address - Utility bill, council tax bill, or bank statement (for address verification only)
 
 For each document type, extract:
 
-**Individual ID:**
+**Individual ID (passport or UK driving license):**
 - firstName, lastName
 - dateOfBirth (YYYY-MM-DD format)
 - nationality
 - documentNumber
-- documentType ("passport", "driving_licence", "national_id")
+- documentType ("passport" or "driving_licence")
 - expiryDate (YYYY-MM-DD format)
-- address (line1, line2, city, postalCode, country)
+- address (line1, line2, city, postalCode, country) - if shown on document
 
-**Company Certificate:**
+**Company Certificate (Certificate of Incorporation or Companies House extract):**
 - companyName
-- registrationNumber (Companies House number)
+- registrationNumber (Companies House number, typically 8 digits)
 - incorporationDate (YYYY-MM-DD format)
-- companyType (e.g., "Private Limited Company", "LLP")
+- companyType (e.g., "Private Limited Company", "LLP", "PLC")
 - registeredAddress (line1, line2, city, postalCode, country)
 - directors (array of {name, appointedDate})
-- sicCodes (array of SIC codes)
-- natureOfBusiness (description)
+- personsWithSignificantControl (PSC register - array of {name, notifiedDate, natureOfControl}) - IF present on Companies House extract
+- sicCodes (array of SIC codes) - if shown
+- natureOfBusiness (description) - if shown
 
-**Beneficial Ownership:**
-- beneficialOwners (array of {name, dateOfBirth, nationality, ownershipPercentage, controlType})
-- personsWithSignificantControl (array of {name, notifiedDate, natureOfControl})
-
-**Proof of Address:**
+**Proof of Address (utility bill, council tax, or bank statement):**
 - address (line1, line2, city, postalCode, country)
-- documentType ("utility_bill", "bank_statement", "council_tax", "other")
+- documentType ("utility_bill", "council_tax", "bank_statement", or "other")
 - documentDate (YYYY-MM-DD format)
 - accountHolder (name on document)
 
-**Bank Statement:**
-- accountHolder
-- bankName
-- accountNumber (last 4 digits only)
-- sortCode
-- statementDate (YYYY-MM-DD format)
-- averageBalance (estimated)
-- largeTransactions (top 3-5 unusual transactions: {date, amount, description})
-
 Return ONLY valid JSON with this structure:
 {
-  "documentType": "individual_id" | "company_certificate" | "ownership" | "address_proof" | "bank_statement" | "unknown",
+  "documentType": "individual_id" | "company_certificate" | "address_proof" | "unknown",
   "confidence": "high" | "medium" | "low",
   "individualData": {...},
   "companyData": {...},
-  "ownershipData": {...},
   "addressData": {...},
-  "fundsData": {...},
   "warnings": ["any issues or unclear information"]
 }
 
 Only include the relevant data objects based on the document type.
 If you cannot extract certain fields, omit them (do not use null or empty strings).
-Be conservative with confidence ratings - only use "high" if you're very certain.`;
+Be conservative with confidence ratings - only use "high" if you're very certain.
+IMPORTANT: UK has NO national ID cards - only passport and driving license are valid ID.`;
 
   const result = await model.generateContent([
     {
@@ -287,7 +240,7 @@ export function mapExtractedDataToQuestionnaire(
     }
   }
 
-  // Company data mapping
+  // Company data mapping (includes PSC from Companies House)
   if (extraction.companyData) {
     if (extraction.companyData.companyName) {
       responses.company_name = extraction.companyData.companyName;
@@ -307,6 +260,9 @@ export function mapExtractedDataToQuestionnaire(
     if (extraction.companyData.directors) {
       responses.company_directors = extraction.companyData.directors;
     }
+    if (extraction.companyData.personsWithSignificantControl) {
+      responses.psc_register = extraction.companyData.personsWithSignificantControl;
+    }
     if (extraction.companyData.natureOfBusiness) {
       responses.nature_of_business = extraction.companyData.natureOfBusiness;
     }
@@ -315,30 +271,10 @@ export function mapExtractedDataToQuestionnaire(
     }
   }
 
-  // Ownership data mapping
-  if (extraction.ownershipData) {
-    if (extraction.ownershipData.beneficialOwners) {
-      responses.beneficial_owners = extraction.ownershipData.beneficialOwners;
-    }
-    if (extraction.ownershipData.personsWithSignificantControl) {
-      responses.psc_register = extraction.ownershipData.personsWithSignificantControl;
-    }
-  }
-
   // Address data mapping (backup if no individual data)
   if (extraction.addressData && !extraction.individualData?.address) {
     if (extraction.addressData.address) {
       responses.contact_address = extraction.addressData.address;
-    }
-  }
-
-  // Funds data mapping
-  if (extraction.fundsData) {
-    if (extraction.fundsData.bankName) {
-      responses.source_of_funds_bank = extraction.fundsData.bankName;
-    }
-    if (extraction.fundsData.averageBalance) {
-      responses.source_of_funds_balance = extraction.fundsData.averageBalance;
     }
   }
 

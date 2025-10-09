@@ -168,11 +168,11 @@ class ComplyCubeAPIClient {
   }
 
   /**
-   * Upload document for verification
+   * Upload document for verification (UK-specific document types)
    */
   async uploadDocument(
     clientId: string,
-    documentType: "passport" | "driving_licence" | "national_id" | "proof_of_address",
+    documentType: "passport" | "driving_licence" | "proof_of_address",
     fileBuffer: Buffer,
     filename: string
   ): Promise<DocumentCheckResponse> {
