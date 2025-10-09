@@ -6,9 +6,15 @@ import {
   clients,
   onboardingSessions,
   onboardingTasks,
+  onboardingResponses,
+  amlChecks,
+  activityLogs,
   users,
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
+import { getPrefilledQuestionnaire, validateQuestionnaireComplete } from "@/lib/ai/questionnaire-prefill";
+import { updateExtractedResponse, markResponseAsVerified } from "@/lib/ai/save-extracted-data";
+import { complycubeClient } from "@/lib/aml/complycube-client";
 
 // Onboarding task template - 17 standard tasks from CSV
 const ONBOARDING_TEMPLATE_TASKS = [
@@ -554,5 +560,358 @@ export const onboardingRouter = router({
       }
 
       return { success: true };
+    }),
+
+  /**
+   * CLIENT-FACING ONBOARDING QUESTIONNAIRE ENDPOINTS
+   */
+
+  /**
+   * Get onboarding session with pre-filled questionnaire
+   */
+  getQuestionnaireSession: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { sessionId } = input;
+
+      // Get onboarding session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Get pre-filled questionnaire data
+      const prefilledData = await getPrefilledQuestionnaire(sessionId);
+
+      return {
+        session,
+        questionnaire: prefilledData,
+      };
+    }),
+
+  /**
+   * Update questionnaire response
+   */
+  updateQuestionnaireResponse: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+        questionKey: z.string(),
+        value: z.any(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sessionId, questionKey, value } = input;
+
+      // Verify session belongs to tenant
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Update response
+      await updateExtractedResponse(sessionId, questionKey, value);
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId: ctx.authContext.tenantId,
+        entityType: "onboarding_session",
+        entityId: sessionId,
+        action: "questionnaire_updated",
+        description: `Updated field: ${questionKey}`,
+        userId: ctx.authContext.userId,
+        userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
+        metadata: {
+          questionKey,
+          valueType: typeof value,
+        },
+      });
+
+      return { success: true };
+    }),
+
+  /**
+   * Verify AI-extracted response
+   */
+  verifyQuestionnaireResponse: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+        questionKey: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sessionId, questionKey } = input;
+
+      // Verify session belongs to tenant
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Mark as verified
+      await markResponseAsVerified(sessionId, questionKey);
+
+      return { success: true };
+    }),
+
+  /**
+   * Submit completed questionnaire and trigger AML check
+   */
+  submitQuestionnaire: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sessionId } = input;
+
+      // Get session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Get pre-filled data and validate
+      const prefilledData = await getPrefilledQuestionnaire(sessionId);
+      const validation = validateQuestionnaireComplete(prefilledData);
+
+      if (!validation.valid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Questionnaire incomplete: ${validation.errors.join(", ")}`,
+        });
+      }
+
+      // Get client details
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, session.clientId))
+        .limit(1);
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      console.log("Submitting questionnaire and initiating AML check for client:", client.id);
+
+      // Extract data for ComplyCube
+      const firstName = prefilledData.fields.contact_first_name?.value || "";
+      const lastName = prefilledData.fields.contact_last_name?.value || "";
+      const companyName = prefilledData.fields.company_name?.value;
+      const companyNumber = prefilledData.fields.company_number?.value;
+      const address = prefilledData.fields.company_registered_address?.value ||
+                     prefilledData.fields.contact_address?.value;
+
+      try {
+        // Create ComplyCube client
+        const complycubeClientData = await complycubeClient.createClient({
+          email: client.email || "",
+          firstName,
+          lastName,
+          companyName,
+          companyNumber,
+          address,
+        });
+
+        console.log("ComplyCube client created:", complycubeClientData.id);
+
+        // Initiate AML check
+        const amlCheckResult = await complycubeClient.performAMLCheck(complycubeClientData.id);
+
+        console.log("AML check initiated:", amlCheckResult.id);
+
+        // Save AML check record
+        await db.insert(amlChecks).values({
+          tenantId: ctx.authContext.tenantId,
+          clientId: client.id,
+          onboardingSessionId: sessionId,
+          provider: "complycube",
+          checkId: amlCheckResult.id,
+          status: amlCheckResult.status,
+          riskLevel: amlCheckResult.riskLevel,
+          outcome: amlCheckResult.outcome,
+          metadata: {
+            complycubeClientId: complycubeClientData.id,
+          },
+        });
+
+        // Update onboarding session status
+        await db
+          .update(onboardingSessions)
+          .set({
+            status: "pending_approval",
+            progress: 75, // Questionnaire complete, awaiting AML results
+            updatedAt: new Date(),
+          })
+          .where(eq(onboardingSessions.id, sessionId));
+
+        // Log activity
+        await db.insert(activityLogs).values({
+          tenantId: ctx.authContext.tenantId,
+          entityType: "client",
+          entityId: client.id,
+          action: "aml_check_initiated",
+          description: "Onboarding questionnaire submitted, AML check initiated",
+          userId: ctx.authContext.userId,
+          userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
+          metadata: {
+            sessionId,
+            complycubeClientId: complycubeClientData.id,
+            amlCheckId: amlCheckResult.id,
+          },
+        });
+
+        return {
+          success: true,
+          message: "Questionnaire submitted. Your application is now under review.",
+          status: "pending_approval",
+        };
+      } catch (error) {
+        console.error("Failed to initiate AML check:", error);
+
+        // Update session with error status
+        await db
+          .update(onboardingSessions)
+          .set({
+            status: "pending_approval", // Still pending, but flag for manual review
+            updatedAt: new Date(),
+          })
+          .where(eq(onboardingSessions.id, sessionId));
+
+        // Log error
+        await db.insert(activityLogs).values({
+          tenantId: ctx.authContext.tenantId,
+          entityType: "onboarding_session",
+          entityId: sessionId,
+          action: "aml_check_failed",
+          description: "Failed to initiate AML check - requires manual review",
+          userId: ctx.authContext.userId,
+          userName: "System",
+          metadata: {
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+        });
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to initiate compliance check. Please contact support.",
+        });
+      }
+    }),
+
+  /**
+   * Get onboarding status for client portal
+   */
+  getOnboardingStatus: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { clientId } = input;
+
+      // Get active onboarding session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.clientId, clientId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .orderBy(desc(onboardingSessions.createdAt))
+        .limit(1);
+
+      if (!session) {
+        return {
+          hasOnboarding: false,
+        };
+      }
+
+      // Get AML check if exists
+      const [amlCheck] = await db
+        .select()
+        .from(amlChecks)
+        .where(eq(amlChecks.onboardingSessionId, session.id))
+        .orderBy(desc(amlChecks.createdAt))
+        .limit(1);
+
+      return {
+        hasOnboarding: true,
+        session,
+        amlCheck,
+        canAccessPortal: session.status === "approved",
+        blockingReason: session.status === "rejected"
+          ? "Your application has been declined"
+          : session.status === "pending_approval"
+          ? "Your application is under review"
+          : session.status === "pending_questionnaire"
+          ? "Please complete your onboarding questionnaire"
+          : null,
+      };
     }),
 });
