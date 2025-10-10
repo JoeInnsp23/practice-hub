@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, Building2, ChevronDown } from "lucide-react";
+import { Building2, Check, ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export function ClientSwitcher() {
@@ -20,7 +20,8 @@ export function ClientSwitcher() {
     useClientPortalContext();
 
   // Fetch user's client access list
-  const { data: clients, isLoading } = trpc.clientPortal.getMyClients.useQuery();
+  const { data: clients, isLoading } =
+    trpc.clientPortal.getMyClients.useQuery();
 
   // Update context when data loads
   useEffect(() => {
@@ -50,7 +51,9 @@ export function ClientSwitcher() {
   const currentClient = clients.find((c) => c.clientId === currentClientId);
 
   // Helper to get role badge color
-  const getRoleBadgeVariant = (role: string): "default" | "secondary" | "outline" => {
+  const getRoleBadgeVariant = (
+    role: string,
+  ): "default" | "secondary" | "outline" => {
     switch (role) {
       case "admin":
         return "default";
@@ -97,7 +100,9 @@ export function ClientSwitcher() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{client.clientName}</p>
+                <p className="text-sm font-medium truncate">
+                  {client.clientName}
+                </p>
                 <Badge
                   variant={getRoleBadgeVariant(client.role)}
                   className="mt-1 text-xs"
@@ -114,7 +119,8 @@ export function ClientSwitcher() {
             <DropdownMenuSeparator />
             <div className="px-2 py-2">
               <p className="text-xs text-muted-foreground">
-                Managing {clients.length} {clients.length === 1 ? "client" : "clients"}
+                Managing {clients.length}{" "}
+                {clients.length === 1 ? "client" : "clients"}
               </p>
             </div>
           </>

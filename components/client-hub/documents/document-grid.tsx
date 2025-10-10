@@ -41,6 +41,10 @@ interface DocumentData {
     url: string | null;
     path: string;
     isPublic: boolean;
+    requiresSignature?: boolean;
+    signatureStatus?: string | null;
+    signedAt?: Date | null;
+    signedBy?: string | null;
   };
   uploader: {
     id: string;
@@ -103,12 +107,41 @@ export function DocumentGrid({
     }
   };
 
+  const getSignatureStatusBadge = (status?: string | null) => {
+    if (!status || status === "none") return null;
+
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
+      pending: { variant: "outline", label: "⏳ Pending Signature" },
+      signed: { variant: "default", label: "✓ Signed" },
+      declined: { variant: "destructive", label: "✗ Declined" },
+    };
+
+    const config = variants[status] || {
+      variant: "secondary" as const,
+      label: status,
+    };
+
+    return (
+      <Badge variant={config.variant} className="text-xs">
+        {config.label}
+      </Badge>
+    );
+  };
+
   if (viewMode === "grid") {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {documents.map((doc) => {
           const Icon =
-            doc.document.type === "folder" ? Folder : getFileIcon(doc.document.mimeType);
+            doc.document.type === "folder"
+              ? Folder
+              : getFileIcon(doc.document.mimeType);
 
           return (
             <Card
@@ -136,8 +169,9 @@ export function DocumentGrid({
                     <p className="text-xs text-muted-foreground">
                       {doc.document.type === "folder"
                         ? "Folder"
-                        : formatFileSize(doc.document.size)}
+                        : formatFileSize(doc.document.size ?? undefined)}
                     </p>
+                    {getSignatureStatusBadge(doc.document.signatureStatus)}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -152,7 +186,9 @@ export function DocumentGrid({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {doc.document.type === "folder" ? (
-                        <DropdownMenuItem onClick={() => onFolderClick(doc.document.id)}>
+                        <DropdownMenuItem
+                          onClick={() => onFolderClick(doc.document.id)}
+                        >
                           <FolderOpen className="mr-2 h-4 w-4" />
                           Open
                         </DropdownMenuItem>
@@ -208,7 +244,9 @@ export function DocumentGrid({
         <tbody>
           {documents.map((doc) => {
             const Icon =
-              doc.document.type === "folder" ? Folder : getFileIcon(doc.document.mimeType);
+              doc.document.type === "folder"
+                ? Folder
+                : getFileIcon(doc.document.mimeType);
 
             return (
               <tr
@@ -234,24 +272,31 @@ export function DocumentGrid({
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
                   {doc.uploader
-                    ? `${doc.uploader.firstName || ""} ${doc.uploader.lastName || ""}`.trim() || doc.uploader.email
+                    ? `${doc.uploader.firstName || ""} ${doc.uploader.lastName || ""}`.trim() ||
+                      doc.uploader.email
                     : "-"}
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
                   {doc.document.type === "folder"
                     ? "Folder"
-                    : formatFileSize(doc.document.size)}
+                    : formatFileSize(doc.document.size ?? undefined)}
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
                   {formatDate(doc.document.updatedAt)}
                 </td>
                 <td className="p-4">
                   <div className="flex gap-1">
-                    {Array.isArray(doc.document.tags) && doc.document.tags.slice(0, 2).map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
+                    {Array.isArray(doc.document.tags) &&
+                      doc.document.tags.slice(0, 2).map((tag: string) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    {getSignatureStatusBadge(doc.document.signatureStatus)}
                   </div>
                 </td>
                 <td className="p-4 text-right">
@@ -268,7 +313,9 @@ export function DocumentGrid({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {doc.document.type === "folder" ? (
-                        <DropdownMenuItem onClick={() => onFolderClick(doc.document.id)}>
+                        <DropdownMenuItem
+                          onClick={() => onFolderClick(doc.document.id)}
+                        >
                           <FolderOpen className="mr-2 h-4 w-4" />
                           Open
                         </DropdownMenuItem>

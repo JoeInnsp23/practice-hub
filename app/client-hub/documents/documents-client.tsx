@@ -4,6 +4,7 @@ import {
   ChevronRight,
   Download,
   Eye,
+  FileSignature,
   FolderPlus,
   Grid,
   Home,
@@ -19,6 +20,7 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { DocumentGrid } from "@/components/client-hub/documents/document-grid";
 import { FilePreviewModal } from "@/components/client-hub/documents/file-preview-modal";
+import { SignatureUploadModal } from "@/components/client-hub/documents/signature-upload-modal";
 import { UploadModal } from "@/components/client-hub/documents/upload-modal";
 import {
   Breadcrumb,
@@ -54,6 +56,7 @@ export default function DocumentsClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
@@ -249,7 +252,7 @@ export default function DocumentsClient() {
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+    return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
   };
 
   return (
@@ -267,6 +270,13 @@ export default function DocumentsClient() {
           <Button variant="outline" onClick={() => setIsNewFolderOpen(true)}>
             <FolderPlus className="h-4 w-4 mr-2" />
             New Folder
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setIsSignatureModalOpen(true)}
+          >
+            <FileSignature className="h-4 w-4 mr-2" />
+            Request Signature
           </Button>
           <Button onClick={() => setIsUploadModalOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
@@ -404,6 +414,16 @@ export default function DocumentsClient() {
         onClose={() => setIsUploadModalOpen(false)}
         onUpload={handleUpload}
         currentFolderId={currentFolder}
+      />
+
+      {/* Signature Upload Modal */}
+      <SignatureUploadModal
+        isOpen={isSignatureModalOpen}
+        onClose={() => setIsSignatureModalOpen(false)}
+        onSuccess={() => {
+          utils.documents.list.invalidate();
+          setIsSignatureModalOpen(false);
+        }}
       />
 
       {/* New Folder Dialog */}
