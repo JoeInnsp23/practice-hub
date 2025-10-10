@@ -1,15 +1,19 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
   clients,
   clientPortalAccess,
+  clientPortalUsers,
   proposals,
   proposalServices,
   invoices,
   documents,
   users,
+  messageThreads,
+  messageThreadParticipants,
+  messages,
 } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import { clientPortalProcedure, router } from "../trpc";
@@ -434,5 +438,356 @@ export const clientPortalRouter = router({
         .orderBy(documents.signedAt);
 
       return results;
+    }),
+
+  // ============================================================================
+  // Client Portal Messages
+  // ============================================================================
+
+  /**
+   * List all message threads for current client portal user
+   */
+  listMyThreads: clientPortalProcedure
+    .input(
+      z.object({
+        clientId: z.string().uuid(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { portalUserId, tenantId } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = ctx.clientPortalAuthContext.clientAccess.find(
+        (c) => c.clientId === input.clientId,
+      );
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Get threads where client portal user is a participant
+      const userThreads = await db
+        .select({
+          thread: messageThreads,
+          participant: messageThreadParticipants,
+          lastMessage: {
+            id: messages.id,
+            content: messages.content,
+            senderType: messages.senderType,
+            senderId: messages.senderId,
+            createdAt: messages.createdAt,
+          },
+          unreadCount: sql<number>`
+            COUNT(CASE
+              WHEN ${messages.createdAt} > ${messageThreadParticipants.lastReadAt}
+              OR ${messageThreadParticipants.lastReadAt} IS NULL
+              THEN 1
+            END)
+          `.as("unread_count"),
+        })
+        .from(messageThreads)
+        .innerJoin(
+          messageThreadParticipants,
+          and(
+            eq(messageThreads.id, messageThreadParticipants.threadId),
+            eq(messageThreadParticipants.participantType, "client_portal"),
+            eq(messageThreadParticipants.participantId, portalUserId),
+          ),
+        )
+        .leftJoin(messages, eq(messages.threadId, messageThreads.id))
+        .where(
+          and(
+            eq(messageThreads.tenantId, tenantId),
+            eq(messageThreads.clientId, input.clientId),
+            eq(messageThreads.type, "client"),
+          ),
+        )
+        .groupBy(
+          messageThreads.id,
+          messageThreadParticipants.id,
+          messages.id,
+          messages.content,
+          messages.senderType,
+          messages.senderId,
+          messages.createdAt,
+        )
+        .orderBy(desc(messageThreads.lastMessageAt));
+
+      return userThreads;
+    }),
+
+  /**
+   * Get thread details with messages for client portal
+   */
+  getThread: clientPortalProcedure
+    .input(
+      z.object({
+        threadId: z.string().uuid(),
+        clientId: z.string().uuid(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { portalUserId, tenantId } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = ctx.clientPortalAuthContext.clientAccess.find(
+        (c) => c.clientId === input.clientId,
+      );
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Get thread
+      const [thread] = await db
+        .select()
+        .from(messageThreads)
+        .where(
+          and(
+            eq(messageThreads.id, input.threadId),
+            eq(messageThreads.tenantId, tenantId),
+            eq(messageThreads.clientId, input.clientId),
+            eq(messageThreads.type, "client"),
+          ),
+        );
+
+      if (!thread) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Thread not found",
+        });
+      }
+
+      // Verify user is a participant
+      const [participant] = await db
+        .select()
+        .from(messageThreadParticipants)
+        .where(
+          and(
+            eq(messageThreadParticipants.threadId, input.threadId),
+            eq(messageThreadParticipants.participantType, "client_portal"),
+            eq(messageThreadParticipants.participantId, portalUserId),
+          ),
+        );
+
+      if (!participant) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a participant in this thread",
+        });
+      }
+
+      return thread;
+    }),
+
+  /**
+   * List messages in a thread for client portal
+   */
+  listMessages: clientPortalProcedure
+    .input(
+      z.object({
+        threadId: z.string().uuid(),
+        clientId: z.string().uuid(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { portalUserId } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = ctx.clientPortalAuthContext.clientAccess.find(
+        (c) => c.clientId === input.clientId,
+      );
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Verify user is participant
+      const [participant] = await db
+        .select()
+        .from(messageThreadParticipants)
+        .where(
+          and(
+            eq(messageThreadParticipants.threadId, input.threadId),
+            eq(messageThreadParticipants.participantType, "client_portal"),
+            eq(messageThreadParticipants.participantId, portalUserId),
+          ),
+        );
+
+      if (!participant) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a participant in this thread",
+        });
+      }
+
+      // Get messages with sender info (polymorphic - staff or client portal user)
+      const threadMessages = await db
+        .select({
+          id: messages.id,
+          content: messages.content,
+          senderType: messages.senderType,
+          senderId: messages.senderId,
+          type: messages.type,
+          metadata: messages.metadata,
+          createdAt: messages.createdAt,
+          isEdited: messages.isEdited,
+          // Get staff user info if sender is staff
+          staffSender: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+            image: users.image,
+          },
+          // Get client portal user info if sender is client portal user
+          portalSender: {
+            id: clientPortalUsers.id,
+            firstName: clientPortalUsers.firstName,
+            lastName: clientPortalUsers.lastName,
+            email: clientPortalUsers.email,
+          },
+        })
+        .from(messages)
+        .leftJoin(
+          users,
+          and(
+            eq(messages.senderType, "staff"),
+            eq(messages.senderId, users.id),
+          ),
+        )
+        .leftJoin(
+          clientPortalUsers,
+          and(
+            eq(messages.senderType, "client_portal"),
+            eq(messages.senderId, clientPortalUsers.id),
+          ),
+        )
+        .where(
+          and(
+            eq(messages.threadId, input.threadId),
+            eq(messages.isDeleted, false),
+          ),
+        )
+        .orderBy(desc(messages.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return threadMessages;
+    }),
+
+  /**
+   * Send a message in a thread from client portal
+   */
+  sendMessage: clientPortalProcedure
+    .input(
+      z.object({
+        threadId: z.string().uuid(),
+        clientId: z.string().uuid(),
+        content: z.string().min(1).max(5000),
+        type: z.enum(["text", "file"]).default("text"),
+        metadata: z.record(z.any()).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { portalUserId } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = ctx.clientPortalAuthContext.clientAccess.find(
+        (c) => c.clientId === input.clientId,
+      );
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Verify user is participant
+      const [participant] = await db
+        .select()
+        .from(messageThreadParticipants)
+        .where(
+          and(
+            eq(messageThreadParticipants.threadId, input.threadId),
+            eq(messageThreadParticipants.participantType, "client_portal"),
+            eq(messageThreadParticipants.participantId, portalUserId),
+          ),
+        );
+
+      if (!participant) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not a participant in this thread",
+        });
+      }
+
+      // Create message from client portal user
+      const [message] = await db
+        .insert(messages)
+        .values({
+          threadId: input.threadId,
+          senderType: "client_portal",
+          senderId: portalUserId,
+          content: input.content,
+          type: input.type,
+          metadata: input.metadata,
+        })
+        .returning();
+
+      // Update thread's lastMessageAt
+      await db
+        .update(messageThreads)
+        .set({ lastMessageAt: new Date() })
+        .where(eq(messageThreads.id, input.threadId));
+
+      return message;
+    }),
+
+  /**
+   * Mark thread as read for client portal user
+   */
+  markThreadAsRead: clientPortalProcedure
+    .input(
+      z.object({
+        threadId: z.string().uuid(),
+        clientId: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { portalUserId } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = ctx.clientPortalAuthContext.clientAccess.find(
+        (c) => c.clientId === input.clientId,
+      );
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Update lastReadAt for this participant
+      await db
+        .update(messageThreadParticipants)
+        .set({ lastReadAt: new Date() })
+        .where(
+          and(
+            eq(messageThreadParticipants.threadId, input.threadId),
+            eq(messageThreadParticipants.participantType, "client_portal"),
+            eq(messageThreadParticipants.participantId, portalUserId),
+          ),
+        );
+
+      return { success: true };
     }),
 });

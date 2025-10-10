@@ -219,7 +219,7 @@ export default function MessagesPage() {
               {/* Chat Header */}
               <div className="p-4 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {threadDetails?.thread.type === "team_channel" ? (
+                  {threadDetails?.type === "team_channel" ? (
                     <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                       <Hash className="h-5 w-5 text-primary" />
                     </div>
@@ -370,22 +370,41 @@ function ThreadItem({
 function MessageBubble({ message }: { message: any }) {
   const msg = message.message;
   const sender = message.sender;
+  const portalSender = message.portalSender;
+
+  // Determine sender info (staff or client portal user)
+  const senderName =
+    sender && sender.firstName
+      ? `${sender.firstName} ${sender.lastName}`
+      : portalSender && portalSender.firstName
+        ? `${portalSender.firstName} ${portalSender.lastName}`
+        : "Unknown";
+
+  const senderImage = sender?.image || null;
+  const isClientPortalUser = !!portalSender && !sender;
+
+  const initials =
+    sender && sender.firstName
+      ? `${sender.firstName[0]}${sender.lastName?.[0] || ""}`
+      : portalSender && portalSender.firstName
+        ? `${portalSender.firstName[0]}${portalSender.lastName?.[0] || ""}`
+        : "?";
 
   return (
     <div className="flex items-start gap-3">
       <Avatar className="flex-shrink-0">
-        <AvatarImage src={sender.image} />
-        <AvatarFallback>
-          {sender.firstName?.[0]}
-          {sender.lastName?.[0]}
-        </AvatarFallback>
+        {senderImage && <AvatarImage src={senderImage} />}
+        <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
 
       <div className="flex-1">
         <div className="flex items-baseline gap-2 mb-1">
-          <span className="font-semibold text-sm">
-            {sender.firstName} {sender.lastName}
-          </span>
+          <span className="font-semibold text-sm">{senderName}</span>
+          {isClientPortalUser && (
+            <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded text-xs font-medium">
+              Client
+            </span>
+          )}
           <span className="text-xs text-muted-foreground">
             {new Date(msg.createdAt).toLocaleTimeString([], {
               hour: "2-digit",

@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import {
   calendarEventAttendees,
   calendarEvents,
+  clientPortalAccess,
+  clientPortalUsers,
   clients,
   messageThreadParticipants,
   messageThreads,
@@ -19,13 +21,13 @@ export const messagesRouter = router({
   // ============================================================================
 
   /**
-   * List all threads for the current user
+   * List all threads for the current user (staff only)
    */
   listThreads: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.authContext.userId;
     const tenantId = ctx.authContext.tenantId;
 
-    // Get threads where user is a participant
+    // Get threads where user is a participant (polymorphic support)
     const userThreads = await db
       .select({
         thread: messageThreads,
@@ -33,7 +35,8 @@ export const messagesRouter = router({
         lastMessage: {
           id: messages.id,
           content: messages.content,
-          userId: messages.userId,
+          senderType: messages.senderType,
+          senderId: messages.senderId,
           createdAt: messages.createdAt,
         },
         unreadCount: sql<number>`
@@ -43,24 +46,39 @@ export const messagesRouter = router({
             THEN 1
           END)
         `.as("unread_count"),
+        client: {
+          id: clients.id,
+          name: clients.name,
+        },
       })
       .from(messageThreads)
       .innerJoin(
         messageThreadParticipants,
         and(
           eq(messageThreads.id, messageThreadParticipants.threadId),
-          eq(messageThreadParticipants.userId, userId),
+          or(
+            // Support both legacy and new polymorphic fields
+            eq(messageThreadParticipants.userId, userId),
+            and(
+              eq(messageThreadParticipants.participantType, "staff"),
+              eq(messageThreadParticipants.participantId, userId),
+            ),
+          ),
         ),
       )
       .leftJoin(messages, eq(messages.threadId, messageThreads.id))
+      .leftJoin(clients, eq(messageThreads.clientId, clients.id))
       .where(eq(messageThreads.tenantId, tenantId))
       .groupBy(
         messageThreads.id,
         messageThreadParticipants.id,
         messages.id,
         messages.content,
-        messages.userId,
+        messages.senderType,
+        messages.senderId,
         messages.createdAt,
+        clients.id,
+        clients.name,
       )
       .orderBy(desc(messageThreads.lastMessageAt));
 
@@ -203,11 +221,13 @@ export const messagesRouter = router({
         })
         .returning();
 
-      // Add participants
+      // Add participants with polymorphic fields
       await db.insert(messageThreadParticipants).values(
         allParticipants.map((participantId) => ({
           threadId: thread.id,
-          userId: participantId,
+          participantType: "staff",
+          participantId: participantId,
+          userId: participantId, // Legacy field
           role: "member",
         })),
       );
@@ -244,10 +264,12 @@ export const messagesRouter = router({
         })
         .returning();
 
-      // Add creator as admin
+      // Add creator as admin with polymorphic fields
       await db.insert(messageThreadParticipants).values({
         threadId: channel.id,
-        userId: userId,
+        participantType: "staff",
+        participantId: userId,
+        userId: userId, // Legacy field
         role: "admin",
       });
 
@@ -256,13 +278,173 @@ export const messagesRouter = router({
         await db.insert(messageThreadParticipants).values(
           input.participantIds.map((participantId) => ({
             threadId: channel.id,
-            userId: participantId,
+            participantType: "staff",
+            participantId: participantId,
+            userId: participantId, // Legacy field
             role: "member",
           })),
         );
       }
 
       return channel;
+    }),
+
+  /**
+   * Create a client thread (staff to client communication)
+   */
+  createClientThread: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string().uuid(),
+        clientPortalUserId: z.string().uuid(),
+        initialMessage: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.authContext.userId;
+      const tenantId = ctx.authContext.tenantId;
+
+      // Verify client exists and belongs to tenant
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(
+          and(
+            eq(clients.id, input.clientId),
+            eq(clients.tenantId, tenantId),
+          ),
+        );
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      // Verify client portal user exists and has access to this client
+      const [portalUserAccess] = await db
+        .select({
+          portalUser: clientPortalUsers,
+        })
+        .from(clientPortalUsers)
+        .innerJoin(
+          clientPortalAccess,
+          and(
+            eq(clientPortalAccess.portalUserId, clientPortalUsers.id),
+            eq(clientPortalAccess.clientId, input.clientId),
+            eq(clientPortalAccess.isActive, true),
+          ),
+        )
+        .where(
+          and(
+            eq(clientPortalUsers.id, input.clientPortalUserId),
+            eq(clientPortalUsers.tenantId, tenantId),
+          ),
+        );
+
+      if (!portalUserAccess) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client portal user not found or does not have access to this client",
+        });
+      }
+
+      // Check if thread already exists for this client and portal user
+      const existingThreads = await db
+        .select({
+          thread: messageThreads,
+        })
+        .from(messageThreads)
+        .innerJoin(
+          messageThreadParticipants,
+          and(
+            eq(messageThreads.id, messageThreadParticipants.threadId),
+            eq(messageThreadParticipants.participantType, "client_portal"),
+            eq(messageThreadParticipants.participantId, input.clientPortalUserId),
+          ),
+        )
+        .where(
+          and(
+            eq(messageThreads.tenantId, tenantId),
+            eq(messageThreads.clientId, input.clientId),
+            eq(messageThreads.type, "client"),
+          ),
+        );
+
+      // If thread exists, return it
+      if (existingThreads.length > 0) {
+        const thread = existingThreads[0].thread;
+
+        // Send initial message if provided
+        if (input.initialMessage) {
+          await db.insert(messages).values({
+            threadId: thread.id,
+            senderType: "staff",
+            senderId: userId,
+            userId, // Legacy field
+            content: input.initialMessage,
+            type: "text",
+          });
+
+          // Update thread's lastMessageAt
+          await db
+            .update(messageThreads)
+            .set({ lastMessageAt: new Date() })
+            .where(eq(messageThreads.id, thread.id));
+        }
+
+        return thread;
+      }
+
+      // Create new client thread
+      const [thread] = await db
+        .insert(messageThreads)
+        .values({
+          tenantId,
+          type: "client",
+          clientId: input.clientId,
+          name: `Chat with ${client.name}`,
+          createdBy: userId,
+        })
+        .returning();
+
+      // Add staff user as participant
+      await db.insert(messageThreadParticipants).values({
+        threadId: thread.id,
+        participantType: "staff",
+        participantId: userId,
+        userId, // Legacy field for backward compatibility
+        role: "admin",
+      });
+
+      // Add client portal user as participant
+      await db.insert(messageThreadParticipants).values({
+        threadId: thread.id,
+        participantType: "client_portal",
+        participantId: input.clientPortalUserId,
+        role: "member",
+      });
+
+      // Send initial message if provided
+      if (input.initialMessage) {
+        await db.insert(messages).values({
+          threadId: thread.id,
+          senderType: "staff",
+          senderId: userId,
+          userId, // Legacy field
+          content: input.initialMessage,
+          type: "text",
+        });
+
+        // Update thread's lastMessageAt
+        await db
+          .update(messageThreads)
+          .set({ lastMessageAt: new Date() })
+          .where(eq(messageThreads.id, thread.id));
+      }
+
+      return thread;
     }),
 
   /**
@@ -315,12 +497,14 @@ export const messagesRouter = router({
         });
       }
 
-      // Add participant
+      // Add participant with polymorphic fields
       const [participant] = await db
         .insert(messageThreadParticipants)
         .values({
           threadId: input.threadId,
-          userId: input.userId,
+          participantType: "staff",
+          participantId: input.userId,
+          userId: input.userId, // Legacy field
           role: "member",
         })
         .returning();
@@ -381,7 +565,7 @@ export const messagesRouter = router({
   // ============================================================================
 
   /**
-   * List messages in a thread
+   * List messages in a thread (polymorphic sender support)
    */
   listMessages: protectedProcedure
     .input(
@@ -394,14 +578,20 @@ export const messagesRouter = router({
     .query(async ({ ctx, input }) => {
       const userId = ctx.authContext.userId;
 
-      // Verify user is participant
+      // Verify user is participant (support both legacy and polymorphic fields)
       const [participant] = await db
         .select()
         .from(messageThreadParticipants)
         .where(
           and(
             eq(messageThreadParticipants.threadId, input.threadId),
-            eq(messageThreadParticipants.userId, userId),
+            or(
+              eq(messageThreadParticipants.userId, userId),
+              and(
+                eq(messageThreadParticipants.participantType, "staff"),
+                eq(messageThreadParticipants.participantId, userId),
+              ),
+            ),
           ),
         );
 
@@ -412,10 +602,11 @@ export const messagesRouter = router({
         });
       }
 
-      // Get messages with sender info
+      // Get messages with polymorphic sender info (staff OR client portal users)
       const threadMessages = await db
         .select({
           message: messages,
+          // Staff sender
           sender: {
             id: users.id,
             firstName: users.firstName,
@@ -423,9 +614,34 @@ export const messagesRouter = router({
             email: users.email,
             image: users.image,
           },
+          // Client portal sender
+          portalSender: {
+            id: clientPortalUsers.id,
+            firstName: clientPortalUsers.firstName,
+            lastName: clientPortalUsers.lastName,
+            email: clientPortalUsers.email,
+          },
         })
         .from(messages)
-        .innerJoin(users, eq(messages.userId, users.id))
+        .leftJoin(
+          users,
+          and(
+            or(
+              eq(messages.userId, users.id), // Legacy field
+              and(
+                eq(messages.senderType, "staff"),
+                eq(messages.senderId, users.id),
+              ),
+            ),
+          ),
+        )
+        .leftJoin(
+          clientPortalUsers,
+          and(
+            eq(messages.senderType, "client_portal"),
+            eq(messages.senderId, clientPortalUsers.id),
+          ),
+        )
         .where(
           and(
             eq(messages.threadId, input.threadId),
@@ -440,7 +656,7 @@ export const messagesRouter = router({
     }),
 
   /**
-   * Send a message
+   * Send a message (polymorphic sender support)
    */
   sendMessage: protectedProcedure
     .input(
@@ -448,21 +664,27 @@ export const messagesRouter = router({
         threadId: z.string().uuid(),
         content: z.string().min(1).max(5000),
         type: z.enum(["text", "file", "system"]).default("text"),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
         replyToId: z.string().uuid().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.authContext.userId;
 
-      // Verify user is participant
+      // Verify user is participant (support both legacy and polymorphic fields)
       const [participant] = await db
         .select()
         .from(messageThreadParticipants)
         .where(
           and(
             eq(messageThreadParticipants.threadId, input.threadId),
-            eq(messageThreadParticipants.userId, userId),
+            or(
+              eq(messageThreadParticipants.userId, userId),
+              and(
+                eq(messageThreadParticipants.participantType, "staff"),
+                eq(messageThreadParticipants.participantId, userId),
+              ),
+            ),
           ),
         );
 
@@ -473,12 +695,14 @@ export const messagesRouter = router({
         });
       }
 
-      // Create message
+      // Create message with polymorphic sender fields
       const [message] = await db
         .insert(messages)
         .values({
           threadId: input.threadId,
-          userId,
+          senderType: "staff",
+          senderId: userId,
+          userId, // Legacy field for backward compatibility
           content: input.content,
           type: input.type,
           metadata: input.metadata,

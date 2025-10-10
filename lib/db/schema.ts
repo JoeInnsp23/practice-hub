@@ -2302,6 +2302,7 @@ export const messageThreads = pgTable(
 );
 
 // Message Thread Participants - Who is in each thread
+// Supports both staff users and client portal users
 export const messageThreadParticipants = pgTable(
   "message_thread_participants",
   {
@@ -2309,24 +2310,33 @@ export const messageThreadParticipants = pgTable(
     threadId: uuid("thread_id")
       .references(() => messageThreads.id, { onDelete: "cascade" })
       .notNull(),
-    userId: text("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
-      .notNull(),
+    // Polymorphic participant - can be staff or client portal user
+    participantType: varchar("participant_type", { length: 20 })
+      .default("staff")
+      .notNull(), // 'staff' | 'client_portal'
+    participantId: text("participant_id").notNull(), // users.id OR clientPortalUsers.id
+    // Legacy field - kept for backward compatibility with existing staff threads
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
     role: varchar("role", { length: 20 }).default("member").notNull(), // 'admin', 'member'
     joinedAt: timestamp("joined_at").defaultNow().notNull(),
     lastReadAt: timestamp("last_read_at"), // For unread count
     mutedUntil: timestamp("muted_until"), // For muting notifications
   },
   (table) => ({
-    threadUserIdx: uniqueIndex("message_thread_participants_thread_user_idx").on(
-      table.threadId,
-      table.userId,
+    threadParticipantIdx: uniqueIndex(
+      "message_thread_participants_thread_participant_idx",
+    ).on(table.threadId, table.participantType, table.participantId),
+    participantIdx: index("message_thread_participants_participant_idx").on(
+      table.participantType,
+      table.participantId,
     ),
+    // Keep legacy index for existing queries
     userIdx: index("message_thread_participants_user_idx").on(table.userId),
   }),
 );
 
 // Messages - Individual messages in threads
+// Supports messages from both staff users and client portal users
 export const messages = pgTable(
   "messages",
   {
@@ -2334,9 +2344,13 @@ export const messages = pgTable(
     threadId: uuid("thread_id")
       .references(() => messageThreads.id, { onDelete: "cascade" })
       .notNull(),
-    userId: text("user_id")
-      .references(() => users.id)
-      .notNull(),
+    // Polymorphic sender - can be staff or client portal user
+    senderType: varchar("sender_type", { length: 20 })
+      .default("staff")
+      .notNull(), // 'staff' | 'client_portal'
+    senderId: text("sender_id").notNull(), // users.id OR clientPortalUsers.id
+    // Legacy field - kept for backward compatibility
+    userId: text("user_id").references(() => users.id),
     content: text("content").notNull(),
     type: varchar("type", { length: 20 }).default("text").notNull(), // 'text', 'file', 'system'
     metadata: jsonb("metadata"), // For file URLs, mentions, etc.
@@ -2351,6 +2365,8 @@ export const messages = pgTable(
   },
   (table) => ({
     threadIdx: index("messages_thread_idx").on(table.threadId),
+    senderIdx: index("messages_sender_idx").on(table.senderType, table.senderId),
+    // Keep legacy index for existing queries
     userIdx: index("messages_user_idx").on(table.userId),
     createdAtIdx: index("messages_created_at_idx").on(table.createdAt),
   }),
