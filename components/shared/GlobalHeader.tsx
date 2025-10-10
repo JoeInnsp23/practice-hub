@@ -4,6 +4,7 @@ import { Home, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { ClientOnly } from "@/components/client-only";
 import { DateTimeDisplay } from "./DateTimeDisplay";
+import { NotificationsDropdown } from "./notifications-dropdown";
 import { ThemeToggle } from "./theme-toggle";
 import { UserButton } from "./user-button";
 
@@ -88,6 +89,7 @@ export function GlobalHeader({
         <div className="flex items-center space-x-4 px-4 sm:px-6 lg:px-8">
           <ClientOnly>
             <DateTimeDisplay />
+            <NotificationsDropdown />
             <ThemeToggle />
             <UserButton />
           </ClientOnly>

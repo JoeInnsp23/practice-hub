@@ -1,6 +1,7 @@
 import { activitiesRouter } from "./routers/activities";
 import { adminKycRouter } from "./routers/admin-kyc";
 import { analyticsRouter } from "./routers/analytics";
+import { calendarRouter } from "./routers/calendar";
 import { clientsRouter } from "./routers/clients";
 import { clientPortalRouter } from "./routers/clientPortal";
 import { clientPortalAdminRouter } from "./routers/clientPortalAdmin";
@@ -9,6 +10,8 @@ import { dashboardRouter } from "./routers/dashboard";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
+import { messagesRouter } from "./routers/messages";
+import { notificationsRouter } from "./routers/notifications";
 import { onboardingRouter } from "./routers/onboarding";
 import { pipelineRouter } from "./routers/pipeline";
 import { portalRouter } from "./routers/portal";
@@ -51,6 +54,9 @@ export const appRouter = router({
   invitations: invitationsRouter,
   clientPortal: clientPortalRouter,
   clientPortalAdmin: clientPortalAdminRouter,
+  messages: messagesRouter,
+  notifications: notificationsRouter,
+  calendar: calendarRouter,
 });
 
 export type AppRouter = typeof appRouter;

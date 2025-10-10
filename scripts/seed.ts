@@ -5,6 +5,8 @@ import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
   activityLogs,
+  calendarEventAttendees,
+  calendarEvents,
   clientContacts,
   clientDirectors,
   clientPSCs,
@@ -19,6 +21,10 @@ import {
   invoiceItems,
   invoices,
   leads,
+  messageThreadParticipants,
+  messageThreads,
+  messages,
+  notifications,
   onboardingSessions,
   onboardingTasks,
   portalCategories,
@@ -272,11 +278,25 @@ async function seedDatabase() {
       sortOrder: 8,
     },
     {
+      title: "Messages",
+      description: "Team chat and client communication",
+      url: "/practice-hub/messages",
+      iconName: "MessageSquare",
+      sortOrder: 9,
+    },
+    {
+      title: "Calendar",
+      description: "Events, meetings, and deadlines",
+      url: "/practice-hub/calendar",
+      iconName: "Calendar",
+      sortOrder: 10,
+    },
+    {
       title: "Admin Panel",
       description: "System administration and configuration",
       url: "/admin",
       iconName: "Settings",
-      sortOrder: 9,
+      sortOrder: 11,
     },
   ];
 
@@ -2759,6 +2779,356 @@ async function seedDatabase() {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   ]);
+
+  // ============================================================================
+  // Phase 1: Communication & Collaboration - Seed Data
+  // ============================================================================
+
+  console.log("Creating message threads, messages, notifications, and calendar events...");
+
+  // 1. Create Message Threads
+  const threadsList = [
+    {
+      type: "team_channel",
+      name: "General",
+      description: "Team-wide announcements and discussions",
+      isPrivate: false,
+      createdBy: adminUser.id,
+    },
+    {
+      type: "team_channel",
+      name: "Tax Team",
+      description: "Tax-specific discussions",
+      isPrivate: true,
+      createdBy: adminUser.id,
+    },
+    {
+      type: "direct",
+      name: null,
+      createdBy: adminUser.id,
+    },
+    {
+      type: "direct",
+      name: null,
+      createdBy: createdUsers[1].id,
+    },
+    {
+      type: "client",
+      name: null,
+      clientId: createdClients[0].id,
+      createdBy: adminUser.id,
+    },
+  ];
+
+  const createdThreads = await db
+    .insert(messageThreads)
+    .values(
+      threadsList.map((thread) => ({
+        ...thread,
+        tenantId: tenant.id,
+        lastMessageAt: faker.date.recent({ days: 2 }),
+      })),
+    )
+    .returning();
+
+  // 2. Add participants to threads
+  await db.insert(messageThreadParticipants).values([
+    // General channel - everyone
+    ...createdUsers.map((user) => ({
+      threadId: createdThreads[0].id,
+      userId: user.id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    })),
+    // Tax Team channel - tax accountants only
+    {
+      threadId: createdThreads[1].id,
+      userId: adminUser.id,
+      role: "admin",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[1].id,
+      userId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    // DM between admin and user 1
+    {
+      threadId: createdThreads[2].id,
+      userId: adminUser.id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[2].id,
+      userId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    // DM between user 1 and user 2
+    {
+      threadId: createdThreads[3].id,
+      userId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[3].id,
+      userId: createdUsers[2].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    // Client thread - admin and user 1
+    {
+      threadId: createdThreads[4].id,
+      userId: adminUser.id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[4].id,
+      userId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+  ]);
+
+  // 3. Create messages in threads
+  const messagesList = [
+    // General channel messages
+    {
+      threadId: createdThreads[0].id,
+      userId: adminUser.id,
+      content: "Welcome to Practice Hub team chat! Let's keep all team communication here.",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[0].id,
+      userId: createdUsers[1].id,
+      content: "Looking forward to using this! Much better than email chains.",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[0].id,
+      userId: createdUsers[2].id,
+      content: "Agreed! This will help us stay organized.",
+      type: "text",
+    },
+    // Tax Team channel
+    {
+      threadId: createdThreads[1].id,
+      userId: adminUser.id,
+      content: "Reminder: Tax filing deadline is next week for Q4 clients.",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[1].id,
+      userId: createdUsers[1].id,
+      content: "On it! I'll reach out to anyone who hasn't submitted documents yet.",
+      type: "text",
+    },
+    // DM between admin and user 1
+    {
+      threadId: createdThreads[2].id,
+      userId: adminUser.id,
+      content: "Can you review the TechStart Solutions proposal when you have a moment?",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[2].id,
+      userId: createdUsers[1].id,
+      content: "Sure, I'll take a look this afternoon and send you my feedback.",
+      type: "text",
+    },
+    // Client thread
+    {
+      threadId: createdThreads[4].id,
+      userId: adminUser.id,
+      content: "Hi! Welcome to your client portal. Feel free to reach out if you have any questions.",
+      type: "text",
+    },
+  ];
+
+  await db.insert(messages).values(
+    messagesList.map((msg, idx) => ({
+      ...msg,
+      createdAt: new Date(Date.now() - (messagesList.length - idx) * 3600000), // Space out by 1 hour
+    })),
+  );
+
+  // 4. Create notifications
+  const notificationsList = [
+    {
+      userId: createdUsers[1].id,
+      type: "task_assigned",
+      title: "New Task Assigned",
+      message: `${adminUser.firstName} ${adminUser.lastName} assigned you a task: Review proposal for TechStart Solutions`,
+      actionUrl: `/client-hub/tasks/${createdTasks[0].id}`,
+      entityType: "task",
+      entityId: createdTasks[0].id,
+      isRead: false,
+    },
+    {
+      userId: createdUsers[2].id,
+      type: "mention",
+      title: "Mentioned in Message",
+      message: `${createdUsers[1].firstName} mentioned you in #General`,
+      actionUrl: `/messages/${createdThreads[0].id}`,
+      entityType: "message",
+      entityId: createdThreads[0].id,
+      isRead: false,
+    },
+    {
+      userId: adminUser.id,
+      type: "approval_needed",
+      title: "KYC Approval Needed",
+      message: "New KYC verification requires your review",
+      actionUrl: "/admin/kyc-review",
+      entityType: "kyc_verification",
+      isRead: true,
+      readAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      userId: createdUsers[1].id,
+      type: "client_message",
+      title: "New Client Message",
+      message: "TechStart Solutions sent you a message",
+      actionUrl: `/messages/${createdThreads[4].id}`,
+      entityType: "message",
+      entityId: createdThreads[4].id,
+      isRead: false,
+    },
+    {
+      userId: createdUsers[2].id,
+      type: "task_assigned",
+      title: "New Task Assigned",
+      message: "You have been assigned to complete tax returns for Green Energy Ltd",
+      actionUrl: `/client-hub/tasks/${createdTasks[5].id}`,
+      entityType: "task",
+      entityId: createdTasks[5].id,
+      isRead: true,
+      readAt: faker.date.recent({ days: 2 }),
+    },
+  ];
+
+  await db.insert(notifications).values(
+    notificationsList.map((notif) => ({
+      ...notif,
+      tenantId: tenant.id,
+      createdAt: faker.date.recent({ days: 3 }),
+    })),
+  );
+
+  // 5. Create calendar events
+  const now = new Date();
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const eventsList = [
+    {
+      title: "Client Meeting: TechStart Solutions",
+      description: "Quarterly review meeting to discuss financials and tax planning",
+      type: "meeting",
+      startTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
+      endTime: new Date(tomorrow.setHours(11, 0, 0, 0)),
+      allDay: false,
+      location: "Conference Room A",
+      clientId: createdClients[0].id,
+      createdBy: adminUser.id,
+      reminderMinutes: 30,
+    },
+    {
+      title: "Team Planning Session",
+      description: "Monthly planning and review",
+      type: "meeting",
+      startTime: new Date(nextWeek.setHours(14, 0, 0, 0)),
+      endTime: new Date(nextWeek.setHours(16, 0, 0, 0)),
+      allDay: false,
+      location: "Main Office",
+      createdBy: adminUser.id,
+      reminderMinutes: 60,
+    },
+    {
+      title: "VAT Return Deadline",
+      description: "Submit VAT returns for all registered clients",
+      type: "deadline",
+      startTime: new Date(nextWeek.getTime() + 3 * 24 * 60 * 60 * 1000),
+      endTime: new Date(nextWeek.getTime() + 3 * 24 * 60 * 60 * 1000),
+      allDay: true,
+      createdBy: adminUser.id,
+      reminderMinutes: 1440, // 1 day before
+    },
+    {
+      title: "Training: New Tax Regulations",
+      description: "Mandatory training session on updated tax regulations",
+      type: "event",
+      startTime: new Date(nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000),
+      endTime: new Date(nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
+      allDay: false,
+      location: "Virtual - Zoom",
+      createdBy: adminUser.id,
+      reminderMinutes: 120,
+      metadata: {
+        meetingLink: "https://zoom.us/j/1234567890",
+      },
+    },
+    {
+      title: "Annual Leave",
+      description: "Out of office",
+      type: "out_of_office",
+      startTime: new Date(nextWeek.getTime() + 14 * 24 * 60 * 60 * 1000),
+      endTime: new Date(nextWeek.getTime() + 21 * 24 * 60 * 60 * 1000),
+      allDay: true,
+      createdBy: createdUsers[2].id,
+    },
+  ];
+
+  const createdEvents = await db
+    .insert(calendarEvents)
+    .values(
+      eventsList.map((event) => ({
+        ...event,
+        tenantId: tenant.id,
+      })),
+    )
+    .returning();
+
+  // 6. Add attendees to events
+  await db.insert(calendarEventAttendees).values([
+    // Client meeting - admin and user 1
+    {
+      eventId: createdEvents[0].id,
+      userId: adminUser.id,
+      status: "accepted",
+      isOptional: false,
+      respondedAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      eventId: createdEvents[0].id,
+      userId: createdUsers[1].id,
+      status: "accepted",
+      isOptional: false,
+      respondedAt: faker.date.recent({ days: 1 }),
+    },
+    // Team planning - all users
+    ...createdUsers.map((user) => ({
+      eventId: createdEvents[1].id,
+      userId: user.id,
+      status: "accepted",
+      isOptional: false,
+      respondedAt: faker.date.recent({ days: 2 }),
+    })),
+    // Training - all users
+    ...createdUsers.map((user) => ({
+      eventId: createdEvents[3].id,
+      userId: user.id,
+      status: "pending",
+      isOptional: false,
+    })),
+  ]);
+
+  console.log("✓ Created message threads, messages, notifications, and calendar events");
 
   console.log("✅ Database seeding completed!");
 

@@ -2218,3 +2218,195 @@ export const clientPortalVerifications = pgTable("client_portal_verification", {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+// ============================================================================
+// Phase 1: Communication & Collaboration Features
+// ============================================================================
+
+// Message Threads - Conversation threads (DM or team channels)
+export const messageThreads = pgTable(
+  "message_threads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    type: varchar("type", { length: 20 }).notNull(), // 'direct', 'team_channel', 'client'
+    name: varchar("name", { length: 255 }), // For channels (null for DM)
+    description: text("description"), // For channels
+    isPrivate: boolean("is_private").default(false).notNull(), // For channels
+    clientId: uuid("client_id").references(() => clients.id), // If type='client', link to client
+    createdBy: text("created_by")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    lastMessageAt: timestamp("last_message_at"), // For sorting threads
+  },
+  (table) => ({
+    tenantIdx: index("message_threads_tenant_idx").on(table.tenantId),
+    typeIdx: index("message_threads_type_idx").on(table.type),
+    clientIdx: index("message_threads_client_idx").on(table.clientId),
+    lastMessageIdx: index("message_threads_last_message_idx").on(
+      table.lastMessageAt,
+    ),
+  }),
+);
+
+// Message Thread Participants - Who is in each thread
+export const messageThreadParticipants = pgTable(
+  "message_thread_participants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    threadId: uuid("thread_id")
+      .references(() => messageThreads.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    role: varchar("role", { length: 20 }).default("member").notNull(), // 'admin', 'member'
+    joinedAt: timestamp("joined_at").defaultNow().notNull(),
+    lastReadAt: timestamp("last_read_at"), // For unread count
+    mutedUntil: timestamp("muted_until"), // For muting notifications
+  },
+  (table) => ({
+    threadUserIdx: uniqueIndex("message_thread_participants_thread_user_idx").on(
+      table.threadId,
+      table.userId,
+    ),
+    userIdx: index("message_thread_participants_user_idx").on(table.userId),
+  }),
+);
+
+// Messages - Individual messages in threads
+export const messages = pgTable(
+  "messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    threadId: uuid("thread_id")
+      .references(() => messageThreads.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id)
+      .notNull(),
+    content: text("content").notNull(),
+    type: varchar("type", { length: 20 }).default("text").notNull(), // 'text', 'file', 'system'
+    metadata: jsonb("metadata"), // For file URLs, mentions, etc.
+    replyToId: uuid("reply_to_id"), // For threaded replies
+    isEdited: boolean("is_edited").default(false).notNull(),
+    isDeleted: boolean("is_deleted").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    threadIdx: index("messages_thread_idx").on(table.threadId),
+    userIdx: index("messages_user_idx").on(table.userId),
+    createdAtIdx: index("messages_created_at_idx").on(table.createdAt),
+  }),
+);
+
+// Notifications - User notifications
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    type: varchar("type", { length: 50 }).notNull(), // 'task_assigned', 'mention', 'client_message', 'approval_needed', etc.
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    actionUrl: text("action_url"), // Where to navigate when clicked
+    entityType: varchar("entity_type", { length: 50 }), // 'task', 'message', 'client', etc.
+    entityId: uuid("entity_id"), // ID of related entity
+    isRead: boolean("is_read").default(false).notNull(),
+    readAt: timestamp("read_at"),
+    metadata: jsonb("metadata"), // Additional data
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIsReadIdx: index("notifications_user_is_read_idx").on(
+      table.userId,
+      table.isRead,
+    ),
+    tenantIdx: index("notifications_tenant_idx").on(table.tenantId),
+    createdAtIdx: index("notifications_created_at_idx").on(table.createdAt),
+  }),
+);
+
+// Calendar Events - Events, meetings, deadlines
+export const calendarEvents = pgTable(
+  "calendar_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    type: varchar("type", { length: 30 }).notNull(), // 'meeting', 'deadline', 'event', 'out_of_office'
+    startTime: timestamp("start_time").notNull(),
+    endTime: timestamp("end_time").notNull(),
+    allDay: boolean("all_day").default(false).notNull(),
+    location: varchar("location", { length: 255 }), // Physical or virtual location
+    clientId: uuid("client_id").references(() => clients.id), // If client-related
+    taskId: uuid("task_id").references(() => tasks.id), // If task-related
+    complianceId: uuid("compliance_id").references(() => compliance.id), // If compliance deadline
+    createdBy: text("created_by")
+      .references(() => users.id)
+      .notNull(),
+    metadata: jsonb("metadata"), // Meeting link, notes, etc.
+    reminderMinutes: integer("reminder_minutes"), // Minutes before event to remind (15, 30, 60, etc.)
+    isRecurring: boolean("is_recurring").default(false).notNull(),
+    recurrenceRule: text("recurrence_rule"), // iCal RRULE format
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("calendar_events_tenant_idx").on(table.tenantId),
+    startTimeIdx: index("calendar_events_start_time_idx").on(table.startTime),
+    clientIdx: index("calendar_events_client_idx").on(table.clientId),
+    taskIdx: index("calendar_events_task_idx").on(table.taskId),
+    typeIdx: index("calendar_events_type_idx").on(table.type),
+  }),
+);
+
+// Calendar Event Attendees - Who is invited to events
+export const calendarEventAttendees = pgTable(
+  "calendar_event_attendees",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id")
+      .references(() => calendarEvents.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    status: varchar("status", { length: 20 })
+      .default("pending")
+      .notNull(), // 'pending', 'accepted', 'declined', 'tentative'
+    isOptional: boolean("is_optional").default(false).notNull(),
+    respondedAt: timestamp("responded_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    eventUserIdx: uniqueIndex("calendar_event_attendees_event_user_idx").on(
+      table.eventId,
+      table.userId,
+    ),
+    userIdx: index("calendar_event_attendees_user_idx").on(table.userId),
+    statusIdx: index("calendar_event_attendees_status_idx").on(table.status),
+  }),
+);
