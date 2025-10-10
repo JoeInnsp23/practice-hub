@@ -8,14 +8,35 @@ Practice Hub is a comprehensive practice management system designed for accounti
 
 ## Tech Stack
 
+### Frontend
 - **Framework**: Next.js 15 with App Router and Turbopack
-- **Authentication**: Better Auth with email/password and Microsoft OAuth
-- **Database**: PostgreSQL with Drizzle ORM
+- **UI Library**: React 19
 - **Styling**: Tailwind CSS v4
-- **UI Components**: shadcn/ui (Radix UI primitives)
+- **Components**: shadcn/ui (Radix UI primitives)
 - **Forms**: React Hook Form with Zod validation
+- **State Management**: React Query (TanStack Query) + tRPC
 - **Notifications**: react-hot-toast
+
+### Backend
+- **Runtime**: Node.js (via Next.js API routes)
+- **API Layer**: tRPC for type-safe APIs
+- **Authentication**: Better Auth with email/password + Microsoft OAuth
+- **Database**: PostgreSQL 14+ with Drizzle ORM
+- **File Storage**: S3-compatible (MinIO local / Hetzner production)
+
+### Integrations
+- **KYC/AML**: LEM Verify (£1/verification, UK MLR 2017 compliant)
+- **AI**: Google Gemini 2.0 Flash (document extraction)
+- **Email**: Resend (transactional emails)
+- **E-Signature**: DocuSeal (document signing)
+- **Object Storage**: Hetzner S3 or MinIO
+
+### DevOps & Quality
 - **Code Quality**: Biome for linting and formatting
+- **Testing**: Vitest (58 tests passing in <3 seconds)
+- **Type Safety**: TypeScript strict mode
+- **Version Control**: Git
+- **Monitoring**: Sentry (errors) + UptimeRobot (uptime)
 
 ## Features
 
@@ -23,27 +44,67 @@ Practice Hub is a comprehensive practice management system designed for accounti
 - ✅ Email/password authentication with bcrypt hashing
 - ✅ Microsoft OAuth (personal and work accounts)
 - ✅ Multi-tenant architecture with organization management
-- ✅ Role-based access control (Admin, Member)
+- ✅ Role-based access control (Admin, Member, Client)
 - ✅ Session management with Better Auth
+- ✅ Secure CSRF protection
+- ✅ Password reset and account management
+
+### KYC/AML Compliance ⭐ NEW
+- ✅ **LEM Verify Integration**: UK MLR 2017 compliant identity verification
+- ✅ **AI Document Extraction**: Google Gemini 2.0 Flash extracts data from ID documents
+- ✅ **Automated Questionnaire**: 5-category onboarding questionnaire with AI pre-fill
+- ✅ **AML Screening**: PEP, sanctions, watchlist, and adverse media checks
+- ✅ **Auto-Approval**: Automatic client approval for clean verifications
+- ✅ **Manual Review Queue**: Admin dashboard for reviewing flagged verifications
+- ✅ **Lead-to-Client Conversion**: Automatic conversion upon KYC approval
+- ✅ **Webhook Integration**: Real-time status updates from LEM Verify
+- ✅ **Activity Logging**: Complete audit trail for compliance
+- ✅ **Email Notifications**: Automated status updates via Resend
 
 ### Core Modules
-- **Practice Hub**: Main dashboard and overview
-- **Client Hub**: Client management, contacts, services
-- **Proposal Hub**: Lead management, proposal generation, pricing calculator
-- **Admin Panel**: User management, portal links, system settings
-- **Client Portal**: External client access
-- **Social Hub**: Team collaboration features
+- **Practice Hub**: Main dashboard and overview with quick actions
+- **Client Hub**: Complete CRM with clients, contacts, services, compliance tracking
+- **Proposal Hub**: Lead management, proposal generation, comprehensive pricing calculator
+- **Admin Panel**: User management, KYC review queue, portal links, system settings
+- **Client Portal**: Secure external client access with onboarding and document management
+- **Social Hub**: Team collaboration features (in development)
 
-### Key Capabilities
-- Client relationship management (CRM)
-- Task and workflow management
-- Time tracking and timesheet management
-- Compliance tracking and reminders
-- Invoice generation and tracking
-- Document management
-- Activity logging and audit trails
-- Custom workflow creation
-- Onboarding management
+### Client Relationship Management
+- ✅ Client profiles with contact management
+- ✅ Director and PSC tracking
+- ✅ Service assignment and tracking
+- ✅ Document management
+- ✅ Compliance monitoring with reminders
+- ✅ Activity logging for all client interactions
+- ✅ Client portal invitations and access management
+
+### Proposal & Pricing
+- ✅ Lead capture and management
+- ✅ Comprehensive pricing calculator (28 services, 138+ rules)
+- ✅ Complexity multipliers (Model A & B)
+- ✅ Industry-specific pricing
+- ✅ Discount rules (volume, rush, new client)
+- ✅ PDF proposal generation with S3 storage
+- ✅ Proposal tracking and status management
+
+### Operations & Workflow
+- ✅ Task management with assignments
+- ✅ Time tracking and timesheet management
+- ✅ Custom workflow creation
+- ✅ Invoice generation and tracking
+- ✅ Activity logging and audit trails
+- ✅ Portal links management for client resources
+
+### Technical Features
+- ✅ Type-safe APIs with tRPC
+- ✅ Real-time data with React Query
+- ✅ Optimized database queries with Drizzle ORM
+- ✅ S3-compatible object storage (MinIO/Hetzner)
+- ✅ Webhook handlers with HMAC signature verification
+- ✅ Rate limiting on critical endpoints
+- ✅ In-memory caching for performance
+- ✅ Comprehensive testing suite (58 tests passing)
+- ✅ Production-ready monitoring and operations documentation
 
 ## Getting Started
 
@@ -86,7 +147,24 @@ Practice Hub is a comprehensive practice management system designed for accounti
    # Microsoft OAuth (Optional)
    MICROSOFT_CLIENT_ID="your-microsoft-client-id"
    MICROSOFT_CLIENT_SECRET="your-microsoft-client-secret"
+
+   # KYC/AML (Optional - for onboarding features)
+   LEMVERIFY_API_KEY="your-api-key"
+   LEMVERIFY_ACCOUNT_ID="your-account-id"
+   LEMVERIFY_WEBHOOK_SECRET="your-webhook-secret"
+   GOOGLE_AI_API_KEY="your-gemini-api-key"
+
+   # Email (Optional - for notifications)
+   RESEND_API_KEY="your-resend-api-key"
+
+   # Storage (MinIO for local development)
+   S3_ENDPOINT="http://localhost:9000"
+   S3_ACCESS_KEY_ID="minioadmin"
+   S3_SECRET_ACCESS_KEY="minioadmin"
+   S3_BUCKET_NAME="practice-hub-proposals"
    ```
+
+   For a complete list of all environment variables with descriptions, see [`/docs/ENVIRONMENT_VARIABLES.md`](/docs/ENVIRONMENT_VARIABLES.md) (Coming soon).
 
 4. **Start PostgreSQL database**
    ```bash
@@ -160,6 +238,12 @@ pnpm start            # Start production server
 pnpm db:reset         # Drop, recreate, push, migrate, and seed database
 pnpm db:push          # Push schema changes to database
 pnpm db:studio        # Open Drizzle Studio (database GUI)
+
+# Testing
+pnpm test             # Run all tests
+pnpm test:watch       # Run tests in watch mode
+pnpm test:ui          # Open Vitest UI
+pnpm test:coverage    # Generate coverage report
 
 # Code Quality
 pnpm lint             # Run Biome linter
@@ -269,16 +353,111 @@ Before deploying, ensure:
 - Environment variables configured in hosting platform
 - SSL/HTTPS enabled for production domain
 
+## Testing
+
+Practice Hub has a comprehensive test suite covering critical backend functionality.
+
+### Test Statistics
+- **58 tests passing** across 5 test files
+- **Execution time**: <3 seconds
+- **Coverage**: Unit tests + API route tests
+- **Framework**: Vitest
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Watch mode (re-run on changes)
+pnpm test:watch
+
+# Interactive UI
+pnpm test:ui
+
+# Generate coverage report
+pnpm test:coverage
+```
+
+### Test Coverage
+
+- **Unit Tests** (42 tests):
+  - Configuration loading and validation
+  - In-memory caching with TTL
+  - Rate limiting and IP tracking
+  - S3 URL parsing and key extraction
+
+- **API Route Tests** (16 tests):
+  - LEM Verify webhook signature verification
+  - Request validation and error handling
+  - HTTP status codes (401, 400, 500, 200)
+  - Event processing and security
+
+See [`__tests__/README.md`](./__tests__/README.md) for detailed testing documentation.
+
+---
+
 ## Documentation
 
-- **Microsoft OAuth Setup**: [`/docs/MICROSOFT_OAUTH_SETUP.md`](/docs/MICROSOFT_OAUTH_SETUP.md)
+### For Users
+- **Staff User Guide**: Coming soon
+- **Client Onboarding Guide**: Coming soon
+- **Admin Training**: Coming soon
+- **FAQ**: Coming soon
+
+### For Developers
 - **Development Guidelines**: [`CLAUDE.md`](/CLAUDE.md)
+- **API Reference**: [`/docs/API_REFERENCE.md`](/docs/API_REFERENCE.md)
+- **System Architecture**: [`/docs/SYSTEM_ARCHITECTURE.md`](/docs/SYSTEM_ARCHITECTURE.md)
+- **Testing Guide**: [`__tests__/README.md`](./__tests__/README.md)
+- **Database Schema**: [`/docs/DATABASE_SCHEMA.md`](/docs/DATABASE_SCHEMA.md) (Coming soon)
+- **Environment Variables**: [`/docs/ENVIRONMENT_VARIABLES.md`](/docs/ENVIRONMENT_VARIABLES.md) (Coming soon)
+
+### For Operations
+- **Deployment Checklist**: [`/docs/DEPLOYMENT_CHECKLIST.md`](/docs/DEPLOYMENT_CHECKLIST.md)
+- **Operational Runbooks**: [`/docs/operations/RUNBOOKS.md`](/docs/operations/RUNBOOKS.md)
+- **Monitoring Strategy**: [`/docs/operations/MONITORING.md`](/docs/operations/MONITORING.md)
+- **Backup & Recovery**: [`/docs/operations/BACKUP_RECOVERY.md`](/docs/operations/BACKUP_RECOVERY.md)
+
+### Authentication & Security
+- **Microsoft OAuth Setup**: [`/docs/MICROSOFT_OAUTH_SETUP.md`](/docs/MICROSOFT_OAUTH_SETUP.md)
+- **Authentication Overview**: [`/docs/AUTHENTICATION_OVERVIEW.md`](/docs/AUTHENTICATION_OVERVIEW.md)
+- **CSRF Protection**: [`/docs/security/CSRF_PROTECTION.md`](/docs/security/CSRF_PROTECTION.md)
+- **Security Policy**: [`SECURITY.md`](/SECURITY.md) (Coming soon)
+
+### Integrations
+- **LEM Verify (KYC/AML)**: [`/docs/kyc/LEMVERIFY_INTEGRATION.md`](/docs/kyc/LEMVERIFY_INTEGRATION.md)
+- **Integrations Reference**: [`/docs/INTEGRATIONS_REFERENCE.md`](/docs/INTEGRATIONS_REFERENCE.md) (Coming soon)
+
+### Proposal Hub
+- **Calculator Logic**: [`/docs/proposal-reference/CALCULATOR_LOGIC.md`](/docs/proposal-reference/CALCULATOR_LOGIC.md)
+- **Pricing Structure**: [`/docs/proposal-reference/PRICING_STRUCTURE_2025.md`](/docs/proposal-reference/PRICING_STRUCTURE_2025.md)
+- **Service Components**: [`/docs/proposal-reference/SERVICE_COMPONENTS.md`](/docs/proposal-reference/SERVICE_COMPONENTS.md)
+- **Staff Quick Guide**: [`/docs/proposal-reference/STAFF_QUICK_GUIDE.md`](/docs/proposal-reference/STAFF_QUICK_GUIDE.md)
+
+### External Resources
 - **Better Auth Docs**: https://www.better-auth.com/docs
 - **Next.js Docs**: https://nextjs.org/docs
+- **Drizzle ORM Docs**: https://orm.drizzle.team/docs
+- **tRPC Docs**: https://trpc.io/docs
+
+---
 
 ## Support & Contributing
 
-For issues, questions, or contributions, please contact the development team.
+### Getting Help
+For issues, questions, or support:
+- Check the [FAQ](/docs/user-guides/FAQ.md) (Coming soon)
+- Review the [Troubleshooting Guide](/docs/TROUBLESHOOTING_DEV.md) (Coming soon)
+- Contact the development team
+
+### Contributing
+Interested in contributing? See our [Contributing Guide](/CONTRIBUTING.md) (Coming soon) for:
+- Code review process
+- Branch naming conventions
+- Commit message format
+- Testing requirements
+- Documentation requirements
 
 ## License
 
