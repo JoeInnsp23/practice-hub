@@ -16,6 +16,7 @@ import { protectedProcedure, router } from "../trpc";
 import { getPrefilledQuestionnaire, validateQuestionnaireComplete } from "@/lib/ai/questionnaire-prefill";
 import { updateExtractedResponse, markResponseAsVerified } from "@/lib/ai/save-extracted-data";
 import { lemverifyClient } from "@/lib/kyc/lemverify-client";
+import { sendKYCVerificationEmail } from "@/lib/email-client-portal";
 
 // Onboarding task template - 17 standard tasks from CSV
 const ONBOARDING_TEMPLATE_TASKS = [
@@ -822,15 +823,21 @@ export const onboardingRouter = router({
           },
         });
 
-        // TODO: Send email to client with verification URL
-        // This should use your email service (e.g., Resend, SendGrid)
-        console.log(`TODO: Send verification email to ${client.email}`);
+        // Send verification email to client
+        await sendKYCVerificationEmail({
+          email: client.email || "",
+          clientName: client.name || `${firstName} ${lastName}`,
+          verificationUrl: verificationRequest.verificationUrl,
+        });
+
+        console.log(`Verification email sent to ${client.email}`);
         console.log(`Verification URL: ${verificationRequest.verificationUrl}`);
 
         return {
           success: true,
           message: "Questionnaire submitted. Please check your email to complete identity verification.",
           status: "pending_approval",
+          clientId: client.id,
           verificationUrl: verificationRequest.verificationUrl, // Can be used for immediate redirect
         };
       } catch (error) {

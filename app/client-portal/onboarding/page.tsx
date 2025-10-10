@@ -195,8 +195,8 @@ export default function OnboardingQuestionnairePage() {
 
       toast.success(result.message);
 
-      // Redirect to pending approval page
-      router.push("/client-portal/onboarding/pending");
+      // Redirect to pending approval page with clientId
+      router.push(`/client-portal/onboarding/pending?clientId=${result.clientId}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to submit questionnaire");
     }

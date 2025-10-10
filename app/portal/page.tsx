@@ -1,6 +1,35 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { trpc } from "@/app/_trpc/client";
+import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export default function ClientPortalDashboard() {
+  const router = useRouter();
+  const { currentClientId } = useClientPortalContext();
+
+  // Check onboarding status and redirect if not approved
+  const { data: onboardingStatus, isLoading } = trpc.onboarding.getOnboardingStatus.useQuery(
+    { clientId: currentClientId || "" },
+    { enabled: !!currentClientId }
+  );
+
+  useEffect(() => {
+    if (onboardingStatus && !onboardingStatus.canAccessPortal && currentClientId) {
+      router.push(`/client-portal/onboarding/pending?clientId=${currentClientId}`);
+    }
+  }, [onboardingStatus, currentClientId, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-card-foreground mb-2">

@@ -67,3 +67,100 @@ export async function sendClientPortalPasswordResetEmail({
     // Don't throw - email failures shouldn't block the password reset flow
   }
 }
+
+interface KYCVerificationEmailParams {
+  email: string;
+  clientName: string;
+  verificationUrl: string;
+}
+
+export async function sendKYCVerificationEmail({
+  email,
+  clientName,
+  verificationUrl,
+}: KYCVerificationEmailParams): Promise<void> {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: "Complete Your Identity Verification - Innspired Accountancy",
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px;">
+              <h2 style="color: #4f46e5; margin-top: 0;">🔐 Identity Verification Required</h2>
+
+              <p>Hello ${clientName},</p>
+
+              <p>Thank you for completing your onboarding questionnaire! We've received your information and are excited to work with you.</p>
+
+              <p><strong>Next Step: Identity Verification</strong></p>
+
+              <p>To activate your client portal access and comply with UK Money Laundering Regulations 2017, we need to verify your identity through our secure partner, LEM Verify.</p>
+
+              <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 14px; color: #856404;">
+                  <strong>Please note:</strong> You may need to upload your identity documents again on the secure verification platform. This is required for biometric verification and AML compliance checks.
+                </p>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${verificationUrl}"
+                   style="background-color: #4f46e5; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
+                  Complete Identity Verification →
+                </a>
+              </div>
+
+              <p><strong>The verification process includes:</strong></p>
+              <ul style="line-height: 1.8;">
+                <li>Document verification (passport or UK driving license)</li>
+                <li>Face matching and liveness detection</li>
+                <li>AML and PEP screening</li>
+              </ul>
+
+              <p><strong>Timeline:</strong></p>
+              <ul style="line-height: 1.8;">
+                <li>Verification typically takes 2-5 minutes to complete</li>
+                <li>Results are usually available within 24 hours</li>
+                <li>You'll receive an email once your portal access is activated</li>
+              </ul>
+
+              <div style="background-color: #d1ecf1; border-left: 4px solid #0c5460; padding: 12px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 14px; color: #0c5460;">
+                  <strong>Deadline:</strong> Please complete verification within 48 hours to avoid delays in accessing your portal.
+                </p>
+              </div>
+
+              <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+              <p style="font-size: 12px; color: #666;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="${verificationUrl}" style="color: #4f46e5; word-break: break-all;">${verificationUrl}</a>
+              </p>
+
+              <p style="font-size: 12px; color: #666;">
+                If you have any questions or need assistance, please contact us at
+                <a href="mailto:support@innspiredaccountancy.com" style="color: #4f46e5;">support@innspiredaccountancy.com</a>
+              </p>
+
+              <p style="font-size: 12px; color: #999; margin-top: 30px;">
+                This email was sent to you as part of your onboarding with Innspired Accountancy.
+                Identity verification is required by UK Money Laundering Regulations 2017.
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log("KYC verification email sent successfully to:", email);
+  } catch (error) {
+    console.error("Failed to send KYC verification email:", error);
+    // Don't throw - email failures shouldn't block the onboarding flow
+  }
+}
