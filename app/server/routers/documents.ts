@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { clients, documents, users } from "@/lib/db/schema";
@@ -33,7 +33,7 @@ export const documentsRouter = router({
 
       // Filter by parent folder
       if (input.parentId === null) {
-        whereConditions.push(eq(documents.parentId, null));
+        whereConditions.push(isNull(documents.parentId));
       } else if (input.parentId) {
         whereConditions.push(eq(documents.parentId, input.parentId));
       }

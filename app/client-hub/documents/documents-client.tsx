@@ -18,6 +18,7 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { DocumentGrid } from "@/components/client-hub/documents/document-grid";
+import { FilePreviewModal } from "@/components/client-hub/documents/file-preview-modal";
 import { UploadModal } from "@/components/client-hub/documents/upload-modal";
 import {
   Breadcrumb,
@@ -57,6 +58,9 @@ export default function DocumentsClient() {
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isRenameOpen, setIsRenameOpen] = useState(false);
+  const [newName, setNewName] = useState("");
 
   // Fetch documents
   const { data: documentsData } = trpc.documents.list.useQuery({
@@ -103,6 +107,19 @@ export default function DocumentsClient() {
     },
     onError: (error) => {
       toast.error(`Failed to create share link: ${error.message}`);
+    },
+  });
+
+  // Rename document mutation
+  const renameDocumentMutation = trpc.documents.update.useMutation({
+    onSuccess: () => {
+      toast.success("Renamed successfully");
+      utils.documents.list.invalidate();
+      setIsRenameOpen(false);
+      setNewName("");
+    },
+    onError: (error) => {
+      toast.error(`Failed to rename: ${error.message}`);
     },
   });
 
@@ -202,6 +219,29 @@ export default function DocumentsClient() {
       documentId: selectedDocument.document.id,
       expiresIn: 86400 * 7, // 7 days
     });
+  };
+
+  const handleRename = (doc: any) => {
+    setSelectedDocument(doc);
+    setNewName(doc.document.name);
+    setIsRenameOpen(true);
+  };
+
+  const handleRenameSubmit = () => {
+    if (!selectedDocument || !newName.trim()) {
+      toast.error("Please enter a name");
+      return;
+    }
+
+    renameDocumentMutation.mutate({
+      documentId: selectedDocument.document.id,
+      name: newName.trim(),
+    });
+  };
+
+  const handlePreview = (doc: any) => {
+    setSelectedDocument(doc);
+    setIsPreviewOpen(true);
   };
 
   const formatBytes = (bytes: number) => {
@@ -355,6 +395,7 @@ export default function DocumentsClient() {
         onDownload={handleDownload}
         onDelete={handleDelete}
         onShare={handleShare}
+        onRename={handleRename}
       />
 
       {/* Upload Modal */}
@@ -440,6 +481,59 @@ export default function DocumentsClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Rename Dialog */}
+      <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename</DialogTitle>
+            <DialogDescription>
+              Enter a new name for "{selectedDocument?.document.name}"
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="newName">New Name</Label>
+              <Input
+                id="newName"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Enter new name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleRenameSubmit();
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRenameOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRenameSubmit}
+              disabled={renameDocumentMutation.isPending}
+            >
+              Rename
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* File Preview Modal */}
+      <FilePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        document={selectedDocument}
+        onDownload={() => {
+          if (selectedDocument) {
+            handleDownload(selectedDocument);
+          }
+        }}
+      />
     </div>
   );
 }

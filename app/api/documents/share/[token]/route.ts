@@ -67,8 +67,8 @@ export async function GET(
         ? `inline; filename="${doc.name}"`
         : `attachment; filename="${doc.name}"`;
 
-    // Return file
-    return new NextResponse(fileBuffer, {
+    // Return file (convert Buffer to Uint8Array)
+    return new NextResponse(new Uint8Array(fileBuffer), {
       headers: {
         "Content-Type": doc.mimeType || "application/octet-stream",
         "Content-Disposition": contentDisposition,
