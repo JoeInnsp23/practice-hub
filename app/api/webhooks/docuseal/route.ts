@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { activityLogs, proposalSignatures, proposals, clientPortalUsers } from "@/lib/db/schema";
+import { activityLogs, proposalSignatures, proposals, clientPortalUsers, documents, documentSignatures } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import { sendSignedConfirmation } from "@/lib/docuseal/email-handler";
 import { extractAuditTrail } from "@/lib/docuseal/uk-compliance-fields";
@@ -72,15 +72,30 @@ async function handleSubmissionCompleted(submission: any) {
 
   console.log("Processing completed submission:", submissionId);
 
-  // Get proposal ID from metadata
+  // Check if this is a proposal or document signature
   const proposalId = metadata.proposal_id;
-  const proposalNumber = metadata.proposal_number;
+  const documentId = metadata.document_id;
   const tenantId = metadata.tenant_id;
 
-  if (!proposalId || !tenantId) {
-    console.error("Missing proposal_id or tenant_id in submission metadata");
+  if (!tenantId) {
+    console.error("Missing tenant_id in submission metadata");
     throw new Error("Invalid submission metadata");
   }
+
+  // Route to appropriate handler
+  if (proposalId) {
+    await handleProposalSigning(submission, metadata, proposalId, tenantId);
+  } else if (documentId) {
+    await handleDocumentSigning(submission, metadata, documentId, tenantId);
+  } else {
+    console.error("No proposal_id or document_id in metadata");
+    throw new Error("Invalid submission metadata");
+  }
+}
+
+async function handleProposalSigning(submission: any, metadata: any, proposalId: string, tenantId: string) {
+  const submissionId = submission.id;
+  const proposalNumber = metadata.proposal_number;
 
   // Get proposal details (including leadId for auto-conversion)
   const [proposalDetails] = await db
@@ -244,5 +259,84 @@ async function handleSubmissionCompleted(submission: any) {
     // Don't throw - email failure shouldn't break the webhook
   }
 
-  console.log("Submission processed successfully:", submissionId);
+  console.log("Proposal signing completed successfully:", submissionId);
+}
+
+async function handleDocumentSigning(submission: any, metadata: any, documentId: string, tenantId: string) {
+  const submissionId = submission.id;
+
+  console.log("Processing document signature:", documentId);
+
+  // Get document details
+  const [doc] = await db
+    .select()
+    .from(documents)
+    .where(eq(documents.id, documentId))
+    .limit(1);
+
+  if (!doc) {
+    console.error("Document not found:", documentId);
+    throw new Error("Document not found");
+  }
+
+  // Extract audit trail from submission
+  const auditTrail = extractAuditTrail(submission);
+
+  // Download signed PDF from DocuSeal
+  console.log("Downloading signed PDF from DocuSeal...");
+  const signedPdfBuffer = await docusealClient.downloadSignedPdf(submissionId);
+
+  // Calculate SHA-256 hash of signed PDF
+  console.log("Calculating document hash...");
+  const documentHash = crypto
+    .createHash("sha256")
+    .update(signedPdfBuffer)
+    .digest("hex");
+
+  // Upload signed PDF to S3
+  console.log("Uploading signed PDF to S3...");
+  const s3Key = `documents/signed/${tenantId}/${documentId}-${submissionId}.pdf`;
+  const signedPdfUrl = await uploadToS3(signedPdfBuffer, s3Key, "application/pdf");
+
+  // Update document with signed PDF and status
+  await db
+    .update(documents)
+    .set({
+      signatureStatus: "signed",
+      signedPdfUrl,
+      signedAt: new Date(auditTrail.signedAt),
+      signedBy: auditTrail.signerName,
+    })
+    .where(eq(documents.id, documentId));
+
+  // Create document signature record
+  await db.insert(documentSignatures).values({
+    documentId,
+    tenantId,
+    signerEmail: auditTrail.signerEmail,
+    signerName: auditTrail.signerName,
+    docusealSubmissionId: submissionId,
+    auditTrail,
+    documentHash,
+    signedPdfUrl,
+    signedAt: new Date(auditTrail.signedAt),
+  });
+
+  // Create activity log
+  await db.insert(activityLogs).values({
+    tenantId,
+    userId: doc.uploadedById,
+    action: "Document Signed",
+    entityType: "document",
+    entityId: documentId,
+    details: `Document "${doc.name}" signed by ${auditTrail.signerName}`,
+    metadata: {
+      documentId,
+      submissionId,
+      signerEmail: auditTrail.signerEmail,
+      signedAt: auditTrail.signedAt,
+    },
+  });
+
+  console.log("Document signing completed successfully:", documentId);
 }

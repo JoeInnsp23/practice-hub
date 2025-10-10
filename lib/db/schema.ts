@@ -671,6 +671,15 @@ export const documents = pgTable(
       .references(() => users.id, { onDelete: "set null" })
       .notNull(),
 
+    // Signature fields
+    requiresSignature: boolean("requires_signature").default(false).notNull(),
+    signatureStatus: varchar("signature_status", { length: 20 }).default("none"), // 'none' | 'pending' | 'signed' | 'declined'
+    docusealSubmissionId: text("docuseal_submission_id"),
+    docusealTemplateId: text("docuseal_template_id"),
+    signedPdfUrl: text("signed_pdf_url"),
+    signedAt: timestamp("signed_at"),
+    signedBy: varchar("signed_by", { length: 255 }),
+
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -681,6 +690,42 @@ export const documents = pgTable(
     taskDocIdx: index("idx_document_task").on(table.taskId),
     pathIdx: index("idx_document_path").on(table.path),
     shareTokenIdx: index("idx_document_share_token").on(table.shareToken),
+  }),
+);
+
+// Document Signatures table - Audit trail for document signatures
+export const documentSignatures = pgTable(
+  "document_signatures",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    documentId: uuid("document_id")
+      .references(() => documents.id, { onDelete: "cascade" })
+      .notNull(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Signer information
+    signerEmail: varchar("signer_email", { length: 255 }).notNull(),
+    signerName: varchar("signer_name", { length: 255 }).notNull(),
+
+    // DocuSeal integration
+    docusealSubmissionId: text("docuseal_submission_id").notNull(),
+    auditTrail: jsonb("audit_trail").notNull(), // Full audit metadata from DocuSeal
+    documentHash: text("document_hash"), // SHA-256 of signed PDF
+
+    // Signed PDF
+    signedPdfUrl: text("signed_pdf_url"),
+
+    // Timestamps
+    signedAt: timestamp("signed_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    documentIdx: index("idx_document_signature_document").on(table.documentId),
+    submissionIdx: index("idx_document_signature_submission").on(
+      table.docusealSubmissionId,
+    ),
   }),
 );
 

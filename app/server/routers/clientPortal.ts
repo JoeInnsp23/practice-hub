@@ -9,7 +9,9 @@ import {
   proposalServices,
   invoices,
   documents,
+  users,
 } from "@/lib/db/schema";
+import { docusealClient } from "@/lib/docuseal/client";
 import { clientPortalProcedure, router } from "../trpc";
 
 export const clientPortalRouter = router({
@@ -320,5 +322,117 @@ export const clientPortalRouter = router({
         .orderBy(documents.createdAt);
 
       return documentsList;
+    }),
+
+  // Get documents requiring signature for selected client
+  getDocumentsToSign: clientPortalProcedure
+    .input(z.object({ clientId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Get documents requiring signature
+      const results = await db
+        .select({
+          id: documents.id,
+          name: documents.name,
+          description: documents.description,
+          size: documents.size,
+          mimeType: documents.mimeType,
+          url: documents.url,
+          requiresSignature: documents.requiresSignature,
+          signatureStatus: documents.signatureStatus,
+          docusealSubmissionId: documents.docusealSubmissionId,
+          createdAt: documents.createdAt,
+          uploadedBy: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(documents)
+        .leftJoin(users, eq(documents.uploadedById, users.id))
+        .where(
+          and(
+            eq(documents.tenantId, tenantId),
+            eq(documents.clientId, input.clientId),
+            eq(documents.requiresSignature, true),
+            eq(documents.signatureStatus, "pending"),
+          ),
+        )
+        .orderBy(documents.createdAt);
+
+      // Get client details for signing URL
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, input.clientId))
+        .limit(1);
+
+      // Add signing URLs to results
+      return results.map((doc) => ({
+        ...doc,
+        signingUrl: doc.docusealSubmissionId
+          ? docusealClient.getEmbedUrl(doc.docusealSubmissionId, client?.email || "")
+          : null,
+      }));
+    }),
+
+  // Get signed documents for selected client
+  getSignedDocuments: clientPortalProcedure
+    .input(z.object({ clientId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+
+      // Verify user has access to this client
+      const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
+      if (!hasAccess) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have access to this client",
+        });
+      }
+
+      // Get signed documents
+      const results = await db
+        .select({
+          id: documents.id,
+          name: documents.name,
+          description: documents.description,
+          size: documents.size,
+          mimeType: documents.mimeType,
+          signedPdfUrl: documents.signedPdfUrl,
+          signedAt: documents.signedAt,
+          signedBy: documents.signedBy,
+          createdAt: documents.createdAt,
+          uploadedBy: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(documents)
+        .leftJoin(users, eq(documents.uploadedById, users.id))
+        .where(
+          and(
+            eq(documents.tenantId, tenantId),
+            eq(documents.clientId, input.clientId),
+            eq(documents.requiresSignature, true),
+            eq(documents.signatureStatus, "signed"),
+          ),
+        )
+        .orderBy(documents.signedAt);
+
+      return results;
     }),
 });

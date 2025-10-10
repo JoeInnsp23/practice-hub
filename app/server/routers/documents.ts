@@ -2,7 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, ilike, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { clients, documents, users } from "@/lib/db/schema";
+import { clients, documents, documentSignatures, users } from "@/lib/db/schema";
+import { docusealClient } from "@/lib/docuseal/client";
 import {
   deleteFromS3,
   getPresignedUrl as getS3PresignedUrl,
@@ -615,6 +616,157 @@ export const documentsRouter = router({
       }
 
       return filtered;
+    }),
+
+  /**
+   * Create document requiring signature
+   */
+  createSignatureDocument: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(255),
+        clientId: z.string().uuid(),
+        url: z.string().url(), // S3 URL of uploaded PDF
+        description: z.string().optional(),
+        size: z.number().optional(),
+        mimeType: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.authContext.tenantId;
+      const userId = ctx.authContext.userId;
+
+      // Verify client exists and belongs to tenant
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(
+          and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)),
+        );
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      // Create document record
+      const [document] = await db
+        .insert(documents)
+        .values({
+          tenantId,
+          name: input.name,
+          type: "file",
+          mimeType: input.mimeType || "application/pdf",
+          size: input.size || 0,
+          url: input.url,
+          description: input.description,
+          clientId: input.clientId,
+          uploadedById: userId,
+          requiresSignature: true,
+          signatureStatus: "pending",
+          path: `/${input.name}`,
+        })
+        .returning();
+
+      // Create DocuSeal submission
+      try {
+        const submission = await docusealClient.createSubmission({
+          template_id: process.env.DOCUSEAL_GENERIC_TEMPLATE_ID || "",
+          send_email: true,
+          submitters: [
+            {
+              email: client.email,
+              name: client.name,
+              role: "Client",
+            },
+          ],
+          metadata: {
+            document_id: document.id,
+            tenant_id: tenantId,
+            client_id: input.clientId,
+          },
+        });
+
+        // Update document with DocuSeal submission ID
+        await db
+          .update(documents)
+          .set({
+            docusealSubmissionId: submission.id,
+          })
+          .where(eq(documents.id, document.id));
+
+        // Get signing URL
+        const signingUrl = docusealClient.getEmbedUrl(
+          submission.id,
+          client.email,
+        );
+
+        return {
+          document,
+          submission,
+          signingUrl,
+        };
+      } catch (error) {
+        // If DocuSeal fails, delete the document record
+        await db.delete(documents).where(eq(documents.id, document.id));
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create signing request",
+          cause: error,
+        });
+      }
+    }),
+
+  /**
+   * Get signing status for a document
+   */
+  getSigningStatus: protectedProcedure
+    .input(z.object({ documentId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const tenantId = ctx.authContext.tenantId;
+
+      const [doc] = await db
+        .select()
+        .from(documents)
+        .where(
+          and(
+            eq(documents.id, input.documentId),
+            eq(documents.tenantId, tenantId),
+          ),
+        );
+
+      if (!doc) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Document not found",
+        });
+      }
+
+      if (!doc.requiresSignature) {
+        return {
+          requiresSignature: false,
+          status: "none",
+        };
+      }
+
+      // Get signature record if exists
+      const [signature] = await db
+        .select()
+        .from(documentSignatures)
+        .where(eq(documentSignatures.documentId, input.documentId))
+        .limit(1);
+
+      return {
+        requiresSignature: true,
+        status: doc.signatureStatus,
+        signedPdfUrl: doc.signedPdfUrl,
+        signedAt: doc.signedAt,
+        signedBy: doc.signedBy,
+        signature: signature || null,
+      };
     }),
 });
 
