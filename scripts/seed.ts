@@ -278,25 +278,32 @@ async function seedDatabase() {
       sortOrder: 8,
     },
     {
+      title: "Documents",
+      description: "File storage and document management",
+      url: "/client-hub/documents",
+      iconName: "FolderOpen",
+      sortOrder: 9,
+    },
+    {
       title: "Messages",
       description: "Team chat and client communication",
       url: "/practice-hub/messages",
       iconName: "MessageSquare",
-      sortOrder: 9,
+      sortOrder: 10,
     },
     {
       title: "Calendar",
       description: "Events, meetings, and deadlines",
       url: "/practice-hub/calendar",
       iconName: "Calendar",
-      sortOrder: 10,
+      sortOrder: 11,
     },
     {
       title: "Admin Panel",
       description: "System administration and configuration",
       url: "/admin",
       iconName: "Settings",
-      sortOrder: 11,
+      sortOrder: 12,
     },
   ];
 
@@ -2568,26 +2575,17 @@ async function seedDatabase() {
 
   console.log(`✓ ${workflowInstanceCount} Workflow instances created`);
 
-  // 12. Create Documents
-  console.log("Creating documents...");
-  const _documentTypes = ["file", "folder"] as const;
+  // 12. Create Documents (with actual S3 uploads)
+  console.log("Creating documents and uploading to S3...");
+  const { uploadPublicFile } = await import("../lib/s3/upload");
+
   const fileTypes = [
-    { name: "Tax Return 2023.pdf", mimeType: "application/pdf", size: 245678 },
-    { name: "Invoice_March.pdf", mimeType: "application/pdf", size: 123456 },
-    { name: "Bank_Statement.pdf", mimeType: "application/pdf", size: 456789 },
-    { name: "Receipts.zip", mimeType: "application/zip", size: 2345678 },
-    {
-      name: "Accounts_2023.xlsx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      size: 345678,
-    },
-    {
-      name: "Meeting_Notes.docx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      size: 123456,
-    },
+    { name: "Tax_Return_2023.pdf", mimeType: "application/pdf" },
+    { name: "Invoice_March.pdf", mimeType: "application/pdf" },
+    { name: "Bank_Statement.pdf", mimeType: "application/pdf" },
+    { name: "Contract.pdf", mimeType: "application/pdf" },
+    { name: "Receipt.pdf", mimeType: "application/pdf" },
+    { name: "Meeting_Notes.txt", mimeType: "text/plain" },
   ];
 
   // Create root folders
@@ -2598,6 +2596,7 @@ async function seedDatabase() {
     "Contracts",
     "Correspondence",
   ];
+
   for (const folderName of rootFolders) {
     const [folder] = await db
       .insert(documents)
@@ -2610,29 +2609,72 @@ async function seedDatabase() {
       })
       .returning();
 
-    // Add some files to each folder
-    for (let i = 0; i < faker.number.int({ min: 2, max: 5 }); i++) {
+    // Add some files to each folder (with actual S3 uploads)
+    for (let i = 0; i < faker.number.int({ min: 2, max: 3 }); i++) {
       const fileTemplate = faker.helpers.arrayElement(fileTypes);
       const client = faker.helpers.arrayElement(createdClients);
+      const fileName = `${client.name.replace(/\s+/g, "_")}_${fileTemplate.name}`;
 
-      await db.insert(documents).values({
-        tenantId: tenant.id,
-        name: `${client.name}_${fileTemplate.name}`,
-        type: "file",
-        mimeType: fileTemplate.mimeType,
-        size: fileTemplate.size,
-        parentId: folder.id,
-        path: `/${folderName}/${client.name}_${fileTemplate.name}`,
-        clientId: client.id,
-        uploadedById: faker.helpers.arrayElement(createdUsers).id,
-        description: faker.lorem.sentence(),
-        tags: faker.helpers.arrayElements(
-          ["important", "archived", "pending-review", "approved"],
-          { min: 0, max: 2 },
-        ),
-      });
+      // Generate sample file content
+      const fileContent = `${folderName} - ${fileName}\n\nClient: ${client.name}\nGenerated: ${new Date().toISOString()}\n\n${faker.lorem.paragraphs(3)}\n\nThis is a sample document for testing purposes.`;
+      const buffer = Buffer.from(fileContent, "utf-8");
+
+      try {
+        // Upload to S3
+        const timestamp = Date.now();
+        const randomString = Math.random().toString(36).slice(2, 11);
+        const s3Key = `documents/${tenant.id}/${timestamp}-${randomString}-${fileName}`;
+        const publicUrl = await uploadPublicFile(
+          buffer,
+          s3Key,
+          fileTemplate.mimeType,
+        );
+
+        // Create database record
+        await db.insert(documents).values({
+          tenantId: tenant.id,
+          name: fileName,
+          type: "file",
+          mimeType: fileTemplate.mimeType,
+          size: buffer.length,
+          url: publicUrl,
+          parentId: folder.id,
+          path: `/${folderName}/${fileName}`,
+          clientId: client.id,
+          uploadedById: faker.helpers.arrayElement(createdUsers).id,
+          description: faker.lorem.sentence(),
+          tags: faker.helpers.arrayElements(
+            ["important", "archived", "pending-review", "approved"],
+            { min: 0, max: 2 },
+          ),
+        });
+      } catch (error) {
+        console.warn(
+          `Failed to upload ${fileName} to S3 (MinIO may not be running):`,
+          error instanceof Error ? error.message : error,
+        );
+        // Create database record without S3 URL
+        await db.insert(documents).values({
+          tenantId: tenant.id,
+          name: fileName,
+          type: "file",
+          mimeType: fileTemplate.mimeType,
+          size: buffer.length,
+          url: null,
+          parentId: folder.id,
+          path: `/${folderName}/${fileName}`,
+          clientId: client.id,
+          uploadedById: faker.helpers.arrayElement(createdUsers).id,
+          description: faker.lorem.sentence(),
+          tags: faker.helpers.arrayElements(
+            ["important", "archived", "pending-review", "approved"],
+            { min: 0, max: 2 },
+          ),
+        });
+      }
     }
   }
+  console.log("✓ Documents created and uploaded to S3");
 
   // 13. Create Activity Logs
   console.log("Creating activity logs...");

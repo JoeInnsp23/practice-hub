@@ -7,6 +7,7 @@ import { clientPortalRouter } from "./routers/clientPortal";
 import { clientPortalAdminRouter } from "./routers/clientPortalAdmin";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
+import { documentsRouter } from "./routers/documents";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
@@ -57,6 +58,7 @@ export const appRouter = router({
   messages: messagesRouter,
   notifications: notificationsRouter,
   calendar: calendarRouter,
+  documents: documentsRouter,
 });
 
 export type AppRouter = typeof appRouter;
