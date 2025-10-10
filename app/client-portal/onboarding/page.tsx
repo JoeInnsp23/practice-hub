@@ -193,7 +193,12 @@ export default function OnboardingQuestionnairePage() {
         sessionId,
       });
 
-      toast.success(result.message);
+      // Show appropriate message based on email send status
+      if (result.emailSent) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message, { duration: 5000 });
+      }
 
       // Redirect to pending approval page with clientId
       router.push(`/client-portal/onboarding/pending?clientId=${result.clientId}`);

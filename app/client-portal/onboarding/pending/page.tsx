@@ -28,13 +28,16 @@ export default function OnboardingPendingPage() {
     }
   );
 
-  // Redirect to portal if approved
+  // Redirect to portal if approved OR stop polling if rejected
   useEffect(() => {
     if (statusData?.canAccessPortal) {
       setPollingEnabled(false);
       router.push("/portal");
+    } else if (statusData?.session?.status === "rejected") {
+      // Stop polling if verification was rejected
+      setPollingEnabled(false);
     }
-  }, [statusData?.canAccessPortal, router]);
+  }, [statusData?.canAccessPortal, statusData?.session?.status, router]);
 
   const handleManualRefresh = () => {
     refetch();

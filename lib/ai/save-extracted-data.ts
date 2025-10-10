@@ -7,6 +7,7 @@
 
 import { db } from "@/lib/db";
 import { onboardingResponses } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 import type { DocumentExtractionResult } from "./extract-client-data";
 
 /**
@@ -70,9 +71,10 @@ export async function markResponseAsVerified(
     .select()
     .from(onboardingResponses)
     .where(
-      (response) =>
-        response.onboardingSessionId === onboardingSessionId &&
-        response.questionKey === questionKey
+      and(
+        eq(onboardingResponses.onboardingSessionId, onboardingSessionId),
+        eq(onboardingResponses.questionKey, questionKey)
+      )
     )
     .limit(1);
 
@@ -86,7 +88,7 @@ export async function markResponseAsVerified(
       verifiedByUser: true,
       updatedAt: new Date(),
     })
-    .where((response) => response.id === existingResponse.id);
+    .where(eq(onboardingResponses.id, existingResponse.id));
 }
 
 /**
@@ -98,22 +100,42 @@ export async function markResponseAsVerified(
 export async function updateExtractedResponse(
   onboardingSessionId: string,
   questionKey: string,
-  newValue: any
+  newValue: any,
+  tenantId?: string
 ): Promise<void> {
   const [existingResponse] = await db
     .select()
     .from(onboardingResponses)
     .where(
-      (response) =>
-        response.onboardingSessionId === onboardingSessionId &&
-        response.questionKey === questionKey
+      and(
+        eq(onboardingResponses.onboardingSessionId, onboardingSessionId),
+        eq(onboardingResponses.questionKey, questionKey)
+      )
     )
     .limit(1);
 
   if (!existingResponse) {
     // Create new response if doesn't exist
+    // Need tenantId - fetch from onboarding session if not provided
+    let effectiveTenantId = tenantId;
+
+    if (!effectiveTenantId) {
+      const { onboardingSessions } = await import("@/lib/db/schema");
+      const [session] = await db
+        .select({ tenantId: onboardingSessions.tenantId })
+        .from(onboardingSessions)
+        .where(eq(onboardingSessions.id, onboardingSessionId))
+        .limit(1);
+
+      if (!session) {
+        throw new Error("Onboarding session not found");
+      }
+
+      effectiveTenantId = session.tenantId;
+    }
+
     await db.insert(onboardingResponses).values({
-      tenantId: existingResponse.tenantId,
+      tenantId: effectiveTenantId,
       onboardingSessionId,
       questionKey,
       answerValue: newValue,
@@ -129,7 +151,7 @@ export async function updateExtractedResponse(
         verifiedByUser: true,
         updatedAt: new Date(),
       })
-      .where((response) => response.id === existingResponse.id);
+      .where(eq(onboardingResponses.id, existingResponse.id));
   }
 }
 
@@ -144,7 +166,7 @@ export async function getOnboardingResponses(
   const responses = await db
     .select()
     .from(onboardingResponses)
-    .where((response) => response.onboardingSessionId === onboardingSessionId);
+    .where(eq(onboardingResponses.onboardingSessionId, onboardingSessionId));
 
   const responsesMap: Record<string, { value: any; extractedFromAi: boolean; verifiedByUser: boolean }> = {};
 
@@ -177,6 +199,9 @@ export function calculateCompletionPercentage(
 
 /**
  * Get list of required fields for AML compliance
+ *
+ * Note: source_of_funds removed as we only need proof of address, not source of funds.
+ * We are not providing finance services.
  */
 export const REQUIRED_AML_FIELDS = [
   // Individual/Contact Information
@@ -195,7 +220,6 @@ export const REQUIRED_AML_FIELDS = [
   // Business Activity
   "nature_of_business",
   "annual_turnover",
-  "source_of_funds",
 
   // Beneficial Ownership (for companies)
   "beneficial_owners",

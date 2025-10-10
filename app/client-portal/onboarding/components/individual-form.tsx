@@ -35,7 +35,7 @@ export function OnboardingIndividualForm({
           {label}
           {required && <span className="text-destructive">*</span>}
           {aiField && (
-            <Sparkles className="h-3 w-3 text-yellow-500" title="AI-extracted" />
+            <Sparkles className="h-3 w-3 text-yellow-500" aria-label="AI-extracted" />
           )}
         </Label>
 

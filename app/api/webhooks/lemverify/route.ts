@@ -254,30 +254,29 @@ export async function POST(request: Request) {
 
     console.log("LEM Verify webhook received:", body);
 
-    // TODO: Add signature verification after getting API key
-    // Uncomment this section once you have LEMVERIFY_WEBHOOK_SECRET
-    // const signature = request.headers.get("x-lemverify-signature");
-    // if (!signature) {
-    //   console.error("Missing LEM Verify webhook signature");
-    //   return new Response("Missing signature", { status: 401 });
-    // }
+    // Verify webhook signature for security
+    const signature = request.headers.get("x-lemverify-signature");
+    if (!signature) {
+      console.error("Missing LEM Verify webhook signature");
+      return new Response("Missing signature", { status: 401 });
+    }
 
-    // const webhookSecret = process.env.LEMVERIFY_WEBHOOK_SECRET;
-    // if (!webhookSecret) {
-    //   console.error("LEMVERIFY_WEBHOOK_SECRET not configured");
-    //   return new Response("Server configuration error", { status: 500 });
-    // }
+    const webhookSecret = process.env.LEMVERIFY_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error("LEMVERIFY_WEBHOOK_SECRET not configured");
+      return new Response("Server configuration error", { status: 500 });
+    }
 
     // Verify signature (HMAC-SHA256)
-    // const expectedSignature = crypto
-    //   .createHmac("sha256", webhookSecret)
-    //   .update(body)
-    //   .digest("hex");
+    const expectedSignature = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(body)
+      .digest("hex");
 
-    // if (signature !== expectedSignature) {
-    //   console.error("Invalid LEM Verify webhook signature");
-    //   return new Response("Invalid signature", { status: 401 });
-    // }
+    if (signature !== expectedSignature) {
+      console.error("Invalid LEM Verify webhook signature");
+      return new Response("Invalid signature", { status: 401 });
+    }
 
     // Parse webhook event
     let event: LemVerifyWebhookEvent;

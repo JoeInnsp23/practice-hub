@@ -642,7 +642,7 @@ export const onboardingRouter = router({
       }
 
       // Update response
-      await updateExtractedResponse(sessionId, questionKey, value);
+      await updateExtractedResponse(sessionId, questionKey, value, ctx.authContext.tenantId);
 
       // Log activity
       await db.insert(activityLogs).values({
@@ -824,21 +824,46 @@ export const onboardingRouter = router({
         });
 
         // Send verification email to client
-        await sendKYCVerificationEmail({
-          email: client.email || "",
-          clientName: client.name || `${firstName} ${lastName}`,
-          verificationUrl: verificationRequest.verificationUrl,
-        });
+        let emailSent = true;
+        try {
+          await sendKYCVerificationEmail({
+            email: client.email || "",
+            clientName: client.name || `${firstName} ${lastName}`,
+            verificationUrl: verificationRequest.verificationUrl,
+          });
 
-        console.log(`Verification email sent to ${client.email}`);
+          console.log(`Verification email sent to ${client.email}`);
+        } catch (emailError) {
+          console.error("Failed to send verification email:", emailError);
+          emailSent = false;
+
+          // Log email failure
+          await db.insert(activityLogs).values({
+            tenantId: ctx.authContext.tenantId,
+            entityType: "client",
+            entityId: client.id,
+            action: "email_send_failed",
+            description: `Failed to send KYC verification email to ${client.email}`,
+            userId: null,
+            userName: "System",
+            metadata: {
+              error: emailError instanceof Error ? emailError.message : "Unknown error",
+              verificationUrl: verificationRequest.verificationUrl,
+            },
+          });
+        }
+
         console.log(`Verification URL: ${verificationRequest.verificationUrl}`);
 
         return {
           success: true,
-          message: "Questionnaire submitted. Please check your email to complete identity verification.",
+          message: emailSent
+            ? "Questionnaire submitted. Please check your email to complete identity verification."
+            : "Questionnaire submitted. Email delivery failed - please use the verification link below.",
           status: "pending_approval",
           clientId: client.id,
           verificationUrl: verificationRequest.verificationUrl, // Can be used for immediate redirect
+          emailSent, // Flag to show warning in UI
         };
       } catch (error) {
         console.error("Failed to initiate KYC verification:", error);

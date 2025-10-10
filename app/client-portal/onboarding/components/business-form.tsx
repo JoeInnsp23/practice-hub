@@ -53,18 +53,6 @@ export function OnboardingBusinessForm({
             </SelectContent>
           </Select>
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="source_of_funds">
-            Primary Source of Funds <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="source_of_funds"
-            value={formData.source_of_funds || ""}
-            onChange={(e) => onFieldChange("source_of_funds", e.target.value)}
-            placeholder="e.g., Trading income, Investment, Loans"
-          />
-        </div>
       </div>
     </div>
   );

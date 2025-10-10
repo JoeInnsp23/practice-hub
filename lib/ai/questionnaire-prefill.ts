@@ -165,15 +165,6 @@ export const QUESTIONNAIRE_FIELDS: QuestionnaireField[] = [
     ],
   },
   {
-    key: "source_of_funds",
-    label: "Source of Funds",
-    type: "textarea",
-    required: true,
-    category: "business_activity",
-    placeholder: "E.g., Business revenue, investment, inheritance...",
-    helpText: "Where does your business income come from?",
-  },
-  {
     key: "sic_codes",
     label: "SIC Codes",
     type: "array",
