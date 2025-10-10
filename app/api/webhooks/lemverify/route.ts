@@ -21,7 +21,15 @@ export const runtime = "nodejs";
  * 2. Register URL with LEM Verify: https://app.innspiredaccountancy.com/api/webhooks/lemverify
  * 3. Get API key from LEM Verify dashboard
  * 4. Add LEMVERIFY_WEBHOOK_SECRET to environment variables
- * 5. Uncomment signature verification below
+ *
+ * Error Handling Strategy:
+ * - 401 Unauthorized: Invalid/missing signature (security issue, don't retry)
+ * - 400 Bad Request: Invalid JSON or missing required fields (don't retry)
+ * - 500 Internal Server Error: Database connection failure (LEM Verify should retry)
+ * - 200 OK: Successfully processed OR non-critical error (don't retry)
+ *
+ * This ensures LEM Verify only retries on genuine infrastructure failures,
+ * not on data validation issues or expected scenarios (e.g., test webhooks).
  */
 
 interface LemVerifyWebhookEvent {
@@ -74,7 +82,7 @@ interface LemVerifyWebhookEvent {
   updatedAt: string;
 }
 
-async function handleVerificationCompleted(event: LemVerifyWebhookEvent) {
+async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promise<void> {
   console.log("Processing completed verification:", event.id);
 
   // Find the KYC verification record
@@ -85,8 +93,9 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent) {
     .limit(1);
 
   if (!verification) {
-    console.error("KYC verification not found for LEM Verify ID:", event.id);
-    return;
+    console.warn("KYC verification not found for LEM Verify ID:", event.id);
+    console.warn("This may be a test webhook or a verification from another tenant");
+    return; // Not an error - may be test webhook
   }
 
   console.log("Found KYC verification:", verification.id);
@@ -249,10 +258,12 @@ async function handleAMLAlert(event: LemVerifyWebhookEvent) {
 }
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.text();
+  let body: string;
+  let event: LemVerifyWebhookEvent;
 
-    console.log("LEM Verify webhook received:", body);
+  try {
+    body = await request.text();
+    console.log("LEM Verify webhook received");
 
     // Verify webhook signature for security
     const signature = request.headers.get("x-lemverify-signature");
@@ -279,7 +290,6 @@ export async function POST(request: Request) {
     }
 
     // Parse webhook event
-    let event: LemVerifyWebhookEvent;
     try {
       event = JSON.parse(body);
       console.log("LEM Verify event:", {
@@ -290,24 +300,91 @@ export async function POST(request: Request) {
       });
     } catch (parseError) {
       console.error("Failed to parse webhook body:", parseError);
-      return new Response("Invalid JSON", { status: 400 });
+      // 400 Bad Request: Invalid JSON (don't retry)
+      return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate required fields
+    if (!event.id || !event.status) {
+      console.error("Missing required fields in webhook event");
+      // 400 Bad Request: Missing required fields (don't retry)
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Handle different event types
-    if (event.status === "completed") {
-      await handleVerificationCompleted(event);
-    } else if (event.amlAlert) {
-      await handleAMLAlert(event);
-    } else {
-      console.log("Webhook event received but no action needed:", event.status);
+    try {
+      if (event.status === "completed") {
+        await handleVerificationCompleted(event);
+      } else if (event.amlAlert) {
+        await handleAMLAlert(event);
+      } else {
+        console.log("Webhook event received but no action needed:", event.status);
+      }
+
+      // 200 OK: Successfully processed
+      return new Response(JSON.stringify({ success: true, processed: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (dbError: any) {
+      console.error("Database error processing webhook:", dbError);
+
+      // Check if it's a critical database error (connection, etc.) vs constraint violation
+      const isCriticalError = dbError.code === "ECONNREFUSED" ||
+                              dbError.code === "ETIMEDOUT" ||
+                              dbError.message?.includes("Connection");
+
+      if (isCriticalError) {
+        // 500 Internal Server Error: Database connection issue (should retry)
+        return new Response(JSON.stringify({ error: "Database connection error", retry: true }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        // 200 OK but log the error: Data issue, not connection (don't retry)
+        console.warn("Non-critical database error - webhook processed but not saved:", dbError);
+
+        // Log to activity logs if possible
+        try {
+          if (event.clientRef) {
+            await db.insert(activityLogs).values({
+              tenantId: "system",
+              entityType: "system",
+              entityId: event.id,
+              action: "webhook_processing_error",
+              description: `Failed to process LEM Verify webhook: ${dbError.message}`,
+              userId: null,
+              userName: "System",
+              metadata: {
+                error: dbError.message,
+                verificationId: event.id,
+                eventStatus: event.status,
+              },
+            });
+          }
+        } catch (logError) {
+          console.error("Failed to log webhook error:", logError);
+        }
+
+        return new Response(JSON.stringify({ success: true, warning: "Partial processing failure" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
     }
+  } catch (error: any) {
+    console.error("Unexpected webhook error:", error);
 
-    // Always return 200 OK to LEM Verify
-    return new Response("OK", { status: 200 });
-  } catch (error) {
-    console.error("LEM Verify webhook error:", error);
-
-    // Still return 200 to prevent LEM Verify from retrying
-    return new Response("OK", { status: 200 });
+    // 500 Internal Server Error: Unexpected error (should retry)
+    return new Response(JSON.stringify({ error: "Internal server error", retry: true }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

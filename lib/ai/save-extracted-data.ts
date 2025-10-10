@@ -8,6 +8,7 @@
 import { db } from "@/lib/db";
 import { onboardingResponses } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { invalidateQuestionnaireCache } from "@/lib/cache";
 import type { DocumentExtractionResult } from "./extract-client-data";
 
 /**
@@ -55,6 +56,9 @@ export async function saveExtractedDataToOnboarding(
   await db.insert(onboardingResponses).values(responsesToInsert);
 
   console.log(`Saved ${responsesToInsert.length} extracted fields to database`);
+
+  // Invalidate cache so next read gets fresh data
+  invalidateQuestionnaireCache(onboardingSessionId);
 }
 
 /**
@@ -89,6 +93,9 @@ export async function markResponseAsVerified(
       updatedAt: new Date(),
     })
     .where(eq(onboardingResponses.id, existingResponse.id));
+
+  // Invalidate cache so next read gets fresh data
+  invalidateQuestionnaireCache(onboardingSessionId);
 }
 
 /**
@@ -153,6 +160,9 @@ export async function updateExtractedResponse(
       })
       .where(eq(onboardingResponses.id, existingResponse.id));
   }
+
+  // Invalidate cache so next read gets fresh data
+  invalidateQuestionnaireCache(onboardingSessionId);
 }
 
 /**

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { extractClientDataFromDocument, mapExtractedDataToQuestionnaire } from "@/lib/ai/extract-client-data";
 import { saveExtractedDataToOnboarding } from "@/lib/ai/save-extracted-data";
-import { uploadToS3 } from "@/lib/s3/upload";
+import { uploadToS3, getPresignedUrl } from "@/lib/s3/upload";
 import { db } from "@/lib/db";
 import { onboardingSessions, activityLogs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -16,21 +16,33 @@ export const runtime = "nodejs";
  *
  * Handles client onboarding document uploads:
  * 1. Receives files via multipart/form-data
- * 2. Uploads to S3 for storage
- * 3. Extracts data using Gemini AI
- * 4. Saves extracted data to onboarding_responses
- * 5. Returns pre-filled questionnaire data
+ * 2. Uploads to S3 for storage (private access)
+ * 3. Generates presigned URLs (24h expiry) for secure document access
+ * 4. Extracts data using Gemini AI
+ * 5. Saves extracted data to onboarding_responses
+ * 6. Returns pre-filled questionnaire data
  *
  * Request body (multipart/form-data):
  * - onboardingSessionId: string
  * - tenantId: string
  * - files: File[] (1-10 files, max 10MB each)
  *
+ * Security:
+ * - Rate limited: 10 uploads per 10 minutes per IP
+ * - Presigned URLs expire after 24 hours
+ * - Files stored with private ACL (no public access)
+ *
  * Response:
  * {
  *   success: boolean,
  *   extractedData: Record<string, any>,
- *   uploadedFiles: Array<{filename, url, documentType}>,
+ *   uploadedFiles: Array<{
+ *     filename: string,
+ *     url: string, // Presigned URL (expires in 24h)
+ *     s3Key: string, // For regenerating presigned URLs
+ *     documentType: string,
+ *     confidence: "high" | "medium" | "low"
+ *   }>,
  *   confidence: "high" | "medium" | "low",
  *   warnings: string[]
  * }
@@ -157,9 +169,12 @@ export async function POST(request: Request) {
     for (const file of files) {
       // Upload to S3
       const s3Key = `onboarding/${onboardingSessionId}/${Date.now()}_${file.filename}`;
-      const s3Url = await uploadToS3(file.buffer, s3Key, file.mimeType);
+      await uploadToS3(file.buffer, s3Key, file.mimeType);
 
-      console.log(`Uploaded ${file.filename} to S3:`, s3Url);
+      // Generate presigned URL (expires in 24 hours for document review)
+      const presignedUrl = await getPresignedUrl(s3Key, 24 * 60 * 60);
+
+      console.log(`Uploaded ${file.filename} to S3 with presigned URL (expires in 24h)`);
 
       // Extract data with AI
       let extraction;
@@ -178,7 +193,8 @@ export async function POST(request: Request) {
 
         uploadedFiles.push({
           filename: file.filename,
-          url: s3Url,
+          url: presignedUrl, // Presigned URL (expires in 24h)
+          s3Key, // Store key for regenerating presigned URLs
           documentType: extraction.documentType,
           confidence: extraction.confidence,
         });
@@ -187,7 +203,8 @@ export async function POST(request: Request) {
 
         uploadedFiles.push({
           filename: file.filename,
-          url: s3Url,
+          url: presignedUrl, // Presigned URL (expires in 24h)
+          s3Key, // Store key for regenerating presigned URLs
           documentType: "unknown",
           confidence: "low",
           error: "AI extraction failed",

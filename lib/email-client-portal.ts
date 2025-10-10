@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { SUPPORT_EMAIL } from "@/lib/config";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@practicehub.com";
@@ -145,7 +146,7 @@ export async function sendKYCVerificationEmail({
 
               <p style="font-size: 12px; color: #666;">
                 If you have any questions or need assistance, please contact us at
-                <a href="mailto:support@innspiredaccountancy.com" style="color: #4f46e5;">support@innspiredaccountancy.com</a>
+                <a href="mailto:${SUPPORT_EMAIL}" style="color: #4f46e5;">${SUPPORT_EMAIL}</a>
               </p>
 
               <p style="font-size: 12px; color: #999; margin-top: 30px;">

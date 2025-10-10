@@ -3,9 +3,12 @@
  *
  * Retrieves AI-extracted data and formats it for the onboarding questionnaire UI
  * with visual indicators for AI-extracted vs user-entered data.
+ *
+ * Uses in-memory caching (30s TTL) to reduce repeated database reads.
  */
 
 import { getOnboardingResponses, REQUIRED_AML_FIELDS } from "./save-extracted-data";
+import { questionnaireResponsesCache } from "@/lib/cache";
 
 /**
  * Questionnaire field definition
@@ -248,12 +251,22 @@ export const QUESTIONNAIRE_FIELDS: QuestionnaireField[] = [
 
 /**
  * Get pre-filled questionnaire for an onboarding session
+ *
+ * Uses in-memory cache (30s TTL) to reduce database reads
  */
 export async function getPrefilledQuestionnaire(
   onboardingSessionId: string
 ): Promise<PrefilledQuestionnaireResponse> {
-  // Get all saved responses
-  const responses = await getOnboardingResponses(onboardingSessionId);
+  // Check cache first
+  let responses = questionnaireResponsesCache.get(onboardingSessionId);
+
+  if (!responses) {
+    // Cache miss - fetch from database
+    responses = await getOnboardingResponses(onboardingSessionId);
+
+    // Cache for 30 seconds
+    questionnaireResponsesCache.set(onboardingSessionId, responses, 30000);
+  }
 
   // Build fields map with definitions
   const fields: Record<string, {

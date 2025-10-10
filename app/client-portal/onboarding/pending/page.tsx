@@ -13,18 +13,36 @@ import {
   RefreshCw
 } from "lucide-react";
 import { trpc } from "@/app/_trpc/client";
+import { SUPPORT_EMAIL } from "@/lib/config";
 
 export default function OnboardingPendingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clientId = searchParams.get("clientId");
   const [pollingEnabled, setPollingEnabled] = useState(true);
+  const [pollCount, setPollCount] = useState(0);
+
+  // Exponential backoff: 10s → 15s → 20s → 30s (capped)
+  const getPollingInterval = () => {
+    if (!pollingEnabled) return false;
+
+    if (pollCount < 6) return 10000;       // First minute: 10s
+    if (pollCount < 14) return 15000;      // Minutes 1-3: 15s
+    if (pollCount < 23) return 20000;      // Minutes 3-6: 20s
+    return 30000;                          // After 6 minutes: 30s
+  };
 
   const { data: statusData, refetch } = trpc.onboarding.getOnboardingStatus.useQuery(
     { clientId: clientId || "" },
     {
       enabled: !!clientId,
-      refetchInterval: pollingEnabled ? 10000 : false, // Poll every 10 seconds
+      refetchInterval: getPollingInterval(),
+      onSuccess: () => {
+        // Increment poll count on each successful poll
+        if (pollingEnabled) {
+          setPollCount((prev) => prev + 1);
+        }
+      },
     }
   );
 
@@ -42,6 +60,8 @@ export default function OnboardingPendingPage() {
   }, [statusData?.canAccessPortal, statusData?.session?.status, router]);
 
   const handleManualRefresh = () => {
+    // Reset poll count on manual refresh for immediate updates
+    setPollCount(0);
     refetch();
   };
 
@@ -58,7 +78,8 @@ export default function OnboardingPendingPage() {
         alert(`${result.message}\n\nVerification link: ${result.verificationUrl}`);
       }
 
-      // Enable polling again
+      // Enable polling again and reset count
+      setPollCount(0);
       setPollingEnabled(true);
       refetch();
     } catch (error: any) {
@@ -135,7 +156,10 @@ export default function OnboardingPendingPage() {
               {isPending && (
                 <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Checking status every 10 seconds...</span>
+                  <span>
+                    Checking status every{" "}
+                    {pollCount < 6 ? "10" : pollCount < 14 ? "15" : pollCount < 23 ? "20" : "30"} seconds...
+                  </span>
                 </div>
               )}
             </div>
@@ -201,7 +225,7 @@ export default function OnboardingPendingPage() {
                 </Button>
 
                 <p className="text-xs text-muted-foreground mt-3">
-                  If you need assistance, please contact support at support@innspiredaccountancy.com
+                  If you need assistance, please contact support at {SUPPORT_EMAIL}
                 </p>
               </div>
             </div>
@@ -316,7 +340,7 @@ export default function OnboardingPendingPage() {
             support team.
           </p>
           <Button variant="outline" size="sm" asChild>
-            <a href="mailto:support@innspiredaccountancy.com">
+            <a href={`mailto:${SUPPORT_EMAIL}`}>
               Contact Support
             </a>
           </Button>
