@@ -28,6 +28,8 @@ export default function OnboardingPendingPage() {
     }
   );
 
+  const reVerificationMutation = trpc.onboarding.requestReVerification.useMutation();
+
   // Redirect to portal if approved OR stop polling if rejected
   useEffect(() => {
     if (statusData?.canAccessPortal) {
@@ -41,6 +43,27 @@ export default function OnboardingPendingPage() {
 
   const handleManualRefresh = () => {
     refetch();
+  };
+
+  const handleRestartVerification = async () => {
+    if (!clientId) return;
+
+    try {
+      const result = await reVerificationMutation.mutateAsync({ clientId });
+
+      // Show result with verification URL
+      if (result.emailSent) {
+        alert(`${result.message}\n\nOr use this link: ${result.verificationUrl}`);
+      } else {
+        alert(`${result.message}\n\nVerification link: ${result.verificationUrl}`);
+      }
+
+      // Enable polling again
+      setPollingEnabled(true);
+      refetch();
+    } catch (error: any) {
+      alert(error.message || "Failed to restart verification");
+    }
   };
 
   if (!statusData || !statusData.hasOnboarding) {
@@ -130,6 +153,60 @@ export default function OnboardingPendingPage() {
             )}
           </div>
         </Card>
+
+        {/* Restart Verification Card */}
+        {isRejected && (
+          <Card className="p-6 border-2 border-red-600 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="h-6 w-6 text-red-600" />
+              </div>
+
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">Request New Verification</h3>
+
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your previous verification was declined. If you believe this was an error or have
+                  new/corrected documents, you can request a new verification.
+                </p>
+
+                <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-lg p-3 mb-4">
+                  <div className="flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-200">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <p>
+                      <strong>Please note:</strong> Make sure you have valid, unaltered identity
+                      documents before requesting a new verification. Repeated failed verifications
+                      may result in additional review.
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleRestartVerification}
+                  disabled={reVerificationMutation.isPending}
+                  size="lg"
+                  className="w-full md:w-auto"
+                >
+                  {reVerificationMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      Creating New Verification...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Request New Verification
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-muted-foreground mt-3">
+                  If you need assistance, please contact support at support@innspiredaccountancy.com
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Verification Link Card */}
         {isPending && verificationUrl && (

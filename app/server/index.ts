@@ -1,4 +1,5 @@
 import { activitiesRouter } from "./routers/activities";
+import { adminKycRouter } from "./routers/admin-kyc";
 import { analyticsRouter } from "./routers/analytics";
 import { clientsRouter } from "./routers/clients";
 import { clientPortalRouter } from "./routers/clientPortal";
@@ -46,6 +47,7 @@ export const appRouter = router({
   activities: activitiesRouter,
   analytics: analyticsRouter,
   onboarding: onboardingRouter,
+  adminKyc: adminKycRouter,
   invitations: invitationsRouter,
   clientPortal: clientPortalRouter,
   clientPortalAdmin: clientPortalAdminRouter,

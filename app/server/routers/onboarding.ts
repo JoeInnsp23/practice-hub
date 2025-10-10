@@ -951,4 +951,154 @@ export const onboardingRouter = router({
           : null,
       };
     }),
+
+  /**
+   * Request new KYC verification (re-verification flow)
+   */
+  requestReVerification: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { clientId } = input;
+
+      // Get client
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(
+          and(
+            eq(clients.id, clientId),
+            eq(clients.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      // Get onboarding session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.clientId, clientId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
+          )
+        )
+        .orderBy(desc(onboardingSessions.createdAt))
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Get questionnaire data for name/DOB
+      const prefilledData = await getPrefilledQuestionnaire(session.id);
+      const firstName = prefilledData.fields.contact_first_name?.value || "";
+      const lastName = prefilledData.fields.contact_last_name?.value || "";
+      const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
+      const phoneNumber = prefilledData.fields.contact_phone?.value || client.phone;
+
+      try {
+        // Request new verification from LEM Verify
+        const verificationRequest = await lemverifyClient.requestVerification({
+          clientRef: client.id,
+          email: client.email || "",
+          firstName,
+          lastName,
+          dateOfBirth,
+          phoneNumber: phoneNumber || undefined,
+          callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://app.innspiredaccountancy.com"}/api/webhooks/lemverify`,
+          metadata: {
+            tenantId: ctx.authContext.tenantId,
+            onboardingSessionId: session.id,
+            clientCode: client.clientCode,
+            reVerification: true,
+          },
+        });
+
+        console.log("LEM Verify re-verification requested:", verificationRequest.id);
+
+        // Create new KYC verification record
+        await db.insert(kycVerifications).values({
+          tenantId: ctx.authContext.tenantId,
+          clientId: client.id,
+          onboardingSessionId: session.id,
+          lemverifyId: verificationRequest.id,
+          clientRef: client.id,
+          status: "pending",
+          metadata: {
+            verificationUrl: verificationRequest.verificationUrl,
+            requestedAt: new Date().toISOString(),
+            reVerification: true,
+          },
+        });
+
+        // Update onboarding session status back to pending
+        await db
+          .update(onboardingSessions)
+          .set({
+            status: "pending_approval",
+            updatedAt: new Date(),
+          })
+          .where(eq(onboardingSessions.id, session.id));
+
+        // Log activity
+        await db.insert(activityLogs).values({
+          tenantId: ctx.authContext.tenantId,
+          entityType: "client",
+          entityId: client.id,
+          action: "kyc_verification_restarted",
+          description: "Client requested new KYC verification",
+          userId: ctx.authContext.userId,
+          userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
+          metadata: {
+            sessionId: session.id,
+            lemverifyId: verificationRequest.id,
+          },
+        });
+
+        // Send verification email
+        let emailSent = true;
+        try {
+          await sendKYCVerificationEmail({
+            email: client.email || "",
+            clientName: client.name || `${firstName} ${lastName}`,
+            verificationUrl: verificationRequest.verificationUrl,
+          });
+
+          console.log(`Re-verification email sent to ${client.email}`);
+        } catch (emailError) {
+          console.error("Failed to send re-verification email:", emailError);
+          emailSent = false;
+        }
+
+        return {
+          success: true,
+          message: emailSent
+            ? "New verification request created. Please check your email."
+            : "New verification request created. Email delivery failed - please use the link below.",
+          verificationUrl: verificationRequest.verificationUrl,
+          emailSent,
+        };
+      } catch (error) {
+        console.error("Failed to request re-verification:", error);
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create new verification request. Please contact support.",
+        });
+      }
+    }),
 });

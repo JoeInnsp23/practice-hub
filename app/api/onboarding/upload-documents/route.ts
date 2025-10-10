@@ -5,6 +5,7 @@ import { uploadToS3 } from "@/lib/s3/upload";
 import { db } from "@/lib/db";
 import { onboardingSessions, activityLogs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { checkRateLimit, getClientIdentifier, formatResetTime } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,31 @@ export const runtime = "nodejs";
  */
 export async function POST(request: Request) {
   try {
+    // Rate limiting: Max 10 uploads per 10 minutes per IP
+    const clientId = getClientIdentifier(request);
+    const rateLimit = checkRateLimit(clientId, {
+      maxRequests: 10,
+      windowMs: 10 * 60 * 1000, // 10 minutes
+    });
+
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: `Rate limit exceeded. Please try again in ${formatResetTime(rateLimit.resetAt)}.`,
+          retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
+            "X-RateLimit-Limit": rateLimit.limit.toString(),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": rateLimit.resetAt.toString(),
+          },
+        }
+      );
+    }
+
     // Parse multipart form data
     const formData = await request.formData();
 
@@ -109,6 +135,14 @@ export async function POST(request: Request) {
     if (files.length === 0) {
       return NextResponse.json(
         { error: "No files uploaded" },
+        { status: 400 }
+      );
+    }
+
+    // Enforce maximum file limit
+    if (files.length > 10) {
+      return NextResponse.json(
+        { error: "Maximum 10 files allowed per upload. Please select fewer files." },
         { status: 400 }
       );
     }
