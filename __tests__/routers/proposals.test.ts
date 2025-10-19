@@ -388,10 +388,11 @@ describe("app/server/routers/proposals.ts", () => {
       expect(procedures).toContain("generatePdf");
     });
 
-    it("should have 13 procedures total", () => {
+    it("should have 17 procedures total", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
-      // 11 protected + 2 public (getProposalForSignature, submitSignature)
-      expect(procedures).toHaveLength(13);
+      // 15 protected + 2 public (getProposalForSignature, submitSignature)
+      // Added procedures: createVersion, updateWithVersion, getVersionHistory, getVersionById
+      expect(procedures).toHaveLength(17);
     });
   });
 });
