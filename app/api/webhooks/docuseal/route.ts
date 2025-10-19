@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
+import * as Sentry from "@sentry/nextjs";
 import { autoConvertLeadToClient } from "@/lib/client-portal/auto-convert-lead";
 import { db } from "@/lib/db";
 import {
@@ -35,13 +36,17 @@ export async function POST(request: Request) {
     const body = await request.text();
 
     if (!signature) {
-      console.error("Missing DocuSeal webhook signature");
+      Sentry.captureException(new Error("Missing DocuSeal webhook signature"), {
+        tags: { operation: "webhook_signature_missing", endpoint: "/api/webhooks/docuseal" },
+      });
       return new Response("Missing signature", { status: 401 });
     }
 
     const webhookSecret = process.env.DOCUSEAL_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      console.error("DOCUSEAL_WEBHOOK_SECRET not configured");
+      Sentry.captureException(new Error("DOCUSEAL_WEBHOOK_SECRET not configured"), {
+        tags: { operation: "webhook_config_error", severity: "critical" },
+      });
       return new Response("Server configuration error", { status: 500 });
     }
 
@@ -52,27 +57,42 @@ export async function POST(request: Request) {
       .digest("hex");
 
     if (signature !== expectedSignature) {
-      console.error("Invalid DocuSeal webhook signature");
+      Sentry.captureException(new Error("Invalid DocuSeal webhook signature"), {
+        tags: { operation: "webhook_signature_invalid" },
+        extra: { providedSignature: signature.substring(0, 10) + "..." },
+      });
       return new Response("Invalid signature", { status: 401 });
     }
 
     // Parse webhook event
     const event = JSON.parse(body);
 
-    // Handle submission.completed event
+    // Handle different submission events
     if (event.event === "submission.completed") {
       await handleSubmissionCompleted(event.data);
+    } else if (event.event === "submission.declined") {
+      await handleSubmissionDeclined(event.data);
+    } else if (event.event === "submission.expired") {
+      await handleSubmissionExpired(event.data);
+    } else {
+      Sentry.captureMessage("Unsupported DocuSeal webhook event", {
+        tags: { operation: "webhook_unsupported_event" },
+        extra: { eventType: event.event, submissionId: event.data?.id },
+      });
     }
 
     return new Response("OK", { status: 200 });
   } catch (error) {
-    console.error("DocuSeal webhook error:", error);
+    Sentry.captureException(error as Error, {
+      tags: { operation: "webhook_processing_error" },
+      extra: { error: String(error) },
+    });
     return new Response("Internal server error", { status: 500 });
   }
 }
 
 async function handleSubmissionCompleted(submission: any) {
-  const _submissionId = submission.id;
+  const submissionId = submission.id;
   const metadata = submission.metadata || {};
 
   // Check if this is a proposal or document signature
@@ -81,8 +101,42 @@ async function handleSubmissionCompleted(submission: any) {
   const tenantId = metadata.tenant_id;
 
   if (!tenantId) {
-    console.error("Missing tenant_id in submission metadata");
+    Sentry.captureException(new Error("Missing tenant_id in submission metadata"), {
+      tags: { operation: "webhook_metadata_missing" },
+      extra: { submissionId },
+    });
     throw new Error("Invalid submission metadata");
+  }
+
+  // ✅ IDEMPOTENCY CHECK: Check if already processed
+  if (proposalId) {
+    const existingSignature = await db
+      .select()
+      .from(proposalSignatures)
+      .where(eq(proposalSignatures.docusealSubmissionId, submissionId))
+      .limit(1);
+
+    if (existingSignature.length > 0) {
+      Sentry.captureMessage("DocuSeal webhook already processed (cached)", {
+        tags: { operation: "webhook_idempotency_cache" },
+        extra: { submissionId, proposalId },
+      });
+      return; // Already processed - idempotent response
+    }
+  } else if (documentId) {
+    const existingSignature = await db
+      .select()
+      .from(documentSignatures)
+      .where(eq(documentSignatures.docusealSubmissionId, submissionId))
+      .limit(1);
+
+    if (existingSignature.length > 0) {
+      Sentry.captureMessage("DocuSeal webhook already processed (cached)", {
+        tags: { operation: "webhook_idempotency_cache" },
+        extra: { submissionId, documentId },
+      });
+      return; // Already processed - idempotent response
+    }
   }
 
   // Route to appropriate handler
@@ -91,7 +145,10 @@ async function handleSubmissionCompleted(submission: any) {
   } else if (documentId) {
     await handleDocumentSigning(submission, metadata, documentId, tenantId);
   } else {
-    console.error("No proposal_id or document_id in metadata");
+    Sentry.captureException(new Error("No proposal_id or document_id in metadata"), {
+      tags: { operation: "webhook_entity_id_missing" },
+      extra: { submissionId, tenantId },
+    });
     throw new Error("Invalid submission metadata");
   }
 }
@@ -113,7 +170,10 @@ async function handleProposalSigning(
     .limit(1);
 
   if (!proposalDetails) {
-    console.error("Proposal not found:", proposalId);
+    Sentry.captureException(new Error("Proposal not found in webhook handler"), {
+      tags: { operation: "webhook_entity_not_found" },
+      extra: { proposalId, tenantId, submissionId },
+    });
     throw new Error("Proposal not found");
   }
 
@@ -224,7 +284,10 @@ async function handleProposalSigning(
         // Additional processing could be added here if needed
       }
     } catch (conversionError) {
-      console.error("Failed to auto-convert lead to client:", conversionError);
+      Sentry.captureException(conversionError as Error, {
+        tags: { operation: "lead_conversion_error" },
+        extra: { proposalId, leadId: proposalDetails.leadId },
+      });
     }
   }
 
@@ -243,7 +306,10 @@ async function handleProposalSigning(
       },
     });
   } catch (emailError) {
-    console.error("Failed to send confirmation email:", emailError);
+    Sentry.captureException(emailError as Error, {
+      tags: { operation: "webhook_email_send_failed" },
+      extra: { proposalId, submissionId },
+    });
     // Don't throw - email failure shouldn't break the webhook
   }
 }
@@ -264,7 +330,10 @@ async function handleDocumentSigning(
     .limit(1);
 
   if (!doc) {
-    console.error("Document not found:", documentId);
+    Sentry.captureException(new Error("Document not found in webhook handler"), {
+      tags: { operation: "webhook_document_not_found" },
+      extra: { documentId, tenantId, submissionId },
+    });
     throw new Error("Document not found");
   }
 
@@ -326,5 +395,123 @@ async function handleDocumentSigning(
       signerEmail: auditTrail.signerEmail,
       signedAt: auditTrail.signedAt,
     },
+  });
+}
+
+async function handleSubmissionDeclined(submission: any) {
+  const submissionId = submission.id;
+  const metadata = submission.metadata || {};
+  const proposalId = metadata.proposal_id;
+  const tenantId = metadata.tenant_id;
+
+  if (!tenantId || !proposalId) {
+    Sentry.captureException(new Error("Missing metadata in declined webhook"), {
+      tags: { operation: "webhook_declined_metadata_missing" },
+      extra: { submissionId },
+    });
+    return;
+  }
+
+  // Get proposal details
+  const [proposal] = await db
+    .select()
+    .from(proposals)
+    .where(eq(proposals.id, proposalId))
+    .limit(1);
+
+  if (!proposal) {
+    Sentry.captureException(new Error("Proposal not found for declined event"), {
+      tags: { operation: "webhook_declined_entity_not_found" },
+      extra: { proposalId, submissionId },
+    });
+    return;
+  }
+
+  // Update proposal status to rejected
+  await db
+    .update(proposals)
+    .set({
+      status: "rejected",
+      updatedAt: new Date(),
+    })
+    .where(eq(proposals.id, proposalId));
+
+  // Log activity
+  await db.insert(activityLogs).values({
+    tenantId,
+    entityType: "proposal",
+    entityId: proposalId,
+    action: "proposal_signature_declined",
+    description: `Proposal #${proposal.proposalNumber} signature declined by signer`,
+    userId: null,
+    userName: "DocuSeal Webhook",
+    metadata: {
+      submissionId,
+      declinedAt: new Date().toISOString(),
+    },
+  });
+
+  Sentry.captureMessage("Proposal signature declined", {
+    tags: { operation: "webhook_declined" },
+    extra: { proposalId, submissionId },
+  });
+}
+
+async function handleSubmissionExpired(submission: any) {
+  const submissionId = submission.id;
+  const metadata = submission.metadata || {};
+  const proposalId = metadata.proposal_id;
+  const tenantId = metadata.tenant_id;
+
+  if (!tenantId || !proposalId) {
+    Sentry.captureException(new Error("Missing metadata in expired webhook"), {
+      tags: { operation: "webhook_expired_metadata_missing" },
+      extra: { submissionId },
+    });
+    return;
+  }
+
+  // Get proposal details
+  const [proposal] = await db
+    .select()
+    .from(proposals)
+    .where(eq(proposals.id, proposalId))
+    .limit(1);
+
+  if (!proposal) {
+    Sentry.captureException(new Error("Proposal not found for expired event"), {
+      tags: { operation: "webhook_expired_entity_not_found" },
+      extra: { proposalId, submissionId },
+    });
+    return;
+  }
+
+  // Update proposal status to expired
+  await db
+    .update(proposals)
+    .set({
+      status: "expired",
+      updatedAt: new Date(),
+    })
+    .where(eq(proposals.id, proposalId));
+
+  // Log activity
+  await db.insert(activityLogs).values({
+    tenantId,
+    entityType: "proposal",
+    entityId: proposalId,
+    action: "proposal_signature_expired",
+    description: `Proposal #${proposal.proposalNumber} signature link expired`,
+    userId: null,
+    userName: "DocuSeal Webhook",
+    metadata: {
+      submissionId,
+      expiredAt: new Date().toISOString(),
+    },
+  });
+
+  Sentry.captureMessage("Proposal signature expired", {
+    tags: { operation: "webhook_expired" },
+    extra: { proposalId, submissionId },
   });
 }
