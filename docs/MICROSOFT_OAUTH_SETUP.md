@@ -91,9 +91,11 @@ After registration, you'll be on the **Overview** page:
 ⚠️ **CRITICAL**: The secret value is only shown once!
 
 1. A new row appears with your secret
-2. Copy the **Value** column (e.g., `V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe`)
+2. Copy the **Value** column (e.g., `V2_8Q~EXAMPLE_SECRET_REPLACE_WITH_YOUR_REAL_SECRET`)
 3. Save this as your `MICROSOFT_CLIENT_SECRET`
 4. Do NOT copy the "Secret ID" - you need the "Value"
+
+⚠️ **SECURITY NOTE**: Always generate a NEW secret in Azure Portal. Never use example values from documentation.
 
 ## Step 3: Configure Redirect URIs
 
@@ -122,11 +124,15 @@ Add these lines to your `.env.local` file:
 
 ```env
 # Microsoft OAuth
-MICROSOFT_CLIENT_ID="f9e3ca9e-0f80-4ffc-a216-951146248899"
-MICROSOFT_CLIENT_SECRET="V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe"
+MICROSOFT_CLIENT_ID="your-microsoft-client-id-from-azure"
+MICROSOFT_CLIENT_SECRET="your-microsoft-client-secret-from-azure"
 ```
 
-Replace the values with your actual credentials from Azure.
+⚠️ **IMPORTANT**: Replace BOTH values with your actual credentials from Azure Portal.
+- Get Client ID from: App registrations → Practice Hub → Overview
+- Get Client Secret from: App registrations → Practice Hub → Certificates & secrets
+
+**NEVER commit real credentials to git.** Only add them to `.env.local` which is in `.gitignore`.
 
 ### 4.2 Update Production Environment Variables
 

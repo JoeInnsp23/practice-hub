@@ -68,11 +68,18 @@ Fixed several TypeScript errors unrelated to OAuth:
 
 **Application Name**: Practice Hub
 
-**Client ID**: `f9e3ca9e-0f80-4ffc-a216-951146248899`
+**Client ID**: `your-microsoft-client-id-from-azure`
 
-**Client Secret**: `V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe`
+**Client Secret**: `your-microsoft-client-secret-from-azure`
 - **Expires**: 24 months from creation
 - **Set calendar reminder** to rotate before expiration
+
+⚠️ **SECURITY WARNING**: The original credentials documented here were leaked to git history and have been removed.
+**ACTION REQUIRED**: If you are using these credentials in production, you MUST rotate them immediately:
+1. Go to Azure Portal → App registrations → Practice Hub → Certificates & secrets
+2. Delete the old client secret
+3. Create a new client secret
+4. Update `.env.local` and production environment variables with the new secret
 
 **Redirect URIs**:
 - Development: `http://localhost:3000/api/auth/callback/microsoft`
@@ -89,13 +96,16 @@ Fixed several TypeScript errors unrelated to OAuth:
 ### Added to `.env.local`
 
 ```env
-MICROSOFT_CLIENT_ID="f9e3ca9e-0f80-4ffc-a216-951146248899"
-MICROSOFT_CLIENT_SECRET="V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe"
+MICROSOFT_CLIENT_ID="your-microsoft-client-id-from-azure"
+MICROSOFT_CLIENT_SECRET="your-microsoft-client-secret-from-azure"
 ```
+
+⚠️ **NEVER commit real credentials to git.** Only add them to `.env.local` which is in `.gitignore`.
 
 ### For Production Deployment
 
 Add the same variables to your hosting platform's environment configuration.
+**IMPORTANT**: Use different credentials for production and development environments.
 
 ---
 
@@ -259,9 +269,11 @@ Track these metrics:
 
 1. **Add environment variables to hosting platform**
    ```bash
-   MICROSOFT_CLIENT_ID="f9e3ca9e-0f80-4ffc-a216-951146248899"
-   MICROSOFT_CLIENT_SECRET="V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe"
+   MICROSOFT_CLIENT_ID="your-microsoft-client-id-from-azure"
+   MICROSOFT_CLIENT_SECRET="your-microsoft-client-secret-from-azure"
    ```
+
+   ⚠️ **Get these from Azure Portal** - never use example values from documentation.
 
 2. **Verify production redirect URI in Azure**
    - Should be: `https://app.innspiredaccountancy.com/api/auth/callback/microsoft`
