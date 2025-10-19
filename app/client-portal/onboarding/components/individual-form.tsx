@@ -1,9 +1,9 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, CheckCircle2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface OnboardingIndividualFormProps {
   formData: Record<string, any>;
@@ -25,7 +25,7 @@ export function OnboardingIndividualForm({
     label: string,
     type: string = "text",
     placeholder?: string,
-    required?: boolean
+    required?: boolean,
   ) => {
     const aiField = isAiExtracted(key);
 
@@ -35,7 +35,10 @@ export function OnboardingIndividualForm({
           {label}
           {required && <span className="text-destructive">*</span>}
           {aiField && (
-            <Sparkles className="h-3 w-3 text-yellow-500" aria-label="AI-extracted" />
+            <Sparkles
+              className="h-3 w-3 text-yellow-500"
+              aria-label="AI-extracted"
+            />
           )}
         </Label>
 
@@ -46,7 +49,11 @@ export function OnboardingIndividualForm({
             value={formData[key] || ""}
             onChange={(e) => onFieldChange(key, e.target.value)}
             placeholder={placeholder}
-            className={aiField ? "border-yellow-200 bg-yellow-50/50 dark:border-yellow-900 dark:bg-yellow-950/20" : ""}
+            className={
+              aiField
+                ? "border-yellow-200 bg-yellow-50/50 dark:border-yellow-900 dark:bg-yellow-950/20"
+                : ""
+            }
           />
 
           {aiField && (
@@ -79,18 +86,53 @@ export function OnboardingIndividualForm({
 
         {renderField("contact_first_name", "First Name", "text", "John", true)}
         {renderField("contact_last_name", "Last Name", "text", "Smith", true)}
-        {renderField("contact_date_of_birth", "Date of Birth", "date", undefined, true)}
-        {renderField("contact_nationality", "Nationality", "text", "British", true)}
+        {renderField(
+          "contact_date_of_birth",
+          "Date of Birth",
+          "date",
+          undefined,
+          true,
+        )}
+        {renderField(
+          "contact_nationality",
+          "Nationality",
+          "text",
+          "British",
+          true,
+        )}
       </div>
 
       <div className="space-y-4">
         <h3 className="font-medium text-lg">Residential Address</h3>
 
-        {renderField("contact_address.line1", "Address Line 1", "text", "123 Main Street", true)}
-        {renderField("contact_address.line2", "Address Line 2", "text", "Flat 4B")}
+        {renderField(
+          "contact_address.line1",
+          "Address Line 1",
+          "text",
+          "123 Main Street",
+          true,
+        )}
+        {renderField(
+          "contact_address.line2",
+          "Address Line 2",
+          "text",
+          "Flat 4B",
+        )}
         {renderField("contact_address.city", "City", "text", "London", true)}
-        {renderField("contact_address.postalCode", "Postcode", "text", "SW1A 1AA", true)}
-        {renderField("contact_address.country", "Country", "text", "United Kingdom", true)}
+        {renderField(
+          "contact_address.postalCode",
+          "Postcode",
+          "text",
+          "SW1A 1AA",
+          true,
+        )}
+        {renderField(
+          "contact_address.country",
+          "Country",
+          "text",
+          "United Kingdom",
+          true,
+        )}
       </div>
 
       {aiExtractedFields.size > 0 && (
@@ -98,8 +140,9 @@ export function OnboardingIndividualForm({
           <p className="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
             <span>
-              {aiExtractedFields.size} field{aiExtractedFields.size > 1 ? "s" : ""} were auto-filled
-              from your documents. Please verify the information is correct.
+              {aiExtractedFields.size} field
+              {aiExtractedFields.size > 1 ? "s" : ""} were auto-filled from your
+              documents. Please verify the information is correct.
             </span>
           </p>
         </div>

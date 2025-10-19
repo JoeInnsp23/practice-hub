@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, CheckCheck, Trash2, X } from "lucide-react";
+import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -25,7 +24,7 @@ export function NotificationsDropdown() {
     undefined,
     {
       refetchInterval: 10000, // Poll every 10 seconds
-    }
+    },
   );
 
   // Fetch notifications (only when dropdown is open)
@@ -34,7 +33,7 @@ export function NotificationsDropdown() {
     {
       enabled: open,
       refetchInterval: open ? 5000 : false, // Poll every 5 seconds when open
-    }
+    },
   );
 
   // Mark as read mutation
@@ -177,7 +176,7 @@ function NotificationItem({
         "relative p-3 hover:bg-muted/50 cursor-pointer transition-colors border-l-4",
         notification.isRead
           ? "border-transparent"
-          : "border-primary bg-primary/5"
+          : "border-primary bg-primary/5",
       )}
     >
       <div className="flex items-start justify-between gap-2">

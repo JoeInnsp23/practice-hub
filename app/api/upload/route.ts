@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
-import { getAuthContext } from "@/lib/auth";
 import { uploadPublicFile } from "@/lib/s3/upload";
 
 export const runtime = "nodejs";
@@ -34,10 +34,7 @@ export async function POST(request: NextRequest) {
     const tags = tagsJson ? JSON.parse(tagsJson) : [];
 
     if (!files || files.length === 0) {
-      return NextResponse.json(
-        { error: "No files provided" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
     // Validate file sizes
@@ -58,7 +55,9 @@ export async function POST(request: NextRequest) {
       const [parent] = await db
         .select()
         .from(documents)
-        .where(and(eq(documents.id, parentId), eq(documents.tenantId, tenantId)));
+        .where(
+          and(eq(documents.id, parentId), eq(documents.tenantId, tenantId)),
+        );
 
       if (!parent) {
         return NextResponse.json(

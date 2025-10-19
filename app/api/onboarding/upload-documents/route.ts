@@ -1,11 +1,18 @@
-import { NextResponse } from "next/server";
-import { extractClientDataFromDocument, mapExtractedDataToQuestionnaire } from "@/lib/ai/extract-client-data";
-import { saveExtractedDataToOnboarding } from "@/lib/ai/save-extracted-data";
-import { uploadToS3, getPresignedUrl } from "@/lib/s3/upload";
-import { db } from "@/lib/db";
-import { onboardingSessions, activityLogs } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { checkRateLimit, getClientIdentifier, formatResetTime } from "@/lib/rate-limit";
+import { NextResponse } from "next/server";
+import {
+  extractClientDataFromDocument,
+  mapExtractedDataToQuestionnaire,
+} from "@/lib/ai/extract-client-data";
+import { saveExtractedDataToOnboarding } from "@/lib/ai/save-extracted-data";
+import { db } from "@/lib/db";
+import { activityLogs, onboardingSessions } from "@/lib/db/schema";
+import {
+  checkRateLimit,
+  formatResetTime,
+  getClientIdentifier,
+} from "@/lib/rate-limit";
+import { getPresignedUrl, uploadToS3 } from "@/lib/s3/upload";
 
 export const runtime = "nodejs";
 
@@ -65,12 +72,14 @@ export async function POST(request: Request) {
         {
           status: 429,
           headers: {
-            "Retry-After": Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
+            "Retry-After": Math.ceil(
+              (rateLimit.resetAt - Date.now()) / 1000,
+            ).toString(),
             "X-RateLimit-Limit": rateLimit.limit.toString(),
             "X-RateLimit-Remaining": "0",
             "X-RateLimit-Reset": rateLimit.resetAt.toString(),
           },
-        }
+        },
       );
     }
 
@@ -83,7 +92,7 @@ export async function POST(request: Request) {
     if (!onboardingSessionId || !tenantId) {
       return NextResponse.json(
         { error: "Missing onboardingSessionId or tenantId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -97,12 +106,13 @@ export async function POST(request: Request) {
     if (!session) {
       return NextResponse.json(
         { error: "Onboarding session not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Get all uploaded files
-    const files: Array<{ buffer: Buffer; mimeType: string; filename: string }> = [];
+    const files: Array<{ buffer: Buffer; mimeType: string; filename: string }> =
+      [];
 
     for (const [key, value] of formData.entries()) {
       if (key.startsWith("file_") && value instanceof File) {
@@ -112,7 +122,7 @@ export async function POST(request: Request) {
         if (file.size > 10 * 1024 * 1024) {
           return NextResponse.json(
             { error: `File ${file.name} exceeds 10MB limit` },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -128,7 +138,7 @@ export async function POST(request: Request) {
         if (!allowedTypes.includes(file.type)) {
           return NextResponse.json(
             { error: `File ${file.name} has unsupported type: ${file.type}` },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -145,21 +155,19 @@ export async function POST(request: Request) {
     }
 
     if (files.length === 0) {
-      return NextResponse.json(
-        { error: "No files uploaded" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No files uploaded" }, { status: 400 });
     }
 
     // Enforce maximum file limit
     if (files.length > 10) {
       return NextResponse.json(
-        { error: "Maximum 10 files allowed per upload. Please select fewer files." },
-        { status: 400 }
+        {
+          error:
+            "Maximum 10 files allowed per upload. Please select fewer files.",
+        },
+        { status: 400 },
       );
     }
-
-    console.log(`Processing ${files.length} uploaded documents for session ${onboardingSessionId}`);
 
     // Upload files to S3 and extract data
     const uploadedFiles = [];
@@ -174,15 +182,13 @@ export async function POST(request: Request) {
       // Generate presigned URL (expires in 24 hours for document review)
       const presignedUrl = await getPresignedUrl(s3Key, 24 * 60 * 60);
 
-      console.log(`Uploaded ${file.filename} to S3 with presigned URL (expires in 24h)`);
-
       // Extract data with AI
       let extraction;
       try {
         extraction = await extractClientDataFromDocument(
           file.buffer,
           file.mimeType,
-          file.filename
+          file.filename,
         );
 
         allExtractions.push(extraction);
@@ -218,10 +224,8 @@ export async function POST(request: Request) {
         tenantId,
         onboardingSessionId,
         mergedData,
-        "batch_upload"
+        "batch_upload",
       );
-
-      console.log(`Saved ${Object.keys(mergedData).length} extracted fields to database`);
     }
 
     // Calculate overall confidence
@@ -261,7 +265,7 @@ export async function POST(request: Request) {
     console.error("Document upload error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

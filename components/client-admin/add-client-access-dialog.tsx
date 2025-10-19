@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -27,8 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
 
 const addClientAccessSchema = z.object({
   clientId: z.string().min(1, "Please select a client"),
@@ -55,7 +54,8 @@ export function AddClientAccessDialog({
   onSuccess,
 }: AddClientAccessDialogProps) {
   const utils = trpc.useUtils();
-  const { data: allClientsData, isLoading: isLoadingClients } = trpc.clients.list.useQuery({});
+  const { data: allClientsData, isLoading: isLoadingClients } =
+    trpc.clients.list.useQuery({});
 
   const form = useForm<AddClientAccessForm>({
     resolver: zodResolver(addClientAccessSchema),
@@ -88,7 +88,7 @@ export function AddClientAccessDialog({
   // Filter out clients the user already has access to
   const allClients = allClientsData?.clients || [];
   const availableClients = allClients.filter(
-    (client: any) => !existingClientIds.includes(client.id)
+    (client: any) => !existingClientIds.includes(client.id),
   );
 
   return (
@@ -112,7 +112,11 @@ export function AddClientAccessDialog({
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
-                    disabled={isLoadingClients || !availableClients || availableClients.length === 0}
+                    disabled={
+                      isLoadingClients ||
+                      !availableClients ||
+                      availableClients.length === 0
+                    }
                   >
                     <FormControl>
                       <SelectTrigger>

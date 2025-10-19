@@ -1,5 +1,5 @@
-import { Resend } from "resend";
 import { format } from "date-fns";
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@practicehub.com";
@@ -26,7 +26,7 @@ export async function sendClientPortalInvitationEmail({
   customMessage,
 }: ClientPortalInvitationParams): Promise<void> {
   const expiryDate = format(expiresAt, "MMMM d, yyyy 'at' h:mm a");
-  const clientList = clientNames.join(", ");
+  const _clientList = clientNames.join(", ");
 
   try {
     await resend.emails.send({
@@ -65,11 +65,15 @@ export async function sendClientPortalInvitationEmail({
                 </ul>
               </div>
 
-              ${customMessage ? `
+              ${
+                customMessage
+                  ? `
               <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 25px;">
                 <p style="margin: 0; font-style: italic; color: #1e40af;">"${customMessage}"</p>
               </div>
-              ` : ""}
+              `
+                  : ""
+              }
 
               <!-- Benefits -->
               <div style="background-color: white; padding: 20px; border-radius: 6px; margin-bottom: 25px;">

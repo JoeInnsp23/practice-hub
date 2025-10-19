@@ -1,22 +1,26 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
+import {
+  getPrefilledQuestionnaire,
+  validateQuestionnaireComplete,
+} from "@/lib/ai/questionnaire-prefill";
+import {
+  markResponseAsVerified,
+  updateExtractedResponse,
+} from "@/lib/ai/save-extracted-data";
 import { db } from "@/lib/db";
 import {
+  activityLogs,
   clients,
+  kycVerifications,
   onboardingSessions,
   onboardingTasks,
-  onboardingResponses,
-  amlChecks,
-  kycVerifications,
-  activityLogs,
   users,
 } from "@/lib/db/schema";
-import { protectedProcedure, router } from "../trpc";
-import { getPrefilledQuestionnaire, validateQuestionnaireComplete } from "@/lib/ai/questionnaire-prefill";
-import { updateExtractedResponse, markResponseAsVerified } from "@/lib/ai/save-extracted-data";
-import { lemverifyClient } from "@/lib/kyc/lemverify-client";
 import { sendKYCVerificationEmail } from "@/lib/email-client-portal";
+import { lemverifyClient } from "@/lib/kyc/lemverify-client";
+import { protectedProcedure, router } from "../trpc";
 
 // Onboarding task template - 17 standard tasks from CSV
 const ONBOARDING_TEMPLATE_TASKS = [
@@ -575,7 +579,7 @@ export const onboardingRouter = router({
     .input(
       z.object({
         sessionId: z.string(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const { sessionId } = input;
@@ -587,8 +591,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(onboardingSessions.id, sessionId),
-            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
-          )
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -617,7 +621,7 @@ export const onboardingRouter = router({
         sessionId: z.string(),
         questionKey: z.string(),
         value: z.any(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const { sessionId, questionKey, value } = input;
@@ -629,8 +633,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(onboardingSessions.id, sessionId),
-            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
-          )
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -642,7 +646,12 @@ export const onboardingRouter = router({
       }
 
       // Update response
-      await updateExtractedResponse(sessionId, questionKey, value, ctx.authContext.tenantId);
+      await updateExtractedResponse(
+        sessionId,
+        questionKey,
+        value,
+        ctx.authContext.tenantId,
+      );
 
       // Log activity
       await db.insert(activityLogs).values({
@@ -670,7 +679,7 @@ export const onboardingRouter = router({
       z.object({
         sessionId: z.string(),
         questionKey: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const { sessionId, questionKey } = input;
@@ -682,8 +691,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(onboardingSessions.id, sessionId),
-            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
-          )
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -707,7 +716,7 @@ export const onboardingRouter = router({
     .input(
       z.object({
         sessionId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const { sessionId } = input;
@@ -719,8 +728,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(onboardingSessions.id, sessionId),
-            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
-          )
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -756,13 +765,12 @@ export const onboardingRouter = router({
         });
       }
 
-      console.log("Submitting questionnaire and initiating KYC verification for client:", client.id);
-
       // Extract data for LEM Verify
       const firstName = prefilledData.fields.contact_first_name?.value || "";
       const lastName = prefilledData.fields.contact_last_name?.value || "";
       const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
-      const phoneNumber = prefilledData.fields.contact_phone?.value || client.phone;
+      const phoneNumber =
+        prefilledData.fields.contact_phone?.value || client.phone;
 
       try {
         // Request verification from LEM Verify
@@ -780,9 +788,6 @@ export const onboardingRouter = router({
             clientCode: client.clientCode,
           },
         });
-
-        console.log("LEM Verify verification requested:", verificationRequest.id);
-        console.log("Verification URL:", verificationRequest.verificationUrl);
 
         // Create KYC verification record
         await db.insert(kycVerifications).values({
@@ -814,7 +819,8 @@ export const onboardingRouter = router({
           entityType: "client",
           entityId: client.id,
           action: "kyc_verification_initiated",
-          description: "Onboarding questionnaire submitted, KYC verification link sent to client",
+          description:
+            "Onboarding questionnaire submitted, KYC verification link sent to client",
           userId: ctx.authContext.userId,
           userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
           metadata: {
@@ -831,8 +837,6 @@ export const onboardingRouter = router({
             clientName: client.name || `${firstName} ${lastName}`,
             verificationUrl: verificationRequest.verificationUrl,
           });
-
-          console.log(`Verification email sent to ${client.email}`);
         } catch (emailError) {
           console.error("Failed to send verification email:", emailError);
           emailSent = false;
@@ -847,13 +851,14 @@ export const onboardingRouter = router({
             userId: null,
             userName: "System",
             metadata: {
-              error: emailError instanceof Error ? emailError.message : "Unknown error",
+              error:
+                emailError instanceof Error
+                  ? emailError.message
+                  : "Unknown error",
               verificationUrl: verificationRequest.verificationUrl,
             },
           });
         }
-
-        console.log(`Verification URL: ${verificationRequest.verificationUrl}`);
 
         return {
           success: true,
@@ -883,7 +888,8 @@ export const onboardingRouter = router({
           entityType: "onboarding_session",
           entityId: sessionId,
           action: "kyc_verification_failed",
-          description: "Failed to initiate KYC verification - requires manual review",
+          description:
+            "Failed to initiate KYC verification - requires manual review",
           userId: ctx.authContext.userId,
           userName: "System",
           metadata: {
@@ -893,7 +899,8 @@ export const onboardingRouter = router({
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to initiate identity verification. Please contact support.",
+          message:
+            "Failed to initiate identity verification. Please contact support.",
         });
       }
     }),
@@ -905,7 +912,7 @@ export const onboardingRouter = router({
     .input(
       z.object({
         clientId: z.string(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const { clientId } = input;
@@ -917,8 +924,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(onboardingSessions.clientId, clientId),
-            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
-          )
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .orderBy(desc(onboardingSessions.createdAt))
         .limit(1);
@@ -942,13 +949,14 @@ export const onboardingRouter = router({
         session,
         kycVerification,
         canAccessPortal: session.status === "approved",
-        blockingReason: session.status === "rejected"
-          ? "Your application has been declined"
-          : session.status === "pending_approval"
-          ? "Your identity verification is under review"
-          : session.status === "pending_questionnaire"
-          ? "Please complete your onboarding questionnaire"
-          : null,
+        blockingReason:
+          session.status === "rejected"
+            ? "Your application has been declined"
+            : session.status === "pending_approval"
+              ? "Your identity verification is under review"
+              : session.status === "pending_questionnaire"
+                ? "Please complete your onboarding questionnaire"
+                : null,
       };
     }),
 
@@ -959,7 +967,7 @@ export const onboardingRouter = router({
     .input(
       z.object({
         clientId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const { clientId } = input;
@@ -971,8 +979,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(clients.id, clientId),
-            eq(clients.tenantId, ctx.authContext.tenantId)
-          )
+            eq(clients.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -990,8 +998,8 @@ export const onboardingRouter = router({
         .where(
           and(
             eq(onboardingSessions.clientId, clientId),
-            eq(onboardingSessions.tenantId, ctx.authContext.tenantId)
-          )
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .orderBy(desc(onboardingSessions.createdAt))
         .limit(1);
@@ -1008,7 +1016,8 @@ export const onboardingRouter = router({
       const firstName = prefilledData.fields.contact_first_name?.value || "";
       const lastName = prefilledData.fields.contact_last_name?.value || "";
       const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
-      const phoneNumber = prefilledData.fields.contact_phone?.value || client.phone;
+      const phoneNumber =
+        prefilledData.fields.contact_phone?.value || client.phone;
 
       try {
         // Request new verification from LEM Verify
@@ -1027,8 +1036,6 @@ export const onboardingRouter = router({
             reVerification: true,
           },
         });
-
-        console.log("LEM Verify re-verification requested:", verificationRequest.id);
 
         // Create new KYC verification record
         await db.insert(kycVerifications).values({
@@ -1077,8 +1084,6 @@ export const onboardingRouter = router({
             clientName: client.name || `${firstName} ${lastName}`,
             verificationUrl: verificationRequest.verificationUrl,
           });
-
-          console.log(`Re-verification email sent to ${client.email}`);
         } catch (emailError) {
           console.error("Failed to send re-verification email:", emailError);
           emailSent = false;
@@ -1097,7 +1102,8 @@ export const onboardingRouter = router({
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create new verification request. Please contact support.",
+          message:
+            "Failed to create new verification request. Please contact support.",
         });
       }
     }),

@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Eye,
+  ShieldAlert,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { trpc } from "@/app/_trpc/client";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,32 +23,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ShieldCheck,
-  ShieldAlert,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  ExternalLink,
-  Eye,
-} from "lucide-react";
-import { trpc } from "@/app/_trpc/client";
-import { formatDistanceToNow } from "date-fns";
 
 export default function AdminKYCReviewPage() {
-  const [statusFilter, setStatusFilter] = useState<"pending" | "completed" | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<
+    "pending" | "completed" | undefined
+  >(undefined);
 
   // Get verification list
-  const { data, isLoading, refetch } = trpc.adminKyc.listPendingReviews.useQuery({
-    status: statusFilter,
-    limit: 50,
-    offset: 0,
-  });
+  const { data, isLoading, refetch } =
+    trpc.adminKyc.listPendingReviews.useQuery({
+      status: statusFilter,
+      limit: 50,
+      offset: 0,
+    });
 
   // Get statistics
   const { data: stats } = trpc.adminKyc.getReviewStats.useQuery();
 
-  const getStatusBadge = (outcome?: string | null, amlStatus?: string | null) => {
+  const getStatusBadge = (
+    outcome?: string | null,
+    amlStatus?: string | null,
+  ) => {
     if (outcome === "pass" && amlStatus === "clear") {
       return (
         <Badge className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200">
@@ -61,11 +66,7 @@ export default function AdminKYCReviewPage() {
         </Badge>
       );
     }
-    return (
-      <Badge variant="secondary">
-        Pending
-      </Badge>
-    );
+    return <Badge variant="secondary">Pending</Badge>;
   };
 
   const getRiskIndicators = (verification: any) => {
@@ -75,7 +76,7 @@ export default function AdminKYCReviewPage() {
       indicators.push(
         <Badge key="pep" variant="destructive" className="text-xs">
           PEP
-        </Badge>
+        </Badge>,
       );
     }
 
@@ -83,7 +84,7 @@ export default function AdminKYCReviewPage() {
       indicators.push(
         <Badge key="sanctions" variant="destructive" className="text-xs">
           Sanctions
-        </Badge>
+        </Badge>,
       );
     }
 
@@ -91,7 +92,7 @@ export default function AdminKYCReviewPage() {
       indicators.push(
         <Badge key="watchlist" variant="destructive" className="text-xs">
           Watchlist
-        </Badge>
+        </Badge>,
       );
     }
 
@@ -99,7 +100,7 @@ export default function AdminKYCReviewPage() {
       indicators.push(
         <Badge key="media" variant="destructive" className="text-xs">
           Adverse Media
-        </Badge>
+        </Badge>,
       );
     }
 
@@ -163,7 +164,9 @@ export default function AdminKYCReviewPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{stats.manuallyApproved}</div>
+                <div className="text-2xl font-bold">
+                  {stats.manuallyApproved}
+                </div>
                 <ShieldCheck className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
@@ -177,7 +180,9 @@ export default function AdminKYCReviewPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{stats.pepMatches + stats.sanctionMatches}</div>
+                <div className="text-2xl font-bold">
+                  {stats.pepMatches + stats.sanctionMatches}
+                </div>
                 <AlertTriangle className="h-8 w-8 text-red-600" />
               </div>
             </CardContent>
@@ -225,7 +230,10 @@ export default function AdminKYCReviewPage() {
             <TableBody>
               {data?.verifications.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell
+                    colSpan={7}
+                    className="text-center text-muted-foreground py-8"
+                  >
                     No verifications found
                   </TableCell>
                 </TableRow>
@@ -234,11 +242,17 @@ export default function AdminKYCReviewPage() {
                   <TableRow key={verification.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{verification.clientName}</div>
-                        <div className="text-sm text-muted-foreground">{verification.clientCode}</div>
+                        <div className="font-medium">
+                          {verification.clientName}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {verification.clientCode}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{verification.clientEmail}</TableCell>
+                    <TableCell className="text-sm">
+                      {verification.clientEmail}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         {verification.documentVerified ? (
@@ -247,18 +261,26 @@ export default function AdminKYCReviewPage() {
                           <XCircle className="h-4 w-4 text-red-600" />
                         )}
                         <span className="text-sm capitalize">
-                          {verification.documentType?.replace("_", " ") || "N/A"}
+                          {verification.documentType?.replace("_", " ") ||
+                            "N/A"}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(verification.outcome, verification.amlStatus)}</TableCell>
+                    <TableCell>
+                      {getStatusBadge(
+                        verification.outcome,
+                        verification.amlStatus,
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-1 flex-wrap">
                         {getRiskIndicators(verification)}
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatDistanceToNow(new Date(verification.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(verification.createdAt), {
+                        addSuffix: true,
+                      })}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">

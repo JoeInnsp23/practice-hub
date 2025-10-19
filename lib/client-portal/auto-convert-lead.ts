@@ -1,13 +1,13 @@
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
-  leads,
+  activityLogs,
   clients,
-  proposals,
+  leads,
   onboardingSessions,
   onboardingTasks,
-  activityLogs,
+  proposals,
 } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
 import {
   getOrCreatePortalUser,
   grantClientAccess,
@@ -36,7 +36,7 @@ interface AutoConvertResult {
 export async function autoConvertLeadToClient(
   proposalId: string,
   leadId: string,
-  tenantId: string
+  tenantId: string,
 ): Promise<AutoConvertResult | null> {
   // Get lead details
   const [lead] = await db
@@ -60,7 +60,7 @@ export async function autoConvertLeadToClient(
 
   // Auto-generate client code from company name or lead name
   const clientCode = generateClientCode(
-    lead.companyName || `${lead.firstName} ${lead.lastName}`
+    lead.companyName || `${lead.firstName} ${lead.lastName}`,
   );
 
   // Determine client type based on lead data
@@ -160,7 +160,8 @@ export async function autoConvertLeadToClient(
     const tasks = [
       {
         title: "Complete AML Questionnaire",
-        description: "Complete the client information and compliance questionnaire",
+        description:
+          "Complete the client information and compliance questionnaire",
         category: "compliance",
         sortOrder: 1,
         isRequired: true,
@@ -192,7 +193,8 @@ export async function autoConvertLeadToClient(
       },
       {
         title: "Grant Accounting Software Access",
-        description: "Provide access to your accounting software (Xero/QuickBooks)",
+        description:
+          "Provide access to your accounting software (Xero/QuickBooks)",
         category: "technical",
         sortOrder: 5,
         isRequired: false,
@@ -223,14 +225,14 @@ export async function autoConvertLeadToClient(
     lead.email,
     lead.firstName,
     lead.lastName,
-    tenantId
+    tenantId,
   );
 
   console.log(
     portalUserResult.isNewUser
       ? "New portal user created"
       : "Using existing portal user",
-    portalUserResult.portalUserId
+    portalUserResult.portalUserId,
   );
 
   // Grant client access to portal user
@@ -239,7 +241,7 @@ export async function autoConvertLeadToClient(
     result.clientId,
     "admin", // Primary contact gets admin access
     null, // System-granted
-    tenantId
+    tenantId,
   );
 
   console.log("Client access granted to portal user");
@@ -251,7 +253,7 @@ export async function autoConvertLeadToClient(
       result.clientId,
       portalUserResult.isNewUser,
       { firstName: "Practice", lastName: "Hub" }, // System sender
-      "Welcome! Your proposal has been accepted. Please complete your client onboarding to get started."
+      "Welcome! Your proposal has been accepted. Please complete your client onboarding to get started.",
     );
     console.log("Portal invitation email sent");
   } catch (emailError) {
@@ -286,8 +288,14 @@ function generateClientCode(name: string): string {
  * Determine client type from company name
  */
 function determineClientType(
-  companyName: string | null
-): "individual" | "company" | "limited_company" | "sole_trader" | "partnership" | "other" {
+  companyName: string | null,
+):
+  | "individual"
+  | "company"
+  | "limited_company"
+  | "sole_trader"
+  | "partnership"
+  | "other" {
   if (!companyName) {
     return "individual";
   }

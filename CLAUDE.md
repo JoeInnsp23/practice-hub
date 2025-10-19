@@ -40,6 +40,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
    **NEVER** manually run individual commands. **ALWAYS** use `pnpm db:reset`. If you don't use this command, you FAIL.
 
+13. **ALWAYS use Practice Hub Skills for their intended purposes** - The following skills are installed in `.claude/skills/` and must be used:
+   - **practice-hub-testing**: Generate router tests, validate multi-tenant isolation, check test coverage
+   - **practice-hub-debugging**: Find/remove console.log statements, track TODOs, code quality checks
+   - **practice-hub-database-ops**: Validate schema, check seed consistency, safe database reset
+   - **artifacts-builder**: Build UI components following Practice Hub design system
+   - **brand-guidelines**: Enforce Practice Hub design standards and conventions
+   - **webapp-testing**: Test local web applications with Playwright
+   - **skill-creator**: Create new skills interactively
+
+   **Usage:** Invoke skills using the Skill tool, NOT by running scripts directly. The skills contain automation scripts that Claude will use when the skill is invoked. Always use these skills for testing, debugging, and database operations tasks.
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
@@ -301,11 +312,66 @@ This is a multi-tenant practice management platform built with Next.js 15, using
 - **Forms**: React Hook Form with Zod validation
 - **Notifications**: react-hot-toast for toast notifications
 
-### Multi-Tenancy Architecture
-The application implements multi-tenancy through:
-- `tenants` table with unique slugs for each organization
-- `users` table with Better Auth authentication linked to tenant membership
-- All database entities should reference `tenantId` for data isolation
+### Multi-Tenancy Architecture with Dual Isolation
+
+The application implements **two levels of data isolation**:
+
+#### Level 1: Tenant Isolation (Accountancy Firm Level)
+- **Tenant** = Accountancy firm (e.g., "Acme Accounting Ltd")
+- **Purpose**: Isolate data between different accountancy firms using the platform
+- **Implementation**: All tables (except system tables) must have `tenantId` field
+- **Access**: Staff users (accountants, admins) have access to all data within their tenant
+
+**Structure:**
+```
+Tenant (Accountancy Firm)
+├── Users (Staff members - tenantId only)
+├── Clients (Customer businesses - tenantId only)
+├── Tasks, Invoices, Proposals, etc. (tenantId only)
+```
+
+#### Level 2: Client Isolation (Customer Business Level)
+- **Client** = Customer business using the client portal (e.g., "ABC Manufacturing Ltd")
+- **Purpose**: Isolate data between different customer businesses within the same accountancy firm
+- **Implementation**: Client portal tables must have BOTH `tenantId` AND `clientId`
+- **Access**: Client portal users only see data for their specific client company
+
+**Structure:**
+```
+Tenant (Accountancy Firm)
+└── Clients (Customer businesses)
+    └── Client Portal Users (BOTH tenantId + clientId)
+        ├── Can only access their client's proposals
+        ├── Can only see their client's invoices
+        ├── Can only view their client's documents
+        └── Cannot see other clients' data within same tenant
+```
+
+#### Database Schema Requirements
+
+**Standard Tables (Staff Access):**
+```typescript
+export const standardTable = pgTable("table_name", {
+  id: text("id").primaryKey(),
+  tenantId: text("tenant_id").references(() => tenants.id).notNull(), // REQUIRED
+  // ... other fields
+});
+```
+
+**Client Portal Tables (Dual Isolation):**
+```typescript
+export const clientPortalTable = pgTable("client_portal_table", {
+  id: text("id").primaryKey(),
+  tenantId: text("tenant_id").references(() => tenants.id).notNull(), // REQUIRED
+  clientId: text("client_id").references(() => clients.id).notNull(),   // REQUIRED
+  // ... other fields
+});
+```
+
+**System Tables (No Isolation Needed):**
+- `tenants` - The tenant table itself
+- `session`, `account`, `verification` - Better Auth staff authentication
+- `drizzle_migrations` - Drizzle system table
 
 ### Application Modules
 The app is organized into distinct hub modules under `app/`:
@@ -609,10 +675,23 @@ export async function requireAdmin(): Promise<AuthContext> {
 }
 ```
 
+#### 2. Client Portal Authentication (Client-Level Access)
+Uses `getClientPortalAuthContext()` for dual isolation with both tenant and client scoping.
+
+```tsx
+// lib/auth.ts
+export interface ClientPortalAuthContext {
+  userId: string;
+  clientId: string;      // REQUIRED: Specific client company
+  tenantId: string;      // REQUIRED: Accountancy firm
+  email: string;
+  // ... other fields
+}
+```
+
 **Usage in Application:**
 
-This pattern ensures all data operations are tenant-scoped:
-
+**Staff Access (Tenant-Level):**
 ```tsx
 // Server component with tenant isolation
 import { getAuthContext } from "@/lib/auth";
@@ -621,13 +700,37 @@ export default async function ClientsPage() {
   const authContext = await getAuthContext();
   if (!authContext) redirect("/sign-in");
 
-  // All database queries should filter by tenantId
+  // Staff can see ALL clients within their tenant
   const clients = await db
     .select()
     .from(clientsTable)
     .where(eq(clientsTable.tenantId, authContext.tenantId));
 
   return <ClientsList clients={clients} />;
+}
+```
+
+**Client Portal Access (Dual Isolation):**
+```tsx
+// Server component with client isolation
+import { getClientPortalAuthContext } from "@/lib/auth";
+
+export default async function ClientProposalsPage() {
+  const authContext = await getClientPortalAuthContext();
+  if (!authContext) redirect("/portal/sign-in");
+
+  // Client portal users can ONLY see their specific client's data
+  const proposals = await db
+    .select()
+    .from(proposalsTable)
+    .where(
+      and(
+        eq(proposalsTable.tenantId, authContext.tenantId),  // Tenant isolation
+        eq(proposalsTable.clientId, authContext.clientId)   // Client isolation
+      )
+    );
+
+  return <ProposalsList proposals={proposals} />;
 }
 ```
 

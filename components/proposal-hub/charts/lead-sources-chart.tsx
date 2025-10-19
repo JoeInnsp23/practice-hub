@@ -1,6 +1,13 @@
 "use client";
 
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 
 interface LeadSourceData {
@@ -42,7 +49,9 @@ export function LeadSourcesChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Lead Sources</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Lead Sources
+          </h3>
           <p className="text-sm text-muted-foreground">
             Distribution of leads by source
           </p>
@@ -58,7 +67,9 @@ export function LeadSourcesChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Lead Sources</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Lead Sources
+          </h3>
           <p className="text-sm text-muted-foreground">
             Distribution of leads by source
           </p>
@@ -91,7 +102,9 @@ export function LeadSourcesChart({
             cy="50%"
             labelLine={false}
             label={(entry) => {
-              const percent = (((entry.value as number) / total) * 100).toFixed(0);
+              const percent = (((entry.value as number) / total) * 100).toFixed(
+                0,
+              );
               return `${entry.name} (${percent}%)`;
             }}
             outerRadius={100}

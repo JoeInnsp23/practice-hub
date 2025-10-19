@@ -3,17 +3,15 @@ import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  calendarEventAttendees,
-  calendarEvents,
   clientPortalAccess,
   clientPortalUsers,
   clients,
+  messages,
   messageThreadParticipants,
   messageThreads,
-  messages,
   users,
 } from "@/lib/db/schema";
-import { adminProcedure, protectedProcedure, router } from "../trpc";
+import { protectedProcedure, router } from "../trpc";
 
 export const messagesRouter = router({
   // ============================================================================
@@ -309,10 +307,7 @@ export const messagesRouter = router({
         .select()
         .from(clients)
         .where(
-          and(
-            eq(clients.id, input.clientId),
-            eq(clients.tenantId, tenantId),
-          ),
+          and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)),
         );
 
       if (!client) {
@@ -346,7 +341,8 @@ export const messagesRouter = router({
       if (!portalUserAccess) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Client portal user not found or does not have access to this client",
+          message:
+            "Client portal user not found or does not have access to this client",
         });
       }
 
@@ -361,7 +357,10 @@ export const messagesRouter = router({
           and(
             eq(messageThreads.id, messageThreadParticipants.threadId),
             eq(messageThreadParticipants.participantType, "client_portal"),
-            eq(messageThreadParticipants.participantId, input.clientPortalUserId),
+            eq(
+              messageThreadParticipants.participantId,
+              input.clientPortalUserId,
+            ),
           ),
         )
         .where(
@@ -538,8 +537,7 @@ export const messagesRouter = router({
 
       if (
         !currentParticipant ||
-        (currentParticipant.role !== "admin" &&
-          input.userId !== currentUserId)
+        (currentParticipant.role !== "admin" && input.userId !== currentUserId)
       ) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -845,7 +843,10 @@ export const messagesRouter = router({
         `,
       })
       .from(messageThreadParticipants)
-      .leftJoin(messages, eq(messages.threadId, messageThreadParticipants.threadId))
+      .leftJoin(
+        messages,
+        eq(messages.threadId, messageThreadParticipants.threadId),
+      )
       .where(eq(messageThreadParticipants.userId, userId));
 
     return { unreadCount: Number(result[0]?.unreadCount || 0) };

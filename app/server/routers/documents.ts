@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, ilike, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { clients, documents, documentSignatures, users } from "@/lib/db/schema";
+import { clients, documentSignatures, documents, users } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import {
   deleteFromS3,
@@ -88,7 +88,7 @@ export const documentsRouter = router({
       if (input.tags && input.tags.length > 0) {
         filtered = docs.filter((doc) => {
           const docTags = (doc.document.tags as string[]) || [];
-          return input.tags!.some((tag) => docTags.includes(tag));
+          return input.tags?.some((tag) => docTags.includes(tag));
         });
       }
 
@@ -446,7 +446,7 @@ export const documentsRouter = router({
         : null;
 
       // Update document with share token
-      const [updated] = await db
+      const [_updated] = await db
         .update(documents)
         .set({
           isPublic: true,
@@ -545,9 +545,7 @@ export const documentsRouter = router({
     const files = await db
       .select()
       .from(documents)
-      .where(
-        and(eq(documents.tenantId, tenantId), eq(documents.type, "file")),
-      );
+      .where(and(eq(documents.tenantId, tenantId), eq(documents.type, "file")));
 
     const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
     const totalFiles = files.length;
@@ -611,7 +609,7 @@ export const documentsRouter = router({
       if (input.tags && input.tags.length > 0) {
         filtered = results.filter((result) => {
           const docTags = (result.document.tags as string[]) || [];
-          return input.tags!.some((tag) => docTags.includes(tag));
+          return input.tags?.some((tag) => docTags.includes(tag));
         });
       }
 
@@ -778,5 +776,5 @@ function formatBytes(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }

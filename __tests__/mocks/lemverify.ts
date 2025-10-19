@@ -16,7 +16,8 @@ export const mockVerificationResponse: VerificationResponse = {
   id: "mock-verification-id-123",
   clientRef: "client-123",
   status: "pending",
-  verificationUrl: "https://verify.lemverify.com/verify/mock-verification-id-123",
+  verificationUrl:
+    "https://verify.lemverify.com/verify/mock-verification-id-123",
   createdAt: new Date().toISOString(),
 };
 
@@ -96,9 +97,9 @@ export const mockVerificationStatusPEPMatch: VerificationStatus = {
 // Mock LEM Verify API Client class
 export class MockLemVerifyClient {
   requestVerification = vi.fn(
-    async (request: VerificationRequest): Promise<VerificationResponse> => {
+    async (_request: VerificationRequest): Promise<VerificationResponse> => {
       return mockVerificationResponse;
-    }
+    },
   );
 
   getVerificationStatus = vi.fn(
@@ -111,21 +112,21 @@ export class MockLemVerifyClient {
         return mockVerificationStatusPEPMatch;
       }
       return mockVerificationStatusPassed;
-    }
+    },
   );
 
-  downloadReport = vi.fn(async (verificationId: string): Promise<Buffer> => {
+  downloadReport = vi.fn(async (_verificationId: string): Promise<Buffer> => {
     return Buffer.from("mock-pdf-content");
   });
 
-  downloadDocuments = vi.fn(async (verificationId: string) => {
+  downloadDocuments = vi.fn(async (_verificationId: string) => {
     return {
       passport: Buffer.from("mock-passport-image"),
       selfie: Buffer.from("mock-selfie-image"),
     };
   });
 
-  listVerifications = vi.fn(async (params?: any) => {
+  listVerifications = vi.fn(async (_params?: any) => {
     return {
       verifications: [mockVerificationStatusPassed],
       total: 1,

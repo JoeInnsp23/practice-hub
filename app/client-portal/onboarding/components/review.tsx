@@ -1,8 +1,13 @@
 "use client";
 
+import {
+  AlertCircle,
+  CheckCircle2,
+  ExternalLink,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, AlertCircle, ExternalLink, ShieldCheck } from "lucide-react";
 
 interface OnboardingReviewProps {
   formData: Record<string, any>;
@@ -54,13 +59,17 @@ export function OnboardingReview({
 
         {sections.map((section) => (
           <div key={section.title} className="mb-6 last:mb-0">
-            <h4 className="font-medium text-sm text-muted-foreground mb-3">{section.title}</h4>
+            <h4 className="font-medium text-sm text-muted-foreground mb-3">
+              {section.title}
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {section.fields.map((field) => (
                 <div key={field.key} className="space-y-1">
                   <p className="text-sm font-medium">{field.label}</p>
                   <p className="text-sm text-muted-foreground">
-                    {formData[field.key] || <span className="text-red-500">Not provided</span>}
+                    {formData[field.key] || (
+                      <span className="text-red-500">Not provided</span>
+                    )}
                   </p>
                 </div>
               ))}
@@ -80,7 +89,9 @@ export function OnboardingReview({
             )}
             <div>
               <p className="font-medium">
-                {canSubmit ? "Questionnaire Complete" : "Questionnaire Incomplete"}
+                {canSubmit
+                  ? "Questionnaire Complete"
+                  : "Questionnaire Incomplete"}
               </p>
               <p className="text-sm text-muted-foreground">
                 {completionPercentage}% complete
@@ -98,11 +109,14 @@ export function OnboardingReview({
           </div>
 
           <div className="flex-1">
-            <h3 className="font-medium text-lg mb-2">Next Step: Identity Verification</h3>
+            <h3 className="font-medium text-lg mb-2">
+              Next Step: Identity Verification
+            </h3>
 
             <p className="text-sm text-muted-foreground mb-4">
-              To complete your onboarding and activate your portal access, you'll need to verify
-              your identity through our secure verification partner, LEM Verify.
+              To complete your onboarding and activate your portal access,
+              you'll need to verify your identity through our secure
+              verification partner, LEM Verify.
             </p>
 
             <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-lg p-4 mb-4">
@@ -111,8 +125,9 @@ export function OnboardingReview({
                 <div className="text-sm text-yellow-800 dark:text-yellow-200">
                   <p className="font-medium mb-1">Please Note:</p>
                   <p>
-                    You may need to upload your identity documents again on the secure verification
-                    platform. This is required for biometric verification and AML compliance checks.
+                    You may need to upload your identity documents again on the
+                    secure verification platform. This is required for biometric
+                    verification and AML compliance checks.
                   </p>
                 </div>
               </div>
@@ -128,7 +143,8 @@ export function OnboardingReview({
             </div>
 
             <p className="text-xs text-muted-foreground mb-4">
-              This process typically takes 2-5 minutes. Results are usually available within 24 hours.
+              This process typically takes 2-5 minutes. Results are usually
+              available within 24 hours.
             </p>
 
             <Button
@@ -162,8 +178,8 @@ export function OnboardingReview({
       {/* Additional Info */}
       <div className="text-xs text-muted-foreground text-center">
         <p>
-          By submitting, you consent to identity verification and AML screening as required by
-          UK Money Laundering Regulations 2017.
+          By submitting, you consent to identity verification and AML screening
+          as required by UK Money Laundering Regulations 2017.
         </p>
       </div>
     </div>

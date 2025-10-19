@@ -97,7 +97,8 @@ export function ProposalsStatusChart({
           Proposals by Status
         </h3>
         <p className="text-sm text-muted-foreground">
-          {totalProposals} proposals worth £{Math.round(totalValue).toLocaleString()}/mo
+          {totalProposals} proposals worth £
+          {Math.round(totalValue).toLocaleString()}/mo
         </p>
       </div>
       <ResponsiveContainer width="100%" height={300}>

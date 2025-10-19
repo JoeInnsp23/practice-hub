@@ -1,20 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  Building2,
+  CheckCircle2,
+  FileText,
+  ShieldCheck,
+  Sparkles,
+  Upload,
+  Users,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Sparkles, Upload, FileText, Building2, Users, ShieldCheck, CheckCircle2 } from "lucide-react";
-import { trpc } from "@/app/_trpc/client";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/_trpc/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { OnboardingBusinessForm } from "./components/business-form";
+import { OnboardingCompanyForm } from "./components/company-form";
 import { OnboardingDocumentUpload } from "./components/document-upload";
 import { OnboardingIndividualForm } from "./components/individual-form";
-import { OnboardingCompanyForm } from "./components/company-form";
-import { OnboardingBusinessForm } from "./components/business-form";
 import { OnboardingOwnershipForm } from "./components/ownership-form";
-import { OnboardingRiskForm } from "./components/risk-form";
 import { OnboardingReview } from "./components/review";
+import { OnboardingRiskForm } from "./components/risk-form";
 
 const STEPS = [
   {
@@ -68,13 +82,16 @@ export default function OnboardingQuestionnairePage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [aiExtractedFields, setAiExtractedFields] = useState<Set<string>>(new Set());
+  const [aiExtractedFields, setAiExtractedFields] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Get onboarding session with pre-filled data
-  const { data: sessionData, isLoading } = trpc.onboarding.getQuestionnaireSession.useQuery(
-    { sessionId: sessionId || "" },
-    { enabled: !!sessionId }
-  );
+  const { data: sessionData, isLoading } =
+    trpc.onboarding.getQuestionnaireSession.useQuery(
+      { sessionId: sessionId || "" },
+      { enabled: !!sessionId },
+    );
 
   // Initialize form data from pre-filled questionnaire
   useEffect(() => {
@@ -82,7 +99,9 @@ export default function OnboardingQuestionnairePage() {
       const initialData: Record<string, any> = {};
       const aiFields = new Set<string>();
 
-      for (const [key, field] of Object.entries(sessionData.questionnaire.fields)) {
+      for (const [key, field] of Object.entries(
+        sessionData.questionnaire.fields,
+      )) {
         if (field.value !== null) {
           initialData[key] = field.value;
 
@@ -97,9 +116,12 @@ export default function OnboardingQuestionnairePage() {
     }
   }, [sessionData]);
 
-  const updateResponseMutation = trpc.onboarding.updateQuestionnaireResponse.useMutation();
-  const verifyResponseMutation = trpc.onboarding.verifyQuestionnaireResponse.useMutation();
-  const submitQuestionnaireMutation = trpc.onboarding.submitQuestionnaire.useMutation();
+  const updateResponseMutation =
+    trpc.onboarding.updateQuestionnaireResponse.useMutation();
+  const verifyResponseMutation =
+    trpc.onboarding.verifyQuestionnaireResponse.useMutation();
+  const submitQuestionnaireMutation =
+    trpc.onboarding.submitQuestionnaire.useMutation();
 
   const handleFieldChange = async (key: string, value: any) => {
     // Update local state
@@ -145,7 +167,7 @@ export default function OnboardingQuestionnairePage() {
       });
 
       toast.success("Field verified");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to verify field");
     }
   };
@@ -165,8 +187,11 @@ export default function OnboardingQuestionnairePage() {
     toast.success(
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-yellow-500" />
-        <span>We found {Object.keys(extractedData).length} fields from your documents!</span>
-      </div>
+        <span>
+          We found {Object.keys(extractedData).length} fields from your
+          documents!
+        </span>
+      </div>,
     );
 
     // Move to next step
@@ -201,7 +226,9 @@ export default function OnboardingQuestionnairePage() {
       }
 
       // Redirect to pending approval page with clientId
-      router.push(`/client-portal/onboarding/pending?clientId=${result.clientId}`);
+      router.push(
+        `/client-portal/onboarding/pending?clientId=${result.clientId}`,
+      );
     } catch (error: any) {
       toast.error(error.message || "Failed to submit questionnaire");
     }
@@ -232,7 +259,8 @@ export default function OnboardingQuestionnairePage() {
     );
   }
 
-  const completionPercentage = sessionData?.questionnaire?.completionPercentage || 0;
+  const completionPercentage =
+    sessionData?.questionnaire?.completionPercentage || 0;
   const CurrentStepIcon = STEPS[currentStep].icon;
 
   return (
@@ -251,7 +279,9 @@ export default function OnboardingQuestionnairePage() {
           <CardContent className="pt-6">
             <div className="mb-2 flex items-center justify-between text-sm">
               <span className="font-medium">Overall Progress</span>
-              <span className="text-muted-foreground">{completionPercentage}%</span>
+              <span className="text-muted-foreground">
+                {completionPercentage}%
+              </span>
             </div>
             <Progress value={completionPercentage} className="h-2" />
           </CardContent>
@@ -292,7 +322,9 @@ export default function OnboardingQuestionnairePage() {
               </div>
               <div>
                 <CardTitle>{STEPS[currentStep].title}</CardTitle>
-                <CardDescription>{STEPS[currentStep].description}</CardDescription>
+                <CardDescription>
+                  {STEPS[currentStep].description}
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -376,15 +408,18 @@ export default function OnboardingQuestionnairePage() {
               </Button>
 
               {currentStep < STEPS.length - 1 ? (
-                <Button onClick={handleNextStep}>
-                  Next
-                </Button>
+                <Button onClick={handleNextStep}>Next</Button>
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  disabled={submitQuestionnaireMutation.isPending || completionPercentage < 100}
+                  disabled={
+                    submitQuestionnaireMutation.isPending ||
+                    completionPercentage < 100
+                  }
                 >
-                  {submitQuestionnaireMutation.isPending ? "Submitting..." : "Submit for Review"}
+                  {submitQuestionnaireMutation.isPending
+                    ? "Submitting..."
+                    : "Submit for Review"}
                 </Button>
               )}
             </div>
@@ -397,7 +432,8 @@ export default function OnboardingQuestionnairePage() {
             <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
               <Sparkles className="h-4 w-4" />
               <p className="text-sm font-medium">
-                We found {aiExtractedFields.size} field{aiExtractedFields.size > 1 ? "s" : ""} from your documents.
+                We found {aiExtractedFields.size} field
+                {aiExtractedFields.size > 1 ? "s" : ""} from your documents.
                 Please review and verify them.
               </p>
             </div>

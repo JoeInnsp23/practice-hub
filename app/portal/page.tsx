@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect } from "react";
 import { trpc } from "@/app/_trpc/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export default function ClientPortalDashboard() {
@@ -11,14 +11,21 @@ export default function ClientPortalDashboard() {
   const { currentClientId } = useClientPortalContext();
 
   // Check onboarding status and redirect if not approved
-  const { data: onboardingStatus, isLoading } = trpc.onboarding.getOnboardingStatus.useQuery(
-    { clientId: currentClientId || "" },
-    { enabled: !!currentClientId }
-  );
+  const { data: onboardingStatus, isLoading } =
+    trpc.onboarding.getOnboardingStatus.useQuery(
+      { clientId: currentClientId || "" },
+      { enabled: !!currentClientId },
+    );
 
   useEffect(() => {
-    if (onboardingStatus && !onboardingStatus.canAccessPortal && currentClientId) {
-      router.push(`/client-portal/onboarding/pending?clientId=${currentClientId}`);
+    if (
+      onboardingStatus &&
+      !onboardingStatus.canAccessPortal &&
+      currentClientId
+    ) {
+      router.push(
+        `/client-portal/onboarding/pending?clientId=${currentClientId}`,
+      );
     }
   }, [onboardingStatus, currentClientId, router]);
 

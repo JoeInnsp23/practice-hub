@@ -1,12 +1,7 @@
 import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import {
-  leads,
-  proposalServices,
-  proposals,
-  tasks,
-} from "@/lib/db/schema";
+import { leads, proposalServices, proposals, tasks } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Date range input schema
@@ -49,13 +44,15 @@ export const analyticsRouter = router({
         .where(and(...filters))
         .groupBy(leads.status);
 
-      // Leads by source
+      // Leads by source with conversion data
       const leadsBySource = await db
         .select({
           source: leads.source,
           count: sql<number>`count(*)::int`,
+          convertedToProposal: sql<number>`count(DISTINCT CASE WHEN ${proposals.leadId} IS NOT NULL THEN ${leads.id} END)::int`,
         })
         .from(leads)
+        .leftJoin(proposals, eq(proposals.leadId, leads.id))
         .where(and(...filters))
         .groupBy(leads.source);
 
@@ -106,9 +103,7 @@ export const analyticsRouter = router({
           avgDays: sql<number>`AVG(EXTRACT(EPOCH FROM (${proposals.signedAt} - ${proposals.createdAt})) / 86400)::decimal`,
         })
         .from(proposals)
-        .where(
-          and(...filters, eq(proposals.status, "signed")),
-        );
+        .where(and(...filters, eq(proposals.status, "signed")));
 
       return {
         total: totalProposals[0]?.count || 0,
@@ -281,17 +276,15 @@ export const analyticsRouter = router({
       const modelA = modelStats.find((s) => s.model === "Model A");
       const modelB = modelStats.find((s) => s.model === "Model B");
 
-      const avgSavingsB = modelA && modelB
-        ? Number(modelA.avgMonthly) - Number(modelB.avgMonthly)
-        : 0;
+      const avgSavingsB =
+        modelA && modelB
+          ? Number(modelA.avgMonthly) - Number(modelB.avgMonthly)
+          : 0;
 
       return {
         byModel: modelStats,
         avgSavingsWhenModelB: avgSavingsB,
-        totalProposals: modelStats.reduce(
-          (sum, s) => sum + Number(s.count),
-          0,
-        ),
+        totalProposals: modelStats.reduce((sum, s) => sum + Number(s.count), 0),
       };
     }),
 
@@ -300,9 +293,11 @@ export const analyticsRouter = router({
    */
   getServicePopularity: protectedProcedure
     .input(
-      dateRangeSchema.extend({
-        limit: z.number().min(1).max(50).optional().default(10),
-      }).optional(),
+      dateRangeSchema
+        .extend({
+          limit: z.number().min(1).max(50).optional().default(10),
+        })
+        .optional(),
     )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
@@ -328,10 +323,7 @@ export const analyticsRouter = router({
         .from(proposalServices)
         .innerJoin(proposals, eq(proposalServices.proposalId, proposals.id))
         .where(and(...filters))
-        .groupBy(
-          proposalServices.componentCode,
-          proposalServices.componentName,
-        )
+        .groupBy(proposalServices.componentCode, proposalServices.componentName)
         .orderBy(desc(sql`count(*)`))
         .limit(input?.limit || 10);
 

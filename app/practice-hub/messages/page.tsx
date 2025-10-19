@@ -8,7 +8,6 @@ import {
   Search,
   Send,
   User,
-  Users,
   Video,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -72,13 +71,13 @@ export default function MessagesPage() {
     {
       enabled: !!selectedThreadId,
       refetchInterval: selectedThreadId ? 3000 : false, // Poll every 3 seconds when thread is selected
-    }
+    },
   );
 
   // Fetch thread details
   const { data: threadDetails } = trpc.messages.getThread.useQuery(
     { threadId: selectedThreadId! },
-    { enabled: !!selectedThreadId }
+    { enabled: !!selectedThreadId },
   );
 
   // Send message mutation
@@ -105,14 +104,14 @@ export default function MessagesPage() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messagesData]);
+  }, []);
 
   // Mark thread as read when selected
   useEffect(() => {
     if (selectedThreadId) {
       markAsReadMutation.mutate({ threadId: selectedThreadId });
     }
-  }, [selectedThreadId]);
+  }, [selectedThreadId, markAsReadMutation.mutate]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !selectedThreadId) return;
@@ -273,7 +272,9 @@ export default function MessagesPage() {
                   />
                   <Button
                     onClick={handleSendMessage}
-                    disabled={!newMessage.trim() || sendMessageMutation.isPending}
+                    disabled={
+                      !newMessage.trim() || sendMessageMutation.isPending
+                    }
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -287,7 +288,9 @@ export default function MessagesPage() {
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No conversation selected</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No conversation selected
+                </h3>
                 <p className="text-sm">
                   Choose a conversation from the sidebar or start a new one
                 </p>
@@ -328,7 +331,7 @@ function ThreadItem({
       className={cn(
         "w-full p-3 rounded-lg text-left transition-colors",
         "hover:bg-muted/50",
-        isSelected && "bg-muted"
+        isSelected && "bg-muted",
       )}
     >
       <div className="flex items-start gap-3">
@@ -373,22 +376,20 @@ function MessageBubble({ message }: { message: any }) {
   const portalSender = message.portalSender;
 
   // Determine sender info (staff or client portal user)
-  const senderName =
-    sender && sender.firstName
-      ? `${sender.firstName} ${sender.lastName}`
-      : portalSender && portalSender.firstName
-        ? `${portalSender.firstName} ${portalSender.lastName}`
-        : "Unknown";
+  const senderName = sender?.firstName
+    ? `${sender.firstName} ${sender.lastName}`
+    : portalSender?.firstName
+      ? `${portalSender.firstName} ${portalSender.lastName}`
+      : "Unknown";
 
   const senderImage = sender?.image || null;
   const isClientPortalUser = !!portalSender && !sender;
 
-  const initials =
-    sender && sender.firstName
-      ? `${sender.firstName[0]}${sender.lastName?.[0] || ""}`
-      : portalSender && portalSender.firstName
-        ? `${portalSender.firstName[0]}${portalSender.lastName?.[0] || ""}`
-        : "?";
+  const initials = sender?.firstName
+    ? `${sender.firstName[0]}${sender.lastName?.[0] || ""}`
+    : portalSender?.firstName
+      ? `${portalSender.firstName[0]}${portalSender.lastName?.[0] || ""}`
+      : "?";
 
   return (
     <div className="flex items-start gap-3">
@@ -469,7 +470,9 @@ function NewChannelDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Channel name</label>
+            <label className="text-sm font-medium mb-2 block">
+              Channel name
+            </label>
             <Input
               placeholder="e.g. tax-team"
               value={name}
@@ -570,7 +573,9 @@ function NewDMDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Select a user</label>
+            <label className="text-sm font-medium mb-2 block">
+              Select a user
+            </label>
             <ScrollArea className="h-64 border rounded-lg p-2">
               <div className="space-y-1">
                 {users.map((user: any) => (
@@ -580,7 +585,7 @@ function NewDMDialog({
                     onClick={() => setSelectedUserId(user.id)}
                     className={cn(
                       "w-full p-3 rounded-lg text-left transition-colors hover:bg-muted",
-                      selectedUserId === user.id && "bg-muted"
+                      selectedUserId === user.id && "bg-muted",
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -595,7 +600,9 @@ function NewDMDialog({
                         <p className="font-medium">
                           {user.firstName} {user.lastName}
                         </p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
                       </div>
                     </div>
                   </button>

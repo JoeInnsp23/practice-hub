@@ -103,7 +103,9 @@ export async function getClientPortalAuthContext(
       .limit(1);
 
     if (portalUserRecord.length === 0) {
-      console.warn("Client Portal Auth: User not found in client_portal_users table");
+      console.warn(
+        "Client Portal Auth: User not found in client_portal_users table",
+      );
       return null;
     }
 
@@ -139,7 +141,10 @@ export async function getClientPortalAuthContext(
 
     // Determine current client
     let currentClientId = selectedClientId;
-    if (!currentClientId || !accessRecords.find((a) => a.clientId === currentClientId)) {
+    if (
+      !currentClientId ||
+      !accessRecords.find((a) => a.clientId === currentClientId)
+    ) {
       // Default to first client if no selection or invalid selection
       currentClientId = accessRecords[0].clientId;
     }

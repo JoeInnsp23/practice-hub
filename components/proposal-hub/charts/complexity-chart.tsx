@@ -1,6 +1,13 @@
 "use client";
 
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 
 interface ComplexityData {
@@ -71,7 +78,9 @@ export function ComplexityChart({
         </div>
         <div className="flex items-center justify-center h-[300px]">
           <div className="text-center">
-            <p className="text-muted-foreground">No complexity data available</p>
+            <p className="text-muted-foreground">
+              No complexity data available
+            </p>
             <p className="text-xs text-muted-foreground mt-1">
               Proposals with bookkeeping services will show here
             </p>
@@ -99,7 +108,9 @@ export function ComplexityChart({
             cy="50%"
             labelLine={false}
             label={(entry) => {
-              const percent = (((entry.value as number) / total) * 100).toFixed(0);
+              const percent = (((entry.value as number) / total) * 100).toFixed(
+                0,
+              );
               return `${entry.name} (${percent}%)`;
             }}
             outerRadius={100}

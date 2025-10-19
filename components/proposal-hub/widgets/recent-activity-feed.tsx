@@ -67,11 +67,9 @@ const getActionIcon = (action: string) => {
 };
 
 export function RecentActivityFeed() {
-  // TODO: Create a dedicated getRecent endpoint that doesn't require entityType/entityId
-  // For now, cast to any to bypass type checking
-  const { data, isLoading } = trpc.activities.list.useQuery({
+  const { data, isLoading } = trpc.activities.getRecent.useQuery({
     limit: 10,
-  } as any);
+  });
 
   const activities = data?.activities || [];
 
@@ -80,7 +78,9 @@ export function RecentActivityFeed() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
         <div className="flex items-center justify-center py-8">
-          <div className="text-muted-foreground text-sm">Loading activities...</div>
+          <div className="text-muted-foreground text-sm">
+            Loading activities...
+          </div>
         </div>
       </Card>
     );

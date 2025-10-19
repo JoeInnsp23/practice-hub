@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { format } from "date-fns";
-import { FileText, ExternalLink, Download, CheckCircle } from "lucide-react";
+import { CheckCircle, Download, ExternalLink, FileText } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
-import { useClientPortalContext } from "@/contexts/client-portal-context";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -16,28 +22,59 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export default function ProposalsPage() {
   const { currentClientId } = useClientPortalContext();
-  const [selectedStatus, setSelectedStatus] = useState<"sent" | "viewed" | "signed" | "expired" | undefined>();
+  const [selectedStatus, setSelectedStatus] = useState<
+    "sent" | "viewed" | "signed" | "expired" | undefined
+  >();
 
-  const { data: proposals, isLoading } = trpc.clientPortal.getProposals.useQuery(
-    { clientId: currentClientId!, status: selectedStatus },
-    { enabled: !!currentClientId },
-  );
+  const { data: proposals, isLoading } =
+    trpc.clientPortal.getProposals.useQuery(
+      { clientId: currentClientId!, status: selectedStatus },
+      { enabled: !!currentClientId },
+    );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "sent":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Sent</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
+            Sent
+          </Badge>
+        );
       case "viewed":
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Viewed</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200"
+          >
+            Viewed
+          </Badge>
+        );
       case "signed":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Signed</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            Signed
+          </Badge>
+        );
       case "expired":
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Expired</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-50 text-gray-700 border-gray-200"
+          >
+            Expired
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -48,7 +85,9 @@ export default function ProposalsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-          <p className="text-muted-foreground">Please select a client to view proposals</p>
+          <p className="text-muted-foreground">
+            Please select a client to view proposals
+          </p>
         </div>
       </div>
     );
@@ -66,14 +105,18 @@ export default function ProposalsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Your Proposals</CardTitle>
-          <CardDescription>
-            All proposals sent to your account
-          </CardDescription>
+          <CardDescription>All proposals sent to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as any)}>
+          <Tabs
+            value={selectedStatus}
+            onValueChange={(v) => setSelectedStatus(v as any)}
+          >
             <TabsList>
-              <TabsTrigger value={undefined as any} onClick={() => setSelectedStatus(undefined)}>
+              <TabsTrigger
+                value={undefined as any}
+                onClick={() => setSelectedStatus(undefined)}
+              >
                 All
               </TabsTrigger>
               <TabsTrigger value="sent">Sent</TabsTrigger>
@@ -113,11 +156,14 @@ export default function ProposalsPage() {
                             {proposal.proposalNumber}
                           </TableCell>
                           <TableCell>{proposal.title}</TableCell>
-                          <TableCell>{getStatusBadge(proposal.status)}</TableCell>
+                          <TableCell>
+                            {getStatusBadge(proposal.status)}
+                          </TableCell>
                           <TableCell>£{proposal.monthlyTotal}</TableCell>
                           <TableCell>£{proposal.annualTotal}</TableCell>
                           <TableCell>
-                            {proposal.sentAt && format(new Date(proposal.sentAt), "MMM d, yyyy")}
+                            {proposal.sentAt &&
+                              format(new Date(proposal.sentAt), "MMM d, yyyy")}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -128,21 +174,28 @@ export default function ProposalsPage() {
                                 </Button>
                               </Link>
                               {proposal.status === "sent" && (
-                                <Link href={`/portal/proposals/${proposal.id}/sign`}>
+                                <Link
+                                  href={`/portal/proposals/${proposal.id}/sign`}
+                                >
                                   <Button size="sm">
                                     <CheckCircle className="w-3 h-3 mr-1" />
                                     Sign
                                   </Button>
                                 </Link>
                               )}
-                              {proposal.status === "signed" && proposal.docusealSignedPdfUrl && (
-                                <Button size="sm" variant="outline" asChild>
-                                  <a href={proposal.docusealSignedPdfUrl} target="_blank" rel="noopener noreferrer">
-                                    <Download className="w-3 h-3 mr-1" />
-                                    PDF
-                                  </a>
-                                </Button>
-                              )}
+                              {proposal.status === "signed" &&
+                                proposal.docusealSignedPdfUrl && (
+                                  <Button size="sm" variant="outline" asChild>
+                                    <a
+                                      href={proposal.docusealSignedPdfUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <Download className="w-3 h-3 mr-1" />
+                                      PDF
+                                    </a>
+                                  </Button>
+                                )}
                             </div>
                           </TableCell>
                         </TableRow>

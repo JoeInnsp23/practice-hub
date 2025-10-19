@@ -1,9 +1,33 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { Context } from "./context";
+import { trpcRateLimit, getClientId } from "@/lib/rate-limit";
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
+});
+
+// Middleware for rate limiting (applies to all procedures)
+const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
+  // Skip rate limiting if Upstash not configured (development)
+  if (!trpcRateLimit) {
+    return next();
+  }
+
+  // Get client identifier from headers
+  const headers = await import("next/headers").then((mod) => mod.headers());
+  const clientId = getClientId(headers);
+
+  const { success, limit, reset, remaining } = await trpcRateLimit.limit(clientId);
+
+  if (!success) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: `Rate limit exceeded. Try again in ${Math.ceil((reset - Date.now()) / 1000)} seconds.`,
+    });
+  }
+
+  return next();
 });
 
 // Middleware to check if user is authenticated
@@ -60,7 +84,10 @@ const isAdmin = t.middleware(({ next, ctx }) => {
 // Middleware to check if client portal user is authenticated
 const isClientPortalAuthed = t.middleware(({ next, ctx }) => {
   if (!ctx.clientPortalSession?.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: "Client portal authentication required" });
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Client portal authentication required",
+    });
   }
 
   if (!ctx.clientPortalAuthContext) {
@@ -79,7 +106,7 @@ const isClientPortalAuthed = t.middleware(({ next, ctx }) => {
 });
 
 export const router = t.router;
-export const publicProcedure = t.procedure;
-export const protectedProcedure = t.procedure.use(isAuthed);
-export const adminProcedure = t.procedure.use(isAdmin);
-export const clientPortalProcedure = t.procedure.use(isClientPortalAuthed);
+export const publicProcedure = t.procedure.use(rateLimitMiddleware);
+export const protectedProcedure = t.procedure.use(rateLimitMiddleware).use(isAuthed);
+export const adminProcedure = t.procedure.use(rateLimitMiddleware).use(isAdmin);
+export const clientPortalProcedure = t.procedure.use(rateLimitMiddleware).use(isClientPortalAuthed);

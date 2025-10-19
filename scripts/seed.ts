@@ -9,21 +9,21 @@ import {
   calendarEvents,
   clientContacts,
   clientDirectors,
+  clientPortalAccess,
+  clientPortalInvitations,
+  clientPortalUsers,
   clientPSCs,
   clientServices,
   clients,
-  clientPortalUsers,
-  clientPortalAccess,
-  clientPortalInvitations,
   compliance,
   documents,
   invitations,
   invoiceItems,
   invoices,
   leads,
+  messages,
   messageThreadParticipants,
   messageThreads,
-  messages,
   notifications,
   onboardingSessions,
   onboardingTasks,
@@ -1211,6 +1211,7 @@ async function seedDatabase() {
       email: faker.internet.email(),
       phone: faker.phone.number(),
       website: isCompany ? faker.internet.url() : null,
+      vatRegistered: isCompany,
       vatNumber: isCompany ? `GB${faker.string.numeric(9)}` : null,
       registrationNumber: isCompany
         ? faker.string.alphanumeric(8).toUpperCase()
@@ -2826,7 +2827,9 @@ async function seedDatabase() {
   // Phase 1: Communication & Collaboration - Seed Data
   // ============================================================================
 
-  console.log("Creating message threads, messages, notifications, and calendar events...");
+  console.log(
+    "Creating message threads, messages, notifications, and calendar events...",
+  );
 
   // 1. Create Message Threads
   const threadsList = [
@@ -2962,7 +2965,8 @@ async function seedDatabase() {
       userId: adminUser.id,
       senderType: "staff" as const,
       senderId: adminUser.id,
-      content: "Welcome to Practice Hub team chat! Let's keep all team communication here.",
+      content:
+        "Welcome to Practice Hub team chat! Let's keep all team communication here.",
       type: "text",
     },
     {
@@ -2995,7 +2999,8 @@ async function seedDatabase() {
       userId: createdUsers[1].id,
       senderType: "staff" as const,
       senderId: createdUsers[1].id,
-      content: "On it! I'll reach out to anyone who hasn't submitted documents yet.",
+      content:
+        "On it! I'll reach out to anyone who hasn't submitted documents yet.",
       type: "text",
     },
     // DM between admin and user 1
@@ -3004,7 +3009,8 @@ async function seedDatabase() {
       userId: adminUser.id,
       senderType: "staff" as const,
       senderId: adminUser.id,
-      content: "Can you review the TechStart Solutions proposal when you have a moment?",
+      content:
+        "Can you review the TechStart Solutions proposal when you have a moment?",
       type: "text",
     },
     {
@@ -3012,7 +3018,8 @@ async function seedDatabase() {
       userId: createdUsers[1].id,
       senderType: "staff" as const,
       senderId: createdUsers[1].id,
-      content: "Sure, I'll take a look this afternoon and send you my feedback.",
+      content:
+        "Sure, I'll take a look this afternoon and send you my feedback.",
       type: "text",
     },
     // Client thread
@@ -3021,7 +3028,8 @@ async function seedDatabase() {
       userId: adminUser.id,
       senderType: "staff" as const,
       senderId: adminUser.id,
-      content: "Hi! Welcome to your client portal. Feel free to reach out if you have any questions.",
+      content:
+        "Hi! Welcome to your client portal. Feel free to reach out if you have any questions.",
       type: "text",
     },
   ];
@@ -3079,7 +3087,8 @@ async function seedDatabase() {
       userId: createdUsers[2].id,
       type: "task_assigned",
       title: "New Task Assigned",
-      message: "You have been assigned to complete tax returns for Green Energy Ltd",
+      message:
+        "You have been assigned to complete tax returns for Green Energy Ltd",
       actionUrl: `/client-hub/tasks/${createdTasks[5].id}`,
       entityType: "task",
       entityId: createdTasks[5].id,
@@ -3104,7 +3113,8 @@ async function seedDatabase() {
   const eventsList = [
     {
       title: "Client Meeting: TechStart Solutions",
-      description: "Quarterly review meeting to discuss financials and tax planning",
+      description:
+        "Quarterly review meeting to discuss financials and tax planning",
       type: "meeting",
       startTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
       endTime: new Date(tomorrow.setHours(11, 0, 0, 0)),
@@ -3140,7 +3150,9 @@ async function seedDatabase() {
       description: "Mandatory training session on updated tax regulations",
       type: "event",
       startTime: new Date(nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000),
-      endTime: new Date(nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
+      endTime: new Date(
+        nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000,
+      ),
       allDay: false,
       location: "Virtual - Zoom",
       createdBy: adminUser.id,
@@ -3204,7 +3216,9 @@ async function seedDatabase() {
     })),
   ]);
 
-  console.log("✓ Created message threads, messages, notifications, and calendar events");
+  console.log(
+    "✓ Created message threads, messages, notifications, and calendar events",
+  );
 
   console.log("✅ Database seeding completed!");
 

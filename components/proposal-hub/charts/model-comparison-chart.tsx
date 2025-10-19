@@ -1,6 +1,13 @@
 "use client";
 
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 
 interface ModelData {
@@ -69,7 +76,9 @@ export function ModelComparisonChart({
         </div>
         <div className="flex items-center justify-center h-[300px]">
           <div className="text-center">
-            <p className="text-muted-foreground">No pricing model data available</p>
+            <p className="text-muted-foreground">
+              No pricing model data available
+            </p>
             <p className="text-xs text-muted-foreground mt-1">
               Create proposals to see model distribution
             </p>
@@ -97,7 +106,9 @@ export function ModelComparisonChart({
             cy="50%"
             labelLine={false}
             label={(entry) => {
-              const percent = (((entry.value as number) / total) * 100).toFixed(0);
+              const percent = (((entry.value as number) / total) * 100).toFixed(
+                0,
+              );
               return `${entry.name} (${percent}%)`;
             }}
             outerRadius={100}
@@ -117,7 +128,7 @@ export function ModelComparisonChart({
               border: "1px solid rgb(var(--border))",
               borderRadius: "8px",
             }}
-            formatter={(value: number, name: string, entry: any) => {
+            formatter={(value: number, name: string, _entry: any) => {
               if (name === "value") {
                 return [`${value} proposals`, "Count"];
               }

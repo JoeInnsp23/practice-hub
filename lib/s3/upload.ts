@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // S3 Client configuration (works with MinIO and Hetzner S3)
@@ -102,7 +106,9 @@ export async function getPresignedUrl(
 
     const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn });
 
-    console.log(`Generated presigned URL for ${key} (expires in ${expiresIn}s)`);
+    console.log(
+      `Generated presigned URL for ${key} (expires in ${expiresIn}s)`,
+    );
 
     return presignedUrl;
   } catch (error) {

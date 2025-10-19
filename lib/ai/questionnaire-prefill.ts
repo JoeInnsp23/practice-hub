@@ -7,8 +7,8 @@
  * Uses in-memory caching (30s TTL) to reduce repeated database reads.
  */
 
-import { getOnboardingResponses, REQUIRED_AML_FIELDS } from "./save-extracted-data";
 import { questionnaireResponsesCache } from "@/lib/cache";
+import { getOnboardingResponses } from "./save-extracted-data";
 
 /**
  * Questionnaire field definition
@@ -16,9 +16,22 @@ import { questionnaireResponsesCache } from "@/lib/cache";
 export interface QuestionnaireField {
   key: string;
   label: string;
-  type: "text" | "email" | "date" | "select" | "textarea" | "number" | "address" | "array";
+  type:
+    | "text"
+    | "email"
+    | "date"
+    | "select"
+    | "textarea"
+    | "number"
+    | "address"
+    | "array";
   required: boolean;
-  category: "individual" | "company" | "business_activity" | "ownership" | "risk_assessment";
+  category:
+    | "individual"
+    | "company"
+    | "business_activity"
+    | "ownership"
+    | "risk_assessment";
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
   helpText?: string;
@@ -28,12 +41,15 @@ export interface QuestionnaireField {
  * Pre-filled questionnaire response
  */
 export interface PrefilledQuestionnaireResponse {
-  fields: Record<string, {
-    value: any;
-    extractedFromAi: boolean;
-    verifiedByUser: boolean;
-    fieldDefinition: QuestionnaireField;
-  }>;
+  fields: Record<
+    string,
+    {
+      value: any;
+      extractedFromAi: boolean;
+      verifiedByUser: boolean;
+      fieldDefinition: QuestionnaireField;
+    }
+  >;
   completionPercentage: number;
   requiredFieldsRemaining: string[];
   aiExtractedCount: number;
@@ -183,7 +199,8 @@ export const QUESTIONNAIRE_FIELDS: QuestionnaireField[] = [
     type: "array",
     required: true,
     category: "ownership",
-    helpText: "Individuals who own 25% or more of the company or have significant control",
+    helpText:
+      "Individuals who own 25% or more of the company or have significant control",
   },
   {
     key: "psc_register",
@@ -229,7 +246,8 @@ export const QUESTIONNAIRE_FIELDS: QuestionnaireField[] = [
   },
   {
     key: "politically_exposed_person",
-    label: "Are you or any beneficial owners politically exposed persons (PEPs)?",
+    label:
+      "Are you or any beneficial owners politically exposed persons (PEPs)?",
     type: "select",
     required: true,
     category: "risk_assessment",
@@ -237,7 +255,8 @@ export const QUESTIONNAIRE_FIELDS: QuestionnaireField[] = [
       { value: "no", label: "No" },
       { value: "yes", label: "Yes" },
     ],
-    helpText: "Individuals in prominent public positions or their close associates",
+    helpText:
+      "Individuals in prominent public positions or their close associates",
   },
   {
     key: "pep_details",
@@ -255,7 +274,7 @@ export const QUESTIONNAIRE_FIELDS: QuestionnaireField[] = [
  * Uses in-memory cache (30s TTL) to reduce database reads
  */
 export async function getPrefilledQuestionnaire(
-  onboardingSessionId: string
+  onboardingSessionId: string,
 ): Promise<PrefilledQuestionnaireResponse> {
   // Check cache first
   let responses = questionnaireResponsesCache.get(onboardingSessionId);
@@ -269,12 +288,15 @@ export async function getPrefilledQuestionnaire(
   }
 
   // Build fields map with definitions
-  const fields: Record<string, {
-    value: any;
-    extractedFromAi: boolean;
-    verifiedByUser: boolean;
-    fieldDefinition: QuestionnaireField;
-  }> = {};
+  const fields: Record<
+    string,
+    {
+      value: any;
+      extractedFromAi: boolean;
+      verifiedByUser: boolean;
+      fieldDefinition: QuestionnaireField;
+    }
+  > = {};
 
   for (const fieldDef of QUESTIONNAIRE_FIELDS) {
     const response = responses[fieldDef.key];
@@ -289,21 +311,25 @@ export async function getPrefilledQuestionnaire(
 
   // Calculate metrics
   const aiExtractedCount = Object.values(fields).filter(
-    (f) => f.extractedFromAi && !f.verifiedByUser
+    (f) => f.extractedFromAi && !f.verifiedByUser,
   ).length;
 
   const userEnteredCount = Object.values(fields).filter(
-    (f) => f.verifiedByUser || (!f.extractedFromAi && f.value !== null)
+    (f) => f.verifiedByUser || (!f.extractedFromAi && f.value !== null),
   ).length;
 
-  const requiredFieldsRemaining = QUESTIONNAIRE_FIELDS
-    .filter((f) => f.required)
+  const requiredFieldsRemaining = QUESTIONNAIRE_FIELDS.filter((f) => f.required)
     .filter((f) => !fields[f.key].verifiedByUser)
     .map((f) => f.key);
 
-  const totalRequiredFields = QUESTIONNAIRE_FIELDS.filter((f) => f.required).length;
-  const completedRequiredFields = totalRequiredFields - requiredFieldsRemaining.length;
-  const completionPercentage = Math.round((completedRequiredFields / totalRequiredFields) * 100);
+  const totalRequiredFields = QUESTIONNAIRE_FIELDS.filter(
+    (f) => f.required,
+  ).length;
+  const completedRequiredFields =
+    totalRequiredFields - requiredFieldsRemaining.length;
+  const completionPercentage = Math.round(
+    (completedRequiredFields / totalRequiredFields) * 100,
+  );
 
   return {
     fields,
@@ -318,18 +344,23 @@ export async function getPrefilledQuestionnaire(
  * Validate questionnaire is complete and ready for AML check
  */
 export function validateQuestionnaireComplete(
-  prefilledData: PrefilledQuestionnaireResponse
+  prefilledData: PrefilledQuestionnaireResponse,
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   // Check all required fields are verified
   if (prefilledData.requiredFieldsRemaining.length > 0) {
-    errors.push(`${prefilledData.requiredFieldsRemaining.length} required fields are not completed`);
+    errors.push(
+      `${prefilledData.requiredFieldsRemaining.length} required fields are not completed`,
+    );
   }
 
   // Check specific AML requirements
   const beneficialOwners = prefilledData.fields.beneficial_owners?.value;
-  if (!beneficialOwners || (Array.isArray(beneficialOwners) && beneficialOwners.length === 0)) {
+  if (
+    !beneficialOwners ||
+    (Array.isArray(beneficialOwners) && beneficialOwners.length === 0)
+  ) {
     errors.push("At least one beneficial owner must be specified");
   }
 

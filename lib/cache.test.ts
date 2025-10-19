@@ -1,5 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { questionnaireResponsesCache, invalidateQuestionnaireCache } from "@/lib/cache";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  invalidateQuestionnaireCache,
+  questionnaireResponsesCache,
+} from "@/lib/cache";
 
 describe("lib/cache.ts", () => {
   beforeEach(() => {
@@ -9,7 +12,9 @@ describe("lib/cache.ts", () => {
 
   describe("SimpleCache - Basic Operations", () => {
     it("should store and retrieve values", () => {
-      const testData = { field1: { value: "test", extractedFromAi: true, verifiedByUser: false } };
+      const testData = {
+        field1: { value: "test", extractedFromAi: true, verifiedByUser: false },
+      };
 
       questionnaireResponsesCache.set("session1", testData);
       const retrieved = questionnaireResponsesCache.get("session1");
@@ -23,8 +28,20 @@ describe("lib/cache.ts", () => {
     });
 
     it("should handle multiple keys independently", () => {
-      const data1 = { field1: { value: "test1", extractedFromAi: true, verifiedByUser: false } };
-      const data2 = { field2: { value: "test2", extractedFromAi: false, verifiedByUser: true } };
+      const data1 = {
+        field1: {
+          value: "test1",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      };
+      const data2 = {
+        field2: {
+          value: "test2",
+          extractedFromAi: false,
+          verifiedByUser: true,
+        },
+      };
 
       questionnaireResponsesCache.set("session1", data1);
       questionnaireResponsesCache.set("session2", data2);
@@ -36,7 +53,9 @@ describe("lib/cache.ts", () => {
 
   describe("SimpleCache - TTL (Time To Live)", () => {
     it("should expire values after TTL", async () => {
-      const testData = { field1: { value: "test", extractedFromAi: true, verifiedByUser: false } };
+      const testData = {
+        field1: { value: "test", extractedFromAi: true, verifiedByUser: false },
+      };
 
       // Set with 100ms TTL
       questionnaireResponsesCache.set("session1", testData, 100);
@@ -52,7 +71,9 @@ describe("lib/cache.ts", () => {
     });
 
     it("should not expire before TTL", async () => {
-      const testData = { field1: { value: "test", extractedFromAi: true, verifiedByUser: false } };
+      const testData = {
+        field1: { value: "test", extractedFromAi: true, verifiedByUser: false },
+      };
 
       // Set with 200ms TTL
       questionnaireResponsesCache.set("session1", testData, 200);
@@ -65,7 +86,9 @@ describe("lib/cache.ts", () => {
     });
 
     it("should use default TTL of 30 seconds", () => {
-      const testData = { field1: { value: "test", extractedFromAi: true, verifiedByUser: false } };
+      const testData = {
+        field1: { value: "test", extractedFromAi: true, verifiedByUser: false },
+      };
 
       questionnaireResponsesCache.set("session1", testData);
 
@@ -76,7 +99,9 @@ describe("lib/cache.ts", () => {
 
   describe("SimpleCache - Manual Operations", () => {
     it("should delete specific keys", () => {
-      const testData = { field1: { value: "test", extractedFromAi: true, verifiedByUser: false } };
+      const testData = {
+        field1: { value: "test", extractedFromAi: true, verifiedByUser: false },
+      };
 
       questionnaireResponsesCache.set("session1", testData);
       expect(questionnaireResponsesCache.get("session1")).toEqual(testData);
@@ -86,8 +111,20 @@ describe("lib/cache.ts", () => {
     });
 
     it("should clear all cached values", () => {
-      questionnaireResponsesCache.set("session1", { field1: { value: "test1", extractedFromAi: true, verifiedByUser: false } });
-      questionnaireResponsesCache.set("session2", { field2: { value: "test2", extractedFromAi: true, verifiedByUser: false } });
+      questionnaireResponsesCache.set("session1", {
+        field1: {
+          value: "test1",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      });
+      questionnaireResponsesCache.set("session2", {
+        field2: {
+          value: "test2",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      });
 
       questionnaireResponsesCache.clear();
 
@@ -96,8 +133,20 @@ describe("lib/cache.ts", () => {
     });
 
     it("should provide cache statistics", () => {
-      questionnaireResponsesCache.set("session1", { field1: { value: "test1", extractedFromAi: true, verifiedByUser: false } });
-      questionnaireResponsesCache.set("session2", { field2: { value: "test2", extractedFromAi: true, verifiedByUser: false } });
+      questionnaireResponsesCache.set("session1", {
+        field1: {
+          value: "test1",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      });
+      questionnaireResponsesCache.set("session2", {
+        field2: {
+          value: "test2",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      });
 
       const stats = questionnaireResponsesCache.getStats();
 
@@ -109,7 +158,9 @@ describe("lib/cache.ts", () => {
 
   describe("invalidateQuestionnaireCache", () => {
     it("should invalidate cache for specific session", () => {
-      const testData = { field1: { value: "test", extractedFromAi: true, verifiedByUser: false } };
+      const testData = {
+        field1: { value: "test", extractedFromAi: true, verifiedByUser: false },
+      };
 
       questionnaireResponsesCache.set("session1", testData);
       expect(questionnaireResponsesCache.get("session1")).toEqual(testData);
@@ -119,8 +170,20 @@ describe("lib/cache.ts", () => {
     });
 
     it("should not affect other sessions", () => {
-      const data1 = { field1: { value: "test1", extractedFromAi: true, verifiedByUser: false } };
-      const data2 = { field2: { value: "test2", extractedFromAi: true, verifiedByUser: false } };
+      const data1 = {
+        field1: {
+          value: "test1",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      };
+      const data2 = {
+        field2: {
+          value: "test2",
+          extractedFromAi: true,
+          verifiedByUser: false,
+        },
+      };
 
       questionnaireResponsesCache.set("session1", data1);
       questionnaireResponsesCache.set("session2", data2);

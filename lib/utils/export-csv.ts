@@ -156,8 +156,7 @@ export function exportReport(
 
   // Generate filename with timestamp
   const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  const filename =
-    customFilename || `${reportType}-report-${timestamp}.csv`;
+  const filename = customFilename || `${reportType}-report-${timestamp}.csv`;
 
   // Convert to CSV and download
   const csv = convertToCSV(formattedData);

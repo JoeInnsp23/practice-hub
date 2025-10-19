@@ -99,7 +99,10 @@ class SimpleCache<T> {
  * TTL: 30 seconds (data can change frequently as users update fields)
  */
 export const questionnaireResponsesCache = new SimpleCache<
-  Record<string, { value: any; extractedFromAi: boolean; verifiedByUser: boolean }>
+  Record<
+    string,
+    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
+  >
 >();
 
 /**
@@ -107,6 +110,8 @@ export const questionnaireResponsesCache = new SimpleCache<
  *
  * Call this when questionnaire data is updated
  */
-export function invalidateQuestionnaireCache(onboardingSessionId: string): void {
+export function invalidateQuestionnaireCache(
+  onboardingSessionId: string,
+): void {
   questionnaireResponsesCache.delete(onboardingSessionId);
 }

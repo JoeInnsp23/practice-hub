@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { AlertCircle, ArrowLeft, FileText } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, FileText, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function SignProposalPage() {
   const params = useParams();
@@ -15,9 +21,10 @@ export default function SignProposalPage() {
 
   const [embedLoaded, setEmbedLoaded] = useState(false);
 
-  const { data: proposal, isLoading } = trpc.clientPortal.getProposalById.useQuery({
-    id: proposalId,
-  });
+  const { data: proposal, isLoading } =
+    trpc.clientPortal.getProposalById.useQuery({
+      id: proposalId,
+    });
 
   useEffect(() => {
     if (!proposal?.docusealSubmissionId) return;
@@ -44,9 +51,9 @@ export default function SignProposalPage() {
     const container = document.getElementById("docuseal-form");
     if (!container) return;
 
-    // @ts-ignore - DocuSeal global
+    // @ts-expect-error - DocuSeal global
     if (typeof window.DocusealForm !== "undefined") {
-      // @ts-ignore
+      // @ts-expect-error
       new window.DocusealForm({
         src: `https://docuseal.com/s/${proposal.docusealSubmissionId}`,
         onComplete: () => {
@@ -73,8 +80,13 @@ export default function SignProposalPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <FileText className="w-12 h-12 mx-auto mb-3 text-destructive opacity-50" />
-          <p className="text-destructive font-medium mb-2">Proposal not found</p>
-          <Button variant="outline" onClick={() => router.push("/portal/proposals")}>
+          <p className="text-destructive font-medium mb-2">
+            Proposal not found
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/portal/proposals")}
+          >
             Back to Proposals
           </Button>
         </div>
@@ -99,7 +111,8 @@ export default function SignProposalPage() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Already Signed</AlertTitle>
           <AlertDescription>
-            This proposal has already been signed. You can view the signed document from the proposal details page.
+            This proposal has already been signed. You can view the signed
+            document from the proposal details page.
           </AlertDescription>
         </Alert>
       </div>
@@ -123,7 +136,8 @@ export default function SignProposalPage() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Proposal Expired</AlertTitle>
           <AlertDescription>
-            This proposal has expired. Please contact us to request a new proposal.
+            This proposal has expired. Please contact us to request a new
+            proposal.
           </AlertDescription>
         </Alert>
       </div>
@@ -147,7 +161,8 @@ export default function SignProposalPage() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Signing Not Available</AlertTitle>
           <AlertDescription>
-            This proposal is not yet ready for signing. Please contact us for assistance.
+            This proposal is not yet ready for signing. Please contact us for
+            assistance.
           </AlertDescription>
         </Alert>
       </div>
@@ -172,7 +187,8 @@ export default function SignProposalPage() {
         <CardHeader>
           <CardTitle>Sign Proposal {proposal.proposalNumber}</CardTitle>
           <CardDescription>
-            Review and sign the proposal below. Your signature will be legally binding.
+            Review and sign the proposal below. Your signature will be legally
+            binding.
           </CardDescription>
         </CardHeader>
         <CardContent>

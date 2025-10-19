@@ -1,7 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import Cookies from "js-cookie";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface ClientAccess {
   clientId: string;
@@ -17,12 +23,16 @@ interface ClientPortalContextType {
   setClientAccess: (access: ClientAccess[]) => void;
 }
 
-const ClientPortalContext = createContext<ClientPortalContextType | undefined>(undefined);
+const ClientPortalContext = createContext<ClientPortalContextType | undefined>(
+  undefined,
+);
 
 const CURRENT_CLIENT_COOKIE = "client_portal_current_client";
 
 export function ClientPortalProvider({ children }: { children: ReactNode }) {
-  const [currentClientId, setCurrentClientIdState] = useState<string | null>(null);
+  const [currentClientId, setCurrentClientIdState] = useState<string | null>(
+    null,
+  );
   const [clientAccess, setClientAccess] = useState<ClientAccess[]>([]);
 
   // Load current client from cookie on mount
@@ -38,7 +48,7 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
     if (!currentClientId && clientAccess.length > 0) {
       setCurrentClientId(clientAccess[0].clientId);
     }
-  }, [currentClientId, clientAccess]);
+  }, [currentClientId, clientAccess, setCurrentClientId]);
 
   const setCurrentClientId = (clientId: string) => {
     setCurrentClientIdState(clientId);
@@ -62,7 +72,9 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
 export function useClientPortalContext() {
   const context = useContext(ClientPortalContext);
   if (context === undefined) {
-    throw new Error("useClientPortalContext must be used within ClientPortalProvider");
+    throw new Error(
+      "useClientPortalContext must be used within ClientPortalProvider",
+    );
   }
   return context;
 }

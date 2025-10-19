@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { format } from "date-fns";
-import { Users as UsersIcon, Shield, Clock } from "lucide-react";
+import { Users as UsersIcon } from "lucide-react";
+import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
+import { UserAccessDrawer } from "@/components/client-admin/user-access-drawer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,8 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { UserAccessDrawer } from "@/components/client-admin/user-access-drawer";
 
 type PortalUser = {
   id: string;
@@ -41,7 +47,11 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<PortalUser | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { data: users, isLoading, refetch } = trpc.clientPortalAdmin.listPortalUsers.useQuery();
+  const {
+    data: users,
+    isLoading,
+    refetch,
+  } = trpc.clientPortalAdmin.listPortalUsers.useQuery();
 
   const handleManageAccess = (user: PortalUser) => {
     setSelectedUser(user);
@@ -51,11 +61,32 @@ export default function UsersPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            Active
+          </Badge>
+        );
       case "suspended":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Suspended</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-700 border-red-200"
+          >
+            Suspended
+          </Badge>
+        );
       case "invited":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Invited</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
+            Invited
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -65,7 +96,9 @@ export default function UsersPage() {
     <div>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-card-foreground">Portal Users</h1>
+          <h1 className="text-3xl font-bold text-card-foreground">
+            Portal Users
+          </h1>
           <p className="text-muted-foreground mt-1">
             Manage external client portal user accounts and permissions
           </p>
@@ -120,7 +153,9 @@ export default function UsersPage() {
                               className="text-xs"
                             >
                               {access.clientName}
-                              <span className="ml-1 opacity-60">({access.role})</span>
+                              <span className="ml-1 opacity-60">
+                                ({access.role})
+                              </span>
                             </Badge>
                           ))}
                         </div>
@@ -130,14 +165,18 @@ export default function UsersPage() {
                         {user.lastLoginAt ? (
                           format(new Date(user.lastLoginAt), "MMM d, yyyy")
                         ) : (
-                          <span className="text-muted-foreground text-sm">Never</span>
+                          <span className="text-muted-foreground text-sm">
+                            Never
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
                         {user.acceptedAt ? (
                           format(new Date(user.acceptedAt), "MMM d, yyyy")
                         ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
+                          <span className="text-muted-foreground text-sm">
+                            -
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">

@@ -1,8 +1,13 @@
-import { db } from "@/lib/db";
-import { clients, clientPortalUsers, clientPortalAccess, clientPortalInvitations } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import { sendClientPortalInvitationEmail } from "@/lib/email/send-client-portal-invitation";
 import crypto from "node:crypto";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import {
+  clientPortalAccess,
+  clientPortalInvitations,
+  clientPortalUsers,
+  clients,
+} from "@/lib/db/schema";
+import { sendClientPortalInvitationEmail } from "@/lib/email/send-client-portal-invitation";
 
 /**
  * Multi-Client Portal Access Manager
@@ -32,7 +37,7 @@ export async function getOrCreatePortalUser(
   email: string,
   firstName: string,
   lastName: string,
-  tenantId: string
+  tenantId: string,
 ): Promise<PortalUserResult> {
   // Check if user already exists
   const existingUser = await db
@@ -83,7 +88,7 @@ export async function grantClientAccess(
   clientId: string,
   role: "viewer" | "editor" | "admin",
   grantedBy: string | null,
-  tenantId: string
+  tenantId: string,
 ): Promise<void> {
   // Check if access already exists
   const existingAccess = await db
@@ -92,8 +97,8 @@ export async function grantClientAccess(
     .where(
       and(
         eq(clientPortalAccess.portalUserId, portalUserId),
-        eq(clientPortalAccess.clientId, clientId)
-      )
+        eq(clientPortalAccess.clientId, clientId),
+      ),
     )
     .limit(1);
 
@@ -134,9 +139,9 @@ export async function grantClientAccess(
 export async function sendPortalInvitation(
   portalUserId: string,
   clientId: string,
-  isNewUser: boolean,
+  _isNewUser: boolean,
   invitedBy: { firstName: string; lastName: string },
-  customMessage?: string
+  customMessage?: string,
 ): Promise<void> {
   // Get portal user details
   const [portalUser] = await db
@@ -200,7 +205,7 @@ export async function sendPortalInvitation(
  */
 export async function hasClientAccess(
   portalUserId: string,
-  clientId: string
+  clientId: string,
 ): Promise<boolean> {
   const access = await db
     .select()
@@ -209,8 +214,8 @@ export async function hasClientAccess(
       and(
         eq(clientPortalAccess.portalUserId, portalUserId),
         eq(clientPortalAccess.clientId, clientId),
-        eq(clientPortalAccess.isActive, true)
-      )
+        eq(clientPortalAccess.isActive, true),
+      ),
     )
     .limit(1);
 
@@ -224,7 +229,7 @@ export async function hasClientAccess(
  * @returns Array of client IDs and roles
  */
 export async function getUserClientAccess(
-  portalUserId: string
+  portalUserId: string,
 ): Promise<Array<{ clientId: string; clientName: string; role: string }>> {
   const access = await db
     .select({
@@ -237,8 +242,8 @@ export async function getUserClientAccess(
     .where(
       and(
         eq(clientPortalAccess.portalUserId, portalUserId),
-        eq(clientPortalAccess.isActive, true)
-      )
+        eq(clientPortalAccess.isActive, true),
+      ),
     );
 
   return access;

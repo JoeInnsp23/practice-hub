@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import crypto from "node:crypto";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "./route";
-import crypto from "crypto";
 
 /**
  * LEM Verify Webhook Handler Tests
@@ -50,7 +50,10 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
     // Generate valid signature if not provided
     const actualSignature =
       signature ||
-      crypto.createHmac("sha256", webhookSecret).update(bodyString).digest("hex");
+      crypto
+        .createHmac("sha256", webhookSecret)
+        .update(bodyString)
+        .digest("hex");
 
     return new Request("http://localhost:3000/api/webhooks/lemverify", {
       method: "POST",
@@ -64,13 +67,16 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
 
   describe("Signature Verification", () => {
     it("should reject requests without signature", async () => {
-      const request = new Request("http://localhost:3000/api/webhooks/lemverify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const request = new Request(
+        "http://localhost:3000/api/webhooks/lemverify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(validWebhookEvent),
         },
-        body: JSON.stringify(validWebhookEvent),
-      });
+      );
 
       const response = await POST(request);
 
@@ -80,7 +86,10 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
     });
 
     it("should reject requests with invalid signature", async () => {
-      const request = createWebhookRequest(validWebhookEvent, "invalid-signature-12345");
+      const request = createWebhookRequest(
+        validWebhookEvent,
+        "invalid-signature-12345",
+      );
 
       const response = await POST(request);
 
@@ -114,17 +123,20 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
 
   describe("Payload Validation", () => {
     it("should reject invalid JSON", async () => {
-      const request = new Request("http://localhost:3000/api/webhooks/lemverify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-lemverify-signature": crypto
-            .createHmac("sha256", webhookSecret)
-            .update("invalid json {")
-            .digest("hex"),
+      const request = new Request(
+        "http://localhost:3000/api/webhooks/lemverify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-lemverify-signature": crypto
+              .createHmac("sha256", webhookSecret)
+              .update("invalid json {")
+              .digest("hex"),
+          },
+          body: "invalid json {",
         },
-        body: "invalid json {",
-      });
+      );
 
       const response = await POST(request);
 
@@ -166,7 +178,10 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
 
   describe("HTTP Status Codes", () => {
     it("should return 401 for invalid signature (security - don't retry)", async () => {
-      const request = createWebhookRequest(validWebhookEvent, "wrong-signature");
+      const request = createWebhookRequest(
+        validWebhookEvent,
+        "wrong-signature",
+      );
 
       const response = await POST(request);
 
@@ -174,17 +189,20 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
     });
 
     it("should return 400 for invalid JSON (bad data - don't retry)", async () => {
-      const request = new Request("http://localhost:3000/api/webhooks/lemverify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-lemverify-signature": crypto
-            .createHmac("sha256", webhookSecret)
-            .update("{bad json")
-            .digest("hex"),
+      const request = new Request(
+        "http://localhost:3000/api/webhooks/lemverify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-lemverify-signature": crypto
+              .createHmac("sha256", webhookSecret)
+              .update("{bad json")
+              .digest("hex"),
+          },
+          body: "{bad json",
         },
-        body: "{bad json",
-      });
+      );
 
       const response = await POST(request);
 
@@ -261,7 +279,10 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
   describe("Security & Error Handling", () => {
     it("should handle HMAC signature correctly", () => {
       const body = JSON.stringify(validWebhookEvent);
-      const signature = crypto.createHmac("sha256", webhookSecret).update(body).digest("hex");
+      const signature = crypto
+        .createHmac("sha256", webhookSecret)
+        .update(body)
+        .digest("hex");
 
       // Verify our signature generation matches expected format
       expect(signature).toHaveLength(64); // SHA256 hex is 64 characters
@@ -276,7 +297,10 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
         .digest("hex");
       const uppercaseSignature = correctSignature.toUpperCase();
 
-      const request = createWebhookRequest(validWebhookEvent, uppercaseSignature);
+      const request = createWebhookRequest(
+        validWebhookEvent,
+        uppercaseSignature,
+      );
       const response = await POST(request);
 
       // Should reject uppercase signature (case-sensitive comparison)
@@ -284,7 +308,10 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
     });
 
     it("should not leak information in error messages", async () => {
-      const request = createWebhookRequest(validWebhookEvent, "wrong-signature");
+      const request = createWebhookRequest(
+        validWebhookEvent,
+        "wrong-signature",
+      );
 
       const response = await POST(request);
 

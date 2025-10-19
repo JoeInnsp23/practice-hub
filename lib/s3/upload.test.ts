@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, expect, it } from "vitest";
 import { extractS3Key } from "@/lib/s3/upload";
 
 // Note: We're testing only the pure function (extractS3Key) here

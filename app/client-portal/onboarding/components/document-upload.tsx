@@ -1,10 +1,17 @@
 "use client";
 
+import {
+  AlertCircle,
+  CheckCircle2,
+  FileText,
+  Sparkles,
+  Upload,
+  X,
+} from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, FileText, Sparkles, CheckCircle2, AlertCircle, X } from "lucide-react";
-import toast from "react-hot-toast";
 
 interface OnboardingDocumentUploadProps {
   sessionId: string;
@@ -56,7 +63,13 @@ export function OnboardingDocumentUpload({
 
   const addFiles = (newFiles: File[]) => {
     // Validate file types
-    const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/heic"];
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/heic",
+    ];
     const validFiles = newFiles.filter((file) => {
       if (!allowedTypes.includes(file.type)) {
         toast.error(`${file.name} is not a supported file type`);
@@ -120,7 +133,7 @@ export function OnboardingDocumentUpload({
             Uploaded {result.uploadedFiles.length} documents and extracted{" "}
             {Object.keys(result.extractedData).length} fields!
           </span>
-        </div>
+        </div>,
       );
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -172,7 +185,8 @@ export function OnboardingDocumentUpload({
             <div className="text-xs text-muted-foreground space-y-1">
               <p>Accepted: PDF, JPG, PNG, HEIC (max 10MB each)</p>
               <p className="font-medium">
-                Upload: Passport, Driving License, Proof of Address, Company Docs
+                Upload: Passport, Driving License, Proof of Address, Company
+                Docs
               </p>
             </div>
           </div>
@@ -250,13 +264,18 @@ export function OnboardingDocumentUpload({
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <FileText className="h-4 w-4 text-green-600 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{file.filename}</p>
+                    <p className="text-sm font-medium truncate">
+                      {file.filename}
+                    </p>
                     <div className="flex items-center gap-2 mt-1">
                       {file.documentType !== "unknown" && (
                         <span className="text-xs text-muted-foreground">
-                          {file.documentType === "individual_id" && "ID Document"}
-                          {file.documentType === "company_certificate" && "Company Doc"}
-                          {file.documentType === "address_proof" && "Proof of Address"}
+                          {file.documentType === "individual_id" &&
+                            "ID Document"}
+                          {file.documentType === "company_certificate" &&
+                            "Company Doc"}
+                          {file.documentType === "address_proof" &&
+                            "Proof of Address"}
                         </span>
                       )}
                       {file.confidence === "high" && (
@@ -266,7 +285,9 @@ export function OnboardingDocumentUpload({
                         </span>
                       )}
                       {file.confidence === "medium" && (
-                        <span className="text-xs text-yellow-600">Medium Confidence</span>
+                        <span className="text-xs text-yellow-600">
+                          Medium Confidence
+                        </span>
                       )}
                       {file.confidence === "low" && (
                         <span className="flex items-center gap-1 text-xs text-red-600">
@@ -288,7 +309,8 @@ export function OnboardingDocumentUpload({
               <Sparkles className="h-4 w-4 flex-shrink-0 mt-0.5" />
               <p>
                 We've automatically extracted information from your documents.
-                Please review and verify the pre-filled fields in the next steps.
+                Please review and verify the pre-filled fields in the next
+                steps.
               </p>
             </div>
           </div>

@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -6,6 +5,31 @@ import { activityLogs } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 export const activitiesRouter = router({
+  /**
+   * Get recent activities across all entities (for activity feed widget)
+   */
+  getRecent: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).optional().default(20),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const activities = await db
+        .select()
+        .from(activityLogs)
+        .where(eq(activityLogs.tenantId, tenantId))
+        .orderBy(desc(activityLogs.createdAt))
+        .limit(input.limit);
+
+      return {
+        activities,
+        total: activities.length,
+      };
+    }),
+
   /**
    * List all activities for a specific entity (lead, proposal, client, etc.)
    */

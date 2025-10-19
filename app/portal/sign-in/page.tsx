@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { User } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { clientPortalSignIn } from "@/lib/client-portal-auth-client";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "react-hot-toast";
-import { User } from "lucide-react";
+import { clientPortalSignIn } from "@/lib/client-portal-auth-client";
 
 export default function ClientPortalSignInPage() {
   const router = useRouter();
@@ -89,11 +95,7 @@ export default function ClientPortalSignInPage() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
 
@@ -102,7 +104,11 @@ export default function ClientPortalSignInPage() {
                   type="button"
                   variant="link"
                   className="text-sm"
-                  onClick={() => toast("Please contact your account manager to reset your password")}
+                  onClick={() =>
+                    toast(
+                      "Please contact your account manager to reset your password",
+                    )
+                  }
                 >
                   Forgot password?
                 </Button>

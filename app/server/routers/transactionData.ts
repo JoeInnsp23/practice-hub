@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -449,39 +449,45 @@ export const transactionDataRouter = router({
   getAllWithData: protectedProcedure.query(async ({ ctx }) => {
     const { tenantId } = ctx.authContext;
 
-    // Get all clients
-    const clientsList = await db
+    // FIXED: Single query with lateral join instead of N+1 pattern
+    // Was: 50 clients = 51 queries (1 + 50)
+    // Now: 50 clients = 1 query (98% reduction)
+    const clientsWithData = await db
       .select({
         id: clients.id,
         name: clients.name,
         clientCode: clients.clientCode,
         type: clients.type,
         status: clients.status,
+        transactionData: sql<any>`(
+          SELECT json_build_object(
+            'id', ctd.id,
+            'clientId', ctd.client_id,
+            'tenantId', ctd.tenant_id,
+            'source', ctd.source,
+            'monthlyTransactions', ctd.monthly_transactions,
+            'bankAccounts', ctd.bank_accounts,
+            'invoicesPerYear', ctd.invoices_per_year,
+            'transactionTypes', ctd.transaction_types,
+            'averageTransactionValue', ctd.average_transaction_value,
+            'seasonalVariation', ctd.seasonal_variation,
+            'reconciliationComplexity', ctd.reconciliation_complexity,
+            'integrationMethod', ctd.integration_method,
+            'externalId', ctd.external_id,
+            'externalMetadata', ctd.external_metadata,
+            'lastUpdated', ctd.last_updated,
+            'createdAt', ctd.created_at
+          )
+          FROM client_transaction_data ctd
+          WHERE ctd.client_id = ${clients.id}
+            AND ctd.tenant_id = ${clients.tenantId}
+          ORDER BY ctd.last_updated DESC
+          LIMIT 1
+        )`.as("transaction_data"),
       })
       .from(clients)
-      .where(eq(clients.tenantId, tenantId));
-
-    // Get latest transaction data for each client
-    const clientsWithData = await Promise.all(
-      clientsList.map(async (client) => {
-        const [latestData] = await db
-          .select()
-          .from(clientTransactionData)
-          .where(
-            and(
-              eq(clientTransactionData.clientId, client.id),
-              eq(clientTransactionData.tenantId, tenantId),
-            ),
-          )
-          .orderBy(desc(clientTransactionData.lastUpdated))
-          .limit(1);
-
-        return {
-          ...client,
-          transactionData: latestData || null,
-        };
-      }),
-    );
+      .where(eq(clients.tenantId, tenantId))
+      .orderBy(clients.name);
 
     return { clients: clientsWithData };
   }),

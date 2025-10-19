@@ -7,7 +7,11 @@ const publicPaths = ["/", "/sign-in", "/sign-up", "/accept-invitation"];
 const authApiPath = "/api/auth";
 
 // Public paths for client portal authentication
-const clientPortalPublicPaths = ["/portal/sign-in", "/portal/sign-up", "/portal/accept"];
+const clientPortalPublicPaths = [
+  "/portal/sign-in",
+  "/portal/sign-up",
+  "/portal/accept",
+];
 const clientPortalApiPath = "/api/client-portal-auth";
 
 export default async function middleware(request: NextRequest) {
@@ -39,7 +43,10 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Allow auth API routes (both staff and client portal)
-  if (pathname.startsWith(authApiPath) || pathname.startsWith(clientPortalApiPath)) {
+  if (
+    pathname.startsWith(authApiPath) ||
+    pathname.startsWith(clientPortalApiPath)
+  ) {
     return NextResponse.next();
   }
 

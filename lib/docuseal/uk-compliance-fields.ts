@@ -103,12 +103,10 @@ export const UKComplianceFields: TemplateField[] = [
 /**
  * Get field configuration for a specific proposal
  */
-export function getProposalSignatureFields(
-  proposalData: {
-    companyName?: string;
-    clientName?: string;
-  },
-): TemplateField[] {
+export function getProposalSignatureFields(proposalData: {
+  companyName?: string;
+  clientName?: string;
+}): TemplateField[] {
   return UKComplianceFields.map((field) => {
     // Pre-fill company name if available
     if (

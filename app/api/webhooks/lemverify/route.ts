@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
-import crypto from "crypto";
+import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { kycVerifications, onboardingSessions, clients, activityLogs } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import {
+  activityLogs,
+  clients,
+  kycVerifications,
+  onboardingSessions,
+} from "@/lib/db/schema";
 
 export const runtime = "nodejs";
 
@@ -82,9 +86,9 @@ interface LemVerifyWebhookEvent {
   updatedAt: string;
 }
 
-async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promise<void> {
-  console.log("Processing completed verification:", event.id);
-
+async function handleVerificationCompleted(
+  event: LemVerifyWebhookEvent,
+): Promise<void> {
   // Find the KYC verification record
   const [verification] = await db
     .select()
@@ -94,11 +98,11 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
 
   if (!verification) {
     console.warn("KYC verification not found for LEM Verify ID:", event.id);
-    console.warn("This may be a test webhook or a verification from another tenant");
+    console.warn(
+      "This may be a test webhook or a verification from another tenant",
+    );
     return; // Not an error - may be test webhook
   }
-
-  console.log("Found KYC verification:", verification.id);
 
   // Update verification record with results
   await db
@@ -127,12 +131,8 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
     })
     .where(eq(kycVerifications.id, verification.id));
 
-  console.log("Updated KYC verification record");
-
   // Auto-approve or reject based on outcome
   if (event.outcome === "pass" && event.amlScreening?.status === "clear") {
-    console.log("Auto-approving client (all checks passed)");
-
     // Update onboarding session to approved
     if (verification.onboardingSessionId) {
       await db
@@ -144,8 +144,6 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
           updatedAt: new Date(),
         })
         .where(eq(onboardingSessions.id, verification.onboardingSessionId));
-
-      console.log("Updated onboarding session to approved");
     }
 
     // Update client status to active
@@ -156,8 +154,6 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
         updatedAt: new Date(),
       })
       .where(eq(clients.id, verification.clientId));
-
-    console.log("Updated client status to active");
 
     // Update verification with approval
     await db
@@ -185,8 +181,6 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
       },
     });
   } else {
-    console.log("Flagging for manual review (checks failed or alerts found)");
-
     // Update onboarding session to pending manual approval
     if (verification.onboardingSessionId) {
       await db
@@ -205,7 +199,8 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
       entityType: "client",
       entityId: verification.clientId,
       action: "kyc_verification_requires_review",
-      description: "KYC verification requires manual review - alerts or failures detected",
+      description:
+        "KYC verification requires manual review - alerts or failures detected",
       userId: null,
       userName: "System",
       metadata: {
@@ -218,13 +213,9 @@ async function handleVerificationCompleted(event: LemVerifyWebhookEvent): Promis
       },
     });
   }
-
-  console.log("Verification processing complete");
 }
 
 async function handleAMLAlert(event: LemVerifyWebhookEvent) {
-  console.log("Processing AML alert for verification:", event.id);
-
   // Find the KYC verification record
   const [verification] = await db
     .select()
@@ -253,8 +244,6 @@ async function handleAMLAlert(event: LemVerifyWebhookEvent) {
       severity: "critical",
     },
   });
-
-  console.log("AML alert logged - requires immediate attention");
 }
 
 export async function POST(request: Request) {
@@ -263,7 +252,6 @@ export async function POST(request: Request) {
 
   try {
     body = await request.text();
-    console.log("LEM Verify webhook received");
 
     // Verify webhook signature for security
     const signature = request.headers.get("x-lemverify-signature");
@@ -292,12 +280,7 @@ export async function POST(request: Request) {
     // Parse webhook event
     try {
       event = JSON.parse(body);
-      console.log("LEM Verify event:", {
-        id: event.id,
-        status: event.status,
-        outcome: event.outcome,
-        amlAlert: event.amlAlert,
-      });
+      // Event successfully parsed
     } catch (parseError) {
       console.error("Failed to parse webhook body:", parseError);
       // 400 Bad Request: Invalid JSON (don't retry)
@@ -311,10 +294,13 @@ export async function POST(request: Request) {
     if (!event.id || !event.status) {
       console.error("Missing required fields in webhook event");
       // 400 Bad Request: Missing required fields (don't retry)
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Missing required fields" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Handle different event types
@@ -324,7 +310,6 @@ export async function POST(request: Request) {
       } else if (event.amlAlert) {
         await handleAMLAlert(event);
       } else {
-        console.log("Webhook event received but no action needed:", event.status);
       }
 
       // 200 OK: Successfully processed
@@ -336,19 +321,26 @@ export async function POST(request: Request) {
       console.error("Database error processing webhook:", dbError);
 
       // Check if it's a critical database error (connection, etc.) vs constraint violation
-      const isCriticalError = dbError.code === "ECONNREFUSED" ||
-                              dbError.code === "ETIMEDOUT" ||
-                              dbError.message?.includes("Connection");
+      const isCriticalError =
+        dbError.code === "ECONNREFUSED" ||
+        dbError.code === "ETIMEDOUT" ||
+        dbError.message?.includes("Connection");
 
       if (isCriticalError) {
         // 500 Internal Server Error: Database connection issue (should retry)
-        return new Response(JSON.stringify({ error: "Database connection error", retry: true }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Database connection error", retry: true }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       } else {
         // 200 OK but log the error: Data issue, not connection (don't retry)
-        console.warn("Non-critical database error - webhook processed but not saved:", dbError);
+        console.warn(
+          "Non-critical database error - webhook processed but not saved:",
+          dbError,
+        );
 
         // Log to activity logs if possible
         try {
@@ -372,19 +364,28 @@ export async function POST(request: Request) {
           console.error("Failed to log webhook error:", logError);
         }
 
-        return new Response(JSON.stringify({ success: true, warning: "Partial processing failure" }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            warning: "Partial processing failure",
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       }
     }
   } catch (error: any) {
     console.error("Unexpected webhook error:", error);
 
     // 500 Internal Server Error: Unexpected error (should retry)
-    return new Response(JSON.stringify({ error: "Internal server error", retry: true }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "Internal server error", retry: true }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 }

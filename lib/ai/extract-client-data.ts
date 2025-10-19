@@ -18,7 +18,9 @@ if (!GOOGLE_AI_API_KEY) {
   console.warn("GOOGLE_AI_API_KEY not configured - AI extraction will fail");
 }
 
-const genAI = GOOGLE_AI_API_KEY ? new GoogleGenerativeAI(GOOGLE_AI_API_KEY) : null;
+const genAI = GOOGLE_AI_API_KEY
+  ? new GoogleGenerativeAI(GOOGLE_AI_API_KEY)
+  : null;
 
 /**
  * Extracted individual data from ID documents (UK-specific)
@@ -90,7 +92,11 @@ export interface ExtractedAddressData {
  * Combined extraction result (UK-specific document types)
  */
 export interface DocumentExtractionResult {
-  documentType: "individual_id" | "company_certificate" | "address_proof" | "unknown";
+  documentType:
+    | "individual_id"
+    | "company_certificate"
+    | "address_proof"
+    | "unknown";
   confidence: "high" | "medium" | "low";
   individualData?: ExtractedIndividualData;
   companyData?: ExtractedCompanyData;
@@ -105,7 +111,7 @@ export interface DocumentExtractionResult {
 export async function extractClientDataFromDocument(
   fileBuffer: Buffer,
   mimeType: string,
-  filename: string
+  filename: string,
 ): Promise<DocumentExtractionResult> {
   if (!genAI) {
     throw new Error("Google AI API key not configured");
@@ -217,7 +223,7 @@ IMPORTANT: UK has NO national ID cards - only passport and driving license are v
  * Maps extracted document data to questionnaire response format
  */
 export function mapExtractedDataToQuestionnaire(
-  extraction: DocumentExtractionResult
+  extraction: DocumentExtractionResult,
 ): Record<string, any> {
   const responses: Record<string, any> = {};
 
@@ -249,19 +255,22 @@ export function mapExtractedDataToQuestionnaire(
       responses.company_number = extraction.companyData.registrationNumber;
     }
     if (extraction.companyData.incorporationDate) {
-      responses.company_incorporation_date = extraction.companyData.incorporationDate;
+      responses.company_incorporation_date =
+        extraction.companyData.incorporationDate;
     }
     if (extraction.companyData.companyType) {
       responses.company_type = extraction.companyData.companyType;
     }
     if (extraction.companyData.registeredAddress) {
-      responses.company_registered_address = extraction.companyData.registeredAddress;
+      responses.company_registered_address =
+        extraction.companyData.registeredAddress;
     }
     if (extraction.companyData.directors) {
       responses.company_directors = extraction.companyData.directors;
     }
     if (extraction.companyData.personsWithSignificantControl) {
-      responses.psc_register = extraction.companyData.personsWithSignificantControl;
+      responses.psc_register =
+        extraction.companyData.personsWithSignificantControl;
     }
     if (extraction.companyData.natureOfBusiness) {
       responses.nature_of_business = extraction.companyData.natureOfBusiness;
@@ -291,7 +300,7 @@ export async function extractFromMultipleDocuments(
     buffer: Buffer;
     mimeType: string;
     filename: string;
-  }>
+  }>,
 ): Promise<{
   extractions: DocumentExtractionResult[];
   mergedData: Record<string, any>;
@@ -302,8 +311,8 @@ export async function extractFromMultipleDocuments(
   // Extract from each document
   const extractions = await Promise.all(
     documents.map((doc) =>
-      extractClientDataFromDocument(doc.buffer, doc.mimeType, doc.filename)
-    )
+      extractClientDataFromDocument(doc.buffer, doc.mimeType, doc.filename),
+    ),
   );
 
   // Merge all extracted data (later documents override earlier ones for conflicts)
@@ -319,7 +328,10 @@ export async function extractFromMultipleDocuments(
   const hasMedium = confidenceLevels.includes("medium");
   const overallConfidence = hasLow ? "low" : hasMedium ? "medium" : "high";
 
-  console.log("Batch extraction complete. Overall confidence:", overallConfidence);
+  console.log(
+    "Batch extraction complete. Overall confidence:",
+    overallConfidence,
+  );
 
   return {
     extractions,

@@ -62,8 +62,7 @@ export default function ReportsPage() {
 
     const reportData = leadStats.bySource.map((item) => {
       const total = item.count;
-      // TODO: Analytics endpoint doesn't provide conversion data yet
-      const converted = 0; // item.convertedToProposal doesn't exist
+      const converted = item.convertedToProposal || 0;
       const conversionRate = total > 0 ? (converted / total) * 100 : 0;
 
       return {
@@ -79,7 +78,10 @@ export default function ReportsPage() {
   };
 
   const handleExportPipeline = () => {
-    if (!pipelineMetrics?.leadsByStage || pipelineMetrics.leadsByStage.length === 0) {
+    if (
+      !pipelineMetrics?.leadsByStage ||
+      pipelineMetrics.leadsByStage.length === 0
+    ) {
       toast.error("No data to export");
       return;
     }
@@ -88,7 +90,8 @@ export default function ReportsPage() {
       stage: item.stage,
       count: item.count,
       totalValue: item.totalValue || 0,
-      avgDealSize: item.totalValue && item.count ? item.totalValue / item.count : 0,
+      avgDealSize:
+        item.totalValue && item.count ? item.totalValue / item.count : 0,
     }));
 
     exportReport("pipeline", reportData);
@@ -241,7 +244,9 @@ export default function ReportsPage() {
             ) : !leadStats?.bySource || leadStats.bySource.length === 0 ? (
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
-                  <p className="text-muted-foreground">No lead data available</p>
+                  <p className="text-muted-foreground">
+                    No lead data available
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Create leads to generate this report
                   </p>
@@ -265,8 +270,7 @@ export default function ReportsPage() {
                   <TableBody>
                     {leadStats.bySource.map((source) => {
                       const total = source.count;
-                      // TODO: Analytics endpoint doesn't provide conversion data yet
-                      const converted = 0; // source.convertedToProposal doesn't exist
+                      const converted = source.convertedToProposal || 0;
                       const conversionRate =
                         total > 0 ? (converted / total) * 100 : 0;
 

@@ -1,16 +1,14 @@
 import crypto from "node:crypto";
 import { TRPCError } from "@trpc/server";
-import bcrypt from "bcryptjs";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  clients,
-  clientPortalUsers,
+  activityLogs,
   clientPortalAccess,
   clientPortalInvitations,
-  clientPortalAccounts,
-  activityLogs,
+  clientPortalUsers,
+  clients,
 } from "@/lib/db/schema";
 import { sendClientPortalInvitationEmail } from "@/lib/email/send-client-portal-invitation";
 import { adminProcedure, router } from "../trpc";
@@ -318,7 +316,10 @@ export const clientPortalAdminRouter = router({
   listPortalUsers: adminProcedure.query(async ({ ctx }) => {
     const { tenantId } = ctx.authContext;
 
-    const users = await db
+    // FIXED: Single query with aggregation instead of N+1 pattern
+    // Was: 100 users = 101 queries (1 + 100)
+    // Now: 100 users = 1 query (99% reduction)
+    const usersWithAccess = await db
       .select({
         id: clientPortalUsers.id,
         email: clientPortalUsers.email,
@@ -330,35 +331,34 @@ export const clientPortalAdminRouter = router({
         invitedAt: clientPortalUsers.invitedAt,
         acceptedAt: clientPortalUsers.acceptedAt,
         createdAt: clientPortalUsers.createdAt,
+        // Aggregate all client access into JSON array
+        clientAccess: sql<any>`
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', ${clientPortalAccess.id},
+                'clientId', ${clientPortalAccess.clientId},
+                'clientName', ${clients.name},
+                'role', ${clientPortalAccess.role},
+                'isActive', ${clientPortalAccess.isActive},
+                'expiresAt', ${clientPortalAccess.expiresAt},
+                'grantedAt', ${clientPortalAccess.grantedAt},
+                'grantedBy', ${clientPortalAccess.grantedBy}
+              ) ORDER BY ${clients.name}
+            ) FILTER (WHERE ${clientPortalAccess.id} IS NOT NULL),
+            '[]'::json
+          )
+        `.as("client_access"),
       })
       .from(clientPortalUsers)
+      .leftJoin(
+        clientPortalAccess,
+        eq(clientPortalAccess.portalUserId, clientPortalUsers.id),
+      )
+      .leftJoin(clients, eq(clientPortalAccess.clientId, clients.id))
       .where(eq(clientPortalUsers.tenantId, tenantId))
+      .groupBy(clientPortalUsers.id)
       .orderBy(sql`${clientPortalUsers.createdAt} DESC`);
-
-    // Get client access for each user
-    const usersWithAccess = await Promise.all(
-      users.map(async (user) => {
-        const access = await db
-          .select({
-            id: clientPortalAccess.id,
-            clientId: clientPortalAccess.clientId,
-            clientName: clients.name,
-            role: clientPortalAccess.role,
-            isActive: clientPortalAccess.isActive,
-            expiresAt: clientPortalAccess.expiresAt,
-            grantedAt: clientPortalAccess.grantedAt,
-            grantedBy: clientPortalAccess.grantedBy,
-          })
-          .from(clientPortalAccess)
-          .innerJoin(clients, eq(clientPortalAccess.clientId, clients.id))
-          .where(eq(clientPortalAccess.portalUserId, user.id));
-
-        return {
-          ...user,
-          clientAccess: access,
-        };
-      }),
-    );
 
     return usersWithAccess;
   }),

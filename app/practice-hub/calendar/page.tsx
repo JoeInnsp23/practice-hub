@@ -7,13 +7,11 @@ import {
   Clock,
   MapPin,
   Plus,
-  Users,
-  Video,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -40,9 +38,9 @@ import { cn } from "@/lib/utils";
 type EventType = "meeting" | "deadline" | "event" | "out_of_office";
 
 export default function CalendarPage() {
-  const utils = trpc.useUtils();
+  const _utils = trpc.useUtils();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
+  const [_viewMode, _setViewMode] = useState<"month" | "week" | "day">("month");
   const [isNewEventOpen, setIsNewEventOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
@@ -50,12 +48,12 @@ export default function CalendarPage() {
   const startOfMonth = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),
-    1
+    1,
   );
   const endOfMonth = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth() + 1,
-    0
+    0,
   );
 
   // Fetch events for current month
@@ -66,7 +64,7 @@ export default function CalendarPage() {
     },
     {
       refetchInterval: 30000, // Poll every 30 seconds
-    }
+    },
   );
 
   const events = eventsData || [];
@@ -84,13 +82,13 @@ export default function CalendarPage() {
   // Navigate month
   const previousMonth = () => {
     setSelectedDate(
-      new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1)
+      new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1),
     );
   };
 
   const nextMonth = () => {
     setSelectedDate(
-      new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1)
+      new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1),
     );
   };
 
@@ -209,10 +207,7 @@ export default function CalendarPage() {
       </div>
 
       {/* New Event Dialog */}
-      <NewEventDialog
-        open={isNewEventOpen}
-        onOpenChange={setIsNewEventOpen}
-      />
+      <NewEventDialog open={isNewEventOpen} onOpenChange={setIsNewEventOpen} />
 
       {/* Event Details Dialog */}
       {selectedEvent && (
@@ -245,11 +240,13 @@ function EventCard({ event, onClick }: { event: any; onClick: () => void }) {
         <div
           className={cn(
             "h-2 w-2 rounded-full mt-1.5 flex-shrink-0",
-            typeColors[eventData.type as EventType]
+            typeColors[eventData.type as EventType],
           )}
         />
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-sm mb-1 truncate">{eventData.title}</h4>
+          <h4 className="font-medium text-sm mb-1 truncate">
+            {eventData.title}
+          </h4>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>

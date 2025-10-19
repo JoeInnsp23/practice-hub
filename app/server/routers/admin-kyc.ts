@@ -6,15 +6,15 @@
  */
 
 import { TRPCError } from "@trpc/server";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
+  activityLogs,
+  clients,
   kycVerifications,
   onboardingSessions,
-  clients,
   users,
-  activityLogs
 } from "@/lib/db/schema";
 import { adminProcedure, router } from "../trpc";
 
@@ -28,7 +28,7 @@ export const adminKycRouter = router({
         status: z.enum(["pending", "completed"]).optional(),
         limit: z.number().min(1).max(100).default(50),
         offset: z.number().min(0).default(0),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const whereConditions = [
@@ -83,7 +83,7 @@ export const adminKycRouter = router({
         .innerJoin(clients, eq(kycVerifications.clientId, clients.id))
         .leftJoin(
           onboardingSessions,
-          eq(kycVerifications.onboardingSessionId, onboardingSessions.id)
+          eq(kycVerifications.onboardingSessionId, onboardingSessions.id),
         )
         .leftJoin(users, eq(kycVerifications.approvedBy, users.id))
         .where(and(...whereConditions))
@@ -175,14 +175,14 @@ export const adminKycRouter = router({
         .innerJoin(clients, eq(kycVerifications.clientId, clients.id))
         .leftJoin(
           onboardingSessions,
-          eq(kycVerifications.onboardingSessionId, onboardingSessions.id)
+          eq(kycVerifications.onboardingSessionId, onboardingSessions.id),
         )
         .leftJoin(users, eq(kycVerifications.approvedBy, users.id))
         .where(
           and(
             eq(kycVerifications.id, input.verificationId),
-            eq(kycVerifications.tenantId, ctx.authContext.tenantId)
-          )
+            eq(kycVerifications.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -204,7 +204,7 @@ export const adminKycRouter = router({
       z.object({
         verificationId: z.string(),
         notes: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Get verification
@@ -214,8 +214,8 @@ export const adminKycRouter = router({
         .where(
           and(
             eq(kycVerifications.id, input.verificationId),
-            eq(kycVerifications.tenantId, ctx.authContext.tenantId)
-          )
+            eq(kycVerifications.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -284,8 +284,10 @@ export const adminKycRouter = router({
     .input(
       z.object({
         verificationId: z.string(),
-        reason: z.string().min(10, "Rejection reason must be at least 10 characters"),
-      })
+        reason: z
+          .string()
+          .min(10, "Rejection reason must be at least 10 characters"),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Get verification
@@ -295,8 +297,8 @@ export const adminKycRouter = router({
         .where(
           and(
             eq(kycVerifications.id, input.verificationId),
-            eq(kycVerifications.tenantId, ctx.authContext.tenantId)
-          )
+            eq(kycVerifications.tenantId, ctx.authContext.tenantId),
+          ),
         )
         .limit(1);
 
@@ -366,16 +368,18 @@ export const adminKycRouter = router({
     return {
       total: allVerifications.length,
       pending: allVerifications.filter((v) => v.status === "pending").length,
-      completed: allVerifications.filter((v) => v.status === "completed").length,
+      completed: allVerifications.filter((v) => v.status === "completed")
+        .length,
       autoApproved: allVerifications.filter(
-        (v) => v.approvedBy === null && v.outcome === "pass"
+        (v) => v.approvedBy === null && v.outcome === "pass",
       ).length,
       manuallyApproved: allVerifications.filter(
-        (v) => v.approvedBy !== null && v.outcome === "pass"
+        (v) => v.approvedBy !== null && v.outcome === "pass",
       ).length,
       rejected: allVerifications.filter((v) => v.outcome === "fail").length,
       pepMatches: allVerifications.filter((v) => v.pepMatch === true).length,
-      sanctionMatches: allVerifications.filter((v) => v.sanctionsMatch === true).length,
+      sanctionMatches: allVerifications.filter((v) => v.sanctionsMatch === true)
+        .length,
     };
   }),
 });

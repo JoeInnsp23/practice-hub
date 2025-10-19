@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
 import { getFromS3 } from "@/lib/storage/s3";
@@ -11,7 +11,7 @@ export const runtime = "nodejs";
  * GET /api/documents/share/[token]
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { token: string } },
 ) {
   try {
@@ -62,8 +62,7 @@ export async function GET(
 
     // Determine content disposition
     const contentDisposition =
-      doc.mimeType?.startsWith("image/") ||
-      doc.mimeType === "application/pdf"
+      doc.mimeType?.startsWith("image/") || doc.mimeType === "application/pdf"
         ? `inline; filename="${doc.name}"`
         : `attachment; filename="${doc.name}"`;
 

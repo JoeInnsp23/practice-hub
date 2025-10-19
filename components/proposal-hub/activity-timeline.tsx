@@ -6,9 +6,7 @@ import {
   ArrowRight,
   Calendar as CalendarIcon,
   CheckCircle2,
-  Clock,
   Edit,
-  FileText,
   Mail,
   MessageSquare,
   Phone,
@@ -190,15 +188,18 @@ export function ActivityTimeline({
     if (activityDate && activityTime) {
       const [hours, minutes] = activityTime.split(":");
       const dateTime = new Date(activityDate);
-      dateTime.setHours(Number.parseInt(hours), Number.parseInt(minutes));
+      dateTime.setHours(
+        Number.parseInt(hours, 10),
+        Number.parseInt(minutes, 10),
+      );
       metadata.activityDateTime = dateTime.toISOString();
     }
 
-    if (duration && duration.trim()) {
+    if (duration?.trim()) {
       metadata.duration = duration;
     }
 
-    if (outcome && outcome.trim()) {
+    if (outcome?.trim()) {
       metadata.outcome = outcome;
     }
 

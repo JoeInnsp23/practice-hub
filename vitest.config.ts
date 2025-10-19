@@ -1,5 +1,5 @@
+import path from "node:path";
 import { defineConfig } from "vitest/config";
-import path from "path";
 
 export default defineConfig({
   test: {
@@ -18,11 +18,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: [
-        "lib/**/*.ts",
-        "app/api/**/*.ts",
-        "app/server/routers/**/*.ts",
-      ],
+      include: ["lib/**/*.ts", "app/api/**/*.ts", "app/server/routers/**/*.ts"],
       exclude: [
         "**/*.test.ts",
         "**/*.spec.ts",

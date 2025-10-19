@@ -1,9 +1,14 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface OnboardingBusinessFormProps {
   formData: Record<string, any>;
@@ -28,7 +33,9 @@ export function OnboardingBusinessForm({
           <Textarea
             id="nature_of_business"
             value={formData.nature_of_business || ""}
-            onChange={(e) => onFieldChange("nature_of_business", e.target.value)}
+            onChange={(e) =>
+              onFieldChange("nature_of_business", e.target.value)
+            }
             placeholder="Describe your business activities..."
             rows={4}
           />

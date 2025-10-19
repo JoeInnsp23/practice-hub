@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
-import { getAuthContext } from "@/lib/auth";
 import { getFromS3 } from "@/lib/storage/s3";
 
 export const runtime = "nodejs";
@@ -12,7 +12,7 @@ export const runtime = "nodejs";
  * GET /api/documents/[id]/download
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } },
 ) {
   try {
@@ -56,8 +56,7 @@ export async function GET(
 
     // Determine content disposition (inline for images/PDFs, attachment for others)
     const contentDisposition =
-      doc.mimeType?.startsWith("image/") ||
-      doc.mimeType === "application/pdf"
+      doc.mimeType?.startsWith("image/") || doc.mimeType === "application/pdf"
         ? `inline; filename="${doc.name}"`
         : `attachment; filename="${doc.name}"`;
 

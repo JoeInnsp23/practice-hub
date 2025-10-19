@@ -1,10 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-hot-toast";
 import { z } from "zod";
-import { Mail, Loader2 } from "lucide-react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "react-hot-toast";
 
 const invitationSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -66,21 +66,23 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
   });
 
   // Fetch clients for selection
-  const { data: clientsData, isLoading: clientsLoading } = trpc.clients.list.useQuery({});
+  const { data: clientsData, isLoading: clientsLoading } =
+    trpc.clients.list.useQuery({});
   const clients = clientsData?.clients || [];
 
   // Send invitation mutation
-  const sendInvitationMutation = trpc.clientPortalAdmin.sendInvitation.useMutation({
-    onSuccess: () => {
-      toast.success("Invitation sent successfully!");
-      form.reset();
-      setOpen(false);
-      onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to send invitation");
-    },
-  });
+  const sendInvitationMutation =
+    trpc.clientPortalAdmin.sendInvitation.useMutation({
+      onSuccess: () => {
+        toast.success("Invitation sent successfully!");
+        form.reset();
+        setOpen(false);
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to send invitation");
+      },
+    });
 
   const onSubmit = (data: InvitationForm) => {
     sendInvitationMutation.mutate(data);
@@ -98,7 +100,8 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
         <DialogHeader>
           <DialogTitle>Send Client Portal Invitation</DialogTitle>
           <DialogDescription>
-            Invite a new user to access the client portal. They'll receive an email with instructions to set up their account.
+            Invite a new user to access the client portal. They'll receive an
+            email with instructions to set up their account.
           </DialogDescription>
         </DialogHeader>
 
@@ -207,7 +210,10 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
                   <FormItem>
                     <FormLabel>Role *</FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -278,10 +284,7 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={sendInvitationMutation.isPending}
-              >
+              <Button type="submit" disabled={sendInvitationMutation.isPending}>
                 {sendInvitationMutation.isPending && (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 )}

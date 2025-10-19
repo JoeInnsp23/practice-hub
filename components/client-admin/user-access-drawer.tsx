@@ -1,33 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { format } from "date-fns";
-import { X, Plus, UserX, UserCheck, Trash2 } from "lucide-react";
+import { Plus, Trash2, UserCheck, UserX } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,8 +15,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { AddClientAccessDialog } from "./add-client-access-dialog";
-import toast from "react-hot-toast";
 
 interface UserAccessDrawerProps {
   user: {
@@ -110,16 +110,17 @@ export function UserAccessDrawer({
     },
   });
 
-  const reactivateUserMutation = trpc.clientPortalAdmin.reactivateUser.useMutation({
-    onSuccess: () => {
-      toast.success("User reactivated");
-      utils.clientPortalAdmin.listPortalUsers.invalidate();
-      onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to reactivate user");
-    },
-  });
+  const reactivateUserMutation =
+    trpc.clientPortalAdmin.reactivateUser.useMutation({
+      onSuccess: () => {
+        toast.success("User reactivated");
+        utils.clientPortalAdmin.listPortalUsers.invalidate();
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to reactivate user");
+      },
+    });
 
   if (!user) return null;
 
@@ -129,7 +130,10 @@ export function UserAccessDrawer({
   };
 
   const handleRoleChange = (accessId: string, newRole: string) => {
-    updateRoleMutation.mutate({ accessId, role: newRole as "viewer" | "editor" | "admin" });
+    updateRoleMutation.mutate({
+      accessId,
+      role: newRole as "viewer" | "editor" | "admin",
+    });
   };
 
   const handleSuspendUser = () => {
@@ -143,11 +147,32 @@ export function UserAccessDrawer({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            Active
+          </Badge>
+        );
       case "suspended":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Suspended</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-700 border-red-200"
+          >
+            Suspended
+          </Badge>
+        );
       case "invited":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Invited</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
+            Invited
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -170,18 +195,24 @@ export function UserAccessDrawer({
           <div className="mt-6 space-y-6">
             {/* User Info */}
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">User Information</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                User Information
+              </h3>
               <div className="glass-card p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Login:</span>
                   <span>
-                    {user.lastLoginAt ? format(new Date(user.lastLoginAt), "MMM d, yyyy HH:mm") : "Never"}
+                    {user.lastLoginAt
+                      ? format(new Date(user.lastLoginAt), "MMM d, yyyy HH:mm")
+                      : "Never"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Accepted At:</span>
                   <span>
-                    {user.acceptedAt ? format(new Date(user.acceptedAt), "MMM d, yyyy") : "-"}
+                    {user.acceptedAt
+                      ? format(new Date(user.acceptedAt), "MMM d, yyyy")
+                      : "-"}
                   </span>
                 </div>
               </div>
@@ -190,7 +221,9 @@ export function UserAccessDrawer({
             {/* Client Access */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">Client Access</h3>
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Client Access
+                </h3>
                 <Button
                   size="sm"
                   onClick={() => setShowAddDialog(true)}
@@ -225,7 +258,9 @@ export function UserAccessDrawer({
                           <TableCell>
                             <Select
                               value={access.role}
-                              onValueChange={(newRole) => handleRoleChange(access.id, newRole)}
+                              onValueChange={(newRole) =>
+                                handleRoleChange(access.id, newRole)
+                              }
                               disabled={user.status === "suspended"}
                             >
                               <SelectTrigger className="w-32">
@@ -261,7 +296,9 @@ export function UserAccessDrawer({
 
             {/* User Actions */}
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">User Actions</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                User Actions
+              </h3>
               <div className="flex gap-2">
                 {user.status === "active" ? (
                   <Button
@@ -302,12 +339,16 @@ export function UserAccessDrawer({
       />
 
       {/* Revoke Access Confirmation */}
-      <AlertDialog open={!!accessToRevoke} onOpenChange={() => setAccessToRevoke(null)}>
+      <AlertDialog
+        open={!!accessToRevoke}
+        onOpenChange={() => setAccessToRevoke(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke Client Access?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove the user's access to this client. They will no longer be able to view any data for this client in the portal.
+              This will remove the user's access to this client. They will no
+              longer be able to view any data for this client in the portal.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

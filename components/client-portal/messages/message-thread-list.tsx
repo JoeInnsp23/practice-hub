@@ -38,7 +38,9 @@ export function MessageThreadList({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <MessageSquare className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50 animate-pulse" />
-          <p className="text-sm text-muted-foreground">Loading conversations...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading conversations...
+          </p>
         </div>
       </div>
     );
@@ -49,9 +51,7 @@ export function MessageThreadList({
       <div className="flex items-center justify-center h-full">
         <div className="text-center p-6">
           <MessageSquare className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-          <p className="text-sm text-muted-foreground">
-            No conversations yet
-          </p>
+          <p className="text-sm text-muted-foreground">No conversations yet</p>
           <p className="text-xs text-muted-foreground mt-2">
             Your accounting team will reach out to you here
           </p>
@@ -116,9 +116,12 @@ export function MessageThreadList({
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
                   {item.lastMessage && (
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {formatDistanceToNow(new Date(item.lastMessage.createdAt), {
-                        addSuffix: false,
-                      })}
+                      {formatDistanceToNow(
+                        new Date(item.lastMessage.createdAt),
+                        {
+                          addSuffix: false,
+                        },
+                      )}
                     </span>
                   )}
                   {hasUnread && (

@@ -1,5 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { checkRateLimit, getClientIdentifier, formatResetTime } from "@/lib/rate-limit";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  checkRateLimit,
+  formatResetTime,
+  getClientIdentifier,
+} from "@/lib/rate-limit";
 
 describe("lib/rate-limit.ts", () => {
   describe("checkRateLimit", () => {

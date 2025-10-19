@@ -1,7 +1,6 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 interface OnboardingOwnershipFormProps {
@@ -20,7 +19,8 @@ export function OnboardingOwnershipForm({
       <div className="space-y-4">
         <h3 className="font-medium text-lg">Beneficial Ownership</h3>
         <p className="text-sm text-muted-foreground">
-          Information about individuals who own or control your company (25% or more ownership)
+          Information about individuals who own or control your company (25% or
+          more ownership)
         </p>
 
         <div className="space-y-2">
@@ -29,7 +29,11 @@ export function OnboardingOwnershipForm({
           </Label>
           <Textarea
             id="psc_register"
-            value={formData.psc_register ? JSON.stringify(formData.psc_register, null, 2) : ""}
+            value={
+              formData.psc_register
+                ? JSON.stringify(formData.psc_register, null, 2)
+                : ""
+            }
             onChange={(e) => {
               try {
                 onFieldChange("psc_register", JSON.parse(e.target.value));

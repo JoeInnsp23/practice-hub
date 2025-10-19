@@ -30,16 +30,12 @@ export const calendarRouter = router({
       const tenantId = ctx.authContext.tenantId;
 
       // Build where conditions
-      let whereConditions = [eq(calendarEvents.tenantId, tenantId)];
+      const whereConditions = [eq(calendarEvents.tenantId, tenantId)];
 
       // Filter by date range if provided
       if (input.startDate && input.endDate) {
         whereConditions.push(
-          between(
-            calendarEvents.startTime,
-            input.startDate,
-            input.endDate,
-          ),
+          between(calendarEvents.startTime, input.startDate, input.endDate),
         );
       } else if (input.startDate) {
         whereConditions.push(gte(calendarEvents.startTime, input.startDate));
@@ -224,7 +220,9 @@ export const calendarRouter = router({
         eventId: z.string().uuid(),
         title: z.string().min(1).max(255).optional(),
         description: z.string().optional(),
-        type: z.enum(["meeting", "deadline", "event", "out_of_office"]).optional(),
+        type: z
+          .enum(["meeting", "deadline", "event", "out_of_office"])
+          .optional(),
         startTime: z.date().optional(),
         endTime: z.date().optional(),
         allDay: z.boolean().optional(),
@@ -312,7 +310,9 @@ export const calendarRouter = router({
       }
 
       // Delete event (attendees will be cascade deleted)
-      await db.delete(calendarEvents).where(eq(calendarEvents.id, input.eventId));
+      await db
+        .delete(calendarEvents)
+        .where(eq(calendarEvents.id, input.eventId));
 
       return { success: true };
     }),

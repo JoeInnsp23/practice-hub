@@ -281,6 +281,7 @@ export const clients = pgTable(
     email: varchar("email", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
     website: varchar("website", { length: 255 }),
+    vatRegistered: boolean("vat_registered").default(false).notNull(),
     vatNumber: varchar("vat_number", { length: 50 }),
     registrationNumber: varchar("registration_number", { length: 50 }),
 
@@ -498,6 +499,47 @@ export const clientServices = pgTable(
   }),
 );
 
+// Xero Connections table - Stores OAuth tokens for Xero API integration
+export const xeroConnections = pgTable(
+  "xero_connections",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Xero OAuth tokens
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+
+    // Xero organization details
+    xeroTenantId: text("xero_tenant_id").notNull(), // Xero's tenant ID (different from our tenantId)
+    xeroTenantName: text("xero_tenant_name"),
+    xeroOrganisationId: text("xero_organisation_id"),
+
+    // Connection metadata
+    isActive: boolean("is_active").default(true).notNull(),
+    lastSyncAt: timestamp("last_sync_at"),
+    syncStatus: varchar("sync_status", { length: 50 }).default("connected"), // connected, error, disconnected
+    syncError: text("sync_error"),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    connectedBy: text("connected_by").references(() => users.id),
+  },
+  (table) => ({
+    clientIdx: uniqueIndex("idx_xero_client").on(table.clientId),
+    tenantIdx: index("idx_xero_tenant").on(table.tenantId),
+  }),
+);
+
 // Tasks table
 export const tasks = pgTable(
   "tasks",
@@ -673,7 +715,9 @@ export const documents = pgTable(
 
     // Signature fields
     requiresSignature: boolean("requires_signature").default(false).notNull(),
-    signatureStatus: varchar("signature_status", { length: 20 }).default("none"), // 'none' | 'pending' | 'signed' | 'declined'
+    signatureStatus: varchar("signature_status", { length: 20 }).default(
+      "none",
+    ), // 'none' | 'pending' | 'signed' | 'declined'
     docusealSubmissionId: text("docuseal_submission_id"),
     docusealTemplateId: text("docuseal_template_id"),
     signedPdfUrl: text("signed_pdf_url"),
@@ -1336,9 +1380,7 @@ export const proposalSignatures = pgTable(
   },
   (table) => ({
     proposalIdx: index("idx_signature_proposal").on(table.proposalId),
-    docusealIdx: index("idx_signature_docuseal").on(
-      table.docusealSubmissionId,
-    ),
+    docusealIdx: index("idx_signature_docuseal").on(table.docusealSubmissionId),
   }),
 );
 
@@ -1486,7 +1528,9 @@ export const onboardingResponses = pgTable(
   },
   (table) => ({
     tenantIdx: index("idx_onboarding_response_tenant").on(table.tenantId),
-    sessionIdx: index("idx_onboarding_response_session").on(table.onboardingSessionId),
+    sessionIdx: index("idx_onboarding_response_session").on(
+      table.onboardingSessionId,
+    ),
   }),
 );
 
@@ -1501,11 +1545,15 @@ export const amlChecks = pgTable(
     clientId: uuid("client_id")
       .references(() => clients.id, { onDelete: "cascade" })
       .notNull(),
-    onboardingSessionId: uuid("onboarding_session_id")
-      .references(() => onboardingSessions.id, { onDelete: "cascade" }),
+    onboardingSessionId: uuid("onboarding_session_id").references(
+      () => onboardingSessions.id,
+      { onDelete: "cascade" },
+    ),
 
     // ComplyCube integration
-    provider: varchar("provider", { length: 50 }).default("complycube").notNull(),
+    provider: varchar("provider", { length: 50 })
+      .default("complycube")
+      .notNull(),
     checkId: varchar("check_id", { length: 255 }).notNull(), // ComplyCube check ID
     status: varchar("status", { length: 50 }).notNull(), // pending, complete, failed
     riskLevel: varchar("risk_level", { length: 50 }), // low, medium, high
@@ -1545,8 +1593,10 @@ export const kycVerifications = pgTable(
     clientId: uuid("client_id")
       .references(() => clients.id, { onDelete: "cascade" })
       .notNull(),
-    onboardingSessionId: uuid("onboarding_session_id")
-      .references(() => onboardingSessions.id, { onDelete: "cascade" }),
+    onboardingSessionId: uuid("onboarding_session_id").references(
+      () => onboardingSessions.id,
+      { onDelete: "cascade" },
+    ),
 
     // LEM Verify integration
     lemverifyId: varchar("lemverify_id", { length: 255 }).notNull(), // LEM Verify verification ID
@@ -1593,9 +1643,13 @@ export const kycVerifications = pgTable(
   (table) => ({
     tenantIdx: index("idx_kyc_verification_tenant").on(table.tenantId),
     clientIdx: index("idx_kyc_verification_client").on(table.clientId),
-    sessionIdx: index("idx_kyc_verification_session").on(table.onboardingSessionId),
+    sessionIdx: index("idx_kyc_verification_session").on(
+      table.onboardingSessionId,
+    ),
     statusIdx: index("idx_kyc_verification_status").on(table.status),
-    lemverifyIdIdx: index("idx_kyc_verification_lemverify_id").on(table.lemverifyId),
+    lemverifyIdIdx: index("idx_kyc_verification_lemverify_id").on(
+      table.lemverifyId,
+    ),
   }),
 );
 
@@ -1748,7 +1802,10 @@ export const userPermissions = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    userModuleIdx: uniqueIndex("idx_user_module").on(table.userId, table.module),
+    userModuleIdx: uniqueIndex("idx_user_module").on(
+      table.userId,
+      table.module,
+    ),
     tenantIdx: index("idx_permissions_tenant").on(table.tenantId),
   }),
 );
@@ -2208,7 +2265,9 @@ export const clientPortalInvitations = pgTable(
   },
   (table) => ({
     emailIdx: index("client_portal_invitations_email_idx").on(table.email),
-    tokenIdx: uniqueIndex("client_portal_invitations_token_idx").on(table.token),
+    tokenIdx: uniqueIndex("client_portal_invitations_token_idx").on(
+      table.token,
+    ),
     statusIdx: index("client_portal_invitations_status_idx").on(table.status),
     tenantIdx: index("client_portal_invitations_tenant_idx").on(table.tenantId),
   }),
@@ -2217,6 +2276,12 @@ export const clientPortalInvitations = pgTable(
 // Client Portal Better Auth tables - Separate from staff auth
 export const clientPortalSessions = pgTable("client_portal_session", {
   id: text("id").primaryKey(),
+  tenantId: text("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),
+  clientId: uuid("client_id")
+    .references(() => clients.id)
+    .notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -2233,6 +2298,12 @@ export const clientPortalSessions = pgTable("client_portal_session", {
 
 export const clientPortalAccounts = pgTable("client_portal_account", {
   id: text("id").primaryKey(),
+  tenantId: text("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),
+  clientId: uuid("client_id")
+    .references(() => clients.id)
+    .notNull(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
@@ -2254,6 +2325,12 @@ export const clientPortalAccounts = pgTable("client_portal_account", {
 
 export const clientPortalVerifications = pgTable("client_portal_verification", {
   id: text("id").primaryKey(),
+  tenantId: text("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),
+  clientId: uuid("client_id")
+    .references(() => clients.id)
+    .notNull(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
@@ -2365,7 +2442,10 @@ export const messages = pgTable(
   },
   (table) => ({
     threadIdx: index("messages_thread_idx").on(table.threadId),
-    senderIdx: index("messages_sender_idx").on(table.senderType, table.senderId),
+    senderIdx: index("messages_sender_idx").on(
+      table.senderType,
+      table.senderId,
+    ),
     // Keep legacy index for existing queries
     userIdx: index("messages_user_idx").on(table.userId),
     createdAtIdx: index("messages_created_at_idx").on(table.createdAt),
@@ -2455,9 +2535,7 @@ export const calendarEventAttendees = pgTable(
     userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    status: varchar("status", { length: 20 })
-      .default("pending")
-      .notNull(), // 'pending', 'accepted', 'declined', 'tentative'
+    status: varchar("status", { length: 20 }).default("pending").notNull(), // 'pending', 'accepted', 'declined', 'tentative'
     isOptional: boolean("is_optional").default(false).notNull(),
     respondedAt: timestamp("responded_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),

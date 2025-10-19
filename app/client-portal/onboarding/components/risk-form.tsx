@@ -1,9 +1,8 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 
 interface OnboardingRiskFormProps {
   formData: Record<string, any>;
@@ -27,21 +26,30 @@ export function OnboardingRiskForm({
         {/* High Risk Jurisdictions */}
         <div className="space-y-3">
           <Label>
-            Does your business operate in or have connections to high-risk jurisdictions?
+            Does your business operate in or have connections to high-risk
+            jurisdictions?
           </Label>
           <RadioGroup
             value={formData.high_risk_jurisdictions || ""}
-            onValueChange={(value) => onFieldChange("high_risk_jurisdictions", value)}
+            onValueChange={(value) =>
+              onFieldChange("high_risk_jurisdictions", value)
+            }
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="no" id="high-risk-no" />
-              <Label htmlFor="high-risk-no" className="font-normal cursor-pointer">
+              <Label
+                htmlFor="high-risk-no"
+                className="font-normal cursor-pointer"
+              >
                 No
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="yes" id="high-risk-yes" />
-              <Label htmlFor="high-risk-yes" className="font-normal cursor-pointer">
+              <Label
+                htmlFor="high-risk-yes"
+                className="font-normal cursor-pointer"
+              >
                 Yes
               </Label>
             </div>
@@ -51,7 +59,9 @@ export function OnboardingRiskForm({
             <Textarea
               id="high_risk_jurisdictions_details"
               value={formData.high_risk_jurisdictions_details || ""}
-              onChange={(e) => onFieldChange("high_risk_jurisdictions_details", e.target.value)}
+              onChange={(e) =>
+                onFieldChange("high_risk_jurisdictions_details", e.target.value)
+              }
               placeholder="Please provide details..."
               rows={3}
             />
@@ -60,12 +70,12 @@ export function OnboardingRiskForm({
 
         {/* Cash Intensive */}
         <div className="space-y-3">
-          <Label>
-            Is your business cash-intensive?
-          </Label>
+          <Label>Is your business cash-intensive?</Label>
           <RadioGroup
             value={formData.cash_intensive_business || ""}
-            onValueChange={(value) => onFieldChange("cash_intensive_business", value)}
+            onValueChange={(value) =>
+              onFieldChange("cash_intensive_business", value)
+            }
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="no" id="cash-no" />
@@ -89,7 +99,9 @@ export function OnboardingRiskForm({
           </Label>
           <RadioGroup
             value={formData.politically_exposed_person || ""}
-            onValueChange={(value) => onFieldChange("politically_exposed_person", value)}
+            onValueChange={(value) =>
+              onFieldChange("politically_exposed_person", value)
+            }
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="no" id="pep-no" />

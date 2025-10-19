@@ -33,12 +33,8 @@ export interface SignedConfirmationParams {
 export async function sendSigningInvitation(
   params: SigningInvitationParams,
 ): Promise<void> {
-  const {
-    recipientEmail,
-    recipientName,
-    proposalNumber,
-    embeddedSigningUrl,
-  } = params;
+  const { recipientEmail, recipientName, proposalNumber, embeddedSigningUrl } =
+    params;
 
   try {
     await resend.emails.send({
@@ -130,7 +126,13 @@ export async function sendSigningInvitation(
 export async function sendSignedConfirmation(
   params: SignedConfirmationParams,
 ): Promise<void> {
-  const { recipientEmail, recipientName, proposalNumber, signedPdfUrl, auditTrailSummary } = params;
+  const {
+    recipientEmail,
+    recipientName,
+    proposalNumber,
+    signedPdfUrl,
+    auditTrailSummary,
+  } = params;
 
   try {
     await resend.emails.send({
@@ -183,7 +185,9 @@ export async function sendSignedConfirmation(
                 </div>
                 <div class="detail">
                   <span class="label">Date & Time:</span>
-                  <span class="value">${new Date(auditTrailSummary.signedAt).toLocaleString("en-GB", {
+                  <span class="value">${new Date(
+                    auditTrailSummary.signedAt,
+                  ).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",

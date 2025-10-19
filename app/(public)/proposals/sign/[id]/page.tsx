@@ -2,8 +2,7 @@
 
 import { CheckCircle2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Card } from "@/components/ui/card";
 import { useClientPortalSession } from "@/lib/client-portal-auth-client";
@@ -31,7 +30,8 @@ export default function SignProposalPage() {
   useEffect(() => {
     if (proposalData?.docusealSubmissionId) {
       // Construct DocuSeal embedded URL
-      const docusealHost = process.env.NEXT_PUBLIC_DOCUSEAL_HOST || "http://localhost:3030";
+      const docusealHost =
+        process.env.NEXT_PUBLIC_DOCUSEAL_HOST || "http://localhost:3030";
       const embeddedUrl = `${docusealHost}/s/${proposalData.docusealSubmissionId}`;
       setIframeUrl(embeddedUrl);
     }
@@ -73,15 +73,20 @@ export default function SignProposalPage() {
   }
 
   // Check if proposal has expired
-  if (proposalData.validUntil && new Date() > new Date(proposalData.validUntil)) {
+  if (
+    proposalData.validUntil &&
+    new Date() > new Date(proposalData.validUntil)
+  ) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <Card className="glass-card p-8 max-w-md text-center">
-          <h1 className="text-2xl font-bold mb-4 text-destructive">Proposal Expired</h1>
+          <h1 className="text-2xl font-bold mb-4 text-destructive">
+            Proposal Expired
+          </h1>
           <p className="text-muted-foreground">
             This proposal expired on{" "}
-            {new Date(proposalData.validUntil).toLocaleDateString()}. Please contact
-            us for a new proposal.
+            {new Date(proposalData.validUntil).toLocaleDateString()}. Please
+            contact us for a new proposal.
           </p>
         </Card>
       </div>

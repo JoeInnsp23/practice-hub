@@ -1,6 +1,6 @@
 "use client";
 
-import { format, isAfter, isBefore, isToday, startOfDay } from "date-fns";
+import { format, isBefore, isToday, startOfDay } from "date-fns";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -36,9 +36,7 @@ export function UpcomingTasksWidget() {
     .filter((task) => {
       if (!task.dueDate) return false;
       const dueDate = new Date(task.dueDate);
-      return (
-        isBefore(dueDate, sevenDaysFromNow) || isToday(dueDate)
-      );
+      return isBefore(dueDate, sevenDaysFromNow) || isToday(dueDate);
     })
     .slice(0, 5); // Limit to 5 tasks
 
@@ -80,14 +78,13 @@ export function UpcomingTasksWidget() {
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Upcoming Tasks</h3>
-        <span className="text-xs text-muted-foreground">
-          Next 7 days
-        </span>
+        <span className="text-xs text-muted-foreground">Next 7 days</span>
       </div>
       <div className="space-y-2">
         {upcomingTasks.map((task) => {
           const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-          const isOverdue = dueDate && isBefore(dueDate, startOfDay(new Date()));
+          const isOverdue =
+            dueDate && isBefore(dueDate, startOfDay(new Date()));
           const isDueToday = dueDate && isToday(dueDate);
 
           return (

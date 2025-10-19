@@ -5,11 +5,10 @@
  * with proper metadata tracking for compliance and verification.
  */
 
+import { and, eq } from "drizzle-orm";
+import { invalidateQuestionnaireCache } from "@/lib/cache";
 import { db } from "@/lib/db";
 import { onboardingResponses } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import { invalidateQuestionnaireCache } from "@/lib/cache";
-import type { DocumentExtractionResult } from "./extract-client-data";
 
 /**
  * Save extracted data to onboarding_responses table
@@ -23,9 +22,12 @@ export async function saveExtractedDataToOnboarding(
   tenantId: string,
   onboardingSessionId: string,
   extractedData: Record<string, any>,
-  documentType: string
+  documentType: string,
 ): Promise<void> {
-  console.log("Saving extracted data to onboarding session:", onboardingSessionId);
+  console.log(
+    "Saving extracted data to onboarding session:",
+    onboardingSessionId,
+  );
   console.log("Document type:", documentType);
   console.log("Fields to save:", Object.keys(extractedData).length);
 
@@ -69,7 +71,7 @@ export async function saveExtractedDataToOnboarding(
  */
 export async function markResponseAsVerified(
   onboardingSessionId: string,
-  questionKey: string
+  questionKey: string,
 ): Promise<void> {
   const [existingResponse] = await db
     .select()
@@ -77,8 +79,8 @@ export async function markResponseAsVerified(
     .where(
       and(
         eq(onboardingResponses.onboardingSessionId, onboardingSessionId),
-        eq(onboardingResponses.questionKey, questionKey)
-      )
+        eq(onboardingResponses.questionKey, questionKey),
+      ),
     )
     .limit(1);
 
@@ -108,7 +110,7 @@ export async function updateExtractedResponse(
   onboardingSessionId: string,
   questionKey: string,
   newValue: any,
-  tenantId?: string
+  tenantId?: string,
 ): Promise<void> {
   const [existingResponse] = await db
     .select()
@@ -116,8 +118,8 @@ export async function updateExtractedResponse(
     .where(
       and(
         eq(onboardingResponses.onboardingSessionId, onboardingSessionId),
-        eq(onboardingResponses.questionKey, questionKey)
-      )
+        eq(onboardingResponses.questionKey, questionKey),
+      ),
     )
     .limit(1);
 
@@ -171,14 +173,22 @@ export async function updateExtractedResponse(
  * Returns a map of questionKey -> response data
  */
 export async function getOnboardingResponses(
-  onboardingSessionId: string
-): Promise<Record<string, { value: any; extractedFromAi: boolean; verifiedByUser: boolean }>> {
+  onboardingSessionId: string,
+): Promise<
+  Record<
+    string,
+    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
+  >
+> {
   const responses = await db
     .select()
     .from(onboardingResponses)
     .where(eq(onboardingResponses.onboardingSessionId, onboardingSessionId));
 
-  const responsesMap: Record<string, { value: any; extractedFromAi: boolean; verifiedByUser: boolean }> = {};
+  const responsesMap: Record<
+    string,
+    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
+  > = {};
 
   for (const response of responses) {
     responsesMap[response.questionKey] = {
@@ -197,14 +207,19 @@ export async function getOnboardingResponses(
  * Based on required fields being verified
  */
 export function calculateCompletionPercentage(
-  responses: Record<string, { value: any; extractedFromAi: boolean; verifiedByUser: boolean }>,
-  requiredFields: string[]
+  responses: Record<
+    string,
+    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
+  >,
+  requiredFields: string[],
 ): number {
   const verifiedRequiredFields = requiredFields.filter(
-    (field) => responses[field]?.verifiedByUser === true
+    (field) => responses[field]?.verifiedByUser === true,
   );
 
-  return Math.round((verifiedRequiredFields.length / requiredFields.length) * 100);
+  return Math.round(
+    (verifiedRequiredFields.length / requiredFields.length) * 100,
+  );
 }
 
 /**

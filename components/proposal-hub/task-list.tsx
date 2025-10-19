@@ -9,7 +9,6 @@ import {
   Plus,
   User,
 } from "lucide-react";
-import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";

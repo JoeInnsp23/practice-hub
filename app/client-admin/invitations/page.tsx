@@ -1,11 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { format } from "date-fns";
-import { Mail, RefreshCw, XCircle, Eye } from "lucide-react";
+import { Mail, RefreshCw, XCircle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { SendInvitationDialog } from "@/components/client-admin/send-invitation-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,10 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SendInvitationDialog } from "@/components/client-admin/send-invitation-dialog";
-import { toast } from "react-hot-toast";
 
 export default function InvitationsPage() {
   const [selectedTab, setSelectedTab] = useState<string | undefined>(undefined);
@@ -28,7 +34,12 @@ export default function InvitationsPage() {
     isLoading,
     refetch,
   } = trpc.clientPortalAdmin.listInvitations.useQuery({
-    status: selectedTab as "pending" | "accepted" | "expired" | "revoked" | undefined,
+    status: selectedTab as
+      | "pending"
+      | "accepted"
+      | "expired"
+      | "revoked"
+      | undefined,
   });
 
   // Resend invitation mutation
@@ -60,7 +71,11 @@ export default function InvitationsPage() {
   };
 
   const handleRevoke = (invitationId: string) => {
-    if (confirm("Are you sure you want to revoke this invitation? This cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to revoke this invitation? This cannot be undone.",
+      )
+    ) {
       revokeMutation.mutate({ invitationId });
     }
   };
@@ -68,13 +83,41 @@ export default function InvitationsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pending</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200"
+          >
+            Pending
+          </Badge>
+        );
       case "accepted":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Accepted</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            Accepted
+          </Badge>
+        );
       case "expired":
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Expired</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-50 text-gray-700 border-gray-200"
+          >
+            Expired
+          </Badge>
+        );
       case "revoked":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Revoked</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-700 border-red-200"
+          >
+            Revoked
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -84,7 +127,9 @@ export default function InvitationsPage() {
     <div>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-card-foreground">Client Portal Invitations</h1>
+          <h1 className="text-3xl font-bold text-card-foreground">
+            Client Portal Invitations
+          </h1>
           <p className="text-muted-foreground mt-1">
             Manage invitations to the external client portal
           </p>
@@ -102,7 +147,10 @@ export default function InvitationsPage() {
         <CardContent>
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
             <TabsList>
-              <TabsTrigger value={undefined as any} onClick={() => setSelectedTab(undefined)}>
+              <TabsTrigger
+                value={undefined as any}
+                onClick={() => setSelectedTab(undefined)}
+              >
                 All
               </TabsTrigger>
               <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -121,7 +169,9 @@ export default function InvitationsPage() {
                   <Mail className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>No invitations found</p>
                   {!selectedTab && (
-                    <p className="text-sm mt-2">Send your first invitation to get started</p>
+                    <p className="text-sm mt-2">
+                      Send your first invitation to get started
+                    </p>
                   )}
                 </div>
               ) : (
@@ -150,12 +200,17 @@ export default function InvitationsPage() {
                           <TableCell>
                             <Badge variant="secondary">{invitation.role}</Badge>
                           </TableCell>
-                          <TableCell>{getStatusBadge(invitation.status)}</TableCell>
+                          <TableCell>
+                            {getStatusBadge(invitation.status)}
+                          </TableCell>
                           <TableCell>
                             {format(new Date(invitation.sentAt), "MMM d, yyyy")}
                           </TableCell>
                           <TableCell>
-                            {format(new Date(invitation.expiresAt), "MMM d, yyyy")}
+                            {format(
+                              new Date(invitation.expiresAt),
+                              "MMM d, yyyy",
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">

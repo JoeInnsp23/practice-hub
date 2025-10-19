@@ -58,7 +58,9 @@ export function WinLossChart({ data, isLoading = false }: WinLossChartProps) {
         </div>
         <div className="flex items-center justify-center h-[300px]">
           <div className="text-center">
-            <p className="text-muted-foreground">No conversion data available</p>
+            <p className="text-muted-foreground">
+              No conversion data available
+            </p>
             <p className="text-xs text-muted-foreground mt-1">
               Create leads and proposals to see conversion metrics
             </p>
@@ -94,7 +96,9 @@ export function WinLossChart({ data, isLoading = false }: WinLossChartProps) {
           Conversion Funnel
         </h3>
         <p className="text-sm text-muted-foreground">
-          {data.totalLeads} leads → {data.totalProposals} proposals → {data.signedProposals} signed ({data.overallConversionRate.toFixed(1)}% overall)
+          {data.totalLeads} leads → {data.totalProposals} proposals →{" "}
+          {data.signedProposals} signed ({data.overallConversionRate.toFixed(1)}
+          % overall)
         </p>
       </div>
       <ResponsiveContainer width="100%" height={300}>

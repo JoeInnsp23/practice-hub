@@ -17,7 +17,7 @@ export const mockEmailResponse = {
 // Mock Resend class
 export class MockResend {
   emails = {
-    send: vi.fn(async (params: any) => {
+    send: vi.fn(async (_params: any) => {
       // Simulate successful email send
       return {
         data: mockEmailResponse,
@@ -28,23 +28,23 @@ export class MockResend {
 }
 
 // Mock email functions
-export const mockSendKYCVerificationEmail = vi.fn(async (params: {
-  email: string;
-  clientName: string;
-  verificationUrl: string;
-}) => {
-  // Simulate successful email
-  return Promise.resolve();
-});
+export const mockSendKYCVerificationEmail = vi.fn(
+  async (_params: {
+    email: string;
+    clientName: string;
+    verificationUrl: string;
+  }) => {
+    // Simulate successful email
+    return Promise.resolve();
+  },
+);
 
-export const mockSendClientPortalPasswordResetEmail = vi.fn(async (params: {
-  email: string;
-  userName: string;
-  resetLink: string;
-}) => {
-  // Simulate successful email
-  return Promise.resolve();
-});
+export const mockSendClientPortalPasswordResetEmail = vi.fn(
+  async (_params: { email: string; userName: string; resetLink: string }) => {
+    // Simulate successful email
+    return Promise.resolve();
+  },
+);
 
 // Helper to reset all mocks
 export function resetResendMocks() {
@@ -53,5 +53,7 @@ export function resetResendMocks() {
 
 // Helper to simulate email failure
 export function simulateEmailFailure() {
-  mockSendKYCVerificationEmail.mockRejectedValueOnce(new Error("Email service unavailable"));
+  mockSendKYCVerificationEmail.mockRejectedValueOnce(
+    new Error("Email service unavailable"),
+  );
 }

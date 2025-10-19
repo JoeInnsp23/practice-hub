@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Upload, X } from "lucide-react";
+import { FileText, Upload } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";

@@ -146,7 +146,8 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig =
+        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldMultipliers = currentConfig.complexityMultipliers[input.model];
 
       const updatedConfig = {
@@ -195,7 +196,8 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig =
+        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldMultipliers = currentConfig.industryMultipliers;
 
       const updatedConfig = {
@@ -241,7 +243,8 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig =
+        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldRules = currentConfig.discountRules;
 
       const updatedConfig = {
@@ -287,7 +290,8 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const currentConfig = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+      const currentConfig =
+        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
       const oldSettings = currentConfig.globalSettings;
 
       const updatedConfig = {

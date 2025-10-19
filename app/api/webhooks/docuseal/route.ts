@@ -1,13 +1,19 @@
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { autoConvertLeadToClient } from "@/lib/client-portal/auto-convert-lead";
 import { db } from "@/lib/db";
-import { activityLogs, proposalSignatures, proposals, clientPortalUsers, documents, documentSignatures } from "@/lib/db/schema";
+import {
+  activityLogs,
+  clientPortalUsers,
+  documentSignatures,
+  documents,
+  proposalSignatures,
+  proposals,
+} from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import { sendSignedConfirmation } from "@/lib/docuseal/email-handler";
 import { extractAuditTrail } from "@/lib/docuseal/uk-compliance-fields";
 import { uploadToS3 } from "@/lib/s3/upload";
-import { autoConvertLeadToClient } from "@/lib/client-portal/auto-convert-lead";
 
 export const runtime = "nodejs";
 
@@ -52,7 +58,6 @@ export async function POST(request: Request) {
 
     // Parse webhook event
     const event = JSON.parse(body);
-    console.log("DocuSeal webhook event:", event.event);
 
     // Handle submission.completed event
     if (event.event === "submission.completed") {
@@ -67,10 +72,8 @@ export async function POST(request: Request) {
 }
 
 async function handleSubmissionCompleted(submission: any) {
-  const submissionId = submission.id;
+  const _submissionId = submission.id;
   const metadata = submission.metadata || {};
-
-  console.log("Processing completed submission:", submissionId);
 
   // Check if this is a proposal or document signature
   const proposalId = metadata.proposal_id;
@@ -93,7 +96,12 @@ async function handleSubmissionCompleted(submission: any) {
   }
 }
 
-async function handleProposalSigning(submission: any, metadata: any, proposalId: string, tenantId: string) {
+async function handleProposalSigning(
+  submission: any,
+  metadata: any,
+  proposalId: string,
+  tenantId: string,
+) {
   const submissionId = submission.id;
   const proposalNumber = metadata.proposal_number;
 
@@ -113,27 +121,20 @@ async function handleProposalSigning(submission: any, metadata: any, proposalId:
   const auditTrail = extractAuditTrail(submission);
 
   // Download signed PDF from DocuSeal
-  console.log("Downloading signed PDF from DocuSeal...");
   const signedPdfBuffer = await docusealClient.downloadSignedPdf(submissionId);
 
   // Calculate SHA-256 hash of signed PDF
-  console.log("Calculating document hash...");
   const documentHash = crypto
     .createHash("sha256")
     .update(signedPdfBuffer)
     .digest("hex");
 
-  console.log("Document hash:", documentHash);
-
   // Upload signed PDF to S3/MinIO
-  console.log("Uploading signed PDF to S3...");
   const signedPdfUrl = await uploadToS3(
     signedPdfBuffer,
     `proposals/signed/${submissionId}.pdf`,
     "application/pdf",
   );
-
-  console.log("Signed PDF uploaded to:", signedPdfUrl);
 
   // Check if signer is a portal user
   let portalUserId: string | null = null;
@@ -145,7 +146,6 @@ async function handleProposalSigning(submission: any, metadata: any, proposalId:
 
   if (portalUser.length > 0) {
     portalUserId = portalUser[0].id;
-    console.log("Signer is a portal user:", portalUserId);
   }
 
   // Update database in transaction
@@ -210,33 +210,22 @@ async function handleProposalSigning(submission: any, metadata: any, proposalId:
     });
   });
 
-  console.log("Database updated successfully");
-
   // Auto-convert lead to client if proposal has a leadId
   if (proposalDetails.leadId) {
-    console.log("Proposal has leadId, attempting auto-conversion:", proposalDetails.leadId);
     try {
       const conversionResult = await autoConvertLeadToClient(
         proposalId,
         proposalDetails.leadId,
-        tenantId
+        tenantId,
       );
 
       if (conversionResult) {
-        console.log("Lead auto-converted to client successfully:", {
-          clientId: conversionResult.clientId,
-          portalUserId: conversionResult.portalUserId,
-          isNewPortalUser: conversionResult.isNewPortalUser,
-          onboardingSessionId: conversionResult.onboardingSessionId,
-        });
+        // Lead successfully converted to client and portal user
+        // Additional processing could be added here if needed
       }
     } catch (conversionError) {
       console.error("Failed to auto-convert lead to client:", conversionError);
-      // Don't throw - conversion failure shouldn't break the webhook
-      // Staff can manually convert if needed
     }
-  } else {
-    console.log("Proposal has no leadId, skipping auto-conversion");
   }
 
   // Send confirmation email via Resend
@@ -253,19 +242,19 @@ async function handleProposalSigning(submission: any, metadata: any, proposalId:
         documentHash,
       },
     });
-    console.log("Confirmation email sent successfully");
   } catch (emailError) {
     console.error("Failed to send confirmation email:", emailError);
     // Don't throw - email failure shouldn't break the webhook
   }
-
-  console.log("Proposal signing completed successfully:", submissionId);
 }
 
-async function handleDocumentSigning(submission: any, metadata: any, documentId: string, tenantId: string) {
+async function handleDocumentSigning(
+  submission: any,
+  _metadata: any,
+  documentId: string,
+  tenantId: string,
+) {
   const submissionId = submission.id;
-
-  console.log("Processing document signature:", documentId);
 
   // Get document details
   const [doc] = await db
@@ -283,20 +272,21 @@ async function handleDocumentSigning(submission: any, metadata: any, documentId:
   const auditTrail = extractAuditTrail(submission);
 
   // Download signed PDF from DocuSeal
-  console.log("Downloading signed PDF from DocuSeal...");
   const signedPdfBuffer = await docusealClient.downloadSignedPdf(submissionId);
 
   // Calculate SHA-256 hash of signed PDF
-  console.log("Calculating document hash...");
   const documentHash = crypto
     .createHash("sha256")
     .update(signedPdfBuffer)
     .digest("hex");
 
   // Upload signed PDF to S3
-  console.log("Uploading signed PDF to S3...");
   const s3Key = `documents/signed/${tenantId}/${documentId}-${submissionId}.pdf`;
-  const signedPdfUrl = await uploadToS3(signedPdfBuffer, s3Key, "application/pdf");
+  const signedPdfUrl = await uploadToS3(
+    signedPdfBuffer,
+    s3Key,
+    "application/pdf",
+  );
 
   // Update document with signed PDF and status
   await db
@@ -337,6 +327,4 @@ async function handleDocumentSigning(submission: any, metadata: any, documentId:
       signedAt: auditTrail.signedAt,
     },
   });
-
-  console.log("Document signing completed successfully:", documentId);
 }

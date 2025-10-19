@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Download, FileText, Inbox } from "lucide-react";
+import { CheckCircle2, Download, Inbox } from "lucide-react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
@@ -19,11 +19,11 @@ export function SignedDocumentsList({ clientId }: SignedDocumentsListProps) {
       { enabled: !!clientId },
     );
 
-  const handleDownload = (signedPdfUrl: string, name: string) => {
+  const handleDownload = (signedPdfUrl: string, _name: string) => {
     try {
       window.open(signedPdfUrl, "_blank");
       toast.success("Download started");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to download document");
     }
   };

@@ -62,7 +62,10 @@ export async function sendClientPortalPasswordResetEmail({
       `,
     });
 
-    console.log("Client Portal password reset email sent successfully to:", email);
+    console.log(
+      "Client Portal password reset email sent successfully to:",
+      email,
+    );
   } catch (error) {
     console.error("Failed to send client portal password reset email:", error);
     // Don't throw - email failures shouldn't block the password reset flow

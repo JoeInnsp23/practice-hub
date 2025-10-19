@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -14,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 export default function NotificationsPage() {
   const utils = trpc.useUtils();
@@ -25,11 +25,12 @@ export default function NotificationsPage() {
     { limit: 100, unreadOnly: filter === "unread" },
     {
       refetchInterval: 10000, // Poll every 10 seconds
-    }
+    },
   );
 
   // Fetch unread count
-  const { data: unreadCountData } = trpc.notifications.getUnreadCount.useQuery();
+  const { data: unreadCountData } =
+    trpc.notifications.getUnreadCount.useQuery();
 
   // Mark as read mutation
   const markAsReadMutation = trpc.notifications.markAsRead.useMutation({
@@ -161,7 +162,7 @@ function NotificationItem({
         "p-4 hover:bg-muted/50 transition-colors border-l-4",
         notification.isRead
           ? "border-transparent"
-          : "border-primary bg-primary/5"
+          : "border-primary bg-primary/5",
       )}
     >
       <div className="flex items-start gap-4">
@@ -169,13 +170,13 @@ function NotificationItem({
         <div
           className={cn(
             "rounded-full p-2.5 flex-shrink-0",
-            notification.isRead ? "bg-muted" : "bg-primary/10"
+            notification.isRead ? "bg-muted" : "bg-primary/10",
           )}
         >
           <Bell
             className={cn(
               "h-5 w-5",
-              notification.isRead ? "text-muted-foreground" : "text-primary"
+              notification.isRead ? "text-muted-foreground" : "text-primary",
             )}
           />
         </div>
@@ -252,7 +253,7 @@ function getFormattedDate(date: Date | string): string {
   const notificationDate = new Date(date);
   const now = new Date();
   const diffInDays = Math.floor(
-    (now.getTime() - notificationDate.getTime()) / (1000 * 60 * 60 * 24)
+    (now.getTime() - notificationDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   if (diffInDays === 0) {

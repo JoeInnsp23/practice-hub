@@ -1,21 +1,27 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { format } from "date-fns";
 import {
   ArrowLeft,
-  FileText,
   Calendar,
-  DollarSign,
   CheckCircle,
+  DollarSign,
   Download,
+  FileText,
   Pencil,
 } from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -24,27 +30,55 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
 
 export default function ProposalDetailPage() {
   const params = useParams();
   const router = useRouter();
   const proposalId = params.id as string;
 
-  const { data: proposal, isLoading } = trpc.clientPortal.getProposalById.useQuery({
-    id: proposalId,
-  });
+  const { data: proposal, isLoading } =
+    trpc.clientPortal.getProposalById.useQuery({
+      id: proposalId,
+    });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "sent":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Sent</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
+            Sent
+          </Badge>
+        );
       case "viewed":
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Viewed</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-50 text-yellow-700 border-yellow-200"
+          >
+            Viewed
+          </Badge>
+        );
       case "signed":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Signed</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            Signed
+          </Badge>
+        );
       case "expired":
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Expired</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-50 text-gray-700 border-gray-200"
+          >
+            Expired
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -66,8 +100,13 @@ export default function ProposalDetailPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <FileText className="w-12 h-12 mx-auto mb-3 text-destructive opacity-50" />
-          <p className="text-destructive font-medium mb-2">Proposal not found</p>
-          <Button variant="outline" onClick={() => router.push("/portal/proposals")}>
+          <p className="text-destructive font-medium mb-2">
+            Proposal not found
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/portal/proposals")}
+          >
             Back to Proposals
           </Button>
         </div>
@@ -107,7 +146,11 @@ export default function ProposalDetailPage() {
           )}
           {proposal.status === "signed" && proposal.docusealSignedPdfUrl && (
             <Button variant="outline" asChild>
-              <a href={proposal.docusealSignedPdfUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                href={proposal.docusealSignedPdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
               </a>
@@ -147,10 +190,14 @@ export default function ProposalDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {proposal.sentAt ? format(new Date(proposal.sentAt), "MMM d") : "-"}
+              {proposal.sentAt
+                ? format(new Date(proposal.sentAt), "MMM d")
+                : "-"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {proposal.sentAt ? format(new Date(proposal.sentAt), "yyyy") : "Not sent"}
+              {proposal.sentAt
+                ? format(new Date(proposal.sentAt), "yyyy")
+                : "Not sent"}
             </p>
           </CardContent>
         </Card>
@@ -160,7 +207,9 @@ export default function ProposalDetailPage() {
       <Card>
         <CardHeader>
           <CardTitle>Services & Pricing</CardTitle>
-          <CardDescription>Detailed breakdown of proposed services</CardDescription>
+          <CardDescription>
+            Detailed breakdown of proposed services
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {proposal.services && proposal.services.length > 0 ? (
@@ -177,7 +226,9 @@ export default function ProposalDetailPage() {
                 <TableBody>
                   {proposal.services.map((service: any) => (
                     <TableRow key={service.id}>
-                      <TableCell className="font-medium">{service.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {service.name}
+                      </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {service.code}
                       </TableCell>
@@ -238,7 +289,10 @@ export default function ProposalDetailPage() {
                   <div>
                     <p className="font-medium">Proposal Sent</p>
                     <p className="text-sm text-muted-foreground">
-                      {format(new Date(proposal.sentAt), "MMMM d, yyyy 'at' h:mm a")}
+                      {format(
+                        new Date(proposal.sentAt),
+                        "MMMM d, yyyy 'at' h:mm a",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -251,7 +305,10 @@ export default function ProposalDetailPage() {
                   <div>
                     <p className="font-medium">Proposal Signed</p>
                     <p className="text-sm text-muted-foreground">
-                      {format(new Date(proposal.signedAt), "MMMM d, yyyy 'at' h:mm a")}
+                      {format(
+                        new Date(proposal.signedAt),
+                        "MMMM d, yyyy 'at' h:mm a",
+                      )}
                     </p>
                   </div>
                 </div>

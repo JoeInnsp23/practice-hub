@@ -31,9 +31,10 @@ export function ServicePopularityChart({
 }: ServicePopularityChartProps) {
   // Transform data for chart (horizontal bars)
   const chartData = data.map((item) => ({
-    name: item.componentName.length > 30
-      ? item.componentName.substring(0, 30) + "..."
-      : item.componentName,
+    name:
+      item.componentName.length > 30
+        ? `${item.componentName.substring(0, 30)}...`
+        : item.componentName,
     fullName: item.componentName,
     count: Number(item.count),
     percentage: Number(item.percentage),
@@ -133,7 +134,7 @@ export function ServicePopularityChart({
               return [value, name];
             }}
             labelFormatter={(label, payload) => {
-              if (payload && payload[0]) {
+              if (payload?.[0]) {
                 return payload[0].payload.fullName;
               }
               return label;

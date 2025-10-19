@@ -18,7 +18,9 @@ export function TopServicesWidget() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Top Services</h3>
         <div className="flex items-center justify-center py-8">
-          <div className="text-muted-foreground text-sm">Loading services...</div>
+          <div className="text-muted-foreground text-sm">
+            Loading services...
+          </div>
         </div>
       </Card>
     );

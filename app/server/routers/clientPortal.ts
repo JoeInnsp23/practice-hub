@@ -1,19 +1,19 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, or, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
-  clients,
   clientPortalAccess,
   clientPortalUsers,
-  proposals,
-  proposalServices,
-  invoices,
+  clients,
   documents,
-  users,
-  messageThreads,
-  messageThreadParticipants,
+  invoices,
   messages,
+  messageThreadParticipants,
+  messageThreads,
+  proposalServices,
+  proposals,
+  users,
 } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import { clientPortalProcedure, router } from "../trpc";
@@ -52,7 +52,8 @@ export const clientPortalRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -104,7 +105,8 @@ export const clientPortalRouter = router({
   getProposalById: clientPortalProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       const proposal = await db
         .select({
@@ -136,7 +138,10 @@ export const clientPortalRouter = router({
         .limit(1);
 
       if (proposal.length === 0) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Proposal not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
       }
 
       // Verify user has access to this proposal's client
@@ -147,7 +152,9 @@ export const clientPortalRouter = router({
         });
       }
 
-      const hasAccess = clientAccess.find((c) => c.clientId === proposal[0].clientId);
+      const hasAccess = clientAccess.find(
+        (c) => c.clientId === proposal[0].clientId,
+      );
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -188,7 +195,8 @@ export const clientPortalRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -238,7 +246,8 @@ export const clientPortalRouter = router({
   getInvoiceById: clientPortalProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       const invoice = await db
         .select({
@@ -263,17 +272,20 @@ export const clientPortalRouter = router({
         })
         .from(invoices)
         .leftJoin(clients, eq(invoices.clientId, clients.id))
-        .where(
-          and(eq(invoices.id, input.id), eq(invoices.tenantId, tenantId)),
-        )
+        .where(and(eq(invoices.id, input.id), eq(invoices.tenantId, tenantId)))
         .limit(1);
 
       if (invoice.length === 0) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invoice not found",
+        });
       }
 
       // Verify user has access to this invoice's client
-      const hasAccess = clientAccess.find((c) => c.clientId === invoice[0].clientId);
+      const hasAccess = clientAccess.find(
+        (c) => c.clientId === invoice[0].clientId,
+      );
       if (!hasAccess) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -296,7 +308,8 @@ export const clientPortalRouter = router({
   getDocuments: clientPortalProcedure
     .input(z.object({ clientId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -332,7 +345,8 @@ export const clientPortalRouter = router({
   getDocumentsToSign: clientPortalProcedure
     .input(z.object({ clientId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -386,7 +400,10 @@ export const clientPortalRouter = router({
       return results.map((doc) => ({
         ...doc,
         signingUrl: doc.docusealSubmissionId
-          ? docusealClient.getEmbedUrl(doc.docusealSubmissionId, client?.email || "")
+          ? docusealClient.getEmbedUrl(
+              doc.docusealSubmissionId,
+              client?.email || "",
+            )
           : null,
       }));
     }),
@@ -395,7 +412,8 @@ export const clientPortalRouter = router({
   getSignedDocuments: clientPortalProcedure
     .input(z.object({ clientId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } = ctx.clientPortalAuthContext;
+      const { portalUserId, tenantId, clientAccess } =
+        ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);

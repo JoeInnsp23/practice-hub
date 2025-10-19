@@ -11,14 +11,13 @@ import {
   proposalSignatures,
   proposals,
 } from "@/lib/db/schema";
-import {
-  sendProposalEmail,
-  sendSignedConfirmationEmail,
-  sendTeamNotificationEmail,
-} from "@/lib/email/send-proposal-email";
 import { docusealClient } from "@/lib/docuseal/client";
 import { sendSigningInvitation } from "@/lib/docuseal/email-handler";
 import { getProposalSignatureFields } from "@/lib/docuseal/uk-compliance-fields";
+import {
+  sendSignedConfirmationEmail,
+  sendTeamNotificationEmail,
+} from "@/lib/email/send-proposal-email";
 import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 
@@ -560,7 +559,6 @@ export const proposalsRouter = router({
       // Generate PDF if not already generated
       let pdfUrl = existingProposal.pdfUrl;
       if (!pdfUrl) {
-        console.log("Generating PDF for proposal:", input.id);
         const result = await generateProposalPdf({
           proposalId: input.id,
           companyName: "Innspired Accountancy",
@@ -1041,7 +1039,26 @@ export const proposalsRouter = router({
         return signature;
       });
 
-      // TODO: Send confirmation email to client and team
+      // Send confirmation emails to client and team
+      try {
+        await Promise.all([
+          sendSignedConfirmationEmail({
+            proposalId: input.proposalId,
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+            signedAt,
+          }),
+          sendTeamNotificationEmail({
+            proposalId: input.proposalId,
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+            signedAt,
+          }),
+        ]);
+      } catch (emailError) {
+        // Log error but don't fail the signature process
+        console.error("Error sending proposal signed emails:", emailError);
+      }
 
       return { success: true, signature: result };
     }),

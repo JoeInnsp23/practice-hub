@@ -37,7 +37,12 @@ export function MessageView({ threadId, clientId }: MessageViewProps) {
       // Invalidate thread list to update unread counts
       utils.clientPortal.listMyThreads.invalidate({ clientId });
     }
-  }, [threadId, clientId]);
+  }, [
+    threadId,
+    clientId,
+    markAsReadMutation.mutate, // Invalidate thread list to update unread counts
+    utils.clientPortal.listMyThreads.invalidate,
+  ]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -80,7 +85,7 @@ export function MessageView({ threadId, clientId }: MessageViewProps) {
               ? `${item.portalSender.firstName} ${item.portalSender.lastName}`
               : "Unknown";
 
-        const senderEmail =
+        const _senderEmail =
           item.senderType === "staff" && item.staffSender
             ? item.staffSender.email
             : item.senderType === "client_portal" && item.portalSender

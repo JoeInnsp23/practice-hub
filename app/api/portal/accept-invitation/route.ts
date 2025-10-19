@@ -1,14 +1,13 @@
-import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
+  clientPortalAccess,
+  clientPortalAccounts,
   clientPortalInvitations,
   clientPortalUsers,
-  clientPortalAccounts,
-  clientPortalAccess,
-  clients,
 } from "@/lib/db/schema";
 
 export async function POST(request: Request) {

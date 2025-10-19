@@ -24,7 +24,8 @@
  * - See: /docs/kyc/LEMVERIFY_INTEGRATION.md for details
  */
 
-const LEMVERIFY_API_URL = process.env.LEMVERIFY_API_URL || "https://api.lemverify.com/v1";
+const LEMVERIFY_API_URL =
+  process.env.LEMVERIFY_API_URL || "https://api.lemverify.com/v1";
 const LEMVERIFY_API_KEY = process.env.LEMVERIFY_API_KEY;
 const LEMVERIFY_ACCOUNT_ID = process.env.LEMVERIFY_ACCOUNT_ID;
 
@@ -136,7 +137,7 @@ class LemVerifyAPIClient {
   private async request<T>(
     endpoint: string,
     method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
-    data?: any
+    data?: any,
   ): Promise<T> {
     if (!this.apiKey) {
       throw new Error("LEM Verify API key not configured");
@@ -148,7 +149,7 @@ class LemVerifyAPIClient {
 
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {
-      "Authorization": `Bearer ${this.apiKey}`,
+      Authorization: `Bearer ${this.apiKey}`,
       "X-Account-ID": this.accountId,
       "Content-Type": "application/json",
     };
@@ -166,7 +167,9 @@ class LemVerifyAPIClient {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`LEM Verify API error (${response.status}): ${errorText}`);
+      throw new Error(
+        `LEM Verify API error (${response.status}): ${errorText}`,
+      );
     }
 
     return response.json();
@@ -179,7 +182,7 @@ class LemVerifyAPIClient {
    * The client will upload their documents and complete biometric checks.
    */
   async requestVerification(
-    request: VerificationRequest
+    request: VerificationRequest,
   ): Promise<VerificationResponse> {
     console.log("Requesting LEM Verify verification for:", request.clientRef);
 
@@ -201,11 +204,9 @@ class LemVerifyAPIClient {
    * Check the current status of a verification including all check results.
    */
   async getVerificationStatus(
-    verificationId: string
+    verificationId: string,
   ): Promise<VerificationStatus> {
-    return this.request<VerificationStatus>(
-      `/verifications/${verificationId}`
-    );
+    return this.request<VerificationStatus>(`/verifications/${verificationId}`);
   }
 
   /**
@@ -218,10 +219,10 @@ class LemVerifyAPIClient {
       `${this.baseUrl}/verifications/${verificationId}/report`,
       {
         headers: {
-          "Authorization": `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           "X-Account-ID": this.accountId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -260,7 +261,7 @@ class LemVerifyAPIClient {
     for (const url of status.documentUrls) {
       const response = await fetch(url, {
         headers: {
-          "Authorization": `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           "X-Account-ID": this.accountId,
         },
       });

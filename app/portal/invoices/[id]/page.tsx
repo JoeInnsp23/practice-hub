@@ -1,27 +1,24 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
   ArrowLeft,
-  FileText,
   Calendar,
-  DollarSign,
-  Download,
   CreditCard,
+  DollarSign,
+  FileText,
 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export default function InvoiceDetailPage() {
@@ -29,20 +26,49 @@ export default function InvoiceDetailPage() {
   const router = useRouter();
   const invoiceId = params.id as string;
 
-  const { data: invoice, isLoading } = trpc.clientPortal.getInvoiceById.useQuery({
-    id: invoiceId,
-  });
+  const { data: invoice, isLoading } =
+    trpc.clientPortal.getInvoiceById.useQuery({
+      id: invoiceId,
+    });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "draft":
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Draft</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-gray-50 text-gray-700 border-gray-200"
+          >
+            Draft
+          </Badge>
+        );
       case "sent":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Sent</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
+            Sent
+          </Badge>
+        );
       case "paid":
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Paid</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
+            Paid
+          </Badge>
+        );
       case "overdue":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Overdue</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-red-50 text-red-700 border-red-200"
+          >
+            Overdue
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -65,7 +91,10 @@ export default function InvoiceDetailPage() {
         <div className="text-center">
           <FileText className="w-12 h-12 mx-auto mb-3 text-destructive opacity-50" />
           <p className="text-destructive font-medium mb-2">Invoice not found</p>
-          <Button variant="outline" onClick={() => router.push("/portal/invoices")}>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/portal/invoices")}
+          >
             Back to Invoices
           </Button>
         </div>
@@ -127,10 +156,14 @@ export default function InvoiceDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {invoice.dueDate ? format(new Date(invoice.dueDate), "MMM d") : "-"}
+              {invoice.dueDate
+                ? format(new Date(invoice.dueDate), "MMM d")
+                : "-"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {invoice.dueDate ? format(new Date(invoice.dueDate), "yyyy") : "Not set"}
+              {invoice.dueDate
+                ? format(new Date(invoice.dueDate), "yyyy")
+                : "Not set"}
             </p>
           </CardContent>
         </Card>
@@ -142,10 +175,14 @@ export default function InvoiceDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {invoice.issueDate ? format(new Date(invoice.issueDate), "MMM d") : "-"}
+              {invoice.issueDate
+                ? format(new Date(invoice.issueDate), "MMM d")
+                : "-"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {invoice.issueDate ? format(new Date(invoice.issueDate), "yyyy") : "Not issued"}
+              {invoice.issueDate
+                ? format(new Date(invoice.issueDate), "yyyy")
+                : "Not issued"}
             </p>
           </CardContent>
         </Card>

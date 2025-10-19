@@ -283,19 +283,25 @@ export function ServiceComponentsTab() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleEdit(component as ServiceComponent)}
+                            onClick={() =>
+                              handleEdit(component as ServiceComponent)
+                            }
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleClone(component as ServiceComponent)}
+                            onClick={() =>
+                              handleClone(component as ServiceComponent)
+                            }
                           >
                             <Copy className="h-4 w-4 mr-2" />
                             Clone
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleToggleActive(component as ServiceComponent)}
+                            onClick={() =>
+                              handleToggleActive(component as ServiceComponent)
+                            }
                           >
                             {component.isActive ? (
                               <>
@@ -311,7 +317,9 @@ export function ServiceComponentsTab() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => handleDelete(component as ServiceComponent)}
+                            onClick={() =>
+                              handleDelete(component as ServiceComponent)
+                            }
                             className="text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />

@@ -80,7 +80,9 @@ export function CreateProposalFromLeadDialog({
               </div>
               <div className="grid grid-cols-[120px_1fr] items-center gap-2">
                 <span className="text-sm font-medium">Contact:</span>
-                <span className="text-sm">{lead.firstName} {lead.lastName}</span>
+                <span className="text-sm">
+                  {lead.firstName} {lead.lastName}
+                </span>
               </div>
               <div className="grid grid-cols-[120px_1fr] items-center gap-2">
                 <span className="text-sm font-medium">Email:</span>

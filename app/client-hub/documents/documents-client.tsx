@@ -2,17 +2,13 @@
 
 import {
   ChevronRight,
-  Download,
-  Eye,
   FileSignature,
   FolderPlus,
   Grid,
   Home,
   List,
-  MoreVertical,
   Search,
   Share2,
-  Trash2,
   Upload,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -40,12 +36,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -242,7 +232,7 @@ export default function DocumentsClient() {
     });
   };
 
-  const handlePreview = (doc: any) => {
+  const _handlePreview = (doc: any) => {
     setSelectedDocument(doc);
     setIsPreviewOpen(true);
   };
