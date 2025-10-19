@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   AlertTriangle,
   Calendar,
@@ -16,8 +17,9 @@ import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
+import { DataExportButton } from "@/components/client-hub/data-export-button";
 import { DataImportModal } from "@/components/client-hub/data-import-modal";
+import { BulkActionBar } from "@/components/client-hub/tasks/bulk-action-bar";
 import { TaskBoard } from "@/components/client-hub/tasks/task-board";
 import { TaskList } from "@/components/client-hub/tasks/task-list";
 import { TaskModal } from "@/components/client-hub/tasks/task-modal";
@@ -164,7 +166,10 @@ export default function TasksPage() {
       utils.tasks.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error deleting task:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "delete_task" },
+        extra: { errorMessage: error.message },
+      });
       toast.error("Failed to delete task");
     },
   });
@@ -187,7 +192,10 @@ export default function TasksPage() {
       utils.tasks.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error saving task:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "create_task" },
+        extra: { errorMessage: error.message },
+      });
       toast.error(error.message || "Failed to save task");
     },
   });
@@ -200,7 +208,10 @@ export default function TasksPage() {
       utils.tasks.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error saving task:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "update_task" },
+        extra: { taskId: editingTask?.id, errorMessage: error.message },
+      });
       toast.error(error.message || "Failed to save task");
     },
   });
@@ -233,7 +244,10 @@ export default function TasksPage() {
       utils.tasks.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error updating task status:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "update_task_status" },
+        extra: { errorMessage: error.message },
+      });
       toast.error("Failed to update task status");
     },
   });
@@ -256,17 +270,7 @@ export default function TasksPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          {/* Export button temporarily disabled
-          <DataExportButton
-            endpoint="/api/export/tasks"
-            filename="tasks"
-            filters={{
-              status: statusFilter,
-              priority: priorityFilter,
-              assigneeId: assigneeFilter === "all" ? undefined : assigneeFilter,
-            }}
-          />
-          */}
+          <DataExportButton data={filteredTasks} filename="tasks" />
           <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
             Import
@@ -383,27 +387,11 @@ export default function TasksPage() {
         <div className="overflow-x-auto">
           {/* Bulk Actions */}
           {selectedTaskIds.length > 0 && viewMode === "list" && (
-            <div className="mx-6 my-4 p-3 bg-muted rounded-lg flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {selectedTaskIds.length} task
-                {selectedTaskIds.length > 1 ? "s" : ""} selected
-              </span>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline">
-                  Bulk Update Status
-                </Button>
-                <Button size="sm" variant="outline">
-                  Bulk Assign
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleClearSelection}
-                >
-                  Clear Selection
-                </Button>
-              </div>
-            </div>
+            <BulkActionBar
+              selectedTaskIds={selectedTaskIds}
+              onClearSelection={handleClearSelection}
+              onSuccess={() => utils.tasks.list.invalidate()}
+            />
           )}
 
           {/* Task View */}

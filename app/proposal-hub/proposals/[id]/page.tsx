@@ -16,7 +16,9 @@ import { use, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { ActivityTimeline } from "@/components/proposal-hub/activity-timeline";
+import { EditProposalDialog } from "@/components/proposal-hub/edit-proposal-dialog";
 import { SendProposalDialog } from "@/components/proposal-hub/send-proposal-dialog";
+import { VersionHistoryDialog } from "@/components/proposal-hub/version-history-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -157,10 +159,20 @@ export default function ProposalDetailPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" disabled>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
+          <VersionHistoryDialog
+            proposalId={proposalData.id}
+            proposalTitle={proposalData.title}
+          />
+          <EditProposalDialog
+            proposalId={proposalData.id}
+            proposalTitle={proposalData.title}
+            currentNotes={proposalData.notes}
+            currentTerms={proposalData.termsAndConditions}
+            currentServices={proposalData.services}
+            onSuccess={() => {
+              utils.proposals.getById.invalidate(id);
+            }}
+          />
           {proposalData.status === "draft" && (
             <SendProposalDialog
               proposalId={proposalData.id}

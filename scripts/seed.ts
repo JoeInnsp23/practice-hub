@@ -30,6 +30,7 @@ import {
   portalCategories,
   portalLinks,
   pricingRules,
+  proposalVersions,
   serviceComponents,
   services,
   tasks,

@@ -51,6 +51,8 @@ export function createMockContext(overrides: Partial<Context> = {}): Context {
       },
       session: {
         id: "test-session-id",
+        createdAt: new Date(),
+        updatedAt: new Date(),
         userId: authContext.userId,
         expiresAt: new Date(Date.now() + 86400000), // 24 hours
         token: "test-token",

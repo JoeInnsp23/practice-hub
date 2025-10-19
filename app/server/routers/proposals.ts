@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -10,6 +11,8 @@ import {
   proposalServices,
   proposalSignatures,
   proposals,
+  proposalVersions,
+  users,
 } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import { sendSigningInvitation } from "@/lib/docuseal/email-handler";
@@ -581,7 +584,10 @@ export const proposalsRouter = router({
           });
           templateId = template.id;
         } catch (error) {
-          console.error("Failed to create DocuSeal template:", error);
+          Sentry.captureException(error, {
+            tags: { operation: "create_docuseal_template" },
+            extra: { proposalId: input.id, proposalNumber: existingProposal.proposalNumber },
+          });
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create signature template",
@@ -618,7 +624,10 @@ export const proposalsRouter = router({
         });
         submissionId = submission.id;
       } catch (error) {
-        console.error("Failed to create DocuSeal submission:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "create_docuseal_submission" },
+          extra: { proposalId: input.id, templateId },
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create signature submission",
@@ -652,7 +661,10 @@ export const proposalsRouter = router({
           embeddedSigningUrl,
         });
       } catch (emailError) {
-        console.error("Failed to send signing invitation email:", emailError);
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_signing_invitation_email" },
+          extra: { proposalId: input.id, recipientEmail: existingProposal.clientEmail },
+        });
         // Don't fail the mutation if email fails, just log it
         // The proposal is still marked as sent
       }
@@ -791,7 +803,10 @@ export const proposalsRouter = router({
           signedAt,
         });
       } catch (emailError) {
-        console.error("Failed to send client confirmation email:", emailError);
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_client_confirmation_email" },
+          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+        });
         // Don't fail the mutation if email fails
       }
 
@@ -804,7 +819,10 @@ export const proposalsRouter = router({
           signedAt,
         });
       } catch (emailError) {
-        console.error("Failed to send team notification email:", emailError);
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_team_notification_email" },
+          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+        });
         // Don't fail the mutation if email fails
       }
 
@@ -871,6 +889,328 @@ export const proposalsRouter = router({
       });
 
       return { success: true, pdfUrl };
+    }),
+
+  // PROPOSAL VERSIONING
+
+  // Create a version snapshot of current proposal
+  createVersion: protectedProcedure
+    .input(
+      z.object({
+        proposalId: z.string(),
+        changeDescription: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get current proposal with services
+      const [proposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Get proposal services
+      const services = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, input.proposalId));
+
+      // Get user details for version metadata
+      const [user] = await db
+        .select({
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      const createdByName = user
+        ? `${user.firstName} ${user.lastName}`.trim()
+        : `${firstName} ${lastName}`.trim();
+
+      // Create version snapshot
+      const [version] = await db
+        .insert(proposalVersions)
+        .values({
+          tenantId,
+          proposalId: input.proposalId,
+          version: proposal.version || 1,
+          proposalNumber: proposal.proposalNumber,
+          title: proposal.title,
+          status: proposal.status,
+          turnover: proposal.turnover,
+          industry: proposal.industry,
+          monthlyTransactions: proposal.monthlyTransactions,
+          pricingModelUsed: proposal.pricingModelUsed,
+          monthlyTotal: proposal.monthlyTotal,
+          annualTotal: proposal.annualTotal,
+          services: services.map((s) => ({
+            componentCode: s.componentCode,
+            componentName: s.componentName,
+            calculation: s.calculation,
+            price: s.price,
+            config: s.config,
+          })),
+          customTerms: proposal.customTerms,
+          termsAndConditions: proposal.termsAndConditions,
+          notes: proposal.notes,
+          pdfUrl: proposal.pdfUrl,
+          changeDescription: input.changeDescription,
+          createdById: userId,
+          createdByName,
+        })
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: input.proposalId,
+        action: "version_created",
+        description: `Created version ${proposal.version || 1} snapshot${input.changeDescription ? `: ${input.changeDescription}` : ""}`,
+        userId,
+        userName: createdByName,
+        newValues: {
+          versionId: version.id,
+          version: version.version,
+        },
+      });
+
+      return { success: true, version };
+    }),
+
+  // Update proposal with automatic versioning
+  updateWithVersion: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        changeDescription: z.string().optional(),
+        data: proposalSchema.partial(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get current proposal with services
+      const [existingProposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!existingProposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      const currentVersion = existingProposal.version || 1;
+      const newVersion = currentVersion + 1;
+
+      // Get current services
+      const currentServices = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, input.id));
+
+      // Get user details
+      const [user] = await db
+        .select({
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      const createdByName = user
+        ? `${user.firstName} ${user.lastName}`.trim()
+        : `${firstName} ${lastName}`.trim();
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // 1. Create version snapshot of CURRENT state (before update)
+        await tx.insert(proposalVersions).values({
+          tenantId,
+          proposalId: input.id,
+          version: currentVersion,
+          proposalNumber: existingProposal.proposalNumber,
+          title: existingProposal.title,
+          status: existingProposal.status,
+          turnover: existingProposal.turnover,
+          industry: existingProposal.industry,
+          monthlyTransactions: existingProposal.monthlyTransactions,
+          pricingModelUsed: existingProposal.pricingModelUsed,
+          monthlyTotal: existingProposal.monthlyTotal,
+          annualTotal: existingProposal.annualTotal,
+          services: currentServices.map((s) => ({
+            componentCode: s.componentCode,
+            componentName: s.componentName,
+            calculation: s.calculation,
+            price: s.price,
+            config: s.config,
+          })),
+          customTerms: existingProposal.customTerms,
+          termsAndConditions: existingProposal.termsAndConditions,
+          notes: existingProposal.notes,
+          pdfUrl: existingProposal.pdfUrl,
+          changeDescription: input.changeDescription || "Proposal updated",
+          createdById: userId,
+          createdByName,
+        });
+
+        // 2. Update proposal with new data
+        const [updatedProposal] = await tx
+          .update(proposals)
+          .set({
+            ...input.data,
+            version: newVersion,
+            validUntil: input.data.validUntil
+              ? new Date(input.data.validUntil)
+              : undefined,
+            sentAt: input.data.sentAt ? new Date(input.data.sentAt) : undefined,
+            viewedAt: input.data.viewedAt
+              ? new Date(input.data.viewedAt)
+              : undefined,
+            signedAt: input.data.signedAt
+              ? new Date(input.data.signedAt)
+              : undefined,
+            updatedAt: new Date(),
+          })
+          .where(eq(proposals.id, input.id))
+          .returning();
+
+        // 3. Update services if provided
+        if (input.data.services) {
+          // Delete existing services
+          await tx
+            .delete(proposalServices)
+            .where(eq(proposalServices.proposalId, input.id));
+
+          // Insert new services
+          if (input.data.services.length > 0) {
+            await tx.insert(proposalServices).values(
+              input.data.services.map((service) => ({
+                tenantId,
+                proposalId: input.id,
+                componentCode: service.componentCode,
+                componentName: service.componentName,
+                calculation: service.calculation,
+                price: String(service.price),
+                config: service.config,
+              })),
+            );
+          }
+        }
+
+        // 4. Log activity
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: input.id,
+          action: "updated",
+          description: `Updated proposal to version ${newVersion}${input.changeDescription ? `: ${input.changeDescription}` : ""}`,
+          userId,
+          userName: createdByName,
+          oldValues: { version: currentVersion },
+          newValues: { version: newVersion, ...input.data },
+        });
+
+        return updatedProposal;
+      });
+
+      // 5. Regenerate PDF if services changed
+      if (input.data.services && input.data.services.length > 0) {
+        try {
+          await generateProposalPdf({
+            proposalId: input.id,
+            companyName: "Innspired Accountancy",
+            preparedBy: "Joseph Stephenson-Mouzo, Managing Director",
+          });
+        } catch (pdfError) {
+          // Log but don't fail the mutation
+          Sentry.captureException(pdfError, {
+            tags: { operation: "regenerate_proposal_pdf" },
+            extra: { proposalId: input.id, version: newVersion },
+          });
+        }
+      }
+
+      return { success: true, proposal: result, newVersion };
+    }),
+
+  // Get version history for a proposal
+  getVersionHistory: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: proposalId }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify proposal exists
+      const [proposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, proposalId), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Get all versions
+      const versions = await db
+        .select()
+        .from(proposalVersions)
+        .where(eq(proposalVersions.proposalId, proposalId))
+        .orderBy(desc(proposalVersions.version));
+
+      return { versions, currentVersion: proposal.version || 1 };
+    }),
+
+  // Get specific version by ID
+  getVersionById: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: versionId }) => {
+      const { tenantId } = ctx.authContext;
+
+      const [version] = await db
+        .select()
+        .from(proposalVersions)
+        .where(
+          and(
+            eq(proposalVersions.id, versionId),
+            eq(proposalVersions.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!version) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Version not found",
+        });
+      }
+
+      return { version };
     }),
 
   // PUBLIC ENDPOINTS FOR E-SIGNATURE
@@ -1057,7 +1397,10 @@ export const proposalsRouter = router({
         ]);
       } catch (emailError) {
         // Log error but don't fail the signature process
-        console.error("Error sending proposal signed emails:", emailError);
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_proposal_signed_emails" },
+          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+        });
       }
 
       return { success: true, signature: result };

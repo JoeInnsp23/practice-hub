@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   ChevronRight,
   FileSignature,
@@ -169,7 +170,10 @@ export default function DocumentsClient() {
       await utils.documents.list.invalidate();
       await utils.documents.getStorageStats.invalidate();
     } catch (error) {
-      console.error("Upload error:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "upload_document" },
+        extra: { fileName: file.name, fileSize: file.size },
+      });
       throw error;
     }
   };

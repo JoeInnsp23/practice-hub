@@ -51,6 +51,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
    **Usage:** Invoke skills using the Skill tool, NOT by running scripts directly. The skills contain automation scripts that Claude will use when the skill is invoked. Always use these skills for testing, debugging, and database operations tasks.
 
+14. **Error Tracking & Logging Policy** - Production code must use Sentry for error tracking:
+   - **NEVER use console.log/console.warn/console.debug in production code** - These are not tracked and leak to logs
+   - **Replace console.error with Sentry.captureException** in all UI components and tRPC routers:
+     ```typescript
+     import * as Sentry from "@sentry/nextjs";
+
+     try {
+       await operation();
+     } catch (error) {
+       Sentry.captureException(error, {
+         tags: { operation: "operation_name" },
+         extra: { contextData: "values" },
+       });
+       toast.error("User-friendly error message");
+     }
+     ```
+   - **Exceptions where console.error is acceptable:**
+     - Webhook handlers (external integrations need visible debugging)
+     - API route handlers for webhook signature verification failures
+     - Development-only code paths (guarded by `process.env.NODE_ENV === 'development'`)
+   - **Add ESLint rule** to prevent console statements:
+     ```json
+     // .eslintrc.json (future)
+     "rules": {
+       "no-console": ["error", { "allow": [] }]
+     }
+     ```
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
@@ -297,6 +325,106 @@ S3_REGION="eu-central"
 **Permission denied:**
 - Bucket policy may need updating
 - Run setup script again to reset permissions
+
+## DocuSeal E-Signature (Local Development)
+
+DocuSeal provides self-hosted electronic signature functionality for proposal signing. It's integrated via Docker Compose and uses the same PostgreSQL database.
+
+### Setup
+
+1. **Generate Required Secrets FIRST:**
+   ```bash
+   # Generate secret key for DocuSeal container
+   openssl rand -base64 32  # Add to .env.local as DOCUSEAL_SECRET_KEY
+
+   # Generate webhook secret for signature verification
+   openssl rand -base64 32  # Add to .env.local as DOCUSEAL_WEBHOOK_SECRET
+   ```
+
+   **⚠️ IMPORTANT:** Add both to `.env.local` BEFORE starting DocuSeal. The docker-compose.yml file has NO defaults for security reasons.
+
+2. **Start DocuSeal:**
+   ```bash
+   docker compose up -d docuseal
+   ```
+
+   **Health Check:** Wait ~30 seconds for healthcheck to pass:
+   ```bash
+   docker ps  # Status should show "healthy" for practice-hub-docuseal
+   ```
+
+3. **Access DocuSeal Admin:**
+   - URL: http://localhost:3030
+   - Create admin account on first visit
+   - Navigate to Settings → API Keys → Generate New Key
+   - Copy the API key to `.env.local` as `DOCUSEAL_API_KEY`
+
+4. **Configure Webhooks:**
+   - In DocuSeal Admin: Settings → Webhooks
+   - Webhook URL: `http://host.docker.internal:3000/api/webhooks/docuseal`
+   - Secret: Use the same value as `DOCUSEAL_WEBHOOK_SECRET` from step 1
+   - Events: Select `submission.completed`
+
+### Configuration
+
+DocuSeal is configured via environment variables in `.env.local`:
+
+```bash
+# DocuSeal E-Signature
+DOCUSEAL_HOST="http://localhost:3030"
+DOCUSEAL_API_KEY="<from-docuseal-admin-ui>"
+DOCUSEAL_SECRET_KEY="<generate-with-openssl>"
+DOCUSEAL_WEBHOOK_SECRET="<generate-with-openssl>"
+```
+
+### Testing Proposal Signing
+
+1. Create a proposal in the calculator
+2. Navigate to Proposal Hub → Proposals → Select proposal
+3. Click "Send for Signature"
+4. Enter signer email and name
+5. Check email for signing link (or use direct link from proposal page)
+6. Sign the document
+7. Webhook automatically updates proposal status to "signed"
+
+### Production Migration
+
+For production deployment, use external DocuSeal instance or cloud-hosted solution:
+
+```bash
+# Production DocuSeal Configuration
+DOCUSEAL_HOST="https://docuseal.yourdomain.com"
+DOCUSEAL_API_KEY="<production-api-key>"
+DOCUSEAL_SECRET_KEY="<production-secret>"
+DOCUSEAL_WEBHOOK_SECRET="<production-webhook-secret>"
+```
+
+**Important:** Webhook URL must be publicly accessible in production:
+- Development: `http://host.docker.internal:3000/api/webhooks/docuseal`
+- Production: `https://app.yourdomain.com/api/webhooks/docuseal`
+
+### Troubleshooting
+
+**DocuSeal not starting:**
+- Check PostgreSQL is running: `docker ps | grep postgres`
+- View logs: `docker logs practice-hub-docuseal`
+- Verify DATABASE_URL is correct in docker-compose.yml
+
+**Webhook not working:**
+- Verify DOCUSEAL_WEBHOOK_SECRET matches in both app and DocuSeal
+- Check webhook URL is accessible from DocuSeal container
+- View webhook logs in DocuSeal Admin → Settings → Webhooks → Recent Deliveries
+- Check app logs for signature verification errors
+
+**API key not working:**
+- Regenerate API key in DocuSeal Admin
+- Ensure DOCUSEAL_API_KEY in `.env.local` matches
+- Restart Next.js dev server after changing env vars
+
+**Signature not completing:**
+- Check proposal has `docusealSubmissionId` in database
+- Verify signer email matches submission
+- Check DocuSeal submission status in admin UI
 
 ## Architecture Overview
 

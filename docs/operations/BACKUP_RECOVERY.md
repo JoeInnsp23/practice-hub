@@ -6,10 +6,160 @@ This document outlines backup procedures, recovery processes, and disaster recov
 
 ## Table of Contents
 
-1. [Backup Strategy](#backup-strategy)
-2. [Recovery Procedures](#recovery-procedures)
-3. [Disaster Recovery](#disaster-recovery)
-4. [Testing & Validation](#testing--validation)
+1. [Quick Start](#quick-start)
+2. [Automated Backup Scripts](#automated-backup-scripts)
+3. [Backup Strategy](#backup-strategy)
+4. [Recovery Procedures](#recovery-procedures)
+5. [Disaster Recovery](#disaster-recovery)
+6. [Testing & Validation](#testing--validation)
+
+---
+
+## Quick Start
+
+### Create a Backup (Local Development)
+
+```bash
+# Create backup in backups/ directory
+./scripts/backup-db.sh
+
+# Create backup and upload to S3
+./scripts/backup-db.sh --upload-s3
+```
+
+### Restore from Backup
+
+```bash
+# List available backups
+ls -lht backups/
+
+# Restore specific backup
+./scripts/restore-db.sh practice_hub_backup_20251019_143022.sql.gz
+```
+
+**Note**: Restore script automatically creates a safety backup before restoration.
+
+---
+
+## Automated Backup Scripts
+
+Practice Hub includes two automated scripts for database backup and restoration:
+
+### backup-db.sh
+
+**Location**: `scripts/backup-db.sh`
+
+**Features**:
+- Creates PostgreSQL dump using pg_dump
+- Compresses backup with gzip (saves ~80% space)
+- Automatically cleans up backups older than 7 days
+- Optional S3 upload for offsite storage
+- Validates Docker container is running
+- Creates timestamped backups in `backups/` directory
+
+**Usage**:
+```bash
+# Local backup only
+./scripts/backup-db.sh
+
+# Backup and upload to S3
+./scripts/backup-db.sh --upload-s3
+```
+
+**Output Example**:
+```
+Practice Hub Database Backup
+==============================
+
+✓ Container is running
+
+Creating database backup...
+Database: practice_hub
+Output: practice_hub_backup_20251019_143022.sql
+
+✓ Backup created successfully
+  File: practice_hub_backup_20251019_143022.sql
+  Size: 2.3M
+
+✓ Backup compressed
+  File: practice_hub_backup_20251019_143022.sql.gz
+  Size: 512K
+
+✓ Cleanup complete (5 backups retained)
+```
+
+**Cron Job Setup** (Production):
+```bash
+# Edit crontab
+crontab -e
+
+# Add daily backup at 2:00 AM UTC with S3 upload
+0 2 * * * /path/to/practice-hub/scripts/backup-db.sh --upload-s3 >> /var/log/practice-hub-backup.log 2>&1
+```
+
+### restore-db.sh
+
+**Location**: `scripts/restore-db.sh`
+
+**Features**:
+- Restores from compressed or uncompressed backups
+- Creates automatic safety backup before restoration
+- Terminates existing database connections
+- Verifies database integrity after restoration
+- Interactive confirmation to prevent accidents
+- Handles both .sql and .sql.gz formats
+
+**Usage**:
+```bash
+# Restore from specific backup
+./scripts/restore-db.sh practice_hub_backup_20251019_143022.sql.gz
+
+# List available backups if no file specified
+./scripts/restore-db.sh
+```
+
+**Safety Features**:
+- Requires explicit "yes" confirmation
+- Creates safety backup automatically
+- Preserves safety backup after restoration
+- Provides rollback instructions if restoration fails
+
+**Output Example**:
+```
+Practice Hub Database Restore
+===============================
+
+✓ Container is running
+
+Backup file: practice_hub_backup_20251019_143022.sql.gz
+Size: 512K
+Created: 2025-10-19 14:30:22
+
+WARNING: This will completely replace the current database!
+All existing data will be lost.
+
+Are you sure you want to continue? (yes/no): yes
+
+Creating safety backup of current database...
+✓ Safety backup created: practice_hub_before_restore_20251019_150015.sql.gz (485K)
+
+✓ Decompressed
+
+Terminating existing database connections...
+✓ Connections terminated
+
+Restoring database from backup...
+
+✓ Database restored successfully!
+
+Verifying database integrity...
+✓ Found 42 tables
+
+Restore completed successfully!
+
+Safety backup preserved at:
+  practice_hub_before_restore_20251019_150015.sql.gz
+```
 
 ---
 
@@ -558,9 +708,13 @@ After any recovery procedure:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: 2025-10-10
+**Document Version**: 1.1
+**Last Updated**: 2025-10-19
 **Maintained By**: Development Team
+
+**Changelog**:
+- 2025-10-19: Added automated backup/restore scripts (backup-db.sh, restore-db.sh)
+- 2025-10-10: Initial version with DR strategies and procedures
 
 **Next Review**: 2026-01-10 (Quarterly)
 

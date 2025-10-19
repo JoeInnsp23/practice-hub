@@ -130,6 +130,8 @@ describe("Tenant Isolation Integration Tests", () => {
         .values({
           tenantId: TENANT_A_ID,
           name: "Client A from Tenant A",
+          type: "limited_company",
+          clientCode: "TEST-A-001",
           email: "client-a@tenant-a.test",
           status: "active",
         })
@@ -140,6 +142,8 @@ describe("Tenant Isolation Integration Tests", () => {
         .values({
           tenantId: TENANT_B_ID,
           name: "Client B from Tenant B",
+          type: "limited_company",
+          clientCode: "TEST-B-001",
           email: "client-b@tenant-b.test",
           status: "active",
         })
@@ -177,6 +181,8 @@ describe("Tenant Isolation Integration Tests", () => {
         .values({
           tenantId: TENANT_A_ID,
           name: "Private Client A",
+          type: "limited_company",
+          clientCode: "TEST-A-PRIV",
           email: "private@tenant-a.test",
           status: "active",
         })
@@ -203,7 +209,8 @@ describe("Tenant Isolation Integration Tests", () => {
         .insert(leads)
         .values({
           tenantId: TENANT_A_ID,
-          name: "Lead A from Tenant A",
+          firstName: "Lead A",
+          lastName: "Tenant A",
           email: "lead-a@tenant-a.test",
           status: "new",
           source: "website",
@@ -214,7 +221,8 @@ describe("Tenant Isolation Integration Tests", () => {
         .insert(leads)
         .values({
           tenantId: TENANT_B_ID,
-          name: "Lead B from Tenant B",
+          firstName: "Lead B",
+          lastName: "Tenant B",
           email: "lead-b@tenant-b.test",
           status: "new",
           source: "referral",
@@ -257,6 +265,7 @@ describe("Tenant Isolation Integration Tests", () => {
           status: "pending",
           priority: "medium",
           assignedToId: USER_A_ID,
+          createdById: USER_A_ID,
         })
         .returning();
 
@@ -269,6 +278,7 @@ describe("Tenant Isolation Integration Tests", () => {
           status: "pending",
           priority: "high",
           assignedToId: USER_B_ID,
+          createdById: USER_B_ID,
         })
         .returning();
 
@@ -372,6 +382,7 @@ describe("Tenant Isolation Integration Tests", () => {
           title: "Task with cross-tenant assignment attempt",
           description: "Testing isolation",
           status: "pending",
+          createdById: USER_A_ID,
           priority: "medium",
           assignedToId: USER_A_ID, // Correct tenant assignment
         })

@@ -2,9 +2,26 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { Context } from "./context";
 import { trpcRateLimit, getClientId } from "@/lib/rate-limit";
+import { captureTRPCError } from "@/lib/sentry";
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    // Log errors to Sentry (except auth errors)
+    if (
+      error.code !== "UNAUTHORIZED" &&
+      error.code !== "FORBIDDEN" &&
+      error.cause instanceof Error
+    ) {
+      captureTRPCError(
+        error.cause,
+        shape.data.path || "unknown",
+        undefined // input will be added in middleware if needed
+      );
+    }
+
+    return shape;
+  },
 });
 
 // Middleware for rate limiting (applies to all procedures)

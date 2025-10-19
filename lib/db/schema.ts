@@ -1304,6 +1304,66 @@ export const proposalServices = pgTable(
   }),
 );
 
+// Proposal Versions table - stores historical versions of proposals
+export const proposalVersions = pgTable(
+  "proposal_versions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Relationships
+    proposalId: uuid("proposal_id")
+      .references(() => proposals.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Version information
+    version: integer("version").notNull(), // 1, 2, 3, etc.
+
+    // Snapshot of proposal data at this version
+    proposalNumber: varchar("proposal_number", { length: 50 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    status: proposalStatusEnum("status").notNull(),
+
+    // Business context
+    turnover: varchar("turnover", { length: 100 }),
+    industry: varchar("industry", { length: 100 }),
+    monthlyTransactions: integer("monthly_transactions"),
+
+    // Pricing
+    pricingModelUsed: varchar("pricing_model_used", { length: 10 }),
+    monthlyTotal: decimal("monthly_total", { precision: 10, scale: 2 }).notNull(),
+    annualTotal: decimal("annual_total", { precision: 10, scale: 2 }).notNull(),
+
+    // Services snapshot (denormalized for historical accuracy)
+    services: jsonb("services").notNull(), // Array of service objects
+
+    // Content
+    customTerms: text("custom_terms"),
+    termsAndConditions: text("terms_and_conditions"),
+    notes: text("notes"),
+
+    // Document URLs for this version
+    pdfUrl: text("pdf_url"),
+
+    // Change metadata
+    changeDescription: text("change_description"), // What changed in this version
+    createdById: text("created_by_id")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    createdByName: varchar("created_by_name", { length: 255 }), // Denormalized for history
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    proposalIdx: index("idx_proposal_version_proposal").on(table.proposalId),
+    versionIdx: index("idx_proposal_version_number").on(table.proposalId, table.version),
+    createdAtIdx: index("idx_proposal_version_created").on(table.createdAt),
+  }),
+);
+
 // Client Transaction Data table - stores transaction volume data for pricing
 export const clientTransactionData = pgTable(
   "client_transaction_data",
