@@ -30,7 +30,7 @@ const clientSchema = insertClientSchema
     tenantId: true,
     createdAt: true,
     updatedAt: true,
-    createdById: true,
+    createdBy: true,
   })
   .extend({
     primaryContact: z

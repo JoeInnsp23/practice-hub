@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  Activity,
+  Globe,
   LayoutDashboard,
+  Mail,
   MessageSquare,
-  Settings,
-  Shield,
   Users,
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
@@ -14,19 +13,15 @@ import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Invitations", href: "/admin/invitations", icon: Mail },
   { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
+  { name: "Portal Links", href: "/admin/portal-links", icon: Globe },
 ];
 
-const sections = [
-  {
-    title: "System Management",
-    items: [
-      { name: "Settings", href: "/admin/settings", icon: Settings },
-      { name: "Security", href: "/admin/security", icon: Shield },
-      { name: "Activity Logs", href: "/admin/activity", icon: Activity },
-    ],
-  },
-];
+const sections: {
+  title: string;
+  items: { name: string; href: string; icon: typeof Globe }[];
+}[] = [];
 
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   return (

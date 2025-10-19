@@ -88,11 +88,12 @@ export default function CalculatorPage() {
       toast.error("Please select a client first");
       return;
     }
+    const selectedClient = clients.find((c) => c.id === clientId);
     estimateTransactions({
       clientId,
       turnover,
       industry,
-      vatRegistered: true, // TODO: Get from client data
+      vatRegistered: selectedClient?.vatRegistered ?? false,
       saveEstimate: false,
     });
   };

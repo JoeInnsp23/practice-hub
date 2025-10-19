@@ -1,24 +1,36 @@
 // Environment variables are loaded via tsx -r dotenv/config in package.json
+import crypto from "node:crypto";
 import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
   activityLogs,
+  calendarEventAttendees,
+  calendarEvents,
   clientContacts,
   clientDirectors,
+  clientPortalAccess,
+  clientPortalInvitations,
+  clientPortalUsers,
   clientPSCs,
   clientServices,
   clients,
   compliance,
   documents,
+  invitations,
   invoiceItems,
   invoices,
   leads,
+  messages,
+  messageThreadParticipants,
+  messageThreads,
+  notifications,
   onboardingSessions,
   onboardingTasks,
   portalCategories,
   portalLinks,
   pricingRules,
+  proposalVersions,
   serviceComponents,
   services,
   tasks,
@@ -63,6 +75,7 @@ async function clearDatabase() {
   await db.delete(portalLinks);
   await db.delete(portalCategories);
 
+  await db.delete(invitations);
   await db.delete(users);
   await db.delete(tenants);
 
@@ -77,6 +90,7 @@ async function seedDatabase() {
   const [tenant] = await db
     .insert(tenants)
     .values({
+      id: crypto.randomUUID(), // Better Auth requires text ID
       name: "Demo Accounting Firm",
       slug: "demo-firm",
     })
@@ -86,36 +100,40 @@ async function seedDatabase() {
   console.log("Creating users...");
   const userList = [
     {
-      clerkId: "user_316Q56M4cs8UNbHyh7YaAJADGKs", // Real Clerk user ID for joe@pageivy.com
       email: "joe@pageivy.com",
       firstName: "Joe",
-      lastName: "User",
+      lastName: "Test",
+      name: "Joe Test",
       role: "admin",
       hourlyRate: "150",
+      emailVerified: true,
     },
     {
-      clerkId: "user_demo_accountant1",
       email: "sarah.johnson@demo.com",
       firstName: "Sarah",
       lastName: "Johnson",
+      name: "Sarah Johnson",
       role: "accountant",
       hourlyRate: "120",
+      emailVerified: true,
     },
     {
-      clerkId: "user_demo_accountant2",
       email: "mike.chen@demo.com",
       firstName: "Mike",
       lastName: "Chen",
+      name: "Mike Chen",
       role: "accountant",
       hourlyRate: "110",
+      emailVerified: true,
     },
     {
-      clerkId: "user_demo_member",
       email: "emily.davis@demo.com",
       firstName: "Emily",
       lastName: "Davis",
+      name: "Emily Davis",
       role: "member",
       hourlyRate: "85",
+      emailVerified: true,
     },
   ];
 
@@ -123,6 +141,7 @@ async function seedDatabase() {
     .insert(users)
     .values(
       userList.map((user) => ({
+        id: crypto.randomUUID(), // Better Auth requires text ID
         ...user,
         tenantId: tenant.id,
         isActive: true,
@@ -132,7 +151,30 @@ async function seedDatabase() {
 
   const [adminUser, _sarah, _mike, _emily] = createdUsers;
 
-  // 2.5. Create Portal Categories and Links
+  // 2.5. Create Invitations
+  console.log("Creating invitations...");
+  await db.insert(invitations).values([
+    {
+      tenantId: tenant.id,
+      email: "newuser@example.com",
+      role: "accountant",
+      token: crypto.randomBytes(32).toString("hex"),
+      invitedBy: adminUser.id,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    },
+    {
+      tenantId: tenant.id,
+      email: "teammember@example.com",
+      role: "member",
+      token: crypto.randomBytes(32).toString("hex"),
+      invitedBy: adminUser.id,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    },
+  ]);
+
+  // 2.6. Create Portal Categories and Links
   console.log("Creating portal categories and links...");
 
   // Create Portal Categories
@@ -230,18 +272,39 @@ async function seedDatabase() {
       sortOrder: 7,
     },
     {
-      title: "Client Portal",
-      description: "Client self-service portal",
-      url: "/client-portal",
-      iconName: "UserCircle",
+      title: "Client Admin",
+      description: "Manage external client portal users and access",
+      url: "/client-admin",
+      iconName: "Users",
       sortOrder: 8,
+    },
+    {
+      title: "Documents",
+      description: "File storage and document management",
+      url: "/client-hub/documents",
+      iconName: "FolderOpen",
+      sortOrder: 9,
+    },
+    {
+      title: "Messages",
+      description: "Team chat and client communication",
+      url: "/practice-hub/messages",
+      iconName: "MessageSquare",
+      sortOrder: 10,
+    },
+    {
+      title: "Calendar",
+      description: "Events, meetings, and deadlines",
+      url: "/practice-hub/calendar",
+      iconName: "Calendar",
+      sortOrder: 11,
     },
     {
       title: "Admin Panel",
       description: "System administration and configuration",
       url: "/admin",
       iconName: "Settings",
-      sortOrder: 9,
+      sortOrder: 12,
     },
   ];
 
@@ -995,6 +1058,117 @@ async function seedDatabase() {
     });
   });
 
+  // MGMT_QUARTERLY - Turnover-based pricing (50% of monthly)
+  mgmtMonthlyTurnoverBands.forEach((band, index) => {
+    pricingRulesList.push({
+      componentId: getComponent("MGMT_QUARTERLY").id,
+      ruleType: "turnover_band" as const,
+      minValue: band.min.toString(),
+      maxValue: band.max.toString(),
+      price: (mgmtMonthlyPrices[index] * 0.5).toString(),
+    });
+  });
+
+  // PAYROLL_STANDARD - Employee count based pricing (Monthly frequency base)
+  const payrollEmployeeBands = [
+    {
+      minEmployees: 1,
+      maxEmployees: 1,
+      price: 18,
+      description: "Director only",
+    },
+    { minEmployees: 2, maxEmployees: 2, price: 35, description: "2 employees" },
+    { minEmployees: 3, maxEmployees: 3, price: 50, description: "3 employees" },
+    {
+      minEmployees: 4,
+      maxEmployees: 5,
+      price: 65,
+      description: "4-5 employees",
+    },
+    {
+      minEmployees: 6,
+      maxEmployees: 10,
+      price: 90,
+      description: "6-10 employees",
+    },
+    {
+      minEmployees: 11,
+      maxEmployees: 15,
+      price: 130,
+      description: "11-15 employees",
+    },
+    {
+      minEmployees: 16,
+      maxEmployees: 20,
+      price: 170,
+      description: "16-20 employees",
+    },
+  ];
+
+  payrollEmployeeBands.forEach((band) => {
+    // Monthly (base rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: band.price.toString(),
+      metadata: { frequency: "monthly", description: band.description },
+    });
+
+    // Weekly (3x monthly rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: (band.price * 3).toString(),
+      metadata: { frequency: "weekly", description: band.description },
+    });
+
+    // Fortnightly (2x monthly rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: (band.price * 2).toString(),
+      metadata: { frequency: "fortnightly", description: band.description },
+    });
+
+    // 4-Weekly (2x monthly rate)
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "employee_band" as const,
+      minValue: band.minEmployees.toString(),
+      maxValue: band.maxEmployees.toString(),
+      price: (band.price * 2).toString(),
+      metadata: { frequency: "4weekly", description: band.description },
+    });
+  });
+
+  // PAYROLL_STANDARD - Per employee pricing for 20+ employees
+  const payrollPerEmployeePricing = [
+    { frequency: "monthly", pricePerEmployee: 5, basePrice: 170 },
+    { frequency: "weekly", pricePerEmployee: 15, basePrice: 510 },
+    { frequency: "fortnightly", pricePerEmployee: 10, basePrice: 340 },
+    { frequency: "4weekly", pricePerEmployee: 10, basePrice: 340 },
+  ];
+
+  payrollPerEmployeePricing.forEach((pricing) => {
+    pricingRulesList.push({
+      componentId: getComponent("PAYROLL_STANDARD").id,
+      ruleType: "per_unit" as const,
+      minValue: "21",
+      price: pricing.pricePerEmployee.toString(),
+      metadata: {
+        frequency: pricing.frequency,
+        basePrice: pricing.basePrice,
+        description: `Per employee over 20 (${pricing.frequency})`,
+      },
+    });
+  });
+
   // Insert all pricing rules
   const createdPricingRules = await db
     .insert(pricingRules)
@@ -1038,6 +1212,7 @@ async function seedDatabase() {
       email: faker.internet.email(),
       phone: faker.phone.number(),
       website: isCompany ? faker.internet.url() : null,
+      vatRegistered: isCompany,
       vatNumber: isCompany ? `GB${faker.string.numeric(9)}` : null,
       registrationNumber: isCompany
         ? faker.string.alphanumeric(8).toUpperCase()
@@ -2402,26 +2577,17 @@ async function seedDatabase() {
 
   console.log(`✓ ${workflowInstanceCount} Workflow instances created`);
 
-  // 12. Create Documents
-  console.log("Creating documents...");
-  const _documentTypes = ["file", "folder"] as const;
+  // 12. Create Documents (with actual S3 uploads)
+  console.log("Creating documents and uploading to S3...");
+  const { uploadPublicFile } = await import("../lib/s3/upload");
+
   const fileTypes = [
-    { name: "Tax Return 2023.pdf", mimeType: "application/pdf", size: 245678 },
-    { name: "Invoice_March.pdf", mimeType: "application/pdf", size: 123456 },
-    { name: "Bank_Statement.pdf", mimeType: "application/pdf", size: 456789 },
-    { name: "Receipts.zip", mimeType: "application/zip", size: 2345678 },
-    {
-      name: "Accounts_2023.xlsx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      size: 345678,
-    },
-    {
-      name: "Meeting_Notes.docx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      size: 123456,
-    },
+    { name: "Tax_Return_2023.pdf", mimeType: "application/pdf" },
+    { name: "Invoice_March.pdf", mimeType: "application/pdf" },
+    { name: "Bank_Statement.pdf", mimeType: "application/pdf" },
+    { name: "Contract.pdf", mimeType: "application/pdf" },
+    { name: "Receipt.pdf", mimeType: "application/pdf" },
+    { name: "Meeting_Notes.txt", mimeType: "text/plain" },
   ];
 
   // Create root folders
@@ -2432,6 +2598,7 @@ async function seedDatabase() {
     "Contracts",
     "Correspondence",
   ];
+
   for (const folderName of rootFolders) {
     const [folder] = await db
       .insert(documents)
@@ -2444,29 +2611,72 @@ async function seedDatabase() {
       })
       .returning();
 
-    // Add some files to each folder
-    for (let i = 0; i < faker.number.int({ min: 2, max: 5 }); i++) {
+    // Add some files to each folder (with actual S3 uploads)
+    for (let i = 0; i < faker.number.int({ min: 2, max: 3 }); i++) {
       const fileTemplate = faker.helpers.arrayElement(fileTypes);
       const client = faker.helpers.arrayElement(createdClients);
+      const fileName = `${client.name.replace(/\s+/g, "_")}_${fileTemplate.name}`;
 
-      await db.insert(documents).values({
-        tenantId: tenant.id,
-        name: `${client.name}_${fileTemplate.name}`,
-        type: "file",
-        mimeType: fileTemplate.mimeType,
-        size: fileTemplate.size,
-        parentId: folder.id,
-        path: `/${folderName}/${client.name}_${fileTemplate.name}`,
-        clientId: client.id,
-        uploadedById: faker.helpers.arrayElement(createdUsers).id,
-        description: faker.lorem.sentence(),
-        tags: faker.helpers.arrayElements(
-          ["important", "archived", "pending-review", "approved"],
-          { min: 0, max: 2 },
-        ),
-      });
+      // Generate sample file content
+      const fileContent = `${folderName} - ${fileName}\n\nClient: ${client.name}\nGenerated: ${new Date().toISOString()}\n\n${faker.lorem.paragraphs(3)}\n\nThis is a sample document for testing purposes.`;
+      const buffer = Buffer.from(fileContent, "utf-8");
+
+      try {
+        // Upload to S3
+        const timestamp = Date.now();
+        const randomString = Math.random().toString(36).slice(2, 11);
+        const s3Key = `documents/${tenant.id}/${timestamp}-${randomString}-${fileName}`;
+        const publicUrl = await uploadPublicFile(
+          buffer,
+          s3Key,
+          fileTemplate.mimeType,
+        );
+
+        // Create database record
+        await db.insert(documents).values({
+          tenantId: tenant.id,
+          name: fileName,
+          type: "file",
+          mimeType: fileTemplate.mimeType,
+          size: buffer.length,
+          url: publicUrl,
+          parentId: folder.id,
+          path: `/${folderName}/${fileName}`,
+          clientId: client.id,
+          uploadedById: faker.helpers.arrayElement(createdUsers).id,
+          description: faker.lorem.sentence(),
+          tags: faker.helpers.arrayElements(
+            ["important", "archived", "pending-review", "approved"],
+            { min: 0, max: 2 },
+          ),
+        });
+      } catch (error) {
+        console.warn(
+          `Failed to upload ${fileName} to S3 (MinIO may not be running):`,
+          error instanceof Error ? error.message : error,
+        );
+        // Create database record without S3 URL
+        await db.insert(documents).values({
+          tenantId: tenant.id,
+          name: fileName,
+          type: "file",
+          mimeType: fileTemplate.mimeType,
+          size: buffer.length,
+          url: null,
+          parentId: folder.id,
+          path: `/${folderName}/${fileName}`,
+          clientId: client.id,
+          uploadedById: faker.helpers.arrayElement(createdUsers).id,
+          description: faker.lorem.sentence(),
+          tags: faker.helpers.arrayElements(
+            ["important", "archived", "pending-review", "approved"],
+            { min: 0, max: 2 },
+          ),
+        });
+      }
     }
   }
+  console.log("✓ Documents created and uploaded to S3");
 
   // 13. Create Activity Logs
   console.log("Creating activity logs...");
@@ -2529,6 +2739,487 @@ async function seedDatabase() {
       },
     });
   }
+
+  // 13. Client Portal Users and Access
+  console.log("Creating client portal users and access...");
+
+  // Create client portal users for some of the clients
+  const clientPortalUsersList = [
+    {
+      email: "john.smith@techstart.com",
+      firstName: "John",
+      lastName: "Smith",
+      phone: "+44 20 1234 5678",
+      status: "active",
+    },
+    {
+      email: "sarah.williams@techstart.com",
+      firstName: "Sarah",
+      lastName: "Williams",
+      phone: "+44 20 1234 5679",
+      status: "active",
+    },
+  ];
+
+  const createdPortalUsers = await db
+    .insert(clientPortalUsers)
+    .values(
+      clientPortalUsersList.map((user) => ({
+        id: crypto.randomUUID(),
+        ...user,
+        tenantId: tenant.id,
+        invitedBy: adminUser.id,
+        invitedAt: faker.date.recent({ days: 30 }),
+        acceptedAt: faker.date.recent({ days: 25 }),
+      })),
+    )
+    .returning();
+
+  // Grant access to clients (multi-client linking)
+  // First portal user has access to multiple clients
+  await db.insert(clientPortalAccess).values([
+    {
+      tenantId: tenant.id,
+      portalUserId: createdPortalUsers[0].id,
+      clientId: createdClients[0].id, // TechStart Solutions
+      role: "admin",
+      grantedBy: adminUser.id,
+      isActive: true,
+    },
+    {
+      tenantId: tenant.id,
+      portalUserId: createdPortalUsers[0].id,
+      clientId: createdClients[1].id, // Green Energy Ltd
+      role: "viewer",
+      grantedBy: adminUser.id,
+      isActive: true,
+    },
+  ]);
+
+  // Second portal user has access to one client
+  await db.insert(clientPortalAccess).values([
+    {
+      tenantId: tenant.id,
+      portalUserId: createdPortalUsers[1].id,
+      clientId: createdClients[0].id, // TechStart Solutions
+      role: "viewer",
+      grantedBy: adminUser.id,
+      isActive: true,
+    },
+  ]);
+
+  // Create pending client portal invitations
+  await db.insert(clientPortalInvitations).values([
+    {
+      tenantId: tenant.id,
+      email: "finance@retailco.com",
+      firstName: "Michael",
+      lastName: "Brown",
+      clientIds: [createdClients[2].id], // RetailCo Ltd
+      role: "admin",
+      token: crypto.randomBytes(32).toString("hex"),
+      invitedBy: adminUser.id,
+      status: "pending",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  ]);
+
+  // ============================================================================
+  // Phase 1: Communication & Collaboration - Seed Data
+  // ============================================================================
+
+  console.log(
+    "Creating message threads, messages, notifications, and calendar events...",
+  );
+
+  // 1. Create Message Threads
+  const threadsList = [
+    {
+      type: "team_channel",
+      name: "General",
+      description: "Team-wide announcements and discussions",
+      isPrivate: false,
+      createdBy: adminUser.id,
+    },
+    {
+      type: "team_channel",
+      name: "Tax Team",
+      description: "Tax-specific discussions",
+      isPrivate: true,
+      createdBy: adminUser.id,
+    },
+    {
+      type: "direct",
+      name: null,
+      createdBy: adminUser.id,
+    },
+    {
+      type: "direct",
+      name: null,
+      createdBy: createdUsers[1].id,
+    },
+    {
+      type: "client",
+      name: null,
+      clientId: createdClients[0].id,
+      createdBy: adminUser.id,
+    },
+  ];
+
+  const createdThreads = await db
+    .insert(messageThreads)
+    .values(
+      threadsList.map((thread) => ({
+        ...thread,
+        tenantId: tenant.id,
+        lastMessageAt: faker.date.recent({ days: 2 }),
+      })),
+    )
+    .returning();
+
+  // 2. Add participants to threads
+  await db.insert(messageThreadParticipants).values([
+    // General channel - everyone
+    ...createdUsers.map((user) => ({
+      threadId: createdThreads[0].id,
+      userId: user.id,
+      participantType: "staff" as const,
+      participantId: user.id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    })),
+    // Tax Team channel - tax accountants only
+    {
+      threadId: createdThreads[1].id,
+      userId: adminUser.id,
+      participantType: "staff" as const,
+      participantId: adminUser.id,
+      role: "admin",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[1].id,
+      userId: createdUsers[1].id,
+      participantType: "staff" as const,
+      participantId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    // DM between admin and user 1
+    {
+      threadId: createdThreads[2].id,
+      userId: adminUser.id,
+      participantType: "staff" as const,
+      participantId: adminUser.id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[2].id,
+      userId: createdUsers[1].id,
+      participantType: "staff" as const,
+      participantId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    // DM between user 1 and user 2
+    {
+      threadId: createdThreads[3].id,
+      userId: createdUsers[1].id,
+      participantType: "staff" as const,
+      participantId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[3].id,
+      userId: createdUsers[2].id,
+      participantType: "staff" as const,
+      participantId: createdUsers[2].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    // Client thread - admin and user 1
+    {
+      threadId: createdThreads[4].id,
+      userId: adminUser.id,
+      participantType: "staff" as const,
+      participantId: adminUser.id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      threadId: createdThreads[4].id,
+      userId: createdUsers[1].id,
+      participantType: "staff" as const,
+      participantId: createdUsers[1].id,
+      role: "member",
+      lastReadAt: faker.date.recent({ days: 1 }),
+    },
+  ]);
+
+  // 3. Create messages in threads
+  const messagesList = [
+    // General channel messages
+    {
+      threadId: createdThreads[0].id,
+      userId: adminUser.id,
+      senderType: "staff" as const,
+      senderId: adminUser.id,
+      content:
+        "Welcome to Practice Hub team chat! Let's keep all team communication here.",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[0].id,
+      userId: createdUsers[1].id,
+      senderType: "staff" as const,
+      senderId: createdUsers[1].id,
+      content: "Looking forward to using this! Much better than email chains.",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[0].id,
+      userId: createdUsers[2].id,
+      senderType: "staff" as const,
+      senderId: createdUsers[2].id,
+      content: "Agreed! This will help us stay organized.",
+      type: "text",
+    },
+    // Tax Team channel
+    {
+      threadId: createdThreads[1].id,
+      userId: adminUser.id,
+      senderType: "staff" as const,
+      senderId: adminUser.id,
+      content: "Reminder: Tax filing deadline is next week for Q4 clients.",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[1].id,
+      userId: createdUsers[1].id,
+      senderType: "staff" as const,
+      senderId: createdUsers[1].id,
+      content:
+        "On it! I'll reach out to anyone who hasn't submitted documents yet.",
+      type: "text",
+    },
+    // DM between admin and user 1
+    {
+      threadId: createdThreads[2].id,
+      userId: adminUser.id,
+      senderType: "staff" as const,
+      senderId: adminUser.id,
+      content:
+        "Can you review the TechStart Solutions proposal when you have a moment?",
+      type: "text",
+    },
+    {
+      threadId: createdThreads[2].id,
+      userId: createdUsers[1].id,
+      senderType: "staff" as const,
+      senderId: createdUsers[1].id,
+      content:
+        "Sure, I'll take a look this afternoon and send you my feedback.",
+      type: "text",
+    },
+    // Client thread
+    {
+      threadId: createdThreads[4].id,
+      userId: adminUser.id,
+      senderType: "staff" as const,
+      senderId: adminUser.id,
+      content:
+        "Hi! Welcome to your client portal. Feel free to reach out if you have any questions.",
+      type: "text",
+    },
+  ];
+
+  await db.insert(messages).values(
+    messagesList.map((msg, idx) => ({
+      ...msg,
+      createdAt: new Date(Date.now() - (messagesList.length - idx) * 3600000), // Space out by 1 hour
+    })),
+  );
+
+  // 4. Create notifications
+  const notificationsList = [
+    {
+      userId: createdUsers[1].id,
+      type: "task_assigned",
+      title: "New Task Assigned",
+      message: `${adminUser.firstName} ${adminUser.lastName} assigned you a task: Review proposal for TechStart Solutions`,
+      actionUrl: `/client-hub/tasks/${createdTasks[0].id}`,
+      entityType: "task",
+      entityId: createdTasks[0].id,
+      isRead: false,
+    },
+    {
+      userId: createdUsers[2].id,
+      type: "mention",
+      title: "Mentioned in Message",
+      message: `${createdUsers[1].firstName} mentioned you in #General`,
+      actionUrl: `/messages/${createdThreads[0].id}`,
+      entityType: "message",
+      entityId: createdThreads[0].id,
+      isRead: false,
+    },
+    {
+      userId: adminUser.id,
+      type: "approval_needed",
+      title: "KYC Approval Needed",
+      message: "New KYC verification requires your review",
+      actionUrl: "/admin/kyc-review",
+      entityType: "kyc_verification",
+      isRead: true,
+      readAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      userId: createdUsers[1].id,
+      type: "client_message",
+      title: "New Client Message",
+      message: "TechStart Solutions sent you a message",
+      actionUrl: `/messages/${createdThreads[4].id}`,
+      entityType: "message",
+      entityId: createdThreads[4].id,
+      isRead: false,
+    },
+    {
+      userId: createdUsers[2].id,
+      type: "task_assigned",
+      title: "New Task Assigned",
+      message:
+        "You have been assigned to complete tax returns for Green Energy Ltd",
+      actionUrl: `/client-hub/tasks/${createdTasks[5].id}`,
+      entityType: "task",
+      entityId: createdTasks[5].id,
+      isRead: true,
+      readAt: faker.date.recent({ days: 2 }),
+    },
+  ];
+
+  await db.insert(notifications).values(
+    notificationsList.map((notif) => ({
+      ...notif,
+      tenantId: tenant.id,
+      createdAt: faker.date.recent({ days: 3 }),
+    })),
+  );
+
+  // 5. Create calendar events
+  const now = new Date();
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const eventsList = [
+    {
+      title: "Client Meeting: TechStart Solutions",
+      description:
+        "Quarterly review meeting to discuss financials and tax planning",
+      type: "meeting",
+      startTime: new Date(tomorrow.setHours(10, 0, 0, 0)),
+      endTime: new Date(tomorrow.setHours(11, 0, 0, 0)),
+      allDay: false,
+      location: "Conference Room A",
+      clientId: createdClients[0].id,
+      createdBy: adminUser.id,
+      reminderMinutes: 30,
+    },
+    {
+      title: "Team Planning Session",
+      description: "Monthly planning and review",
+      type: "meeting",
+      startTime: new Date(nextWeek.setHours(14, 0, 0, 0)),
+      endTime: new Date(nextWeek.setHours(16, 0, 0, 0)),
+      allDay: false,
+      location: "Main Office",
+      createdBy: adminUser.id,
+      reminderMinutes: 60,
+    },
+    {
+      title: "VAT Return Deadline",
+      description: "Submit VAT returns for all registered clients",
+      type: "deadline",
+      startTime: new Date(nextWeek.getTime() + 3 * 24 * 60 * 60 * 1000),
+      endTime: new Date(nextWeek.getTime() + 3 * 24 * 60 * 60 * 1000),
+      allDay: true,
+      createdBy: adminUser.id,
+      reminderMinutes: 1440, // 1 day before
+    },
+    {
+      title: "Training: New Tax Regulations",
+      description: "Mandatory training session on updated tax regulations",
+      type: "event",
+      startTime: new Date(nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000),
+      endTime: new Date(
+        nextWeek.getTime() + 5 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000,
+      ),
+      allDay: false,
+      location: "Virtual - Zoom",
+      createdBy: adminUser.id,
+      reminderMinutes: 120,
+      metadata: {
+        meetingLink: "https://zoom.us/j/1234567890",
+      },
+    },
+    {
+      title: "Annual Leave",
+      description: "Out of office",
+      type: "out_of_office",
+      startTime: new Date(nextWeek.getTime() + 14 * 24 * 60 * 60 * 1000),
+      endTime: new Date(nextWeek.getTime() + 21 * 24 * 60 * 60 * 1000),
+      allDay: true,
+      createdBy: createdUsers[2].id,
+    },
+  ];
+
+  const createdEvents = await db
+    .insert(calendarEvents)
+    .values(
+      eventsList.map((event) => ({
+        ...event,
+        tenantId: tenant.id,
+      })),
+    )
+    .returning();
+
+  // 6. Add attendees to events
+  await db.insert(calendarEventAttendees).values([
+    // Client meeting - admin and user 1
+    {
+      eventId: createdEvents[0].id,
+      userId: adminUser.id,
+      status: "accepted",
+      isOptional: false,
+      respondedAt: faker.date.recent({ days: 1 }),
+    },
+    {
+      eventId: createdEvents[0].id,
+      userId: createdUsers[1].id,
+      status: "accepted",
+      isOptional: false,
+      respondedAt: faker.date.recent({ days: 1 }),
+    },
+    // Team planning - all users
+    ...createdUsers.map((user) => ({
+      eventId: createdEvents[1].id,
+      userId: user.id,
+      status: "accepted",
+      isOptional: false,
+      respondedAt: faker.date.recent({ days: 2 }),
+    })),
+    // Training - all users
+    ...createdUsers.map((user) => ({
+      eventId: createdEvents[3].id,
+      userId: user.id,
+      status: "pending",
+      isOptional: false,
+    })),
+  ]);
+
+  console.log(
+    "✓ Created message threads, messages, notifications, and calendar events",
+  );
 
   console.log("✅ Database seeding completed!");
 

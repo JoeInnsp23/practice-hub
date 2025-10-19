@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   Plus,
   Search,
@@ -130,7 +131,10 @@ export default function ClientsPage() {
       utils.clients.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error deleting client:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "delete_client", module: "client-hub" },
+        extra: { errorMessage: error.message },
+      });
       toast.error("Failed to delete client");
     },
   });
@@ -148,7 +152,10 @@ export default function ClientsPage() {
       utils.clients.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error saving client:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "create_client", module: "client-hub" },
+        extra: { errorMessage: error.message },
+      });
       toast.error(error.message || "Failed to save client");
     },
   });
@@ -160,7 +167,10 @@ export default function ClientsPage() {
       utils.clients.list.invalidate();
     },
     onError: (error) => {
-      console.error("Error saving client:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "update_client", module: "client-hub" },
+        extra: { clientId: editingClient?.id, errorMessage: error.message },
+      });
       toast.error(error.message || "Failed to save client");
     },
   });

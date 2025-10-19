@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -6,11 +7,22 @@ import { db } from "@/lib/db";
 import {
   activityLogs,
   clients,
+  leads,
   proposalServices,
   proposalSignatures,
   proposals,
+  proposalVersions,
+  users,
 } from "@/lib/db/schema";
-import { protectedProcedure, router } from "../trpc";
+import { docusealClient } from "@/lib/docuseal/client";
+import { sendSigningInvitation } from "@/lib/docuseal/email-handler";
+import { getProposalSignatureFields } from "@/lib/docuseal/uk-compliance-fields";
+import {
+  sendSignedConfirmationEmail,
+  sendTeamNotificationEmail,
+} from "@/lib/email/send-proposal-email";
+import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 
 // Status enum for filtering
 const proposalStatusEnum = z.enum([
@@ -263,6 +275,110 @@ export const proposalsRouter = router({
       return { success: true, proposal: result };
     }),
 
+  // Create proposal from lead
+  createFromLead: protectedProcedure
+    .input(z.object({ leadId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get lead data
+      const [lead] = await db
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, input.leadId), eq(leads.tenantId, tenantId)))
+        .limit(1);
+
+      if (!lead) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lead not found",
+        });
+      }
+
+      // Generate proposal number
+      const lastProposal = await db
+        .select({ proposalNumber: proposals.proposalNumber })
+        .from(proposals)
+        .where(eq(proposals.tenantId, tenantId))
+        .orderBy(desc(proposals.createdAt))
+        .limit(1);
+
+      let proposalNumber = "PROP-0001";
+      if (lastProposal[0]?.proposalNumber) {
+        const lastNum = Number.parseInt(
+          lastProposal[0].proposalNumber.split("-")[1],
+          10,
+        );
+        proposalNumber = `PROP-${String(lastNum + 1).padStart(4, "0")}`;
+      }
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Create proposal with lead data pre-filled
+        const [newProposal] = await tx
+          .insert(proposals)
+          .values({
+            tenantId,
+            leadId: input.leadId,
+            proposalNumber,
+            title: `Proposal for ${lead.companyName || `${lead.firstName} ${lead.lastName}`}`,
+            clientId: null, // Will be set when client is created
+            status: "draft",
+            pricingModelUsed: "model_b", // Default
+            turnover: lead.estimatedTurnover || null,
+            industry: lead.industry || null,
+            monthlyTotal: "0",
+            annualTotal: "0",
+            createdById: userId,
+          })
+          .returning();
+
+        // Update lead status to proposal_sent
+        await tx
+          .update(leads)
+          .set({
+            status: "proposal_sent",
+            updatedAt: new Date(),
+          })
+          .where(eq(leads.id, input.leadId));
+
+        // Log activity for lead
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "lead",
+          entityId: input.leadId,
+          action: "proposal_created",
+          description: `Created proposal ${proposalNumber} from lead`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          newValues: {
+            proposalId: newProposal.id,
+            proposalNumber,
+          },
+        });
+
+        // Log activity for proposal
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: newProposal.id,
+          action: "created",
+          description: `Created from lead "${lead.companyName || `${lead.firstName} ${lead.lastName}`}"`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          newValues: {
+            leadId: input.leadId,
+            title: newProposal.title,
+            status: "draft",
+          },
+        });
+
+        return newProposal;
+      });
+
+      return { success: true, proposal: result };
+    }),
+
   // Update proposal
   update: protectedProcedure
     .input(
@@ -408,10 +524,21 @@ export const proposalsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-      // Check proposal exists
+      // Check proposal exists and get client information
       const [existingProposal] = await db
-        .select()
+        .select({
+          id: proposals.id,
+          title: proposals.title,
+          status: proposals.status,
+          clientId: proposals.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          pdfUrl: proposals.pdfUrl,
+          proposalNumber: proposals.proposalNumber,
+          docusealTemplateId: proposals.docusealTemplateId,
+        })
         .from(proposals)
+        .leftJoin(clients, eq(proposals.clientId, clients.id))
         .where(
           and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
         )
@@ -424,17 +551,123 @@ export const proposalsRouter = router({
         });
       }
 
-      // Update proposal status
+      // Verify client information exists
+      if (!existingProposal.clientName || !existingProposal.clientEmail) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Client name and email are required to send proposal",
+        });
+      }
+
+      // Generate PDF if not already generated
+      let pdfUrl = existingProposal.pdfUrl;
+      if (!pdfUrl) {
+        const result = await generateProposalPdf({
+          proposalId: input.id,
+          companyName: "Innspired Accountancy",
+          preparedBy: "Joseph Stephenson-Mouzo, Managing Director",
+        });
+        pdfUrl = result.pdfUrl;
+      }
+
+      // Create or get DocuSeal template
+      let templateId: string = existingProposal.docusealTemplateId || "";
+
+      if (!templateId) {
+        try {
+          const template = await docusealClient.createTemplate({
+            name: `Proposal ${existingProposal.proposalNumber} - ${existingProposal.clientName}`,
+            fields: getProposalSignatureFields({
+              companyName: existingProposal.clientName || undefined,
+              clientName: existingProposal.clientName || undefined,
+            }),
+          });
+          templateId = template.id;
+        } catch (error) {
+          Sentry.captureException(error, {
+            tags: { operation: "create_docuseal_template" },
+            extra: { proposalId: input.id, proposalNumber: existingProposal.proposalNumber },
+          });
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create signature template",
+          });
+        }
+      }
+
+      // Ensure we have a templateId at this point
+      if (!templateId) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to obtain template ID",
+        });
+      }
+
+      // Create DocuSeal submission for signing
+      let submissionId: string;
+      try {
+        const submission = await docusealClient.createSubmission({
+          template_id: templateId,
+          send_email: false, // We'll send via Resend
+          submitters: [
+            {
+              email: existingProposal.clientEmail,
+              name: existingProposal.clientName,
+              role: "Client",
+            },
+          ],
+          metadata: {
+            proposal_id: input.id,
+            proposal_number: existingProposal.proposalNumber,
+            tenant_id: tenantId,
+          },
+        });
+        submissionId = submission.id;
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { operation: "create_docuseal_submission" },
+          extra: { proposalId: input.id, templateId },
+        });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create signature submission",
+        });
+      }
+
+      // Update proposal status and DocuSeal IDs
       const [updatedProposal] = await db
         .update(proposals)
         .set({
           status: "sent",
           sentAt: new Date(),
           validUntil: new Date(input.validUntil),
+          pdfUrl,
+          docusealTemplateId: templateId,
+          docusealSubmissionId: submissionId,
           updatedAt: new Date(),
         })
         .where(eq(proposals.id, input.id))
         .returning();
+
+      // Send signing invitation email via Resend
+      const embeddedSigningUrl = `${process.env.NEXT_PUBLIC_APP_URL}/proposals/sign/${input.id}`;
+
+      try {
+        await sendSigningInvitation({
+          proposalId: input.id,
+          proposalNumber: existingProposal.proposalNumber,
+          recipientEmail: existingProposal.clientEmail,
+          recipientName: existingProposal.clientName,
+          embeddedSigningUrl,
+        });
+      } catch (emailError) {
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_signing_invitation_email" },
+          extra: { proposalId: input.id, recipientEmail: existingProposal.clientEmail },
+        });
+        // Don't fail the mutation if email fails, just log it
+        // The proposal is still marked as sent
+      }
 
       // Log activity
       await db.insert(activityLogs).values({
@@ -442,13 +675,15 @@ export const proposalsRouter = router({
         entityType: "proposal",
         entityId: input.id,
         action: "sent",
-        description: `Sent proposal "${existingProposal.title}" to client`,
+        description: `Sent proposal "${existingProposal.title}" to ${existingProposal.clientEmail}`,
         userId,
         userName: `${firstName} ${lastName}`,
+        newValues: {
+          status: "sent",
+          sentAt: new Date(),
+          pdfUrl,
+        },
       });
-
-      // TODO: Send email notification to client
-      // TODO: Generate PDF if not already generated
 
       return { success: true, proposal: updatedProposal };
     }),
@@ -520,6 +755,8 @@ export const proposalsRouter = router({
         });
       }
 
+      const signedAt = new Date();
+
       // Start transaction
       const result = await db.transaction(async (tx) => {
         // Add signature record
@@ -531,8 +768,16 @@ export const proposalsRouter = router({
             signerName: input.signerName,
             signerEmail: input.signerEmail,
             signatureData: input.signatureData,
+            signatureMethod: "canvas",
+            auditTrail: {
+              signedAt: signedAt.toISOString(),
+              signerName: input.signerName,
+              signerEmail: input.signerEmail,
+              ipAddress: input.ipAddress,
+              method: "manual_signature",
+            },
             ipAddress: input.ipAddress,
-            signedAt: new Date(),
+            signedAt,
           })
           .returning();
 
@@ -541,13 +786,45 @@ export const proposalsRouter = router({
           .update(proposals)
           .set({
             status: "signed",
-            signedAt: new Date(),
+            signedAt,
             updatedAt: new Date(),
           })
           .where(eq(proposals.id, input.proposalId));
 
         return signature;
       });
+
+      // Send confirmation email to client
+      try {
+        await sendSignedConfirmationEmail({
+          proposalId: input.proposalId,
+          signerName: input.signerName,
+          signerEmail: input.signerEmail,
+          signedAt,
+        });
+      } catch (emailError) {
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_client_confirmation_email" },
+          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+        });
+        // Don't fail the mutation if email fails
+      }
+
+      // Send notification to internal team
+      try {
+        await sendTeamNotificationEmail({
+          proposalId: input.proposalId,
+          signerName: input.signerName,
+          signerEmail: input.signerEmail,
+          signedAt,
+        });
+      } catch (emailError) {
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_team_notification_email" },
+          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+        });
+        // Don't fail the mutation if email fails
+      }
 
       return { success: true, signature: result };
     }),
@@ -568,4 +845,564 @@ export const proposalsRouter = router({
 
     return { stats };
   }),
+
+  // Generate PDF for proposal
+  generatePdf: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input: proposalId }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Verify proposal exists and belongs to tenant
+      const proposal = await db.query.proposals.findFirst({
+        where: and(
+          eq(proposals.id, proposalId),
+          eq(proposals.tenantId, tenantId),
+        ),
+      });
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Generate PDF
+      const { pdfUrl } = await generateProposalPdf({
+        proposalId,
+        companyName: "Innspired Accountancy",
+        preparedBy: "Joseph Stephenson-Mouzo, Managing Director",
+      });
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: proposalId,
+        action: "pdf_generated",
+        description: `Generated PDF for proposal "${proposal.title}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: {
+          pdfUrl,
+        },
+      });
+
+      return { success: true, pdfUrl };
+    }),
+
+  // PROPOSAL VERSIONING
+
+  // Create a version snapshot of current proposal
+  createVersion: protectedProcedure
+    .input(
+      z.object({
+        proposalId: z.string(),
+        changeDescription: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get current proposal with services
+      const [proposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Get proposal services
+      const services = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, input.proposalId));
+
+      // Get user details for version metadata
+      const [user] = await db
+        .select({
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      const createdByName = user
+        ? `${user.firstName} ${user.lastName}`.trim()
+        : `${firstName} ${lastName}`.trim();
+
+      // Create version snapshot
+      const [version] = await db
+        .insert(proposalVersions)
+        .values({
+          tenantId,
+          proposalId: input.proposalId,
+          version: proposal.version || 1,
+          proposalNumber: proposal.proposalNumber,
+          title: proposal.title,
+          status: proposal.status,
+          turnover: proposal.turnover,
+          industry: proposal.industry,
+          monthlyTransactions: proposal.monthlyTransactions,
+          pricingModelUsed: proposal.pricingModelUsed,
+          monthlyTotal: proposal.monthlyTotal,
+          annualTotal: proposal.annualTotal,
+          services: services.map((s) => ({
+            componentCode: s.componentCode,
+            componentName: s.componentName,
+            calculation: s.calculation,
+            price: s.price,
+            config: s.config,
+          })),
+          customTerms: proposal.customTerms,
+          termsAndConditions: proposal.termsAndConditions,
+          notes: proposal.notes,
+          pdfUrl: proposal.pdfUrl,
+          changeDescription: input.changeDescription,
+          createdById: userId,
+          createdByName,
+        })
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: input.proposalId,
+        action: "version_created",
+        description: `Created version ${proposal.version || 1} snapshot${input.changeDescription ? `: ${input.changeDescription}` : ""}`,
+        userId,
+        userName: createdByName,
+        newValues: {
+          versionId: version.id,
+          version: version.version,
+        },
+      });
+
+      return { success: true, version };
+    }),
+
+  // Update proposal with automatic versioning
+  updateWithVersion: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        changeDescription: z.string().optional(),
+        data: proposalSchema.partial(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get current proposal with services
+      const [existingProposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!existingProposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      const currentVersion = existingProposal.version || 1;
+      const newVersion = currentVersion + 1;
+
+      // Get current services
+      const currentServices = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, input.id));
+
+      // Get user details
+      const [user] = await db
+        .select({
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      const createdByName = user
+        ? `${user.firstName} ${user.lastName}`.trim()
+        : `${firstName} ${lastName}`.trim();
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // 1. Create version snapshot of CURRENT state (before update)
+        await tx.insert(proposalVersions).values({
+          tenantId,
+          proposalId: input.id,
+          version: currentVersion,
+          proposalNumber: existingProposal.proposalNumber,
+          title: existingProposal.title,
+          status: existingProposal.status,
+          turnover: existingProposal.turnover,
+          industry: existingProposal.industry,
+          monthlyTransactions: existingProposal.monthlyTransactions,
+          pricingModelUsed: existingProposal.pricingModelUsed,
+          monthlyTotal: existingProposal.monthlyTotal,
+          annualTotal: existingProposal.annualTotal,
+          services: currentServices.map((s) => ({
+            componentCode: s.componentCode,
+            componentName: s.componentName,
+            calculation: s.calculation,
+            price: s.price,
+            config: s.config,
+          })),
+          customTerms: existingProposal.customTerms,
+          termsAndConditions: existingProposal.termsAndConditions,
+          notes: existingProposal.notes,
+          pdfUrl: existingProposal.pdfUrl,
+          changeDescription: input.changeDescription || "Proposal updated",
+          createdById: userId,
+          createdByName,
+        });
+
+        // 2. Update proposal with new data
+        const [updatedProposal] = await tx
+          .update(proposals)
+          .set({
+            ...input.data,
+            version: newVersion,
+            validUntil: input.data.validUntil
+              ? new Date(input.data.validUntil)
+              : undefined,
+            sentAt: input.data.sentAt ? new Date(input.data.sentAt) : undefined,
+            viewedAt: input.data.viewedAt
+              ? new Date(input.data.viewedAt)
+              : undefined,
+            signedAt: input.data.signedAt
+              ? new Date(input.data.signedAt)
+              : undefined,
+            updatedAt: new Date(),
+          })
+          .where(eq(proposals.id, input.id))
+          .returning();
+
+        // 3. Update services if provided
+        if (input.data.services) {
+          // Delete existing services
+          await tx
+            .delete(proposalServices)
+            .where(eq(proposalServices.proposalId, input.id));
+
+          // Insert new services
+          if (input.data.services.length > 0) {
+            await tx.insert(proposalServices).values(
+              input.data.services.map((service) => ({
+                tenantId,
+                proposalId: input.id,
+                componentCode: service.componentCode,
+                componentName: service.componentName,
+                calculation: service.calculation,
+                price: String(service.price),
+                config: service.config,
+              })),
+            );
+          }
+        }
+
+        // 4. Log activity
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: input.id,
+          action: "updated",
+          description: `Updated proposal to version ${newVersion}${input.changeDescription ? `: ${input.changeDescription}` : ""}`,
+          userId,
+          userName: createdByName,
+          oldValues: { version: currentVersion },
+          newValues: { version: newVersion, ...input.data },
+        });
+
+        return updatedProposal;
+      });
+
+      // 5. Regenerate PDF if services changed
+      if (input.data.services && input.data.services.length > 0) {
+        try {
+          await generateProposalPdf({
+            proposalId: input.id,
+            companyName: "Innspired Accountancy",
+            preparedBy: "Joseph Stephenson-Mouzo, Managing Director",
+          });
+        } catch (pdfError) {
+          // Log but don't fail the mutation
+          Sentry.captureException(pdfError, {
+            tags: { operation: "regenerate_proposal_pdf" },
+            extra: { proposalId: input.id, version: newVersion },
+          });
+        }
+      }
+
+      return { success: true, proposal: result, newVersion };
+    }),
+
+  // Get version history for a proposal
+  getVersionHistory: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: proposalId }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify proposal exists
+      const [proposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, proposalId), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Get all versions
+      const versions = await db
+        .select()
+        .from(proposalVersions)
+        .where(eq(proposalVersions.proposalId, proposalId))
+        .orderBy(desc(proposalVersions.version));
+
+      return { versions, currentVersion: proposal.version || 1 };
+    }),
+
+  // Get specific version by ID
+  getVersionById: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: versionId }) => {
+      const { tenantId } = ctx.authContext;
+
+      const [version] = await db
+        .select()
+        .from(proposalVersions)
+        .where(
+          and(
+            eq(proposalVersions.id, versionId),
+            eq(proposalVersions.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!version) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Version not found",
+        });
+      }
+
+      return { version };
+    }),
+
+  // PUBLIC ENDPOINTS FOR E-SIGNATURE
+
+  // Get proposal for signature (public - no auth required)
+  getProposalForSignature: publicProcedure
+    .input(z.string())
+    .query(async ({ input: id }) => {
+      // Get proposal with client information (no tenant filter for public access)
+      const [proposal] = await db
+        .select({
+          id: proposals.id,
+          proposalNumber: proposals.proposalNumber,
+          title: proposals.title,
+          clientId: proposals.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          status: proposals.status,
+          pricingModelUsed: proposals.pricingModelUsed,
+          monthlyTotal: proposals.monthlyTotal,
+          annualTotal: proposals.annualTotal,
+          notes: proposals.notes,
+          termsAndConditions: proposals.termsAndConditions,
+          pdfUrl: proposals.pdfUrl,
+          docusealSubmissionId: proposals.docusealSubmissionId,
+          validUntil: proposals.validUntil,
+          sentAt: proposals.sentAt,
+          signedAt: proposals.signedAt,
+          tenantId: proposals.tenantId,
+        })
+        .from(proposals)
+        .leftJoin(clients, eq(proposals.clientId, clients.id))
+        .where(eq(proposals.id, id))
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Don't allow signing if already signed
+      if (proposal.status === "signed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has already been signed",
+        });
+      }
+
+      // Check if proposal is expired
+      if (proposal.validUntil && new Date() > proposal.validUntil) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has expired",
+        });
+      }
+
+      // Get proposal services
+      const services = await db
+        .select()
+        .from(proposalServices)
+        .where(eq(proposalServices.proposalId, id));
+
+      return { ...proposal, services };
+    }),
+
+  // Submit signature (public - no auth required)
+  submitSignature: publicProcedure
+    .input(
+      z.object({
+        proposalId: z.string(),
+        signerName: z.string(),
+        signerEmail: z.string(),
+        signatureData: z.string(),
+        ipAddress: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      // Get proposal first (includes tenant ID)
+      const [existingProposal] = await db
+        .select()
+        .from(proposals)
+        .where(eq(proposals.id, input.proposalId))
+        .limit(1);
+
+      if (!existingProposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Check if already signed
+      if (existingProposal.status === "signed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has already been signed",
+        });
+      }
+
+      // Check if expired
+      if (
+        existingProposal.validUntil &&
+        new Date() > existingProposal.validUntil
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This proposal has expired",
+        });
+      }
+
+      const signedAt = new Date();
+      const { tenantId } = existingProposal;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Add signature record
+        const [signature] = await tx
+          .insert(proposalSignatures)
+          .values({
+            tenantId,
+            proposalId: input.proposalId,
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+            signatureData: input.signatureData,
+            signatureMethod: "canvas",
+            auditTrail: {
+              signedAt: signedAt.toISOString(),
+              signerName: input.signerName,
+              signerEmail: input.signerEmail,
+              ipAddress: input.ipAddress,
+              method: "manual_signature",
+            },
+            ipAddress: input.ipAddress,
+            signedAt,
+          })
+          .returning();
+
+        // Update proposal status
+        await tx
+          .update(proposals)
+          .set({
+            status: "signed",
+            signedAt,
+          })
+          .where(eq(proposals.id, input.proposalId));
+
+        // Log activity (no userId since this is public)
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: input.proposalId,
+          action: "proposal_signed",
+          description: `Proposal signed by ${input.signerName} (${input.signerEmail})`,
+          userId: null, // No user ID for public signature
+          userName: input.signerName,
+          newValues: {
+            status: "signed",
+            signedAt: signedAt.toISOString(),
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+          },
+        });
+
+        return signature;
+      });
+
+      // Send confirmation emails to client and team
+      try {
+        await Promise.all([
+          sendSignedConfirmationEmail({
+            proposalId: input.proposalId,
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+            signedAt,
+          }),
+          sendTeamNotificationEmail({
+            proposalId: input.proposalId,
+            signerName: input.signerName,
+            signerEmail: input.signerEmail,
+            signedAt,
+          }),
+        ]);
+      } catch (emailError) {
+        // Log error but don't fail the signature process
+        Sentry.captureException(emailError, {
+          tags: { operation: "send_proposal_signed_emails" },
+          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+        });
+      }
+
+      return { success: true, signature: result };
+    }),
 });

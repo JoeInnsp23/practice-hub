@@ -215,7 +215,7 @@ export function TimeEntryModal({
           : undefined,
     };
 
-    if (selectedEntry && selectedEntry.id) {
+    if (selectedEntry?.id) {
       await updateTimeEntry.mutateAsync(selectedEntry.id, entryData);
       if (onUpdate) onUpdate();
       toast.success("Time entry updated");

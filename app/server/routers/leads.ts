@@ -10,8 +10,14 @@ import {
   onboardingSessions,
   onboardingTasks,
   proposals,
+  tenants,
 } from "@/lib/db/schema";
-import { protectedProcedure, router } from "../trpc";
+import {
+  sendLeadThankYouEmail,
+  sendNewLeadNotificationEmail,
+} from "@/lib/email/send-lead-email";
+import { calculateLeadScore } from "@/lib/lead-scoring/calculate-score";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 
 // Status enum for filtering
 const leadStatusEnum = z.enum([
@@ -191,6 +197,119 @@ const leadSchema = insertLeadSchema.omit({
 });
 
 export const leadsRouter = router({
+  // Public mutation for lead capture form (no auth required)
+  createPublic: publicProcedure
+    .input(
+      z.object({
+        // Company details
+        companyName: z.string().min(1, "Company name is required"),
+        businessType: z.string().min(1, "Business type is required"),
+        industry: z.string().min(1, "Industry is required"),
+        estimatedTurnover: z.number().min(0),
+        estimatedEmployees: z.number().int().min(0),
+
+        // Contact details
+        firstName: z.string().min(1, "First name is required"),
+        lastName: z.string().min(1, "Last name is required"),
+        email: z.string().email("Valid email is required"),
+        phone: z.string().optional(),
+        position: z.string().optional(),
+
+        // Services
+        interestedServices: z
+          .array(z.string())
+          .min(1, "At least one service is required"),
+        notes: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      // Get the default tenant (first tenant in the system)
+      const [tenant] = await db.select().from(tenants).limit(1);
+
+      if (!tenant) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "No tenant found in system",
+        });
+      }
+
+      // Calculate lead qualification score
+      const qualificationScore = calculateLeadScore({
+        estimatedTurnover: input.estimatedTurnover,
+        estimatedEmployees: input.estimatedEmployees,
+        interestedServices: input.interestedServices,
+        industry: input.industry,
+        businessType: input.businessType,
+      });
+
+      // Create the lead
+      const [newLead] = await db
+        .insert(leads)
+        .values({
+          tenantId: tenant.id,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          email: input.email,
+          phone: input.phone,
+          companyName: input.companyName,
+          position: input.position,
+          industry: input.industry,
+          estimatedTurnover: input.estimatedTurnover.toString(),
+          estimatedEmployees: input.estimatedEmployees,
+          interestedServices: input.interestedServices,
+          qualificationScore,
+          status: "new",
+          source: "website",
+          notes: input.notes
+            ? `Business Type: ${input.businessType}\n\n${input.notes}`
+            : `Business Type: ${input.businessType}`,
+        })
+        .returning();
+
+      // Log activity (without user context since it's public)
+      await db.insert(activityLogs).values({
+        tenantId: tenant.id,
+        entityType: "lead",
+        entityId: newLead.id,
+        action: "created",
+        description: `New lead submitted from website: "${input.firstName} ${input.lastName}" from ${input.companyName}`,
+        userName: "System",
+      });
+
+      // Send email notifications
+      // 1. Send thank you email to lead
+      await sendLeadThankYouEmail({
+        to: input.email,
+        firstName: input.firstName,
+        companyName: input.companyName,
+        estimatedTurnover: input.estimatedTurnover,
+        interestedServices: input.interestedServices,
+      });
+
+      // 2. Send notification to team
+      const viewLeadUrl = `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/leads/${newLead.id}`;
+      await sendNewLeadNotificationEmail({
+        leadId: newLead.id,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email: input.email,
+        phone: input.phone,
+        companyName: input.companyName,
+        businessType: input.businessType,
+        industry: input.industry,
+        estimatedTurnover: input.estimatedTurnover,
+        estimatedEmployees: input.estimatedEmployees,
+        interestedServices: input.interestedServices,
+        notes: input.notes,
+        viewLeadUrl,
+      });
+
+      return {
+        success: true,
+        leadId: newLead.id,
+      };
+    }),
+
   // List all leads
   list: protectedProcedure
     .input(
@@ -451,6 +570,118 @@ export const leadsRouter = router({
       });
 
       return { success: true };
+    }),
+
+  // Assign lead to team member
+  assignLead: protectedProcedure
+    .input(
+      z.object({
+        leadId: z.string(),
+        assignedToId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check lead exists
+      const [existingLead] = await db
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, input.leadId), eq(leads.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingLead) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lead not found",
+        });
+      }
+
+      // Update lead with assigned user
+      const [updatedLead] = await db
+        .update(leads)
+        .set({
+          assignedToId: input.assignedToId,
+          updatedAt: new Date(),
+        })
+        .where(eq(leads.id, input.leadId))
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "lead",
+        entityId: input.leadId,
+        action: "assigned",
+        description: `Assigned lead "${existingLead.firstName} ${existingLead.lastName}" to team member`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: { assignedToId: input.assignedToId },
+      });
+
+      return { success: true, lead: updatedLead };
+    }),
+
+  // Schedule follow-up for lead
+  scheduleFollowUp: protectedProcedure
+    .input(
+      z.object({
+        leadId: z.string(),
+        nextFollowUpAt: z.string(),
+        notes: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check lead exists
+      const [existingLead] = await db
+        .select()
+        .from(leads)
+        .where(and(eq(leads.id, input.leadId), eq(leads.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existingLead) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Lead not found",
+        });
+      }
+
+      // Update lead with follow-up date and append notes if provided
+      const updatedNotes = input.notes
+        ? existingLead.notes
+          ? `${existingLead.notes}\n\n[Follow-up scheduled]: ${input.notes}`
+          : `[Follow-up scheduled]: ${input.notes}`
+        : existingLead.notes;
+
+      const [updatedLead] = await db
+        .update(leads)
+        .set({
+          nextFollowUpAt: new Date(input.nextFollowUpAt),
+          lastContactedAt: new Date(), // Mark as contacted when scheduling follow-up
+          notes: updatedNotes,
+          updatedAt: new Date(),
+        })
+        .where(eq(leads.id, input.leadId))
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "lead",
+        entityId: input.leadId,
+        action: "follow_up_scheduled",
+        description: `Scheduled follow-up for "${existingLead.firstName} ${existingLead.lastName}" on ${new Date(input.nextFollowUpAt).toLocaleString()}`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: {
+          nextFollowUpAt: input.nextFollowUpAt,
+          notes: input.notes,
+        },
+      });
+
+      return { success: true, lead: updatedLead };
     }),
 
   // Convert lead to client

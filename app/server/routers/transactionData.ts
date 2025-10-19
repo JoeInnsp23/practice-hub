@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -14,8 +14,7 @@ const transactionDataSchema = insertTransactionDataSchema.omit({
   id: true,
   tenantId: true,
   createdAt: true,
-  updatedAt: true,
-  createdBy: true,
+  lastUpdated: true,
 });
 
 // Helper function to estimate transactions
@@ -59,7 +58,7 @@ export const transactionDataRouter = router({
   getByClient: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input: clientId }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       // Get latest transaction data
       const transactionData = await db
@@ -81,7 +80,7 @@ export const transactionDataRouter = router({
   getHistory: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input: clientId }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       const history = await db
         .select()
@@ -193,7 +192,7 @@ export const transactionDataRouter = router({
   fetchFromXero: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input: clientId }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       // Check if client exists
       const [client] = await db
@@ -209,19 +208,113 @@ export const transactionDataRouter = router({
         });
       }
 
-      // TODO: Implement Xero API integration
-      // For now, return placeholder message
-      throw new TRPCError({
-        code: "NOT_IMPLEMENTED",
-        message:
-          "Xero integration not yet implemented. Please enter transaction data manually.",
-      });
+      // Import Xero client functions
+      const {
+        getValidAccessToken,
+        fetchBankTransactions,
+        calculateMonthlyTransactions,
+      } = await import("@/lib/xero/client");
 
-      // Future implementation would:
-      // 1. Fetch bank transactions from Xero for the last 3-6 months
-      // 2. Calculate average monthly transactions
-      // 3. Store the data in clientTransactionData table
-      // 4. Return the calculated data
+      try {
+        // Get valid access token (will refresh if needed)
+        const { accessToken, xeroTenantId } =
+          await getValidAccessToken(clientId);
+
+        // Fetch transactions from last 6 months
+        const toDate = new Date();
+        const fromDate = new Date();
+        fromDate.setMonth(fromDate.getMonth() - 6);
+
+        const transactions = await fetchBankTransactions(
+          accessToken,
+          xeroTenantId,
+          fromDate,
+          toDate,
+        );
+
+        // Calculate average monthly transactions
+        const monthlyTransactions = calculateMonthlyTransactions(transactions);
+
+        // Store in database
+        const [result] = await db
+          .insert(clientTransactionData)
+          .values({
+            tenantId,
+            clientId,
+            monthlyTransactions,
+            dataSource: "xero",
+            xeroDataJson: {
+              transactionCount: transactions.length,
+              dateRange: {
+                from: fromDate.toISOString().split("T")[0],
+                to: toDate.toISOString().split("T")[0],
+              },
+              fetchedAt: new Date().toISOString(),
+            },
+          })
+          .onConflictDoUpdate({
+            target: [clientTransactionData.clientId],
+            set: {
+              monthlyTransactions,
+              dataSource: "xero",
+              xeroDataJson: {
+                transactionCount: transactions.length,
+                dateRange: {
+                  from: fromDate.toISOString().split("T")[0],
+                  to: toDate.toISOString().split("T")[0],
+                },
+                fetchedAt: new Date().toISOString(),
+              },
+              lastUpdated: new Date(),
+            },
+          })
+          .returning();
+
+        // Log activity
+        if (ctx.authContext) {
+          const { userId, firstName, lastName } = ctx.authContext;
+          await db.insert(activityLogs).values({
+            tenantId,
+            entityType: "client",
+            entityId: clientId,
+            action: "xero_sync",
+            description: `Synced transaction data from Xero for ${client.name}`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { monthlyTransactions, dataSource: "xero" },
+          });
+        }
+
+        return {
+          success: true,
+          transactionData: result,
+          transactionCount: transactions.length,
+          dateRange: {
+            from: fromDate.toISOString().split("T")[0],
+            to: toDate.toISOString().split("T")[0],
+          },
+        };
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message.includes("No Xero connection")) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message:
+                "No Xero connection found. Please connect this client to Xero first.",
+            });
+          }
+
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to fetch from Xero: ${error.message}`,
+          });
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch data from Xero",
+        });
+      }
     }),
 
   // Estimate transactions based on business characteristics
@@ -289,7 +382,7 @@ export const transactionDataRouter = router({
           userName: `${firstName} ${lastName}`,
           newValues: {
             monthlyTransactions: estimated,
-            source: "estimated",
+            dataSource: "estimated",
           },
         });
 
@@ -356,39 +449,45 @@ export const transactionDataRouter = router({
   getAllWithData: protectedProcedure.query(async ({ ctx }) => {
     const { tenantId } = ctx.authContext;
 
-    // Get all clients
-    const clientsList = await db
+    // FIXED: Single query with lateral join instead of N+1 pattern
+    // Was: 50 clients = 51 queries (1 + 50)
+    // Now: 50 clients = 1 query (98% reduction)
+    const clientsWithData = await db
       .select({
         id: clients.id,
         name: clients.name,
         clientCode: clients.clientCode,
         type: clients.type,
         status: clients.status,
+        transactionData: sql<any>`(
+          SELECT json_build_object(
+            'id', ctd.id,
+            'clientId', ctd.client_id,
+            'tenantId', ctd.tenant_id,
+            'source', ctd.source,
+            'monthlyTransactions', ctd.monthly_transactions,
+            'bankAccounts', ctd.bank_accounts,
+            'invoicesPerYear', ctd.invoices_per_year,
+            'transactionTypes', ctd.transaction_types,
+            'averageTransactionValue', ctd.average_transaction_value,
+            'seasonalVariation', ctd.seasonal_variation,
+            'reconciliationComplexity', ctd.reconciliation_complexity,
+            'integrationMethod', ctd.integration_method,
+            'externalId', ctd.external_id,
+            'externalMetadata', ctd.external_metadata,
+            'lastUpdated', ctd.last_updated,
+            'createdAt', ctd.created_at
+          )
+          FROM client_transaction_data ctd
+          WHERE ctd.client_id = ${clients.id}
+            AND ctd.tenant_id = ${clients.tenantId}
+          ORDER BY ctd.last_updated DESC
+          LIMIT 1
+        )`.as("transaction_data"),
       })
       .from(clients)
-      .where(eq(clients.tenantId, tenantId));
-
-    // Get latest transaction data for each client
-    const clientsWithData = await Promise.all(
-      clientsList.map(async (client) => {
-        const [latestData] = await db
-          .select()
-          .from(clientTransactionData)
-          .where(
-            and(
-              eq(clientTransactionData.clientId, client.id),
-              eq(clientTransactionData.tenantId, tenantId),
-            ),
-          )
-          .orderBy(desc(clientTransactionData.lastUpdated))
-          .limit(1);
-
-        return {
-          ...client,
-          transactionData: latestData || null,
-        };
-      }),
-    );
+      .where(eq(clients.tenantId, tenantId))
+      .orderBy(clients.name);
 
     return { clients: clientsWithData };
   }),

@@ -3,6 +3,8 @@
 import {
   Activity,
   Edit,
+  Eye,
+  KeyRound,
   Mail,
   MoreVertical,
   Search,
@@ -43,11 +45,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EditUserDialog } from "./edit-user-dialog";
-import { InviteUserDialog } from "./invite-user-dialog";
 
 interface User {
   id: string;
-  clerkId: string;
   email: string;
   firstName: string | null;
   lastName: string | null;
@@ -80,7 +80,6 @@ export function UserManagementClient({
   const router = useRouter();
   const utils = trpc.useUtils();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
   // Fetch users using tRPC
@@ -95,9 +94,7 @@ export function UserManagementClient({
     return {
       total: users.length,
       active: users.filter((u: User) => u.isActive).length,
-      admins: users.filter(
-        (u: User) => u.role === "admin" || u.role === "org:admin",
-      ).length,
+      admins: users.filter((u: User) => u.role === "admin").length,
       accountants: users.filter(
         (u: User) => u.role === "accountant" || u.role === "org:accountant",
       ).length,
@@ -132,6 +129,16 @@ export function UserManagementClient({
     },
   });
 
+  const sendPasswordResetMutation = trpc.users.sendPasswordReset.useMutation({
+    onSuccess: () => {
+      toast.success("Password reset email sent");
+    },
+    onError: (error) => {
+      console.error("Failed to send password reset:", error);
+      toast.error("Failed to send password reset email");
+    },
+  });
+
   const handleDeleteUser = async (userId: string) => {
     const user = users.find((u: User) => u.id === userId);
     if (!user) return;
@@ -147,23 +154,31 @@ export function UserManagementClient({
     deleteMutation.mutate(userId);
   };
 
+  const handleSendPasswordReset = (userId: string) => {
+    const user = users.find((u: User) => u.id === userId);
+    if (!user) return;
+
+    if (
+      !confirm(
+        `Send password reset email to ${user.firstName} ${user.lastName} (${user.email})?`,
+      )
+    ) {
+      return;
+    }
+
+    sendPasswordResetMutation.mutate({ userId });
+  };
+
   const handleUserUpdated = (_updatedUser: User) => {
     // Invalidate users list to refetch updated data
     utils.users.list.invalidate();
   };
 
-  const handleInviteSent = () => {
-    toast.success("Invitation sent successfully");
-    router.refresh();
-  };
-
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case "admin":
-      case "org:admin":
         return "destructive";
       case "accountant":
-      case "org:accountant":
         return "secondary";
       default:
         return "outline";
@@ -191,7 +206,10 @@ export function UserManagementClient({
             Manage team members and their permissions
           </p>
         </div>
-        <Button onClick={() => setIsInviteOpen(true)} className="gap-2">
+        <Button
+          onClick={() => router.push("/admin/invitations")}
+          className="gap-2"
+        >
           <UserPlus className="h-4 w-4" />
           Invite User
         </Button>
@@ -261,123 +279,127 @@ export function UserManagementClient({
       </div>
 
       {/* Users Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>All Users</CardTitle>
-            <div className="relative w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search users..."
-                value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSearchQuery(e.target.value)
-                }
-                className="pl-8"
-              />
-            </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-semibold">All Users</h3>
+          <div className="relative w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)
+              }
+              className="pl-8"
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="glass-table">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="w-[70px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user: User) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-medium">
-                          {user.firstName?.[0]?.toUpperCase() ||
-                            user.email[0].toUpperCase()}
-                          {user.lastName?.[0]?.toUpperCase() || ""}
+        </div>
+
+        <div className="glass-table">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Joined</TableHead>
+                <TableHead className="w-[70px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((user: User) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-medium">
+                        {user.firstName?.[0]?.toUpperCase() ||
+                          user.email[0].toUpperCase()}
+                        {user.lastName?.[0]?.toUpperCase() || ""}
+                      </div>
+                      <div>
+                        <div className="font-medium">
+                          {user.firstName} {user.lastName}
                         </div>
-                        <div>
-                          <div className="font-medium">
-                            {user.firstName} {user.lastName}
-                          </div>
-                          <div className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            {user.email}
-                          </div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {user.email}
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {(user.role === "admin" ||
-                          user.role === "org:admin") && (
-                          <Shield className="h-3 w-3 mr-1" />
-                        )}
-                        {getDisplayRole(user.role)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusBadgeVariant(user.isActive)}>
-                        {user.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setEditingUser(user)}
-                            disabled={user.clerkId === _currentUserId}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit User
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteUser(user.id)}
-                            disabled={user.clerkId === _currentUserId}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Remove User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getRoleBadgeVariant(user.role)}>
+                      {user.role === "admin" && (
+                        <Shield className="h-3 w-3 mr-1" />
+                      )}
+                      {getDisplayRole(user.role)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getStatusBadgeVariant(user.isActive)}>
+                      {user.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => router.push(`/admin/users/${user.id}`)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setEditingUser(user)}
+                          disabled={user.id === _currentUserId}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit User
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleSendPasswordReset(user.id)}
+                          disabled={user.id === _currentUserId}
+                        >
+                          <KeyRound className="h-4 w-4 mr-2" />
+                          Send Password Reset
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={user.id === _currentUserId}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Remove User
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            {searchQuery
+              ? `No users found matching "${searchQuery}"`
+              : "No users found"}
           </div>
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              {searchQuery
-                ? `No users found matching "${searchQuery}"`
-                : "No users found"}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
       {/* Dialogs */}
-      <InviteUserDialog
-        isOpen={isInviteOpen}
-        onClose={() => setIsInviteOpen(false)}
-        onSuccess={handleInviteSent}
-      />
-
       {editingUser && (
         <EditUserDialog
           user={editingUser}

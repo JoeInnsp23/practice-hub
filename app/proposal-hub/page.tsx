@@ -5,6 +5,7 @@ import {
   Calculator,
   CheckCircle,
   FileText,
+  Percent,
   Plus,
   TrendingUp,
   Users,
@@ -12,6 +13,12 @@ import {
 import { useRouter } from "next/navigation";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
+import { LeadSourcesChart } from "@/components/proposal-hub/charts/lead-sources-chart";
+import { ProposalsStatusChart } from "@/components/proposal-hub/charts/proposals-status-chart";
+import { WinLossChart } from "@/components/proposal-hub/charts/win-loss-chart";
+import { RecentActivityFeed } from "@/components/proposal-hub/widgets/recent-activity-feed";
+import { TopServicesWidget } from "@/components/proposal-hub/widgets/top-services-widget";
+import { UpcomingTasksWidget } from "@/components/proposal-hub/widgets/upcoming-tasks-widget";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -40,6 +47,13 @@ export default function ProposalHubPage() {
   const { data: statsData } = trpc.proposals.getStats.useQuery();
   const stats = statsData?.stats || [];
 
+  // Fetch analytics data
+  const { data: leadStatsData } = trpc.analytics.getLeadStats.useQuery();
+  const { data: proposalStatsData } =
+    trpc.analytics.getProposalStats.useQuery();
+  const { data: conversionData } =
+    trpc.analytics.getConversionMetrics.useQuery();
+
   // Calculate metrics
   const draftCount = stats.find((s) => s.status === "draft")?.count || 0;
   const sentCount = stats.find((s) => s.status === "sent")?.count || 0;
@@ -49,7 +63,17 @@ export default function ProposalHubPage() {
       .filter((s) => s.status === "sent" || s.status === "viewed")
       .reduce((sum, s) => sum + Number(s.totalValue || 0), 0) || 0;
 
+  // Analytics metrics
+  const totalLeads = leadStatsData?.total || 0;
+  const conversionRate = conversionData?.overallConversionRate || 0;
+
   const kpis = [
+    {
+      title: "Total Leads",
+      value: totalLeads.toString(),
+      icon: Users,
+      iconColor: "text-blue-600",
+    },
     {
       title: "Draft Proposals",
       value: draftCount.toString(),
@@ -60,7 +84,7 @@ export default function ProposalHubPage() {
       title: "Sent Proposals",
       value: sentCount.toString(),
       icon: TrendingUp,
-      iconColor: "text-blue-600",
+      iconColor: "text-indigo-600",
     },
     {
       title: "Signed This Month",
@@ -74,6 +98,13 @@ export default function ProposalHubPage() {
       icon: TrendingUp,
       iconColor: "text-violet-600",
       subtext: "/month",
+    },
+    {
+      title: "Conversion Rate",
+      value: `${conversionRate.toFixed(1)}%`,
+      icon: Percent,
+      iconColor: "text-amber-600",
+      subtext: "overall",
     },
   ];
 
@@ -120,8 +151,8 @@ export default function ProposalHubPage() {
         </Button>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPIs - Now 6 cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {kpis.map((kpi) => (
           <KPIWidget
             key={kpi.title}
@@ -132,6 +163,28 @@ export default function ProposalHubPage() {
             subtext={kpi.subtext}
           />
         ))}
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LeadSourcesChart
+          data={leadStatsData?.bySource || []}
+          isLoading={!leadStatsData}
+        />
+        <ProposalsStatusChart
+          data={proposalStatsData?.byStatus || []}
+          isLoading={!proposalStatsData}
+        />
+        <div className="lg:col-span-2">
+          <WinLossChart data={conversionData} isLoading={!conversionData} />
+        </div>
+      </div>
+
+      {/* Widgets Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <RecentActivityFeed />
+        <UpcomingTasksWidget />
+        <TopServicesWidget />
       </div>
 
       {/* Quick Actions */}

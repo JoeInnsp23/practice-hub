@@ -15,7 +15,10 @@ import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { ActivityTimeline } from "@/components/proposal-hub/activity-timeline";
+import { EditProposalDialog } from "@/components/proposal-hub/edit-proposal-dialog";
 import { SendProposalDialog } from "@/components/proposal-hub/send-proposal-dialog";
+import { VersionHistoryDialog } from "@/components/proposal-hub/version-history-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -44,6 +48,7 @@ export default function ProposalDetailPage({
   const resolvedParams = use(params);
   const { id } = resolvedParams;
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const utils = trpc.useUtils();
 
@@ -64,6 +69,32 @@ export default function ProposalDetailPage({
         toast.error(error.message || "Failed to archive proposal");
       },
     });
+
+  // Generate PDF mutation
+  const { mutate: generatePdf, isPending: isGeneratingPdf } =
+    trpc.proposals.generatePdf.useMutation({
+      onSuccess: (data) => {
+        toast.success("PDF generated successfully");
+        utils.proposals.getById.invalidate(id);
+        // Open PDF in new tab
+        if (data.pdfUrl) {
+          window.open(data.pdfUrl, "_blank");
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to generate PDF");
+      },
+    });
+
+  const handleDownloadPdf = () => {
+    if (proposalData?.pdfUrl) {
+      // If PDF already exists, download it
+      window.open(proposalData.pdfUrl, "_blank");
+    } else {
+      // Otherwise, generate it first
+      generatePdf(id);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -128,10 +159,20 @@ export default function ProposalDetailPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" disabled>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
+          <VersionHistoryDialog
+            proposalId={proposalData.id}
+            proposalTitle={proposalData.title}
+          />
+          <EditProposalDialog
+            proposalId={proposalData.id}
+            proposalTitle={proposalData.title}
+            currentNotes={proposalData.notes}
+            currentTerms={proposalData.termsAndConditions}
+            currentServices={proposalData.services}
+            onSuccess={() => {
+              utils.proposals.getById.invalidate(id);
+            }}
+          />
           {proposalData.status === "draft" && (
             <SendProposalDialog
               proposalId={proposalData.id}
@@ -139,9 +180,17 @@ export default function ProposalDetailPage({
               clientName={proposalData.clientName || undefined}
             />
           )}
-          <Button variant="outline" disabled>
+          <Button
+            variant="outline"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+          >
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            {isGeneratingPdf
+              ? "Generating..."
+              : proposalData.pdfUrl
+                ? "Download PDF"
+                : "Generate PDF"}
           </Button>
         </div>
       </div>
@@ -189,256 +238,307 @@ export default function ProposalDetailPage({
         </Card>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Services & Pricing */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Client Information */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Client Information</h2>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Client Name</p>
-                  <p className="font-medium">
-                    {proposalData.clientName || "No client assigned"}
-                  </p>
-                </div>
-              </div>
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
 
-              {proposalData.clientEmail && (
-                <div className="flex items-start gap-3">
-                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{proposalData.clientEmail}</p>
-                  </div>
-                </div>
-              )}
-
-              {proposalData.industry && (
-                <div className="flex items-start gap-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Industry</p>
-                    <p className="font-medium">{proposalData.industry}</p>
-                  </div>
-                </div>
-              )}
-
-              {proposalData.turnover && (
-                <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Turnover</p>
-                    <p className="font-medium">{proposalData.turnover}</p>
-                  </div>
-                </div>
-              )}
-
-              {proposalData.monthlyTransactions && (
-                <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Monthly Transactions
-                    </p>
-                    <p className="font-medium">
-                      {proposalData.monthlyTransactions.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Services Breakdown */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Services Included</h2>
-            {proposalData.services && proposalData.services.length > 0 ? (
-              <div className="space-y-4">
-                {proposalData.services.map((service, _index) => (
-                  <div
-                    key={service.id}
-                    className="flex justify-between items-start pb-4 border-b last:border-b-0 last:pb-0"
-                  >
-                    <div className="flex-1">
-                      <p className="font-medium">{service.componentName}</p>
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Services & Pricing */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Client Information */}
+              <Card className="glass-card p-6">
+                <h2 className="text-lg font-semibold mb-4">
+                  Client Information
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
                       <p className="text-sm text-muted-foreground">
-                        {service.componentCode}
+                        Client Name
                       </p>
-                      {service.calculation && (
-                        <p className="text-xs text-muted-foreground mt-1 italic">
-                          {service.calculation}
-                        </p>
-                      )}
+                      <p className="font-medium">
+                        {proposalData.clientName || "No client assigned"}
+                      </p>
                     </div>
-                    <p className="font-semibold whitespace-nowrap ml-4">
-                      £{Number(service.price).toFixed(2)}
-                    </p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">No services added yet</p>
-            )}
-          </Card>
 
-          {/* Terms & Conditions */}
-          {proposalData.termsAndConditions && (
-            <Card className="glass-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Terms & Conditions</h2>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {proposalData.termsAndConditions}
-              </p>
-            </Card>
-          )}
+                  {proposalData.clientEmail && (
+                    <div className="flex items-start gap-3">
+                      <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Email</p>
+                        <p className="font-medium">
+                          {proposalData.clientEmail}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
-          {/* Notes */}
-          {proposalData.notes && (
-            <Card className="glass-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Internal Notes</h2>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {proposalData.notes}
-              </p>
-            </Card>
-          )}
-        </div>
+                  {proposalData.industry && (
+                    <div className="flex items-start gap-3">
+                      <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Industry
+                        </p>
+                        <p className="font-medium">{proposalData.industry}</p>
+                      </div>
+                    </div>
+                  )}
 
-        {/* Right Column - Pricing Summary & Timeline */}
-        <div className="space-y-6">
-          {/* Pricing Summary */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Pricing Summary</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center pb-3 border-b">
-                <span className="text-sm text-muted-foreground">
-                  Pricing Model
-                </span>
-                <Badge variant="outline">
-                  Model {proposalData.pricingModelUsed || "—"}
-                </Badge>
-              </div>
+                  {proposalData.turnover && (
+                    <div className="flex items-start gap-3">
+                      <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Turnover
+                        </p>
+                        <p className="font-medium">{proposalData.turnover}</p>
+                      </div>
+                    </div>
+                  )}
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Monthly Total</span>
-                  <span className="text-2xl font-bold text-primary">
-                    £{Number(proposalData.monthlyTotal).toFixed(2)}
-                  </span>
+                  {proposalData.monthlyTransactions && (
+                    <div className="flex items-start gap-3">
+                      <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Monthly Transactions
+                        </p>
+                        <p className="font-medium">
+                          {proposalData.monthlyTransactions.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Annual Total</span>
-                  <span className="font-medium">
-                    £{Number(proposalData.annualTotal).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Card>
+              </Card>
 
-          {/* Timeline */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Timeline</h2>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="mt-1">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Created</p>
-                  <p className="text-xs text-muted-foreground">
-                    {format(
-                      new Date(proposalData.createdAt),
-                      "MMM d, yyyy 'at' h:mm a",
-                    )}
+              {/* Services Breakdown */}
+              <Card className="glass-card p-6">
+                <h2 className="text-lg font-semibold mb-4">
+                  Services Included
+                </h2>
+                {proposalData.services && proposalData.services.length > 0 ? (
+                  <div className="space-y-4">
+                    {proposalData.services.map((service, _index) => (
+                      <div
+                        key={service.id}
+                        className="flex justify-between items-start pb-4 border-b last:border-b-0 last:pb-0"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium">{service.componentName}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {service.componentCode}
+                          </p>
+                          {service.calculation && (
+                            <p className="text-xs text-muted-foreground mt-1 italic">
+                              {service.calculation}
+                            </p>
+                          )}
+                        </div>
+                        <p className="font-semibold whitespace-nowrap ml-4">
+                          £{Number(service.price).toFixed(2)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No services added yet</p>
+                )}
+              </Card>
+
+              {/* Terms & Conditions */}
+              {proposalData.termsAndConditions && (
+                <Card className="glass-card p-6">
+                  <h2 className="text-lg font-semibold mb-4">
+                    Terms & Conditions
+                  </h2>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {proposalData.termsAndConditions}
                   </p>
-                </div>
-              </div>
-
-              {proposalData.sentAt && (
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    <div className="h-2 w-2 rounded-full bg-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Sent to Client</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(
-                        new Date(proposalData.sentAt),
-                        "MMM d, yyyy 'at' h:mm a",
-                      )}
-                    </p>
-                  </div>
-                </div>
+                </Card>
               )}
 
-              {proposalData.viewedAt && (
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    <div className="h-2 w-2 rounded-full bg-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Viewed by Client</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(
-                        new Date(proposalData.viewedAt),
-                        "MMM d, yyyy 'at' h:mm a",
-                      )}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {proposalData.signedAt && (
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    <div className="h-2 w-2 rounded-full bg-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Signed</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(
-                        new Date(proposalData.signedAt),
-                        "MMM d, yyyy 'at' h:mm a",
-                      )}
-                    </p>
-                  </div>
-                </div>
+              {/* Notes */}
+              {proposalData.notes && (
+                <Card className="glass-card p-6">
+                  <h2 className="text-lg font-semibold mb-4">Internal Notes</h2>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {proposalData.notes}
+                  </p>
+                </Card>
               )}
             </div>
-          </Card>
 
-          {/* Actions */}
-          <Card className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">Actions</h2>
-            <div className="space-y-2">
-              {proposalData.status === "draft" && (
-                <SendProposalDialog
-                  proposalId={proposalData.id}
-                  proposalTitle={proposalData.title}
-                  clientName={proposalData.clientName || undefined}
-                />
-              )}
-              <Button variant="outline" className="w-full" disabled>
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
-              {proposalData.status !== "signed" && (
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => setShowArchiveDialog(true)}
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Archive Proposal
-                </Button>
-              )}
+            {/* Right Column - Pricing Summary & Timeline */}
+            <div className="space-y-6">
+              {/* Pricing Summary */}
+              <Card className="glass-card p-6">
+                <h2 className="text-lg font-semibold mb-4">Pricing Summary</h2>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-3 border-b">
+                    <span className="text-sm text-muted-foreground">
+                      Pricing Model
+                    </span>
+                    <Badge variant="outline">
+                      Model {proposalData.pricingModelUsed || "—"}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Monthly Total</span>
+                      <span className="text-2xl font-bold text-primary">
+                        £{Number(proposalData.monthlyTotal).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">
+                        Annual Total
+                      </span>
+                      <span className="font-medium">
+                        £{Number(proposalData.annualTotal).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Timeline */}
+              <Card className="glass-card p-6">
+                <h2 className="text-lg font-semibold mb-4">Timeline</h2>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Created</p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(
+                          new Date(proposalData.createdAt),
+                          "MMM d, yyyy 'at' h:mm a",
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {proposalData.sentAt && (
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <div className="h-2 w-2 rounded-full bg-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Sent to Client</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(
+                            new Date(proposalData.sentAt),
+                            "MMM d, yyyy 'at' h:mm a",
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {proposalData.viewedAt && (
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <div className="h-2 w-2 rounded-full bg-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Viewed by Client</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(
+                            new Date(proposalData.viewedAt),
+                            "MMM d, yyyy 'at' h:mm a",
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {proposalData.signedAt && (
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <div className="h-2 w-2 rounded-full bg-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Signed</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(
+                            new Date(proposalData.signedAt),
+                            "MMM d, yyyy 'at' h:mm a",
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              {/* Actions */}
+              <Card className="glass-card p-6">
+                <h2 className="text-lg font-semibold mb-4">Actions</h2>
+                <div className="space-y-2">
+                  {proposalData.status === "draft" && (
+                    <SendProposalDialog
+                      proposalId={proposalData.id}
+                      proposalTitle={proposalData.title}
+                      clientName={proposalData.clientName || undefined}
+                    />
+                  )}
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleDownloadPdf}
+                    disabled={isGeneratingPdf}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    {isGeneratingPdf
+                      ? "Generating..."
+                      : proposalData.pdfUrl
+                        ? "Download PDF"
+                        : "Generate PDF"}
+                  </Button>
+                  {proposalData.status !== "signed" && (
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => setShowArchiveDialog(true)}
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Archive Proposal
+                    </Button>
+                  )}
+                </div>
+              </Card>
             </div>
+          </div>
+        </TabsContent>
+
+        {/* Activity Tab */}
+        <TabsContent value="activity" className="space-y-6">
+          <Card className="p-6">
+            <ActivityTimeline
+              entityType="proposal"
+              entityId={id}
+              showAddActivity={true}
+            />
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Archive Confirmation Dialog */}
       <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>

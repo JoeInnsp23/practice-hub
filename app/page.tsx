@@ -1,10 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 export default async function Home() {
-  const { userId } = await auth();
+  const session = await auth.api.getSession({
+    headers: await import("next/headers").then((mod) => mod.headers()),
+  });
 
-  if (userId) {
+  if (session?.user) {
     redirect("/practice-hub");
   }
 

@@ -1,13 +1,25 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
+import {
+  getPrefilledQuestionnaire,
+  validateQuestionnaireComplete,
+} from "@/lib/ai/questionnaire-prefill";
+import {
+  markResponseAsVerified,
+  updateExtractedResponse,
+} from "@/lib/ai/save-extracted-data";
 import { db } from "@/lib/db";
 import {
+  activityLogs,
   clients,
+  kycVerifications,
   onboardingSessions,
   onboardingTasks,
   users,
 } from "@/lib/db/schema";
+import { sendKYCVerificationEmail } from "@/lib/email-client-portal";
+import { lemverifyClient } from "@/lib/kyc/lemverify-client";
 import { protectedProcedure, router } from "../trpc";
 
 // Onboarding task template - 17 standard tasks from CSV
@@ -554,5 +566,545 @@ export const onboardingRouter = router({
       }
 
       return { success: true };
+    }),
+
+  /**
+   * CLIENT-FACING ONBOARDING QUESTIONNAIRE ENDPOINTS
+   */
+
+  /**
+   * Get onboarding session with pre-filled questionnaire
+   */
+  getQuestionnaireSession: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { sessionId } = input;
+
+      // Get onboarding session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Get pre-filled questionnaire data
+      const prefilledData = await getPrefilledQuestionnaire(sessionId);
+
+      return {
+        session,
+        questionnaire: prefilledData,
+      };
+    }),
+
+  /**
+   * Update questionnaire response
+   */
+  updateQuestionnaireResponse: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+        questionKey: z.string(),
+        value: z.any(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sessionId, questionKey, value } = input;
+
+      // Verify session belongs to tenant
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Update response
+      await updateExtractedResponse(
+        sessionId,
+        questionKey,
+        value,
+        ctx.authContext.tenantId,
+      );
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId: ctx.authContext.tenantId,
+        entityType: "onboarding_session",
+        entityId: sessionId,
+        action: "questionnaire_updated",
+        description: `Updated field: ${questionKey}`,
+        userId: ctx.authContext.userId,
+        userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
+        metadata: {
+          questionKey,
+          valueType: typeof value,
+        },
+      });
+
+      return { success: true };
+    }),
+
+  /**
+   * Verify AI-extracted response
+   */
+  verifyQuestionnaireResponse: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+        questionKey: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sessionId, questionKey } = input;
+
+      // Verify session belongs to tenant
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Mark as verified
+      await markResponseAsVerified(sessionId, questionKey);
+
+      return { success: true };
+    }),
+
+  /**
+   * Submit completed questionnaire and trigger AML check
+   */
+  submitQuestionnaire: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sessionId } = input;
+
+      // Get session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.id, sessionId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Get pre-filled data and validate
+      const prefilledData = await getPrefilledQuestionnaire(sessionId);
+      const validation = validateQuestionnaireComplete(prefilledData);
+
+      if (!validation.valid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Questionnaire incomplete: ${validation.errors.join(", ")}`,
+        });
+      }
+
+      // Get client details
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, session.clientId))
+        .limit(1);
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      // Extract data for LEM Verify
+      const firstName = prefilledData.fields.contact_first_name?.value || "";
+      const lastName = prefilledData.fields.contact_last_name?.value || "";
+      const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
+      const phoneNumber =
+        prefilledData.fields.contact_phone?.value || client.phone;
+
+      try {
+        // Request verification from LEM Verify
+        const verificationRequest = await lemverifyClient.requestVerification({
+          clientRef: client.id,
+          email: client.email || "",
+          firstName,
+          lastName,
+          dateOfBirth,
+          phoneNumber: phoneNumber || undefined,
+          callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://app.innspiredaccountancy.com"}/api/webhooks/lemverify`,
+          metadata: {
+            tenantId: ctx.authContext.tenantId,
+            onboardingSessionId: sessionId,
+            clientCode: client.clientCode,
+          },
+        });
+
+        // Create KYC verification record
+        await db.insert(kycVerifications).values({
+          tenantId: ctx.authContext.tenantId,
+          clientId: client.id,
+          onboardingSessionId: sessionId,
+          lemverifyId: verificationRequest.id,
+          clientRef: client.id,
+          status: "pending",
+          metadata: {
+            verificationUrl: verificationRequest.verificationUrl,
+            requestedAt: new Date().toISOString(),
+          },
+        });
+
+        // Update onboarding session status
+        await db
+          .update(onboardingSessions)
+          .set({
+            status: "pending_approval", // Awaiting client to complete verification
+            progress: 50, // Questionnaire complete, awaiting document upload
+            updatedAt: new Date(),
+          })
+          .where(eq(onboardingSessions.id, sessionId));
+
+        // Log activity
+        await db.insert(activityLogs).values({
+          tenantId: ctx.authContext.tenantId,
+          entityType: "client",
+          entityId: client.id,
+          action: "kyc_verification_initiated",
+          description:
+            "Onboarding questionnaire submitted, KYC verification link sent to client",
+          userId: ctx.authContext.userId,
+          userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
+          metadata: {
+            sessionId,
+            lemverifyId: verificationRequest.id,
+          },
+        });
+
+        // Send verification email to client
+        let emailSent = true;
+        try {
+          await sendKYCVerificationEmail({
+            email: client.email || "",
+            clientName: client.name || `${firstName} ${lastName}`,
+            verificationUrl: verificationRequest.verificationUrl,
+          });
+        } catch (emailError) {
+          console.error("Failed to send verification email:", emailError);
+          emailSent = false;
+
+          // Log email failure
+          await db.insert(activityLogs).values({
+            tenantId: ctx.authContext.tenantId,
+            entityType: "client",
+            entityId: client.id,
+            action: "email_send_failed",
+            description: `Failed to send KYC verification email to ${client.email}`,
+            userId: null,
+            userName: "System",
+            metadata: {
+              error:
+                emailError instanceof Error
+                  ? emailError.message
+                  : "Unknown error",
+              verificationUrl: verificationRequest.verificationUrl,
+            },
+          });
+        }
+
+        return {
+          success: true,
+          message: emailSent
+            ? "Questionnaire submitted. Please check your email to complete identity verification."
+            : "Questionnaire submitted. Email delivery failed - please use the verification link below.",
+          status: "pending_approval",
+          clientId: client.id,
+          verificationUrl: verificationRequest.verificationUrl, // Can be used for immediate redirect
+          emailSent, // Flag to show warning in UI
+        };
+      } catch (error) {
+        console.error("Failed to initiate KYC verification:", error);
+
+        // Update session with error status
+        await db
+          .update(onboardingSessions)
+          .set({
+            status: "pending_approval", // Still pending, but flag for manual review
+            updatedAt: new Date(),
+          })
+          .where(eq(onboardingSessions.id, sessionId));
+
+        // Log error
+        await db.insert(activityLogs).values({
+          tenantId: ctx.authContext.tenantId,
+          entityType: "onboarding_session",
+          entityId: sessionId,
+          action: "kyc_verification_failed",
+          description:
+            "Failed to initiate KYC verification - requires manual review",
+          userId: ctx.authContext.userId,
+          userName: "System",
+          metadata: {
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+        });
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Failed to initiate identity verification. Please contact support.",
+        });
+      }
+    }),
+
+  /**
+   * Get onboarding status for client portal
+   */
+  getOnboardingStatus: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { clientId } = input;
+
+      // Get active onboarding session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.clientId, clientId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .orderBy(desc(onboardingSessions.createdAt))
+        .limit(1);
+
+      if (!session) {
+        return {
+          hasOnboarding: false,
+        };
+      }
+
+      // Get KYC verification if exists
+      const [kycVerification] = await db
+        .select()
+        .from(kycVerifications)
+        .where(eq(kycVerifications.onboardingSessionId, session.id))
+        .orderBy(desc(kycVerifications.createdAt))
+        .limit(1);
+
+      return {
+        hasOnboarding: true,
+        session,
+        kycVerification,
+        canAccessPortal: session.status === "approved",
+        blockingReason:
+          session.status === "rejected"
+            ? "Your application has been declined"
+            : session.status === "pending_approval"
+              ? "Your identity verification is under review"
+              : session.status === "pending_questionnaire"
+                ? "Please complete your onboarding questionnaire"
+                : null,
+      };
+    }),
+
+  /**
+   * Request new KYC verification (re-verification flow)
+   */
+  requestReVerification: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { clientId } = input;
+
+      // Get client
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(
+          and(
+            eq(clients.id, clientId),
+            eq(clients.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!client) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Client not found",
+        });
+      }
+
+      // Get onboarding session
+      const [session] = await db
+        .select()
+        .from(onboardingSessions)
+        .where(
+          and(
+            eq(onboardingSessions.clientId, clientId),
+            eq(onboardingSessions.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .orderBy(desc(onboardingSessions.createdAt))
+        .limit(1);
+
+      if (!session) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Onboarding session not found",
+        });
+      }
+
+      // Get questionnaire data for name/DOB
+      const prefilledData = await getPrefilledQuestionnaire(session.id);
+      const firstName = prefilledData.fields.contact_first_name?.value || "";
+      const lastName = prefilledData.fields.contact_last_name?.value || "";
+      const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
+      const phoneNumber =
+        prefilledData.fields.contact_phone?.value || client.phone;
+
+      try {
+        // Request new verification from LEM Verify
+        const verificationRequest = await lemverifyClient.requestVerification({
+          clientRef: client.id,
+          email: client.email || "",
+          firstName,
+          lastName,
+          dateOfBirth,
+          phoneNumber: phoneNumber || undefined,
+          callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://app.innspiredaccountancy.com"}/api/webhooks/lemverify`,
+          metadata: {
+            tenantId: ctx.authContext.tenantId,
+            onboardingSessionId: session.id,
+            clientCode: client.clientCode,
+            reVerification: true,
+          },
+        });
+
+        // Create new KYC verification record
+        await db.insert(kycVerifications).values({
+          tenantId: ctx.authContext.tenantId,
+          clientId: client.id,
+          onboardingSessionId: session.id,
+          lemverifyId: verificationRequest.id,
+          clientRef: client.id,
+          status: "pending",
+          metadata: {
+            verificationUrl: verificationRequest.verificationUrl,
+            requestedAt: new Date().toISOString(),
+            reVerification: true,
+          },
+        });
+
+        // Update onboarding session status back to pending
+        await db
+          .update(onboardingSessions)
+          .set({
+            status: "pending_approval",
+            updatedAt: new Date(),
+          })
+          .where(eq(onboardingSessions.id, session.id));
+
+        // Log activity
+        await db.insert(activityLogs).values({
+          tenantId: ctx.authContext.tenantId,
+          entityType: "client",
+          entityId: client.id,
+          action: "kyc_verification_restarted",
+          description: "Client requested new KYC verification",
+          userId: ctx.authContext.userId,
+          userName: `${ctx.authContext.firstName} ${ctx.authContext.lastName}`,
+          metadata: {
+            sessionId: session.id,
+            lemverifyId: verificationRequest.id,
+          },
+        });
+
+        // Send verification email
+        let emailSent = true;
+        try {
+          await sendKYCVerificationEmail({
+            email: client.email || "",
+            clientName: client.name || `${firstName} ${lastName}`,
+            verificationUrl: verificationRequest.verificationUrl,
+          });
+        } catch (emailError) {
+          console.error("Failed to send re-verification email:", emailError);
+          emailSent = false;
+        }
+
+        return {
+          success: true,
+          message: emailSent
+            ? "New verification request created. Please check your email."
+            : "New verification request created. Email delivery failed - please use the link below.",
+          verificationUrl: verificationRequest.verificationUrl,
+          emailSent,
+        };
+      } catch (error) {
+        console.error("Failed to request re-verification:", error);
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Failed to create new verification request. Please contact support.",
+        });
+      }
     }),
 });

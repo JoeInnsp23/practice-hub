@@ -150,7 +150,7 @@ export const tasksRouter = router({
       const result = await db.execute(query);
 
       // Format the response
-      const tasksList = (result as Array<Record<string, unknown>>).map(
+      const tasksList = (result.rows as Array<Record<string, unknown>>).map(
         (task) => ({
           id: task.id as string,
           title: task.title as string,
@@ -201,14 +201,14 @@ export const tasksRouter = router({
 
       const result = await db.execute(query);
 
-      if (!result || result.length === 0) {
+      if (!result.rows || result.rows.length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Task not found",
         });
       }
 
-      const task = result[0] as Record<string, unknown>;
+      const task = result.rows[0] as Record<string, unknown>;
 
       // Get workflow instance if exists
       let workflowInstance = null;
@@ -753,5 +753,194 @@ export const tasksRouter = router({
       });
 
       return { success: true, progress };
+    }),
+
+  // BULK OPERATIONS
+
+  // Bulk update status for multiple tasks
+  bulkUpdateStatus: protectedProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.string()).min(1, "At least one task ID required"),
+        status: z.enum([
+          "pending",
+          "in_progress",
+          "review",
+          "completed",
+          "cancelled",
+          "blocked",
+          "records_received",
+          "queries_sent",
+          "queries_received",
+        ]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all tasks exist and belong to tenant
+        const existingTasks = await tx
+          .select()
+          .from(tasks)
+          .where(
+            and(
+              sql`${tasks.id} = ANY(${input.taskIds})`,
+              eq(tasks.tenantId, tenantId),
+            ),
+          );
+
+        if (existingTasks.length !== input.taskIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more tasks not found",
+          });
+        }
+
+        // Update all tasks
+        const updatedTasks = await tx
+          .update(tasks)
+          .set({
+            status: input.status,
+            completedAt:
+              input.status === "completed" ? new Date() : undefined,
+            progress: input.status === "completed" ? 100 : undefined,
+            updatedAt: new Date(),
+          })
+          .where(sql`${tasks.id} = ANY(${input.taskIds})`)
+          .returning();
+
+        // Log activity for each task
+        for (const task of updatedTasks) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "task",
+            entityId: task.id,
+            action: "bulk_status_update",
+            description: `Bulk updated task status to ${input.status}`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { status: input.status },
+          });
+        }
+
+        return { count: updatedTasks.length, tasks: updatedTasks };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk assign tasks to a user
+  bulkAssign: protectedProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.string()).min(1, "At least one task ID required"),
+        assigneeId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all tasks exist and belong to tenant
+        const existingTasks = await tx
+          .select()
+          .from(tasks)
+          .where(
+            and(
+              sql`${tasks.id} = ANY(${input.taskIds})`,
+              eq(tasks.tenantId, tenantId),
+            ),
+          );
+
+        if (existingTasks.length !== input.taskIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more tasks not found",
+          });
+        }
+
+        // Update all tasks
+        const updatedTasks = await tx
+          .update(tasks)
+          .set({
+            assignedToId: input.assigneeId,
+            updatedAt: new Date(),
+          })
+          .where(sql`${tasks.id} = ANY(${input.taskIds})`)
+          .returning();
+
+        // Log activity for each task
+        for (const task of updatedTasks) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "task",
+            entityId: task.id,
+            action: "bulk_assign",
+            description: `Bulk assigned task to user`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { assignedToId: input.assigneeId },
+          });
+        }
+
+        return { count: updatedTasks.length, tasks: updatedTasks };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk delete/archive multiple tasks
+  bulkDelete: protectedProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.string()).min(1, "At least one task ID required"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all tasks exist and belong to tenant
+        const existingTasks = await tx
+          .select()
+          .from(tasks)
+          .where(
+            and(
+              sql`${tasks.id} = ANY(${input.taskIds})`,
+              eq(tasks.tenantId, tenantId),
+            ),
+          );
+
+        if (existingTasks.length !== input.taskIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more tasks not found",
+          });
+        }
+
+        // Log activity for each task before deletion
+        for (const task of existingTasks) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "task",
+            entityId: task.id,
+            action: "bulk_delete",
+            description: `Bulk deleted task "${task.title}"`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+          });
+        }
+
+        // Delete all tasks
+        await tx.delete(tasks).where(sql`${tasks.id} = ANY(${input.taskIds})`);
+
+        return { count: existingTasks.length };
+      });
+
+      return { success: true, ...result };
     }),
 });

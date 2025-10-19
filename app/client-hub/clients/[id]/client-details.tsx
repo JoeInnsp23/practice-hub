@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { format } from "date-fns";
 import {
   AlertTriangle,
@@ -283,7 +284,10 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       setEditedContact(null);
       setContactPrePopulationSource("manual");
     } catch (error) {
-      console.error("Save error:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "save_client_details" },
+        extra: { clientId: client?.id },
+      });
     } finally {
       setIsSaving(false);
     }

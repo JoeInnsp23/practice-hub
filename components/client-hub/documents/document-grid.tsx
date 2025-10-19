@@ -3,7 +3,6 @@
 import {
   Download,
   Edit,
-  Eye,
   File,
   FileSpreadsheet,
   FileText,
@@ -26,51 +25,67 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 
-interface Document {
-  id: string;
-  name: string;
-  type: "folder" | "file";
-  fileType?: string;
-  size?: number;
-  parentId: string | null;
-  createdAt: Date;
-  modifiedAt: Date;
-  client?: string;
-  tags?: string[];
-  sharedWith?: string[];
+interface DocumentData {
+  document: {
+    id: string;
+    name: string;
+    type: "folder" | "file";
+    mimeType: string | null;
+    size: number | null;
+    parentId: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    tags: unknown;
+    clientId: string | null;
+    url: string | null;
+    path: string;
+    isPublic: boolean;
+    requiresSignature?: boolean;
+    signatureStatus?: string | null;
+    signedAt?: Date | null;
+    signedBy?: string | null;
+  };
+  uploader: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+  } | null;
+  client: {
+    id: string;
+    name: string;
+    companyName: string | null;
+    email: string;
+  } | null;
 }
 
 interface DocumentGridProps {
-  documents: Document[];
-  currentFolder: string | null;
+  documents: DocumentData[];
   viewMode: "grid" | "list";
-  onNavigate: (folderId: string | null) => void;
-  onView: (doc: Document) => void;
-  onEdit: (doc: Document) => void;
-  onDelete: (doc: Document) => void;
-  onShare: (doc: Document) => void;
-  onDownload: (doc: Document) => void;
+  onFolderClick: (folderId: string) => void;
+  onDownload: (doc: DocumentData) => void;
+  onDelete: (doc: DocumentData) => void;
+  onShare: (doc: DocumentData) => void;
+  onRename?: (doc: DocumentData) => void;
 }
 
 export function DocumentGrid({
   documents,
-  currentFolder,
   viewMode,
-  onNavigate,
-  onView,
-  onEdit,
+  onFolderClick,
+  onDownload,
   onDelete,
   onShare,
-  onDownload,
+  onRename,
 }: DocumentGridProps) {
-  const getFileIcon = (fileType?: string) => {
-    if (!fileType) return File;
+  const getFileIcon = (mimeType?: string | null) => {
+    if (!mimeType) return File;
 
-    if (fileType.includes("pdf") || fileType.includes("document")) {
+    if (mimeType.includes("pdf") || mimeType.includes("document")) {
       return FileText;
-    } else if (fileType.includes("sheet") || fileType.includes("excel")) {
+    } else if (mimeType.includes("sheet") || mimeType.includes("excel")) {
       return FileSpreadsheet;
-    } else if (fileType.includes("image")) {
+    } else if (mimeType.includes("image")) {
       return Image;
     }
     return File;
@@ -83,12 +98,39 @@ export function DocumentGrid({
     return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
   };
 
-  const handleDoubleClick = (doc: Document) => {
-    if (doc.type === "folder") {
-      onNavigate(doc.id);
+  const handleDoubleClick = (doc: DocumentData) => {
+    if (doc.document.type === "folder") {
+      onFolderClick(doc.document.id);
     } else {
-      onView(doc);
+      onDownload(doc);
     }
+  };
+
+  const getSignatureStatusBadge = (status?: string | null) => {
+    if (!status || status === "none") return null;
+
+    const variants: Record<
+      string,
+      {
+        variant: "default" | "secondary" | "destructive" | "outline";
+        label: string;
+      }
+    > = {
+      pending: { variant: "outline", label: "⏳ Pending Signature" },
+      signed: { variant: "default", label: "✓ Signed" },
+      declined: { variant: "destructive", label: "✗ Declined" },
+    };
+
+    const config = variants[status] || {
+      variant: "secondary" as const,
+      label: status,
+    };
+
+    return (
+      <Badge variant={config.variant} className="text-xs">
+        {config.label}
+      </Badge>
+    );
   };
 
   if (viewMode === "grid") {
@@ -96,11 +138,13 @@ export function DocumentGrid({
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {documents.map((doc) => {
           const Icon =
-            doc.type === "folder" ? Folder : getFileIcon(doc.fileType);
+            doc.document.type === "folder"
+              ? Folder
+              : getFileIcon(doc.document.mimeType);
 
           return (
             <Card
-              key={doc.id}
+              key={doc.document.id}
               className="cursor-pointer hover:shadow-lg transition-shadow"
               onDoubleClick={() => handleDoubleClick(doc)}
             >
@@ -109,7 +153,7 @@ export function DocumentGrid({
                   <Icon
                     className={cn(
                       "h-12 w-12",
-                      doc.type === "folder"
+                      doc.document.type === "folder"
                         ? "text-blue-500"
                         : "text-muted-foreground",
                     )}
@@ -117,15 +161,16 @@ export function DocumentGrid({
                   <div className="w-full">
                     <p
                       className="text-sm font-medium truncate"
-                      title={doc.name}
+                      title={doc.document.name}
                     >
-                      {doc.name}
+                      {doc.document.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {doc.type === "folder"
-                        ? `${documents.filter((d) => d.parentId === doc.id).length} items`
-                        : formatFileSize(doc.size)}
+                      {doc.document.type === "folder"
+                        ? "Folder"
+                        : formatFileSize(doc.document.size ?? undefined)}
                     </p>
+                    {getSignatureStatusBadge(doc.document.signatureStatus)}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -139,27 +184,25 @@ export function DocumentGrid({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {doc.type === "folder" ? (
-                        <DropdownMenuItem onClick={() => onNavigate(doc.id)}>
+                      {doc.document.type === "folder" ? (
+                        <DropdownMenuItem
+                          onClick={() => onFolderClick(doc.document.id)}
+                        >
                           <FolderOpen className="mr-2 h-4 w-4" />
                           Open
                         </DropdownMenuItem>
                       ) : (
-                        <>
-                          <DropdownMenuItem onClick={() => onView(doc)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDownload(doc)}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
-                          </DropdownMenuItem>
-                        </>
+                        <DropdownMenuItem onClick={() => onDownload(doc)}>
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem onClick={() => onEdit(doc)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Rename
-                      </DropdownMenuItem>
+                      {onRename && (
+                        <DropdownMenuItem onClick={() => onRename(doc)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Rename
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => onShare(doc)}>
                         <Share2 className="mr-2 h-4 w-4" />
                         Share
@@ -190,6 +233,7 @@ export function DocumentGrid({
           <tr>
             <th className="text-left p-4 font-medium">Name</th>
             <th className="text-left p-4 font-medium">Client</th>
+            <th className="text-left p-4 font-medium">Uploaded By</th>
             <th className="text-left p-4 font-medium">Size</th>
             <th className="text-left p-4 font-medium">Modified</th>
             <th className="text-left p-4 font-medium">Tags</th>
@@ -199,11 +243,13 @@ export function DocumentGrid({
         <tbody>
           {documents.map((doc) => {
             const Icon =
-              doc.type === "folder" ? Folder : getFileIcon(doc.fileType);
+              doc.document.type === "folder"
+                ? Folder
+                : getFileIcon(doc.document.mimeType);
 
             return (
               <tr
-                key={doc.id}
+                key={doc.document.id}
                 className="border-t hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                 onDoubleClick={() => handleDoubleClick(doc)}
               >
@@ -212,32 +258,44 @@ export function DocumentGrid({
                     <Icon
                       className={cn(
                         "h-5 w-5",
-                        doc.type === "folder"
+                        doc.document.type === "folder"
                           ? "text-blue-500"
                           : "text-muted-foreground",
                       )}
                     />
-                    <span className="font-medium">{doc.name}</span>
+                    <span className="font-medium">{doc.document.name}</span>
                   </div>
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
-                  {doc.client || "-"}
+                  {doc.client?.companyName || doc.client?.name || "-"}
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
-                  {doc.type === "folder"
-                    ? `${documents.filter((d) => d.parentId === doc.id).length} items`
-                    : formatFileSize(doc.size)}
+                  {doc.uploader
+                    ? `${doc.uploader.firstName || ""} ${doc.uploader.lastName || ""}`.trim() ||
+                      doc.uploader.email
+                    : "-"}
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
-                  {formatDate(doc.modifiedAt)}
+                  {doc.document.type === "folder"
+                    ? "Folder"
+                    : formatFileSize(doc.document.size ?? undefined)}
+                </td>
+                <td className="p-4 text-sm text-muted-foreground">
+                  {formatDate(doc.document.updatedAt)}
                 </td>
                 <td className="p-4">
                   <div className="flex gap-1">
-                    {doc.tags?.slice(0, 2).map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
+                    {Array.isArray(doc.document.tags) &&
+                      doc.document.tags.slice(0, 2).map((tag: string) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    {getSignatureStatusBadge(doc.document.signatureStatus)}
                   </div>
                 </td>
                 <td className="p-4 text-right">
@@ -253,27 +311,25 @@ export function DocumentGrid({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {doc.type === "folder" ? (
-                        <DropdownMenuItem onClick={() => onNavigate(doc.id)}>
+                      {doc.document.type === "folder" ? (
+                        <DropdownMenuItem
+                          onClick={() => onFolderClick(doc.document.id)}
+                        >
                           <FolderOpen className="mr-2 h-4 w-4" />
                           Open
                         </DropdownMenuItem>
                       ) : (
-                        <>
-                          <DropdownMenuItem onClick={() => onView(doc)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDownload(doc)}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
-                          </DropdownMenuItem>
-                        </>
+                        <DropdownMenuItem onClick={() => onDownload(doc)}>
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </DropdownMenuItem>
                       )}
-                      <DropdownMenuItem onClick={() => onEdit(doc)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Rename
-                      </DropdownMenuItem>
+                      {onRename && (
+                        <DropdownMenuItem onClick={() => onRename(doc)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Rename
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => onShare(doc)}>
                         <Share2 className="mr-2 h-4 w-4" />
                         Share

@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import {
   Calendar,
   CheckSquare,
@@ -14,6 +13,7 @@ import { ActivityFeed } from "@/components/client-hub/dashboard/activity-feed";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { QuickActions } from "@/components/client-hub/dashboard/quick-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "@/lib/auth-client";
 import { formatCurrency } from "@/lib/utils/format";
 
 interface ClientHubDashboardProps {
@@ -21,11 +21,11 @@ interface ClientHubDashboardProps {
 }
 
 export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
-  const { user } = useUser();
+  const { data: session } = useSession();
 
-  // Use passed userName or fall back to Clerk user data
+  // Use passed userName or fall back to session user data
   // Convert to proper case (capitalize first letter of each word)
-  const rawName = userName || user?.firstName || "User";
+  const rawName = userName || session?.user?.name?.split(" ")[0] || "User";
   const displayName = rawName
     .split(/[\s-_]+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())

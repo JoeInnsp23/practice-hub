@@ -1,71 +1,93 @@
 "use client";
 
 import { format } from "date-fns";
-import { FileText, Plus } from "lucide-react";
+import {
+  Calculator,
+  Calendar as CalendarIcon,
+  DollarSign,
+  Plus,
+  Target,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Badge } from "@/components/ui/badge";
+import { KanbanBoard } from "@/components/proposal-hub/kanban/kanban-board";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function PipelinePage() {
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [assignedToFilter, setAssignedToFilter] = useState<
+    string | undefined
+  >();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [minValue, setMinValue] = useState<string>("");
+  const [maxValue, setMaxValue] = useState<string>("");
 
-  // Fetch all proposals
-  const { data: proposalsData, isLoading } = trpc.proposals.list.useQuery({});
-  const proposals = proposalsData?.proposals || [];
+  // Fetch deals (leads + proposals)
+  const { data: dealsData, isLoading } = trpc.pipeline.getDeals.useQuery({
+    search,
+    assignedToId: assignedToFilter,
+    dateFrom: dateFrom?.toISOString(),
+    dateTo: dateTo?.toISOString(),
+    minValue: minValue ? Number.parseFloat(minValue) : undefined,
+    maxValue: maxValue ? Number.parseFloat(maxValue) : undefined,
+  });
 
-  // Group proposals by status
-  const proposalsByStatus = {
-    draft: proposals.filter((p) => p.status === "draft"),
-    sent: proposals.filter((p) => p.status === "sent"),
-    viewed: proposals.filter((p) => p.status === "viewed"),
-    signed: proposals.filter((p) => p.status === "signed"),
-    rejected: proposals.filter((p) => p.status === "rejected"),
+  // Fetch team members for filter
+  const { data: usersData } = trpc.users.list.useQuery({});
+  const users = usersData?.users || [];
+
+  const dealsByStage = dealsData?.dealsByStage || {
+    new: [],
+    contacted: [],
+    qualified: [],
+    proposal_sent: [],
+    negotiating: [],
+    converted: [],
+    lost: [],
   };
 
-  const columns = [
-    {
-      id: "draft",
-      title: "Draft",
-      proposals: proposalsByStatus.draft,
-      color: "bg-slate-100 dark:bg-slate-800",
-      badgeColor: "text-slate-600",
-    },
-    {
-      id: "sent",
-      title: "Sent",
-      proposals: proposalsByStatus.sent,
-      color: "bg-blue-100 dark:bg-blue-900/30",
-      badgeColor: "text-blue-600",
-    },
-    {
-      id: "viewed",
-      title: "Viewed",
-      proposals: proposalsByStatus.viewed,
-      color: "bg-indigo-100 dark:bg-indigo-900/30",
-      badgeColor: "text-indigo-600",
-    },
-    {
-      id: "signed",
-      title: "Signed",
-      proposals: proposalsByStatus.signed,
-      color: "bg-green-100 dark:bg-green-900/30",
-      badgeColor: "text-green-600",
-    },
-    {
-      id: "rejected",
-      title: "Rejected",
-      proposals: proposalsByStatus.rejected,
-      color: "bg-red-100 dark:bg-red-900/30",
-      badgeColor: "text-red-600",
-    },
-  ];
+  const totalDeals = dealsData?.totalDeals || 0;
+  const totalValue = dealsData?.totalValue || 0;
 
-  // Calculate total value in pipeline
-  const pipelineValue = proposals
-    .filter((p) => ["sent", "viewed"].includes(p.status))
-    .reduce((sum, p) => sum + Number(p.monthlyTotal), 0);
+  // Calculate active pipeline (non-terminal stages)
+  const activeDeals =
+    (dealsByStage.new?.length || 0) +
+    (dealsByStage.contacted?.length || 0) +
+    (dealsByStage.qualified?.length || 0) +
+    (dealsByStage.proposal_sent?.length || 0) +
+    (dealsByStage.negotiating?.length || 0);
+
+  const convertedDeals = dealsByStage.converted?.length || 0;
+  const lostDeals = dealsByStage.lost?.length || 0;
+
+  // Calculate conversion rate
+  const closedDeals = convertedDeals + lostDeals;
+  const conversionRate =
+    closedDeals > 0 ? (convertedDeals / closedDeals) * 100 : 0;
+
+  // Calculate average deal size
+  const averageDealSize = totalDeals > 0 ? totalValue / totalDeals : 0;
 
   if (isLoading) {
     return (
@@ -78,139 +100,258 @@ export default function PipelinePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Proposal Pipeline
-          </h1>
+          <h1 className="text-3xl font-bold text-foreground">Pipeline & CRM</h1>
           <p className="text-muted-foreground mt-2">
-            Visual workflow of all proposals
+            Visual workflow of all leads and proposals
           </p>
         </div>
-        <Button onClick={() => router.push("/proposal-hub/calculator")}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Proposal
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/proposal-hub/leads/new")}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Lead
+          </Button>
+          <Button onClick={() => router.push("/proposal-hub/calculator")}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Proposal
+          </Button>
+        </div>
       </div>
 
       {/* Pipeline Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="glass-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Total Proposals</p>
-          <p className="text-2xl font-bold">{proposals.length}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Total Deals</p>
+              <p className="text-2xl font-bold">{totalDeals}</p>
+            </div>
+            <Users className="h-8 w-8 text-slate-500" />
+          </div>
         </Card>
-        <Card className="glass-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">In Pipeline</p>
-          <p className="text-2xl font-bold">
-            {proposalsByStatus.sent.length + proposalsByStatus.viewed.length}
-          </p>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">
+                Active Pipeline
+              </p>
+              <p className="text-2xl font-bold">{activeDeals}</p>
+              <p className="text-xs text-muted-foreground">in progress</p>
+            </div>
+            <Target className="h-8 w-8 text-blue-500" />
+          </div>
         </Card>
-        <Card className="glass-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Pipeline Value</p>
-          <p className="text-2xl font-bold">£{pipelineValue.toFixed(0)}</p>
-          <p className="text-xs text-muted-foreground">/month</p>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Total Value</p>
+              <p className="text-2xl font-bold">
+                £{Math.round(totalValue).toLocaleString()}
+              </p>
+              <p className="text-xs text-muted-foreground">estimated</p>
+            </div>
+            <DollarSign className="h-8 w-8 text-green-500" />
+          </div>
         </Card>
-        <Card className="glass-card p-4">
-          <p className="text-sm text-muted-foreground mb-1">Signed</p>
-          <p className="text-2xl font-bold text-green-600">
-            {proposalsByStatus.signed.length}
-          </p>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">
+                Avg Deal Size
+              </p>
+              <p className="text-2xl font-bold">
+                £{Math.round(averageDealSize).toLocaleString()}
+              </p>
+              <p className="text-xs text-muted-foreground">per deal</p>
+            </div>
+            <Calculator className="h-8 w-8 text-purple-500" />
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">
+                Conversion Rate
+              </p>
+              <p className="text-2xl font-bold text-green-600">
+                {conversionRate.toFixed(0)}%
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {convertedDeals} won, {lostDeals} lost
+              </p>
+            </div>
+            <TrendingUp className="h-8 w-8 text-amber-500" />
+          </div>
         </Card>
       </div>
+
+      {/* Filters */}
+      <Card className="p-4">
+        <div className="space-y-4">
+          {/* Row 1: Search and Assigned To */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Search by name, email, or company..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Select
+              value={assignedToFilter}
+              onValueChange={(value) =>
+                setAssignedToFilter(value === "all" ? undefined : value)
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="All team members" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All team members</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.firstName} {user.lastName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Row 2: Date Range and Value Range */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Date Range */}
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Created:
+              </span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom ? format(dateFrom, "PPP") : "From"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <span className="text-muted-foreground">to</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, "PPP") : "To"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Value Range */}
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Value:
+              </span>
+              <Input
+                type="number"
+                placeholder="Min £"
+                value={minValue}
+                onChange={(e) => setMinValue(e.target.value)}
+                className="w-28"
+              />
+              <span className="text-muted-foreground">to</span>
+              <Input
+                type="number"
+                placeholder="Max £"
+                value={maxValue}
+                onChange={(e) => setMaxValue(e.target.value)}
+                className="w-28"
+              />
+            </div>
+
+            {/* Clear Filters Button */}
+            {(search ||
+              assignedToFilter ||
+              dateFrom ||
+              dateTo ||
+              minValue ||
+              maxValue) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  setAssignedToFilter(undefined);
+                  setDateFrom(undefined);
+                  setDateTo(undefined);
+                  setMinValue("");
+                  setMaxValue("");
+                }}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {columns.map((column) => (
-          <div key={column.id} className="space-y-3">
-            {/* Column Header */}
-            <Card className={`glass-card p-3 ${column.color}`}>
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">{column.title}</h3>
-                <Badge variant="secondary">{column.proposals.length}</Badge>
-              </div>
-            </Card>
-
-            {/* Proposal Cards */}
-            <div className="space-y-3 min-h-[200px]">
-              {column.proposals.length === 0 ? (
-                <div className="flex items-center justify-center py-8">
-                  <p className="text-sm text-muted-foreground">No proposals</p>
-                </div>
-              ) : (
-                column.proposals.map((proposal) => (
-                  <Card
-                    key={proposal.id}
-                    className="glass-card p-4 cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() =>
-                      router.push(`/proposal-hub/proposals/${proposal.id}`)
-                    }
-                  >
-                    <div className="space-y-2">
-                      {/* Title and Number */}
-                      <div>
-                        <p className="font-medium text-sm line-clamp-2">
-                          {proposal.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {proposal.proposalNumber}
-                        </p>
-                      </div>
-
-                      {/* Client */}
-                      {proposal.clientName && (
-                        <p className="text-xs text-muted-foreground">
-                          {proposal.clientName}
-                        </p>
-                      )}
-
-                      {/* Value */}
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <span className="text-xs text-muted-foreground">
-                          Monthly
-                        </span>
-                        <span className="text-sm font-bold text-primary">
-                          £{Number(proposal.monthlyTotal).toFixed(2)}
-                        </span>
-                      </div>
-
-                      {/* Date */}
-                      {proposal.sentAt && (
-                        <p className="text-xs text-muted-foreground">
-                          Sent {format(new Date(proposal.sentAt), "MMM d")}
-                        </p>
-                      )}
-                      {proposal.validUntil && (
-                        <p className="text-xs text-muted-foreground">
-                          Valid until{" "}
-                          {format(new Date(proposal.validUntil), "MMM d")}
-                        </p>
-                      )}
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {proposals.length === 0 && (
-        <Card className="glass-card p-12">
+      {totalDeals === 0 ? (
+        <Card className="p-12">
           <div className="flex flex-col items-center gap-4">
-            <FileText className="h-16 w-16 text-muted-foreground/50" />
+            <Target className="h-16 w-16 text-muted-foreground/50" />
             <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">No proposals yet</h3>
+              <h3 className="text-lg font-semibold mb-2">No deals yet</h3>
               <p className="text-muted-foreground mb-4">
-                Create your first proposal to get started
+                Create your first lead or proposal to get started
               </p>
-              <Button onClick={() => router.push("/proposal-hub/calculator")}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Proposal
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/proposal-hub/leads/new")}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Lead
+                </Button>
+                <Button onClick={() => router.push("/proposal-hub/calculator")}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Proposal
+                </Button>
+              </div>
             </div>
           </div>
         </Card>
+      ) : (
+        <KanbanBoard dealsByStage={dealsByStage} />
       )}
     </div>
   );

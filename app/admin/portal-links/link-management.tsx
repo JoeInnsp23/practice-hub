@@ -18,6 +18,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -57,7 +58,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/lib/trpc/client";
 import { IconPicker } from "./icon-picker";
 import { getIconComponent } from "./icon-utils";
 
@@ -118,18 +118,18 @@ export function LinkManagement() {
     new Set(),
   );
 
-  const { data: categories } = api.portal.getCategories.useQuery();
+  const { data: categories } = trpc.portal.getCategories.useQuery();
   const {
     data: links,
     isLoading,
     refetch,
-  } = api.portal.getLinks.useQuery({
+  } = trpc.portal.getLinks.useQuery({
     categoryId: selectedCategory || undefined,
   });
-  const createMutation = api.portal.createLink.useMutation();
-  const updateMutation = api.portal.updateLink.useMutation();
-  const deleteMutation = api.portal.deleteLink.useMutation();
-  const reorderMutation = api.portal.reorderLinks.useMutation();
+  const createMutation = trpc.portal.createLink.useMutation();
+  const updateMutation = trpc.portal.updateLink.useMutation();
+  const deleteMutation = trpc.portal.deleteLink.useMutation();
+  const reorderMutation = trpc.portal.reorderLinks.useMutation();
 
   // Group links by category
   const linksByCategory = React.useMemo(() => {
@@ -334,13 +334,13 @@ export function LinkManagement() {
                     setCollapsedCategories(newCollapsed);
                   }}
                 >
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
+                  <div className="p-0 h-auto">
                     {isCollapsed ? (
                       <ChevronRight className="h-4 w-4" />
                     ) : (
                       <ChevronDown className="h-4 w-4" />
                     )}
-                  </Button>
+                  </div>
                   <div
                     className="h-8 w-8 rounded-lg flex items-center justify-center"
                     style={{

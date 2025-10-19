@@ -1,16 +1,16 @@
-import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { eq } from "drizzle-orm";
+import { useSession } from "@/lib/auth-client";
 import { db } from "@/lib/db";
 import { tenants, users } from "@/lib/db/schema";
 
 export function useTenant() {
-  const { user } = useUser();
+  const { data: session } = useSession();
 
   return useQuery({
-    queryKey: ["tenant", user?.id],
+    queryKey: ["tenant", session?.user?.id],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!session?.user?.id) return null;
 
       const dbUser = await db
         .select({
@@ -19,11 +19,11 @@ export function useTenant() {
         })
         .from(users)
         .innerJoin(tenants, eq(users.tenantId, tenants.id))
-        .where(eq(users.clerkId, user.id))
+        .where(eq(users.id, session.user.id))
         .limit(1);
 
       return dbUser[0] || null;
     },
-    enabled: !!user?.id,
+    enabled: !!session?.user?.id,
   });
 }

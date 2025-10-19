@@ -2,12 +2,13 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { activityLogs, users } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Role enum for filtering
-const _userRoleEnum = z.enum(["admin", "member", "readonly", "org:admin"]);
+const _userRoleEnum = z.enum(["admin", "accountant", "member"]);
 
 // Generate schema from Drizzle table definition
 const insertUserSchema = createInsertSchema(users);
@@ -26,10 +27,7 @@ export const usersRouter = router({
       z.object({
         search: z.string().optional(),
         role: z
-          .union([
-            z.enum(["member", "admin", "org:admin", "readonly"]),
-            z.literal("all"),
-          ])
+          .union([z.enum(["member", "admin", "accountant"]), z.literal("all")])
           .optional(),
       }),
     )
@@ -56,7 +54,6 @@ export const usersRouter = router({
       const usersList = await db
         .select({
           id: users.id,
-          clerkId: users.clerkId,
           email: users.email,
           firstName: users.firstName,
           lastName: users.lastName,
@@ -102,9 +99,7 @@ export const usersRouter = router({
     const existing = await db
       .select()
       .from(users)
-      .where(
-        and(eq(users.clerkId, input.clerkId), eq(users.tenantId, tenantId)),
-      )
+      .where(and(eq(users.email, input.email), eq(users.tenantId, tenantId)))
       .limit(1);
 
     if (existing[0]) {
@@ -118,8 +113,8 @@ export const usersRouter = router({
     const [newUser] = await db
       .insert(users)
       .values({
+        id: crypto.randomUUID(),
         tenantId,
-        clerkId: input.clerkId,
         email: input.email,
         firstName: input.firstName,
         lastName: input.lastName,
@@ -243,7 +238,7 @@ export const usersRouter = router({
     .input(
       z.object({
         id: z.string(),
-        role: z.enum(["admin", "member", "readonly", "org:admin"]),
+        role: z.enum(["admin", "accountant", "member"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -287,5 +282,63 @@ export const usersRouter = router({
       });
 
       return { success: true, user: updatedUser };
+    }),
+
+  sendPasswordReset: adminProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const {
+        tenantId,
+        userId: adminUserId,
+        firstName,
+        lastName,
+      } = ctx.authContext;
+
+      // Check user exists and belongs to tenant
+      const targetUser = await db
+        .select()
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, tenantId)))
+        .limit(1);
+
+      if (!targetUser[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      // Send password reset email using Better Auth
+      try {
+        await auth.api.forgetPassword({
+          body: {
+            email: targetUser[0].email,
+            redirectTo: "/reset-password",
+          },
+        });
+
+        // Log the activity
+        await db.insert(activityLogs).values({
+          tenantId,
+          entityType: "user",
+          entityId: input.userId,
+          action: "password_reset_sent",
+          description: `Sent password reset email to ${targetUser[0].firstName} ${targetUser[0].lastName}`,
+          userId: adminUserId,
+          userName: `${firstName} ${lastName}`,
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to send password reset email:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send password reset email",
+        });
+      }
     }),
 });

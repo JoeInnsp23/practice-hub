@@ -44,14 +44,6 @@ export default async function AdminDashboardPage() {
       iconColor: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20",
     },
-    {
-      title: "Settings",
-      description: "Configure system settings and preferences",
-      icon: Settings,
-      href: "/admin/settings",
-      iconColor: "text-purple-600",
-      bgColor: "bg-purple-50 dark:bg-purple-950/20",
-    },
   ];
 
   return (
@@ -67,7 +59,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Admin Sections Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {adminSections.map((section) => {
           const Icon = section.icon;
           return (

@@ -1,0 +1,136 @@
+--- a/app/api/webhooks/docuseal/route.ts
++++ b/app/api/webhooks/docuseal/route.ts
+@@ -1,6 +1,7 @@
+ import { db } from "@/lib/db";
+ import { NextRequest, NextResponse } from "next/server";
+ import crypto from "crypto";
++import * as Sentry from "@sentry/nextjs";
+
+ export const runtime = "nodejs";
+
+@@ -33,11 +34,18 @@ export async function POST(request: NextRequest) {
+   const signature = request.headers.get("x-docuseal-signature");
+
+   if (!signature) {
+-    console.error("Missing DocuSeal webhook signature");
++    Sentry.captureException(new Error("Missing webhook signature"), {
++      tags: { operation: "webhook_signature_missing", endpoint: "/api/webhooks/docuseal" },
++    });
+     return new Response("Unauthorized", { status: 401 });
+   }
+
+   if (!webhookSecret) {
+-    console.error("DOCUSEAL_WEBHOOK_SECRET not configured");
++    Sentry.captureException(new Error("Webhook secret not configured"), {
++      tags: {
++        operation: "webhook_secret_missing",
++        severity: "critical",
++      },
++    });
+     return new Response("Configuration error", { status: 500 });
+   }
+
+@@ -50,7 +57,11 @@ export async function POST(request: NextRequest) {
+     .digest("hex");
+
+   if (signature !== expectedSignature) {
+-    console.error("Invalid DocuSeal webhook signature");
++    Sentry.captureException(new Error("Invalid webhook signature"), {
++      tags: { operation: "webhook_signature_invalid" },
++      extra: { providedSignature: signature.substring(0, 10) + "..." },
++    });
+     return new Response("Unauthorized", { status: 401 });
+   }
+
+@@ -66,7 +77,13 @@ export async function POST(request: NextRequest) {
+   try {
+     // ... webhook processing
+   } catch (error) {
+-    console.error("DocuSeal webhook error:", error);
++    Sentry.captureException(error as Error, {
++      tags: { operation: "webhook_processing_error" },
++      extra: {
++        submissionId: submission?.id,
++        body: body.substring(0, 200),
++      },
++    });
+     return new Response("Processing failed", { status: 500 });
+   }
+
+@@ -81,7 +98,11 @@ async function handleWebhookEvent(
+   const tenantId = submission.metadata?.tenant_id;
+
+   if (!tenantId) {
+-    console.error("Missing tenant_id in submission metadata");
++    Sentry.captureException(new Error("Missing tenant_id in webhook metadata"), {
++      tags: { operation: "webhook_metadata_missing" },
++      extra: { submissionId },
++    });
+     return new Response("Invalid submission", { status: 400 });
+   }
+
+@@ -89,7 +110,11 @@ async function handleWebhookEvent(
+   const documentId = submission.metadata?.document_id;
+
+   if (!proposalId && !documentId) {
+-    console.error("No proposal_id or document_id in metadata");
++    Sentry.captureException(new Error("Missing entity ID in webhook metadata"), {
++      tags: { operation: "webhook_entity_id_missing" },
++      extra: { submissionId, tenantId },
++    });
+     return new Response("Invalid submission", { status: 400 });
+   }
+
+@@ -120,7 +145,11 @@ async function handleWebhookEvent(
+   );
+
+   if (!proposal) {
+-    console.error("Proposal not found:", proposalId);
++    Sentry.captureException(new Error("Proposal not found in webhook handler"), {
++      tags: { operation: "webhook_entity_not_found" },
++      extra: { proposalId, tenantId, submissionId },
++    });
+     return new Response("Entity not found", { status: 404 });
+   }
+
+@@ -230,7 +259,13 @@ async function handleWebhookEvent(
+       });
+     }
+   } catch (conversionError) {
+-    console.error("Failed to auto-convert lead to client:", conversionError);
++    Sentry.captureException(conversionError as Error, {
++      tags: { operation: "lead_conversion_error" },
++      extra: {
++        proposalId,
++        leadId: proposal.leadId,
++      },
++    });
+     // Don't fail the entire webhook on conversion error
+   }
+
+@@ -250,7 +285,13 @@ async function handleWebhookEvent(
+       template: "proposal_signed_confirmation",
+     });
+   } catch (emailError) {
+-    console.error("Failed to send confirmation email:", emailError);
++    Sentry.captureException(emailError as Error, {
++      tags: { operation: "webhook_email_send_failed" },
++      extra: {
++        proposalId,
++        submissionId,
++      },
++    });
+     // Don't fail the entire webhook on email error
+   }
+
+@@ -267,7 +308,11 @@ async function handleWebhookEvent(
+   );
+
+   if (!document) {
+-    console.error("Document not found:", documentId);
++    Sentry.captureException(new Error("Document not found in webhook handler"), {
++      tags: { operation: "webhook_document_not_found" },
++      extra: { documentId, tenantId, submissionId },
++    });
+     return new Response("Document not found", { status: 404 });
+   }

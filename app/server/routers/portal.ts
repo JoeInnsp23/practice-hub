@@ -388,11 +388,11 @@ export const portalRouter = router({
 
   // Get user favorites
   getUserFavorites: protectedProcedure.query(async ({ ctx }) => {
-    // First get the database user ID from the Clerk ID
+    // Get the database user ID from auth context
     const user = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.clerkId, ctx.authContext.userId))
+      .where(eq(users.id, ctx.authContext.userId))
       .limit(1);
 
     if (!user[0]) {
@@ -416,11 +416,11 @@ export const portalRouter = router({
   toggleFavorite: protectedProcedure
     .input(z.object({ linkId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      // First get the database user ID from the Clerk ID
+      // Get the database user ID from auth context
       const user = await db
         .select({ id: users.id })
         .from(users)
-        .where(eq(users.clerkId, ctx.authContext.userId))
+        .where(eq(users.id, ctx.authContext.userId))
         .limit(1);
 
       if (!user[0]) {
