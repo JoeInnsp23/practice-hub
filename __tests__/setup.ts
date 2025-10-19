@@ -9,7 +9,9 @@ import { afterAll, afterEach, beforeAll } from "vitest";
 // Set test environment variables
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL =
-  process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+  process.env.TEST_DATABASE_URL ||
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:PgHub2024SecureDB9kL@localhost:5432/practice_hub";
 process.env.BETTER_AUTH_SECRET = "test-secret-key-for-auth";
 process.env.BETTER_AUTH_URL = "http://localhost:3000";
 process.env.NEXT_PUBLIC_BETTER_AUTH_URL = "http://localhost:3000";
