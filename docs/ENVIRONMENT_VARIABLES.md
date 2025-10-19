@@ -136,8 +136,8 @@ MICROSOFT_CLIENT_ID="your-microsoft-client-id-here"
 **Description**: Azure AD application client secret
 **Required**: No (but required for Microsoft OAuth)
 **Format**: String
-**Example**: `"V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe"`
-**Security**: ⚠️ Secret expires after 24 months, set calendar reminder
+**Example**: `"V2_8Q~EXAMPLE_SECRET_REPLACE_WITH_REAL"`
+**Security**: ⚠️ Secret expires after 24 months, set calendar reminder. NEVER commit to git.
 **Where to get**: Azure Portal → App Registrations → Your App → Certificates & secrets
 
 ```env
@@ -411,8 +411,16 @@ NEXT_PUBLIC_SUPPORT_EMAIL="support@innspiredaccountancy.com"
 #### `DOCUSEAL_API_KEY`
 
 **Description**: DocuSeal API key for e-signatures
-**Required**: No (feature not fully implemented)
+**Required**: Yes (if using DocuSeal for proposal signing)
 **Format**: String
+**Where to get**: DocuSeal Admin UI → Settings → API Keys → Generate New Key
+
+**How to obtain (self-hosted):**
+1. Start DocuSeal: `docker compose up -d docuseal`
+2. Navigate to: `http://localhost:3030`
+3. Go to Settings → API Keys
+4. Click "Generate New API Key"
+5. Copy the key and add to `.env.local`
 
 ```env
 DOCUSEAL_API_KEY="your-docuseal-api-key"
@@ -420,16 +428,88 @@ DOCUSEAL_API_KEY="your-docuseal-api-key"
 
 ---
 
-#### `DOCUSEAL_API_URL`
+#### `DOCUSEAL_HOST`
 
-**Description**: DocuSeal API base URL
-**Required**: No
-**Default**: `"http://localhost:3000"` (self-hosted)
-**Format**: Full URL
+**Description**: DocuSeal instance base URL
+**Required**: Yes (if using DocuSeal)
+**Default**: `"http://localhost:3030"` (self-hosted)
+**Format**: Full URL with protocol
+**Notes**: Used for API calls and embedded signing iframes
 
+**Development**:
 ```env
-DOCUSEAL_API_URL="https://docuseal.yourdomain.com"
+DOCUSEAL_HOST="http://localhost:3030"
 ```
+
+**Production**:
+```env
+DOCUSEAL_HOST="https://docuseal.yourdomain.com"
+```
+
+---
+
+#### `DOCUSEAL_SECRET_KEY`
+
+**Description**: Secret key for DocuSeal application (used by DocuSeal itself)
+**Required**: Yes (if using DocuSeal)
+**Format**: Random base64 string (minimum 32 characters)
+**Security**: ⚠️ **CRITICAL** - Used by DocuSeal for session encryption
+**Notes**: This is separate from `DOCUSEAL_WEBHOOK_SECRET` - it's for DocuSeal's internal use
+
+**Generate**:
+```bash
+openssl rand -base64 32
+```
+
+**Development**:
+```env
+DOCUSEAL_SECRET_KEY="test-secret-key-for-development-only"
+```
+
+**Production**:
+```env
+DOCUSEAL_SECRET_KEY="<generate-unique-secret-with-openssl>"
+```
+
+---
+
+#### `DOCUSEAL_WEBHOOK_SECRET`
+
+**Description**: Secret key for verifying webhook signatures from DocuSeal
+**Required**: Yes (if using DocuSeal webhooks)
+**Format**: Random base64 string (minimum 32 characters)
+**Security**: ⚠️ **CRITICAL** - Used for HMAC-SHA256 signature verification of webhook payloads
+**Where to configure**:
+1. Generate secret with `openssl rand -base64 32`
+2. Add to your app's `.env.local`
+3. Add the **same secret** to DocuSeal Admin UI → Settings → Webhooks
+
+**How webhook verification works:**
+1. DocuSeal signs webhook payload with HMAC-SHA256 using this secret
+2. Webhook is sent with `x-docuseal-signature` header
+3. Your app recalculates signature using the same secret
+4. If signatures match, webhook is authentic
+
+**Generate**:
+```bash
+openssl rand -base64 32
+```
+
+**Development**:
+```env
+DOCUSEAL_WEBHOOK_SECRET="test-webhook-secret-for-development"
+```
+
+**Production**:
+```env
+DOCUSEAL_WEBHOOK_SECRET="<generate-unique-secret-with-openssl>"
+```
+
+**Setup in DocuSeal:**
+- Navigate to: `http://localhost:3030/settings/webhooks`
+- Webhook URL: `http://your-app-url:3000/api/webhooks/docuseal`
+- Secret: Enter the **same secret** from your `.env.local`
+- Events: Select `submission.completed`
 
 ---
 

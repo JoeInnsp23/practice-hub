@@ -122,9 +122,11 @@ This checklist ensures Microsoft OAuth and all authentication features work corr
    NEXT_PUBLIC_BETTER_AUTH_URL="https://app.innspiredaccountancy.com"
 
    # Microsoft OAuth
-   MICROSOFT_CLIENT_ID="f9e3ca9e-0f80-4ffc-a216-951146248899"
-   MICROSOFT_CLIENT_SECRET="V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe"
+   MICROSOFT_CLIENT_ID="your-microsoft-client-id-from-azure"
+   MICROSOFT_CLIENT_SECRET="your-microsoft-client-secret-from-azure"
    ```
+
+   ⚠️ **Get credentials from Azure Portal** - never use example values.
 
    **Generate new BETTER_AUTH_SECRET**:
    ```bash

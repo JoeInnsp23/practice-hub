@@ -310,9 +310,11 @@ NEXT_PUBLIC_BETTER_AUTH_URL="http://localhost:3000"
 ### Optional (Microsoft OAuth)
 
 ```env
-MICROSOFT_CLIENT_ID="f9e3ca9e-0f80-4ffc-a216-951146248899"
-MICROSOFT_CLIENT_SECRET="V2_8Q~Y14h5HYA2ag6C9dPEYzGO2qvqHLKFGwaKe"
+MICROSOFT_CLIENT_ID="your-microsoft-client-id-from-azure"
+MICROSOFT_CLIENT_SECRET="your-microsoft-client-secret-from-azure"
 ```
+
+⚠️ **NEVER commit real credentials to git.** Get these from Azure Portal.
 
 ## Database Tables
 
