@@ -218,7 +218,7 @@ export default function ClientsPage() {
             <Upload className="h-4 w-4 mr-2" />
             Import
           </Button>
-          <Button onClick={handleAddClient}>
+          <Button onClick={handleAddClient} data-testid="client-creation-button">
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>

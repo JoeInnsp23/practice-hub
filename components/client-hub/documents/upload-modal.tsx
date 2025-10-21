@@ -175,6 +175,7 @@ export function UploadModal({
                 className="hidden"
                 onChange={handleFileSelect}
                 disabled={isUploading}
+                data-testid="document-upload-input"
               />
               <Button variant="outline" asChild>
                 <span>Browse Files</span>

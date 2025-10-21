@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -798,7 +798,7 @@ export const tasksRouter = router({
           .from(tasks)
           .where(
             and(
-              sql`${tasks.id} = ANY(${input.taskIds})`,
+              inArray(tasks.id, input.taskIds),
               eq(tasks.tenantId, tenantId),
             ),
           );
@@ -820,7 +820,7 @@ export const tasksRouter = router({
             progress: input.status === "completed" ? 100 : undefined,
             updatedAt: new Date(),
           })
-          .where(sql`${tasks.id} = ANY(${input.taskIds})`)
+          .where(inArray(tasks.id, input.taskIds))
           .returning();
 
         // Log activity for each task
@@ -862,7 +862,7 @@ export const tasksRouter = router({
           .from(tasks)
           .where(
             and(
-              sql`${tasks.id} = ANY(${input.taskIds})`,
+              inArray(tasks.id, input.taskIds),
               eq(tasks.tenantId, tenantId),
             ),
           );
@@ -881,7 +881,7 @@ export const tasksRouter = router({
             assignedToId: input.assigneeId,
             updatedAt: new Date(),
           })
-          .where(sql`${tasks.id} = ANY(${input.taskIds})`)
+          .where(inArray(tasks.id, input.taskIds))
           .returning();
 
         // Log activity for each task
@@ -922,7 +922,7 @@ export const tasksRouter = router({
           .from(tasks)
           .where(
             and(
-              sql`${tasks.id} = ANY(${input.taskIds})`,
+              inArray(tasks.id, input.taskIds),
               eq(tasks.tenantId, tenantId),
             ),
           );
@@ -948,7 +948,7 @@ export const tasksRouter = router({
         }
 
         // Delete all tasks
-        await tx.delete(tasks).where(sql`${tasks.id} = ANY(${input.taskIds})`);
+        await tx.delete(tasks).where(inArray(tasks.id, input.taskIds));
 
         return { count: existingTasks.length };
       });

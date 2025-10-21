@@ -81,7 +81,7 @@ export const complianceRouter = router({
       if (overdue) {
         const overdueCondition = and(
           sql`${compliance.dueDate} < CURRENT_DATE`,
-          sql`${compliance.status} NOT IN ('completed', 'cancelled')`,
+          sql`${compliance.status} NOT IN ('completed')`,
         );
         if (overdueCondition) conditions.push(overdueCondition);
       }

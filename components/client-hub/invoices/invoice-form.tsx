@@ -186,7 +186,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                   <FormItem>
                     <FormLabel>Invoice Number</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} data-testid="invoice-form-number-input" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -436,10 +436,10 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
         </Tabs>
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} data-testid="invoice-form-cancel-button">
             Cancel
           </Button>
-          <Button type="submit">
+          <Button type="submit" data-testid="invoice-form-save-button">
             <Calculator className="h-4 w-4 mr-2" />
             {invoice ? "Update" : "Create"} Invoice
           </Button>

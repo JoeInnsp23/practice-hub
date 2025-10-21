@@ -15,6 +15,9 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "DATABASE_URL=$DATABASE_URL_TEST playwright test",
+    "test:e2e:ui": "DATABASE_URL=$DATABASE_URL_TEST playwright test --ui",
+    "test:e2e:reset-db": "DATABASE_URL=$DATABASE_URL_TEST pnpm db:reset && DATABASE_URL=$DATABASE_URL_TEST tsx -r dotenv/config scripts/seed-test-database.ts dotenv_config_path=.env.test",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:push:dev": "drizzle-kit push",
@@ -100,6 +103,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20",

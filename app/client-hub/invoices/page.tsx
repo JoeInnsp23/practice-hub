@@ -259,7 +259,7 @@ export default function InvoicesPage() {
             Create and manage your invoices
           </p>
         </div>
-        <Button onClick={handleCreateInvoice}>
+        <Button onClick={handleCreateInvoice} data-testid="invoice-create-button">
           <Plus className="h-4 w-4 mr-2" />
           New Invoice
         </Button>

@@ -1,135 +1,80 @@
 /**
- * Timesheets Router Tests
+ * Timesheets Router Integration Tests
  *
- * Tests for the timesheets tRPC router
+ * Integration-level tests for the timesheets tRPC router.
+ * Tests verify database operations, tenant isolation, time tracking calculations, and business logic.
+ *
+ * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it } from "vitest";
+import { TRPCError } from "@trpc/server";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
 import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createTestTenant,
+  createTestUser,
+  createTestClient,
+  createTestTimeEntry,
+  cleanupTestData,
+  type TestDataTracker,
+} from "../helpers/factories";
+import { db } from "@/lib/db";
+import { timeEntries, activityLogs } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 import type { Context } from "@/app/server/context";
 
-// Mock the database
-vi.mock("@/lib/db", () => ({
-  db: {
-    select: vi.fn().mockReturnThis(),
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    orderBy: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    set: vi.fn().mockReturnThis(),
-    values: vi.fn().mockReturnThis(),
-    returning: vi.fn(),
-    execute: vi.fn().mockResolvedValue({ rows: [{}] }),
-  },
-}));
-
-describe("app/server/routers/timesheets.ts", () => {
+describe("app/server/routers/timesheets.ts (Integration)", () => {
   let ctx: Context;
   let caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    timeEntries: [],
+  };
 
-  beforeEach(() => {
-    ctx = createMockContext();
+  beforeEach(async () => {
+    // Create test tenant and user for each test
+    const tenantId = await createTestTenant();
+    const userId = await createTestUser(tenantId, { role: "admin" });
+
+    tracker.tenants?.push(tenantId);
+    tracker.users?.push(userId);
+
+    // Create mock context with test tenant and user
+    ctx = createMockContext({
+      authContext: {
+        userId,
+        tenantId,
+        organizationName: "Test Organization",
+        role: "admin",
+        email: `test-${Date.now()}@example.com`,
+        firstName: "Test",
+        lastName: "User",
+      },
+    });
+
     caller = createCaller(timesheetsRouter, ctx);
-    vi.clearAllMocks();
   });
 
-  describe("list", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({});
-      }).not.toThrow();
-    });
-
-    it("should accept startDate filter", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({
-          startDate: "2025-01-01",
-        });
-      }).not.toThrow();
-    });
-
-    it("should accept endDate filter", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({
-          endDate: "2025-01-31",
-        });
-      }).not.toThrow();
-    });
-
-    it("should accept userId filter", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({
-          userId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
-    });
-
-    it("should accept clientId filter", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({
-          clientId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
-    });
-
-    it("should accept billable filter", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({
-          billable: true,
-        });
-      }).not.toThrow();
-    });
-
-    it("should accept multiple filters", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.list._def.inputs[0]?.parse({
-          startDate: "2025-01-01",
-          endDate: "2025-01-31",
-          billable: true,
-          clientId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
-    });
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.timeEntries = [];
   });
 
-  describe("getById", () => {
-    it("should accept valid UUID", () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+  describe("create (Integration)", () => {
+    it("should create time entry and persist to database", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
 
-      expect(() => {
-        timesheetsRouter._def.procedures.getById._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
-    });
-
-    it("should validate input is a string", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.getById._def.inputs[0]?.parse(123);
-      }).toThrow();
-    });
-  });
-
-  describe("create", () => {
-    it("should validate required fields", () => {
-      const invalidInput = {
-        // Missing required fields
-        description: "Test entry",
-      };
-
-      expect(() => {
-        timesheetsRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
-    });
-
-    it("should accept valid time entry data", () => {
-      const validInput = {
+      const input = {
         date: "2025-01-15",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        clientId: client.id,
         description: "Development work",
         hours: "8.00",
         billable: true,
@@ -137,140 +82,634 @@ describe("app/server/routers/timesheets.ts", () => {
         status: "draft" as const,
       };
 
-      expect(() => {
-        timesheetsRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      const result = await caller.create(input);
+      tracker.timeEntries?.push(result.timeEntry.id);
+
+      expect(result.success).toBe(true);
+      expect(result.timeEntry.id).toBeDefined();
+      expect(result.timeEntry.description).toBe("Development work");
+      expect(result.timeEntry.tenantId).toBe(ctx.authContext.tenantId);
+      expect(result.timeEntry.userId).toBe(ctx.authContext.userId);
+
+      // Verify database persistence
+      const [dbEntry] = await db
+        .select()
+        .from(timeEntries)
+        .where(eq(timeEntries.id, result.timeEntry.id));
+
+      expect(dbEntry).toBeDefined();
+      expect(dbEntry.description).toBe("Development work");
+      expect(dbEntry.hours).toBe("8.00");
+      expect(dbEntry.billable).toBe(true);
+      expect(dbEntry.rate).toBe("150.00");
+      expect(dbEntry.tenantId).toBe(ctx.authContext.tenantId);
     });
 
-    it("should accept optional fields", () => {
-      const validInput = {
+    it("should create time entry with optional fields", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const input = {
         date: "2025-01-15",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        clientId: client.id,
         description: "Client meeting",
         hours: "2.00",
         billable: false,
         rate: "0.00",
         status: "draft" as const,
-        serviceComponentId: "660e8400-e29b-41d4-a716-446655440000",
-        taskId: "770e8400-e29b-41d4-a716-446655440000",
-        startTime: "09:00",
-        endTime: "11:00",
+        startTime: "09:00:00",
+        endTime: "11:00:00",
         notes: "Discussed project requirements",
       };
 
-      expect(() => {
-        timesheetsRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
+      const result = await caller.create(input);
+      tracker.timeEntries?.push(result.timeEntry.id);
+
+      expect(result.success).toBe(true);
+      expect(result.timeEntry.startTime).toBe("09:00:00");
+      expect(result.timeEntry.endTime).toBe("11:00:00");
+      expect(result.timeEntry.notes).toBe("Discussed project requirements");
+    });
+
+    it("should create activity log for time entry creation", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const input = {
+        date: "2025-01-15",
+        clientId: client.id,
+        description: "Activity Log Test",
+        hours: "5.00",
+        billable: true,
+        rate: "100.00",
+        status: "draft" as const,
+      };
+
+      const result = await caller.create(input);
+      tracker.timeEntries?.push(result.timeEntry.id);
+
+      // Verify activity log
+      const [log] = await db
+        .select()
+        .from(activityLogs)
+        .where(
+          and(
+            eq(activityLogs.entityId, result.timeEntry.id),
+            eq(activityLogs.entityType, "timeEntry"),
+            eq(activityLogs.action, "created")
+          )
         );
-      }).not.toThrow();
+
+      expect(log).toBeDefined();
+      expect(log.userId).toBe(ctx.authContext.userId);
+      expect(log.description).toContain("5.00h");
+      expect(log.tenantId).toBe(ctx.authContext.tenantId);
+    });
+
+    it("should validate required fields", async () => {
+      const invalidInput = {
+        // Missing required fields
+        description: "Test entry",
+      };
+
+      await expect(caller.create(invalidInput as any)).rejects.toThrow();
     });
   });
 
-  describe("update", () => {
-    it("should validate required id field", () => {
-      const invalidInput = {
-        // Missing id
-        data: {
-          hours: "10.00",
-        },
-      };
+  describe("list (Integration)", () => {
+    it("should list time entries with tenant isolation", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
 
-      expect(() => {
-        timesheetsRouter._def.procedures.update._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      // Create test time entries
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { description: "Entry Alpha", hours: "5.00" }
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { description: "Entry Beta", hours: "3.00" }
+      );
+      tracker.timeEntries?.push(entry1.id, entry2.id);
+
+      const result = await caller.list({});
+
+      expect(result.timeEntries).toBeDefined();
+      expect(result.timeEntries.length).toBeGreaterThanOrEqual(2);
+
+      // Verify tenant isolation
+      for (const entry of result.timeEntries) {
+        expect(entry.tenantId).toBe(ctx.authContext.tenantId);
+      }
+
+      // Verify our test entries are in the list
+      const entryIds = result.timeEntries.map(e => e.id);
+      expect(entryIds).toContain(entry1.id);
+      expect(entryIds).toContain(entry2.id);
     });
 
-    it("should accept valid update data", () => {
-      const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+    it("should filter time entries by date range", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      // Create entries with different dates
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-10", hours: "5.00" }
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-20", hours: "3.00" }
+      );
+      tracker.timeEntries?.push(entry1.id, entry2.id);
+
+      // Filter to only get entries from Jan 15 onwards
+      const result = await caller.list({ startDate: "2025-01-15" });
+
+      expect(result.timeEntries.length).toBeGreaterThanOrEqual(1);
+      // Should include entry2, might not include entry1
+      const hasEntry2 = result.timeEntries.some(e => e.id === entry2.id);
+      expect(hasEntry2).toBe(true);
+    });
+
+    it("should filter time entries by user", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      // Create entry for our test user
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      const result = await caller.list({ userId: ctx.authContext.userId });
+
+      expect(result.timeEntries.length).toBeGreaterThanOrEqual(1);
+      // All returned entries should be for this user
+      for (const e of result.timeEntries) {
+        expect(e.userId).toBe(ctx.authContext.userId);
+      }
+    });
+
+    it("should filter time entries by client", async () => {
+      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
+        name: "Client One",
+      });
+      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
+        name: "Client Two",
+      });
+      tracker.clients?.push(client1.id, client2.id);
+
+      // Create entries for different clients
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client1.id
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client2.id
+      );
+      tracker.timeEntries?.push(entry1.id, entry2.id);
+
+      const result = await caller.list({ clientId: client1.id });
+
+      expect(result.timeEntries.length).toBeGreaterThanOrEqual(1);
+      // All returned entries should be for client1
+      for (const e of result.timeEntries) {
+        expect(e.clientId).toBe(client1.id);
+      }
+    });
+
+    it("should filter time entries by billable status", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      // Create billable and non-billable entries
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { billable: true, hours: "5.00" }
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { billable: false, hours: "3.00" }
+      );
+      tracker.timeEntries?.push(entry1.id, entry2.id);
+
+      const result = await caller.list({ billable: true });
+
+      expect(result.timeEntries.length).toBeGreaterThanOrEqual(1);
+      // All returned entries should be billable
+      for (const e of result.timeEntries) {
+        expect(e.billable).toBe(true);
+      }
+    });
+  });
+
+  describe("getById (Integration)", () => {
+    it("should retrieve time entry by ID", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { description: "GetById Test Entry" }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      const result = await caller.getById(entry.id);
+
+      expect(result.id).toBe(entry.id);
+      expect(result.description).toBe("GetById Test Entry");
+      expect(result.tenantId).toBe(ctx.authContext.tenantId);
+    });
+
+    it("should throw NOT_FOUND for non-existent ID", async () => {
+      const nonExistentId = crypto.randomUUID();
+
+      await expect(caller.getById(nonExistentId)).rejects.toThrow("Time entry not found");
+    });
+
+    it("should prevent cross-tenant access (CRITICAL)", async () => {
+      // Create time entry for tenant A
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      const clientAId = await createTestClient(tenantAId, userAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+      tracker.clients?.push(clientAId.id);
+
+      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id, {
+        description: "Tenant A Entry",
+      });
+      tracker.timeEntries?.push(entryA.id);
+
+      // Attempt to access tenant A's entry from tenant B (our test tenant)
+      await expect(caller.getById(entryA.id)).rejects.toThrow("Time entry not found");
+
+      // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
+      try {
+        await caller.getById(entryA.id);
+        throw new Error("Should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(TRPCError);
+        expect((error as TRPCError).code).toBe("NOT_FOUND");
+      }
+    });
+  });
+
+  describe("update (Integration)", () => {
+    it("should update time entry and persist changes", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          description: "Original Description",
+          hours: "5.00",
+          billable: true,
+        }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      const result = await caller.update({
+        id: entry.id,
         data: {
-          hours: "6.00",
+          description: "Updated Description",
+          hours: "8.00",
           billable: false,
         },
-      };
+      });
 
-      expect(() => {
-        timesheetsRouter._def.procedures.update._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      expect(result.timeEntry.description).toBe("Updated Description");
+      expect(result.timeEntry.hours).toBe("8.00");
+      expect(result.timeEntry.billable).toBe(false);
+
+      // Verify database persistence
+      const [dbEntry] = await db
+        .select()
+        .from(timeEntries)
+        .where(eq(timeEntries.id, entry.id));
+
+      expect(dbEntry.description).toBe("Updated Description");
+      expect(dbEntry.hours).toBe("8.00");
+      expect(dbEntry.billable).toBe(false);
     });
 
-    it("should accept partial updates", () => {
-      const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        data: {
-          notes: "Updated description",
-        },
-      };
+    it("should create activity log for update", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
 
-      expect(() => {
-        timesheetsRouter._def.procedures.update._def.inputs[0]?.parse(
-          validInput,
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { description: "Update Log Test" }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      await caller.update({
+        id: entry.id,
+        data: { description: "Updated for Log Test" },
+      });
+
+      // Verify activity log
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .where(
+          and(
+            eq(activityLogs.entityId, entry.id),
+            eq(activityLogs.action, "updated")
+          )
         );
-      }).not.toThrow();
+
+      expect(logs.length).toBeGreaterThanOrEqual(1);
+      const log = logs[logs.length - 1]; // Get most recent
+      expect(log.userId).toBe(ctx.authContext.userId);
+    });
+
+    it("should throw NOT_FOUND for non-existent time entry", async () => {
+      const nonExistentId = crypto.randomUUID();
+
+      await expect(
+        caller.update({
+          id: nonExistentId,
+          data: { hours: "10.00" },
+        })
+      ).rejects.toThrow("Time entry not found");
+    });
+
+    it("should prevent cross-tenant update", async () => {
+      // Create time entry for different tenant
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      const clientAId = await createTestClient(tenantAId, userAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+      tracker.clients?.push(clientAId.id);
+
+      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id);
+      tracker.timeEntries?.push(entryA.id);
+
+      // Attempt to update from different tenant
+      await expect(
+        caller.update({
+          id: entryA.id,
+          data: { description: "Malicious Update" },
+        })
+      ).rejects.toThrow("Time entry not found");
+    });
+
+    it("should allow partial updates", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          description: "Partial Update Test",
+          hours: "5.00",
+          notes: "Original notes",
+        }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      // Update only notes
+      await caller.update({
+        id: entry.id,
+        data: { notes: "Updated notes only" },
+      });
+
+      const [dbEntry] = await db
+        .select()
+        .from(timeEntries)
+        .where(eq(timeEntries.id, entry.id));
+
+      // Notes should be updated
+      expect(dbEntry.notes).toBe("Updated notes only");
+      // Other fields should remain unchanged
+      expect(dbEntry.description).toBe("Partial Update Test");
+      expect(dbEntry.hours).toBe("5.00");
     });
   });
 
-  describe("delete", () => {
-    it("should accept valid time entry ID", () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+  describe("delete (Integration)", () => {
+    it("should delete time entry", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
 
-      expect(() => {
-        timesheetsRouter._def.procedures.delete._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { description: "Delete Test Entry" }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      const result = await caller.delete(entry.id);
+
+      expect(result.success).toBe(true);
+
+      // Verify entry is deleted (hard delete)
+      const [dbEntry] = await db
+        .select()
+        .from(timeEntries)
+        .where(eq(timeEntries.id, entry.id));
+
+      expect(dbEntry).toBeUndefined();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        timesheetsRouter._def.procedures.delete._def.inputs[0]?.parse(null);
-      }).toThrow();
+    it("should create activity log for deletion", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { description: "Delete Log Test", hours: "5.00" }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      await caller.delete(entry.id);
+
+      // Verify activity log
+      const [log] = await db
+        .select()
+        .from(activityLogs)
+        .where(
+          and(
+            eq(activityLogs.entityId, entry.id),
+            eq(activityLogs.action, "deleted")
+          )
+        );
+
+      expect(log).toBeDefined();
+      expect(log.userId).toBe(ctx.authContext.userId);
+      expect(log.description).toContain("5.00h");
+    });
+
+    it("should throw NOT_FOUND for non-existent time entry", async () => {
+      const nonExistentId = crypto.randomUUID();
+
+      await expect(caller.delete(nonExistentId)).rejects.toThrow("Time entry not found");
+    });
+
+    it("should prevent cross-tenant deletion", async () => {
+      // Create time entry for different tenant
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      const clientAId = await createTestClient(tenantAId, userAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+      tracker.clients?.push(clientAId.id);
+
+      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id);
+      tracker.timeEntries?.push(entryA.id);
+
+      // Attempt to delete from different tenant
+      await expect(caller.delete(entryA.id)).rejects.toThrow("Time entry not found");
+
+      // Verify entry still exists
+      const [dbEntry] = await db
+        .select()
+        .from(timeEntries)
+        .where(eq(timeEntries.id, entryA.id));
+
+      expect(dbEntry).toBeDefined();
     });
   });
 
-  describe("summary", () => {
-    it("should validate required date fields", () => {
+  describe("summary (Integration)", () => {
+    it("should calculate summary statistics correctly", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      // Create multiple time entries
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-10", hours: "8.00", billable: true }
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-11", hours: "5.00", billable: true }
+      );
+      const entry3 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-12", hours: "3.00", billable: false }
+      );
+      tracker.timeEntries?.push(entry1.id, entry2.id, entry3.id);
+
+      const result = await caller.summary({
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+      });
+
+      expect(result.totalEntries).toBeGreaterThanOrEqual(3);
+      expect(result.totalHours).toBeGreaterThanOrEqual(16); // 8 + 5 + 3
+      expect(result.billableHours).toBeGreaterThanOrEqual(13); // 8 + 5
+      expect(result.nonBillableHours).toBeGreaterThanOrEqual(3);
+      expect(result.daysWorked).toBeGreaterThanOrEqual(3);
+      expect(result.uniqueClients).toBeGreaterThanOrEqual(1);
+    });
+
+    it("should filter summary by user", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      // Create entry for our test user
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-15", hours: "6.00" }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      const result = await caller.summary({
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+        userId: ctx.authContext.userId,
+      });
+
+      expect(result.totalEntries).toBeGreaterThanOrEqual(1);
+      expect(result.totalHours).toBeGreaterThanOrEqual(6);
+    });
+
+    it("should respect tenant isolation in summary", async () => {
+      // Create entry for our tenant
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const entry = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        { date: "2025-01-15", hours: "7.00" }
+      );
+      tracker.timeEntries?.push(entry.id);
+
+      // Create entry for different tenant
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      const clientAId = await createTestClient(tenantAId, userAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+      tracker.clients?.push(clientAId.id);
+
+      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id, {
+        date: "2025-01-15",
+        hours: "100.00", // Large hours to detect if included
+      });
+      tracker.timeEntries?.push(entryA.id);
+
+      // Summary should only include our tenant's data
+      const result = await caller.summary({
+        startDate: "2025-01-01",
+        endDate: "2025-01-31",
+      });
+
+      // The summary should not include the other tenant's 100 hours
+      // (We know our entry is 7 hours, so total should be close to that)
+      expect(result.totalHours).toBeLessThan(50); // Should be around 7, not 107
+    });
+
+    it("should validate required date fields", async () => {
       const invalidInput = {
         // Missing required startDate/endDate
-        userId: "550e8400-e29b-41d4-a716-446655440000",
+        userId: ctx.authContext.userId,
       };
 
-      expect(() => {
-        timesheetsRouter._def.procedures.summary._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
-    });
-
-    it("should accept valid summary query", () => {
-      const validInput = {
-        startDate: "2025-01-01",
-        endDate: "2025-01-31",
-      };
-
-      expect(() => {
-        timesheetsRouter._def.procedures.summary._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
-    });
-
-    it("should accept optional userId filter", () => {
-      const validInput = {
-        startDate: "2025-01-01",
-        endDate: "2025-01-31",
-        userId: "550e8400-e29b-41d4-a716-446655440000",
-      };
-
-      expect(() => {
-        timesheetsRouter._def.procedures.summary._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.summary(invalidInput as any)).rejects.toThrow();
     });
   });
 

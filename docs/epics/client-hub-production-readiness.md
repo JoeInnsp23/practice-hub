@@ -433,6 +433,90 @@ The Xero integration is fully implemented but needs comprehensive testing to ens
 
 ---
 
+## Party Mode Validation Summary (2025-10-21)
+
+**Validation Team:** BMad Orchestrator + All 8 Specialist Agents (PM, PO, Dev, Architect, QA, Analyst, UX, SM)
+
+### Story Approval Status
+
+| Story | Status | Version | Key Changes | Blockers Resolved |
+|-------|--------|---------|-------------|-------------------|
+| **Story 1: Documentation** | ✅ **APPROVED** | 1.2 | None needed - already well-structured | N/A |
+| **Story 2: Integration Tests** | ⚠️ **APPROVED WITH CHANGES** | 2.0 | Added Task 0 spike, lowered coverage to 75%, added cross-tenant test, 21 story points | Spike validates Drizzle transactions |
+| **Story 3: Companies House** | ⚠️ **APPROVED WITH CHANGES** | 2.0 | Complete task breakdown, database-backed cache/rate limiting, new ACs 18-24 | Cache/rate limit design decisions |
+| **Story 4: E2E Tests** | ⚠️ **APPROVED WITH CHANGES** | 2.0 | Complete task breakdown, postgres-test service, test DB isolation, new ACs 17-22 | Test database infrastructure |
+| **Story 5: Xero Validation** | ✅ **APPROVED** | 2.0 | Added complete task breakdown (Phases 1-4, 7 tasks) | N/A |
+
+### Critical Architecture Decisions Made
+
+1. **Story 2 - Integration Tests:**
+   - Test execution: **Serial** (one router file at a time) to prevent connection pool exhaustion
+   - Coverage target: **75% minimum** (80% aspirational)
+   - Cleanup strategy: **Transaction-based** (pending Task 0 spike validation)
+   - Added: Cross-tenant access prevention test as security requirement
+
+2. **Story 3 - Companies House:**
+   - Cache storage: **Database table** (`companies_house_cache`) for persistence
+   - Rate limiting: **Database-backed** (`companies_house_rate_limit`) for multi-instance compatibility
+   - Feature control: **Environment variable** (`NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE`)
+   - Performance: Fresh lookups <2s, cached lookups <100ms
+
+3. **Story 4 - E2E Tests:**
+   - Test database: **Dedicated postgres-test service** on port 5433
+   - Test tenant: **`tenant_e2e_test`** with dedicated test users
+   - Test data: **E2E-Test- prefix** for easy identification and cleanup
+   - Browsers: **Chromium** (all tests) + **Firefox** (critical flows)
+
+### Implementation Sequence
+
+**Phase 1: Foundation (Week 1)**
+1. Story 1: Documentation Update (4-6 hours) ✅ READY
+2. Story 5: Xero Validation (1 day) ✅ READY
+
+**Phase 2: Technical Validation (Week 1-2)**
+3. Story 2: Integration Tests (3-4 days) - Start with Task 0 spike ⚠️ SPIKE FIRST
+4. Story 4: E2E Tests (2 days) - Start with postgres-test setup ⚠️ INFRASTRUCTURE FIRST
+
+**Phase 3: New Features (Week 2)**
+5. Story 3: Companies House Integration (1-2 days) - Start with database schema ⚠️ SCHEMA FIRST
+
+**Total Estimated Time:** 8-10 days
+
+### Quality Gates Enforced
+
+**All Stories:**
+- ✅ Complete task breakdowns with explicit ACs
+- ✅ Clear definition of done with code + docs + testing sections
+- ✅ Rollback strategies defined
+- ✅ Changelog entries tracking party mode review
+
+**Story-Specific:**
+- Story 2: Memory leak check, flaky test prevention (5 runs + random order)
+- Story 3: Performance verification (cache hit/miss timing), error message UX
+- Story 4: Test data isolation verification (zero E2E-Test- records after run)
+- Story 5: 80% coverage minimum, manual sandbox validation
+
+### Risks Identified & Mitigated
+
+| Risk | Story | Mitigation |
+|------|-------|------------|
+| Drizzle transaction pattern may not work | Story 2 | **Task 0 spike** validates approach first (1-2 hours) |
+| In-memory rate limiting fails in production | Story 3 | **Database-backed** rate limiting for Coolify multi-instance |
+| E2E tests pollute dev database | Story 4 | **Dedicated postgres-test** service with separate DATABASE_URL_TEST |
+| Cache invalidation complexity | Story 3 | **Simple 24hr TTL** + manual clear function |
+
+### Agent Consensus
+
+**🏃 Bob (SM):** "Stories 2-4 needed task breakdowns. Now all are sprint-ready after updates."
+**📝 Sarah (PO):** "Coverage targets were too aggressive. 75% minimum is more realistic."
+**💻 James (Dev):** "Database-backed solutions prevent multi-instance issues in production."
+**🏗️ Winston (Architect):** "Test database isolation prevents cross-contamination. Critical for E2E."
+**🧪 Quinn (QA):** "Cross-tenant prevention test is critical security gate. Must be explicit."
+
+**Final Verdict:** All 5 stories APPROVED for implementation (Stories 2-4 with required changes applied).
+
+---
+
 ## Notes
 
 **Important Discoveries During Epic Planning:**

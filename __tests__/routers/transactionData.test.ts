@@ -160,6 +160,233 @@ describe("app/server/routers/transactionData.ts", () => {
         );
       }).toThrow();
     });
+
+    describe("Implementation", () => {
+      beforeEach(async () => {
+        // Import db mock to set up return values
+        const { db } = await import("@/lib/db");
+
+        // Mock client query to return a valid client
+        vi.mocked(db.select).mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue([
+                {
+                  id: "test-client-1",
+                  name: "Test Client",
+                  tenantId: "test-tenant",
+                },
+              ]),
+            }),
+          }),
+        } as any);
+
+        // Mock insert for transaction data storage AND activity logs
+        // The router calls insert twice: once for clientTransactionData, once for activityLogs
+        vi.mocked(db.insert).mockImplementation((table: any) => {
+          // Create a promise-like object that can handle both cases
+          const valuesResult = {
+            // For transaction data: has onConflictDoUpdate
+            onConflictDoUpdate: vi.fn().mockReturnValue({
+              returning: vi.fn().mockResolvedValue([
+                {
+                  id: "test-transaction-data",
+                  clientId: "test-client-1",
+                  tenantId: "test-tenant",
+                  monthlyTransactions: 2,
+                  dataSource: "xero",
+                },
+              ]),
+            }),
+            // For activity logs: directly awaitable (no onConflictDoUpdate)
+            then: (resolve: any) => Promise.resolve(undefined).then(resolve),
+            catch: (reject: any) => Promise.resolve(undefined).catch(reject),
+          };
+
+          return {
+            values: vi.fn().mockReturnValue(valuesResult),
+          } as any;
+        });
+      });
+
+      it("should fetch transactions from Xero and calculate monthly average", async () => {
+        const clientId = "test-client-1";
+
+        // Import the mocked functions
+        const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions } =
+          await import("@/lib/xero/client");
+
+        // Mock getValidAccessToken to return a valid token
+        vi.mocked(getValidAccessToken).mockResolvedValue({
+          accessToken: "test-access-token",
+          xeroTenantId: "test-tenant-id",
+        });
+
+        // Mock fetchBankTransactions to return test transactions
+        vi.mocked(fetchBankTransactions).mockResolvedValue([
+          { date: "2025-01-15", type: "SPEND", total: 100, description: "Test 1", reference: "REF1" },
+          { date: "2025-01-20", type: "SPEND", total: 200, description: "Test 2", reference: "REF2" },
+          { date: "2025-02-10", type: "RECEIVE", total: 150, description: "Test 3", reference: "REF3" },
+        ]);
+
+        // Mock calculateMonthlyTransactions to return the average
+        vi.mocked(calculateMonthlyTransactions).mockReturnValue(2); // 3 transactions / 2 months = 1.5, rounded to 2
+
+        const result = await caller.fetchFromXero(clientId);
+
+        // Verify the mocks were called correctly
+        expect(getValidAccessToken).toHaveBeenCalledWith(clientId);
+        expect(fetchBankTransactions).toHaveBeenCalledWith(
+          "test-access-token",
+          "test-tenant-id",
+          expect.any(Date),
+          expect.any(Date),
+        );
+        expect(calculateMonthlyTransactions).toHaveBeenCalledWith(expect.arrayContaining([
+          expect.objectContaining({ total: 100 }),
+          expect.objectContaining({ total: 200 }),
+          expect.objectContaining({ total: 150 }),
+        ]));
+
+        // Verify the result matches router's return structure
+        expect(result).toMatchObject({
+          success: true,
+          transactionData: expect.objectContaining({
+            monthlyTransactions: 2,
+            dataSource: "xero",
+          }),
+          transactionCount: 3,
+          dateRange: expect.objectContaining({
+            from: expect.any(String),
+            to: expect.any(String),
+          }),
+        });
+      });
+
+      it("should handle errors when Xero connection not found", async () => {
+        const clientId = "test-client-no-connection";
+
+        const { getValidAccessToken } = await import("@/lib/xero/client");
+
+        // Mock getValidAccessToken to throw error
+        vi.mocked(getValidAccessToken).mockRejectedValue(
+          new Error("No Xero connection found for this client")
+        );
+
+        // Router catches errors with "No Xero connection" and throws NOT_FOUND
+        await expect(caller.fetchFromXero(clientId)).rejects.toMatchObject({
+          code: "NOT_FOUND",
+          message: expect.stringContaining("No Xero connection found"),
+        });
+      });
+
+      it("should handle errors when token refresh fails", async () => {
+        const clientId = "test-client-token-fail";
+
+        const { getValidAccessToken } = await import("@/lib/xero/client");
+
+        // Mock getValidAccessToken to throw token refresh error
+        vi.mocked(getValidAccessToken).mockRejectedValue(
+          new Error("Xero token refresh failed: Refresh token expired")
+        );
+
+        // Router catches and wraps the error with INTERNAL_SERVER_ERROR
+        await expect(caller.fetchFromXero(clientId)).rejects.toMatchObject({
+          code: "INTERNAL_SERVER_ERROR",
+          message: expect.stringContaining("Xero token refresh failed"),
+        });
+      });
+
+      it("should handle errors when fetching transactions fails", async () => {
+        const clientId = "test-client-fetch-fail";
+
+        const { getValidAccessToken, fetchBankTransactions } = await import("@/lib/xero/client");
+
+        vi.mocked(getValidAccessToken).mockResolvedValue({
+          accessToken: "test-access-token",
+          xeroTenantId: "test-tenant-id",
+        });
+
+        // Mock fetchBankTransactions to throw error
+        vi.mocked(fetchBankTransactions).mockRejectedValue(
+          new Error("Failed to fetch Xero bank transactions: Unauthorized")
+        );
+
+        // Router catches and wraps the error with INTERNAL_SERVER_ERROR
+        await expect(caller.fetchFromXero(clientId)).rejects.toMatchObject({
+          code: "INTERNAL_SERVER_ERROR",
+          message: expect.stringContaining("Failed to fetch"),
+        });
+      });
+
+      it("should handle empty transaction list", async () => {
+        const clientId = "test-client-no-transactions";
+
+        const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions } =
+          await import("@/lib/xero/client");
+
+        vi.mocked(getValidAccessToken).mockResolvedValue({
+          accessToken: "test-access-token",
+          xeroTenantId: "test-tenant-id",
+        });
+
+        // Mock empty transactions
+        vi.mocked(fetchBankTransactions).mockResolvedValue([]);
+        vi.mocked(calculateMonthlyTransactions).mockReturnValue(0);
+
+        const result = await caller.fetchFromXero(clientId);
+
+        // Verify structure (monthlyTransactions comes from DB mock, not calculation)
+        expect(result).toMatchObject({
+          success: true,
+          transactionData: expect.objectContaining({
+            dataSource: "xero",
+            monthlyTransactions: expect.any(Number),
+          }),
+          transactionCount: 0,
+          dateRange: expect.objectContaining({
+            from: expect.any(String),
+            to: expect.any(String),
+          }),
+        });
+
+        // Verify calculateMonthlyTransactions was called with empty array
+        expect(calculateMonthlyTransactions).toHaveBeenCalledWith([]);
+      });
+
+      it("should respect tenant isolation (uses correct client's connection)", async () => {
+        const clientId = "test-client-tenant-1";
+
+        const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions } =
+          await import("@/lib/xero/client");
+
+        vi.mocked(getValidAccessToken).mockResolvedValue({
+          accessToken: "tenant-1-token",
+          xeroTenantId: "tenant-1-xero-id",
+        });
+
+        vi.mocked(fetchBankTransactions).mockResolvedValue([
+          { date: "2025-01-15", type: "SPEND", total: 100, description: "Test", reference: "REF" },
+        ]);
+
+        vi.mocked(calculateMonthlyTransactions).mockReturnValue(1);
+
+        await caller.fetchFromXero(clientId);
+
+        // Verify getValidAccessToken was called with the correct client ID
+        // This ensures tenant isolation - each client's Xero connection is separate
+        expect(getValidAccessToken).toHaveBeenCalledWith(clientId);
+        expect(getValidAccessToken).toHaveBeenCalledTimes(1);
+
+        // Verify fetchBankTransactions used the correct tenant's token
+        expect(fetchBankTransactions).toHaveBeenCalledWith(
+          "tenant-1-token",
+          "tenant-1-xero-id",
+          expect.any(Date),
+          expect.any(Date),
+        );
+      });
+    });
   });
 
   describe("upsert", () => {

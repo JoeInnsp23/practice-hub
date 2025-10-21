@@ -500,6 +500,7 @@ export function ClientWizardModal({
             onClick={handlePrevious}
             disabled={currentStep === 0}
             className="flex items-center space-x-2 min-w-[120px]"
+            data-testid="client-wizard-previous-button"
           >
             <ChevronLeft className="h-4 w-4" />
             <span>Previous</span>
@@ -521,6 +522,7 @@ export function ClientWizardModal({
               variant="outline"
               onClick={onClose}
               className="min-w-[100px]"
+              data-testid="client-wizard-cancel-button"
             >
               Cancel
             </Button>
@@ -529,6 +531,7 @@ export function ClientWizardModal({
               <Button
                 onClick={handleSubmit}
                 className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white flex items-center space-x-2 min-w-[140px]"
+                data-testid="client-wizard-complete-button"
               >
                 <Check className="h-4 w-4" />
                 <span>Complete Setup</span>
@@ -538,6 +541,7 @@ export function ClientWizardModal({
                 onClick={handleNext}
                 disabled={!validateCurrentStep()}
                 className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 min-w-[100px]"
+                data-testid="client-wizard-next-button"
               >
                 <span>Next</span>
                 <ChevronRight className="h-4 w-4" />

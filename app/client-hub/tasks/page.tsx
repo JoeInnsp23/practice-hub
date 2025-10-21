@@ -280,6 +280,7 @@ export default function TasksPage() {
               setEditingTask(null);
               setIsModalOpen(true);
             }}
+            data-testid="task-create-button"
           >
             <Plus className="h-4 w-4 mr-2" />
             New Task

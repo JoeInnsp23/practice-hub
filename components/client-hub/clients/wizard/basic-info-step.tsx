@@ -136,6 +136,7 @@ export function BasicInfoStep({
               placeholder="Enter client or company name"
               required
               className="text-base"
+              data-testid="client-form-name-input"
             />
           </div>
 
@@ -190,6 +191,7 @@ export function BasicInfoStep({
                 id="clientType"
                 name="clientType"
                 className="text-base"
+                data-testid="client-form-type-select"
               >
                 <SelectValue placeholder="Select client type" />
               </SelectTrigger>
@@ -223,6 +225,7 @@ export function BasicInfoStep({
                 id="clientStatus"
                 name="clientStatus"
                 className="text-base"
+                data-testid="client-form-status-select"
               >
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -254,6 +257,7 @@ export function BasicInfoStep({
                 id="accountManager"
                 name="accountManager"
                 className="text-base"
+                data-testid="client-form-account-manager-select"
               >
                 <SelectValue placeholder="Select an account manager" />
               </SelectTrigger>

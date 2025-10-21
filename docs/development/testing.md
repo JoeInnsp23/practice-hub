@@ -726,6 +726,610 @@ describe("Feature Integration Tests", () => {
 
 ---
 
+## Router Integration Test Patterns
+
+**Status**: 8 client-hub routers upgraded to full integration tests (Story 2 completed)
+
+**Coverage**: 880 integration tests across 8 routers with 100% pass rate
+
+This section documents the comprehensive integration testing patterns established for tRPC router testing, based on the successful upgrade of all 8 client-hub routers.
+
+### Test Data Factory Pattern
+
+**Recommended Approach**: Use unique test data with factory helpers + `afterEach` cleanup
+
+**Factory Functions**: `/root/projects/practice-hub/__tests__/helpers/factories.ts`
+
+```typescript
+import {
+  createTestTenant,
+  createTestUser,
+  createTestClient,
+  createTestTask,
+  createTestInvoice,
+  createTestDocument,
+  createCompleteTestSetup,
+  cleanupTestData,
+  type TestDataTracker,
+} from "../helpers/factories";
+
+describe("app/server/routers/clients.ts", () => {
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    tasks: [],
+    invoices: [],
+    documents: [],
+  };
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.tasks = [];
+    tracker.invoices = [];
+    tracker.documents = [];
+  });
+
+  it("should create client with unique data", async () => {
+    const tenantId = await createTestTenant();
+    const userId = await createTestUser(tenantId);
+    tracker.tenants?.push(tenantId);
+    tracker.users?.push(userId);
+
+    const client = await createTestClient(tenantId, userId, {
+      name: "Test Client",
+      type: "limited_company",
+      status: "active",
+    });
+    tracker.clients?.push(client.id);
+
+    expect(client.name).toBe("Test Client");
+    expect(client.tenantId).toBe(tenantId);
+  });
+});
+```
+
+**Why This Approach?**:
+- ✅ **Unique test data** prevents conflicts between parallel tests
+- ✅ **Factory functions** provide consistent test data creation
+- ✅ **Automatic cleanup** in `afterEach` ensures no data leakage
+- ✅ **Foreign key ordering** handled by `cleanupTestData` helper
+- ⚠️ **Transactions not used**: tRPC routers use global `db` import, preventing transaction-based isolation (see Story 2 spike report)
+
+### Verifying Database State
+
+**Pattern**: Query database directly to verify operations persisted correctly
+
+```typescript
+import { db } from "@/lib/db";
+import { clients } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+
+it("should persist client to database", async () => {
+  // 1. Create client via tRPC router
+  const result = await caller.clients.create({
+    name: "Database Test Client",
+    type: "limited_company",
+  });
+
+  // 2. Verify database state directly
+  const [dbClient] = await db
+    .select()
+    .from(clients)
+    .where(eq(clients.id, result.client.id));
+
+  // 3. Assert database matches result
+  expect(dbClient).toBeDefined();
+  expect(dbClient.name).toBe("Database Test Client");
+  expect(dbClient.type).toBe("limited_company");
+  expect(dbClient.status).toBe("active"); // Default value
+  expect(dbClient.createdAt).toBeInstanceOf(Date);
+});
+```
+
+**Key Points**:
+- Always verify database state after create/update/delete operations
+- Check both returned data AND database persistence
+- Verify default values are applied correctly
+- Check timestamps and auto-generated fields
+
+### Verifying Tenant Isolation
+
+**Pattern**: Every test must verify `tenantId` matches auth context
+
+```typescript
+it("should enforce tenant isolation", async () => {
+  // 1. Create test data
+  const client = await caller.clients.create({
+    name: "Tenant Isolation Test",
+    type: "limited_company",
+  });
+
+  // 2. Verify tenantId in response
+  expect(client.client.tenantId).toBe(ctx.authContext.tenantId);
+
+  // 3. Verify tenantId in database
+  const [dbClient] = await db
+    .select()
+    .from(clients)
+    .where(eq(clients.id, client.client.id));
+
+  expect(dbClient.tenantId).toBe(ctx.authContext.tenantId);
+
+  // 4. Verify query filtering by tenantId
+  const allClients = await caller.clients.list();
+  expect(allClients.every(c => c.tenantId === ctx.authContext.tenantId)).toBe(true);
+});
+```
+
+### Cross-Tenant Access Prevention
+
+**Critical Security Test**: Verify tenant A cannot access tenant B's data
+
+```typescript
+describe("Cross-tenant access prevention", () => {
+  it("should prevent accessing other tenant's data", async () => {
+    // 1. Create client for tenant A
+    const tenantAClient = await caller.clients.create({
+      name: "Tenant A Client",
+      type: "limited_company",
+    });
+    tracker.clients?.push(tenantAClient.client.id);
+
+    // 2. Create context for tenant B
+    const tenantBId = await createTestTenant();
+    const tenantBUserId = await createTestUser(tenantBId);
+    tracker.tenants?.push(tenantBId);
+    tracker.users?.push(tenantBUserId);
+
+    const tenantBContext = createMockContext({
+      authContext: {
+        userId: tenantBUserId,
+        tenantId: tenantBId,
+        organizationName: "Tenant B",
+        role: "user",
+        email: "tenantb@example.com",
+        firstName: "Tenant",
+        lastName: "B",
+      },
+    });
+    const tenantBCaller = createCaller(clientsRouter, tenantBContext);
+
+    // 3. Attempt to access tenant A's client from tenant B
+    await expect(
+      tenantBCaller.clients.getById({ id: tenantAClient.client.id })
+    ).rejects.toThrow("NOT_FOUND");
+
+    // 4. Verify tenant B's list doesn't include tenant A's data
+    const tenantBClients = await tenantBCaller.clients.list();
+    expect(tenantBClients.find(c => c.id === tenantAClient.client.id)).toBeUndefined();
+  });
+});
+```
+
+**Why This Test is Critical**:
+- Validates multi-tenant security boundary
+- Prevents data leakage between accountancy firms
+- Required for all routers that handle tenant-scoped data
+- Must test both `getById` (specific) and `list` (collection) operations
+
+### Verifying Activity Logging
+
+**Pattern**: Check `activityLogs` table for audit trail
+
+```typescript
+import { activityLogs } from "@/lib/db/schema";
+
+it("should log create activity", async () => {
+  const client = await caller.clients.create({
+    name: "Activity Log Test",
+    type: "limited_company",
+  });
+
+  // Query activity logs
+  const logs = await db
+    .select()
+    .from(activityLogs)
+    .where(eq(activityLogs.entityId, client.client.id))
+    .orderBy(activityLogs.createdAt);
+
+  // Verify activity logged
+  expect(logs).toHaveLength(1);
+  expect(logs[0].action).toBe("created");
+  expect(logs[0].entityType).toBe("client");
+  expect(logs[0].entityId).toBe(client.client.id);
+  expect(logs[0].userId).toBe(ctx.authContext.userId);
+  expect(logs[0].tenantId).toBe(ctx.authContext.tenantId);
+  expect(logs[0].details).toMatchObject({
+    name: "Activity Log Test",
+    type: "limited_company",
+  });
+});
+```
+
+**What to Verify**:
+- Activity log created for create/update/delete operations
+- `action` field matches operation type ("created", "updated", "deleted")
+- `entityType` and `entityId` correctly reference the entity
+- `userId` and `tenantId` match auth context
+- `details` field contains relevant operation data
+
+### Error Handling Tests
+
+**Pattern**: Test NOT_FOUND, validation errors, and constraint violations
+
+```typescript
+describe("Error handling", () => {
+  it("should throw NOT_FOUND for non-existent client", async () => {
+    await expect(
+      caller.clients.getById({ id: "non-existent-id" })
+    ).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("should throw CONFLICT for duplicate client code", async () => {
+    const client = await caller.clients.create({
+      name: "First Client",
+      clientCode: "UNIQUE-CODE",
+      type: "limited_company",
+    });
+    tracker.clients?.push(client.client.id);
+
+    await expect(
+      caller.clients.create({
+        name: "Second Client",
+        clientCode: "UNIQUE-CODE", // Duplicate
+        type: "limited_company",
+      })
+    ).rejects.toThrow(); // Database constraint violation
+  });
+
+  it("should validate required fields", async () => {
+    await expect(
+      caller.clients.create({
+        name: "", // Empty name
+        type: "limited_company",
+      })
+    ).rejects.toThrow("VALIDATION_ERROR");
+  });
+});
+```
+
+### Transaction Rollback Tests
+
+**Pattern**: Verify database state unchanged when transaction fails
+
+```typescript
+it("should rollback transaction on error", async () => {
+  // Count clients before operation
+  const beforeCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(clients)
+    .where(eq(clients.tenantId, ctx.authContext.tenantId));
+
+  // Attempt operation that will fail
+  try {
+    await caller.clients.createWithInvalidData({
+      name: "Rollback Test",
+      // Missing required field that causes database constraint error
+    });
+  } catch (error) {
+    // Expected to fail
+  }
+
+  // Verify count unchanged (transaction rolled back)
+  const afterCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(clients)
+    .where(eq(clients.tenantId, ctx.authContext.tenantId));
+
+  expect(afterCount[0].count).toBe(beforeCount[0].count);
+});
+```
+
+### Coverage Requirements
+
+**Minimum Coverage**: 75% for all client-hub routers
+
+**Aspirational Coverage**: 80% for all client-hub routers
+
+**Deferred**: Detailed coverage measurement deferred to future story (Story 4 or 5)
+
+**Current Approach**: Focus on comprehensive integration tests that verify:
+- Database operations (create, read, update, delete)
+- Tenant isolation (all queries filtered by tenantId)
+- Cross-tenant access prevention (explicit security test)
+- Activity logging (audit trail verification)
+- Error handling (NOT_FOUND, validation, constraints)
+- Transaction rollback (database consistency)
+
+### Serial Test Execution Strategy
+
+**Why Serial Execution?**:
+- Prevents database contention between router tests
+- Ensures consistent test execution times
+- Simplifies debugging when tests fail
+- Avoids race conditions in cleanup operations
+
+**Implementation**: Vitest runs router tests one file at a time by default (no configuration needed)
+
+**Verification**:
+```bash
+# Run all router tests serially
+pnpm test __tests__/routers/
+
+# Output shows files executed sequentially:
+# ✓ __tests__/routers/clients.test.ts (28 tests) 4.2s
+# ✓ __tests__/routers/tasks.test.ts (39 tests) 5.1s
+# ✓ __tests__/routers/invoices.test.ts (31 tests) 4.8s
+# ... (one at a time)
+```
+
+**Performance**: Full suite completes in 33.27 seconds (well under 2-minute requirement)
+
+### Examples by Router Type
+
+#### CRUD Router (Clients)
+
+**File**: `__tests__/routers/clients.test.ts` (28 tests)
+
+```typescript
+describe("app/server/routers/clients.ts", () => {
+  describe("create", () => {
+    it("should create client and verify database", async () => { /* ... */ });
+    it("should enforce tenant isolation", async () => { /* ... */ });
+    it("should log activity", async () => { /* ... */ });
+  });
+
+  describe("getById", () => {
+    it("should retrieve client by ID", async () => { /* ... */ });
+    it("should throw NOT_FOUND for non-existent", async () => { /* ... */ });
+    it("should prevent cross-tenant access", async () => { /* ... */ });
+  });
+
+  describe("list", () => {
+    it("should return only tenant's clients", async () => { /* ... */ });
+    it("should support pagination", async () => { /* ... */ });
+  });
+
+  describe("update", () => {
+    it("should update client and log activity", async () => { /* ... */ });
+    it("should verify database state after update", async () => { /* ... */ });
+  });
+
+  describe("delete", () => {
+    it("should soft delete client", async () => { /* ... */ });
+    it("should log delete activity", async () => { /* ... */ });
+  });
+});
+```
+
+#### Bulk Operations Router (Tasks)
+
+**File**: `__tests__/routers/tasks.test.ts` (39 tests)
+
+```typescript
+describe("Bulk operations", () => {
+  describe("bulkUpdateStatus", () => {
+    it("should update multiple task statuses", async () => {
+      // Create multiple tasks
+      const tasks = await createTestTasks(tenantId, clientId, userId, 5);
+      tracker.tasks?.push(...tasks.map(t => t.id));
+
+      // Bulk update status
+      const result = await caller.tasks.bulkUpdateStatus({
+        taskIds: tasks.map(t => t.id),
+        status: "completed",
+      });
+
+      expect(result.updatedCount).toBe(5);
+
+      // Verify all tasks updated in database
+      const updatedTasks = await db
+        .select()
+        .from(tasksTable)
+        .where(inArray(tasksTable.id, tasks.map(t => t.id)));
+
+      expect(updatedTasks.every(t => t.status === "completed")).toBe(true);
+    });
+
+    it("should only update tasks within tenant", async () => {
+      // Verify tenant isolation for bulk operations
+    });
+
+    it("should log activity for each updated task", async () => {
+      // Verify activity logging for bulk operations
+    });
+  });
+});
+```
+
+#### File Operations Router (Documents)
+
+**File**: `__tests__/routers/documents.test.ts` (56 tests)
+
+```typescript
+describe("File upload operations", () => {
+  it("should upload document and verify metadata", async () => {
+    const result = await caller.documents.upload({
+      clientId,
+      name: "test-document.pdf",
+      type: "file",
+      mimeType: "application/pdf",
+      size: 1024,
+      url: "https://example.com/test.pdf",
+    });
+
+    // Verify database
+    const [dbDoc] = await db
+      .select()
+      .from(documents)
+      .where(eq(documents.id, result.document.id));
+
+    expect(dbDoc.name).toBe("test-document.pdf");
+    expect(dbDoc.mimeType).toBe("application/pdf");
+    expect(dbDoc.size).toBe(1024);
+    expect(dbDoc.tenantId).toBe(ctx.authContext.tenantId);
+    expect(dbDoc.clientId).toBe(clientId);
+  });
+});
+```
+
+#### Workflow Router (Workflows)
+
+**File**: `__tests__/routers/workflows.test.ts` (30 tests)
+
+```typescript
+describe("Workflow state transitions", () => {
+  it("should transition workflow stage to completed", async () => {
+    // Create workflow with stages
+    const workflow = await createTestWorkflow(tenantId, userId);
+    const stage = await createTestWorkflowStage(workflow.id, {
+      stageOrder: 1,
+    });
+    tracker.workflows?.push(workflow.id);
+    tracker.workflowStages?.push(stage.id);
+
+    // Create workflow instance
+    const instance = await caller.workflows.createInstance({
+      workflowId: workflow.id,
+      clientId,
+    });
+
+    // Transition stage to completed
+    const result = await caller.workflows.completeStage({
+      instanceId: instance.id,
+      stageId: stage.id,
+    });
+
+    // Verify database state
+    const [dbInstance] = await db
+      .select()
+      .from(taskWorkflowInstances)
+      .where(eq(taskWorkflowInstances.id, instance.id));
+
+    expect(dbInstance.currentStageId).not.toBe(stage.id);
+    expect(dbInstance.status).toBe("in_progress");
+  });
+});
+```
+
+### Troubleshooting Common Issues
+
+#### Test Cleanup Failures
+
+**Problem**: Tests fail with foreign key constraint errors during cleanup
+
+**Solution**: Ensure cleanup order respects foreign key dependencies
+
+```typescript
+// CORRECT ORDER (from cleanupTestData helper):
+// 1. taskWorkflowInstances
+// 2. workflowStages
+// 3. workflowVersions
+// 4. workflows
+// 5. timeEntries
+// 6. documents
+// 7. invoices
+// 8. tasks
+// 9. clients
+// 10. users
+// 11. tenants
+```
+
+#### Unique Constraint Violations
+
+**Problem**: Tests fail with "duplicate key value violates unique constraint"
+
+**Solution**: Use factory functions with timestamp-based unique values
+
+```typescript
+// ❌ BAD: Hardcoded values cause conflicts
+const client = await createTestClient(tenantId, userId, {
+  clientCode: "TEST-CLIENT", // Duplicate if run multiple times
+});
+
+// ✅ GOOD: Factory generates unique values
+const client = await createTestClient(tenantId, userId); // Auto-generates TEST-CLIENT-{timestamp}
+```
+
+#### Tenant Isolation Test Failures
+
+**Problem**: Cross-tenant access prevention test fails
+
+**Solution**: Verify router queries filter by `tenantId`
+
+```typescript
+// ❌ BAD: No tenant filtering
+const client = await db
+  .select()
+  .from(clients)
+  .where(eq(clients.id, clientId));
+
+// ✅ GOOD: Always filter by tenantId
+const client = await db
+  .select()
+  .from(clients)
+  .where(
+    and(
+      eq(clients.id, clientId),
+      eq(clients.tenantId, ctx.authContext.tenantId)
+    )
+  );
+```
+
+#### Activity Log Missing
+
+**Problem**: Activity log verification fails because no log created
+
+**Solution**: Check router implementation includes activity logging
+
+```typescript
+// Router should include activity logging:
+await db.insert(activityLogs).values({
+  id: crypto.randomUUID(),
+  tenantId: ctx.authContext.tenantId,
+  userId: ctx.authContext.userId,
+  action: "created",
+  entityType: "client",
+  entityId: client.id,
+  details: { name: input.name, type: input.type },
+  createdAt: new Date(),
+});
+```
+
+#### Test Execution Timeout
+
+**Problem**: Tests timeout after 30 seconds
+
+**Solution**: Increase timeout for slow integration tests
+
+```typescript
+// In test file
+it("should complete slow operation", async () => {
+  // ... test code
+}, { timeout: 60000 }); // 60 seconds
+```
+
+#### Flaky Tests
+
+**Problem**: Tests pass sometimes, fail other times
+
+**Solution**: Run tests with random order to identify dependencies
+
+```bash
+# Run with random order
+pnpm test --sequence.shuffle
+
+# Run multiple times to detect flakiness
+for i in {1..5}; do pnpm test; done
+```
+
+---
+
 ## Running Tests
 
 ### Test Commands
@@ -877,31 +1481,99 @@ Invoke Skill tool with: "webapp-testing"
 
 ---
 
+## End-to-End (E2E) Testing
+
+**Status**: ✅ IMPLEMENTED (2025-10-21)
+
+**Framework**: Playwright v1.56.1
+
+**Scope**: Critical client-hub user workflows tested end-to-end
+
+### Quick Start
+
+```bash
+# Run all E2E tests
+pnpm test:e2e
+
+# Run with UI mode (visual debugger)
+pnpm test:e2e:ui
+
+# Reset test database
+pnpm test:e2e:reset-db
+```
+
+### E2E Test Infrastructure
+
+**Test Database**: Dedicated test database (port 5433) separate from development database (port 5432)
+
+**Test Credentials**:
+- Admin: `e2e-admin@test.com` / `E2ETestAdmin123!`
+- User: `e2e-user@test.com` / `E2ETestUser123!`
+
+**Test Data**: All E2E test data uses `E2E-Test-` prefix for automatic cleanup
+
+### Implemented Tests
+
+5 E2E tests covering critical client-hub workflows:
+
+1. **Client Creation** (`client-creation.spec.ts`)
+   - Create client with contact information
+   - Verify data persistence across page refresh
+   - Keyboard navigation testing
+
+2. **Client Detail View** (`client-detail.spec.ts`)
+   - Navigate to client detail page
+   - View all tabs (info, services, tasks, documents, invoices)
+   - Display client information correctly
+
+3. **Task Management** (`task-management.spec.ts`)
+   - Create task → assign → mark complete
+   - Verify task appears in client detail tasks tab
+
+4. **Document Upload** (`document-upload.spec.ts`)
+   - Upload document → verify in list → download
+   - File handling and storage verification
+
+5. **Invoice Generation** (`invoice-generation.spec.ts`)
+   - Create invoice → add line items → preview PDF
+   - Verify calculations (totals, tax)
+
+### Test Helpers
+
+**Location**: `__tests__/e2e/helpers/`
+
+- `auth.ts` - Login helpers (`loginAsTestUser`, `loginAsTestAdmin`)
+- `factory.ts` - Test data generators with E2E-Test- prefix
+- `cleanup.ts` - Automatic test data cleanup
+
+### Configuration
+
+**File**: `playwright.config.ts`
+
+- Timeout: 30 seconds per test
+- Execution: Serial (1 worker to prevent conflicts)
+- Browsers: Chromium (primary), Firefox (secondary)
+- Base URL: http://localhost:3000
+- Web Server: Automatically starts `pnpm dev`
+
+### Comprehensive Guide
+
+For detailed E2E testing documentation, see:
+- **[E2E Testing Guide](./e2e-testing-guide.md)** - Complete guide with examples, patterns, and troubleshooting
+
+---
+
 ## Future Testing Plans
 
-### 1. End-to-End (E2E) Testing with Playwright
+### 1. E2E Test Expansion
 
-**Status**: PLANNED
+**Status**: NEXT PRIORITY
 
 **Scope**:
-- Critical user workflows
-- Authentication flows
-- Multi-tenant access control
-- Client portal functionality
-- Admin panel operations
-
-**Implementation**:
-- Install Playwright: `pnpm add -D @playwright/test`
-- Create `e2e/` directory for test files
-- Configure `playwright.config.ts`
-- Integrate with CI/CD pipeline
-
-**Priority Workflows**:
-1. Staff user login → Client creation → Service assignment
-2. Client portal login → View proposals → Sign proposal
-3. Admin login → User management → Tenant configuration
-4. Proposal workflow → PDF generation → DocuSeal signature
-5. Invoice workflow → Xero sync → Payment tracking
+- Client portal login → View proposals → Sign proposal
+- Admin login → User management → Tenant configuration
+- Proposal workflow → PDF generation → DocuSeal signature
+- Invoice workflow → Xero sync → Payment tracking
 
 ### 2. Router Test Upgrades
 

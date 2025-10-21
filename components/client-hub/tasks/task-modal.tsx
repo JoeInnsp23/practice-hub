@@ -162,7 +162,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Task title" {...field} />
+                    <Input placeholder="Task title" {...field} data-testid="task-form-title-input" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -323,10 +323,10 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} data-testid="task-form-cancel-button">
                 Cancel
               </Button>
-              <Button type="submit">{task ? "Update" : "Create"}</Button>
+              <Button type="submit" data-testid="task-form-save-button">{task ? "Update" : "Create"}</Button>
             </DialogFooter>
           </form>
         </Form>
