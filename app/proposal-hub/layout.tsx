@@ -36,6 +36,7 @@ const sections = [
     title: "Admin",
     items: [
       { name: "Pricing", href: "/proposal-hub/admin/pricing", icon: Settings },
+      { name: "Templates", href: "/proposal-hub/admin/templates", icon: FileText },
     ],
   },
 ];

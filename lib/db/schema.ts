@@ -1389,6 +1389,51 @@ export const proposalVersions = pgTable(
   }),
 );
 
+// Proposal Templates table - reusable templates for creating proposals
+export const proposalTemplates = pgTable(
+  "proposal_templates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Template details
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    category: varchar("category", { length: 100 }), // e.g., "startup", "small-business", "enterprise"
+
+    // Default proposal content
+    defaultServices: jsonb("default_services").notNull(), // Array of { componentCode, config }
+    termsAndConditions: text("terms_and_conditions"),
+    notes: text("notes"),
+
+    // Template settings
+    isDefault: boolean("is_default").default(false).notNull(), // Only one default per tenant
+    isActive: boolean("is_active").default(true).notNull(),
+
+    // Metadata
+    createdById: text("created_by_id")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    createdByName: varchar("created_by_name", { length: 255 }),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_template_tenant").on(table.tenantId),
+    categoryIdx: index("idx_template_category").on(table.category),
+    isDefaultIdx: index("idx_template_is_default").on(
+      table.tenantId,
+      table.isDefault,
+    ),
+  }),
+);
+
 // Client Transaction Data table - stores transaction volume data for pricing
 export const clientTransactionData = pgTable(
   "client_transaction_data",

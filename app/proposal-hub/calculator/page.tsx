@@ -1,8 +1,8 @@
 "use client";
 
-import { Calculator as CalculatorIcon, Save, Send } from "lucide-react";
+import { Calculator as CalculatorIcon, FileText, Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { FloatingPriceWidget } from "@/components/proposal-hub/calculator/floating-price-widget";
@@ -39,9 +39,33 @@ export default function CalculatorPage() {
       config?: Record<string, unknown>;
     }>
   >([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<
+    string | undefined
+  >();
 
   const { data: clientsData } = trpc.clients.list.useQuery({});
   const clients = clientsData?.clients || [];
+
+  // Fetch templates
+  const { data: templatesData } = trpc.proposalTemplates.list.useQuery({
+    isActive: true,
+  });
+
+  // Fetch selected template
+  const { data: templateData } = trpc.proposalTemplates.getById.useQuery(
+    selectedTemplateId!,
+    { enabled: !!selectedTemplateId },
+  );
+
+  // Auto-populate services from template
+  useEffect(() => {
+    if (templateData?.template) {
+      const services = Array.isArray(templateData.template.defaultServices)
+        ? templateData.template.defaultServices
+        : [];
+      setSelectedServices(services);
+    }
+  }, [templateData]);
 
   // Get pricing calculation
   const { data: pricingData } = trpc.pricing.calculate.useQuery(
@@ -227,6 +251,28 @@ export default function CalculatorPage() {
           </Button>
         </div>
       </div>
+
+      {/* Template Selection */}
+      <Card className="glass-card p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <FileText className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-semibold">
+            Start from Template (Optional)
+          </h2>
+        </div>
+        <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a template to prefill services..." />
+          </SelectTrigger>
+          <SelectContent>
+            {templatesData?.templates.map((template) => (
+              <SelectItem key={template.id} value={template.id}>
+                {template.name} {template.isDefault && "(Default)"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Card>
 
       {/* Business Information */}
       <Card className="glass-card p-6">

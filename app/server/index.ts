@@ -20,6 +20,7 @@ import { pricingRouter } from "./routers/pricing";
 import { pricingAdminRouter } from "./routers/pricingAdmin";
 import { pricingConfigRouter } from "./routers/pricingConfig";
 import { proposalsRouter } from "./routers/proposals";
+import { proposalTemplatesRouter } from "./routers/proposalTemplates";
 import { servicesRouter } from "./routers/services";
 import { settingsRouter } from "./routers/settings";
 import { tasksRouter } from "./routers/tasks";
@@ -45,6 +46,7 @@ export const appRouter = router({
   pricingAdmin: pricingAdminRouter,
   pricingConfig: pricingConfigRouter,
   proposals: proposalsRouter,
+  proposalTemplates: proposalTemplatesRouter,
   transactionData: transactionDataRouter,
   leads: leadsRouter,
   pipeline: pipelineRouter,
