@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -48,12 +49,79 @@ export function SalesKanbanBoard({
   );
 
   const updateSalesStage = trpc.proposals.updateSalesStage.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await utils.proposals.listByStage.cancel();
+
+      // Snapshot previous value
+      const previousData = utils.proposals.listByStage.getData();
+
+      // Optimistically update the cache
+      utils.proposals.listByStage.setData(undefined, (old) => {
+        if (!old) return old;
+
+        // Find and move the proposal
+        const newData = { ...old };
+        const { id, salesStage } = variables;
+
+        // Find current stage and proposal
+        for (const stage of SALES_STAGE_ORDER) {
+          const proposalIndex = newData.proposalsByStage[stage].findIndex(
+            (p) => p.id === id,
+          );
+          if (proposalIndex !== -1) {
+            // Remove from current stage
+            const [proposal] = newData.proposalsByStage[stage].splice(
+              proposalIndex,
+              1,
+            );
+            // Add to new stage with updated salesStage
+            newData.proposalsByStage[salesStage].push({
+              ...proposal,
+              salesStage,
+            });
+
+            // Recalculate metrics
+            const stageMetrics = Object.entries(newData.proposalsByStage).map(
+              ([stage, stageProposals]) => ({
+                stage: stage as SalesStage,
+                count: stageProposals.length,
+                totalValue: stageProposals.reduce(
+                  (sum, p) => sum + Number.parseFloat(p.monthlyTotal || "0"),
+                  0,
+                ),
+              }),
+            );
+            newData.stageMetrics = stageMetrics;
+            break;
+          }
+        }
+
+        return newData;
+      });
+
+      return { previousData };
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        utils.proposals.listByStage.setData(undefined, context.previousData);
+      }
+
+      // Log to Sentry
+      Sentry.captureException(error, {
+        tags: { operation: "kanban_drag_drop" },
+        extra: { proposalId: variables.id, newStage: variables.salesStage },
+      });
+
+      toast.error(error.message || "Failed to move proposal");
+    },
     onSuccess: () => {
       toast.success("Proposal moved successfully");
-      utils.proposals.list.invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message || "Failed to move proposal");
+    onSettled: () => {
+      // Always refetch after error or success to ensure consistency
+      utils.proposals.listByStage.invalidate();
     },
   });
 

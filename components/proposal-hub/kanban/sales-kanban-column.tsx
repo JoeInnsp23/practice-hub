@@ -67,6 +67,8 @@ export function SalesKanbanColumn({
       {/* Droppable Column Body */}
       <div
         ref={setNodeRef}
+        role="list"
+        aria-label={`${config.label} proposals`}
         className={`
           min-h-[600px] p-4 space-y-3 rounded-b-lg
           transition-colors

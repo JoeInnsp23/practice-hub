@@ -156,6 +156,149 @@ export const proposalsRouter = router({
       return { proposals: proposalsList };
     }),
 
+  // List proposals grouped by sales stage with aggregated metrics
+  listByStage: protectedProcedure
+    .input(
+      z
+        .object({
+          stages: z.array(salesStageEnum).optional(),
+          assignedToId: z.string().optional(),
+          dateFrom: z.string().optional(), // ISO date string
+          dateTo: z.string().optional(),
+          minValue: z.number().optional(),
+          maxValue: z.number().optional(),
+          search: z.string().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Build base query
+      const query = db
+        .select({
+          id: proposals.id,
+          proposalNumber: proposals.proposalNumber,
+          title: proposals.title,
+          clientId: proposals.clientId,
+          clientName: clients.name,
+          status: proposals.status,
+          salesStage: proposals.salesStage,
+          monthlyTotal: proposals.monthlyTotal,
+          annualTotal: proposals.annualTotal,
+          validUntil: proposals.validUntil,
+          createdAt: proposals.createdAt,
+          assignedToId: proposals.assignedToId,
+        })
+        .from(proposals)
+        .leftJoin(clients, eq(proposals.clientId, clients.id))
+        .$dynamic();
+
+      // Build filter conditions
+      const conditions = [eq(proposals.tenantId, tenantId)];
+
+      if (input?.stages && input.stages.length > 0) {
+        conditions.push(
+          sql`${proposals.salesStage} = ANY(ARRAY[${sql.join(
+            input.stages.map((s) => sql`${s}`),
+            sql`, `,
+          )}]::text[])`,
+        );
+      }
+
+      if (input?.assignedToId) {
+        conditions.push(eq(proposals.assignedToId, input.assignedToId));
+      }
+
+      if (input?.dateFrom) {
+        conditions.push(
+          sql`${proposals.createdAt} >= ${new Date(input.dateFrom)}`,
+        );
+      }
+
+      if (input?.dateTo) {
+        conditions.push(
+          sql`${proposals.createdAt} <= ${new Date(input.dateTo)}`,
+        );
+      }
+
+      if (input?.minValue !== undefined) {
+        conditions.push(
+          sql`CAST(${proposals.monthlyTotal} AS DECIMAL) >= ${input.minValue}`,
+        );
+      }
+
+      if (input?.maxValue !== undefined) {
+        conditions.push(
+          sql`CAST(${proposals.monthlyTotal} AS DECIMAL) <= ${input.maxValue}`,
+        );
+      }
+
+      if (input?.search) {
+        conditions.push(
+          sql`(
+            ${proposals.title} ILIKE ${`%${input.search}%`} OR
+            ${proposals.proposalNumber} ILIKE ${`%${input.search}%`} OR
+            ${clients.name} ILIKE ${`%${input.search}%`}
+          )`,
+        );
+      }
+
+      const allProposals = await query
+        .where(and(...conditions))
+        .orderBy(desc(proposals.createdAt));
+
+      // Group by stage
+      type ProposalType = (typeof allProposals)[number];
+      type SalesStage =
+        | "enquiry"
+        | "qualified"
+        | "proposal_sent"
+        | "follow_up"
+        | "won"
+        | "lost"
+        | "dormant";
+
+      const proposalsByStage: Record<SalesStage, ProposalType[]> = {
+        enquiry: [],
+        qualified: [],
+        proposal_sent: [],
+        follow_up: [],
+        won: [],
+        lost: [],
+        dormant: [],
+      };
+
+      for (const proposal of allProposals) {
+        const stage = proposal.salesStage as SalesStage;
+        if (stage && proposalsByStage[stage]) {
+          proposalsByStage[stage].push(proposal);
+        }
+      }
+
+      // Calculate aggregated metrics per stage
+      const stageMetrics = Object.entries(proposalsByStage).map(
+        ([stage, stageProposals]) => ({
+          stage: stage as SalesStage,
+          count: stageProposals.length,
+          totalValue: stageProposals.reduce(
+            (sum, p) => sum + Number.parseFloat(p.monthlyTotal || "0"),
+            0,
+          ),
+        }),
+      );
+
+      return {
+        proposalsByStage,
+        stageMetrics,
+        totalProposals: allProposals.length,
+        totalPipelineValue: allProposals.reduce(
+          (sum, p) => sum + Number.parseFloat(p.monthlyTotal || "0"),
+          0,
+        ),
+      };
+    }),
+
   // Get proposal by ID
   getById: protectedProcedure
     .input(z.string())
@@ -570,30 +713,41 @@ export const proposalsRouter = router({
         });
       }
 
-      // Update sales stage
-      const [updatedProposal] = await db
-        .update(proposals)
-        .set({
-          salesStage: input.salesStage,
-          updatedAt: new Date(),
-        })
-        .where(eq(proposals.id, input.id))
-        .returning();
+      try {
+        // Update sales stage
+        const [updatedProposal] = await db
+          .update(proposals)
+          .set({
+            salesStage: input.salesStage,
+            updatedAt: new Date(),
+          })
+          .where(eq(proposals.id, input.id))
+          .returning();
 
-      // Log activity
-      await db.insert(activityLogs).values({
-        tenantId,
-        entityType: "proposal",
-        entityId: input.id,
-        action: "sales_stage_updated",
-        description: `Updated proposal "${existingProposal.title}" sales stage from ${existingProposal.salesStage} to ${input.salesStage}`,
-        userId,
-        userName: `${firstName} ${lastName}`,
-        oldValues: { salesStage: existingProposal.salesStage },
-        newValues: { salesStage: input.salesStage },
-      });
+        // Log activity
+        await db.insert(activityLogs).values({
+          tenantId,
+          entityType: "proposal",
+          entityId: input.id,
+          action: "sales_stage_updated",
+          description: `Updated proposal "${existingProposal.title}" sales stage from ${existingProposal.salesStage} to ${input.salesStage}`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          oldValues: { salesStage: existingProposal.salesStage },
+          newValues: { salesStage: input.salesStage },
+        });
 
-      return { success: true, proposal: updatedProposal };
+        return { success: true, proposal: updatedProposal };
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { operation: "update_sales_stage" },
+          extra: { proposalId: input.id, newStage: input.salesStage },
+        });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update sales stage",
+        });
+      }
     }),
 
   // Delete/archive proposal

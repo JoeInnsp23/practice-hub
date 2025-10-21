@@ -855,4 +855,340 @@ export const analyticsRouter = router({
         totalTransitions: stageChangeActivities.length,
       };
     }),
+
+  /**
+   * Get win/loss statistics
+   */
+  getWinLossStats: protectedProcedure
+    .input(
+      z
+        .object({
+          from: z.string().optional(),
+          to: z.string().optional(),
+          assignedToId: z.string().optional(),
+          clientId: z.string().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const filters = [
+        eq(proposals.tenantId, tenantId),
+        sql`${proposals.salesStage} IN ('won', 'lost')`,
+      ];
+
+      if (input?.from) {
+        filters.push(gte(proposals.createdAt, new Date(input.from)));
+      }
+      if (input?.to) {
+        filters.push(lte(proposals.createdAt, new Date(input.to)));
+      }
+      if (input?.assignedToId) {
+        filters.push(eq(proposals.assignedToId, input.assignedToId));
+      }
+      if (input?.clientId) {
+        filters.push(eq(proposals.clientId, input.clientId));
+      }
+
+      const stats = await db
+        .select({
+          stage: proposals.salesStage,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(proposals)
+        .where(and(...filters))
+        .groupBy(proposals.salesStage);
+
+      const won = stats.find((s) => s.stage === "won")?.count || 0;
+      const lost = stats.find((s) => s.stage === "lost")?.count || 0;
+      const total = won + lost;
+
+      return {
+        totalClosed: total,
+        won,
+        lost,
+        winRate: total > 0 ? Number(((won / total) * 100).toFixed(2)) : 0,
+        lossRate: total > 0 ? Number(((lost / total) * 100).toFixed(2)) : 0,
+      };
+    }),
+
+  /**
+   * Get pipeline value by sales stage
+   */
+  getPipelineValueByStage: protectedProcedure
+    .input(
+      z
+        .object({
+          asOf: z.string().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Get active pipeline (exclude won and lost)
+      const filters = [
+        eq(proposals.tenantId, tenantId),
+        sql`${proposals.salesStage} NOT IN ('won', 'lost')`,
+      ];
+
+      if (input?.asOf) {
+        filters.push(lte(proposals.createdAt, new Date(input.asOf)));
+      }
+
+      const stageData = await db
+        .select({
+          stage: proposals.salesStage,
+          count: sql<number>`count(*)::int`,
+          value: sql<number>`sum(${proposals.monthlyTotal})::decimal`,
+        })
+        .from(proposals)
+        .where(and(...filters))
+        .groupBy(proposals.salesStage);
+
+      const totalValue = stageData.reduce(
+        (sum, stage) => sum + Number(stage.value || 0),
+        0,
+      );
+
+      return {
+        stages: stageData.map((stage) => ({
+          stage: stage.stage,
+          count: stage.count,
+          value: Number(stage.value || 0),
+        })),
+        totalValue,
+      };
+    }),
+
+  /**
+   * Get average deal size metrics
+   */
+  getAverageDealSize: protectedProcedure
+    .input(dateRangeSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const filters = [eq(proposals.tenantId, tenantId)];
+
+      if (input?.startDate) {
+        filters.push(gte(proposals.createdAt, new Date(input.startDate)));
+      }
+      if (input?.endDate) {
+        filters.push(lte(proposals.createdAt, new Date(input.endDate)));
+      }
+
+      // Overall averages
+      const avgStats = await db
+        .select({
+          avgMonthly: sql<number>`avg(${proposals.monthlyTotal})::decimal`,
+          avgAnnual: sql<number>`avg(${proposals.annualTotal})::decimal`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(proposals)
+        .where(and(...filters));
+
+      // Average by stage
+      const byStage = await db
+        .select({
+          stage: proposals.salesStage,
+          avgSize: sql<number>`avg(${proposals.monthlyTotal})::decimal`,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(proposals)
+        .where(and(...filters))
+        .groupBy(proposals.salesStage);
+
+      return {
+        avgMonthly: Number(avgStats[0]?.avgMonthly || 0),
+        avgAnnual: Number(avgStats[0]?.avgAnnual || 0),
+        totalProposals: avgStats[0]?.count || 0,
+        byStage: byStage.map((stage) => ({
+          stage: stage.stage,
+          avgSize: Number(stage.avgSize || 0),
+          count: stage.count,
+        })),
+      };
+    }),
+
+  /**
+   * Get sales cycle duration metrics
+   */
+  getSalesCycleDuration: protectedProcedure
+    .input(dateRangeSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const filters = [
+        eq(proposals.tenantId, tenantId),
+        eq(proposals.salesStage, "won"),
+        sql`${proposals.signedAt} IS NOT NULL`,
+      ];
+
+      if (input?.startDate) {
+        filters.push(gte(proposals.createdAt, new Date(input.startDate)));
+      }
+      if (input?.endDate) {
+        filters.push(lte(proposals.createdAt, new Date(input.endDate)));
+      }
+
+      // Get all won proposals with days to close
+      const wonProposals = await db
+        .select({
+          id: proposals.id,
+          daysToWon:
+            sql<number>`EXTRACT(EPOCH FROM (${proposals.signedAt} - ${proposals.createdAt})) / 86400`,
+          month: sql<string>`TO_CHAR(${proposals.createdAt}, 'YYYY-MM')`,
+        })
+        .from(proposals)
+        .where(and(...filters));
+
+      if (wonProposals.length === 0) {
+        return {
+          avgDaysToWon: 0,
+          medianDays: 0,
+          minDays: 0,
+          maxDays: 0,
+          byMonth: [],
+        };
+      }
+
+      // Calculate statistics
+      const days = wonProposals
+        .map((p) => Number(p.daysToWon))
+        .sort((a, b) => a - b);
+      const avgDaysToWon =
+        days.reduce((sum, d) => sum + d, 0) / days.length;
+      const medianDays = days[Math.floor(days.length / 2)];
+      const minDays = days[0];
+      const maxDays = days[days.length - 1];
+
+      // Group by month
+      const monthlyData: Record<
+        string,
+        { total: number; count: number }
+      > = {};
+      for (const proposal of wonProposals) {
+        const month = proposal.month;
+        if (!monthlyData[month]) {
+          monthlyData[month] = { total: 0, count: 0 };
+        }
+        monthlyData[month].total += Number(proposal.daysToWon);
+        monthlyData[month].count++;
+      }
+
+      const byMonth = Object.entries(monthlyData)
+        .map(([month, data]) => ({
+          month,
+          avgDays: Number((data.total / data.count).toFixed(1)),
+          count: data.count,
+        }))
+        .sort((a, b) => a.month.localeCompare(b.month));
+
+      return {
+        avgDaysToWon: Number(avgDaysToWon.toFixed(1)),
+        medianDays: Number(medianDays.toFixed(1)),
+        minDays: Number(minDays.toFixed(1)),
+        maxDays: Number(maxDays.toFixed(1)),
+        byMonth,
+      };
+    }),
+
+  /**
+   * Get monthly trend data
+   */
+  getMonthlyTrend: protectedProcedure
+    .input(
+      z
+        .object({
+          months: z.number().min(1).max(24).optional().default(12),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+      const months = input?.months || 12;
+
+      // Calculate date range
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - months);
+
+      const monthlyData = await db
+        .select({
+          month: sql<string>`TO_CHAR(${proposals.createdAt}, 'YYYY-MM')`,
+          proposals: sql<number>`count(*)::int`,
+          won: sql<number>`count(CASE WHEN ${proposals.salesStage} = 'won' THEN 1 END)::int`,
+          lost: sql<number>`count(CASE WHEN ${proposals.salesStage} = 'lost' THEN 1 END)::int`,
+          revenue:
+            sql<number>`sum(CASE WHEN ${proposals.salesStage} = 'won' THEN ${proposals.monthlyTotal} ELSE 0 END)::decimal`,
+        })
+        .from(proposals)
+        .where(
+          and(
+            eq(proposals.tenantId, tenantId),
+            gte(proposals.createdAt, startDate),
+          ),
+        )
+        .groupBy(sql`TO_CHAR(${proposals.createdAt}, 'YYYY-MM')`)
+        .orderBy(sql`TO_CHAR(${proposals.createdAt}, 'YYYY-MM')`);
+
+      return {
+        trend: monthlyData.map((month) => ({
+          month: month.month,
+          proposals: month.proposals,
+          won: month.won,
+          lost: month.lost,
+          revenue: Number(month.revenue || 0),
+        })),
+      };
+    }),
+
+  /**
+   * Get loss reasons breakdown
+   */
+  getLossReasons: protectedProcedure
+    .input(dateRangeSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const filters = [
+        eq(proposals.tenantId, tenantId),
+        eq(proposals.salesStage, "lost"),
+      ];
+
+      if (input?.startDate) {
+        filters.push(gte(proposals.createdAt, new Date(input.startDate)));
+      }
+      if (input?.endDate) {
+        filters.push(lte(proposals.createdAt, new Date(input.endDate)));
+      }
+
+      const lossData = await db
+        .select({
+          reason: proposals.lossReason,
+          count: sql<number>`count(*)::int`,
+        })
+        .from(proposals)
+        .where(and(...filters))
+        .groupBy(proposals.lossReason);
+
+      const totalLost = lossData.reduce((sum, r) => sum + r.count, 0);
+
+      const reasons = lossData
+        .map((r) => ({
+          reason: r.reason || "Not specified",
+          count: r.count,
+          percentage:
+            totalLost > 0
+              ? Number(((r.count / totalLost) * 100).toFixed(1))
+              : 0,
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      return {
+        reasons,
+        totalLost,
+      };
+    }),
 });

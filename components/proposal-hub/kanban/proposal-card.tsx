@@ -71,8 +71,25 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
 
   const statusConfig = statusVariants[proposal.status] || statusVariants.draft;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Allow Enter/Space to activate drag for keyboard users
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      // Keyboard drag is handled by dnd-kit automatically
+    }
+  };
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      role="listitem"
+      aria-label={`Proposal ${proposal.proposalNumber}: ${proposal.title}`}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      {...attributes}
+      {...listeners}
+    >
       <Link href={detailUrl}>
         <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
           {/* Header */}

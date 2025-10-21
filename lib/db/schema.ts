@@ -1222,6 +1222,8 @@ export const proposals = pgTable(
     title: varchar("title", { length: 255 }).notNull(),
     status: proposalStatusEnum("status").default("draft").notNull(),
     salesStage: salesStageEnum("sales_stage").default("enquiry").notNull(),
+    lossReason: varchar("loss_reason", { length: 255 }),
+    lossReasonDetails: text("loss_reason_details"),
 
     // Business context (from lead/client)
     turnover: varchar("turnover", { length: 100 }),
@@ -1273,13 +1275,20 @@ export const proposals = pgTable(
     createdById: text("created_by_id").references(() => users.id, {
       onDelete: "set null",
     }),
+
+    // Assignment
+    assignedToId: text("assigned_to_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => ({
     tenantIdx: index("idx_proposal_tenant").on(table.tenantId),
     leadIdx: index("idx_proposal_lead").on(table.leadId),
     clientIdx: index("idx_proposal_client").on(table.clientId),
     statusIdx: index("idx_proposal_status").on(table.status),
+    salesStageIdx: index("idx_proposal_sales_stage").on(table.salesStage),
     createdAtIdx: index("idx_proposal_created").on(table.createdAt),
+    assigneeIdx: index("idx_proposal_assignee").on(table.assignedToId),
     proposalNumberIdx: uniqueIndex("idx_proposal_number").on(
       table.tenantId,
       table.proposalNumber,

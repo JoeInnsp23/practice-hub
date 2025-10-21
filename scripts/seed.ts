@@ -30,6 +30,8 @@ import {
   portalCategories,
   portalLinks,
   pricingRules,
+  proposals,
+  proposalServices,
   proposalVersions,
   serviceComponents,
   services,
@@ -65,6 +67,8 @@ async function clearDatabase() {
   await db.delete(clientPSCs);
   await db.delete(clientDirectors);
   await db.delete(clientContacts);
+  await db.delete(proposalServices);
+  await db.delete(proposals);
   await db.delete(clients);
   await db.delete(leads);
   await db.delete(pricingRules);
@@ -1494,7 +1498,130 @@ async function seedDatabase() {
 
   console.log(`✅ Created ${leadsList.length} leads`);
 
-  // 7. Create Onboarding Sessions (for 5 recent clients)
+  // 7. Create Proposals with varied sales stages
+  console.log("Creating proposals...");
+
+  const salesStages = [
+    "enquiry",
+    "qualified",
+    "proposal_sent",
+    "follow_up",
+    "won",
+    "lost",
+    "dormant",
+  ] as const;
+
+  const proposalStatuses = ["draft", "sent", "viewed", "signed", "rejected"] as const;
+
+  const proposalsList: any[] = [];
+
+  // Create 20 proposals across different stages
+  for (let i = 0; i < 20; i++) {
+    const randomClient = faker.helpers.arrayElement(createdClients);
+    const randomUser = faker.helpers.arrayElement(createdUsers);
+    const salesStage = faker.helpers.arrayElement(salesStages);
+
+    // Determine status based on stage
+    let status: typeof proposalStatuses[number];
+    if (salesStage === "won") {
+      status = "signed";
+    } else if (salesStage === "lost") {
+      status = "rejected";
+    } else if (salesStage === "proposal_sent" || salesStage === "follow_up") {
+      status = faker.helpers.arrayElement(["sent", "viewed"]);
+    } else {
+      status = "draft";
+    }
+
+    const monthlyTotal = faker.number.float({ min: 500, max: 5000, fractionDigits: 2 });
+    const annualTotal = monthlyTotal * 12;
+
+    const [proposal] = await db
+      .insert(proposals)
+      .values({
+        tenantId: tenant.id,
+        clientId: randomClient.id,
+        proposalNumber: `PROP-${String(i + 1).padStart(4, "0")}`,
+        title: `${faker.company.buzzPhrase()} Services for ${randomClient.name}`,
+        status,
+        salesStage,
+        turnover: faker.helpers.arrayElement(["50k-100k", "100k-250k", "250k-500k", "500k-1M", "1M+"]),
+        industry: randomClient.industry || faker.helpers.arrayElement([
+          "Technology",
+          "Retail",
+          "Healthcare",
+          "Manufacturing",
+          "Professional Services",
+        ]),
+        monthlyTransactions: faker.number.int({ min: 50, max: 500 }),
+        pricingModelUsed: faker.helpers.arrayElement(["model_a", "model_b"]),
+        monthlyTotal: String(monthlyTotal),
+        annualTotal: String(annualTotal),
+        notes: faker.lorem.paragraph(),
+        termsAndConditions: "Standard terms and conditions apply.",
+        validUntil: faker.date.future({ years: 0.25 }),
+        createdById: randomUser.id,
+        assignedToId: faker.helpers.arrayElement(createdUsers).id, // Randomly assign to a user
+        ...(salesStage === "lost"
+          ? {
+              lossReason: faker.helpers.arrayElement([
+                "Price too high",
+                "Chose competitor",
+                "No longer needed",
+                "Budget constraints",
+                "Timing not right",
+                "Lack of required features",
+                "Poor fit for business",
+              ]),
+              lossReasonDetails: faker.lorem.sentence(),
+            }
+          : {}),
+        createdAt: faker.date.recent({ days: 60 }),
+        ...(status === "sent" || status === "viewed" || status === "signed"
+          ? { sentAt: faker.date.recent({ days: 30 }) }
+          : {}),
+        ...(status === "viewed" || status === "signed"
+          ? { viewedAt: faker.date.recent({ days: 20 }) }
+          : {}),
+        ...(status === "signed"
+          ? { signedAt: faker.date.recent({ days: 10 }) }
+          : {}),
+      })
+      .returning();
+
+    proposalsList.push(proposal);
+
+    // Add 2-4 services to each proposal
+    const serviceCount = faker.number.int({ min: 2, max: 4 });
+    for (let j = 0; j < serviceCount; j++) {
+      await db.insert(proposalServices).values({
+        tenantId: tenant.id,
+        proposalId: proposal.id,
+        componentCode: faker.helpers.arrayElement([
+          "accounts",
+          "vat",
+          "payroll",
+          "self-assessment",
+        ]),
+        componentName: faker.helpers.arrayElement([
+          "Annual Accounts Preparation",
+          "VAT Returns",
+          "Payroll Services",
+          "Self Assessment",
+        ]),
+        calculation: `Based on ${faker.helpers.arrayElement(["turnover", "complexity", "transaction volume"])}`,
+        price: String(faker.number.float({ min: 100, max: 1000, fractionDigits: 2 })),
+        config: {
+          complexity: faker.helpers.arrayElement(["low", "medium", "high"]),
+        },
+        sortOrder: j,
+      });
+    }
+  }
+
+  console.log(`✅ Created ${proposalsList.length} proposals with services`);
+
+  // 8. Create Onboarding Sessions (for 5 recent clients)
   console.log("Creating onboarding sessions...");
 
   const ONBOARDING_TEMPLATE_TASKS = [

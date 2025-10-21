@@ -273,10 +273,160 @@ describe("app/server/routers/analytics.ts", () => {
     });
   });
 
+  describe("getWinLossStats", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept date range", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+          from: "2025-01-01",
+          to: "2025-01-31",
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept assignedToId filter", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+          assignedToId: "user-123",
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept clientId filter", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+          clientId: "550e8400-e29b-41d4-a716-446655440000",
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept all filters combined", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+          from: "2025-01-01",
+          to: "2025-01-31",
+          assignedToId: "user-123",
+          clientId: "550e8400-e29b-41d4-a716-446655440000",
+        });
+      }).not.toThrow();
+    });
+  });
+
+  describe("getPipelineValueByStage", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept asOf date", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse({
+          asOf: "2025-01-31",
+        });
+      }).not.toThrow();
+    });
+  });
+
+  describe("getAverageDealSize", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept date range", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        });
+      }).not.toThrow();
+    });
+  });
+
+  describe("getSalesCycleDuration", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept date range", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        });
+      }).not.toThrow();
+    });
+  });
+
+  describe("getMonthlyTrend", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept months parameter", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({
+          months: 6,
+        });
+      }).not.toThrow();
+    });
+
+    it("should validate months min value", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({
+          months: 0, // Below minimum of 1
+        });
+      }).toThrow();
+    });
+
+    it("should validate months max value", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({
+          months: 25, // Exceeds max of 24
+        });
+      }).toThrow();
+    });
+
+    it("should default months to 12", () => {
+      const result =
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({});
+      expect(result?.months).toBe(12);
+    });
+  });
+
+  describe("getLossReasons", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getLossReasons._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept date range", () => {
+      expect(() => {
+        analyticsRouter._def.procedures.getLossReasons._def.inputs[0]?.parse({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        });
+      }).not.toThrow();
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(analyticsRouter._def.procedures);
 
+      // Existing procedures
       expect(procedures).toContain("getLeadStats");
       expect(procedures).toContain("getProposalStats");
       expect(procedures).toContain("getConversionMetrics");
@@ -288,11 +438,19 @@ describe("app/server/routers/analytics.ts", () => {
       expect(procedures).toContain("getComplexityDistribution");
       expect(procedures).toContain("getSalesFunnelMetrics");
       expect(procedures).toContain("getPipelineVelocityMetrics");
+
+      // New procedures
+      expect(procedures).toContain("getWinLossStats");
+      expect(procedures).toContain("getPipelineValueByStage");
+      expect(procedures).toContain("getAverageDealSize");
+      expect(procedures).toContain("getSalesCycleDuration");
+      expect(procedures).toContain("getMonthlyTrend");
+      expect(procedures).toContain("getLossReasons");
     });
 
-    it("should have 11 procedures total", () => {
+    it("should have 17 procedures total", () => {
       const procedures = Object.keys(analyticsRouter._def.procedures);
-      expect(procedures).toHaveLength(11);
+      expect(procedures).toHaveLength(17);
     });
   });
 });

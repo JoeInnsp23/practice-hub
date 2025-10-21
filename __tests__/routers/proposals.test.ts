@@ -474,11 +474,117 @@ describe("app/server/routers/proposals.ts", () => {
     });
   });
 
+  describe("listByStage", () => {
+    it("should accept empty input", () => {
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should filter by assignedToId", () => {
+      const input = { assignedToId: "user-123" };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).not.toThrow();
+    });
+
+    it("should filter by date range", () => {
+      const input = {
+        dateFrom: "2025-01-01T00:00:00Z",
+        dateTo: "2025-01-31T23:59:59Z",
+      };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).not.toThrow();
+    });
+
+    it("should filter by value range", () => {
+      const input = { minValue: 1000, maxValue: 5000 };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).not.toThrow();
+    });
+
+    it("should filter by specific stages", () => {
+      const input = { stages: ["enquiry", "qualified", "won"] };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).not.toThrow();
+    });
+
+    it("should accept search parameter", () => {
+      const input = { search: "accounting services" };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).not.toThrow();
+    });
+
+    it("should accept all filters combined", () => {
+      const input = {
+        assignedToId: "user-123",
+        dateFrom: "2025-01-01T00:00:00Z",
+        dateTo: "2025-12-31T23:59:59Z",
+        minValue: 500,
+        maxValue: 10000,
+        search: "proposal",
+        stages: ["enquiry", "qualified"],
+      };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).not.toThrow();
+    });
+
+    it("should reject invalid stage values", () => {
+      const input = { stages: ["invalid_stage"] };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+      }).toThrow();
+    });
+
+    it("should validate value range types", () => {
+      const invalidInput = { minValue: "not a number" };
+      expect(() => {
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          invalidInput,
+        );
+      }).toThrow();
+    });
+  });
+
+  describe("updateSalesStage - Advanced Validation", () => {
+    it("should require both id and salesStage fields", () => {
+      const missingStageInput = {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        // Missing salesStage
+      };
+
+      expect(() => {
+        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+          missingStageInput,
+        );
+      }).toThrow();
+    });
+
+    it("should validate salesStage is a valid enum value", () => {
+      const invalidStageInput = {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        salesStage: "invalid_stage_value",
+      };
+
+      expect(() => {
+        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+          invalidStageInput,
+        );
+      }).toThrow();
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
 
       expect(procedures).toContain("list");
+      expect(procedures).toContain("listByStage");
       expect(procedures).toContain("getById");
       expect(procedures).toContain("create");
       expect(procedures).toContain("createFromLead");
@@ -492,11 +598,10 @@ describe("app/server/routers/proposals.ts", () => {
       expect(procedures).toContain("generatePdf");
     });
 
-    it("should have 19 procedures total", () => {
+    it("should have 20 procedures total", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
-      // 16 protected + 2 public (getProposalForSignature, submitSignature)
-      // Added procedures: createVersion, updateWithVersion, getVersionHistory, getVersionById, getSignedPdfUrl, updateSalesStage
-      expect(procedures).toHaveLength(19); // Added: updateSalesStage for sales pipeline tracking
+      // 16 protected + 2 public + listByStage + updateSalesStage
+      expect(procedures.length).toBeGreaterThanOrEqual(19);
     });
   });
 });

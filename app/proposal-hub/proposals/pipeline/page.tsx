@@ -1,7 +1,33 @@
 "use client";
 
+/**
+ * Proposals Pipeline - Kanban Board View
+ *
+ * Features:
+ * - Drag-and-drop proposals between sales stages
+ * - Filter by assignee, date range, and value
+ * - Real-time KPIs: total proposals, active pipeline, win rate
+ * - Optimistic UI updates with automatic rollback on error
+ * - Keyboard accessible with ARIA roles
+ *
+ * Sales Stages:
+ * 1. Enquiry - Initial enquiries and interest
+ * 2. Qualified - Qualified and ready for proposal
+ * 3. Proposal Sent - Proposal sent to client
+ * 4. Follow Up - Following up with client
+ * 5. Won - Successfully won
+ * 6. Lost - Lost to competition or declined
+ * 7. Dormant - Inactive or expired
+ *
+ * Keyboard Navigation:
+ * - Tab: Navigate between cards
+ * - Enter/Space: Activate drag (use arrow keys to move)
+ * - Escape: Cancel drag
+ */
+
+import { format } from "date-fns";
 import {
-  CheckCircle,
+  Calendar as CalendarIcon,
   CircleDot,
   Clock,
   FileText,
@@ -16,8 +42,14 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { PipelineVelocityChart } from "@/components/proposal-hub/charts/pipeline-velocity-chart";
 import { SalesKanbanBoard } from "@/components/proposal-hub/kanban/sales-kanban-board";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -29,37 +61,47 @@ import type { SalesStage } from "@/lib/constants/sales-stages";
 
 export default function ProposalsPipelinePage() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>();
 
-  // Fetch all proposals
-  const { data: proposalsData, isLoading } = trpc.proposals.list.useQuery({
-    search: search || undefined,
-    status: statusFilter as any,
+  // Enhanced filter state
+  const [filters, setFilters] = useState({
+    search: "",
+    assignedToId: undefined as string | undefined,
+    dateFrom: undefined as Date | undefined,
+    dateTo: undefined as Date | undefined,
+    minValue: "",
+    maxValue: "",
   });
 
-  const proposals = proposalsData?.proposals || [];
+  // Fetch proposals grouped by stage with new listByStage procedure
+  const { data, isLoading } = trpc.proposals.listByStage.useQuery({
+    search: filters.search || undefined,
+    assignedToId: filters.assignedToId,
+    dateFrom: filters.dateFrom?.toISOString(),
+    dateTo: filters.dateTo?.toISOString(),
+    minValue: filters.minValue ? Number.parseFloat(filters.minValue) : undefined,
+    maxValue: filters.maxValue ? Number.parseFloat(filters.maxValue) : undefined,
+  });
+
+  // Fetch team members for assignee filter
+  const { data: usersData } = trpc.users.list.useQuery({});
+  const users = usersData?.users || [];
 
   // Fetch pipeline velocity metrics
   const { data: velocityData } =
     trpc.analytics.getPipelineVelocityMetrics.useQuery();
 
-  // Group proposals by sales stage
-  const proposalsByStage: Record<SalesStage, typeof proposals> = {
-    enquiry: proposals.filter((p) => p.salesStage === "enquiry"),
-    qualified: proposals.filter((p) => p.salesStage === "qualified"),
-    proposal_sent: proposals.filter((p) => p.salesStage === "proposal_sent"),
-    follow_up: proposals.filter((p) => p.salesStage === "follow_up"),
-    won: proposals.filter((p) => p.salesStage === "won"),
-    lost: proposals.filter((p) => p.salesStage === "lost"),
-    dormant: proposals.filter((p) => p.salesStage === "dormant"),
+  const proposalsByStage = data?.proposalsByStage || {
+    enquiry: [],
+    qualified: [],
+    proposal_sent: [],
+    follow_up: [],
+    won: [],
+    lost: [],
+    dormant: [],
   };
 
-  const totalProposals = proposals.length;
-  const totalValue = proposals.reduce(
-    (sum, p) => sum + Number.parseFloat(p.monthlyTotal || "0"),
-    0,
-  );
+  const totalProposals = data?.totalProposals || 0;
+  const totalValue = data?.totalPipelineValue || 0;
 
   // Calculate active pipeline (non-terminal stages)
   const activeProposals =
@@ -176,50 +218,149 @@ export default function ProposalsPipelinePage() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Enhanced Filters */}
       <Card className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder="Search proposals..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <Select
-            value={statusFilter}
-            onValueChange={(value) =>
-              setStatusFilter(value === "all" ? undefined : value)
-            }
-          >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="All statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="sent">Sent</SelectItem>
-              <SelectItem value="viewed">Viewed</SelectItem>
-              <SelectItem value="signed">Signed</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="expired">Expired</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Clear Filters Button */}
-          {(search || statusFilter) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSearch("");
-                setStatusFilter(undefined);
-              }}
+        <div className="space-y-4">
+          {/* Row 1: Search and Assigned To */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Search by title, number, or client..."
+                value={filters.search}
+                onChange={(e) =>
+                  setFilters({ ...filters, search: e.target.value })
+                }
+              />
+            </div>
+            <Select
+              value={filters.assignedToId}
+              onValueChange={(value) =>
+                setFilters({
+                  ...filters,
+                  assignedToId: value === "all" ? undefined : value,
+                })
+              }
             >
-              <X className="h-4 w-4 mr-2" />
-              Clear
-            </Button>
-          )}
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="All assignees" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All assignees</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.firstName} {user.lastName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Row 2: Date Range and Value Range */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Date Range */}
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Created:
+              </span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {filters.dateFrom ? format(filters.dateFrom, "PPP") : "From"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={filters.dateFrom}
+                    onSelect={(date) =>
+                      setFilters({ ...filters, dateFrom: date })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <span className="text-muted-foreground">to</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {filters.dateTo ? format(filters.dateTo, "PPP") : "To"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={filters.dateTo}
+                    onSelect={(date) =>
+                      setFilters({ ...filters, dateTo: date })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Value Range */}
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Value:
+              </span>
+              <Input
+                type="number"
+                placeholder="Min £"
+                value={filters.minValue}
+                onChange={(e) =>
+                  setFilters({ ...filters, minValue: e.target.value })
+                }
+                className="w-28"
+              />
+              <span className="text-muted-foreground">to</span>
+              <Input
+                type="number"
+                placeholder="Max £"
+                value={filters.maxValue}
+                onChange={(e) =>
+                  setFilters({ ...filters, maxValue: e.target.value })
+                }
+                className="w-28"
+              />
+            </div>
+
+            {/* Clear Filters */}
+            {(filters.search ||
+              filters.assignedToId ||
+              filters.dateFrom ||
+              filters.dateTo ||
+              filters.minValue ||
+              filters.maxValue) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setFilters({
+                    search: "",
+                    assignedToId: undefined,
+                    dateFrom: undefined,
+                    dateTo: undefined,
+                    minValue: "",
+                    maxValue: "",
+                  })
+                }
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
 
