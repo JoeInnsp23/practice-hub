@@ -1,7 +1,9 @@
 "use client";
 
 import { GripVertical, Plus, X } from "lucide-react";
+import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,12 +26,21 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
-interface WorkflowStage {
+interface ChecklistItem {
   id: string;
+  text: string;
+}
+
+interface WorkflowStage {
+  id?: string;
   name: string;
   description: string;
-  order: number;
-  checklist: string[];
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string;
+  checklistItems: ChecklistItem[];
+  autoComplete: boolean;
+  requiresApproval: boolean;
 }
 
 interface WorkflowTemplateModalProps {

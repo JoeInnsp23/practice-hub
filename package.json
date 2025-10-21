@@ -26,7 +26,10 @@
     "db:seed:auth": "tsx -r dotenv/config scripts/seed-auth-users.ts dotenv_config_path=.env.local",
     "db:seed:clear": "tsx scripts/seed.ts --clear",
     "db:setup": "pnpm db:up && sleep 5 && pnpm db:migrate && pnpm db:seed && pnpm db:seed:auth",
-    "db:reset": "pnpm db:migrate:reset && pnpm db:seed && pnpm db:seed:auth"
+    "db:reset": "pnpm db:migrate:reset && pnpm db:seed && pnpm db:seed:auth",
+    "bmad:refresh": "bmad-method install -f -i codex",
+    "bmad:list": "bmad-method list:agents",
+    "bmad:validate": "bmad-method validate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.901.0",

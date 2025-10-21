@@ -10,6 +10,7 @@ import {
   taskWorkflowInstances,
   workflowStages,
   workflows,
+  workflowVersions,
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
@@ -535,65 +536,76 @@ export const tasksRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
 
-      // Check task exists
-      const task = await db
-        .select()
-        .from(tasks)
-        .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
-        .limit(1);
+      return await db.transaction(async (tx) => {
+        // Check task exists
+        const [task] = await tx
+          .select()
+          .from(tasks)
+          .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
+          .limit(1);
 
-      if (!task[0]) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Task not found",
-        });
-      }
+        if (!task) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+        }
 
-      // Check workflow exists
-      const workflow = await db
-        .select()
-        .from(workflows)
-        .where(
-          and(
-            eq(workflows.id, input.workflowId),
-            eq(workflows.tenantId, tenantId),
-          ),
-        )
-        .limit(1);
+        // Check workflow exists
+        const [workflow] = await tx
+          .select()
+          .from(workflows)
+          .where(
+            and(
+              eq(workflows.id, input.workflowId),
+              eq(workflows.tenantId, tenantId),
+            ),
+          )
+          .limit(1);
 
-      if (!workflow[0]) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workflow not found",
-        });
-      }
+        if (!workflow) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found" });
+        }
 
-      // Update task with workflow ID
-      await db
-        .update(tasks)
-        .set({ workflowId: input.workflowId })
-        .where(eq(tasks.id, input.taskId));
+        // Get ACTIVE version (snapshot)
+        const [activeVersion] = await tx
+          .select()
+          .from(workflowVersions)
+          .where(
+            and(
+              eq(workflowVersions.workflowId, input.workflowId),
+              eq(workflowVersions.isActive, true),
+            ),
+          )
+          .limit(1);
 
-      // Get workflow stages
-      const stages = await db
-        .select()
-        .from(workflowStages)
-        .where(eq(workflowStages.workflowId, input.workflowId))
-        .orderBy(workflowStages.stageOrder);
+        if (!activeVersion) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "No active version found" });
+        }
 
-      // Create workflow instance
-      const [instance] = await db
-        .insert(taskWorkflowInstances)
-        .values({
-          taskId: input.taskId,
-          workflowId: input.workflowId,
-          currentStageId: stages[0]?.id || null,
-          status: "active",
-          stageProgress: {},
-        })
-        .returning();
+        // Update task
+        await tx
+          .update(tasks)
+          .set({ workflowId: input.workflowId })
+          .where(eq(tasks.id, input.taskId));
 
-      return { success: true, instance };
+        // Create instance with version snapshot
+        const stagesSnapshot = activeVersion.stagesSnapshot as any;
+        const firstStageId = stagesSnapshot?.stages?.[0]?.id || null;
+
+        const [instance] = await tx
+          .insert(taskWorkflowInstances)
+          .values({
+            taskId: input.taskId,
+            workflowId: input.workflowId,
+            workflowVersionId: activeVersion.id,
+            version: activeVersion.version,
+            stagesSnapshot: activeVersion.stagesSnapshot,
+            currentStageId: firstStageId,
+            status: "active",
+            stageProgress: {},
+          })
+          .returning();
+
+        return { success: true, instance };
+      });
     }),
 
   getWorkflowInstance: protectedProcedure
