@@ -16,6 +16,10 @@ import {
   users,
 } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
+import {
+  getDocumentSignedPdfUrl,
+  getProposalSignedPdfUrl,
+} from "@/lib/s3/signed-pdf-access";
 import { clientPortalProcedure, router } from "../trpc";
 
 export const clientPortalRouter = router({
@@ -78,7 +82,7 @@ export const clientPortalRouter = router({
           sentAt: proposals.sentAt,
           viewedAt: proposals.viewedAt,
           signedAt: proposals.signedAt,
-          docusealSignedPdfUrl: proposals.docusealSignedPdfUrl,
+          // Removed: docusealSignedPdfUrl - use getSignedProposalPdf procedure for secure access
           createdAt: proposals.createdAt,
         })
         .from(proposals)
@@ -126,7 +130,7 @@ export const clientPortalRouter = router({
           viewedAt: proposals.viewedAt,
           signedAt: proposals.signedAt,
           docusealSubmissionId: proposals.docusealSubmissionId,
-          docusealSignedPdfUrl: proposals.docusealSignedPdfUrl,
+          // Removed: docusealSignedPdfUrl - use getSignedProposalPdf procedure for secure access
           notes: proposals.notes,
           createdAt: proposals.createdAt,
         })
@@ -807,5 +811,119 @@ export const clientPortalRouter = router({
         );
 
       return { success: true };
+    }),
+
+  /**
+   * Client portal: Get presigned URL for own signed proposal
+   * Enforces dual isolation: tenant + client level
+   */
+  getSignedProposalPdf: clientPortalProcedure
+    .input(z.object({ proposalId: z.string().uuid() }))
+    .query(async ({ input, ctx }) => {
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
+
+      // Verify client owns this proposal
+      const [proposal] = await db
+        .select({
+          clientId: proposals.clientId,
+          status: proposals.status,
+        })
+        .from(proposals)
+        .where(
+          and(
+            eq(proposals.id, input.proposalId),
+            eq(proposals.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Dual isolation check: Client must own this proposal
+      if (!clientAccess.some((c) => c.clientId === proposal.clientId)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Not your proposal",
+        });
+      }
+
+      if (proposal.status !== "signed") {
+        return { url: null, expiresAt: null };
+      }
+
+      // Generate presigned URL valid for 48 hours
+      const presignedUrl = await getProposalSignedPdfUrl(
+        input.proposalId,
+        48 * 60 * 60, // 48 hours
+      );
+
+      return {
+        url: presignedUrl,
+        expiresAt: presignedUrl
+          ? new Date(Date.now() + 48 * 60 * 60 * 1000)
+          : null,
+      };
+    }),
+
+  /**
+   * Client portal: Get presigned URL for own signed document
+   * Enforces dual isolation: tenant + client level
+   */
+  getSignedDocumentPdf: clientPortalProcedure
+    .input(z.object({ documentId: z.string().uuid() }))
+    .query(async ({ input, ctx }) => {
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
+
+      // Verify client owns this document
+      const [document] = await db
+        .select({
+          clientId: documents.clientId,
+          signatureStatus: documents.signatureStatus,
+        })
+        .from(documents)
+        .where(
+          and(
+            eq(documents.id, input.documentId),
+            eq(documents.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!document) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Document not found",
+        });
+      }
+
+      // Dual isolation check: Client must own this document
+      if (!clientAccess.some((c) => c.clientId === document.clientId)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Not your document",
+        });
+      }
+
+      if (document.signatureStatus !== "signed") {
+        return { url: null, expiresAt: null };
+      }
+
+      // Generate presigned URL valid for 48 hours
+      const presignedUrl = await getDocumentSignedPdfUrl(
+        input.documentId,
+        48 * 60 * 60, // 48 hours
+      );
+
+      return {
+        url: presignedUrl,
+        expiresAt: presignedUrl
+          ? new Date(Date.now() + 48 * 60 * 60 * 1000)
+          : null,
+      };
     }),
 });

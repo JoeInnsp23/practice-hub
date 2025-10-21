@@ -9,6 +9,7 @@ import {
   Edit,
   FileText,
   Mail,
+  RotateCcw,
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -32,6 +33,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type StatusBadgeConfig = {
@@ -86,6 +94,19 @@ export default function ProposalDetailPage({
       },
     });
 
+  // Update sales stage mutation
+  const { mutate: updateSalesStage, isPending: isUpdatingSalesStage } =
+    trpc.proposals.updateSalesStage.useMutation({
+      onSuccess: () => {
+        toast.success("Sales stage updated successfully");
+        utils.proposals.getById.invalidate(id);
+        utils.proposals.list.invalidate();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to update sales stage");
+      },
+    });
+
   const handleDownloadPdf = () => {
     if (proposalData?.pdfUrl) {
       // If PDF already exists, download it
@@ -130,6 +151,29 @@ export default function ProposalDetailPage({
     return (
       <Badge variant={config.variant} className={config.color}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  const getSalesStageBadge = (salesStage: string) => {
+    const variants: Record<string, StatusBadgeConfig> = {
+      enquiry: { variant: "secondary", color: "text-slate-600" },
+      qualified: { variant: "default", color: "text-purple-600" },
+      proposal_sent: { variant: "default", color: "text-amber-600" },
+      follow_up: { variant: "default", color: "text-blue-600" },
+      won: { variant: "default", color: "text-green-600" },
+      lost: { variant: "destructive", color: "text-red-600" },
+      dormant: { variant: "outline", color: "text-orange-600" },
+    };
+
+    const config = variants[salesStage] || variants.enquiry;
+
+    return (
+      <Badge variant={config.variant} className={config.color}>
+        {salesStage
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")}
       </Badge>
     );
   };
@@ -196,7 +240,7 @@ export default function ProposalDetailPage({
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="glass-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <FileText className="h-4 w-4 text-muted-foreground" />
@@ -235,6 +279,38 @@ export default function ProposalDetailPage({
             <span className="text-sm text-muted-foreground">Status</span>
           </div>
           {getStatusBadge(proposalData.status)}
+        </Card>
+
+        <Card className="glass-card p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Sales Stage</span>
+          </div>
+          <Select
+            value={proposalData.salesStage}
+            onValueChange={(value) => {
+              updateSalesStage({
+                id: proposalData.id,
+                salesStage: value as any,
+              });
+            }}
+            disabled={isUpdatingSalesStage}
+          >
+            <SelectTrigger className="w-full border-none p-0 h-auto focus:ring-0">
+              <SelectValue>
+                {getSalesStageBadge(proposalData.salesStage)}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="enquiry">Enquiry</SelectItem>
+              <SelectItem value="qualified">Qualified</SelectItem>
+              <SelectItem value="proposal_sent">Proposal Sent</SelectItem>
+              <SelectItem value="follow_up">Follow Up</SelectItem>
+              <SelectItem value="won">Won</SelectItem>
+              <SelectItem value="lost">Lost</SelectItem>
+              <SelectItem value="dormant">Dormant</SelectItem>
+            </SelectContent>
+          </Select>
         </Card>
       </div>
 

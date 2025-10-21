@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { CheckCircle, Download, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -183,19 +184,32 @@ export default function ProposalsPage() {
                                   </Button>
                                 </Link>
                               )}
-                              {proposal.status === "signed" &&
-                                proposal.docusealSignedPdfUrl && (
-                                  <Button size="sm" variant="outline" asChild>
-                                    <a
-                                      href={proposal.docusealSignedPdfUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      <Download className="w-3 h-3 mr-1" />
-                                      PDF
-                                    </a>
-                                  </Button>
-                                )}
+                              {proposal.status === "signed" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={async () => {
+                                    try {
+                                      const result =
+                                        await trpc.clientPortal.getSignedProposalPdf.query(
+                                          {
+                                            proposalId: proposal.id,
+                                          },
+                                        );
+                                      if (result.url) {
+                                        window.open(result.url, "_blank");
+                                      } else {
+                                        toast.error("Signed PDF not available");
+                                      }
+                                    } catch (error) {
+                                      toast.error("Failed to load signed PDF");
+                                    }
+                                  }}
+                                >
+                                  <Download className="w-3 h-3 mr-1" />
+                                  PDF
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>

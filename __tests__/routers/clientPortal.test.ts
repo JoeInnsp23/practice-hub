@@ -610,9 +610,9 @@ describe("app/server/routers/clientPortal.ts", () => {
       expect(procedures).toContain("markThreadAsRead");
     });
 
-    it("should have 13 procedures total", () => {
+    it("should have 15 procedures total", () => {
       const procedures = Object.keys(clientPortalRouter._def.procedures);
-      expect(procedures).toHaveLength(13);
+      expect(procedures).toHaveLength(15); // Added: getSignedProposalPdf, getSignedDocumentPdf
     });
   });
 });

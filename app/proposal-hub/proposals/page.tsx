@@ -54,6 +54,7 @@ export default function ProposalsPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [salesStageFilter, setSalesStageFilter] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const utils = trpc.useUtils();
@@ -70,6 +71,17 @@ export default function ProposalsPage() {
             | "signed"
             | "rejected"
             | "expired")
+        : undefined,
+    salesStage:
+      salesStageFilter !== "all"
+        ? (salesStageFilter as
+            | "enquiry"
+            | "qualified"
+            | "proposal_sent"
+            | "follow_up"
+            | "won"
+            | "lost"
+            | "dormant")
         : undefined,
   });
 
@@ -117,6 +129,7 @@ export default function ProposalsPage() {
   const resetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
+    setSalesStageFilter("all");
   };
 
   const getStatusBadge = (status: string) => {
@@ -135,6 +148,29 @@ export default function ProposalsPage() {
     return (
       <Badge variant={config.variant} className={config.color}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  const getSalesStageBadge = (salesStage: string) => {
+    const variants: Record<string, StatusBadgeConfig> = {
+      enquiry: { variant: "secondary", color: "text-slate-600" },
+      qualified: { variant: "default", color: "text-purple-600" },
+      proposal_sent: { variant: "default", color: "text-amber-600" },
+      follow_up: { variant: "default", color: "text-blue-600" },
+      won: { variant: "default", color: "text-green-600" },
+      lost: { variant: "destructive", color: "text-red-600" },
+      dormant: { variant: "outline", color: "text-orange-600" },
+    };
+
+    const config = variants[salesStage] || variants.enquiry;
+
+    return (
+      <Badge variant={config.variant} className={config.color}>
+        {salesStage
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")}
       </Badge>
     );
   };
@@ -200,8 +236,30 @@ export default function ProposalsPage() {
               </SelectContent>
             </Select>
 
+            {/* Sales Stage Filter */}
+            <Select
+              value={salesStageFilter}
+              onValueChange={setSalesStageFilter}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Sales Stages" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sales Stages</SelectItem>
+                <SelectItem value="enquiry">Enquiry</SelectItem>
+                <SelectItem value="qualified">Qualified</SelectItem>
+                <SelectItem value="proposal_sent">Proposal Sent</SelectItem>
+                <SelectItem value="follow_up">Follow Up</SelectItem>
+                <SelectItem value="won">Won</SelectItem>
+                <SelectItem value="lost">Lost</SelectItem>
+                <SelectItem value="dormant">Dormant</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Reset Button */}
-            {(searchTerm || statusFilter !== "all") && (
+            {(searchTerm ||
+              statusFilter !== "all" ||
+              salesStageFilter !== "all") && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -221,6 +279,7 @@ export default function ProposalsPage() {
                 <TableHead>Proposal</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Sales Stage</TableHead>
                 <TableHead>Pricing Model</TableHead>
                 <TableHead className="text-right">Monthly</TableHead>
                 <TableHead className="text-right">Annual</TableHead>
@@ -231,13 +290,13 @@ export default function ProposalsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     Loading proposals...
                   </TableCell>
                 </TableRow>
               ) : proposals.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     <div className="flex flex-col items-center gap-2">
                       <FileText className="h-12 w-12 text-muted-foreground/50" />
                       <p className="text-muted-foreground">
@@ -272,6 +331,7 @@ export default function ProposalsPage() {
                     </TableCell>
                     <TableCell>{proposal.clientName || "—"}</TableCell>
                     <TableCell>{getStatusBadge(proposal.status)}</TableCell>
+                    <TableCell>{getSalesStageBadge(proposal.salesStage)}</TableCell>
                     <TableCell>
                       {proposal.pricingModelUsed ? (
                         <Badge variant="outline">

@@ -143,6 +143,134 @@ This document provides step-by-step procedures for common operational tasks, tro
 
 ---
 
+### Automated Proposal Expiration (Daily)
+
+**Frequency**: Daily at 2:00 AM UTC (automated cron job)
+
+**What It Does**:
+- Automatically finds proposals where the `validUntil` date has passed
+- Updates proposal status from current state to `expired`
+- Creates activity log entries for audit trail
+- Sends team email notifications for each expired proposal
+
+**Cron Job Setup**:
+
+This job is triggered by an external cron service. Choose one of the following options:
+
+**Option 1: Upstash Cron (Recommended for Production)**
+```
+URL: https://yourdomain.com/api/cron/expire-proposals
+Method: POST
+Schedule: 0 2 * * * (Daily at 2 AM UTC)
+Headers:
+  Authorization: Bearer ${CRON_SECRET}
+```
+
+**Option 2: Vercel Cron**
+```json
+// Add to vercel.json in project root
+{
+  "crons": [{
+    "path": "/api/cron/expire-proposals",
+    "schedule": "0 2 * * *"
+  }]
+}
+```
+
+**Option 3: System Cron (Coolify/VPS)**
+```bash
+# Add to server crontab: crontab -e
+0 2 * * * curl -X POST https://yourdomain.com/api/cron/expire-proposals \
+  -H "Authorization: Bearer your-cron-secret" \
+  >> /var/log/expire-proposals-cron.log 2>&1
+```
+
+**Manual Testing (Development)**:
+```bash
+# Development only (no auth required for GET)
+curl http://localhost:3000/api/cron/expire-proposals
+
+# Production testing (requires CRON_SECRET)
+curl -X POST https://yourdomain.com/api/cron/expire-proposals \
+  -H "Authorization: Bearer your-cron-secret"
+```
+
+**Expected Response**:
+```json
+{
+  "success": true,
+  "expiredCount": 3,
+  "processedCount": 3,
+  "errors": [],
+  "timestamp": "2025-01-20T02:00:00.000Z"
+}
+```
+
+**Monitoring**:
+
+1. **Check Sentry for Errors**:
+   - Search for tag: `operation:cron_expire_proposals`
+   - Review any exceptions or warnings
+   - Common tags:
+     - `error_type:email_send_failed` - Email notification failed (non-critical)
+     - `error_type:proposal_expiration_failed` - Individual proposal failed
+     - `error_type:job_fatal_error` - Entire job crashed
+
+2. **Review Team Email Notifications**:
+   - Check team inbox for "Proposal Signature Expired" emails
+   - Each email indicates a proposal has been automatically expired
+   - Follow up with clients as recommended in the email
+
+3. **Database Verification**:
+   ```sql
+   -- Count expired proposals in last 24 hours
+   SELECT COUNT(*) as expired_today
+   FROM proposals
+   WHERE status = 'expired'
+     AND updated_at > NOW() - INTERVAL '24 hours';
+
+   -- View recent expiration activity logs
+   SELECT al.created_at, al.entity_id, p.proposal_number, p.valid_until
+   FROM activity_logs al
+   JOIN proposals p ON al.entity_id = p.id
+   WHERE al.entity_type = 'proposal'
+     AND al.action = 'status_changed'
+     AND al.new_values->>'status' = 'expired'
+     AND al.created_at > NOW() - INTERVAL '7 days'
+   ORDER BY al.created_at DESC
+   LIMIT 10;
+   ```
+
+**Troubleshooting**:
+
+| Issue | Possible Cause | Solution |
+|-------|---------------|----------|
+| 401 Unauthorized | CRON_SECRET mismatch | Verify environment variable matches cron service header |
+| 500 Internal Server Error | Database connection failed | Check Sentry for stack trace, verify database is running |
+| No proposals expiring | No proposals past validUntil | Normal - verify with database query above |
+| Emails not sending | Resend API key issue | Check Resend dashboard for delivery logs |
+| Partial failures in response | Individual proposal errors | Check `errors` array in response, review Sentry |
+
+**Environment Variable Required**:
+```bash
+# .env.local or production environment
+CRON_SECRET="your-secret-key-here"  # Generate with: openssl rand -base64 32
+```
+
+**Idempotency**:
+- The job is safe to run multiple times
+- Already-expired proposals are skipped (won't create duplicate logs)
+- Safe to retry after failures
+
+**Expected Results**:
+- Job runs successfully every day at 2 AM UTC
+- Proposals past their `validUntil` date are marked as expired
+- Team receives email notifications for follow-up
+- Activity logs track all automated expirations
+- Zero or minimal errors in Sentry
+
+---
+
 ## Weekly Maintenance
 
 ### Database Maintenance (15 minutes)

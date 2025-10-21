@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getProposalSignedPdfUrl } from "@/lib/s3/signed-pdf-access";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -17,7 +18,7 @@ export interface SignedConfirmationParams {
   recipientEmail: string;
   recipientName: string;
   proposalNumber: string;
-  signedPdfUrl: string;
+  proposalId: string; // Changed: Pass proposalId instead of URL for secure presigned URL generation
   auditTrailSummary: {
     signerName: string;
     signedAt: string;
@@ -130,9 +131,21 @@ export async function sendSignedConfirmation(
     recipientEmail,
     recipientName,
     proposalNumber,
-    signedPdfUrl,
+    proposalId,
     auditTrailSummary,
   } = params;
+
+  // Generate presigned URL valid for 7 days (reasonable for email context)
+  const signedPdfUrl = await getProposalSignedPdfUrl(
+    proposalId,
+    7 * 24 * 60 * 60, // 7 days
+  );
+
+  if (!signedPdfUrl) {
+    throw new Error(
+      `Failed to generate signed PDF URL for proposal ${proposalId}`,
+    );
+  }
 
   try {
     await resend.emails.send({

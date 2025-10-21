@@ -19,10 +19,17 @@ export function SignedDocumentsList({ clientId }: SignedDocumentsListProps) {
       { enabled: !!clientId },
     );
 
-  const handleDownload = (signedPdfUrl: string, _name: string) => {
+  const handleDownload = async (documentId: string, _name: string) => {
     try {
-      window.open(signedPdfUrl, "_blank");
-      toast.success("Download started");
+      const result = await trpc.clientPortal.getSignedDocumentPdf.query({
+        documentId,
+      });
+      if (result.url) {
+        window.open(result.url, "_blank");
+        toast.success("Download started");
+      } else {
+        toast.error("Signed document not available");
+      }
     } catch (_error) {
       toast.error("Failed to download document");
     }
@@ -106,10 +113,7 @@ export function SignedDocumentsList({ clientId }: SignedDocumentsListProps) {
 
           <Button
             variant="outline"
-            onClick={() =>
-              doc.signedPdfUrl && handleDownload(doc.signedPdfUrl, doc.name)
-            }
-            disabled={!doc.signedPdfUrl}
+            onClick={() => handleDownload(doc.id, doc.name)}
             className="ml-4"
           >
             <Download className="h-4 w-4 mr-2" />

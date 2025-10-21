@@ -316,7 +316,7 @@ describe("Tenant Isolation Integration Tests", () => {
         .values({
           tenantId: TENANT_A_ID,
           entityType: "client",
-          entityId: "test-entity-a",
+          entityId: "00000000-0000-0000-0000-000000000001", // Mock UUID for testing
           action: "created",
           description: "Activity for Tenant A",
           userId: USER_A_ID,
@@ -329,7 +329,7 @@ describe("Tenant Isolation Integration Tests", () => {
         .values({
           tenantId: TENANT_B_ID,
           entityType: "lead",
-          entityId: "test-entity-b",
+          entityId: "00000000-0000-0000-0000-000000000002", // Mock UUID for testing
           action: "updated",
           description: "Activity for Tenant B",
           userId: USER_B_ID,
@@ -414,7 +414,9 @@ describe("Tenant Isolation Integration Tests", () => {
         .insert(clients)
         .values({
           tenantId: TENANT_A_ID,
+          clientCode: "CLI-A-JOIN",
           name: "Client A for Join Test",
+          type: "limited_company",
           email: "join-test-a@tenant-a.test",
           status: "active",
         })
@@ -430,6 +432,7 @@ describe("Tenant Isolation Integration Tests", () => {
           priority: "medium",
           clientId: clientA.id,
           assignedToId: USER_A_ID,
+          createdById: USER_A_ID,
         })
         .returning();
 
@@ -438,7 +441,9 @@ describe("Tenant Isolation Integration Tests", () => {
         .insert(clients)
         .values({
           tenantId: TENANT_B_ID,
+          clientCode: "CLI-B-JOIN",
           name: "Client B for Join Test",
+          type: "limited_company",
           email: "join-test-b@tenant-b.test",
           status: "active",
         })
@@ -454,6 +459,7 @@ describe("Tenant Isolation Integration Tests", () => {
           priority: "high",
           clientId: clientB.id,
           assignedToId: USER_B_ID,
+          createdById: USER_B_ID,
         })
         .returning();
 

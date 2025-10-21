@@ -1,0 +1,67 @@
+{
+  "event": "submission.completed",
+  "timestamp": "2025-01-15T10:30:00Z",
+  "data": {
+    "id": "test_sub_completed_001",
+    "email": "john.doe@example.com",
+    "status": "completed",
+    "completed_at": "2025-01-15T10:30:00Z",
+    "metadata": {
+      "tenant_id": "test_tenant_001",
+      "proposal_id": "test_proposal_001",
+      "proposal_number": "PROP-2025-001",
+      "client_id": "test_client_001"
+    },
+    "values": [
+      {
+        "field": "signer_name",
+        "value": "John Doe"
+      },
+      {
+        "field": "signer_email",
+        "value": "john.doe@example.com"
+      },
+      {
+        "field": "company_name",
+        "value": "Acme Corp Ltd"
+      },
+      {
+        "field": "company_number",
+        "value": "12345678"
+      },
+      {
+        "field": "signing_capacity",
+        "value": "Director"
+      },
+      {
+        "field": "authority_confirmed",
+        "value": "true"
+      },
+      {
+        "field": "signature",
+        "value": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      }
+    ],
+    "audit_log": [
+      {
+        "action": "sent",
+        "timestamp": "2025-01-15T10:20:00Z",
+        "ip_address": "192.168.1.100"
+      },
+      {
+        "action": "viewed",
+        "timestamp": "2025-01-15T10:25:00Z",
+        "ip_address": "192.168.1.100",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      },
+      {
+        "action": "signed",
+        "timestamp": "2025-01-15T10:30:00Z",
+        "ip_address": "192.168.1.100",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
+    ],
+    "ip_address": "192.168.1.100",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  }
+}

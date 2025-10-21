@@ -1,0 +1,18 @@
+{
+  "event": "submission.declined",
+  "timestamp": "2025-01-15T11:00:00Z",
+  "data": {
+    "id": "test_sub_declined_002",
+    "email": "jane.smith@example.com",
+    "status": "declined",
+    "declined_at": "2025-01-15T11:00:00Z",
+    "decline_reason": "Terms not acceptable at this time",
+    "metadata": {
+      "tenant_id": "test_tenant_001",
+      "proposal_id": "test_proposal_002",
+      "proposal_number": "PROP-2025-002",
+      "client_id": "test_client_002",
+      "signer_email": "jane.smith@example.com"
+    }
+  }
+}

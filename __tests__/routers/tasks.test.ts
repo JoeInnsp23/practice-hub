@@ -328,9 +328,9 @@ describe("app/server/routers/tasks.ts", () => {
       expect(procedures).toContain("updateChecklistItem");
     });
 
-    it("should have 10 procedures total", () => {
+    it("should have 13 procedures total", () => {
       const procedures = Object.keys(tasksRouter._def.procedures);
-      expect(procedures).toHaveLength(10);
+      expect(procedures).toHaveLength(13);
     });
   });
 });

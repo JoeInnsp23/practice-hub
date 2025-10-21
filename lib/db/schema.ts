@@ -720,7 +720,9 @@ export const documents = pgTable(
     ), // 'none' | 'pending' | 'signed' | 'declined'
     docusealSubmissionId: text("docuseal_submission_id"),
     docusealTemplateId: text("docuseal_template_id"),
-    signedPdfUrl: text("signed_pdf_url"),
+    signedPdfUrl: text("signed_pdf_url"), // DEPRECATED: Use signedPdfKey instead
+    signedPdfKey: text("signed_pdf_key"), // S3 key for secure presigned URL access
+    signedPdfUrlExpiresAt: timestamp("signed_pdf_url_expires_at"), // Optional: Track presigned URL expiration for auditing
     signedAt: timestamp("signed_at"),
     signedBy: varchar("signed_by", { length: 255 }),
 
@@ -754,7 +756,7 @@ export const documentSignatures = pgTable(
     signerName: varchar("signer_name", { length: 255 }).notNull(),
 
     // DocuSeal integration
-    docusealSubmissionId: text("docuseal_submission_id").notNull(),
+    docusealSubmissionId: text("docuseal_submission_id").notNull().unique(),
     auditTrail: jsonb("audit_trail").notNull(), // Full audit metadata from DocuSeal
     documentHash: text("document_hash"), // SHA-256 of signed PDF
 
@@ -1029,6 +1031,17 @@ export const proposalStatusEnum = pgEnum("proposal_status", [
   "expired",
 ]);
 
+// Proposal Sales Stage Enum - tracks sales pipeline stage independently from document status
+export const salesStageEnum = pgEnum("sales_stage", [
+  "enquiry",
+  "qualified",
+  "proposal_sent",
+  "follow_up",
+  "won",
+  "lost",
+  "dormant",
+]);
+
 // Transaction Data Source Enum
 export const transactionDataSourceEnum = pgEnum("transaction_data_source", [
   "xero",
@@ -1208,6 +1221,7 @@ export const proposals = pgTable(
     proposalNumber: varchar("proposal_number", { length: 50 }).notNull(),
     title: varchar("title", { length: 255 }).notNull(),
     status: proposalStatusEnum("status").default("draft").notNull(),
+    salesStage: salesStageEnum("sales_stage").default("enquiry").notNull(),
 
     // Business context (from lead/client)
     turnover: varchar("turnover", { length: 100 }),
@@ -1229,7 +1243,9 @@ export const proposals = pgTable(
     // DocuSeal integration
     docusealTemplateId: text("docuseal_template_id"),
     docusealSubmissionId: text("docuseal_submission_id"),
-    docusealSignedPdfUrl: text("docuseal_signed_pdf_url"),
+    docusealSignedPdfUrl: text("docuseal_signed_pdf_url"), // DEPRECATED: Use docusealSignedPdfKey instead
+    docusealSignedPdfKey: text("docuseal_signed_pdf_key"), // S3 key for secure presigned URL access
+    docusealSignedPdfUrlExpiresAt: timestamp("docuseal_signed_pdf_url_expires_at"), // Optional: Track presigned URL expiration for auditing
     documentHash: text("document_hash"), // SHA-256 hash of final signed PDF
 
     // Template and content

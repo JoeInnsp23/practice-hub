@@ -22,6 +22,8 @@ import {
   sendTeamNotificationEmail,
 } from "@/lib/email/send-proposal-email";
 import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
+import { getProposalSignedPdfUrl } from "@/lib/s3/signed-pdf-access";
+import { checkSigningRateLimit, getClientIp } from "@/lib/rate-limit/signing";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 
 // Status enum for filtering
@@ -32,6 +34,17 @@ const proposalStatusEnum = z.enum([
   "signed",
   "rejected",
   "expired",
+]);
+
+// Sales Stage enum for filtering
+const salesStageEnum = z.enum([
+  "enquiry",
+  "qualified",
+  "proposal_sent",
+  "follow_up",
+  "won",
+  "lost",
+  "dormant",
 ]);
 
 // Generate schema from Drizzle table definition
@@ -82,6 +95,7 @@ export const proposalsRouter = router({
         .object({
           clientId: z.string().optional(),
           status: proposalStatusEnum.optional(),
+          salesStage: salesStageEnum.optional(),
           search: z.string().optional(),
         })
         .optional(),
@@ -98,6 +112,7 @@ export const proposalsRouter = router({
           clientId: proposals.clientId,
           clientName: clients.name,
           status: proposals.status,
+          salesStage: proposals.salesStage,
           pricingModelUsed: proposals.pricingModelUsed,
           monthlyTotal: proposals.monthlyTotal,
           annualTotal: proposals.annualTotal,
@@ -119,6 +134,9 @@ export const proposalsRouter = router({
       }
       if (input?.status) {
         query = query.where(eq(proposals.status, input.status));
+      }
+      if (input?.salesStage) {
+        query = query.where(eq(proposals.salesStage, input.salesStage));
       }
       if (input?.search) {
         query = query.where(
@@ -150,6 +168,7 @@ export const proposalsRouter = router({
           clientName: clients.name,
           clientEmail: clients.email,
           status: proposals.status,
+          salesStage: proposals.salesStage,
           pricingModelUsed: proposals.pricingModelUsed,
           turnover: proposals.turnover,
           industry: proposals.industry,
@@ -468,6 +487,59 @@ export const proposalsRouter = router({
       });
 
       return { success: true, proposal: result };
+    }),
+
+  // Update sales stage
+  updateSalesStage: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        salesStage: salesStageEnum,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Check proposal exists
+      const [existingProposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.id), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!existingProposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Update sales stage
+      const [updatedProposal] = await db
+        .update(proposals)
+        .set({
+          salesStage: input.salesStage,
+          updatedAt: new Date(),
+        })
+        .where(eq(proposals.id, input.id))
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: input.id,
+        action: "sales_stage_updated",
+        description: `Updated proposal "${existingProposal.title}" sales stage from ${existingProposal.salesStage} to ${input.salesStage}`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        oldValues: { salesStage: existingProposal.salesStage },
+        newValues: { salesStage: input.salesStage },
+      });
+
+      return { success: true, proposal: updatedProposal };
     }),
 
   // Delete/archive proposal
@@ -1219,6 +1291,14 @@ export const proposalsRouter = router({
   getProposalForSignature: publicProcedure
     .input(z.string())
     .query(async ({ input: id }) => {
+      // RATE LIMITING: 20 req/10s per IP+proposalId
+      const headers = await import("next/headers").then((mod) => mod.headers());
+      const ip = getClientIp(headers);
+      await checkSigningRateLimit(ip, id, {
+        maxRequests: 20,
+        windowMs: 10000, // 10 seconds
+      });
+
       // Get proposal with client information (no tenant filter for public access)
       const [proposal] = await db
         .select({
@@ -1290,6 +1370,14 @@ export const proposalsRouter = router({
       }),
     )
     .mutation(async ({ input }) => {
+      // RATE LIMITING: 5 req/10s per IP+proposalId
+      const headers = await import("next/headers").then((mod) => mod.headers());
+      const ip = getClientIp(headers);
+      await checkSigningRateLimit(ip, input.proposalId, {
+        maxRequests: 5,
+        windowMs: 10000, // 10 seconds
+      });
+
       // Get proposal first (includes tenant ID)
       const [existingProposal] = await db
         .select()
@@ -1404,5 +1492,67 @@ export const proposalsRouter = router({
       }
 
       return { success: true, signature: result };
+    }),
+
+  /**
+   * Get time-limited presigned URL for signed proposal PDF
+   * Used by staff to securely access signed proposals
+   */
+  getSignedPdfUrl: protectedProcedure
+    .input(
+      z.object({
+        proposalId: z.string().uuid(),
+        ttlSeconds: z.number().default(48 * 60 * 60).optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { proposalId, ttlSeconds = 48 * 60 * 60 } = input;
+      const { tenantId } = ctx.authContext;
+
+      // Verify tenant isolation and proposal exists
+      const [proposal] = await db
+        .select({ tenantId: proposals.tenantId, status: proposals.status })
+        .from(proposals)
+        .where(eq(proposals.id, proposalId))
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      if (proposal.tenantId !== tenantId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Access denied",
+        });
+      }
+
+      if (proposal.status !== "signed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Proposal not signed yet",
+        });
+      }
+
+      // Generate presigned URL
+      const presignedUrl = await getProposalSignedPdfUrl(
+        proposalId,
+        ttlSeconds,
+      );
+
+      if (!presignedUrl) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Signed PDF not available",
+        });
+      }
+
+      return {
+        url: presignedUrl,
+        expiresAt: new Date(Date.now() + ttlSeconds * 1000),
+      };
     }),
 });

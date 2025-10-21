@@ -371,6 +371,109 @@ describe("app/server/routers/proposals.ts", () => {
     });
   });
 
+  describe("updateSalesStage", () => {
+    it("should accept valid sales stage update", () => {
+      const validInput = {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        salesStage: "qualified" as const,
+      };
+
+      expect(() => {
+        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+          validInput,
+        );
+      }).not.toThrow();
+    });
+
+    it("should validate all sales stage enum values", () => {
+      const validStages = [
+        "enquiry",
+        "qualified",
+        "proposal_sent",
+        "follow_up",
+        "won",
+        "lost",
+        "dormant",
+      ] as const;
+
+      for (const stage of validStages) {
+        const input = {
+          id: "550e8400-e29b-41d4-a716-446655440000",
+          salesStage: stage,
+        };
+
+        expect(() => {
+          proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+            input,
+          );
+        }).not.toThrow();
+      }
+    });
+
+    it("should reject invalid sales stage", () => {
+      const invalidInput = {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        salesStage: "invalid_stage",
+      };
+
+      expect(() => {
+        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+          invalidInput,
+        );
+      }).toThrow();
+    });
+
+    it("should require both id and salesStage", () => {
+      const missingId = {
+        salesStage: "qualified",
+      };
+
+      const missingSalesStage = {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+      };
+
+      expect(() => {
+        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+          missingId,
+        );
+      }).toThrow();
+
+      expect(() => {
+        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
+          missingSalesStage,
+        );
+      }).toThrow();
+    });
+  });
+
+  describe("list with salesStage filter", () => {
+    it("should accept salesStage filter", () => {
+      expect(() => {
+        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
+          salesStage: "qualified",
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept salesStage with other filters", () => {
+      expect(() => {
+        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
+          salesStage: "won",
+          status: "signed",
+          clientId: "550e8400-e29b-41d4-a716-446655440000",
+        });
+      }).not.toThrow();
+    });
+
+    it("should reject invalid salesStage values", () => {
+      expect(() => {
+        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
+          salesStage: "invalid_value",
+        });
+      }).toThrow();
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
@@ -380,6 +483,7 @@ describe("app/server/routers/proposals.ts", () => {
       expect(procedures).toContain("create");
       expect(procedures).toContain("createFromLead");
       expect(procedures).toContain("update");
+      expect(procedures).toContain("updateSalesStage");
       expect(procedures).toContain("delete");
       expect(procedures).toContain("send");
       expect(procedures).toContain("trackView");
@@ -388,11 +492,11 @@ describe("app/server/routers/proposals.ts", () => {
       expect(procedures).toContain("generatePdf");
     });
 
-    it("should have 17 procedures total", () => {
+    it("should have 19 procedures total", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
-      // 15 protected + 2 public (getProposalForSignature, submitSignature)
-      // Added procedures: createVersion, updateWithVersion, getVersionHistory, getVersionById
-      expect(procedures).toHaveLength(17);
+      // 16 protected + 2 public (getProposalForSignature, submitSignature)
+      // Added procedures: createVersion, updateWithVersion, getVersionHistory, getVersionById, getSignedPdfUrl, updateSalesStage
+      expect(procedures).toHaveLength(19); // Added: updateSalesStage for sales pipeline tracking
     });
   });
 });

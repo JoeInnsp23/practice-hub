@@ -6,6 +6,8 @@ import { clients, proposals } from "@/lib/db/schema";
 import { ProposalSentEmail } from "./templates/proposal-sent";
 import { ProposalSignedClientEmail } from "./templates/proposal-signed-client";
 import { ProposalSignedTeamEmail } from "./templates/proposal-signed-team";
+import { ProposalDeclinedTeamEmail } from "./templates/proposal-declined-team";
+import { ProposalExpiredTeamEmail } from "./templates/proposal-expired-team";
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -253,6 +255,170 @@ export async function sendTeamNotificationEmail(
     console.error("Error sending team notification email:", error);
     throw new Error(
       `Failed to send team notification email: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
+
+export interface SendProposalDeclinedOptions {
+  proposalId: string;
+  signerEmail: string;
+  declinedAt: Date;
+}
+
+/**
+ * Send notification to internal team when proposal is declined
+ */
+export async function sendProposalDeclinedTeamEmail(
+  options: SendProposalDeclinedOptions,
+): Promise<{ success: boolean; emailId?: string }> {
+  const { proposalId, signerEmail, declinedAt } = options;
+
+  try {
+    // Fetch proposal data with client information
+    const [proposal] = await db
+      .select({
+        id: proposals.id,
+        proposalNumber: proposals.proposalNumber,
+        title: proposals.title,
+        clientName: clients.name,
+        clientEmail: clients.email,
+        monthlyTotal: proposals.monthlyTotal,
+        annualTotal: proposals.annualTotal,
+      })
+      .from(proposals)
+      .leftJoin(clients, eq(proposals.clientId, clients.id))
+      .where(eq(proposals.id, proposalId))
+      .limit(1);
+
+    if (!proposal) {
+      throw new Error(`Proposal not found: ${proposalId}`);
+    }
+
+    const declinedAtFormatted = declinedAt.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const viewProposalUrl = `${APP_URL}/proposal-hub/proposals/${proposalId}`;
+
+    // Render email HTML
+    const emailHtml = await render(
+      <ProposalDeclinedTeamEmail
+        clientName={proposal.clientName || "Unknown Client"}
+        clientEmail={proposal.clientEmail || signerEmail}
+        proposalNumber={proposal.proposalNumber}
+        declinedAt={declinedAtFormatted}
+        monthlyTotal={proposal.monthlyTotal.toString()}
+        annualTotal={proposal.annualTotal.toString()}
+        signerEmail={signerEmail}
+        viewProposalUrl={viewProposalUrl}
+      />,
+    );
+
+    // Send email to team
+    const { data, error } = await resend.emails.send({
+      from: `${COMPANY_NAME} System <${FROM_EMAIL}>`,
+      to: TEAM_EMAIL,
+      subject: `⚠️ Proposal #${proposal.proposalNumber} Declined by ${proposal.clientName || "Client"}`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      throw new Error(`Failed to send email: ${error.message}`);
+    }
+
+    return {
+      success: true,
+      emailId: data?.id,
+    };
+  } catch (error) {
+    console.error("Error sending proposal declined team email:", error);
+    throw new Error(
+      `Failed to send proposal declined team email: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
+
+export interface SendProposalExpiredOptions {
+  proposalId: string;
+  expiredAt: Date;
+}
+
+/**
+ * Send notification to internal team when proposal expires
+ */
+export async function sendProposalExpiredTeamEmail(
+  options: SendProposalExpiredOptions,
+): Promise<{ success: boolean; emailId?: string }> {
+  const { proposalId, expiredAt } = options;
+
+  try {
+    // Fetch proposal data with client information
+    const [proposal] = await db
+      .select({
+        id: proposals.id,
+        proposalNumber: proposals.proposalNumber,
+        title: proposals.title,
+        clientName: clients.name,
+        clientEmail: clients.email,
+        monthlyTotal: proposals.monthlyTotal,
+        annualTotal: proposals.annualTotal,
+      })
+      .from(proposals)
+      .leftJoin(clients, eq(proposals.clientId, clients.id))
+      .where(eq(proposals.id, proposalId))
+      .limit(1);
+
+    if (!proposal) {
+      throw new Error(`Proposal not found: ${proposalId}`);
+    }
+
+    const expiredAtFormatted = expiredAt.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const viewProposalUrl = `${APP_URL}/proposal-hub/proposals/${proposalId}`;
+
+    // Render email HTML
+    const emailHtml = await render(
+      <ProposalExpiredTeamEmail
+        clientName={proposal.clientName || "Unknown Client"}
+        clientEmail={proposal.clientEmail || "Unknown"}
+        proposalNumber={proposal.proposalNumber}
+        expiredAt={expiredAtFormatted}
+        monthlyTotal={proposal.monthlyTotal.toString()}
+        annualTotal={proposal.annualTotal.toString()}
+        viewProposalUrl={viewProposalUrl}
+      />,
+    );
+
+    // Send email to team
+    const { data, error } = await resend.emails.send({
+      from: `${COMPANY_NAME} System <${FROM_EMAIL}>`,
+      to: TEAM_EMAIL,
+      subject: `⏰ Proposal #${proposal.proposalNumber} Signature Link Expired`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      throw new Error(`Failed to send email: ${error.message}`);
+    }
+
+    return {
+      success: true,
+      emailId: data?.id,
+    };
+  } catch (error) {
+    console.error("Error sending proposal expired team email:", error);
+    throw new Error(
+      `Failed to send proposal expired team email: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
   }
 }

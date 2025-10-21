@@ -1,0 +1,16 @@
+{
+  "event": "submission.expired",
+  "timestamp": "2025-01-15T12:00:00Z",
+  "data": {
+    "id": "test_sub_expired_003",
+    "email": "bob.jones@example.com",
+    "status": "expired",
+    "expired_at": "2025-01-15T12:00:00Z",
+    "metadata": {
+      "tenant_id": "test_tenant_001",
+      "proposal_id": "test_proposal_003",
+      "proposal_number": "PROP-2025-003",
+      "client_id": "test_client_003"
+    }
+  }
+}
