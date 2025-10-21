@@ -15,6 +15,7 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeadSourcesChart } from "@/components/proposal-hub/charts/lead-sources-chart";
 import { ProposalsStatusChart } from "@/components/proposal-hub/charts/proposals-status-chart";
+import { SalesFunnelChart } from "@/components/proposal-hub/charts/sales-funnel-chart";
 import { WinLossChart } from "@/components/proposal-hub/charts/win-loss-chart";
 import { RecentActivityFeed } from "@/components/proposal-hub/widgets/recent-activity-feed";
 import { TopServicesWidget } from "@/components/proposal-hub/widgets/top-services-widget";
@@ -53,6 +54,8 @@ export default function ProposalHubPage() {
     trpc.analytics.getProposalStats.useQuery();
   const { data: conversionData } =
     trpc.analytics.getConversionMetrics.useQuery();
+  const { data: salesFunnelData } =
+    trpc.analytics.getSalesFunnelMetrics.useQuery();
 
   // Calculate metrics
   const draftCount = stats.find((s) => s.status === "draft")?.count || 0;
@@ -175,6 +178,12 @@ export default function ProposalHubPage() {
           data={proposalStatsData?.byStatus || []}
           isLoading={!proposalStatsData}
         />
+        <div className="lg:col-span-2">
+          <SalesFunnelChart
+            data={salesFunnelData}
+            isLoading={!salesFunnelData}
+          />
+        </div>
         <div className="lg:col-span-2">
           <WinLossChart data={conversionData} isLoading={!conversionData} />
         </div>

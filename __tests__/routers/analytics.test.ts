@@ -286,11 +286,13 @@ describe("app/server/routers/analytics.ts", () => {
       expect(procedures).toContain("getDiscountAnalysis");
       expect(procedures).toContain("getTaskMetrics");
       expect(procedures).toContain("getComplexityDistribution");
+      expect(procedures).toContain("getSalesFunnelMetrics");
+      expect(procedures).toContain("getPipelineVelocityMetrics");
     });
 
-    it("should have 9 procedures total", () => {
+    it("should have 11 procedures total", () => {
       const procedures = Object.keys(analyticsRouter._def.procedures);
-      expect(procedures).toHaveLength(9);
+      expect(procedures).toHaveLength(11);
     });
   });
 });

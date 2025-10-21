@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
+import { PipelineVelocityChart } from "@/components/proposal-hub/charts/pipeline-velocity-chart";
 import { SalesKanbanBoard } from "@/components/proposal-hub/kanban/sales-kanban-board";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -38,6 +39,10 @@ export default function ProposalsPipelinePage() {
   });
 
   const proposals = proposalsData?.proposals || [];
+
+  // Fetch pipeline velocity metrics
+  const { data: velocityData } =
+    trpc.analytics.getPipelineVelocityMetrics.useQuery();
 
   // Group proposals by sales stage
   const proposalsByStage: Record<SalesStage, typeof proposals> = {
@@ -236,7 +241,13 @@ export default function ProposalsPipelinePage() {
           </div>
         </Card>
       ) : (
-        <SalesKanbanBoard proposalsByStage={proposalsByStage} />
+        <>
+          <SalesKanbanBoard proposalsByStage={proposalsByStage} />
+          <PipelineVelocityChart
+            data={velocityData}
+            isLoading={!velocityData}
+          />
+        </>
       )}
     </div>
   );

@@ -24,6 +24,10 @@ import {
 import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
 import { getProposalSignedPdfUrl } from "@/lib/s3/signed-pdf-access";
 import { checkSigningRateLimit, getClientIp } from "@/lib/rate-limit/signing";
+import {
+  getAutomationReason,
+  getAutoSalesStage,
+} from "@/lib/utils/sales-stage-automation";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 
 // Status enum for filtering
@@ -427,11 +431,37 @@ export const proposalsRouter = router({
 
       // Start transaction
       const result = await db.transaction(async (tx) => {
-        // Update proposal
+        // Check if status is changing and auto-update sales stage if needed
+        let autoSalesStage = null;
+        if (
+          input.data.status &&
+          input.data.status !== existingProposal.status
+        ) {
+          autoSalesStage = getAutoSalesStage(
+            input.data.status as
+              | "draft"
+              | "sent"
+              | "viewed"
+              | "signed"
+              | "rejected"
+              | "expired",
+            existingProposal.salesStage as
+              | "enquiry"
+              | "qualified"
+              | "proposal_sent"
+              | "follow_up"
+              | "won"
+              | "lost"
+              | "dormant",
+          );
+        }
+
+        // Update proposal (include auto sales stage if applicable)
         const [updatedProposal] = await tx
           .update(proposals)
           .set({
             ...input.data,
+            ...(autoSalesStage && { salesStage: autoSalesStage }),
             validUntil: input.data.validUntil
               ? new Date(input.data.validUntil)
               : undefined,
@@ -470,7 +500,7 @@ export const proposalsRouter = router({
           }
         }
 
-        // Log activity
+        // Log activity for proposal update
         await tx.insert(activityLogs).values({
           tenantId,
           entityType: "proposal",
@@ -482,6 +512,30 @@ export const proposalsRouter = router({
           oldValues: existingProposal,
           newValues: input.data,
         });
+
+        // Log automation if sales stage was auto-updated
+        if (autoSalesStage && input.data.status) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "proposal",
+            entityId: input.id,
+            action: "sales_stage_automated",
+            description: getAutomationReason(
+              input.data.status as
+                | "draft"
+                | "sent"
+                | "viewed"
+                | "signed"
+                | "rejected"
+                | "expired",
+              autoSalesStage,
+            ),
+            userId,
+            userName: "System",
+            oldValues: { salesStage: existingProposal.salesStage },
+            newValues: { salesStage: autoSalesStage },
+          });
+        }
 
         return updatedProposal;
       });

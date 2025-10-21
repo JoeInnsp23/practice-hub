@@ -5,6 +5,7 @@ import {
   FileText,
   Home,
   Settings,
+  Target,
   TrendingUp,
   UserPlus,
   Users,
@@ -24,7 +25,11 @@ const sections = [
     title: "Management",
     items: [
       { name: "Onboarding", href: "/proposal-hub/onboarding", icon: UserPlus },
-      { name: "Pipeline", href: "/proposal-hub/pipeline", icon: TrendingUp },
+      {
+        name: "Proposals Pipeline",
+        href: "/proposal-hub/proposals/pipeline",
+        icon: Target,
+      },
     ],
   },
   {

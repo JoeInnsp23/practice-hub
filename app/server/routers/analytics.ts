@@ -584,4 +584,275 @@ export const analyticsRouter = router({
         totalProposals: proposalsWithMetadata.length,
       };
     }),
+
+  /**
+   * Get sales funnel metrics (conversion rates between stages)
+   */
+  getSalesFunnelMetrics: protectedProcedure
+    .input(dateRangeSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Build date filters
+      const filters = [eq(proposals.tenantId, tenantId)];
+      if (input?.startDate) {
+        filters.push(gte(proposals.createdAt, new Date(input.startDate)));
+      }
+      if (input?.endDate) {
+        filters.push(lte(proposals.createdAt, new Date(input.endDate)));
+      }
+
+      // Get proposals grouped by sales stage
+      const proposalsByStage = await db
+        .select({
+          stage: proposals.salesStage,
+          count: sql<number>`count(*)::int`,
+          totalValue: sql<number>`sum(${proposals.monthlyTotal})::decimal`,
+        })
+        .from(proposals)
+        .where(and(...filters))
+        .groupBy(proposals.salesStage);
+
+      // Define stage order for funnel
+      const stageOrder = [
+        "enquiry",
+        "qualified",
+        "proposal_sent",
+        "follow_up",
+        "won",
+        "lost",
+        "dormant",
+      ];
+
+      // Build funnel data with conversion rates
+      const funnelData = stageOrder.map((stage, index) => {
+        const stageData = proposalsByStage.find((s) => s.stage === stage);
+        const count = Number(stageData?.count || 0);
+        const value = Number(stageData?.totalValue || 0);
+
+        // Calculate conversion rate from previous stage
+        let conversionRate = 100; // First stage is 100%
+        if (index > 0) {
+          const previousStage = stageOrder[index - 1];
+          const previousData = proposalsByStage.find(
+            (s) => s.stage === previousStage,
+          );
+          const previousCount = Number(previousData?.count || 0);
+          conversionRate = previousCount > 0 ? (count / previousCount) * 100 : 0;
+        }
+
+        return {
+          stage,
+          count,
+          value,
+          conversionRate: Number(conversionRate.toFixed(2)),
+        };
+      });
+
+      // Calculate overall metrics
+      const totalProposals = proposalsByStage.reduce(
+        (sum, s) => sum + Number(s.count),
+        0,
+      );
+      const wonCount =
+        Number(proposalsByStage.find((s) => s.stage === "won")?.count || 0);
+      const lostCount =
+        Number(proposalsByStage.find((s) => s.stage === "lost")?.count || 0);
+      const closedCount = wonCount + lostCount;
+      const winRate = closedCount > 0 ? (wonCount / closedCount) * 100 : 0;
+
+      return {
+        funnel: funnelData,
+        totalProposals,
+        wonCount,
+        lostCount,
+        winRate: Number(winRate.toFixed(2)),
+      };
+    }),
+
+  /**
+   * Get pipeline velocity metrics (time-in-stage analytics)
+   */
+  getPipelineVelocityMetrics: protectedProcedure
+    .input(dateRangeSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Build date filters
+      const filters = [eq(proposals.tenantId, tenantId)];
+      if (input?.startDate) {
+        filters.push(gte(proposals.createdAt, new Date(input.startDate)));
+      }
+      if (input?.endDate) {
+        filters.push(lte(proposals.createdAt, new Date(input.endDate)));
+      }
+
+      // Get all activity logs for sales stage changes
+      const stageChangeActivities = await db
+        .select({
+          proposalId: activityLogs.entityId,
+          action: activityLogs.action,
+          oldStage: sql<string>`${activityLogs.oldValues}->>'salesStage'`,
+          newStage: sql<string>`${activityLogs.newValues}->>'salesStage'`,
+          createdAt: activityLogs.createdAt,
+        })
+        .from(activityLogs)
+        .innerJoin(proposals, eq(activityLogs.entityId, proposals.id))
+        .where(
+          and(
+            ...filters,
+            eq(activityLogs.tenantId, tenantId),
+            eq(activityLogs.entityType, "proposal"),
+            sql`${activityLogs.action} IN ('sales_stage_updated', 'sales_stage_automated')`,
+          ),
+        )
+        .orderBy(activityLogs.createdAt);
+
+      // Calculate average time in each stage
+      interface StageMetrics {
+        stage: string;
+        count: number;
+        totalDays: number;
+        avgDays: number;
+        minDays: number;
+        maxDays: number;
+      }
+
+      const stageMetrics: Record<string, StageMetrics> = {
+        enquiry: {
+          stage: "enquiry",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+        qualified: {
+          stage: "qualified",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+        proposal_sent: {
+          stage: "proposal_sent",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+        follow_up: {
+          stage: "follow_up",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+        won: {
+          stage: "won",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+        lost: {
+          stage: "lost",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+        dormant: {
+          stage: "dormant",
+          count: 0,
+          totalDays: 0,
+          avgDays: 0,
+          minDays: Number.POSITIVE_INFINITY,
+          maxDays: 0,
+        },
+      };
+
+      // Group activities by proposal
+      const proposalActivities: Record<string, typeof stageChangeActivities> =
+        {};
+      for (const activity of stageChangeActivities) {
+        if (!proposalActivities[activity.proposalId]) {
+          proposalActivities[activity.proposalId] = [];
+        }
+        proposalActivities[activity.proposalId].push(activity);
+      }
+
+      // Calculate time in each stage for each proposal
+      for (const [_proposalId, activities] of Object.entries(
+        proposalActivities,
+      )) {
+        // Sort by date
+        const sortedActivities = activities.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
+
+        // Calculate duration for each stage transition
+        for (let i = 0; i < sortedActivities.length; i++) {
+          const currentActivity = sortedActivities[i];
+          const previousActivity = sortedActivities[i - 1];
+          const oldStage = currentActivity.oldStage;
+
+          if (oldStage && stageMetrics[oldStage]) {
+            const endTime = new Date(currentActivity.createdAt).getTime();
+            const startTime = previousActivity
+              ? new Date(previousActivity.createdAt).getTime()
+              : new Date(currentActivity.createdAt).getTime(); // Fallback
+
+            const durationDays = Math.floor(
+              (endTime - startTime) / (1000 * 60 * 60 * 24),
+            );
+
+            if (durationDays >= 0) {
+              stageMetrics[oldStage].count++;
+              stageMetrics[oldStage].totalDays += durationDays;
+              stageMetrics[oldStage].minDays = Math.min(
+                stageMetrics[oldStage].minDays,
+                durationDays,
+              );
+              stageMetrics[oldStage].maxDays = Math.max(
+                stageMetrics[oldStage].maxDays,
+                durationDays,
+              );
+            }
+          }
+        }
+      }
+
+      // Calculate averages and clean up infinity values
+      const velocityData = Object.values(stageMetrics).map((metrics) => {
+        const avgDays =
+          metrics.count > 0 ? metrics.totalDays / metrics.count : 0;
+        const minDays =
+          metrics.minDays === Number.POSITIVE_INFINITY ? 0 : metrics.minDays;
+
+        return {
+          stage: metrics.stage,
+          count: metrics.count,
+          avgDays: Number(avgDays.toFixed(1)),
+          minDays,
+          maxDays: metrics.maxDays,
+        };
+      });
+
+      // Calculate overall pipeline velocity (total time from enquiry to won)
+      const wonProposals = velocityData.find((v) => v.stage === "won");
+      const avgTimeToWin = wonProposals?.avgDays || 0;
+
+      return {
+        velocityByStage: velocityData,
+        avgTimeToWin: Number(avgTimeToWin.toFixed(1)),
+        totalTransitions: stageChangeActivities.length,
+      };
+    }),
 });
