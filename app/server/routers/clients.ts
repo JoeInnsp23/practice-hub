@@ -2,6 +2,23 @@ import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import {
+  getCachedCompany,
+  setCachedCompany,
+} from "@/lib/companies-house/cache";
+import {
+  APIServerError,
+  CompanyNotFoundError,
+  getCompany,
+  getOfficers,
+  getPSCs,
+  NetworkError,
+  RateLimitError,
+} from "@/lib/companies-house/client";
+import {
+  checkRateLimit,
+  incrementRateLimit,
+} from "@/lib/companies-house/rate-limit";
 import { db } from "@/lib/db";
 import { getClientsList } from "@/lib/db/queries/client-queries";
 import {
@@ -468,5 +485,124 @@ export const clientsRouter = router({
       });
 
       return { success: true, contact: updatedContact };
+    }),
+
+  lookupCompaniesHouse: protectedProcedure
+    .input(
+      z.object({
+        companyNumber: z
+          .string()
+          .regex(/^[0-9]{8}$/, "Company number must be 8 digits"),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { companyNumber } = input;
+
+      try {
+        // Check rate limit first
+        const withinLimit = await checkRateLimit();
+        if (!withinLimit) {
+          // Try to return cached data if available
+          const cached = await getCachedCompany(companyNumber);
+          if (cached) {
+            return cached;
+          }
+
+          // No cached data available, throw rate limit error
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Too many requests. Please try again in 5 minutes.",
+          });
+        }
+
+        // Check cache
+        const cached = await getCachedCompany(companyNumber);
+        if (cached) {
+          return cached;
+        }
+
+        // Call API - fetch all data in parallel
+        const [company, officers, pscs] = await Promise.all([
+          getCompany(companyNumber),
+          getOfficers(companyNumber),
+          getPSCs(companyNumber),
+        ]);
+
+        // Increment rate limit counter after successful API calls
+        await incrementRateLimit();
+
+        // Prepare data for cache
+        const data = {
+          company,
+          officers,
+          pscs,
+        };
+
+        // Store in cache
+        await setCachedCompany(companyNumber, data);
+
+        // Log activity (use generated UUID for entityId, store company number in metadata)
+        await db.insert(activityLogs).values({
+          tenantId,
+          entityType: "companies_house_lookup",
+          entityId: crypto.randomUUID(),
+          action: "looked_up",
+          description: `Looked up Companies House data for ${company.companyName} (${companyNumber})`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          metadata: {
+            companyNumber,
+            companyName: company.companyName,
+          },
+        });
+
+        return data;
+      } catch (error) {
+        // Convert Companies House errors to TRPCError with user-friendly messages
+        if (error instanceof CompanyNotFoundError) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message:
+              "Company not found. Please check the company number and try again.",
+          });
+        }
+
+        if (error instanceof RateLimitError) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Too many requests. Please try again in 5 minutes.",
+          });
+        }
+
+        if (error instanceof APIServerError) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              "Companies House API is currently unavailable. Please try again later.",
+          });
+        }
+
+        if (error instanceof NetworkError) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              "Unable to connect to Companies House. Please check your internet connection and try again.",
+          });
+        }
+
+        // If it's already a TRPCError, re-throw it
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+
+        // Unknown error - log and throw generic error
+        console.error("[Companies House Lookup] Unexpected error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "An unexpected error occurred while looking up company data.",
+        });
+      }
     }),
 });

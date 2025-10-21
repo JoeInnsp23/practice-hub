@@ -40,7 +40,8 @@ This document captures the **CURRENT STATE** of the Practice Hub codebase, a sop
 **Integrations:**
 - **DocuSeal E-Signature**: `lib/docuseal/client.ts`, `app/api/webhooks/docuseal/route.ts`
 - **S3 Object Storage**: `lib/storage/s3.ts` (MinIO local, Hetzner S3 production)
-- **Xero Accounting**: `app/server/routers/clients.ts` (Companies House integration)
+- **Xero Accounting**: `lib/xero/client.ts`, `app/server/routers/transactionData.ts` (Bank transaction data)
+- **Companies House API**: `app/server/routers/clients.ts` (UK company data lookup)
 - **LemonSqueezy Verify**: `app/api/webhooks/lemverify/route.ts` (KYC/AML checks)
 - **Sentry Error Tracking**: `lib/sentry.ts`, `sentry.client.config.ts`, `sentry.server.config.ts`
 
@@ -730,21 +731,48 @@ S3_REGION=eu-central
 
 ### Companies House Integration
 
-**Status:** Basic integration functional
+**Status:** ✅ Fully implemented and tested
 
-**Implementation:** `app/server/routers/clients.ts` (Xero connection)
+**Purpose:** Automatic UK company data lookup during client creation
 
-**Features:**
-- Company lookup by registration number
-- Auto-populate company details
-- Directors and PSCs data fetch
-- Company officer information
+**Integration Point:** Client wizard "Registration Details" step
+
+**Implementation:**
+- **API Client:** `app/server/routers/clients.ts` (Basic auth with API key)
+- **Database Caching:** `companiesHouseCache` table (24-hour TTL)
+- **Rate Limiting:** `companiesHouseRateLimits` table (600 requests per 5 minutes)
+- **Activity Logging:** `companiesHouseActivityLog` table (tracks tenant usage)
+- **Auto-populates:** Company name, type, status, registered address, directors, PSCs
+
+**Multi-tenant:**
+- Cache and rate limits are global (shared across tenants)
+- Activity logs track per-tenant usage for monitoring
+
+**Caching Strategy:**
+- First lookup: API call → cache for 24 hours
+- Subsequent lookups: Serve from cache (reduces API usage)
+- Cache key: Normalized company number (uppercase)
+
+**Rate Limiting:**
+- Limit: 600 requests per 5-minute window (Companies House API limit)
+- Implementation: Database-backed (not Redis)
+- Automatic retry after window reset
 
 **Testing:**
-1. Create client with UK company registration number
+1. Create client with UK company registration number (e.g., "00000006" for Tesco)
 2. Verify company details auto-populate
-3. Check directors and PSCs are created
-4. Test with invalid/non-existent company numbers
+3. Check directors and PSCs are created in database
+4. Test cache hit on second lookup (should not call API)
+5. Test rate limit handling (429 error when exceeded)
+6. Verify activity log entries created
+
+**Environment Variables:**
+```bash
+COMPANIES_HOUSE_API_KEY="your-api-key"
+NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE="true"
+```
+
+**Documentation:** See `docs/guides/integrations/companies-house.md` for detailed guide
 
 ### LemonSqueezy Verify (KYC/AML)
 

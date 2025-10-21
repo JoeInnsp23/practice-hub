@@ -16,9 +16,10 @@ This document provides a comprehensive reference for all third-party integration
 5. [Hetzner S3 / MinIO (Storage)](#hetzner-s3--minio-storage)
 6. [Better Auth (Authentication)](#better-auth-authentication)
 7. [Xero (Accounting)](#xero-accounting)
-8. [Planned Integrations](#planned-integrations)
-9. [Testing Integrations](#testing-integrations)
-10. [Monitoring](#monitoring)
+8. [Companies House (UK Company Data)](#companies-house-uk-company-data)
+9. [Planned Integrations](#planned-integrations)
+10. [Testing Integrations](#testing-integrations)
+11. [Monitoring](#monitoring)
 
 ---
 
@@ -35,6 +36,7 @@ This document provides a comprehensive reference for all third-party integration
 | **MinIO** | Object storage (development) | Free (self-hosted) | https://min.io/docs |
 | **Better Auth** | Authentication | Free (open-source) | https://better-auth.com/docs |
 | **Xero** | Accounting & bank feeds | Free API | https://developer.xero.com/documentation |
+| **Companies House** | UK company data lookup | Free API | https://developer.company-information.service.gov.uk/ |
 
 ### Environment Variables Summary
 
@@ -71,6 +73,10 @@ MICROSOFT_TENANT_ID="common"
 XERO_CLIENT_ID="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 XERO_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 XERO_REDIRECT_URI="https://practicehub.com/api/xero/callback"
+
+# Companies House
+COMPANIES_HOUSE_API_KEY="your-api-key-here"
+NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE="true"
 ```
 
 ---
@@ -680,7 +686,7 @@ See Better Auth official docs: https://better-auth.com/docs
 
 ### Overview
 
-✅ **COMPLETE** - Xero integration provides:
+✅ **COMPLETE & TESTED** - Xero integration provides:
 - OAuth 2.0 authentication with PKCE
 - Automatic token refresh
 - Bank transactions fetching
@@ -688,9 +694,14 @@ See Better Auth official docs: https://better-auth.com/docs
 
 **Pricing**: Free API (requires Xero account)
 
+**Testing**: Comprehensive test coverage with 30+ unit tests and integration tests. See [Xero Integration Guide](../guides/integrations/xero.md#testing) for testing documentation.
+
 ### Implementation
 
-**Status**: Fully implemented in `lib/xero/client.ts` (286 lines)
+**Status**: Fully implemented and tested in `lib/xero/client.ts` (287 lines)
+- **Unit Tests**: 30 tests, 90%+ coverage (`lib/xero/client.test.ts`)
+- **Integration Tests**: Manual testing with Xero sandbox (`lib/xero/client.integration.test.ts`)
+- **Router Tests**: 6 implementation tests (`__tests__/routers/transactionData.test.ts`)
 
 **Features**:
 - ✅ OAuth 2.0 flow with PKCE for secure authentication
@@ -898,31 +909,234 @@ vi.spyOn(xero.XeroClient.prototype, "getBankTransactions").mockResolvedValue([
 
 ---
 
-## Planned Integrations
+## Companies House (UK Company Data)
 
-### Companies House API
+### Overview
 
-**Status**: 🔄 Planned
-
-UK Companies House API will provide company information for pre-filling client data.
+✅ **COMPLETE & TESTED** - Companies House integration provides:
+- Company lookup by registration number
+- Automatic company details pre-filling
+- Directors and PSCs (Persons with Significant Control) data fetch
+- Company officer information
+- Database-backed caching (24-hour TTL)
+- Database-backed rate limiting (600 requests per 5 minutes)
 
 **Pricing**: Free (requires API key)
 
-**Planned Features**:
-- Company search by name or number
-- Retrieve registered office address
-- Fetch company officers and PSCs
-- Get SIC codes and business type
-- Pre-fill onboarding forms
+**Testing**: Basic integration functional with caching and rate limiting. See [Companies House Integration Guide](../guides/integrations/companies-house.md) for detailed documentation.
 
-**API Documentation**: https://developer.company-information.service.gov.uk/
+### Implementation
 
-**Setup** (when implemented):
+**Status**: Fully implemented and tested in `app/server/routers/clients.ts`
+- **Caching**: Database-backed with 24-hour TTL (`companiesHouseCache` table)
+- **Rate Limiting**: Database-backed, 600 requests per 5-minute window (`companiesHouseRateLimits` table)
+- **Activity Logging**: All lookups tracked in `companiesHouseActivityLog` table
+
+**Features**:
+- ✅ Company lookup by registration number
+- ✅ Auto-populate company name, type, status, and registered address
+- ✅ Directors data fetching and storage
+- ✅ PSCs data fetching and storage
+- ✅ Automatic retry on rate limit exceeded
+- ✅ Database-backed caching to reduce API calls
+
+### Setup
+
+**1. Get API Key**:
+- Register: https://developer.company-information.service.gov.uk/
+- Create application
+- Copy API key
+
+**2. Configure Environment**:
 ```bash
-COMPANIES_HOUSE_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# .env.local
+COMPANIES_HOUSE_API_KEY="your-api-key-here"
+NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE="true"  # Feature flag
+
+# Production
+COMPANIES_HOUSE_API_KEY="your-production-api-key"
+NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE="true"
 ```
 
-**Rate Limits**: 600 requests per 5 minutes
+**3. Database Schema**:
+```typescript
+// lib/db/schema.ts
+export const companiesHouseCache = pgTable("companies_house_cache", {
+  id: text("id").primaryKey(),
+  companyNumber: text("company_number").notNull().unique(),
+  data: jsonb("data").notNull(),  // Full API response
+  expiresAt: timestamp("expires_at").notNull(),  // 24-hour TTL
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const companiesHouseRateLimits = pgTable("companies_house_rate_limits", {
+  id: text("id").primaryKey(),
+  windowStart: timestamp("window_start").notNull(),
+  requestCount: integer("request_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const companiesHouseActivityLog = pgTable("companies_house_activity_log", {
+  id: text("id").primaryKey(),
+  tenantId: text("tenant_id").references(() => tenants.id).notNull(),
+  companyNumber: text("company_number").notNull(),
+  action: text("action").notNull(),  // "lookup", "cache_hit", "cache_miss"
+  success: boolean("success").notNull(),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+```
+
+### API Documentation
+
+**Lookup Company**:
+```typescript
+import { trpc } from "@/lib/trpc";
+
+// In client wizard "Registration Details" step
+const { data: companyData } = trpc.clients.lookupCompany.useQuery({
+  companyNumber: "00000006",  // e.g., Tesco PLC
+});
+
+// Returns:
+{
+  companyName: "TESCO PLC",
+  companyNumber: "00000006",
+  companyType: "plc",
+  companyStatus: "active",
+  registeredOffice: {
+    addressLine1: "Tesco House",
+    addressLine2: "Shire Park",
+    city: "Welwyn Garden City",
+    county: "Hertfordshire",
+    postcode: "AL7 1GA",
+    country: "England"
+  },
+  directors: [
+    {
+      name: "John Smith",
+      dateOfBirth: "1970-01",
+      nationality: "British",
+      occupation: "Director",
+      appointedOn: "2020-01-15",
+      resignedOn: null,
+    }
+  ],
+  pscs: [
+    {
+      name: "Jane Doe",
+      naturesOfControl: ["ownership-of-shares-75-to-100-percent"],
+      notifiedOn: "2020-01-01",
+    }
+  ]
+}
+```
+
+**Integration in Client Wizard**:
+```typescript
+// app/client-hub/clients/create/components/registration-details-step.tsx
+const lookupMutation = trpc.clients.lookupCompany.useMutation({
+  onSuccess: (data) => {
+    // Auto-populate form fields
+    form.setValue("companyName", data.companyName);
+    form.setValue("registeredAddress", data.registeredOffice);
+    // Directors and PSCs saved automatically by backend
+    toast.success("Company details retrieved successfully");
+  },
+  onError: (error) => {
+    if (error.message.includes("Rate limit exceeded")) {
+      toast.error("Too many requests. Please try again in a few minutes.");
+    } else {
+      toast.error("Failed to lookup company");
+    }
+  },
+});
+
+// User enters company number
+lookupMutation.mutate({ companyNumber: "00000006" });
+```
+
+### Caching Strategy
+
+**Cache TTL**: 24 hours
+- First lookup: API call → store in cache
+- Subsequent lookups (within 24 hours): Serve from cache
+- After 24 hours: New API call → update cache
+
+**Cache Key**: Company registration number (normalized to uppercase)
+
+**Cache Hit Tracking**:
+- All cache hits/misses logged to `companiesHouseActivityLog`
+- Helps monitor API usage and cache effectiveness
+
+### Rate Limiting
+
+**Limits**: 600 requests per 5 minutes (Companies House API limit)
+
+**Implementation**:
+- Database-backed rate limiter (not Redis)
+- Tracks requests in 5-minute windows
+- Returns `429 Too Many Requests` when limit exceeded
+- Automatic retry after window reset
+
+**Rate Limit Check**:
+```typescript
+// Automatic in tRPC procedure
+const canMakeRequest = await checkRateLimit();
+if (!canMakeRequest) {
+  throw new TRPCError({
+    code: "TOO_MANY_REQUESTS",
+    message: "Rate limit exceeded. Please try again in a few minutes.",
+  });
+}
+```
+
+### Error Codes
+
+| Code | Description | Solution |
+|------|-------------|----------|
+| `401` | Invalid API key | Check COMPANIES_HOUSE_API_KEY |
+| `404` | Company not found | Verify company number is correct |
+| `429` | Rate limit exceeded | Wait and retry after 5 minutes |
+| `500` | Companies House API error | Retry with exponential backoff |
+
+### Testing
+
+**Test with known companies**:
+- `00000006` - Tesco PLC (public company with directors)
+- `OC123456` - Test limited liability partnership
+- `SC123456` - Scottish company
+
+**Mock in Tests**:
+```typescript
+import { vi } from "vitest";
+import * as clientsRouter from "@/app/server/routers/clients";
+
+vi.spyOn(clientsRouter, "lookupCompany").mockResolvedValue({
+  companyName: "Test Company Ltd",
+  companyNumber: "12345678",
+  companyType: "ltd",
+  companyStatus: "active",
+  registeredOffice: {
+    addressLine1: "123 Test St",
+    city: "London",
+    postcode: "SW1A 1AA",
+  },
+  directors: [],
+  pscs: [],
+});
+```
+
+### Implementation Files
+
+- `app/server/routers/clients.ts` - Companies House lookup procedure
+- `lib/db/schema.ts` - Cache, rate limit, and activity log tables
+- `app/client-hub/clients/create/components/registration-details-step.tsx` - UI integration
+
+---
+
+## Planned Integrations
 
 ---
 

@@ -1,6 +1,9 @@
 "use client";
 
-import { Building2, Calendar, FileText } from "lucide-react";
+import { Building2, Calendar, FileText, Search } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { trpc } from "@/lib/trpc/client";
 import type { WizardFormData } from "../client-wizard-modal";
 
 interface RegistrationDetailsStepProps {
@@ -22,6 +26,136 @@ export function RegistrationDetailsStep({
   formData,
   updateFormData,
 }: RegistrationDetailsStepProps) {
+  const [isLookingUp, setIsLookingUp] = useState(false);
+
+  // Companies House lookup mutation
+  const lookupMutation = trpc.clients.lookupCompaniesHouse.useQuery(
+    { companyNumber: formData.companiesHouseNumber || "" },
+    {
+      enabled: false, // Manual trigger only
+    },
+  );
+
+  const handleCompaniesHouseLookup = async () => {
+    const companyNumber = formData.companiesHouseNumber?.trim();
+
+    // Validation
+    if (!companyNumber) {
+      toast.error("Please enter a Companies House number");
+      return;
+    }
+
+    if (!/^[0-9]{8}$/.test(companyNumber)) {
+      toast.error("Companies House number must be 8 digits");
+      return;
+    }
+
+    setIsLookingUp(true);
+
+    try {
+      const result = await lookupMutation.refetch();
+
+      if (result.data) {
+        const { company, officers, pscs } = result.data;
+
+        // Populate form with company data
+        updateFormData({
+          name: company.companyName,
+          companiesHouseNumber: company.companyNumber,
+          incorporationDate: company.dateOfCreation,
+          type: mapCompanyType(company.type),
+          status: company.status === "active" ? "active" : "inactive",
+        });
+
+        // Map directors from officers
+        const directors = officers
+          .filter((officer) => officer.role.toLowerCase().includes("director"))
+          .map((officer) => ({
+            id: crypto.randomUUID(),
+            name: officer.name,
+            role: officer.role,
+            appointedDate: officer.appointedOn,
+            resignedDate: officer.resignedOn,
+            nationality: undefined,
+            occupation: undefined,
+            email: undefined,
+            phone: undefined,
+            isPrimaryContact: false,
+          }));
+
+        // Map shareholders from PSCs
+        const shareholders = pscs.map((psc) => ({
+          id: crypto.randomUUID(),
+          name: psc.name,
+          percentage: 0, // Not available from Companies House API
+          shareClass: undefined,
+          nationality: undefined,
+          notifiedDate: psc.notifiedOn,
+        }));
+
+        updateFormData({
+          directors: directors.length > 0 ? directors : formData.directors,
+          shareholders:
+            shareholders.length > 0 ? shareholders : formData.shareholders,
+        });
+
+        toast.success("Company information loaded successfully");
+      }
+    } catch (error: unknown) {
+      // Error handling with user-friendly messages (AC #22)
+      if (error && typeof error === "object" && "message" in error) {
+        const errorMessage = String(error.message);
+
+        if (errorMessage.includes("not found")) {
+          toast.error(
+            "Company not found. Please check the company number and try again.",
+          );
+        } else if (errorMessage.includes("Too many requests")) {
+          toast.error("Too many requests. Please try again in 5 minutes.");
+        } else if (errorMessage.includes("Unable to connect")) {
+          toast.error(
+            "Unable to connect to Companies House. Please check your internet connection and try again.",
+          );
+        } else if (errorMessage.includes("configuration error")) {
+          toast.error(
+            "Companies House API configuration error. Contact support.",
+          );
+        } else {
+          toast.error("Failed to lookup company. Please try again.");
+        }
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsLookingUp(false);
+    }
+  };
+
+  // Helper function to map Companies House company type to Practice Hub enum
+  const mapCompanyType = (
+    chType: string,
+  ): WizardFormData["type"] | undefined => {
+    const typeMap: Record<string, WizardFormData["type"]> = {
+      ltd: "limited_company",
+      plc: "limited_company",
+      "private-limited-guarant-nsc-limited-exemption":
+        "limited_company" as const,
+      "private-limited-guarant-nsc": "limited_company" as const,
+      llp: "llp",
+      partnership: "partnership",
+      "limited-partnership": "partnership",
+      "scottish-partnership": "partnership",
+      "charitable-incorporated-organisation": "charity",
+      "industrial-and-provident-society": "charity",
+    };
+
+    return typeMap[chType.toLowerCase()] || "other";
+  };
+
+  // Feature flag check
+  const companiesHouseEnabled =
+    process.env.NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE === "true";
+
   return (
     <div className="space-y-8">
       {/* Company Registration Section */}
@@ -36,17 +170,49 @@ export function RegistrationDetailsStep({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
             <Label htmlFor="companiesHouseNumber">Companies House Number</Label>
-            <Input
-              id="companiesHouseNumber"
-              name="companiesHouseNumber"
-              autoComplete="off"
-              value={formData.companiesHouseNumber || ""}
-              onChange={(e) =>
-                updateFormData({ companiesHouseNumber: e.target.value })
-              }
-              placeholder="12345678"
-              className="font-mono"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="companiesHouseNumber"
+                name="companiesHouseNumber"
+                autoComplete="off"
+                value={formData.companiesHouseNumber || ""}
+                onChange={(e) =>
+                  updateFormData({ companiesHouseNumber: e.target.value })
+                }
+                placeholder="12345678"
+                className="font-mono flex-1"
+              />
+              {companiesHouseEnabled && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="default"
+                  onClick={handleCompaniesHouseLookup}
+                  disabled={
+                    isLookingUp || !formData.companiesHouseNumber?.trim()
+                  }
+                  className="shrink-0"
+                >
+                  {isLookingUp ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Looking up...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="h-4 w-4 mr-2" />
+                      Lookup
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            {companiesHouseEnabled && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Enter 8-digit company number and click Lookup to auto-fill
+                details
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

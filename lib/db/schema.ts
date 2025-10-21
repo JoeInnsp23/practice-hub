@@ -2755,3 +2755,34 @@ export const calendarEventAttendees = pgTable(
     statusIdx: index("calendar_event_attendees_status_idx").on(table.status),
   }),
 );
+
+// Companies House Cache - Cache Companies House API responses
+export const companiesHouseCache = pgTable(
+  "companies_house_cache",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    companyNumber: text("company_number").notNull().unique(),
+    cachedData: jsonb("cached_data").notNull(), // Store CompanyDetails + Officers + PSCs
+    cachedAt: timestamp("cached_at").defaultNow().notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+  },
+  (table) => ({
+    companyNumberIdx: uniqueIndex("companies_house_cache_company_number_idx").on(
+      table.companyNumber,
+    ),
+    expiresAtIdx: index("companies_house_cache_expires_at_idx").on(
+      table.expiresAt,
+    ),
+  }),
+);
+
+// Companies House Rate Limit - Track API rate limiting (600 requests per 5 minutes)
+export const companiesHouseRateLimit = pgTable("companies_house_rate_limit", {
+  id: text("id").primaryKey().default("global"), // Single row for global rate limit
+  requestsCount: integer("requests_count").notNull().default(0),
+  windowStart: timestamp("window_start").notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
