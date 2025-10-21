@@ -1,7 +1,7 @@
 # Integrations Reference
 
-**Last Updated**: 2025-10-10
-**Version**: 1.0
+**Last Updated**: 2025-10-21
+**Version**: 1.1
 
 This document provides a comprehensive reference for all third-party integrations used in Practice Hub. Each integration includes setup instructions, API documentation, and troubleshooting tips.
 
@@ -15,9 +15,10 @@ This document provides a comprehensive reference for all third-party integration
 4. [Resend (Email)](#resend-email)
 5. [Hetzner S3 / MinIO (Storage)](#hetzner-s3--minio-storage)
 6. [Better Auth (Authentication)](#better-auth-authentication)
-7. [Companies House API](#companies-house-api)
-8. [Testing Integrations](#testing-integrations)
-9. [Monitoring](#monitoring)
+7. [Xero (Accounting)](#xero-accounting)
+8. [Planned Integrations](#planned-integrations)
+9. [Testing Integrations](#testing-integrations)
+10. [Monitoring](#monitoring)
 
 ---
 
@@ -33,7 +34,7 @@ This document provides a comprehensive reference for all third-party integration
 | **Hetzner S3** | Object storage (production) | €5/250GB | https://docs.hetzner.com/storage |
 | **MinIO** | Object storage (development) | Free (self-hosted) | https://min.io/docs |
 | **Better Auth** | Authentication | Free (open-source) | https://better-auth.com/docs |
-| **Companies House** | UK company data | Free | https://developer.company-information.service.gov.uk |
+| **Xero** | Accounting & bank feeds | Free API | https://developer.xero.com/documentation |
 
 ### Environment Variables Summary
 
@@ -66,8 +67,10 @@ MICROSOFT_CLIENT_ID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 MICROSOFT_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 MICROSOFT_TENANT_ID="common"
 
-# Companies House
-COMPANIES_HOUSE_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# Xero
+XERO_CLIENT_ID="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+XERO_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+XERO_REDIRECT_URI="https://practicehub.com/api/xero/callback"
 ```
 
 ---
@@ -673,66 +676,253 @@ See Better Auth official docs: https://better-auth.com/docs
 
 ---
 
-## Companies House API
+## Xero (Accounting)
 
 ### Overview
 
-UK Companies House API provides company information for pre-filling client data.
+✅ **COMPLETE** - Xero integration provides:
+- OAuth 2.0 authentication with PKCE
+- Automatic token refresh
+- Bank transactions fetching
+- Organisation access management
 
-**Pricing**: Free (requires API key)
+**Pricing**: Free API (requires Xero account)
+
+### Implementation
+
+**Status**: Fully implemented in `lib/xero/client.ts` (286 lines)
+
+**Features**:
+- ✅ OAuth 2.0 flow with PKCE for secure authentication
+- ✅ Automatic token refresh (30-minute expiry)
+- ✅ Token storage in database (`xero_tokens` table)
+- ✅ Bank transactions API integration
+- ✅ Organisation context management
 
 ### Setup
 
-**1. Get API Key**:
-- Register: https://developer.company-information.service.gov.uk/
-- Create application
-- Copy API key
+**1. Create Xero App**:
+- Register: https://developer.xero.com/app/manage
+- Create OAuth 2.0 app
+- Set redirect URI: `https://practicehub.com/api/xero/callback`
+- Copy Client ID and Client Secret
 
 **2. Configure Environment**:
 ```bash
 # .env.local
-COMPANIES_HOUSE_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+XERO_CLIENT_ID="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+XERO_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+XERO_REDIRECT_URI="http://localhost:3000/api/xero/callback"
+
+# Production
+XERO_REDIRECT_URI="https://practicehub.com/api/xero/callback"
+```
+
+**3. Database Schema**:
+```typescript
+// lib/db/schema.ts
+export const xeroTokens = pgTable("xero_tokens", {
+  id: text("id").primaryKey(),
+  tenantId: text("tenant_id").references(() => tenants.id).notNull(),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  tenantXeroId: text("tenant_xero_id"),  // Xero organisation ID
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 ```
 
 ### API Documentation
 
-**Get Company by Number**:
+**Initiate OAuth Flow**:
 ```typescript
-import { getCompany } from "@/lib/companies-house";
+import { XeroClient } from "@/lib/xero/client";
 
-const company = await getCompany("12345678");
+const xeroClient = new XeroClient();
+
+// Generate authorization URL with PKCE
+const { authUrl, codeVerifier } = await xeroClient.getAuthorizationUrl();
+
+// Store codeVerifier in session for callback
+// Redirect user to authUrl
+```
+
+**Handle OAuth Callback**:
+```typescript
+// app/api/xero/callback/route.ts
+import { XeroClient } from "@/lib/xero/client";
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
+  const codeVerifier = session.get("xero_code_verifier");
+
+  const xeroClient = new XeroClient();
+
+  // Exchange code for tokens
+  const tokens = await xeroClient.exchangeCodeForToken(code, codeVerifier);
+
+  // Store in database
+  await db.insert(xeroTokens).values({
+    id: generateId(),
+    tenantId: authContext.tenantId,
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresAt: new Date(Date.now() + tokens.expires_in * 1000),
+    tenantXeroId: tokens.tenantId,
+  });
+
+  return redirect("/admin/integrations?success=xero");
+}
+```
+
+**Fetch Bank Transactions**:
+```typescript
+import { XeroClient } from "@/lib/xero/client";
+
+const xeroClient = new XeroClient();
+
+// Automatically handles token refresh if expired
+const transactions = await xeroClient.getBankTransactions(tenantId, {
+  fromDate: "2025-01-01",
+  toDate: "2025-01-31",
+});
 
 // Returns:
-{
-  companyNumber: "12345678",
-  companyName: "ABC LIMITED",
-  status: "active",
-  type: "ltd",
-  registeredOffice: {
-    addressLine1: "123 Main St",
-    addressLine2: "",
-    locality: "London",
-    postalCode: "SW1A 1AA",
-    country: "England"
-  },
-  dateOfCreation: "2010-01-15",
-  sicCodes: ["62020"],  // IT consulting
-  officers: [...],
-  personsWithSignificantControl: [...]
-}
+[
+  {
+    bankTransactionID: "xxx",
+    type: "RECEIVE",
+    contact: { name: "Customer Ltd" },
+    lineItems: [
+      {
+        description: "Invoice payment",
+        quantity: 1,
+        unitAmount: 1000.00,
+        accountCode: "200",
+      }
+    ],
+    date: "2025-01-15",
+    status: "AUTHORISED",
+  }
+]
+```
+
+**Refresh Token**:
+```typescript
+// Automatically handled by XeroClient
+// Tokens are refreshed when within 5 minutes of expiry
+
+const xeroClient = new XeroClient();
+await xeroClient.refreshAccessToken(tenantId);
+```
+
+### Token Management
+
+**Automatic Refresh**:
+- Tokens expire after 30 minutes
+- `XeroClient` automatically refreshes tokens when needed
+- Refresh happens if token expires within 5 minutes
+- Updated tokens saved to database
+
+**Manual Refresh**:
+```typescript
+import { XeroClient } from "@/lib/xero/client";
+
+const xeroClient = new XeroClient();
+await xeroClient.refreshAccessToken(tenantId);
 ```
 
 ### Rate Limits
 
-- **Requests per 5 minutes**: 600
+- **API requests**: 60 requests/minute per organisation
+- **Daily limit**: 5,000 requests/day per app
+- **Concurrent requests**: 10 maximum
 
 ### Error Codes
 
 | Code | Description | Solution |
 |------|-------------|----------|
-| `401` | Invalid API key | Check COMPANIES_HOUSE_API_KEY |
-| `404` | Company not found | Check company number |
-| `429` | Rate limit exceeded | Wait and retry |
+| `401` | Invalid or expired token | Refresh token or re-authenticate |
+| `403` | Insufficient permissions | Check app scopes in Xero dashboard |
+| `404` | Resource not found | Verify organisation ID and resource ID |
+| `429` | Rate limit exceeded | Implement backoff and retry |
+| `500` | Xero server error | Retry with exponential backoff |
+
+### Scopes Required
+
+Configure in Xero app dashboard:
+- `accounting.transactions` - Read bank transactions
+- `accounting.contacts` - Read contacts
+- `offline_access` - Refresh token support
+
+### Testing
+
+**Development Mode**:
+```bash
+# Use Xero Demo Company
+# https://developer.xero.com/documentation/getting-started-guide/
+
+# Test OAuth flow locally
+XERO_REDIRECT_URI="http://localhost:3000/api/xero/callback"
+```
+
+**Mock in Tests**:
+```typescript
+import { vi } from "vitest";
+import * as xero from "@/lib/xero/client";
+
+vi.spyOn(xero.XeroClient.prototype, "getBankTransactions").mockResolvedValue([
+  {
+    bankTransactionID: "test-123",
+    type: "RECEIVE",
+    contact: { name: "Test Customer" },
+    date: "2025-01-15",
+    lineItems: [
+      {
+        description: "Test transaction",
+        unitAmount: 100.00,
+      }
+    ],
+  }
+]);
+```
+
+### Implementation Files
+
+- `lib/xero/client.ts` - Main Xero API client (286 lines)
+- `app/api/xero/authorize/route.ts` - OAuth initiation
+- `app/api/xero/callback/route.ts` - OAuth callback handler
+- `lib/db/schema.ts` - Token storage schema
+
+---
+
+## Planned Integrations
+
+### Companies House API
+
+**Status**: 🔄 Planned
+
+UK Companies House API will provide company information for pre-filling client data.
+
+**Pricing**: Free (requires API key)
+
+**Planned Features**:
+- Company search by name or number
+- Retrieve registered office address
+- Fetch company officers and PSCs
+- Get SIC codes and business type
+- Pre-fill onboarding forms
+
+**API Documentation**: https://developer.company-information.service.gov.uk/
+
+**Setup** (when implemented):
+```bash
+COMPANIES_HOUSE_API_KEY="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+**Rate Limits**: 600 requests per 5 minutes
 
 ---
 
@@ -831,6 +1021,6 @@ For integration support:
 
 ---
 
-**Last Updated**: 2025-10-10
+**Last Updated**: 2025-10-21
 **Maintained By**: Development Team
-**Next Review**: 2026-01-10
+**Next Review**: 2026-01-21

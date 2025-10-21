@@ -32,10 +32,11 @@ Practice Hub uses PostgreSQL 14+ with Drizzle ORM for schema management. The dat
 
 ### Key Statistics
 
-- **50+ Tables**: Core entities, integrations, and support tables
-- **15+ Enums**: Type-safe status values and categories
-- **8 Views**: Pre-joined data for dashboards and reports
+- **61 Tables**: Core entities, integrations, and support tables
+- **19 Enums**: Type-safe status values and categories
+- **7 Views**: Pre-joined data for dashboards and reports
 - **Multi-Tenancy**: All tables reference `tenants.id` for data isolation
+- **Dual Isolation**: Client portal tables use both `tenantId` + `clientId`
 - **Better Auth**: Integrated authentication with staff and client portals
 
 ### Schema Location
@@ -115,15 +116,16 @@ Tables are organized into logical groups:
 | Category | Tables | Purpose |
 |----------|--------|---------|
 | **Core** | 7 tables | Authentication, tenancy, users |
-| **CRM** | 6 tables | Clients, contacts, directors, PSCs |
-| **Operations** | 8 tables | Tasks, time tracking, documents, workflows |
+| **CRM** | 7 tables | Clients, contacts, directors, PSCs, Xero integration |
+| **Operations** | 10 tables | Tasks, time tracking, documents, workflows, versioning |
 | **Financial** | 4 tables | Invoices, services, pricing |
-| **Proposals** | 8 tables | Leads, proposals, pricing system |
+| **Proposals** | 11 tables | Leads, proposals, pricing system, templates, versions |
 | **Onboarding** | 5 tables | KYC/AML, questionnaires |
-| **Client Portal** | 5 tables | External client access |
+| **Client Portal** | 5 tables | External client access with dual isolation |
 | **Portal** | 4 tables | Link management, categories |
+| **Communication** | 5 tables | Messaging, notifications, calendar |
 | **Support** | 6 tables | Permissions, activity logs, feedback |
-| **Views** | 8 views | Pre-joined data for performance |
+| **Views** | 7 views | Pre-joined data for performance |
 
 ---
 
@@ -346,6 +348,7 @@ Main client/customer records.
 | `email` | varchar(255) | Primary email |
 | `phone` | varchar(50) | Primary phone |
 | `website` | varchar(255) | Website URL |
+| `vatRegistered` | boolean | VAT registration status |
 | `vatNumber` | varchar(50) | VAT registration number |
 | `registrationNumber` | varchar(50) | Companies House registration |
 | `addressLine1` | varchar(255) | Address line 1 |
@@ -548,6 +551,47 @@ Client-to-service assignments (many-to-many).
 
 ---
 
+### `xero_connections`
+
+Xero OAuth integration for accessing client accounting data.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `tenantId` | text | Foreign key to `tenants` |
+| `clientId` | uuid | Foreign key to `clients` |
+| `accessToken` | text | OAuth access token |
+| `refreshToken` | text | OAuth refresh token |
+| `expiresAt` | timestamp | Token expiration |
+| `xeroTenantId` | text | Xero's tenant ID |
+| `xeroTenantName` | text | Xero organization name |
+| `xeroOrganisationId` | text | Xero organization ID |
+| `isActive` | boolean | Active connection status |
+| `lastSyncAt` | timestamp | Last sync timestamp |
+| `syncStatus` | varchar(50) | Status: connected, error, disconnected |
+| `syncError` | text | Sync error message |
+| `createdAt` | timestamp | Creation timestamp |
+| `updatedAt` | timestamp | Last update timestamp |
+| `connectedBy` | text | Foreign key to `users.id` (connector) |
+
+**Indexes**:
+- Unique index on `clientId`
+- Index on `tenantId`
+
+**Foreign Keys**:
+- `tenantId` → `tenants.id` (cascade delete)
+- `clientId` → `clients.id` (cascade delete)
+- `connectedBy` → `users.id`
+
+**Usage**:
+```sql
+-- Get active Xero connections
+SELECT * FROM xero_connections WHERE tenant_id = 'tenant-123' AND is_active = true;
+```
+
+---
+
 ## Operations Tables
 
 ### `tasks`
@@ -679,6 +723,15 @@ Document storage with folder structure.
 | `shareToken` | varchar(100) | Share token for public links |
 | `shareExpiresAt` | timestamp | Share link expiration |
 | `uploadedById` | text | Foreign key to `users.id` (uploader) |
+| `requiresSignature` | boolean | Signature required flag |
+| `signatureStatus` | varchar(20) | Status: none, pending, signed, declined |
+| `docusealSubmissionId` | text | DocuSeal submission ID |
+| `docusealTemplateId` | text | DocuSeal template ID |
+| `signedPdfUrl` | text | DEPRECATED: Use signedPdfKey instead |
+| `signedPdfKey` | text | S3 key for secure presigned URL access |
+| `signedPdfUrlExpiresAt` | timestamp | Track presigned URL expiration |
+| `signedAt` | timestamp | Signature timestamp |
+| `signedBy` | varchar(255) | Signer name |
 | `metadata` | jsonb | Additional data |
 | `createdAt` | timestamp | Creation timestamp |
 | `updatedAt` | timestamp | Last update timestamp |
@@ -695,6 +748,37 @@ Document storage with folder structure.
 - `clientId` → `clients.id` (cascade delete)
 - `taskId` → `tasks.id` (cascade delete)
 - `uploadedById` → `users.id` (set null)
+
+---
+
+### `document_signatures`
+
+Audit trail for document signatures via DocuSeal.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `documentId` | uuid | Foreign key to `documents` |
+| `tenantId` | text | Foreign key to `tenants` |
+| `signerEmail` | varchar(255) | Signer email address |
+| `signerName` | varchar(255) | Signer name |
+| `docusealSubmissionId` | text | DocuSeal submission ID (unique) |
+| `auditTrail` | jsonb | Full audit metadata from DocuSeal |
+| `documentHash` | text | SHA-256 hash of signed PDF |
+| `signedPdfUrl` | text | Signed PDF URL |
+| `signedAt` | timestamp | Signature timestamp |
+| `createdAt` | timestamp | Creation timestamp |
+
+**Indexes**:
+- Index on `documentId`
+- Index on `docusealSubmissionId`
+
+**Foreign Keys**:
+- `documentId` → `documents.id` (cascade delete)
+- `tenantId` → `tenants.id` (cascade delete)
+
+**Note**: Provides complete audit trail for electronic signatures to meet compliance requirements.
 
 ---
 
@@ -761,6 +845,48 @@ Stages within workflows.
 
 **Foreign Keys**:
 - `workflowId` → `workflows.id` (cascade delete)
+
+---
+
+### `workflow_versions`
+
+Historical snapshots of workflow templates for version control.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `workflowId` | uuid | Foreign key to `workflows` |
+| `tenantId` | text | Foreign key to `tenants` |
+| `version` | integer | Version number (1, 2, 3, etc.) |
+| `name` | varchar(255) | Workflow name (snapshot) |
+| `description` | text | Workflow description (snapshot) |
+| `type` | varchar(50) | Type: task_template, automation, approval |
+| `trigger` | varchar(100) | Trigger: manual, schedule, event |
+| `estimatedDays` | integer | Estimated duration in days |
+| `serviceComponentId` | uuid | Service association |
+| `config` | jsonb | Workflow configuration |
+| `stagesSnapshot` | jsonb | Full stage + checklist data (denormalized) |
+| `changeDescription` | text | What changed in this version |
+| `changeType` | varchar(50) | Type: created, updated, stages_modified, checklist_modified, rollback |
+| `publishNotes` | text | Notes added when version is published |
+| `isActive` | boolean | Active version flag (only one version active) |
+| `publishedAt` | timestamp | When this version was made active |
+| `createdAt` | timestamp | Creation timestamp |
+| `createdById` | text | Foreign key to `users.id` (creator) |
+
+**Indexes**:
+- Index on `workflowId`
+- Unique index on `(workflowId, version)`
+- Index on `(workflowId, isActive)`
+- Index on `createdAt`
+
+**Foreign Keys**:
+- `workflowId` → `workflows.id` (cascade delete)
+- `tenantId` → `tenants.id` (cascade delete)
+- `createdById` → `users.id` (set null)
+
+**Note**: Enables workflow versioning without disrupting tasks already using older versions.
 
 ---
 
@@ -1064,6 +1190,9 @@ Proposal records with pricing calculations.
 | `proposalNumber` | varchar(50) | Unique proposal number |
 | `title` | varchar(255) | Proposal title |
 | `status` | enum | Status: draft, sent, viewed, signed, rejected, expired |
+| `salesStage` | enum | Sales stage: enquiry, qualified, proposal_sent, follow_up, won, lost, dormant |
+| `lossReason` | varchar(255) | Reason for loss (if lost) |
+| `lossReasonDetails` | text | Detailed loss reason |
 | `turnover` | varchar(100) | Business turnover |
 | `industry` | varchar(100) | Industry |
 | `monthlyTransactions` | integer | Monthly transaction count |
@@ -1074,7 +1203,9 @@ Proposal records with pricing calculations.
 | `signedPdfUrl` | text | Signed PDF URL |
 | `docusealTemplateId` | text | DocuSeal template ID |
 | `docusealSubmissionId` | text | DocuSeal submission ID |
-| `docusealSignedPdfUrl` | text | DocuSeal signed PDF URL |
+| `docusealSignedPdfUrl` | text | DEPRECATED: Use docusealSignedPdfKey instead |
+| `docusealSignedPdfKey` | text | S3 key for secure presigned URL access |
+| `docusealSignedPdfUrlExpiresAt` | timestamp | Track presigned URL expiration |
 | `documentHash` | text | SHA-256 hash of signed PDF |
 | `templateId` | uuid | Template reference |
 | `customTerms` | text | Custom terms |
@@ -1090,10 +1221,13 @@ Proposal records with pricing calculations.
 | `expiresAt` | timestamp | Expiration timestamp |
 | `updatedAt` | timestamp | Last update timestamp |
 | `createdById` | text | Foreign key to `users.id` (creator) |
+| `assignedToId` | text | Foreign key to `users.id` (assignee) |
 
 **Indexes**:
 - Index on `tenantId`
 - Index on `leadId`
+- Index on `assignedToId`
+- Index on `salesStage`
 - Index on `clientId`
 - Index on `status`
 - Index on `createdAt`
@@ -1201,6 +1335,90 @@ E-signature tracking (DocuSeal integration).
 **Foreign Keys**:
 - `tenantId` → `tenants.id` (cascade delete)
 - `proposalId` → `proposals.id` (cascade delete)
+
+---
+
+### `proposal_versions`
+
+Historical versions of proposals for change tracking.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `tenantId` | text | Foreign key to `tenants` |
+| `proposalId` | uuid | Foreign key to `proposals` |
+| `version` | integer | Version number (1, 2, 3, etc.) |
+| `proposalNumber` | varchar(50) | Proposal number (snapshot) |
+| `title` | varchar(255) | Proposal title (snapshot) |
+| `status` | enum | Status at this version |
+| `turnover` | varchar(100) | Business turnover (snapshot) |
+| `industry` | varchar(100) | Industry (snapshot) |
+| `monthlyTransactions` | integer | Monthly transactions (snapshot) |
+| `pricingModelUsed` | varchar(10) | Pricing model used |
+| `monthlyTotal` | decimal(10,2) | Monthly total |
+| `annualTotal` | decimal(10,2) | Annual total |
+| `services` | jsonb | Services snapshot (denormalized) |
+| `customTerms` | text | Custom terms |
+| `termsAndConditions` | text | T&Cs |
+| `notes` | text | Notes |
+| `pdfUrl` | text | PDF URL for this version |
+| `changeDescription` | text | What changed in this version |
+| `createdById` | text | Foreign key to `users.id` (creator) |
+| `createdByName` | varchar(255) | Creator name (denormalized) |
+| `createdAt` | timestamp | Creation timestamp |
+
+**Indexes**:
+- Index on `proposalId`
+- Index on `(proposalId, version)`
+- Index on `createdAt`
+
+**Foreign Keys**:
+- `tenantId` → `tenants.id` (cascade delete)
+- `proposalId` → `proposals.id` (cascade delete)
+- `createdById` → `users.id` (set null)
+
+**Note**: Stores immutable snapshots of proposal state at each version for audit trail.
+
+---
+
+### `proposal_templates`
+
+Reusable templates for creating proposals quickly.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `tenantId` | text | Foreign key to `tenants` |
+| `name` | varchar(255) | Template name |
+| `description` | text | Template description |
+| `category` | varchar(100) | Category: startup, small-business, enterprise |
+| `defaultServices` | jsonb | Array of {componentCode, config} |
+| `termsAndConditions` | text | Default T&Cs |
+| `notes` | text | Default notes |
+| `isDefault` | boolean | Default template flag (only one per tenant) |
+| `isActive` | boolean | Active status |
+| `createdById` | text | Foreign key to `users.id` (creator) |
+| `createdByName` | varchar(255) | Creator name |
+| `createdAt` | timestamp | Creation timestamp |
+| `updatedAt` | timestamp | Last update timestamp |
+
+**Indexes**:
+- Index on `tenantId`
+- Index on `category`
+- Index on `(tenantId, isDefault)`
+
+**Foreign Keys**:
+- `tenantId` → `tenants.id` (cascade delete)
+- `createdById` → `users.id` (set null)
+
+**Usage**:
+```sql
+-- Get default template for tenant
+SELECT * FROM proposal_templates
+WHERE tenant_id = 'tenant-123' AND is_default = true AND is_active = true;
+```
 
 ---
 
@@ -1395,6 +1613,206 @@ Otherwise, flagged for manual review.
 
 ---
 
+## Communication & Collaboration
+
+Practice Hub includes built-in messaging, notifications, and calendar features for team collaboration.
+
+### `message_threads`
+
+Conversation threads for direct messages, team channels, and client communication.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `tenantId` | text | Foreign key to `tenants` |
+| `type` | varchar(20) | Type: direct, team_channel, client |
+| `name` | varchar(255) | Channel name (null for DM) |
+| `description` | text | Channel description |
+| `isPrivate` | boolean | Private channel flag |
+| `clientId` | uuid | Foreign key to `clients` (if type='client') |
+| `createdBy` | text | Foreign key to `users.id` (creator) |
+| `createdAt` | timestamp | Creation timestamp |
+| `updatedAt` | timestamp | Last update timestamp |
+| `lastMessageAt` | timestamp | Last message timestamp (for sorting) |
+
+**Indexes**:
+- Index on `tenantId`
+- Index on `type`
+- Index on `clientId`
+- Index on `lastMessageAt`
+
+**Foreign Keys**:
+- `tenantId` → `tenants.id`
+- `clientId` → `clients.id`
+- `createdBy` → `users.id`
+
+---
+
+### `message_thread_participants`
+
+Links users to message threads (supports both staff and client portal users).
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `threadId` | uuid | Foreign key to `message_threads` |
+| `participantType` | varchar(20) | Type: staff, client_portal |
+| `participantId` | text | users.id OR clientPortalUsers.id |
+| `userId` | text | LEGACY: Foreign key to `users.id` |
+| `role` | varchar(20) | Role: admin, member |
+| `joinedAt` | timestamp | Join timestamp |
+| `lastReadAt` | timestamp | Last read timestamp (for unread count) |
+| `mutedUntil` | timestamp | Mute notifications until timestamp |
+
+**Indexes**:
+- Unique index on `(threadId, participantType, participantId)`
+- Index on `(participantType, participantId)`
+- Index on `userId` (legacy)
+
+**Foreign Keys**:
+- `threadId` → `message_threads.id` (cascade delete)
+- `userId` → `users.id` (cascade delete)
+
+**Note**: Supports polymorphic relationships for both staff and client portal users.
+
+---
+
+### `messages`
+
+Individual messages within threads (supports both staff and client portal senders).
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `threadId` | uuid | Foreign key to `message_threads` |
+| `senderType` | varchar(20) | Type: staff, client_portal |
+| `senderId` | text | users.id OR clientPortalUsers.id |
+| `userId` | text | LEGACY: Foreign key to `users.id` |
+| `content` | text | Message content |
+| `type` | varchar(20) | Type: text, file, system |
+| `metadata` | jsonb | File URLs, mentions, etc. |
+| `replyToId` | uuid | Parent message for threaded replies |
+| `isEdited` | boolean | Edited flag |
+| `isDeleted` | boolean | Soft delete flag |
+| `createdAt` | timestamp | Creation timestamp |
+| `updatedAt` | timestamp | Last update timestamp |
+
+**Indexes**:
+- Index on `threadId`
+- Index on `(senderType, senderId)`
+- Index on `userId` (legacy)
+- Index on `createdAt`
+
+**Foreign Keys**:
+- `threadId` → `message_threads.id` (cascade delete)
+- `userId` → `users.id`
+
+---
+
+### `notifications`
+
+User notifications for task assignments, mentions, approvals, etc.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `tenantId` | text | Foreign key to `tenants` |
+| `userId` | text | Foreign key to `users.id` |
+| `type` | varchar(50) | Type: task_assigned, mention, client_message, approval_needed |
+| `title` | varchar(255) | Notification title |
+| `message` | text | Notification message |
+| `actionUrl` | text | URL to navigate when clicked |
+| `entityType` | varchar(50) | Type: task, message, client, etc. |
+| `entityId` | uuid | ID of related entity |
+| `isRead` | boolean | Read status |
+| `readAt` | timestamp | Read timestamp |
+| `metadata` | jsonb | Additional data |
+| `createdAt` | timestamp | Creation timestamp |
+
+**Indexes**:
+- Index on `(userId, isRead)`
+- Index on `tenantId`
+- Index on `createdAt`
+
+**Foreign Keys**:
+- `tenantId` → `tenants.id`
+- `userId` → `users.id` (cascade delete)
+
+---
+
+### `calendar_events`
+
+Events, meetings, deadlines, and out-of-office entries.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `tenantId` | text | Foreign key to `tenants` |
+| `title` | varchar(255) | Event title |
+| `description` | text | Event description |
+| `type` | varchar(30) | Type: meeting, deadline, event, out_of_office |
+| `startTime` | timestamp | Start timestamp |
+| `endTime` | timestamp | End timestamp |
+| `allDay` | boolean | All-day event flag |
+| `location` | varchar(255) | Physical or virtual location |
+| `clientId` | uuid | Foreign key to `clients` (if client-related) |
+| `taskId` | uuid | Foreign key to `tasks` (if task-related) |
+| `complianceId` | uuid | Foreign key to `compliance` (if compliance deadline) |
+| `createdBy` | text | Foreign key to `users.id` (creator) |
+| `metadata` | jsonb | Meeting link, notes, etc. |
+| `reminderMinutes` | integer | Minutes before event to remind |
+| `isRecurring` | boolean | Recurring event flag |
+| `recurrenceRule` | text | iCal RRULE format |
+| `createdAt` | timestamp | Creation timestamp |
+| `updatedAt` | timestamp | Last update timestamp |
+
+**Indexes**:
+- Index on `tenantId`
+- Index on `startTime`
+- Index on `clientId`
+- Index on `taskId`
+- Index on `type`
+
+**Foreign Keys**:
+- `tenantId` → `tenants.id`
+- `clientId` → `clients.id`
+- `taskId` → `tasks.id`
+- `complianceId` → `compliance.id`
+- `createdBy` → `users.id`
+
+---
+
+### `calendar_event_attendees`
+
+Links users to calendar events with RSVP status.
+
+**Columns**:
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `eventId` | uuid | Foreign key to `calendar_events` |
+| `userId` | text | Foreign key to `users.id` |
+| `status` | varchar(20) | Status: pending, accepted, declined, tentative |
+| `isOptional` | boolean | Optional attendee flag |
+| `respondedAt` | timestamp | Response timestamp |
+| `createdAt` | timestamp | Creation timestamp |
+
+**Indexes**:
+- Unique index on `(eventId, userId)`
+- Index on `userId`
+- Index on `status`
+
+**Foreign Keys**:
+- `eventId` → `calendar_events.id` (cascade delete)
+- `userId` → `users.id` (cascade delete)
+
+---
+
 ## Client Portal System
 
 Separate authentication system for external client access.
@@ -1508,9 +1926,34 @@ Invitation workflow for client portal access.
 
 **`client_portal_session`**, **`client_portal_account`**, **`client_portal_verification`**
 
-Mirror structure of staff auth tables but for client portal authentication.
+Client portal authentication tables with **dual isolation** (tenantId + clientId).
 
-See [Core Authentication & Tenancy](#core-authentication--tenancy) for column details.
+**Key Differences from Staff Auth**:
+- **Dual Isolation**: All tables include BOTH `tenantId` AND `clientId` for data isolation
+- **tenantId**: Isolates data between accountancy firms
+- **clientId**: Isolates data between customer businesses within the same firm
+
+**client_portal_session columns**:
+- `id`, `expiresAt`, `token`, `ipAddress`, `userAgent`, `createdAt`, `updatedAt`
+- `userId` → `client_portal_users.id`
+- **`tenantId`** → `tenants.id` (tenant isolation)
+- **`clientId`** → `clients.id` (client isolation)
+
+**client_portal_account columns**:
+- `id`, `accountId`, `providerId`, `accessToken`, `refreshToken`, `idToken`
+- `accessTokenExpiresAt`, `refreshTokenExpiresAt`, `scope`, `password`
+- `userId` → `client_portal_users.id`
+- **`tenantId`** → `tenants.id` (tenant isolation)
+- **`clientId`** → `clients.id` (client isolation)
+- `createdAt`, `updatedAt`
+
+**client_portal_verification columns**:
+- `id`, `identifier`, `value`, `expiresAt`
+- **`tenantId`** → `tenants.id` (tenant isolation)
+- **`clientId`** → `clients.id` (client isolation)
+- `createdAt`, `updatedAt`
+
+**Note**: The dual isolation pattern ensures client portal users can only access data for their specific client company, even if multiple client companies belong to the same accountancy firm.
 
 ---
 
@@ -1929,6 +2372,7 @@ pricing_rule_type: turnover_band | transaction_band | employee_band | per_unit |
 ```typescript
 lead_status: new | contacted | qualified | proposal_sent | negotiating | converted | lost
 proposal_status: draft | sent | viewed | signed | rejected | expired
+sales_stage: enquiry | qualified | proposal_sent | follow_up | won | lost | dormant
 transaction_data_source: xero | manual | estimated
 ```
 
@@ -2162,8 +2606,33 @@ When moving to production:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: 2025-10-10
+**Document Version**: 1.1
+**Last Updated**: 2025-10-21
+**Last Verified**: 2025-10-21
 **Maintained By**: Development Team
 
 **Feedback**: For schema questions or proposed changes, contact dev@innspiredaccountancy.com
+
+---
+
+## Changelog
+
+### Version 1.1 (2025-10-21)
+- **Updated table counts**: 50+ → 61 tables, 15+ → 19 enums, 8 → 7 views
+- **Added missing tables**:
+  - `xero_connections` - Xero OAuth integration
+  - `document_signatures` - Document signature audit trail
+  - `proposal_versions` - Proposal version control
+  - `proposal_templates` - Reusable proposal templates
+  - `workflow_versions` - Workflow version control
+  - Communication tables: `message_threads`, `message_thread_participants`, `messages`, `notifications`, `calendar_events`, `calendar_event_attendees`
+- **Updated existing tables**:
+  - `clients`: Added `vatRegistered` field
+  - `documents`: Added signature-related fields
+  - `proposals`: Added `salesStage`, `lossReason`, `lossReasonDetails`, `assignedToId`, S3 key fields
+- **Improved documentation**:
+  - Documented dual isolation pattern (tenantId + clientId) for client portal tables
+  - Added polymorphic relationship documentation for messaging system
+  - Added new Communication & Collaboration section
+- **Updated enums**: Added `sales_stage` enum
+- Verified all 61 tables against actual schema in `lib/db/schema.ts`

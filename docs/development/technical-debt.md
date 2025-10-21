@@ -1,8 +1,10 @@
 # Practice Hub Pre-Production Issues Report
 
-**Document Version:** 1.0.0
+**Document Version:** 1.1.0
 **Generated:** 2025-10-19 13:45:00 UTC
-**Status:** BASELINE - Pre-Optimization
+**Last Updated:** 2025-10-21
+**Next Review:** 2026-01-21
+**Status:** CORRECTED - False Positives Removed
 **Phase:** Phase 1 - Validation & Baseline Collection
 
 ---
@@ -11,14 +13,16 @@
 
 This document catalogs all issues identified during the pre-production validation phase of Practice Hub. The platform is currently in development with test/seed data only, preparing for optimization before live data import.
 
-**Critical Findings:**
-- ✅ **Multi-Tenant Isolation:** PASSED - All queries properly scoped
-- 🚨 **Database Schema:** 3 critical issues, 17 warnings
-- 🚨 **Seed Data Consistency:** 20 critical issues, 4 warnings
-- ⚠️ **Code Quality:** 2,259 console statements (mostly in .archive)
-- ⚠️ **Technical Debt:** 107 TODOs (61 actionable, 46 informational)
+**IMPORTANT:** This document was corrected on 2025-10-21 after codebase verification revealed parser limitations and false positives.
 
-**Overall Status:** 🟡 NEEDS ATTENTION - Addressed before production deployment
+**Critical Findings:**
+- ✅ **Multi-Tenant Isolation:** PASSED - All queries properly scoped, integration tests exist
+- ✅ **Database Schema:** No critical issues - Client portal dual isolation fully implemented
+- ℹ️ **Seed Data Consistency:** Parser limitations (see Appendix C) - All tables exist
+- ⚠️ **Code Quality:** 53 console statements in app/ (49 error, 3 warn, 1 log) - 12 legitimate webhooks, 41 need Sentry
+- ✅ **Technical Debt:** 4 TODOs in production code (1 resolved - Xero integration complete)
+
+**Overall Status:** 🟡 GOOD - Minor cleanup needed (41 statements → Sentry conversion per CLAUDE.md policy)
 
 ---
 
@@ -38,144 +42,124 @@ This document catalogs all issues identified during the pre-production validatio
 
 **Validation Tool:** `validate_schema.py --strict`
 **Scan Date:** 2025-10-19 13:40:00 UTC
-**Tables Analyzed:** 7
-**Status:** 🚨 FAILED
+**Last Verified:** 2025-10-21 (manual codebase review)
+**Tables Analyzed:** 7 (parser limitation - actual schema has 50+ tables)
+**Status:** ✅ PASSED - No critical issues
 
-### 1.1 Critical Issues (3)
+### 1.1 Verification Results - Client Portal Authentication Tables
 
-#### Issue #1.1: Client Portal Session - Missing Dual Isolation
+**VERIFIED 2025-10-21:** All client portal auth tables have proper dual isolation implemented.
 
-**Table:** `client_portal_session`
-**Severity:** 🚨 CRITICAL
-**Impact:** Security - Client portal users could potentially access other clients' sessions
+#### Table: client_portal_session (Lines 2483-2503 in lib/db/schema.ts)
 
-**Problem:**
+**Status:** ✅ CORRECT - Dual isolation fully implemented
+
+**Actual Implementation:**
 ```typescript
-// Current (INCORRECT):
 export const clientPortalSessions = pgTable("client_portal_session", {
   id: text("id").primaryKey(),
-  // Missing tenantId
-  // Missing clientId
-  // ... other fields
+  tenantId: text("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),                    // ✅ EXISTS - Tenant isolation
+  clientId: uuid("client_id")
+    .references(() => clients.id)
+    .notNull(),                    // ✅ EXISTS - Client isolation
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),  // ✅ EXISTS
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),                    // ✅ EXISTS
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => clientPortalUsers.id, { onDelete: "cascade" }),
 });
 ```
-
-**Required Fix:**
-```typescript
-// Fixed (CORRECT):
-export const clientPortalSessions = pgTable("client_portal_session", {
-  id: text("id").primaryKey(),
-  tenantId: text("tenant_id").references(() => tenants.id).notNull(), // REQUIRED - Tenant isolation
-  clientId: text("client_id").references(() => clients.id).notNull(),  // REQUIRED - Client isolation
-  // ... other fields
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
-});
-```
-
-**Rationale:**
-- **Tenant Isolation:** Separate different accountancy firms
-- **Client Isolation:** Within a tenant, separate different customer businesses
-- Client portal users must only access their specific client's data
 
 ---
 
-#### Issue #1.2: Client Portal Account - Missing Dual Isolation
+#### Table: client_portal_account (Lines 2505-2530 in lib/db/schema.ts)
 
-**Table:** `client_portal_account`
-**Severity:** 🚨 CRITICAL
-**Impact:** Security - Authentication accounts lack proper isolation
+**Status:** ✅ CORRECT - Dual isolation + timestamps fully implemented
 
-**Problem:**
+**Actual Implementation:**
 ```typescript
-// Current (INCORRECT):
 export const clientPortalAccounts = pgTable("client_portal_account", {
   id: text("id").primaryKey(),
-  // Missing tenantId
-  // Missing clientId
-  // Missing createdAt
-  // Missing updatedAt
-  // ... other fields
-});
-```
-
-**Required Fix:**
-```typescript
-// Fixed (CORRECT):
-export const clientPortalAccounts = pgTable("client_portal_account", {
-  id: text("id").primaryKey(),
-  tenantId: text("tenant_id").references(() => tenants.id).notNull(), // REQUIRED - Tenant isolation
-  clientId: text("client_id").references(() => clients.id).notNull(),  // REQUIRED - Client isolation
-  // ... other fields
-  createdAt: timestamp("created_at").defaultNow().notNull(),            // REQUIRED - Audit trail
-  updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(), // REQUIRED - Audit trail
+  tenantId: text("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),                    // ✅ EXISTS - Tenant isolation
+  clientId: uuid("client_id")
+    .references(() => clients.id)
+    .notNull(),                    // ✅ EXISTS - Client isolation
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => clientPortalUsers.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),  // ✅ EXISTS
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),                    // ✅ EXISTS
 });
 ```
 
 ---
 
-#### Issue #1.3: Client Portal Verification - Missing Dual Isolation
+#### Table: client_portal_verification (Lines 2532-2548 in lib/db/schema.ts)
 
-**Table:** `client_portal_verification`
-**Severity:** 🚨 CRITICAL
-**Impact:** Security - Verification codes lack proper scoping
+**Status:** ✅ CORRECT - Dual isolation + timestamps fully implemented
 
-**Problem:**
+**Actual Implementation:**
 ```typescript
-// Current (INCORRECT):
 export const clientPortalVerifications = pgTable("client_portal_verification", {
   id: text("id").primaryKey(),
-  // Missing tenantId
-  // Missing clientId
-  // ... other fields
-});
-```
-
-**Required Fix:**
-```typescript
-// Fixed (CORRECT):
-export const clientPortalVerifications = pgTable("client_portal_verification", {
-  id: text("id").primaryKey(),
-  tenantId: text("tenant_id").references(() => tenants.id).notNull(), // REQUIRED - Tenant isolation
-  clientId: text("client_id").references(() => clients.id).notNull(),  // REQUIRED - Client isolation
-  // ... other fields
+  tenantId: text("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),                    // ✅ EXISTS - Tenant isolation
+  clientId: uuid("client_id")
+    .references(() => clients.id)
+    .notNull(),                    // ✅ EXISTS - Client isolation
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),  // ✅ EXISTS
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),                    // ✅ EXISTS
 });
 ```
 
 ---
 
-### 1.2 Warnings (17)
+### 1.2 Parser Limitations (NOT Real Issues)
 
-#### Warning #1.2.1: Missing Timestamps
+#### Parser Warning #1.2.1-17: Foreign Key References
 
-**Affected Table:** `client_portal_account`
-**Severity:** ⚠️ WARNING
-**Impact:** Audit trail - Cannot track when records were created/modified
-
-**Issue:**
-- Missing `createdAt` timestamp
-- Missing `updatedAt` timestamp with auto-update
-
-**Fix:**
-```typescript
-createdAt: timestamp("created_at").defaultNow().notNull(),
-updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
-```
-
----
-
-#### Warning #1.2.2-17: Foreign Key References
-
-**Severity:** ⚠️ WARNING
+**Severity:** ℹ️ INFORMATIONAL
 **Impact:** Schema parser limitation - False positives
 
 **Details:**
-- 16 warnings about foreign key references to non-existent tables
-- These are FALSE POSITIVES - schema parser only found 7 tables but actual schema has many more
-- Tables referenced: `users`, `clients`, `tasks`, `compliance`
-- These tables DO exist in the full schema
+- 17 warnings about foreign key references to "non-existent" tables
+- These are FALSE POSITIVES - schema parser only detected 7 tables but actual schema has 50+ tables
+- Tables flagged but actually exist: `users`, `clients`, `tasks`, `compliance`, etc.
+- All referenced tables exist in the full schema at `lib/db/schema.ts`
 
 **Action:** ✅ IGNORE - These are schema parser limitations, not actual issues
+
+**Conclusion:** Schema validation script needs improvement to parse full schema, but **no actual schema issues exist**
 
 ---
 
@@ -183,69 +167,67 @@ updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notN
 
 **Validation Tool:** `check_seed_consistency.py`
 **Scan Date:** 2025-10-19 13:42:00 UTC
-**Schema Tables:** 7 (parser limitation)
+**Last Verified:** 2025-10-21 (manual codebase review)
+**Schema Tables:** 7 (parser limitation - actual schema has 50+ tables)
 **Seeded Tables:** 20
-**Status:** 🚨 FAILED
+**Status:** ✅ PASSED - All tables exist, seed data consistent
 
-### 2.1 Critical Issues (20)
+### 2.1 Parser Limitations - FALSE POSITIVES (20 tables)
 
-**Root Cause:** Schema parser limitation - Only detected 7 tables but seed data references 20+ tables
+**VERIFIED 2025-10-21:** All 20 flagged tables exist in `lib/db/schema.ts` and have proper seed data in `scripts/seed.ts`.
 
-**Issue:** Seed data references tables that weren't detected by the schema validator.
+**Root Cause:** Schema parser limitation - Regex pattern only detected 7 tables but actual schema has 50+ tables
 
-**Tables Flagged:**
-1. `documents`
-2. `activityLogs`
-3. `workflowStages`
-4. `notifications`
-5. `invitations`
-6. `clientDirectors`
-7. `clientPortalAccess`
-8. `onboardingTasks`
-9. `compliance`
-10. `clientPortalInvitations`
-11. `messageThreadParticipants`
-12. `portalLinks`
-13. `invoiceItems`
-14. `clientServices`
-15. `calendarEventAttendees`
-16. `timeEntries`
-17. `clientContacts`
-18. `messages`
-19. `taskWorkflowInstances`
-20. `clientPSCs`
+**Tables Verified as Existing:**
+1. ✅ `documents` - Line 674 in schema.ts | Seeded at lines 2828, 2851
+2. ✅ `activityLogs` - Line 1942 in schema.ts | Seeded at line 2914
+3. ✅ `workflowStages` - Line 1797 in schema.ts | System reference table
+4. ✅ `notifications` - Line 2662 in schema.ts | Seeded at line 3293
+5. ✅ `invitations` - Line 113 in schema.ts | Seeded at line 162
+6. ✅ `clientDirectors` - Line 370 in schema.ts | Seeded at line 1298
+7. ✅ `clientPortalAccess` - Line 2408 in schema.ts | Seeded at lines 2972, 2992
+8. ✅ `onboardingTasks` - Line 1596 in schema.ts | Seeded at line 1846
+9. ✅ `compliance` - Line 932 in schema.ts | Seeded at line 2110
+10. ✅ `clientPortalInvitations` - Line 2443 in schema.ts | Seeded at line 3004
+11. ✅ `messageThreadParticipants` - Line 2589 in schema.ts | Seeded at line 3073
+12. ✅ `portalLinks` - Line 2077 in schema.ts | Seeded at lines 317, 385, 432
+13. ✅ `invoiceItems` - Line 835 in schema.ts | Seeded at line 2063
+14. ✅ `clientServices` - Line 474 in schema.ts | Seeded at line 1390
+15. ✅ `calendarEventAttendees` - Line 2734 in schema.ts | Seeded at line 3379
+16. ✅ `timeEntries` - Line 609 in schema.ts | Seeded at line 1970
+17. ✅ `clientContacts` - Line 325 in schema.ts | Seeded at line 1261
+18. ✅ `messages` - Line 2623 in schema.ts | Seeded at line 3230
+19. ✅ `taskWorkflowInstances` - Line 1888 in schema.ts | Seeded at line 2751
+20. ✅ `clientPSCs` - Line 400 in schema.ts | Seeded at line 1337
 
-**Analysis:** ✅ FALSE POSITIVES
-**Reason:** Schema validation script's regex pattern is too narrow, only catching simple table definitions
-**Action:** These tables DO exist in `lib/db/schema.ts`, parser needs improvement
+**Verification Summary:**
+- Tables actually missing: 0
+- Tables with seed data: 19/20 (workflowStages is a system reference table)
+- Parser false positives: 20/20
 
----
-
-### 2.2 Warnings (4)
-
-#### Warning #2.2.1: Tenants Table - No Seed Data
-
-**Table:** `tenants`
-**Severity:** ⚠️ WARNING
-**Impact:** Low - Tenant created in seed script logic
-
-**Analysis:** The `tenants` table IS seeded in `scripts/seed.ts` but the parser missed it
-**Action:** ✅ IGNORE - Seed data exists
+**Conclusion:** Seed data is consistent. Parser script needs improvement to handle complex table definitions.
 
 ---
 
-#### Warning #2.2.2-4: Client Portal Auth Tables - No Seed Data
+### 2.2 Runtime Tables - No Seed Data Required
+
+#### Runtime Auth Tables (3)
 
 **Tables:**
 - `clientPortalSessions`
 - `clientPortalAccounts`
 - `clientPortalVerifications`
 
-**Severity:** ⚠️ WARNING
-**Impact:** Low - Runtime session tables
+**Status:** ✅ EXPECTED
+**Reason:** Better Auth runtime-only tables, populated during authentication flows
+**Action:** No seed data needed
 
-**Analysis:** These are Better Auth runtime tables, don't need seed data
-**Action:** ✅ EXPECTED - Runtime-only tables
+#### Tenants Table
+
+**Table:** `tenants`
+**Status:** ✅ SEEDED
+**Location:** `scripts/seed.ts` creates tenant programmatically (not in static seed data)
+**Action:** Working as expected
 
 ---
 
@@ -253,6 +235,7 @@ updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notN
 
 **Validation Tool:** `validate_tenant_isolation.py --strict`
 **Scan Date:** 2025-10-19 13:43:00 UTC
+**Last Verified:** 2025-10-21 (manual codebase review)
 **Files Scanned:** 29 router files
 **Status:** ✅ PASSED
 
@@ -265,7 +248,13 @@ updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notN
 - ✅ Staff queries correctly use `ctx.authContext.tenantId`
 - ✅ Client portal queries use BOTH `tenantId` AND `clientId` (dual isolation)
 
-**Security Status:** 🟢 SECURE - Multi-tenant isolation correctly implemented
+**Integration Tests:** ✅ COMPREHENSIVE
+- Test file: `__tests__/integration/tenant-isolation.test.ts` (15,286 bytes)
+- Coverage: Tests clients, leads, proposals, tasks, invoices, documents, activity logs
+- Database operations: 60+ actual CRUD operations with real database
+- Validates: Data isolation between tenants, dual isolation for client portal
+
+**Security Status:** 🟢 SECURE - Multi-tenant isolation correctly implemented and tested
 
 ---
 
@@ -273,21 +262,39 @@ updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notN
 
 **Validation Tool:** `find_console_logs.py`
 **Scan Date:** 2025-10-19 13:44:00 UTC
+**Last Verified:** 2025-10-21 (manual codebase scan)
 **Total Statements:** 2,259
 **Status:** ⚠️ NEEDS CLEANUP
 
 ### 4.1 Console Statements Breakdown
 
 **Location Analysis:**
-- **Production Code (app/):** ~115 statements
+- **Production Code (app/):** 53 statements (VERIFIED 2025-10-21)
 - **Archive (.archive/):** ~2,144 statements (95% of total)
 
-**Statement Types:**
-- `console.log()` - Debugging statements (should be removed)
-- `console.error()` - Error logging (review for legitimacy)
-- `console.warn()` - Warnings (review for legitimacy)
-- `console.debug()` - Debug statements (should be removed)
-- `console.info()` - Info statements (review for legitimacy)
+**Statement Types in app/ (VERIFIED):**
+- `console.error()` - 49 statements (12 legitimate in webhooks, 37 should use Sentry)
+- `console.warn()` - 3 statements (should use Sentry)
+- `console.log()` - 1 statement (should be removed)
+
+**Sentry Conversion Policy (per CLAUDE.md):**
+Per Error Tracking & Logging Policy in CLAUDE.md, production code must use Sentry for error tracking:
+- **MUST convert to Sentry:** 41 statements (37 console.error + 3 console.warn + 1 console.log)
+- **Legitimate exceptions:** 12 console.error in webhook handlers (external integration debugging)
+- **Replacement pattern:**
+  ```typescript
+  import * as Sentry from "@sentry/nextjs";
+
+  try {
+    await operation();
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { operation: "operation_name" },
+      extra: { contextData: "values" },
+    });
+    toast.error("User-friendly error message");
+  }
+  ```
 
 ### 4.2 Priority Files (app/ directory - 32 files)
 
@@ -339,9 +346,10 @@ python3 .claude/skills/practice-hub-debugging/scripts/find_console_logs.py --rem
 | 💡 XXX | Low | 0 | Nice to have |
 | 📌 NOTE | Info | 46 | Documentation only |
 
-### 5.2 Critical TODOs in Production Code (5)
+### 5.2 Critical TODOs in Production Code (4 Active, 1 Resolved)
 
-These are the ONLY TODOs in active production code (not .archive):
+**Active TODOs:** 4 remaining in production code (not .archive)
+**Resolved:** 1 (Xero integration fully implemented)
 
 #### TODO #1: Calculator - VAT Registration Hardcoded
 
@@ -416,28 +424,44 @@ await sendEmail({
 
 ---
 
-#### TODO #5: Transaction Data - Xero Integration Placeholder
+#### TODO #5: Transaction Data - Xero Integration ✅ IMPLEMENTED
 
 **File:** `app/server/routers/transactionData.ts:212`
-**Severity:** 📝 MEDIUM
-**Current Code:**
+**Severity:** ✅ RESOLVED
+**Status:** FULLY IMPLEMENTED - Needs production environment configuration
+
+**Implementation Complete:**
 ```typescript
-// TODO: Implement Xero API integration
-// For now, return placeholder message
-throw new TRPCError({
-  code: "NOT_IMPLEMENTED",
-  message: "Xero integration not yet implemented"
-});
+// Xero client implementation: lib/xero/client.ts (286 lines)
+const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions }
+  = await import("@/lib/xero/client");
+
+// OAuth flow routes:
+// - app/api/xero/authorize/route.ts
+// - app/api/xero/callback/route.ts
+
+// TransactionData router fully integrated (lines 212-260):
+const { accessToken, xeroTenantId } = await getValidAccessToken(clientId);
+const transactions = await fetchBankTransactions(accessToken, xeroTenantId, fromDate, toDate);
+const monthlyTransactions = calculateMonthlyTransactions(transactions);
 ```
 
-**Fix Required:**
-- Implement Xero OAuth flow
-- Fetch bank transactions
-- Calculate metrics
-- Cache with TTL
+**Features Implemented:**
+- ✅ OAuth 2.0 authorization flow with state management
+- ✅ Token refresh with 5-minute expiry buffer
+- ✅ Bank transaction fetching with date range filtering
+- ✅ Monthly transaction calculation and averaging
+- ✅ Database storage with JSON metadata
+- ✅ Multi-tenant isolation (tenantId + clientId)
 
-**Impact:** Transaction data feature completely non-functional
-**Priority:** MEDIUM - Implement in Phase 2
+**Production Requirements:**
+- Environment variables needed:
+  - `XERO_CLIENT_ID` - From Xero developer portal
+  - `XERO_CLIENT_SECRET` - From Xero developer portal
+  - `XERO_REDIRECT_URI` - Production callback URL
+
+**Impact:** Feature is production-ready, requires Xero app credentials for deployment
+**Priority:** LOW - Configuration task for production deployment
 
 ---
 
@@ -461,28 +485,34 @@ throw new TRPCError({
 
 ### Phase 2: Code Cleanup (NEXT)
 
-**Priority 1: Schema Fixes (CRITICAL)**
-1. Add `tenantId` + `clientId` to `client_portal_session`
-2. Add `tenantId` + `clientId` to `client_portal_account`
-3. Add `tenantId` + `clientId` to `client_portal_verification`
-4. Add `createdAt` + `updatedAt` timestamps to `client_portal_account`
-5. Update seed data to match new schema
-6. Run `pnpm db:reset`
-
-**Priority 2: Remove Console Statements**
+**Priority 1: Convert Console Statements to Sentry**
 ```bash
-python3 .claude/skills/practice-hub-debugging/scripts/find_console_logs.py --remove
+# Convert 41 console statements to Sentry.captureException()
+# Per CLAUDE.md Error Tracking & Logging Policy
 ```
-- Target: 115 statements in `app/` directory
-- Exclude: Legitimate error logging in webhooks
+- Target: **41 statements** in `app/` directory (37 console.error + 3 console.warn + 1 console.log)
+- Exclude: 12 console.error in webhook handlers (legitimate for external integration debugging)
+- Pattern: Replace with `Sentry.captureException()` per CLAUDE.md policy
+  ```typescript
+  // OLD:
+  console.error("Error message", error);
 
-**Priority 3: Implement TODOs**
-1. Calculator VAT registration - Fetch from client data
-2. Reports conversion data - Add to analytics endpoint
-3. Proposal email confirmation - Implement email sending
-4. Transaction data Xero integration - Implement API integration
+  // NEW:
+  import * as Sentry from "@sentry/nextjs";
+  Sentry.captureException(error, {
+    tags: { operation: "operation_name" },
+    extra: { contextData: "values" },
+  });
+  toast.error("User-friendly error message");
+  ```
 
-**Priority 4: Linter & Type Check**
+**Priority 2: Implement Critical TODOs (4 remaining)**
+1. ✅ ~~Transaction data Xero integration~~ - ALREADY IMPLEMENTED (remove TODO comment at `transactionData.ts:212`)
+2. Calculator VAT registration - Fetch from client data (`app/proposal-hub/calculator/page.tsx:95`)
+3. Reports conversion data - Add to analytics endpoint (`app/proposal-hub/reports/page.tsx:65,268`)
+4. Proposal email confirmation - Implement email sending (`app/server/routers/proposals.ts:1044`)
+
+**Priority 3: Linter & Type Check**
 ```bash
 pnpm lint
 pnpm tsc --noEmit
@@ -492,9 +522,16 @@ pnpm tsc --noEmit
 
 ### Phase 3: Testing (AFTER PHASE 2)
 
-**Generate tests for 29 routers**
+**UPGRADE existing router tests (30 routers)**
+- Current status: Input validation tests only
+- Required: Integration tests with database operations
 - Phase 3A: 5 critical routers (clients, proposals, users, invoices, tasks)
-- Phase 3B: 24 remaining routers
+- Phase 3B: 25 remaining routers
+
+**Add missing E2E tests:**
+- Client portal authentication flow
+- Proposal creation and signing workflow
+- Multi-tenant user switching
 
 **Validate:**
 - Multi-tenant isolation (already ✅ passing)
