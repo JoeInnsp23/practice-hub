@@ -11,6 +11,11 @@ This directory contains comprehensive architecture documentation for Practice Hu
 - **[API Design & tRPC Patterns](api-design.md)** - Type-safe API architecture, query/mutation patterns, and rate limiting
 - **[Design System & UI Patterns](design-system.md)** - Glass-card design system, shadcn/ui components, and layout patterns
 
+### Development Reference
+- **[Tech Stack & Dependencies](tech-stack.md)** - Complete technology inventory with versions, purposes, and configurations
+- **[Source Tree & Directory Structure](source-tree.md)** - Comprehensive directory reference and file organization
+- **[Coding Standards & Conventions](coding-standards.md)** - TypeScript, React, tRPC, and database coding standards
+
 ## Quick Navigation
 
 **By Topic**:
@@ -18,13 +23,17 @@ This directory contains comprehensive architecture documentation for Practice Hu
 - Authentication → [Authentication & Authorization](authentication.md)
 - APIs → [API Design](api-design.md)
 - Frontend → [Design System](design-system.md)
+- Tech Stack → [Tech Stack](tech-stack.md)
+- File Organization → [Source Tree](source-tree.md)
+- Coding Standards → [Coding Standards](coding-standards.md)
 - Technical Debt → [System Overview](system-overview.md#technical-debt-and-known-issues)
 
 **By Role**:
-- **New Developer** → Start with [System Overview](system-overview.md), then [Multi-Tenancy](multi-tenancy.md)
-- **Frontend Developer** → [Design System](design-system.md)
-- **Backend Developer** → [API Design](api-design.md) + [Multi-Tenancy](multi-tenancy.md)
-- **AI Agent** → Load [System Overview](system-overview.md) for complete context
+- **New Developer** → Start with [System Overview](system-overview.md), then [Coding Standards](coding-standards.md) and [Source Tree](source-tree.md)
+- **Frontend Developer** → [Design System](design-system.md) + [Coding Standards](coding-standards.md)
+- **Backend Developer** → [API Design](api-design.md) + [Multi-Tenancy](multi-tenancy.md) + [Coding Standards](coding-standards.md)
+- **DevOps** → [Tech Stack](tech-stack.md) + [System Overview](system-overview.md)
+- **AI Agent** → Load [System Overview](system-overview.md) for complete context, reference [Coding Standards](coding-standards.md) for patterns
 
 ## Related Documentation
 
