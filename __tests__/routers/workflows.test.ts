@@ -322,9 +322,9 @@ describe("app/server/routers/workflows.ts", () => {
       expect(procedures).toContain("toggleActive");
     });
 
-    it("should have 6 procedures total", () => {
+    it("should have 12 procedures total", () => {
       const procedures = Object.keys(workflowsRouter._def.procedures);
-      expect(procedures).toHaveLength(6);
+      expect(procedures).toHaveLength(12);
     });
   });
 });

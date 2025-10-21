@@ -41,6 +41,7 @@ import {
   timeEntries,
   users,
   workflowStages,
+  workflowVersions,
   workflows,
 } from "../lib/db/schema";
 
@@ -56,6 +57,7 @@ async function clearDatabase() {
   await db.delete(invoices);
   await db.delete(timeEntries);
   await db.delete(taskWorkflowInstances);
+  await db.delete(workflowVersions);
   await db.delete(workflowStages);
   await db.delete(workflows);
   await db.delete(documents);
@@ -2602,6 +2604,7 @@ async function seedDatabase() {
       .insert(workflows)
       .values({
         tenantId: tenant.id,
+        version: 1,
         name: template.name,
         description: template.description,
         // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
@@ -2617,24 +2620,75 @@ async function seedDatabase() {
       .returning();
 
     // Create workflow stages
+    const createdStages = [];
     for (let i = 0; i < template.stages.length; i++) {
       const stage = template.stages[i];
-      await db.insert(workflowStages).values({
-        workflowId: workflow.id,
-        name: stage.name,
-        description: `Stage ${i + 1} of ${template.name}`,
-        stageOrder: i + 1,
-        isRequired: true,
-        estimatedHours: String(stage.estimatedHours),
-        checklistItems: stage.checklist?.map((item, idx) => ({
-          id: `item-${idx}`,
-          text: item,
+      const [createdStage] = await db
+        .insert(workflowStages)
+        .values({
+          workflowId: workflow.id,
+          name: stage.name,
+          description: `Stage ${i + 1} of ${template.name}`,
+          stageOrder: i + 1,
           isRequired: true,
-        })),
-        autoComplete: false,
-        requiresApproval: stage.requiresApproval || false,
-      });
+          estimatedHours: String(stage.estimatedHours),
+          checklistItems: stage.checklist?.map((item, idx) => ({
+            id: `item-${idx}`,
+            text: item,
+            isRequired: true,
+          })),
+          autoComplete: false,
+          requiresApproval: stage.requiresApproval || false,
+        })
+        .returning();
+      createdStages.push(createdStage);
     }
+
+    // Create initial workflow version (snapshot)
+    const stagesSnapshot = {
+      stages: createdStages.map((stage) => ({
+        id: stage.id,
+        name: stage.name,
+        description: stage.description,
+        stageOrder: stage.stageOrder,
+        isRequired: stage.isRequired,
+        estimatedHours: stage.estimatedHours || "0",
+        autoComplete: stage.autoComplete,
+        requiresApproval: stage.requiresApproval,
+        checklistItems: (stage.checklistItems as any) || [],
+      })),
+    };
+
+    const [workflowVersion] = await db
+      .insert(workflowVersions)
+      .values({
+        workflowId: workflow.id,
+        tenantId: tenant.id,
+        version: 1,
+        name: template.name,
+        description: template.description,
+        // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
+        type: template.type as any,
+        // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
+        trigger: template.trigger as any,
+        estimatedDays: template.estimatedDays,
+        serviceComponentId,
+        config: {},
+        stagesSnapshot,
+        changeDescription: "Initial version",
+        changeType: "created",
+        publishNotes: "Initial release - production ready",
+        isActive: true,
+        publishedAt: new Date(),
+        createdById: adminUser.id,
+      })
+      .returning();
+
+    // Update workflow with current version ID
+    await db
+      .update(workflows)
+      .set({ currentVersionId: workflowVersion.id })
+      .where(eq(workflows.id, workflow.id));
   }
 
   // 11.5. Assign workflows to tasks and create instances
@@ -2679,21 +2733,32 @@ async function seedDatabase() {
         .set({ workflowId: workflowToAssign.id })
         .where(eq(tasks.id, task.id));
 
-      // Get workflow stages
-      const stages = await db
+      // Get active workflow version (snapshot)
+      const [activeVersion] = await db
         .select()
-        .from(workflowStages)
-        .where(eq(workflowStages.workflowId, workflowToAssign.id))
-        .orderBy(workflowStages.stageOrder);
+        .from(workflowVersions)
+        .where(
+          eq(workflowVersions.workflowId, workflowToAssign.id)
+        )
+        .limit(1);
 
-      // Create workflow instance
-      await db.insert(taskWorkflowInstances).values({
-        taskId: task.id,
-        workflowId: workflowToAssign.id,
-        currentStageId: stages[0]?.id || null,
-        status: "active",
-        stageProgress: {},
-      });
+      if (activeVersion) {
+        // Extract first stage ID from snapshot
+        const stagesSnapshot = activeVersion.stagesSnapshot as any;
+        const firstStageId = stagesSnapshot?.stages?.[0]?.id || null;
+
+        // Create workflow instance with version snapshot
+        await db.insert(taskWorkflowInstances).values({
+          taskId: task.id,
+          workflowId: workflowToAssign.id,
+          workflowVersionId: activeVersion.id,
+          version: activeVersion.version,
+          stagesSnapshot: activeVersion.stagesSnapshot,
+          currentStageId: firstStageId,
+          status: "active",
+          stageProgress: {},
+        });
+      }
     }
   }
 

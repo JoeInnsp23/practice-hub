@@ -7,6 +7,7 @@ import {
   Edit,
   FileText,
   GitBranch,
+  History,
   Layers,
   MoreVertical,
   Plus,
@@ -20,6 +21,8 @@ import { trpc } from "@/app/providers/trpc-provider";
 import type { AppRouter } from "@/app/server";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { WorkflowTemplateModal } from "@/components/client-hub/workflows/workflow-template-modal";
+import { VersionHistoryModal } from "@/components/client-hub/workflows/version-history-modal";
+import { WorkflowUpgradeModal } from "@/components/client-hub/workflows/workflow-upgrade-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,14 +45,23 @@ export default function WorkflowsPage() {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] =
     useState<WorkflowTemplate | null>(null);
+  const [versionHistoryWorkflow, setVersionHistoryWorkflow] = useState<string | null>(null);
+  const [upgradeModal, setUpgradeModal] = useState<{
+    workflowId: string;
+    versionId: string;
+    versionNumber: number;
+  } | null>(null);
 
   // Fetch workflows from database
   const { data: workflowTemplates = [], refetch } =
     trpc.workflows.list.useQuery();
+  const utils = trpc.useUtils();
   const toggleActiveMutation = trpc.workflows.toggleActive.useMutation();
   const deleteWorkflowMutation = trpc.workflows.delete.useMutation();
   const createWorkflowMutation = trpc.workflows.create.useMutation();
   const updateWorkflowMutation = trpc.workflows.update.useMutation();
+  const publishVersionMutation = trpc.workflows.publishVersion.useMutation();
+  const rollbackMutation = trpc.workflows.rollbackToVersion.useMutation();
 
   const handleToggleTemplate = async (
     templateId: string,
@@ -149,6 +161,57 @@ export default function WorkflowsPage() {
       refetch();
     } catch (_error) {
       toast.error("Failed to save template");
+    }
+  };
+
+  const handlePublishVersion = async (
+    workflowId: string,
+    versionId: string,
+    versionNumber: number,
+    publishNotes?: string,
+  ) => {
+    try {
+      // First, check if there are active instances
+      const instances = await utils.workflows.getActiveInstances.fetch(workflowId);
+
+      if (instances && instances.length > 0) {
+        // Show upgrade modal
+        setVersionHistoryWorkflow(null);
+        setUpgradeModal({ workflowId, versionId, versionNumber });
+      } else {
+        // No active instances, just publish
+        await publishVersionMutation.mutateAsync({
+          workflowId,
+          versionId,
+          publishNotes,
+        });
+        toast.success(`Version ${versionNumber} is now active`);
+        setVersionHistoryWorkflow(null);
+        refetch();
+      }
+    } catch (_error) {
+      toast.error("Failed to publish version");
+    }
+  };
+
+  const handleRollback = async (
+    workflowId: string,
+    versionId: string,
+    versionNumber: number,
+    publishNotes?: string,
+  ) => {
+    try {
+      await rollbackMutation.mutateAsync({
+        workflowId,
+        targetVersionId: versionId,
+        publishImmediately: true,
+        publishNotes,
+      });
+      toast.success(`Rolled back to version ${versionNumber}`);
+      setVersionHistoryWorkflow(null);
+      refetch();
+    } catch (_error) {
+      toast.error("Failed to rollback version");
     }
   };
 
@@ -268,6 +331,12 @@ export default function WorkflowsPage() {
                               </>
                             )}
                           </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setVersionHistoryWorkflow(template.id)}
+                          >
+                            <History className="mr-2 h-4 w-4" />
+                            Version History
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleDeleteTemplate(template.id)}
@@ -339,6 +408,43 @@ export default function WorkflowsPage() {
         onSave={handleSaveTemplate}
         template={editingTemplate}
       />
+
+      {/* Version History Modal */}
+      {versionHistoryWorkflow && (
+        <VersionHistoryModal
+          isOpen={true}
+          onClose={() => setVersionHistoryWorkflow(null)}
+          workflowId={versionHistoryWorkflow}
+          onPublishVersion={(versionId, versionNumber, publishNotes) => {
+            const workflow = workflowTemplates.find((w) => w.id === versionHistoryWorkflow);
+            if (workflow) {
+              handlePublishVersion(versionHistoryWorkflow, versionId, versionNumber, publishNotes);
+            }
+          }}
+          onRollback={(versionId, versionNumber, publishNotes) => {
+            const workflow = workflowTemplates.find((w) => w.id === versionHistoryWorkflow);
+            if (workflow) {
+              handleRollback(versionHistoryWorkflow, versionId, versionNumber, publishNotes);
+            }
+          }}
+        />
+      )}
+
+      {/* Upgrade Modal */}
+      {upgradeModal && (
+        <WorkflowUpgradeModal
+          isOpen={true}
+          onClose={() => setUpgradeModal(null)}
+          workflowId={upgradeModal.workflowId}
+          newVersionId={upgradeModal.versionId}
+          newVersionNumber={upgradeModal.versionNumber}
+          onUpgradeComplete={() => {
+            refetch();
+            setUpgradeModal(null);
+            toast.success("Workflow version updated successfully");
+          }}
+        />
+      )}
     </div>
   );
 }

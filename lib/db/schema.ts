@@ -870,6 +870,11 @@ export const workflows = pgTable(
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
+
+    // Version control
+    version: integer("version").default(1).notNull(),
+    currentVersionId: uuid("current_version_id"), // Points to latest snapshot in workflow_versions
+
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
     type: varchar("type", { length: 50 }).notNull(), // task_template, automation, approval
@@ -899,6 +904,7 @@ export const workflows = pgTable(
     typeIdx: index("idx_workflow_type").on(table.type),
     activeIdx: index("idx_workflow_active").on(table.isActive),
     serviceIdx: index("idx_workflow_service").on(table.serviceComponentId),
+    versionIdx: index("idx_workflow_version").on(table.id, table.version),
   }),
 );
 
@@ -1822,6 +1828,62 @@ export const workflowStages = pgTable(
   }),
 );
 
+// Workflow Versions table - stores historical snapshots of workflow templates
+export const workflowVersions = pgTable(
+  "workflow_versions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workflowId: uuid("workflow_id")
+      .references(() => workflows.id, { onDelete: "cascade" })
+      .notNull(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Version information
+    version: integer("version").notNull(), // 1, 2, 3, etc.
+
+    // Snapshot of workflow data at this version
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    type: varchar("type", { length: 50 }).notNull(),
+    trigger: varchar("trigger", { length: 100 }),
+    estimatedDays: integer("estimated_days"),
+    serviceComponentId: uuid("service_component_id"),
+    config: jsonb("config").notNull(),
+
+    // Snapshot of stages (denormalized for performance)
+    stagesSnapshot: jsonb("stages_snapshot").notNull(), // Full stage + checklist data
+
+    // Change tracking
+    changeDescription: text("change_description"), // What changed in this version
+    changeType: varchar("change_type", { length: 50 }), // created, updated, stages_modified, checklist_modified, rollback
+    publishNotes: text("publish_notes"), // Notes added when version is published
+
+    // Status
+    isActive: boolean("is_active").default(false).notNull(), // Only one version can be "active"
+    publishedAt: timestamp("published_at"), // When this version was made active
+
+    // Audit
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdById: text("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => ({
+    workflowIdx: index("idx_workflow_version_workflow").on(table.workflowId),
+    versionIdx: uniqueIndex("idx_workflow_version_number").on(
+      table.workflowId,
+      table.version,
+    ),
+    activeIdx: index("idx_workflow_version_active").on(
+      table.workflowId,
+      table.isActive,
+    ),
+    createdAtIdx: index("idx_workflow_version_created").on(table.createdAt),
+  }),
+);
+
 // Task Workflow Instances table
 export const taskWorkflowInstances = pgTable(
   "task_workflow_instances",
@@ -1834,17 +1896,28 @@ export const taskWorkflowInstances = pgTable(
       .references(() => workflows.id, { onDelete: "cascade" })
       .notNull(),
 
+    // VERSION SNAPSHOT - Points to frozen version at time of assignment
+    workflowVersionId: uuid("workflow_version_id")
+      .references(() => workflowVersions.id, { onDelete: "restrict" })
+      .notNull(),
+    version: integer("version").notNull(), // Redundant but useful for queries
+
+    // Snapshot of stages at assignment time (denormalized for performance)
+    stagesSnapshot: jsonb("stages_snapshot").notNull(), // Frozen stages/checklist from workflowVersions
+
     // Current state
-    currentStageId: uuid("current_stage_id").references(
-      () => workflowStages.id,
-      {
-        onDelete: "set null",
-      },
-    ),
+    currentStageId: uuid("current_stage_id"), // References ID within stagesSnapshot (not FK)
     status: varchar("status", { length: 50 }).default("active").notNull(), // active, paused, completed, cancelled
 
-    // Progress tracking (JSON structure for flexibility)
-    stageProgress: jsonb("stage_progress"), // {stageId: {completed: bool, checklistItems: {itemId: bool}}}
+    // Progress tracking - completion state only, references item IDs from snapshot
+    stageProgress: jsonb("stage_progress"), // {stageId: {checklistItems: {itemId: {completed, completedBy, completedAt}}}}
+
+    // Version upgrade tracking
+    upgradedFromVersionId: uuid("upgraded_from_version_id").references(
+      () => workflowVersions.id,
+    ),
+    upgradedAt: timestamp("upgraded_at"),
+    upgradedById: text("upgraded_by_id").references(() => users.id),
 
     // Timestamps
     startedAt: timestamp("started_at").defaultNow().notNull(),
@@ -1858,6 +1931,9 @@ export const taskWorkflowInstances = pgTable(
   (table) => ({
     taskIdx: uniqueIndex("idx_task_workflow_instance").on(table.taskId),
     workflowIdx: index("idx_workflow_instance").on(table.workflowId),
+    versionIdx: index("idx_workflow_instance_version").on(
+      table.workflowVersionId,
+    ),
     statusIdx: index("idx_workflow_instance_status").on(table.status),
   }),
 );
