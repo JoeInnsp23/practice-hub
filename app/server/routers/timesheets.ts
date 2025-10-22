@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, timeEntries } from "@/lib/db/schema";
+import { activityLogs, timeEntries, timesheetSubmissions, users } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
+import { sendTimesheetApprovalEmail, sendTimesheetRejectionEmail } from "@/lib/email/timesheet-notifications";
 
 // Generate schema from Drizzle table definition
 const insertTimeEntrySchema = createInsertSchema(timeEntries, {
@@ -265,5 +266,353 @@ export const timesheetsRouter = router({
         daysWorked: Number(summary.days_worked),
         uniqueClients: Number(summary.unique_clients),
       };
+    }),
+
+  // Submit week for approval
+  submit: protectedProcedure
+    .input(z.object({
+      weekStartDate: z.string(), // ISO date
+      weekEndDate: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId } = ctx.authContext;
+
+      // Calculate total hours for week
+      const result = await db.execute(sql`
+        SELECT COALESCE(SUM(CAST(hours AS DECIMAL)), 0) as total_hours
+        FROM time_entries
+        WHERE tenant_id = ${tenantId}
+          AND user_id = ${userId}
+          AND date >= ${input.weekStartDate}
+          AND date <= ${input.weekEndDate}
+      `);
+
+      const totalHours = Number(result.rows[0]?.total_hours || 0);
+
+      // Validation: minimum hours check
+      const minimumHours = 37.5; // TODO: Make configurable in settings
+      if (totalHours < minimumHours) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Minimum ${minimumHours} hours required for submission`,
+        });
+      }
+
+      // Check for duplicate submission
+      const existingSubmission = await db
+        .select()
+        .from(timesheetSubmissions)
+        .where(
+          and(
+            eq(timesheetSubmissions.tenantId, tenantId),
+            eq(timesheetSubmissions.userId, userId),
+            eq(timesheetSubmissions.weekStartDate, input.weekStartDate)
+          )
+        )
+        .limit(1);
+
+      if (existingSubmission.length > 0 && existingSubmission[0].status === "pending") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This week has already been submitted",
+        });
+      }
+
+      // Create submission
+      const [newSubmission] = await db.insert(timesheetSubmissions).values({
+        tenantId,
+        userId,
+        weekStartDate: input.weekStartDate,
+        weekEndDate: input.weekEndDate,
+        status: existingSubmission.length > 0 ? "resubmitted" : "pending",
+        totalHours: totalHours.toString(),
+      }).returning();
+
+      // Link time entries to submission
+      await db.execute(sql`
+        UPDATE time_entries
+        SET submission_id = ${newSubmission.id}
+        WHERE tenant_id = ${tenantId}
+          AND user_id = ${userId}
+          AND date >= ${input.weekStartDate}
+          AND date <= ${input.weekEndDate}
+      `);
+
+      return { success: true, submissionId: newSubmission.id };
+    }),
+
+  // Get pending approvals (manager only)
+  getPendingApprovals: protectedProcedure
+    .query(async ({ ctx }) => {
+      const { tenantId, role } = ctx.authContext;
+
+      // Check if user is manager/admin
+      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      const submissions = await db
+        .select({
+          id: timesheetSubmissions.id,
+          weekStartDate: timesheetSubmissions.weekStartDate,
+          weekEndDate: timesheetSubmissions.weekEndDate,
+          totalHours: timesheetSubmissions.totalHours,
+          submittedAt: timesheetSubmissions.submittedAt,
+          status: timesheetSubmissions.status,
+          user: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(timesheetSubmissions)
+        .innerJoin(users, eq(timesheetSubmissions.userId, users.id))
+        .where(
+          and(
+            eq(timesheetSubmissions.tenantId, tenantId),
+            inArray(timesheetSubmissions.status, ["pending", "resubmitted"])
+          )
+        )
+        .orderBy(desc(timesheetSubmissions.submittedAt));
+
+      return submissions;
+    }),
+
+  // Approve submission
+  approve: protectedProcedure
+    .input(z.object({ submissionId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName, role } = ctx.authContext;
+
+      // Check manager role
+      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      // Update submission
+      const result = await db
+        .update(timesheetSubmissions)
+        .set({
+          status: "approved",
+          reviewedBy: userId,
+          reviewedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(timesheetSubmissions.id, input.submissionId),
+            eq(timesheetSubmissions.tenantId, tenantId)
+          )
+        )
+        .returning();
+
+      if (result.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      // Send approval email
+      await sendTimesheetApprovalEmail({
+        userId: result[0].userId,
+        weekStartDate: result[0].weekStartDate,
+        weekEndDate: result[0].weekEndDate,
+        managerName: `${firstName} ${lastName}`,
+        totalHours: Number(result[0].totalHours),
+      });
+
+      return { success: true };
+    }),
+
+  // Reject submission
+  reject: protectedProcedure
+    .input(z.object({
+      submissionId: z.string(),
+      comments: z.string().min(1).max(1000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName, role } = ctx.authContext;
+
+      // Check manager role
+      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      // Update submission
+      const result = await db
+        .update(timesheetSubmissions)
+        .set({
+          status: "rejected",
+          reviewedBy: userId,
+          reviewedAt: new Date(),
+          reviewerComments: input.comments,
+        })
+        .where(
+          and(
+            eq(timesheetSubmissions.id, input.submissionId),
+            eq(timesheetSubmissions.tenantId, tenantId)
+          )
+        )
+        .returning();
+
+      if (result.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      // Unlink time entries from submission (make editable again)
+      await db.execute(sql`
+        UPDATE time_entries
+        SET submission_id = NULL
+        WHERE submission_id = ${input.submissionId}
+      `);
+
+      // Send rejection email
+      await sendTimesheetRejectionEmail({
+        userId: result[0].userId,
+        weekStartDate: result[0].weekStartDate,
+        weekEndDate: result[0].weekEndDate,
+        managerName: `${firstName} ${lastName}`,
+        rejectionReason: input.comments,
+      });
+
+      return { success: true };
+    }),
+
+  // Bulk approve
+  bulkApprove: protectedProcedure
+    .input(z.object({ submissionIds: z.array(z.string()) }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName, role } = ctx.authContext;
+
+      // Check manager role
+      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      // Get submissions before updating
+      const submissions = await db
+        .select()
+        .from(timesheetSubmissions)
+        .where(
+          and(
+            inArray(timesheetSubmissions.id, input.submissionIds),
+            eq(timesheetSubmissions.tenantId, tenantId)
+          )
+        );
+
+      // Bulk update
+      await db
+        .update(timesheetSubmissions)
+        .set({
+          status: "approved",
+          reviewedBy: userId,
+          reviewedAt: new Date(),
+        })
+        .where(
+          and(
+            inArray(timesheetSubmissions.id, input.submissionIds),
+            eq(timesheetSubmissions.tenantId, tenantId)
+          )
+        );
+
+      // Send emails for each approved submission
+      await Promise.all(
+        submissions.map((submission) =>
+          sendTimesheetApprovalEmail({
+            userId: submission.userId,
+            weekStartDate: submission.weekStartDate,
+            weekEndDate: submission.weekEndDate,
+            managerName: `${firstName} ${lastName}`,
+            totalHours: Number(submission.totalHours),
+          })
+        )
+      );
+
+      return { success: true, count: input.submissionIds.length };
+    }),
+
+  // Bulk reject
+  bulkReject: protectedProcedure
+    .input(z.object({
+      submissionIds: z.array(z.string()),
+      comments: z.string().min(1).max(1000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName, role } = ctx.authContext;
+
+      // Check manager role
+      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      // Get submissions before updating
+      const submissions = await db
+        .select()
+        .from(timesheetSubmissions)
+        .where(
+          and(
+            inArray(timesheetSubmissions.id, input.submissionIds),
+            eq(timesheetSubmissions.tenantId, tenantId)
+          )
+        );
+
+      // Bulk update
+      await db
+        .update(timesheetSubmissions)
+        .set({
+          status: "rejected",
+          reviewedBy: userId,
+          reviewedAt: new Date(),
+          reviewerComments: input.comments,
+        })
+        .where(
+          and(
+            inArray(timesheetSubmissions.id, input.submissionIds),
+            eq(timesheetSubmissions.tenantId, tenantId)
+          )
+        );
+
+      // Unlink time entries from all rejected submissions
+      await db.execute(sql`
+        UPDATE time_entries
+        SET submission_id = NULL
+        WHERE submission_id = ANY(${input.submissionIds})
+      `);
+
+      // Send emails for each rejected submission
+      await Promise.all(
+        submissions.map((submission) =>
+          sendTimesheetRejectionEmail({
+            userId: submission.userId,
+            weekStartDate: submission.weekStartDate,
+            weekEndDate: submission.weekEndDate,
+            managerName: `${firstName} ${lastName}`,
+            rejectionReason: input.comments,
+          })
+        )
+      );
+
+      return { success: true, count: input.submissionIds.length };
+    }),
+
+  // Get submission status for week
+  getSubmissionStatus: protectedProcedure
+    .input(z.object({
+      weekStartDate: z.string(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { tenantId, userId } = ctx.authContext;
+
+      const submission = await db
+        .select()
+        .from(timesheetSubmissions)
+        .where(
+          and(
+            eq(timesheetSubmissions.tenantId, tenantId),
+            eq(timesheetSubmissions.userId, userId),
+            eq(timesheetSubmissions.weekStartDate, input.weekStartDate)
+          )
+        )
+        .limit(1);
+
+      return submission.length > 0 ? submission[0] : null;
     }),
 });

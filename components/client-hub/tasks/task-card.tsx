@@ -5,8 +5,10 @@ import {
   Calendar,
   Clock,
   GitBranch,
+  MessageSquare,
   MoreVertical,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,11 @@ export function TaskCard({
   onDelete,
   onStatusChange,
 }: TaskCardProps) {
+  // Get note count for this task
+  const { data: noteCount = 0 } = trpc.tasks.getNoteCount.useQuery({
+    taskId: task.id,
+  });
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
@@ -183,6 +190,12 @@ export function TaskCard({
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 <span>{task.estimatedHours}h</span>
+              </div>
+            )}
+            {noteCount > 0 && (
+              <div className="flex items-center gap-1">
+                <MessageSquare className="h-3 w-3" />
+                <span>{noteCount}</span>
               </div>
             )}
           </div>

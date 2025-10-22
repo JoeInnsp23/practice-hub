@@ -7,7 +7,7 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
 import { clientsRouter } from "@/app/server/routers/clients";
 import { createCaller, createMockContext } from "../helpers/trpc";
@@ -22,6 +22,18 @@ import { db } from "@/lib/db";
 import { clients, activityLogs, clientContacts } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import type { Context } from "@/app/server/context";
+
+// Mock HMRC client module for VAT validation tests
+const { mockValidateVAT } = vi.hoisted(() => ({
+  mockValidateVAT: vi.fn(),
+}));
+
+vi.mock("@/lib/hmrc/client", () => ({
+  validateVAT: mockValidateVAT,
+  VATNotFoundError: class VATNotFoundError extends Error {},
+  RateLimitError: class RateLimitError extends Error {},
+  AuthenticationError: class AuthenticationError extends Error {},
+}));
 
 describe("app/server/routers/clients.ts (Integration)", () => {
   let ctx: Context;
@@ -564,6 +576,164 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
       expect(result.pscs).toBeDefined();
       expect(Array.isArray(result.pscs)).toBe(true);
+    });
+  });
+
+  describe("validateVAT (Integration)", () => {
+    beforeEach(() => {
+      // Reset mock before each test
+      mockValidateVAT.mockReset();
+    });
+
+    it("should validate VAT number without updating database when clientId not provided", async () => {
+      mockValidateVAT.mockResolvedValue({
+        isValid: true,
+        vatNumber: "123456789",
+        businessName: "Test Company Ltd",
+        businessAddress: {
+          line1: "123 Test Street",
+          postcode: "SW1A 1AA",
+          countryCode: "GB",
+        },
+      });
+
+      const result = await caller.validateVAT({
+        vatNumber: "GB123456789",
+      });
+
+      expect(result.isValid).toBe(true);
+      expect(result.vatNumber).toBe("123456789"); // HMRC normalizes by removing GB prefix
+      expect(result.businessName).toBe("Test Company Ltd");
+    });
+
+    it("should validate VAT number and update database when clientId provided", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
+        vatNumber: "GB123456789",
+        vatValidationStatus: null,
+      });
+      tracker.clients?.push(client.id);
+
+      mockValidateVAT.mockResolvedValue({
+        isValid: true,
+        vatNumber: "123456789",
+        businessName: "Test Company Ltd",
+        businessAddress: {
+          line1: "123 Test Street",
+          postcode: "SW1A 1AA",
+          countryCode: "GB",
+        },
+      });
+
+      const result = await caller.validateVAT({
+        vatNumber: "GB123456789",
+        clientId: client.id,
+      });
+
+      expect(result.isValid).toBe(true);
+      expect(result.businessName).toBe("Test Company Ltd");
+
+      // Verify database was updated
+      const [updatedClient] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, client.id));
+
+      expect(updatedClient.vatValidationStatus).toBe("valid");
+      expect(updatedClient.vatValidatedAt).toBeDefined();
+    });
+
+    it("should enforce multi-tenant isolation (cannot update client from different tenant)", async () => {
+      // Create client in a different tenant
+      const otherTenantId = await createTestTenant();
+      const otherUserId = await createTestUser(otherTenantId);
+      tracker.tenants?.push(otherTenantId);
+      tracker.users?.push(otherUserId);
+
+      const otherClient = await createTestClient(otherTenantId, otherUserId, {
+        vatNumber: "GB987654321",
+      });
+      tracker.clients?.push(otherClient.id);
+
+      mockValidateVAT.mockResolvedValue({
+        isValid: true,
+        vatNumber: "987654321",
+      });
+
+      // Try to validate using our context (different tenant)
+      const result = await caller.validateVAT({
+        vatNumber: "GB987654321",
+        clientId: otherClient.id,
+      });
+
+      // Validation should succeed but database should NOT be updated
+      expect(result.isValid).toBe(true);
+
+      // Verify the other client's record was NOT updated
+      const [unchangedClient] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, otherClient.id));
+
+      expect(unchangedClient.vatValidationStatus).toBeNull();
+    });
+
+    it("should handle invalid VAT number gracefully", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      mockValidateVAT.mockResolvedValue({
+        isValid: false,
+        vatNumber: "999999999",
+      });
+
+      const result = await caller.validateVAT({
+        vatNumber: "GB999999999",
+        clientId: client.id,
+      });
+
+      expect(result.isValid).toBe(false);
+      expect(result.vatNumber).toBe("999999999");
+
+      // Verify database was updated with invalid status
+      const [updatedClient] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, client.id));
+
+      expect(updatedClient.vatValidationStatus).toBe("invalid");
+    });
+
+    it("should log activity when validating VAT number", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      mockValidateVAT.mockResolvedValue({
+        isValid: true,
+        vatNumber: "123456789",
+        businessName: "Test Company Ltd",
+      });
+
+      await caller.validateVAT({
+        vatNumber: "GB123456789",
+        clientId: client.id,
+      });
+
+      // Verify activity log was created
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .where(
+          and(
+            eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            eq(activityLogs.entityType, "vat_validation"),
+            eq(activityLogs.entityId, client.id)
+          )
+        );
+
+      expect(logs.length).toBeGreaterThan(0);
+      const log = logs[0];
+      expect(log.action).toBe("validated");
+      expect(log.userId).toBe(ctx.authContext.userId);
     });
   });
 

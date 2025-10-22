@@ -6,6 +6,7 @@ import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
 import { ClientOnly } from "@/components/client-only";
 import { AppCard } from "@/components/practice-hub/AppCard";
 import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
+import { PendingApprovalsWidget } from "@/components/practice-hub/pending-approvals-widget";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -139,6 +140,9 @@ export function PracticeHubClient({
           location.
         </p>
       </div>
+
+      {/* Pending Approvals Widget (for managers/admins) */}
+      <PendingApprovalsWidget />
 
       {/* Navigation Tabs */}
       <ClientOnly>

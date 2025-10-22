@@ -17,6 +17,8 @@ import {
   clients,
   compliance,
   documents,
+  importLogs,
+  integrationSettings,
   invitations,
   invoiceItems,
   invoices,
@@ -34,17 +36,22 @@ import {
   proposals,
   proposalServices,
   proposalVersions,
-  serviceComponents,
   services,
   tasks,
+  taskTemplates,
+  clientTaskTemplateOverrides,
+  taskAssignmentHistory,
   taskNotes,
   taskWorkflowInstances,
   tenants,
   timeEntries,
+  timesheetSubmissions,
   users,
+  userSettings,
   workflowStages,
   workflowVersions,
   workflows,
+  xeroWebhookEvents,
 } from "../lib/db/schema";
 
 // Set a consistent seed for reproducible data
@@ -57,6 +64,7 @@ async function clearDatabase() {
   await db.delete(activityLogs);
   await db.delete(invoiceItems);
   await db.delete(invoices);
+  await db.delete(timesheetSubmissions);
   await db.delete(timeEntries);
   await db.delete(taskWorkflowInstances);
   await db.delete(workflowVersions);
@@ -65,6 +73,7 @@ async function clearDatabase() {
   await db.delete(documents);
   await db.delete(compliance);
   await db.delete(clientServices);
+  await db.delete(taskAssignmentHistory);
   await db.delete(tasks);
   await db.delete(onboardingTasks);
   await db.delete(onboardingSessions);
@@ -75,8 +84,9 @@ async function clearDatabase() {
   await db.delete(proposals);
   await db.delete(clients);
   await db.delete(leads);
+  await db.delete(clientTaskTemplateOverrides);
+  await db.delete(taskTemplates);
   await db.delete(pricingRules);
-  await db.delete(serviceComponents);
   await db.delete(services);
 
   // Clear portal data
@@ -86,7 +96,15 @@ async function clearDatabase() {
   // Clear legal pages
   await db.delete(legalPages);
 
+  // Clear integration and import data
+  await db.delete(importLogs);
+  await db.delete(integrationSettings);
+
+  // Clear webhook data
+  await db.delete(xeroWebhookEvents);
+
   await db.delete(invitations);
+  await db.delete(userSettings);
   await db.delete(users);
   await db.delete(tenants);
 
@@ -104,6 +122,27 @@ async function seedDatabase() {
       id: crypto.randomUUID(), // Better Auth requires text ID
       name: "Demo Accounting Firm",
       slug: "demo-firm",
+      metadata: {
+        company: {
+          name: "Demo Accounting Firm",
+          email: "info@demo-firm.com",
+          phone: "+44 20 1234 5678",
+          address: {
+            street: "123 Business Street",
+            city: "London",
+            postcode: "SW1A 1AA",
+            country: "United Kingdom",
+          },
+        },
+        regional: {
+          currency: "GBP",
+          dateFormat: "DD/MM/YYYY",
+          timezone: "Europe/London",
+        },
+        fiscal: {
+          fiscalYearStart: "04-06",
+        },
+      },
     })
     .returning();
 
@@ -161,6 +200,21 @@ async function seedDatabase() {
     .returning();
 
   const [adminUser, _sarah, _mike, _emily] = createdUsers;
+
+  // 2.3. Create User Settings
+  console.log("Creating user settings...");
+  await db.insert(userSettings).values(
+    createdUsers.map((user) => ({
+      id: crypto.randomUUID(),
+      userId: user.id,
+      emailNotifications: true,
+      inAppNotifications: true,
+      digestEmail: user.role === "admin" ? "daily" : "weekly",
+      theme: "system",
+      language: "en",
+      timezone: "Europe/London",
+    })),
+  );
 
   // 2.5. Create Invitations
   console.log("Creating invitations...");
@@ -540,32 +594,11 @@ For more information, visit the ICO website: https://ico.org.uk
       sortOrder: 8,
     },
     {
-      title: "Documents",
-      description: "File storage and document management",
-      url: "/client-hub/documents",
-      iconName: "FolderOpen",
-      sortOrder: 9,
-    },
-    {
-      title: "Messages",
-      description: "Team chat and client communication",
-      url: "/practice-hub/messages",
-      iconName: "MessageSquare",
-      sortOrder: 10,
-    },
-    {
-      title: "Calendar",
-      description: "Events, meetings, and deadlines",
-      url: "/practice-hub/calendar",
-      iconName: "Calendar",
-      sortOrder: 11,
-    },
-    {
       title: "Admin Panel",
       description: "System administration and configuration",
       url: "/admin",
       iconName: "Settings",
-      sortOrder: 12,
+      sortOrder: 9,
     },
   ];
 
@@ -1065,8 +1098,8 @@ For more information, visit the ICO website: https://ico.org.uk
     },
   ];
 
-  const createdServiceComponents = await db
-    .insert(serviceComponents)
+  const createdServices = await db
+    .insert(services)
     .values(
       serviceComponentsList.map((component) => ({
         ...component,
@@ -1076,17 +1109,15 @@ For more information, visit the ICO website: https://ico.org.uk
     )
     .returning();
 
-  console.log(
-    `✓ Created ${createdServiceComponents.length} service components`,
-  );
+  console.log(`✓ Created ${createdServices.length} services`);
 
   // 4. Create Pricing Rules
   console.log("Creating pricing rules...");
 
-  // Helper to find component by code
-  const getComponent = (code: string) =>
-    // biome-ignore lint/style/noNonNullAssertion: seed data - components guaranteed to exist
-    createdServiceComponents.find((c) => c.code === code)!;
+  // Helper to find service by code
+  const getService = (code: string) =>
+    // biome-ignore lint/style/noNonNullAssertion: seed data - services guaranteed to exist
+    createdServices.find((c) => c.code === code)!;
 
   // Turnover bands for Model A pricing
   const turnoverBands = [
@@ -1106,7 +1137,7 @@ For more information, visit the ICO website: https://ico.org.uk
   const accountsPrices = [49, 59, 79, 99, 119, 139, 159];
   turnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      componentId: getComponent("COMP_ACCOUNTS").id,
+      serviceId: getService("COMP_ACCOUNTS").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1117,7 +1148,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // COMP_ACCOUNTS - Transaction-based pricing (Model B)
   // Base £30 + £0.15 per transaction
   pricingRulesList.push({
-    componentId: getComponent("COMP_ACCOUNTS").id,
+    serviceId: getService("COMP_ACCOUNTS").id,
     ruleType: "per_unit" as const,
     price: "0.15",
     metadata: { basePrice: 30, description: "Per transaction" },
@@ -1133,7 +1164,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   vatTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      componentId: getComponent("VAT_STANDARD").id,
+      serviceId: getService("VAT_STANDARD").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1144,7 +1175,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // VAT_STANDARD - Transaction-based pricing (Model B)
   // £0.10 per transaction (minimum £20)
   pricingRulesList.push({
-    componentId: getComponent("VAT_STANDARD").id,
+    serviceId: getService("VAT_STANDARD").id,
     ruleType: "per_unit" as const,
     price: "0.10",
     metadata: { minimumPrice: 20, description: "Per transaction" },
@@ -1161,7 +1192,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   bookBasicTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      componentId: getComponent("BOOK_BASIC").id,
+      serviceId: getService("BOOK_BASIC").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1183,7 +1214,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   bookBasicTransactionBands.forEach((band) => {
     pricingRulesList.push({
-      componentId: getComponent("BOOK_BASIC").id,
+      serviceId: getService("BOOK_BASIC").id,
       ruleType: "transaction_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1193,7 +1224,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   // BOOK_BASIC - High volume transaction pricing (500+)
   pricingRulesList.push({
-    componentId: getComponent("BOOK_BASIC").id,
+    serviceId: getService("BOOK_BASIC").id,
     ruleType: "per_unit" as const,
     minValue: "501",
     price: "0.60",
@@ -1211,7 +1242,7 @@ For more information, visit the ICO website: https://ico.org.uk
   Object.entries(bookFullPrices).forEach(([complexity, prices]) => {
     turnoverBands.forEach((band, index) => {
       pricingRulesList.push({
-        componentId: getComponent("BOOK_FULL").id,
+        serviceId: getService("BOOK_FULL").id,
         ruleType: "turnover_band" as const,
         minValue: band.min.toString(),
         maxValue: band.max.toString(),
@@ -1272,7 +1303,7 @@ For more information, visit the ICO website: https://ico.org.uk
   Object.entries(bookFullTransactionBands).forEach(([complexity, bands]) => {
     bands.forEach((band) => {
       pricingRulesList.push({
-        componentId: getComponent("BOOK_FULL").id,
+        serviceId: getService("BOOK_FULL").id,
         ruleType: "transaction_band" as const,
         minValue: band.min.toString(),
         maxValue: band.max.toString(),
@@ -1291,7 +1322,7 @@ For more information, visit the ICO website: https://ico.org.uk
   };
   Object.entries(bookFullHighVolumeRates).forEach(([complexity, rate]) => {
     pricingRulesList.push({
-      componentId: getComponent("BOOK_FULL").id,
+      serviceId: getService("BOOK_FULL").id,
       ruleType: "per_unit" as const,
       minValue: "501",
       price: rate.toString(),
@@ -1311,7 +1342,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   mgmtMonthlyTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      componentId: getComponent("MGMT_MONTHLY").id,
+      serviceId: getService("MGMT_MONTHLY").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1322,7 +1353,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // MGMT_QUARTERLY - Turnover-based pricing (50% of monthly)
   mgmtMonthlyTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      componentId: getComponent("MGMT_QUARTERLY").id,
+      serviceId: getService("MGMT_QUARTERLY").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1369,7 +1400,7 @@ For more information, visit the ICO website: https://ico.org.uk
   payrollEmployeeBands.forEach((band) => {
     // Monthly (base rate)
     pricingRulesList.push({
-      componentId: getComponent("PAYROLL_STANDARD").id,
+      serviceId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1379,7 +1410,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // Weekly (3x monthly rate)
     pricingRulesList.push({
-      componentId: getComponent("PAYROLL_STANDARD").id,
+      serviceId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1389,7 +1420,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // Fortnightly (2x monthly rate)
     pricingRulesList.push({
-      componentId: getComponent("PAYROLL_STANDARD").id,
+      serviceId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1399,7 +1430,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // 4-Weekly (2x monthly rate)
     pricingRulesList.push({
-      componentId: getComponent("PAYROLL_STANDARD").id,
+      serviceId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1418,7 +1449,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   payrollPerEmployeePricing.forEach((pricing) => {
     pricingRulesList.push({
-      componentId: getComponent("PAYROLL_STANDARD").id,
+      serviceId: getService("PAYROLL_STANDARD").id,
       ruleType: "per_unit" as const,
       minValue: "21",
       price: pricing.pricePerEmployee.toString(),
@@ -1444,7 +1475,254 @@ For more information, visit the ICO website: https://ico.org.uk
 
   console.log(`✓ Created ${createdPricingRules.length} pricing rules`);
 
-  // 5. Create Clients
+  // 5. Create Task Templates
+  console.log("Creating task templates...");
+
+  const taskTemplatesList = [
+    // Company Accounts Templates
+    {
+      serviceId: getService("COMP_ACCOUNTS").id,
+      namePattern: "Prepare Company Accounts for {client_name}",
+      descriptionPattern:
+        "Prepare year-end accounts for {client_name} - Tax year {tax_year}",
+      estimatedHours: 8,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 9, // 9 months after year-end
+      dueDateOffsetDays: 0,
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("COMP_ACCOUNTS").id,
+      namePattern: "Review Company Accounts for {client_name}",
+      descriptionPattern:
+        "Manager review of accounts for {client_name} before filing",
+      estimatedHours: 2,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 9,
+      dueDateOffsetDays: -7, // 7 days before main task due
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("COMP_ACCOUNTS").id,
+      namePattern: "File Company Accounts for {client_name}",
+      descriptionPattern: "Submit accounts to Companies House for {client_name}",
+      estimatedHours: 1,
+      priority: "urgent" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 9,
+      dueDateOffsetDays: -3, // 3 days before deadline
+      isRecurring: true,
+    },
+    // VAT Return Templates
+    {
+      serviceId: getService("VAT_STANDARD").id,
+      namePattern: "Prepare VAT Return for {client_name} - {period}",
+      descriptionPattern:
+        "Prepare quarterly VAT return for {client_name} - Period: {period}",
+      estimatedHours: 3,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 30, // 30 days after quarter end
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("VAT_STANDARD").id,
+      namePattern: "Review VAT Return for {client_name} - {period}",
+      descriptionPattern: "Manager review of VAT return before submission",
+      estimatedHours: 0.5,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 30,
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("VAT_STANDARD").id,
+      namePattern: "File VAT Return for {client_name} - {period}",
+      descriptionPattern: "Submit VAT return to HMRC for period {period}",
+      estimatedHours: 0.5,
+      priority: "urgent" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 37, // 7 days before deadline (30 + 7)
+      isRecurring: true,
+    },
+    // Bookkeeping Basic Templates
+    {
+      serviceId: getService("BOOK_BASIC").id,
+      namePattern: "Monthly Bookkeeping for {client_name} - {month} {year}",
+      descriptionPattern:
+        "Process monthly transactions and reconcile bank accounts for {client_name}",
+      estimatedHours: 4,
+      priority: "medium" as const,
+      taskType: "bookkeeping",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 15, // 15 days after month end
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("BOOK_BASIC").id,
+      namePattern: "Bank Reconciliation for {client_name} - {month} {year}",
+      descriptionPattern: "Reconcile all bank accounts for {client_name}",
+      estimatedHours: 1,
+      priority: "medium" as const,
+      taskType: "bookkeeping",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 10,
+      isRecurring: true,
+    },
+    // Bookkeeping Full Templates
+    {
+      serviceId: getService("BOOK_FULL").id,
+      namePattern: "Full Bookkeeping Service for {client_name} - {month} {year}",
+      descriptionPattern:
+        "Comprehensive bookkeeping including invoicing, expenses, and reporting",
+      estimatedHours: 8,
+      priority: "medium" as const,
+      taskType: "bookkeeping",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 20,
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("BOOK_FULL").id,
+      namePattern: "Management Accounts for {client_name} - {month} {year}",
+      descriptionPattern:
+        "Prepare monthly management accounts and KPI reports",
+      estimatedHours: 3,
+      priority: "high" as const,
+      taskType: "management",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 25,
+      isRecurring: true,
+    },
+    // Payroll Templates
+    {
+      serviceId: getService("PAYROLL_STANDARD").id,
+      namePattern: "Process Payroll for {client_name} - {month} {year}",
+      descriptionPattern:
+        "Calculate and process monthly payroll for {client_name}",
+      estimatedHours: 2,
+      priority: "high" as const,
+      taskType: "payroll",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 28, // End of month
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("PAYROLL_STANDARD").id,
+      namePattern: "Submit RTI for {client_name} - {month} {year}",
+      descriptionPattern:
+        "Submit Real Time Information (RTI) to HMRC for payroll period",
+      estimatedHours: 0.5,
+      priority: "urgent" as const,
+      taskType: "payroll",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 28,
+      isRecurring: true,
+    },
+    // Corporation Tax Templates
+    {
+      serviceId: getService("COMP_SATR").id,
+      namePattern: "Prepare Corporation Tax Return for {client_name}",
+      descriptionPattern:
+        "Prepare CT600 for {client_name} - Tax year {tax_year}",
+      estimatedHours: 6,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 12, // 12 months after year-end
+      dueDateOffsetDays: 0,
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("COMP_SATR").id,
+      namePattern: "Review Corporation Tax Return for {client_name}",
+      descriptionPattern: "Manager review of CT600 before submission",
+      estimatedHours: 1.5,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 12,
+      dueDateOffsetDays: -7,
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("COMP_SATR").id,
+      namePattern: "File Corporation Tax Return for {client_name}",
+      descriptionPattern: "Submit CT600 to HMRC for {client_name}",
+      estimatedHours: 1,
+      priority: "urgent" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 12,
+      dueDateOffsetDays: -3,
+      isRecurring: true,
+    },
+    // Self Assessment Templates
+    {
+      serviceId: getService("COMP_SATR").id,
+      namePattern: "Prepare Self Assessment for {client_name} - {tax_year}",
+      descriptionPattern:
+        "Prepare personal tax return for {client_name} - Tax year {tax_year}",
+      estimatedHours: 4,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 275, // ~9 months (January 31 deadline)
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("COMP_SATR").id,
+      namePattern: "Review Self Assessment for {client_name}",
+      descriptionPattern: "Review personal tax return before submission",
+      estimatedHours: 1,
+      priority: "high" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 270,
+      isRecurring: true,
+    },
+    {
+      serviceId: getService("COMP_SATR").id,
+      namePattern: "File Self Assessment for {client_name}",
+      descriptionPattern: "Submit personal tax return to HMRC",
+      estimatedHours: 0.5,
+      priority: "urgent" as const,
+      taskType: "compliance",
+      dueDateOffsetMonths: 0,
+      dueDateOffsetDays: 275,
+      isRecurring: true,
+    },
+    // Confirmation Statement Template
+    {
+      serviceId: getService("COMP_CONFIRMATION").id,
+      namePattern: "File Confirmation Statement for {client_name}",
+      descriptionPattern:
+        "Submit annual confirmation statement to Companies House for {client_name}",
+      estimatedHours: 1,
+      priority: "high" as const,
+      taskType: "secretarial",
+      dueDateOffsetMonths: 12, // 12 months after incorporation anniversary
+      dueDateOffsetDays: -14, // 14 days before deadline
+      isRecurring: true,
+    },
+  ];
+
+  const createdTaskTemplates = await db
+    .insert(taskTemplates)
+    .values(
+      taskTemplatesList.map((template) => ({
+        ...template,
+        tenantId: tenant.id,
+        isActive: true,
+      })),
+    )
+    .returning();
+
+  console.log(`✓ Created ${createdTaskTemplates.length} task templates`);
+
+  // 6. Create Clients
   console.log("Creating clients...");
   const clientList = [];
   const _clientTypes = [
@@ -1644,7 +1922,7 @@ For more information, visit the ICO website: https://ico.org.uk
     // Each client gets 1-4 service components
     const serviceCount = faker.number.int({ min: 1, max: 4 });
     const selectedComponents = faker.helpers.arrayElements(
-      createdServiceComponents,
+      createdServices,
       serviceCount,
     );
 
@@ -1652,7 +1930,7 @@ For more information, visit the ICO website: https://ico.org.uk
       await db.insert(clientServices).values({
         tenantId: tenant.id,
         clientId: client.id,
-        serviceComponentId: component.id,
+        serviceId: component.id,
         customRate: faker.datatype.boolean()
           ? String(
               Number(component.price) *
@@ -2273,6 +2551,47 @@ For more information, visit the ICO website: https://ico.org.uk
     `✅ Created ${createdTaskNotes.length} task notes for ${createdTasks.slice(0, 10).length} tasks`,
   );
 
+  // 8b. Create Task Assignment History
+  console.log("Creating task assignment history...");
+  const assignmentTypes = ["preparer", "reviewer", "assigned_to"] as const;
+
+  // Add assignment history to 15 random tasks (simulate reassignments)
+  const tasksWithHistory = faker.helpers.arrayElements(createdTasks, 15);
+
+  for (const task of tasksWithHistory) {
+    // Create 1-3 reassignment records per task
+    const historyCount = faker.number.int({ min: 1, max: 3 });
+
+    for (let i = 0; i < historyCount; i++) {
+      const fromUser = i === 0 ? null : faker.helpers.arrayElement(createdUsers).id;
+      const toUser = faker.helpers.arrayElement(createdUsers).id;
+      const changedBy = faker.helpers.arrayElement(createdUsers).id;
+      const assignmentType = faker.helpers.arrayElement(assignmentTypes);
+
+      const changeReasons = [
+        "Workload balancing",
+        "Staff member on leave",
+        "Expertise required",
+        "Priority escalation",
+        "Client request",
+        null, // Some without reason
+      ];
+
+      await db.insert(taskAssignmentHistory).values({
+        tenantId: tenant.id,
+        taskId: task.id,
+        fromUserId: fromUser,
+        toUserId: toUser,
+        changedBy,
+        assignmentType,
+        changeReason: faker.helpers.arrayElement(changeReasons),
+        changedAt: faker.date.recent({ days: 30 }),
+      });
+    }
+  }
+
+  console.log(`✅ Created assignment history for ${tasksWithHistory.length} tasks`);
+
   // 9. Create Time Entries
   console.log("Creating time entries...");
   const workTypes = [
@@ -2323,7 +2642,7 @@ For more information, visit the ICO website: https://ico.org.uk
           clientId: client.id,
           taskId: task?.id || null,
           serviceComponentId: faker.helpers.arrayElement(
-            createdServiceComponents,
+            createdServices,
           ).id,
           date: dateStr,
           hours: String(hours),
@@ -2343,6 +2662,97 @@ For more information, visit the ICO website: https://ico.org.uk
       }
     }
   }
+
+  // 9.5 Create Timesheet Submissions
+  console.log("Creating timesheet submissions...");
+  const submissionStatuses = ["pending", "approved", "rejected", "resubmitted"] as const;
+
+  // Create submissions for the last 4 weeks
+  for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
+    const weekStartDate = new Date();
+    weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() + 6) % 7 - (weekOffset * 7));
+    weekStartDate.setHours(0, 0, 0, 0);
+
+    const weekEndDate = new Date(weekStartDate);
+    weekEndDate.setDate(weekStartDate.getDate() + 6);
+
+    const weekStartStr = weekStartDate.toISOString().split("T")[0];
+    const weekEndStr = weekEndDate.toISOString().split("T")[0];
+
+    // Create submission for some users (not all)
+    for (const user of createdUsers.slice(0, 3)) { // Only first 3 users
+      // Calculate total hours for this week
+      const result = await db.execute(
+        `SELECT COALESCE(SUM(CAST(hours AS DECIMAL)), 0) as total_hours
+         FROM time_entries
+         WHERE tenant_id = '${tenant.id}'
+           AND user_id = '${user.id}'
+           AND date >= '${weekStartStr}'
+           AND date <= '${weekEndStr}'`
+      );
+
+      const totalHours = Number((result.rows[0] as any).total_hours || 0);
+
+      if (totalHours < 37.5) continue; // Skip if not enough hours
+
+      // Determine status based on week
+      let status: string;
+      let reviewedBy: string | null = null;
+      let reviewedAt: Date | null = null;
+      let reviewerComments: string | null = null;
+
+      if (weekOffset === 0) {
+        // Current week - pending
+        status = "pending";
+      } else if (weekOffset === 1) {
+        // Last week - mix of pending and resubmitted
+        status = user.id === createdUsers[0].id ? "resubmitted" : "pending";
+      } else if (weekOffset === 2) {
+        // 2 weeks ago - rejected for one user
+        if (user.id === createdUsers[1].id) {
+          status = "rejected";
+          reviewedBy = adminUser.id;
+          reviewedAt = new Date(weekStartDate.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days after week start
+          reviewerComments = "Please add more detailed descriptions for client meetings. Some entries are missing task associations.";
+        } else {
+          status = "approved";
+          reviewedBy = adminUser.id;
+          reviewedAt = new Date(weekStartDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+        }
+      } else {
+        // 3 weeks ago - approved
+        status = "approved";
+        reviewedBy = adminUser.id;
+        reviewedAt = new Date(weekStartDate.getTime() + 2 * 24 * 60 * 60 * 1000);
+      }
+
+      const [submission] = await db.insert(timesheetSubmissions).values({
+        tenantId: tenant.id,
+        userId: user.id,
+        weekStartDate: weekStartStr,
+        weekEndDate: weekEndStr,
+        status,
+        totalHours: String(totalHours),
+        submittedAt: new Date(weekStartDate.getTime() + 24 * 60 * 60 * 1000), // 1 day after week start
+        reviewedBy,
+        reviewedAt,
+        reviewerComments,
+      }).returning();
+
+      // Link time entries to submission (except for rejected ones, which should be unlinked)
+      if (status !== "rejected") {
+        await db.execute(
+          `UPDATE time_entries
+           SET submission_id = '${submission.id}'
+           WHERE tenant_id = '${tenant.id}'
+             AND user_id = '${user.id}'
+             AND date >= '${weekStartStr}'
+             AND date <= '${weekEndStr}'`
+        );
+      }
+    }
+  }
+  console.log("✅ Created timesheet submissions");
 
   // 9. Create Invoices
   console.log("Creating invoices...");
@@ -2418,7 +2828,7 @@ For more information, visit the ICO website: https://ico.org.uk
         quantity: String(quantity),
         rate: String(rate),
         amount: String(itemAmount),
-        serviceComponentId: faker.helpers.arrayElement(createdServiceComponents)
+        serviceComponentId: faker.helpers.arrayElement(createdServices)
           .id,
         sortOrder: j,
       });
@@ -2944,7 +3354,7 @@ For more information, visit the ICO website: https://ico.org.uk
     // Find the service component if specified
     let serviceComponentId = null;
     if (template.serviceCode) {
-      const component = createdServiceComponents.find(
+      const component = createdServices.find(
         (s) => s.code === template.serviceCode,
       );
       if (component) {
@@ -3763,6 +4173,169 @@ For more information, visit the ICO website: https://ico.org.uk
     "✓ Created message threads, messages, notifications, and calendar events",
   );
 
+  // Create integration settings (sample data - disabled integrations)
+  console.log("Creating integration settings...");
+  const integrationsList = [
+    {
+      integrationType: "xero",
+      enabled: false,
+      config: {
+        syncFrequency: "daily",
+        autoSync: false,
+      },
+    },
+    {
+      integrationType: "quickbooks",
+      enabled: false,
+      config: {
+        syncFrequency: "weekly",
+        autoSync: false,
+      },
+    },
+    {
+      integrationType: "slack",
+      enabled: false,
+      config: {
+        notificationChannels: [],
+      },
+    },
+  ];
+
+  await db.insert(integrationSettings).values(
+    integrationsList.map((integration) => ({
+      tenantId: tenant.id,
+      ...integration,
+    })),
+  );
+
+  // Create sample import logs
+  console.log("Creating import logs...");
+  const importLogsList = [
+    {
+      entityType: "clients" as const,
+      fileName: "clients_import_2025-01.csv",
+      totalRows: 48,
+      processedRows: 45,
+      failedRows: 3,
+      skippedRows: 0,
+      errors: [
+        {
+          row: 12,
+          field: "email",
+          error: "Invalid email format",
+        },
+        {
+          row: 23,
+          field: "vat_number",
+          error: "Invalid VAT number format",
+        },
+        {
+          row: 34,
+          field: "company_name",
+          error: "Company name is required",
+        },
+      ],
+      status: "completed" as const,
+      importedBy: adminUser.id,
+      startedAt: faker.date.recent({ days: 30 }),
+      completedAt: faker.date.recent({ days: 30 }),
+    },
+    {
+      entityType: "tasks" as const,
+      fileName: "tasks_import_2025-01.csv",
+      totalRows: 100,
+      processedRows: 100,
+      failedRows: 0,
+      skippedRows: 0,
+      errors: [],
+      status: "completed" as const,
+      importedBy: createdUsers[1].id,
+      startedAt: faker.date.recent({ days: 15 }),
+      completedAt: faker.date.recent({ days: 15 }),
+    },
+    {
+      entityType: "services" as const,
+      fileName: "services_import_2024-12.csv",
+      totalRows: 27,
+      processedRows: 25,
+      failedRows: 2,
+      skippedRows: 0,
+      errors: [
+        {
+          row: 8,
+          field: "price",
+          error: "Price must be a positive number",
+        },
+        {
+          row: 15,
+          field: "category",
+          error: "Invalid category",
+        },
+      ],
+      status: "completed" as const,
+      importedBy: adminUser.id,
+      startedAt: faker.date.recent({ days: 45 }),
+      completedAt: faker.date.recent({ days: 45 }),
+    },
+  ];
+
+  await db.insert(importLogs).values(
+    importLogsList.map((log) => ({
+      tenantId: tenant.id,
+      ...log,
+    })),
+  );
+
+  // Create sample Xero webhook events (for demo/testing)
+  console.log("Creating sample Xero webhook events...");
+  const sampleEvents = [
+    {
+      eventId: crypto.randomUUID(),
+      eventType: "CREATE",
+      eventCategory: "INVOICE",
+      resourceId: crypto.randomUUID(),
+      xeroTenantId: crypto.randomUUID(),
+    },
+    {
+      eventId: crypto.randomUUID(),
+      eventType: "UPDATE",
+      eventCategory: "CONTACT",
+      resourceId: crypto.randomUUID(),
+      xeroTenantId: crypto.randomUUID(),
+    },
+  ];
+
+  await db.insert(xeroWebhookEvents).values(
+    sampleEvents.map((event) => ({
+      tenantId: tenant.id,
+      eventId: event.eventId,
+      eventType: event.eventType,
+      eventCategory: event.eventCategory,
+      eventDateUtc: faker.date.recent({ days: 7 }),
+      resourceId: event.resourceId,
+      resourceUrl: `https://api.xero.com/api.xro/2.0/${event.eventCategory}s/${event.resourceId}`,
+      xeroTenantId: event.xeroTenantId,
+      processed: faker.datatype.boolean(),
+      processedAt: faker.datatype.boolean()
+        ? faker.date.recent({ days: 7 })
+        : null,
+      rawPayload: {
+        events: [
+          {
+            eventId: event.eventId,
+            eventType: event.eventType,
+            eventCategory: event.eventCategory,
+            tenantId: event.xeroTenantId,
+            resourceId: event.resourceId,
+            eventDateUtc: new Date().toISOString(),
+          },
+        ],
+      },
+    })),
+  );
+
+  console.log("✓ Created integration settings, import logs, and sample webhook events");
+
   console.log("✅ Database seeding completed!");
 
   // Print summary
@@ -3773,7 +4346,7 @@ For more information, visit the ICO website: https://ico.org.uk
   console.log(`✓ 3 Portal categories created`);
   console.log(`✓ 20 Portal links created (internal modules + external tools)`);
   console.log(
-    `✓ ${createdServiceComponents.length} Service Components created`,
+    `✓ ${createdServices.length} Service Components created`,
   );
   console.log(`✓ ${createdPricingRules.length} Pricing Rules created`);
   console.log(`✓ ${createdClients.length} Clients created`);

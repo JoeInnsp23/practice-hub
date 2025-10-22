@@ -196,6 +196,80 @@ describe("app/server/routers/settings.ts", () => {
     });
   });
 
+  describe("getUserSettings", () => {
+    it("should have no required input", () => {
+      const procedure = settingsRouter._def.procedures.getUserSettings;
+
+      expect(
+        !procedure._def.inputs || procedure._def.inputs.length === 0,
+      ).toBe(true);
+    });
+  });
+
+  describe("updateUserSettings", () => {
+    it("should accept valid user settings", () => {
+      expect(() => {
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
+          emailNotifications: true,
+          inAppNotifications: false,
+          digestEmail: "weekly",
+          theme: "dark",
+          language: "en",
+          timezone: "Europe/London",
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept partial settings", () => {
+      expect(() => {
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
+          emailNotifications: false,
+          theme: "light",
+        });
+      }).not.toThrow();
+    });
+
+    it("should validate theme enum", () => {
+      expect(() => {
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
+          theme: "invalid",
+        });
+      }).toThrow();
+    });
+
+    it("should validate digestEmail enum", () => {
+      expect(() => {
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
+          digestEmail: "invalid",
+        });
+      }).toThrow();
+    });
+
+    it("should accept all valid theme values", () => {
+      const validThemes = ["light", "dark", "system"];
+
+      for (const theme of validThemes) {
+        expect(() => {
+          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
+            theme,
+          });
+        }).not.toThrow();
+      }
+    });
+
+    it("should accept all valid digestEmail values", () => {
+      const validDigests = ["daily", "weekly", "never"];
+
+      for (const digestEmail of validDigests) {
+        expect(() => {
+          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
+            digestEmail,
+          });
+        }).not.toThrow();
+      }
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(settingsRouter._def.procedures);
@@ -204,11 +278,13 @@ describe("app/server/routers/settings.ts", () => {
       expect(procedures).toContain("updateTenant");
       expect(procedures).toContain("getNotificationSettings");
       expect(procedures).toContain("updateNotificationSettings");
+      expect(procedures).toContain("getUserSettings");
+      expect(procedures).toContain("updateUserSettings");
     });
 
-    it("should have 4 procedures total", () => {
+    it("should have 6 procedures total", () => {
       const procedures = Object.keys(settingsRouter._def.procedures);
-      expect(procedures).toHaveLength(4);
+      expect(procedures).toHaveLength(6);
     });
   });
 });

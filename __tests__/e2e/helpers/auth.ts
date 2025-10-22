@@ -27,7 +27,8 @@ export async function loginAsTestUser(page: Page): Promise<void> {
   await page.click('button[type="submit"]');
 
   // Wait for redirect to client-hub (indicates successful login)
-  await page.waitForURL("**/client-hub", { timeout: 10000 });
+  // Increased timeout to account for page compilation time in dev mode
+  await page.waitForURL("**/client-hub", { timeout: 45000 });
 }
 
 /**
@@ -57,5 +58,6 @@ export async function loginAsTestAdmin(page: Page): Promise<void> {
   await page.click('button[type="submit"]');
 
   // Wait for redirect to client-hub
-  await page.waitForURL("**/client-hub", { timeout: 10000 });
+  // Increased timeout to account for page compilation time in dev mode
+  await page.waitForURL("**/client-hub", { timeout: 45000 });
 }

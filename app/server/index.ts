@@ -8,6 +8,7 @@ import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
 import { documentsRouter } from "./routers/documents";
+import { integrationsRouter } from "./routers/integrations";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
@@ -25,6 +26,7 @@ import { proposalTemplatesRouter } from "./routers/proposalTemplates";
 import { servicesRouter } from "./routers/services";
 import { settingsRouter } from "./routers/settings";
 import { tasksRouter } from "./routers/tasks";
+import { taskTemplatesRouter } from "./routers/taskTemplates";
 import { timesheetsRouter } from "./routers/timesheets";
 import { transactionDataRouter } from "./routers/transactionData";
 import { usersRouter } from "./routers/users";
@@ -35,6 +37,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   clients: clientsRouter,
   tasks: tasksRouter,
+  taskTemplates: taskTemplatesRouter,
   invoices: invoicesRouter,
   timesheets: timesheetsRouter,
   services: servicesRouter,
@@ -63,6 +66,7 @@ export const appRouter = router({
   calendar: calendarRouter,
   documents: documentsRouter,
   legal: legalRouter,
+  integrations: integrationsRouter,
 });
 
 export type AppRouter = typeof appRouter;

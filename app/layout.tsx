@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { TRPCProvider } from "@/app/providers/trpc-provider";
 import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Footer } from "@/components/shared/footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <ThemeProvider
           attribute="class"
@@ -38,7 +39,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TRPCProvider>
-            {children}
+            <div className="flex-1">{children}</div>
+            <Footer />
             <FeedbackButton />
             <Toaster position="top-right" />
           </TRPCProvider>

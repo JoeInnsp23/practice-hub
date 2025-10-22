@@ -22,7 +22,7 @@ import {
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 // import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
-import { DataImportModal } from "@/components/client-hub/data-import-modal";
+import { ClientImportModal } from "@/components/client-hub/client-import-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -314,12 +314,9 @@ export default function ClientsPage() {
       />
 
       {/* Import Modal */}
-      <DataImportModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        endpoint="/api/import/clients"
-        templateEndpoint="/api/import/clients"
-        entityName="Clients"
+      <ClientImportModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
         onSuccess={() => utils.clients.list.invalidate()}
       />
     </div>

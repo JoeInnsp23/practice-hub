@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
+import Papa from "papaparse";
 import { z } from "zod";
 import {
   getCachedCompany,
@@ -37,10 +38,15 @@ import {
   clientPSCs,
   clientServices,
   clients,
+  importLogs,
   onboardingSessions,
   services,
   users,
 } from "@/lib/db/schema";
+import {
+  generateClientCode,
+  validateClientImport,
+} from "@/lib/services/client-import-validator";
 import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
@@ -756,6 +762,200 @@ export const clientsRouter = router({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "An unexpected error occurred while validating VAT number.",
+        });
+      }
+    }),
+
+  // Preview CSV import (dry run - validation only, no database writes)
+  previewImport: protectedProcedure
+    .input(
+      z.object({
+        csvContent: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      try {
+        // Parse CSV
+        const parseResult = Papa.parse(input.csvContent, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: (header: string) => header.trim(),
+        });
+
+        if (parseResult.errors.length > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "CSV parsing failed",
+          });
+        }
+
+        // Validate rows
+        const validationResult = await validateClientImport(
+          parseResult.data as Record<string, unknown>[],
+          tenantId,
+        );
+
+        // Return preview (first 5 rows + validation results)
+        const previewRows = validationResult.validatedData.slice(0, 5);
+
+        return {
+          totalRows: validationResult.totalRows,
+          validRows: validationResult.validRows,
+          errorRows: validationResult.errorRows,
+          errors: validationResult.errors,
+          previewRows: previewRows.map((r) => ({
+            row: r.row,
+            data: r.data,
+          })),
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+
+        Sentry.captureException(error, {
+          tags: { operation: "preview_import" },
+          extra: { tenantId },
+        });
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to preview import",
+        });
+      }
+    }),
+
+  // Import clients from CSV
+  importClients: protectedProcedure
+    .input(
+      z.object({
+        csvContent: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      try {
+        // Parse CSV
+        const parseResult = Papa.parse(input.csvContent, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: (header: string) => header.trim(),
+        });
+
+        if (parseResult.errors.length > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "CSV parsing failed",
+          });
+        }
+
+        // Validate rows
+        const validationResult = await validateClientImport(
+          parseResult.data as Record<string, unknown>[],
+          tenantId,
+        );
+
+        // Abort if there are validation errors
+        if (validationResult.errorRows > 0) {
+          return {
+            success: false,
+            imported: 0,
+            skipped: 0,
+            failed: validationResult.errorRows,
+            errors: validationResult.errors,
+          };
+        }
+
+        // Import valid rows in transaction
+        const result = await db.transaction(async (tx) => {
+          let imported = 0;
+          let skipped = 0;
+
+          for (const { data, managerId } of validationResult.validatedData) {
+            try {
+              // Generate client code if missing
+              const clientCode =
+                data.client_code || (await generateClientCode(tenantId));
+
+              // Insert client
+              await tx.insert(clients).values({
+                tenantId,
+                clientCode,
+                name: data.company_name,
+                type: data.client_type,
+                status: data.status,
+                email: data.email,
+                phone: data.phone,
+                vatNumber: data.vat_number || null,
+                registrationNumber: data.companies_house_number || null,
+                addressLine1: data.street_address || null,
+                city: data.city || null,
+                postalCode: data.postcode || null,
+                country: data.country,
+                accountManagerId: managerId || userId,
+                createdBy: userId,
+              });
+
+              imported++;
+            } catch (error) {
+              // Skip duplicate or constraint errors
+              skipped++;
+            }
+          }
+
+          // Create import log
+          await tx.insert(importLogs).values({
+            tenantId,
+            importType: "clients",
+            fileName: "csv_import",
+            rowsProcessed: imported,
+            rowsFailed: skipped,
+            errors: [],
+            status: "completed",
+            importedBy: userId,
+          });
+
+          // Log activity
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "client_import",
+            entityId: crypto.randomUUID(),
+            action: "imported",
+            description: `Imported ${imported} clients from CSV`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            metadata: {
+              imported,
+              skipped,
+            },
+          });
+
+          return { imported, skipped };
+        });
+
+        return {
+          success: true,
+          imported: result.imported,
+          skipped: result.skipped,
+          failed: 0,
+          errors: [],
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+
+        Sentry.captureException(error, {
+          tags: { operation: "import_clients" },
+          extra: { tenantId, userId },
+        });
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to import clients",
         });
       }
     }),

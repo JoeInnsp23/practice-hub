@@ -7,12 +7,12 @@ import {
   activityLogs,
   pricingRules,
   proposalServices,
-  serviceComponents,
+  services,
 } from "@/lib/db/schema";
 import { adminProcedure, router } from "../trpc";
 
 // Zod schemas
-const serviceComponentSchema = createInsertSchema(serviceComponents).omit({
+const serviceSchema = createInsertSchema(services).omit({
   id: true,
   tenantId: true,
   createdAt: true,
@@ -37,9 +37,9 @@ export const pricingAdminRouter = router({
 
     const components = await db
       .select()
-      .from(serviceComponents)
-      .where(eq(serviceComponents.tenantId, tenantId))
-      .orderBy(serviceComponents.category, serviceComponents.name);
+      .from(services)
+      .where(eq(services.tenantId, tenantId))
+      .orderBy(services.category, services.name);
 
     return { components };
   }),
@@ -52,11 +52,11 @@ export const pricingAdminRouter = router({
 
       const [component] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.id, id),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.id, id),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -73,18 +73,18 @@ export const pricingAdminRouter = router({
 
   // Create new service component
   createComponent: adminProcedure
-    .input(serviceComponentSchema)
+    .input(serviceSchema)
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
       // Check for duplicate code
       const [existing] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.code, input.code),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.code, input.code),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -98,7 +98,7 @@ export const pricingAdminRouter = router({
 
       // Create component
       const [component] = await db
-        .insert(serviceComponents)
+        .insert(services)
         .values({
           ...input,
           tenantId,
@@ -125,7 +125,7 @@ export const pricingAdminRouter = router({
     .input(
       z.object({
         id: z.string(),
-        data: serviceComponentSchema.partial(),
+        data: serviceSchema.partial(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -134,11 +134,11 @@ export const pricingAdminRouter = router({
       // Get existing component
       const [existing] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.id, input.id),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.id, input.id),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -154,11 +154,11 @@ export const pricingAdminRouter = router({
       if (input.data.code && input.data.code !== existing.code) {
         const [duplicate] = await db
           .select()
-          .from(serviceComponents)
+          .from(services)
           .where(
             and(
-              eq(serviceComponents.code, input.data.code),
-              eq(serviceComponents.tenantId, tenantId),
+              eq(services.code, input.data.code),
+              eq(services.tenantId, tenantId),
             ),
           )
           .limit(1);
@@ -173,12 +173,12 @@ export const pricingAdminRouter = router({
 
       // Update component
       const [component] = await db
-        .update(serviceComponents)
+        .update(services)
         .set({
           ...input.data,
           updatedAt: new Date(),
         })
-        .where(eq(serviceComponents.id, input.id))
+        .where(eq(services.id, input.id))
         .returning();
 
       // Log activity
@@ -206,11 +206,11 @@ export const pricingAdminRouter = router({
       // Get existing component
       const [existing] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.id, id),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.id, id),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -257,7 +257,7 @@ export const pricingAdminRouter = router({
       }
 
       // Delete component (CASCADE will delete pricing rules)
-      await db.delete(serviceComponents).where(eq(serviceComponents.id, id));
+      await db.delete(services).where(eq(services.id, id));
 
       // Log activity
       await db.insert(activityLogs).values({
@@ -289,11 +289,11 @@ export const pricingAdminRouter = router({
       // Get existing component
       const [existing] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.id, input.id),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.id, input.id),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -308,11 +308,11 @@ export const pricingAdminRouter = router({
       // Check for duplicate code
       const [duplicate] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.code, input.newCode),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.code, input.newCode),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -326,7 +326,7 @@ export const pricingAdminRouter = router({
 
       // Create clone
       const [component] = await db
-        .insert(serviceComponents)
+        .insert(services)
         .values({
           ...existing,
           id: undefined as unknown as string,
@@ -386,15 +386,15 @@ export const pricingAdminRouter = router({
 
       // Update all components
       await db
-        .update(serviceComponents)
+        .update(services)
         .set({
           isActive: input.isActive,
           updatedAt: new Date(),
         })
         .where(
           and(
-            sql`${serviceComponents.id} = ANY(${input.ids})`,
-            eq(serviceComponents.tenantId, tenantId),
+            sql`${services.id} = ANY(${input.ids})`,
+            eq(services.tenantId, tenantId),
           ),
         );
 
@@ -424,16 +424,16 @@ export const pricingAdminRouter = router({
     const rules = await db
       .select({
         rule: pricingRules,
-        componentName: serviceComponents.name,
-        componentCode: serviceComponents.code,
+        componentName: services.name,
+        componentCode: services.code,
       })
       .from(pricingRules)
       .leftJoin(
-        serviceComponents,
-        eq(pricingRules.componentId, serviceComponents.id),
+        services,
+        eq(pricingRules.componentId, services.id),
       )
       .where(eq(pricingRules.tenantId, tenantId))
-      .orderBy(serviceComponents.name, pricingRules.ruleType);
+      .orderBy(services.name, pricingRules.ruleType);
 
     return { rules };
   }),
@@ -467,11 +467,11 @@ export const pricingAdminRouter = router({
       // Validate component exists
       const [component] = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            eq(serviceComponents.id, input.componentId),
-            eq(serviceComponents.tenantId, tenantId),
+            eq(services.id, input.componentId),
+            eq(services.tenantId, tenantId),
           ),
         )
         .limit(1);
@@ -662,11 +662,11 @@ export const pricingAdminRouter = router({
       const componentIds = [...new Set(input.map((r) => r.componentId))];
       const components = await db
         .select()
-        .from(serviceComponents)
+        .from(services)
         .where(
           and(
-            sql`${serviceComponents.id} = ANY(${componentIds})`,
-            eq(serviceComponents.tenantId, tenantId),
+            sql`${services.id} = ANY(${componentIds})`,
+            eq(services.tenantId, tenantId),
           ),
         );
 
@@ -717,19 +717,19 @@ export const pricingAdminRouter = router({
     // Check for components without rules
     const componentsWithoutRules = await db
       .select({
-        id: serviceComponents.id,
-        code: serviceComponents.code,
-        name: serviceComponents.name,
+        id: services.id,
+        code: services.code,
+        name: services.name,
       })
-      .from(serviceComponents)
+      .from(services)
       .leftJoin(
         pricingRules,
-        eq(serviceComponents.id, pricingRules.componentId),
+        eq(services.id, pricingRules.componentId),
       )
       .where(
         and(
-          eq(serviceComponents.tenantId, tenantId),
-          eq(serviceComponents.isActive, true),
+          eq(services.tenantId, tenantId),
+          eq(services.isActive, true),
           sql`${pricingRules.id} IS NULL`,
         ),
       );
@@ -751,13 +751,13 @@ export const pricingAdminRouter = router({
       })
       .from(pricingRules)
       .leftJoin(
-        serviceComponents,
-        eq(pricingRules.componentId, serviceComponents.id),
+        services,
+        eq(pricingRules.componentId, services.id),
       )
       .where(
         and(
           eq(pricingRules.tenantId, tenantId),
-          sql`${serviceComponents.id} IS NULL`,
+          sql`${services.id} IS NULL`,
         ),
       );
 
@@ -773,23 +773,23 @@ export const pricingAdminRouter = router({
     // Check for inactive components with active rules
     const inactiveWithActiveRules = await db
       .select({
-        componentId: serviceComponents.id,
-        componentName: serviceComponents.name,
+        componentId: services.id,
+        componentName: services.name,
         ruleCount: sql<number>`count(${pricingRules.id})::int`,
       })
-      .from(serviceComponents)
+      .from(services)
       .innerJoin(
         pricingRules,
-        eq(serviceComponents.id, pricingRules.componentId),
+        eq(services.id, pricingRules.componentId),
       )
       .where(
         and(
-          eq(serviceComponents.tenantId, tenantId),
-          eq(serviceComponents.isActive, false),
+          eq(services.tenantId, tenantId),
+          eq(services.isActive, false),
           eq(pricingRules.isActive, true),
         ),
       )
-      .groupBy(serviceComponents.id, serviceComponents.name);
+      .groupBy(services.id, services.name);
 
     if (inactiveWithActiveRules.length > 0) {
       issues.push({

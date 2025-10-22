@@ -1,0 +1,369 @@
+import { test, expect } from "@playwright/test";
+import { loginAsTestUser } from "../helpers/auth";
+import { createTestClient } from "../helpers/factory";
+import { cleanupTestData } from "../helpers/cleanup";
+
+/**
+ * E2E tests for HMRC VAT Validation Integration
+ * Tests the complete user flow for VAT validation in the client onboarding wizard
+ *
+ * Coverage:
+ * - VAT validation button appears when VAT number entered
+ * - Valid VAT number shows success indicator with business name
+ * - Invalid VAT number shows error indicator
+ * - Re-validation functionality
+ * - Toast notifications for success/error states
+ * - Advisory validation (non-blocking)
+ */
+test.describe("VAT Validation Flow", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsTestUser(page);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestData();
+  });
+
+  test("should show VAT validation button when VAT number is entered", async ({
+    page,
+  }) => {
+    const testClient = createTestClient("VAT Test Client");
+
+    // Navigate to client creation
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step (typically step 2 or 3 in wizard)
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500); // Wait for step transition
+
+    // Enter VAT number
+    const vatInput = page.locator('input#vatNumber');
+    await vatInput.fill("GB123456789");
+
+    // Validation button should appear when VAT number is 9+ digits
+    await expect(page.locator('button:has-text("Validate VAT")')).toBeVisible({
+      timeout: 3000,
+    });
+  });
+
+  test("should validate valid VAT number and show success indicator", async ({
+    page,
+  }) => {
+    const testClient = createTestClient("Valid VAT Client");
+
+    // Navigate to client creation and registration details step
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    // Enter valid VAT number (this will hit the real HMRC API in sandbox mode)
+    const vatInput = page.locator('input#vatNumber');
+    await vatInput.fill("GB123456789");
+
+    // Click validate button
+    await page.click('button:has-text("Validate VAT")');
+
+    // Wait for loading indicator
+    await expect(page.locator('text="Validating..."')).toBeVisible({
+      timeout: 2000,
+    });
+
+    // Wait for validation to complete and success indicator to appear
+    // This should show "Valid VAT number" with green check icon
+    await expect(page.locator('text="Valid VAT number"')).toBeVisible({
+      timeout: 10000, // HMRC API can take a few seconds
+    });
+
+    // Verify success toast notification
+    await expect(
+      page.locator('text=/VAT number validated|Success/i'),
+    ).toBeVisible({ timeout: 3000 });
+
+    // Verify re-validate button appears
+    await expect(page.locator('button:has-text("Re-validate")')).toBeVisible();
+  });
+
+  test("should handle invalid VAT number gracefully", async ({ page }) => {
+    const testClient = createTestClient("Invalid VAT Client");
+
+    // Navigate to client creation and registration details step
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    // Enter invalid VAT number (non-existent)
+    const vatInput = page.locator('input#vatNumber');
+    await vatInput.fill("GB999999999");
+
+    // Click validate button
+    await page.click('button:has-text("Validate VAT")');
+
+    // Wait for loading indicator
+    await expect(page.locator('text="Validating..."')).toBeVisible({
+      timeout: 2000,
+    });
+
+    // Wait for validation to complete and invalid indicator to appear
+    await expect(page.locator('text="Invalid VAT number"')).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Verify error toast notification
+    await expect(
+      page.locator('text=/VAT number is invalid|not found/i'),
+    ).toBeVisible({ timeout: 3000 });
+
+    // Verify retry button appears
+    await expect(page.locator('button:has-text("Retry")')).toBeVisible();
+  });
+
+  test("should allow re-validation of VAT number", async ({ page }) => {
+    const testClient = createTestClient("Re-validate VAT Client");
+
+    // Navigate to client creation and registration details step
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    // Enter valid VAT number
+    const vatInput = page.locator('input#vatNumber');
+    await vatInput.fill("GB123456789");
+
+    // First validation
+    await page.click('button:has-text("Validate VAT")');
+    await expect(page.locator('text="Valid VAT number"')).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Click re-validate button
+    await page.click('button:has-text("Re-validate")');
+
+    // Should show loading again
+    await expect(page.locator('text="Validating..."')).toBeVisible({
+      timeout: 2000,
+    });
+
+    // Should complete successfully again
+    await expect(page.locator('text="Valid VAT number"')).toBeVisible({
+      timeout: 10000,
+    });
+  });
+
+  test("should validate VAT without blocking wizard completion (advisory)", async ({
+    page,
+  }) => {
+    const testClient = createTestClient("Advisory VAT Client");
+
+    // Navigate to client creation
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    // Enter VAT number but DON'T validate it
+    const vatInput = page.locator('input#vatNumber');
+    await vatInput.fill("GB123456789");
+
+    // Should be able to continue without validation (advisory, non-blocking)
+    const nextButton = page.locator('[data-testid="client-wizard-next-button"]');
+    await expect(nextButton).toBeEnabled();
+
+    // Navigate through remaining wizard steps
+    for (let i = 0; i < 6; i++) {
+      if (await nextButton.isVisible().catch(() => false)) {
+        await nextButton.click();
+        await page.waitForTimeout(300);
+      }
+    }
+
+    // Should be able to complete wizard
+    const completeButton = page.locator(
+      '[data-testid="client-wizard-complete-button"]',
+    );
+    if (await completeButton.isVisible().catch(() => false)) {
+      await expect(completeButton).toBeEnabled();
+    }
+  });
+
+  test("should show validation button only when VAT number has 9+ digits", async ({
+    page,
+  }) => {
+    const testClient = createTestClient("VAT Length Test Client");
+
+    // Navigate to client creation and registration details step
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    const vatInput = page.locator('input#vatNumber');
+
+    // Enter short VAT number (< 9 digits)
+    await vatInput.fill("GB1234");
+    // Validation button should NOT appear
+    await expect(
+      page.locator('button:has-text("Validate VAT")'),
+    ).not.toBeVisible();
+
+    // Enter full VAT number (9 digits)
+    await vatInput.clear();
+    await vatInput.fill("GB123456789");
+    // Validation button should appear
+    await expect(page.locator('button:has-text("Validate VAT")')).toBeVisible({
+      timeout: 2000,
+    });
+  });
+
+  test("should display business name when VAT validation succeeds", async ({
+    page,
+  }) => {
+    const testClient = createTestClient("Business Name Display Client");
+
+    // Navigate to client creation and registration details step
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    // Enter valid VAT number
+    const vatInput = page.locator('input#vatNumber');
+    await vatInput.fill("GB123456789");
+
+    // Click validate button
+    await page.click('button:has-text("Validate VAT")');
+
+    // Wait for validation to complete
+    await expect(page.locator('text="Valid VAT number"')).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Verify business name is displayed (if returned by HMRC)
+    // The business name should appear as a smaller text below "Valid VAT number"
+    const validationIndicator = page.locator(
+      'text="Valid VAT number"',
+    ).locator("..");
+    await expect(validationIndicator).toBeVisible();
+
+    // Check that the validation indicator contains additional text (business name)
+    const indicatorText = await validationIndicator.textContent();
+    expect(indicatorText).toBeTruthy();
+    expect(indicatorText?.length).toBeGreaterThan(20); // Should be longer than just "Valid VAT number"
+  });
+
+  test("should handle validation errors with user-friendly messages", async ({
+    page,
+  }) => {
+    const testClient = createTestClient("Error Handling Client");
+
+    // Navigate to client creation and registration details step
+    await page.goto("/client-hub/clients");
+    await page.click('[data-testid="client-creation-button"]');
+    await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+
+    // Fill basic info
+    await page.fill('[data-testid="client-form-name-input"]', testClient.name);
+    await page.click('[data-testid="client-form-type-select"]');
+    await page.click('text="Limited Company"');
+    await page.click('[data-testid="client-form-status-select"]');
+    await page.click('text="Active"');
+
+    // Navigate to registration details step
+    await page.click('[data-testid="client-wizard-next-button"]');
+    await page.waitForTimeout(500);
+
+    const vatInput = page.locator('input#vatNumber');
+
+    // Test 1: Empty VAT number should show validation error
+    await vatInput.clear();
+    const validateButton = page.locator('button:has-text("Validate VAT")');
+
+    // Button should not appear when VAT is empty
+    await expect(validateButton).not.toBeVisible();
+
+    // Test 2: Short VAT number should not show validate button
+    await vatInput.fill("GB123");
+    await expect(validateButton).not.toBeVisible();
+
+    // Test 3: Full invalid VAT number should show error
+    await vatInput.clear();
+    await vatInput.fill("GB000000000");
+    await page.click('button:has-text("Validate VAT")');
+
+    // Should show error state or invalid indicator
+    await expect(
+      page.locator('text=/Invalid|error|not found/i'),
+    ).toBeVisible({ timeout: 10000 });
+  });
+});

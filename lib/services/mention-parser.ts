@@ -40,22 +40,43 @@ export function parseMentions(text: string): string[] {
 }
 
 /**
+ * HTML-escape a string to prevent XSS attacks
+ *
+ * @param unsafe - String that may contain HTML special characters
+ * @returns HTML-escaped string safe for innerHTML
+ */
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
  * Highlight @mentions in text with styled spans for display
  *
  * Replaces @[User Name] with styled HTML spans containing the text-primary class.
- * This is safe for use with React's dangerouslySetInnerHTML since we only
- * inject specific HTML tags without user-controlled attributes.
+ * SECURITY: Sanitizes user input by HTML-escaping mention content before injection.
  *
  * @param text - The text containing @mentions to highlight
- * @returns HTML string with highlighted mentions
+ * @returns HTML string with highlighted mentions (sanitized against XSS)
  *
  * @example
  * highlightMentions("Hey @[John Doe], can you review?")
  * // Returns: 'Hey <span class="mention">@John Doe</span>, can you review?'
+ *
+ * @example XSS Protection
+ * highlightMentions("@[<script>alert('XSS')</script>]")
+ * // Returns: '<span class="mention">@&lt;script&gt;alert(&#039;XSS&#039;)&lt;/script&gt;</span>'
  */
 export function highlightMentions(text: string): string {
-  // Replace @mentions with styled spans (for display)
-  return text.replace(
+  // First, HTML-escape the entire text to prevent XSS
+  const escapedText = escapeHtml(text);
+
+  // Replace @mentions with styled spans (using already-escaped content)
+  return escapedText.replace(
     /@\[([^\]]+)\]/g,
     '<span class="mention text-primary font-semibold">@$1</span>',
   );

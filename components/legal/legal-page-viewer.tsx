@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc/client";
 import { FileText } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { Components } from "react-markdown";
 
 interface LegalPageViewerProps {
   pageType: "privacy" | "terms" | "cookie_policy";
@@ -73,22 +76,73 @@ export function LegalPageViewer({ pageType, title }: LegalPageViewerProps) {
   return (
     <Card>
       <CardContent className="py-8">
-        {/* Legal content with preserved formatting */}
+        {/* Legal content with safe markdown rendering */}
         <div className="prose prose-slate dark:prose-invert max-w-none">
-          <div
-            className="whitespace-pre-wrap font-sans text-sm leading-relaxed"
-            // biome-ignore lint: displaying user-generated legal content
-            dangerouslySetInnerHTML={{
-              __html: legalPage.content
-                .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold mb-4 mt-8">$1</h1>')
-                .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-semibold mb-3 mt-6">$2</h2>')
-                .replace(/^### (.+)$/gm, '<h3 class="text-xl font-semibold mb-2 mt-4">$3</h3>')
-                .replace(/^\*\*(.+?)\*\*/gm, '<strong>$1</strong>')
-                .replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>')
-                .replace(/\n\n/g, '<br/><br/>')
-                .replace(/\n/g, '<br/>'),
-            }}
-          />
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={
+              {
+                h1: ({ ...props }) => (
+                  <h1
+                    className="text-3xl font-bold mb-4 mt-8"
+                    {...props}
+                  />
+                ),
+                h2: ({ ...props }) => (
+                  <h2
+                    className="text-2xl font-semibold mb-3 mt-6"
+                    {...props}
+                  />
+                ),
+                h3: ({ ...props }) => (
+                  <h3
+                    className="text-xl font-semibold mb-2 mt-4"
+                    {...props}
+                  />
+                ),
+                p: ({ ...props }) => (
+                  <p className="mb-4 leading-relaxed" {...props} />
+                ),
+                ul: ({ ...props }) => (
+                  <ul className="list-disc ml-6 mb-4" {...props} />
+                ),
+                ol: ({ ...props }) => (
+                  <ol className="list-decimal ml-6 mb-4" {...props} />
+                ),
+                li: ({ ...props }) => <li className="mb-1" {...props} />,
+                strong: ({ ...props }) => (
+                  <strong className="font-semibold" {...props} />
+                ),
+                a: ({ ...props }) => (
+                  <a
+                    className="text-primary hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    {...props}
+                  />
+                ),
+                table: ({ ...props }) => (
+                  <div className="overflow-x-auto my-4">
+                    <table
+                      className="min-w-full border-collapse"
+                      {...props}
+                    />
+                  </div>
+                ),
+                th: ({ ...props }) => (
+                  <th
+                    className="border border-border px-4 py-2 bg-muted font-semibold text-left"
+                    {...props}
+                  />
+                ),
+                td: ({ ...props }) => (
+                  <td className="border border-border px-4 py-2" {...props} />
+                ),
+              } as Components
+            }
+          >
+            {legalPage.content}
+          </ReactMarkdown>
         </div>
 
         {/* Metadata footer */}

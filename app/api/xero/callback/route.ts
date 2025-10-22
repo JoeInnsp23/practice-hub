@@ -1,14 +1,18 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { xeroConnections } from "@/lib/db/schema";
+import { integrationSettings } from "@/lib/db/schema";
 import { getAccessToken, getConnections } from "@/lib/xero/client";
+import { encryptObject } from "@/lib/services/encryption";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Xero OAuth Callback Endpoint
  *
  * Handles the OAuth callback from Xero after user authorization
- * Exchanges authorization code for access token and stores credentials
+ * - Exchanges authorization code for access token
+ * - Stores encrypted credentials in integrationSettings table
+ * - Tenant-level integration (one connection per accountancy firm)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -20,21 +24,22 @@ export async function GET(request: NextRequest) {
     // Handle OAuth errors
     if (error) {
       const errorDescription = searchParams.get("error_description");
+      console.error(`[Xero OAuth] Authorization error: ${error} - ${errorDescription}`);
+
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/client-hub/clients?xeroError=${encodeURIComponent(errorDescription || error)}`,
+        `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=${encodeURIComponent(errorDescription || error)}`,
       );
     }
 
     if (!code || !state) {
-      return NextResponse.json(
-        { error: "Missing code or state parameter" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing code or state parameter" }, { status: 400 });
     }
 
-    // Decode state to get clientId and tenantId
+    // Decode state to get tenantId and userId
     const stateData = JSON.parse(Buffer.from(state, "base64").toString());
-    const { clientId, tenantId, userId } = stateData;
+    const { tenantId, userId } = stateData;
+
+    console.log(`[Xero OAuth] Processing callback for tenant ${tenantId}, user ${userId}`);
 
     // Exchange code for access token
     const tokenResponse = await getAccessToken(code);
@@ -43,64 +48,97 @@ export async function GET(request: NextRequest) {
     const connections = await getConnections(tokenResponse.access_token);
 
     if (connections.length === 0) {
+      console.error("[Xero OAuth] No Xero organizations found");
+
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/client-hub/clients/${clientId}?xeroError=no_organizations`,
+        `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=no_organizations`,
       );
     }
 
     // Use the first connected organization
     const xeroOrg = connections[0];
 
+    console.log(
+      `[Xero OAuth] Connected to Xero org: ${xeroOrg.tenantName} (${xeroOrg.tenantId})`,
+    );
+
     // Calculate token expiry
     const expiresAt = new Date(Date.now() + tokenResponse.expires_in * 1000);
 
-    // Store or update Xero connection
-    const existingConnection = await db
+    // Prepare credentials object for encryption
+    const credentials = {
+      accessToken: tokenResponse.access_token,
+      refreshToken: tokenResponse.refresh_token,
+      expiresAt: expiresAt.toISOString(),
+      selectedTenantId: xeroOrg.tenantId,
+      tokenType: tokenResponse.token_type,
+      scope: tokenResponse.scope,
+    };
+
+    // Encrypt credentials
+    const encryptedCredentials = encryptObject(credentials);
+
+    // Prepare metadata
+    const metadata = {
+      xeroTenantName: xeroOrg.tenantName,
+      xeroOrganisationId: xeroOrg.id,
+      connectedBy: userId,
+      connectedAt: new Date().toISOString(),
+    };
+
+    // Check if integration already exists for this tenant
+    const existingIntegration = await db
       .select()
-      .from(xeroConnections)
-      .where(eq(xeroConnections.clientId, clientId))
+      .from(integrationSettings)
+      .where(
+        and(
+          eq(integrationSettings.tenantId, tenantId),
+          eq(integrationSettings.integrationType, "xero"),
+        ),
+      )
       .limit(1);
 
-    if (existingConnection.length > 0) {
-      // Update existing connection
+    if (existingIntegration.length > 0) {
+      // Update existing integration
       await db
-        .update(xeroConnections)
+        .update(integrationSettings)
         .set({
-          accessToken: tokenResponse.access_token,
-          refreshToken: tokenResponse.refresh_token,
-          expiresAt,
-          xeroTenantId: xeroOrg.tenantId,
-          xeroTenantName: xeroOrg.tenantName,
-          xeroOrganisationId: xeroOrg.organisationId,
-          isActive: true,
+          credentials: encryptedCredentials,
+          enabled: true,
           syncStatus: "connected",
           syncError: null,
+          lastSyncedAt: new Date(),
+          metadata,
           updatedAt: new Date(),
         })
-        .where(eq(xeroConnections.id, existingConnection[0].id));
+        .where(eq(integrationSettings.id, existingIntegration[0].id));
+
+      console.log(`[Xero OAuth] Updated existing integration for tenant ${tenantId}`);
     } else {
-      // Create new connection
-      await db.insert(xeroConnections).values({
+      // Create new integration
+      await db.insert(integrationSettings).values({
         tenantId,
-        clientId,
-        accessToken: tokenResponse.access_token,
-        refreshToken: tokenResponse.refresh_token,
-        expiresAt,
-        xeroTenantId: xeroOrg.tenantId,
-        xeroTenantName: xeroOrg.tenantName,
-        xeroOrganisationId: xeroOrg.organisationId,
-        isActive: true,
+        integrationType: "xero",
+        credentials: encryptedCredentials,
+        enabled: true,
         syncStatus: "connected",
-        connectedBy: userId,
+        lastSyncedAt: new Date(),
+        metadata,
       });
+
+      console.log(`[Xero OAuth] Created new integration for tenant ${tenantId}`);
     }
 
-    // Redirect back to client page with success
+    // Redirect to integrations settings page with success
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/client-hub/clients/${clientId}?xeroConnected=true`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroConnected=true`,
     );
   } catch (error) {
-    console.error("Xero callback error:", error);
+    Sentry.captureException(error, {
+      tags: { operation: "xeroCallback" },
+    });
+
+    console.error("[Xero OAuth] Callback error:", error);
 
     // Try to redirect back with error if we have state
     const { searchParams } = new URL(request.url);
@@ -109,17 +147,43 @@ export async function GET(request: NextRequest) {
     if (state) {
       try {
         const stateData = JSON.parse(Buffer.from(state, "base64").toString());
-        const { clientId } = stateData;
+        const { tenantId } = stateData;
+
+        // Store error in database if we have tenantId
+        if (tenantId) {
+          const existingIntegration = await db
+            .select()
+            .from(integrationSettings)
+            .where(
+              and(
+                eq(integrationSettings.tenantId, tenantId),
+                eq(integrationSettings.integrationType, "xero"),
+              ),
+            )
+            .limit(1);
+
+          if (existingIntegration.length > 0) {
+            await db
+              .update(integrationSettings)
+              .set({
+                syncStatus: "error",
+                syncError: error instanceof Error ? error.message : "Connection failed",
+                updatedAt: new Date(),
+              })
+              .where(eq(integrationSettings.id, existingIntegration[0].id));
+          }
+        }
+
         return NextResponse.redirect(
-          `${process.env.NEXT_PUBLIC_APP_URL}/client-hub/clients/${clientId}?xeroError=connection_failed`,
+          `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=connection_failed`,
         );
       } catch {
-        // If state parsing fails, just redirect to clients list
+        // If state parsing fails, just redirect to integrations page
       }
     }
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/client-hub/clients?xeroError=connection_failed`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=connection_failed`,
     );
   }
 }

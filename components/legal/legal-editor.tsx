@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc/client";
-import { Save, History, FileText } from "lucide-react";
+import { Save, FileText } from "lucide-react";
 import toast from "react-hot-toast";
+import { LegalVersionHistoryDialog } from "./legal-version-history-dialog";
 
 interface LegalEditorProps {
   pageType: "privacy" | "terms" | "cookie_policy";
@@ -26,18 +27,16 @@ export function LegalEditor({ pageType, title }: LegalEditorProps) {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Fetch current legal page
-  const { data: legalPage, isLoading } = trpc.legal.getByType.useQuery(
-    {
-      pageType,
-    },
-    {
-      onSuccess: (data) => {
-        if (data && !hasChanges) {
-          setContent(data.content);
-        }
-      },
-    },
-  );
+  const { data: legalPage, isLoading } = trpc.legal.getByType.useQuery({
+    pageType,
+  });
+
+  // Update content when legal page data is fetched
+  useEffect(() => {
+    if (legalPage && !hasChanges) {
+      setContent(legalPage.content);
+    }
+  }, [legalPage, hasChanges]);
 
   // Update mutation
   const updateMutation = trpc.legal.update.useMutation({
@@ -151,10 +150,11 @@ export function LegalEditor({ pageType, title }: LegalEditorProps) {
 
           {legalPage && legalPage.version > 1 && (
             <div className="ml-auto">
-              <Button variant="ghost" size="sm">
-                <History className="h-4 w-4 mr-2" />
-                Version History
-              </Button>
+              <LegalVersionHistoryDialog
+                pageType={pageType}
+                pageTitle={title}
+                currentVersion={legalPage.version}
+              />
             </div>
           )}
         </div>

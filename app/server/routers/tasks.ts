@@ -1,13 +1,17 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, ilike, isNull, or, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getTasksList } from "@/lib/db/queries/task-queries";
 import {
   activityLogs,
+  notifications,
+  taskAssignmentHistory,
+  taskNotes,
   tasks,
   taskWorkflowInstances,
+  users,
   workflowStages,
   workflows,
   workflowVersions,
@@ -954,5 +958,507 @@ export const tasksRouter = router({
       });
 
       return { success: true, ...result };
+    }),
+
+  // Task Notes Procedures
+
+  createNote: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string().uuid(),
+        note: z.string().min(1).max(10000),
+        isInternal: z.boolean().default(false),
+        mentionedUsers: z.array(z.string()).default([]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Verify task exists and belongs to tenant
+      const [task] = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
+        .limit(1);
+
+      if (!task) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found",
+        });
+      }
+
+      // Create task note
+      const [taskNote] = await db
+        .insert(taskNotes)
+        .values({
+          tenantId,
+          taskId: input.taskId,
+          userId,
+          note: input.note,
+          isInternal: input.isInternal,
+          mentionedUsers: input.mentionedUsers,
+        })
+        .returning();
+
+      // Create notifications for mentioned users
+      for (const mentionedUserId of input.mentionedUsers) {
+        await db.insert(notifications).values({
+          tenantId,
+          userId: mentionedUserId,
+          type: "task_mention",
+          title: "You were mentioned in a task",
+          message: `${firstName || ""} ${lastName || ""} mentioned you in task comments`,
+          actionUrl: `/client-hub/tasks/${input.taskId}`,
+          entityType: "task",
+          entityId: task.id,
+          isRead: false,
+        });
+      }
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "task",
+        entityId: task.id,
+        action: "note_added",
+        description: `Added a ${input.isInternal ? "internal " : ""}comment to task "${task.title}"`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+      });
+
+      return { success: true, noteId: taskNote.id };
+    }),
+
+  getNotes: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string().uuid(),
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify task exists and belongs to tenant
+      const [task] = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
+        .limit(1);
+
+      if (!task) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found",
+        });
+      }
+
+      // Get notes with author information
+      const notes = await db
+        .select({
+          id: taskNotes.id,
+          note: taskNotes.note,
+          isInternal: taskNotes.isInternal,
+          mentionedUsers: taskNotes.mentionedUsers,
+          createdAt: taskNotes.createdAt,
+          updatedAt: taskNotes.updatedAt,
+          author: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(taskNotes)
+        .innerJoin(users, eq(taskNotes.userId, users.id))
+        .where(
+          and(
+            eq(taskNotes.tenantId, tenantId),
+            eq(taskNotes.taskId, input.taskId),
+            isNull(taskNotes.deletedAt), // Exclude soft-deleted notes
+          ),
+        )
+        .orderBy(desc(taskNotes.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return notes;
+    }),
+
+  updateNote: protectedProcedure
+    .input(
+      z.object({
+        noteId: z.string().uuid(),
+        note: z.string().min(1).max(10000),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, role } = ctx.authContext;
+
+      // Verify note exists and belongs to tenant
+      const [existingNote] = await db
+        .select()
+        .from(taskNotes)
+        .where(
+          and(eq(taskNotes.id, input.noteId), eq(taskNotes.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!existingNote) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Note not found",
+        });
+      }
+
+      // Check authorization (owner or admin)
+      const isOwner = existingNote.userId === userId;
+      const isAdmin = role === "admin" || role === "org:admin";
+
+      if (!isOwner && !isAdmin) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to edit this note",
+        });
+      }
+
+      // Update note
+      await db
+        .update(taskNotes)
+        .set({
+          note: input.note,
+          updatedAt: new Date(),
+        })
+        .where(eq(taskNotes.id, input.noteId));
+
+      return { success: true };
+    }),
+
+  deleteNote: protectedProcedure
+    .input(z.object({ noteId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, role } = ctx.authContext;
+
+      // Verify note exists and belongs to tenant
+      const [existingNote] = await db
+        .select()
+        .from(taskNotes)
+        .where(
+          and(eq(taskNotes.id, input.noteId), eq(taskNotes.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!existingNote) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Note not found",
+        });
+      }
+
+      // Check authorization (owner or admin)
+      const isOwner = existingNote.userId === userId;
+      const isAdmin = role === "admin" || role === "org:admin";
+
+      if (!isOwner && !isAdmin) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this note",
+        });
+      }
+
+      // Soft delete
+      await db
+        .update(taskNotes)
+        .set({ deletedAt: new Date() })
+        .where(eq(taskNotes.id, input.noteId));
+
+      return { success: true };
+    }),
+
+  getNoteCount: protectedProcedure
+    .input(z.object({ taskId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const [result] = await db
+        .select({ count: count() })
+        .from(taskNotes)
+        .where(
+          and(
+            eq(taskNotes.tenantId, tenantId),
+            eq(taskNotes.taskId, input.taskId),
+            isNull(taskNotes.deletedAt),
+          ),
+        );
+
+      return result?.count || 0;
+    }),
+
+  getMentionableUsers: protectedProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const mentionableUsers = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        })
+        .from(users)
+        .where(
+          and(
+            eq(users.tenantId, tenantId),
+            or(
+              ilike(users.firstName, `%${input.query}%`),
+              ilike(users.lastName, `%${input.query}%`),
+              ilike(users.email, `%${input.query}%`),
+            ),
+          ),
+        )
+        .limit(10);
+
+      return mentionableUsers;
+    }),
+
+  // Reassign task to new user
+  reassign: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string().uuid(),
+        toUserId: z.string(),
+        assignmentType: z.enum(["preparer", "reviewer", "assigned_to"]),
+        changeReason: z.string().max(500).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Get current task
+      const [task] = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
+        .limit(1);
+
+      if (!task) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+      }
+
+      // Get current assignee ID based on assignment type
+      const currentAssigneeId =
+        input.assignmentType === "preparer"
+          ? task.preparerId
+          : input.assignmentType === "reviewer"
+            ? task.reviewerId
+            : task.assignedToId;
+
+      // Prevent self-reassignment
+      if (currentAssigneeId === input.toUserId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot reassign to current assignee",
+        });
+      }
+
+      // Update task assignment
+      const updateField =
+        input.assignmentType === "preparer"
+          ? { preparerId: input.toUserId }
+          : input.assignmentType === "reviewer"
+            ? { reviewerId: input.toUserId }
+            : { assignedToId: input.toUserId };
+
+      await db.transaction(async (tx) => {
+        // Update task
+        await tx
+          .update(tasks)
+          .set({ ...updateField, updatedAt: new Date() })
+          .where(eq(tasks.id, input.taskId));
+
+        // Create assignment history record
+        await tx.insert(taskAssignmentHistory).values({
+          tenantId,
+          taskId: input.taskId,
+          fromUserId: currentAssigneeId,
+          toUserId: input.toUserId,
+          changedBy: userId,
+          changeReason: input.changeReason,
+          assignmentType: input.assignmentType,
+        });
+
+        // Send notification to old assignee
+        if (currentAssigneeId) {
+          await tx.insert(notifications).values({
+            tenantId,
+            userId: currentAssigneeId,
+            type: "task_reassigned",
+            title: "Task reassigned",
+            message: `Task "${task.title}" has been reassigned`,
+            actionUrl: `/client-hub/tasks/${input.taskId}`,
+            entityType: "task",
+            entityId: input.taskId,
+          });
+        }
+
+        // Send notification to new assignee
+        await tx.insert(notifications).values({
+          tenantId,
+          userId: input.toUserId,
+          type: "task_assigned",
+          title: "Task assigned to you",
+          message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
+          actionUrl: `/client-hub/tasks/${input.taskId}`,
+          entityType: "task",
+          entityId: input.taskId,
+        });
+      });
+
+      return { success: true };
+    }),
+
+  // Bulk reassign tasks
+  bulkReassign: protectedProcedure
+    .input(
+      z.object({
+        taskIds: z.array(z.string().uuid()),
+        toUserId: z.string(),
+        assignmentType: z.enum(["preparer", "reviewer", "assigned_to"]),
+        changeReason: z.string().max(500).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      await db.transaction(async (tx) => {
+        for (const taskId of input.taskIds) {
+          // Get current task
+          const [task] = await tx
+            .select()
+            .from(tasks)
+            .where(and(eq(tasks.id, taskId), eq(tasks.tenantId, tenantId)))
+            .limit(1);
+
+          if (!task) continue; // Skip if task not found
+
+          // Get current assignee
+          const currentAssigneeId =
+            input.assignmentType === "preparer"
+              ? task.preparerId
+              : input.assignmentType === "reviewer"
+                ? task.reviewerId
+                : task.assignedToId;
+
+          // Skip if already assigned to target user
+          if (currentAssigneeId === input.toUserId) continue;
+
+          // Update task assignment
+          const updateField =
+            input.assignmentType === "preparer"
+              ? { preparerId: input.toUserId }
+              : input.assignmentType === "reviewer"
+                ? { reviewerId: input.toUserId }
+                : { assignedToId: input.toUserId };
+
+          await tx
+            .update(tasks)
+            .set({ ...updateField, updatedAt: new Date() })
+            .where(eq(tasks.id, taskId));
+
+          // Create assignment history record
+          await tx.insert(taskAssignmentHistory).values({
+            tenantId,
+            taskId,
+            fromUserId: currentAssigneeId,
+            toUserId: input.toUserId,
+            changedBy: userId,
+            changeReason: input.changeReason,
+            assignmentType: input.assignmentType,
+          });
+
+          // Send notifications (old assignee)
+          if (currentAssigneeId) {
+            await tx.insert(notifications).values({
+              tenantId,
+              userId: currentAssigneeId,
+              type: "task_reassigned",
+              title: "Task reassigned",
+              message: `Task "${task.title}" has been reassigned`,
+              actionUrl: `/client-hub/tasks/${taskId}`,
+              entityType: "task",
+              entityId: taskId,
+            });
+          }
+
+          // Send notification (new assignee)
+          await tx.insert(notifications).values({
+            tenantId,
+            userId: input.toUserId,
+            type: "task_assigned",
+            title: "Task assigned to you",
+            message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
+            actionUrl: `/client-hub/tasks/${taskId}`,
+            entityType: "task",
+            entityId: taskId,
+          });
+        }
+      });
+
+      return { success: true, count: input.taskIds.length };
+    }),
+
+  // Get assignment history for task
+  getAssignmentHistory: protectedProcedure
+    .input(z.object({ taskId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const history = await db
+        .select({
+          id: taskAssignmentHistory.id,
+          changedAt: taskAssignmentHistory.changedAt,
+          assignmentType: taskAssignmentHistory.assignmentType,
+          changeReason: taskAssignmentHistory.changeReason,
+          fromUser: {
+            id: sql<string | null>`from_user.id`,
+            firstName: sql<string | null>`from_user.first_name`,
+            lastName: sql<string | null>`from_user.last_name`,
+          },
+          toUser: {
+            id: sql<string>`to_user.id`,
+            firstName: sql<string>`to_user.first_name`,
+            lastName: sql<string>`to_user.last_name`,
+          },
+          changedBy: {
+            id: sql<string>`changed_by_user.id`,
+            firstName: sql<string>`changed_by_user.first_name`,
+            lastName: sql<string>`changed_by_user.last_name`,
+          },
+        })
+        .from(taskAssignmentHistory)
+        .leftJoin(
+          sql`${users} as from_user`,
+          eq(taskAssignmentHistory.fromUserId, sql`from_user.id`),
+        )
+        .innerJoin(
+          sql`${users} as to_user`,
+          eq(taskAssignmentHistory.toUserId, sql`to_user.id`),
+        )
+        .innerJoin(
+          sql`${users} as changed_by_user`,
+          eq(taskAssignmentHistory.changedBy, sql`changed_by_user.id`),
+        )
+        .where(
+          and(
+            eq(taskAssignmentHistory.tenantId, tenantId),
+            eq(taskAssignmentHistory.taskId, input.taskId),
+          ),
+        )
+        .orderBy(desc(taskAssignmentHistory.changedAt));
+
+      return history;
     }),
 });

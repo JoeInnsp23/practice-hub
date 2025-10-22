@@ -2,12 +2,12 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, gte, lte, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { pricingRules, serviceComponents } from "@/lib/db/schema";
+import { pricingRules, services } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Zod schemas
 const serviceSelectionSchema = z.object({
-  componentCode: z.string(),
+  serviceCode: z.string(),
   quantity: z.number().optional(),
   config: z
     .object({
@@ -45,7 +45,7 @@ const pricingInputSchema = z.object({
 
 // TypeScript interfaces
 interface ServicePrice {
-  componentCode: string;
+  serviceCode: string;
   componentName: string;
   calculation: string;
   basePrice: number;
@@ -264,12 +264,12 @@ async function calculateModelA(
     // Get component
     const [component] = await db
       .select()
-      .from(serviceComponents)
+      .from(services)
       .where(
         and(
-          eq(serviceComponents.code, service.componentCode),
-          eq(serviceComponents.tenantId, tenantId),
-          eq(serviceComponents.isActive, true),
+          eq(services.code, service.serviceCode),
+          eq(services.tenantId, tenantId),
+          eq(services.isActive, true),
         ),
       )
       .limit(1);
@@ -277,20 +277,20 @@ async function calculateModelA(
     if (!component) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `Service component ${service.componentCode} not found`,
+        message: `Service component ${service.serviceCode} not found`,
       });
     }
 
     // Special handling for payroll
-    if (component.code.startsWith("PAYROLL")) {
+    if (service.code.startsWith("PAYROLL")) {
       const payrollPrice = calculatePayroll(
         service.config?.employees || 0,
         service.config?.payrollFrequency || "monthly",
       );
 
       services.push({
-        componentCode: service.componentCode,
-        componentName: component.name,
+        serviceCode: service.serviceCode,
+        componentName: service.name,
         calculation: `${service.config?.employees || 0} employees, ${service.config?.payrollFrequency || "monthly"}`,
         basePrice: payrollPrice,
         adjustments: [],
@@ -302,12 +302,12 @@ async function calculateModelA(
     }
 
     // Handle fixed-price services (no pricing rules needed)
-    if (component.pricingModel === "fixed") {
-      const fixedPrice = component.price ? Number(component.price) : 0;
+    if (service.pricingModel === "fixed") {
+      const fixedPrice = service.price ? Number(service.price) : 0;
 
       services.push({
-        componentCode: service.componentCode,
-        componentName: component.name,
+        serviceCode: service.serviceCode,
+        componentName: service.name,
         calculation: `Fixed price`,
         basePrice: fixedPrice,
         adjustments: [],
@@ -325,7 +325,7 @@ async function calculateModelA(
       .from(pricingRules)
       .where(
         and(
-          eq(pricingRules.componentId, component.id),
+          eq(pricingRules.componentId, service.id),
           eq(pricingRules.ruleType, "turnover_band"),
           eq(pricingRules.isActive, true),
           lte(pricingRules.minValue, turnoverBand.min.toString()),
@@ -338,7 +338,7 @@ async function calculateModelA(
     if (!rule) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `No pricing rule found for ${service.componentCode} at turnover ${input.turnover}`,
+        message: `No pricing rule found for ${service.serviceCode} at turnover ${input.turnover}`,
       });
     }
 
@@ -346,7 +346,7 @@ async function calculateModelA(
     const adjustments: Adjustment[] = [];
 
     // Apply complexity multiplier
-    if (service.config?.complexity && component.supportsComplexity) {
+    if (service.config?.complexity && service.supportsComplexity) {
       const complexityMultiplier = getComplexityMultiplier(
         service.config.complexity,
       );
@@ -370,8 +370,8 @@ async function calculateModelA(
     }
 
     services.push({
-      componentCode: service.componentCode,
-      componentName: component.name,
+      serviceCode: service.serviceCode,
+      componentName: service.name,
       calculation: buildCalculationString(rule, adjustments),
       basePrice: Number(rule.price),
       adjustments,
@@ -409,12 +409,12 @@ async function calculateModelB(
     // Get component
     const [component] = await db
       .select()
-      .from(serviceComponents)
+      .from(services)
       .where(
         and(
-          eq(serviceComponents.code, service.componentCode),
-          eq(serviceComponents.tenantId, tenantId),
-          eq(serviceComponents.isActive, true),
+          eq(services.code, service.serviceCode),
+          eq(services.tenantId, tenantId),
+          eq(services.isActive, true),
         ),
       )
       .limit(1);
@@ -422,15 +422,15 @@ async function calculateModelB(
     if (!component) continue;
 
     // Special handling for payroll (same as Model A)
-    if (component.code.startsWith("PAYROLL")) {
+    if (service.code.startsWith("PAYROLL")) {
       const payrollPrice = calculatePayroll(
         service.config?.employees || 0,
         service.config?.payrollFrequency || "monthly",
       );
 
       services.push({
-        componentCode: service.componentCode,
-        componentName: component.name,
+        serviceCode: service.serviceCode,
+        componentName: service.name,
         calculation: `${service.config?.employees || 0} employees, ${service.config?.payrollFrequency || "monthly"}`,
         basePrice: payrollPrice,
         adjustments: [],
@@ -442,12 +442,12 @@ async function calculateModelB(
     }
 
     // Handle fixed-price services (same as Model A)
-    if (component.pricingModel === "fixed") {
-      const fixedPrice = component.price ? Number(component.price) : 0;
+    if (service.pricingModel === "fixed") {
+      const fixedPrice = service.price ? Number(service.price) : 0;
 
       services.push({
-        componentCode: service.componentCode,
-        componentName: component.name,
+        serviceCode: service.serviceCode,
+        componentName: service.name,
         calculation: `Fixed price`,
         basePrice: fixedPrice,
         adjustments: [],
@@ -460,8 +460,8 @@ async function calculateModelB(
 
     // Check if component supports transaction-based pricing
     if (
-      component.pricingModel !== "transaction" &&
-      component.pricingModel !== "both"
+      service.pricingModel !== "transaction" &&
+      service.pricingModel !== "both"
     ) {
       // Skip turnover-only services in Model B (not applicable)
       continue;
@@ -473,7 +473,7 @@ async function calculateModelB(
       .from(pricingRules)
       .where(
         and(
-          eq(pricingRules.componentId, component.id),
+          eq(pricingRules.componentId, service.id),
           or(
             eq(pricingRules.ruleType, "transaction_band"),
             eq(pricingRules.ruleType, "per_unit"),
@@ -486,7 +486,7 @@ async function calculateModelB(
     const rule = rules[0];
     if (!rule) continue;
 
-    const basePrice = component.basePrice ? Number(component.basePrice) : 0;
+    const basePrice = service.basePrice ? Number(service.basePrice) : 0;
     let transactionFee = 0;
     const adjustments: Adjustment[] = [];
 
@@ -505,7 +505,7 @@ async function calculateModelB(
     let finalPrice = basePrice + transactionFee;
 
     // Apply complexity multiplier (smaller for Model B)
-    if (service.config?.complexity && component.supportsComplexity) {
+    if (service.config?.complexity && service.supportsComplexity) {
       const complexityMultiplier = getComplexityMultiplier(
         service.config.complexity,
         "modelB",
@@ -519,8 +519,8 @@ async function calculateModelB(
     }
 
     services.push({
-      componentCode: service.componentCode,
-      componentName: component.name,
+      serviceCode: service.serviceCode,
+      componentName: service.name,
       calculation: buildTransactionCalculationString(basePrice, adjustments),
       basePrice,
       adjustments,
@@ -648,14 +648,14 @@ export const pricingRouter = router({
 
     return await db
       .select()
-      .from(serviceComponents)
+      .from(services)
       .where(
         and(
-          eq(serviceComponents.tenantId, tenantId),
-          eq(serviceComponents.isActive, true),
+          eq(services.tenantId, tenantId),
+          eq(services.isActive, true),
         ),
       )
-      .orderBy(serviceComponents.category, serviceComponents.name);
+      .orderBy(services.category, services.name);
   }),
 
   // Get pricing rules for a component

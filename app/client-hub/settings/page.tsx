@@ -1,20 +1,16 @@
 "use client";
 
 import {
-  AlertCircle,
   Bell,
   Building,
-  Download,
-  FileText,
-  Globe,
-  Mail,
+  CheckCircle2,
+  Loader2,
   Save,
   Settings,
-  Shield,
-  Upload,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { ZodError } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,71 +30,187 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
+import type {
+  CompanySettings,
+  UserSettings,
+} from "@/lib/schemas/settings-schemas";
+import {
+  companySettingsSchema,
+  userSettingsSchema,
+} from "@/lib/schemas/settings-schemas";
+import { trpc } from "@/lib/trpc/client";
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState({
-    // General
-    companyName: "ABC Accounting Practice",
-    companyEmail: "info@abcaccounting.com",
-    companyPhone: "+44 20 1234 5678",
-    companyAddress: "123 Business St, London, UK",
-    companyWebsite: "https://abcaccounting.com",
-    companyLogo: "",
-    timezone: "Europe/London",
-    dateFormat: "DD/MM/YYYY",
-    currency: "GBP",
-    fiscalYearEnd: "31/03",
+  // Fetch tenant and user settings from backend
+  const { data: tenant, isLoading: tenantLoading } =
+    trpc.settings.getTenant.useQuery();
+  const { data: userSettings, isLoading: userLoading } =
+    trpc.settings.getUserSettings.useQuery();
 
-    // Notifications
-    emailNotifications: true,
-    smsNotifications: false,
-    pushNotifications: true,
-    notificationFrequency: "instant",
-    reminderDays: "7",
+  const utils = trpc.useUtils();
 
-    // Security
-    twoFactorAuth: true,
-    sessionTimeout: "30",
-    passwordExpiry: "90",
-    minPasswordLength: "8",
-    requireComplexPassword: true,
+  // Local state for form fields
+  const [companyForm, setCompanyForm] = useState<Partial<CompanySettings>>({});
+  const [userForm, setUserForm] = useState<Partial<UserSettings>>({});
+  const [showCompanySaved, setShowCompanySaved] = useState(false);
+  const [showUserSaved, setShowUserSaved] = useState(false);
 
-    // Integrations
-    xeroEnabled: false,
-    quickbooksEnabled: false,
-    sageEnabled: false,
-    stripeEnabled: true,
-    slackEnabled: true,
-    teamsEnabled: false,
+  // Initialize form state when data loads
+  useEffect(() => {
+    if (tenant?.metadata) {
+      const metadata = tenant.metadata as Partial<CompanySettings>;
+      setCompanyForm(metadata);
+    } else {
+      // Set defaults if no metadata exists
+      setCompanyForm({
+        company: {
+          name: tenant?.name || "",
+          email: "",
+          phone: "",
+          address: {
+            street: "",
+            city: "",
+            postcode: "",
+            country: "United Kingdom",
+          },
+        },
+        regional: {
+          currency: "GBP",
+          dateFormat: "DD/MM/YYYY",
+          timezone: "Europe/London",
+        },
+        fiscal: {
+          fiscalYearStart: "04-06",
+        },
+      });
+    }
+  }, [tenant]);
 
-    // Email Templates
-    emailSignature: "Best regards,\nABC Accounting Team",
-    welcomeEmailTemplate:
-      "Welcome to ABC Accounting! We're excited to have you as our client.",
-    invoiceEmailTemplate: "Please find attached your invoice for this month.",
-    reminderEmailTemplate:
-      "This is a friendly reminder about your upcoming deadline.",
+  useEffect(() => {
+    if (userSettings) {
+      setUserForm(userSettings);
+    }
+  }, [userSettings]);
+
+  // Update tenant settings mutation
+  const updateTenant = trpc.settings.updateTenant.useMutation({
+    onMutate: async (newData) => {
+      // Cancel outgoing refetches
+      await utils.settings.getTenant.cancel();
+
+      // Snapshot previous value
+      const previousTenant = utils.settings.getTenant.getData();
+
+      // Optimistically update to new value
+      if (previousTenant) {
+        utils.settings.getTenant.setData(undefined, {
+          ...previousTenant,
+          metadata: newData.metadata,
+        });
+      }
+
+      // Return context with snapshot
+      return { previousTenant };
+    },
+    onSuccess: () => {
+      utils.settings.getTenant.invalidate();
+      setShowCompanySaved(true);
+      toast.success("Company settings saved successfully");
+      setTimeout(() => setShowCompanySaved(false), 2000);
+    },
+    onError: (error, _newData, context) => {
+      // Rollback to previous value on error
+      if (context?.previousTenant) {
+        utils.settings.getTenant.setData(undefined, context.previousTenant);
+      }
+      toast.error(error.message || "Failed to save company settings");
+    },
   });
 
-  const handleSave = (section: string) => {
-    toast.success(`${section} settings saved successfully`);
+  // Update user settings mutation
+  const updateUserSettings = trpc.settings.updateUserSettings.useMutation({
+    onMutate: async (newData) => {
+      // Cancel outgoing refetches
+      await utils.settings.getUserSettings.cancel();
+
+      // Snapshot previous value
+      const previousSettings = utils.settings.getUserSettings.getData();
+
+      // Optimistically update to new value
+      if (previousSettings) {
+        utils.settings.getUserSettings.setData(undefined, {
+          ...previousSettings,
+          ...newData,
+        });
+      }
+
+      // Return context with snapshot
+      return { previousSettings };
+    },
+    onSuccess: () => {
+      utils.settings.getUserSettings.invalidate();
+      setShowUserSaved(true);
+      toast.success("Settings saved successfully");
+      setTimeout(() => setShowUserSaved(false), 2000);
+    },
+    onError: (error, _newData, context) => {
+      // Rollback to previous value on error
+      if (context?.previousSettings) {
+        utils.settings.getUserSettings.setData(
+          undefined,
+          context.previousSettings,
+        );
+      }
+      toast.error(error.message || "Failed to save settings");
+    },
+  });
+
+  const handleSaveCompanySettings = () => {
+    // Client-side validation with Zod
+    try {
+      companySettingsSchema.parse(companyForm);
+      updateTenant.mutate({
+        metadata: companyForm as CompanySettings,
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const firstError = error.errors[0];
+        toast.error(
+          `Validation error: ${firstError.message} (${firstError.path.join(".")})`,
+        );
+      } else {
+        toast.error("Please check all required fields are filled correctly");
+      }
+    }
   };
 
-  const handleExportSettings = () => {
-    const dataStr = JSON.stringify(settings, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "settings-backup.json";
-    link.click();
-    toast.success("Settings exported successfully");
+  const handleSaveUserSettings = () => {
+    // Client-side validation with Zod
+    try {
+      userSettingsSchema.parse(userForm);
+      updateUserSettings.mutate(userForm as UserSettings);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const firstError = error.errors[0];
+        toast.error(
+          `Validation error: ${firstError.message} (${firstError.path.join(".")})`,
+        );
+      } else {
+        toast.error("Please check all required fields are filled correctly");
+      }
+    }
   };
 
-  const handleImportSettings = () => {
-    toast.success("Import settings functionality");
-  };
+  if (tenantLoading || userLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-screen">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading settings...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -113,25 +225,12 @@ export default function SettingsPage() {
             Configure your practice management system
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleImportSettings}>
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="outline" onClick={handleExportSettings}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-          <TabsTrigger value="email">Email Templates</TabsTrigger>
         </TabsList>
 
         {/* General Settings */}
@@ -152,10 +251,17 @@ export default function SettingsPage() {
                   <Label htmlFor="companyName">Company Name</Label>
                   <Input
                     id="companyName"
-                    value={settings.companyName}
+                    value={companyForm.company?.name || ""}
                     onChange={(e) =>
-                      setSettings({ ...settings, companyName: e.target.value })
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          name: e.target.value,
+                        },
+                      })
                     }
+                    disabled={updateTenant.isPending}
                   />
                 </div>
                 <div className="space-y-2">
@@ -163,46 +269,110 @@ export default function SettingsPage() {
                   <Input
                     id="companyEmail"
                     type="email"
-                    value={settings.companyEmail}
+                    value={companyForm.company?.email || ""}
                     onChange={(e) =>
-                      setSettings({ ...settings, companyEmail: e.target.value })
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          email: e.target.value,
+                        },
+                      })
                     }
+                    disabled={updateTenant.isPending}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="companyPhone">Phone Number</Label>
                   <Input
                     id="companyPhone"
-                    value={settings.companyPhone}
+                    value={companyForm.company?.phone || ""}
                     onChange={(e) =>
-                      setSettings({ ...settings, companyPhone: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="companyWebsite">Website</Label>
-                  <Input
-                    id="companyWebsite"
-                    value={settings.companyWebsite}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        companyWebsite: e.target.value,
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          phone: e.target.value,
+                        },
                       })
                     }
+                    disabled={updateTenant.isPending}
                   />
                 </div>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="companyAddress">Address</Label>
-                <Textarea
-                  id="companyAddress"
-                  value={settings.companyAddress}
-                  onChange={(e) =>
-                    setSettings({ ...settings, companyAddress: e.target.value })
-                  }
-                  rows={2}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    placeholder="Street"
+                    value={companyForm.company?.address?.street || ""}
+                    onChange={(e) =>
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          address: {
+                            ...companyForm.company?.address!,
+                            street: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    disabled={updateTenant.isPending}
+                  />
+                  <Input
+                    placeholder="City"
+                    value={companyForm.company?.address?.city || ""}
+                    onChange={(e) =>
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          address: {
+                            ...companyForm.company?.address!,
+                            city: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    disabled={updateTenant.isPending}
+                  />
+                  <Input
+                    placeholder="Postcode"
+                    value={companyForm.company?.address?.postcode || ""}
+                    onChange={(e) =>
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          address: {
+                            ...companyForm.company?.address!,
+                            postcode: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    disabled={updateTenant.isPending}
+                  />
+                  <Input
+                    placeholder="Country"
+                    value={companyForm.company?.address?.country || ""}
+                    onChange={(e) =>
+                      setCompanyForm({
+                        ...companyForm,
+                        company: {
+                          ...companyForm.company!,
+                          address: {
+                            ...companyForm.company?.address!,
+                            country: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    disabled={updateTenant.isPending}
+                  />
+                </div>
               </div>
 
               <div className="pt-4 border-t">
@@ -211,10 +381,17 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select
-                      value={settings.timezone}
+                      value={companyForm.regional?.timezone || "Europe/London"}
                       onValueChange={(value) =>
-                        setSettings({ ...settings, timezone: value })
+                        setCompanyForm({
+                          ...companyForm,
+                          regional: {
+                            ...companyForm.regional!,
+                            timezone: value,
+                          },
+                        })
                       }
+                      disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="timezone">
                         <SelectValue />
@@ -238,10 +415,20 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="dateFormat">Date Format</Label>
                     <Select
-                      value={settings.dateFormat}
+                      value={companyForm.regional?.dateFormat || "DD/MM/YYYY"}
                       onValueChange={(value) =>
-                        setSettings({ ...settings, dateFormat: value })
+                        setCompanyForm({
+                          ...companyForm,
+                          regional: {
+                            ...companyForm.regional!,
+                            dateFormat: value as
+                              | "DD/MM/YYYY"
+                              | "MM/DD/YYYY"
+                              | "YYYY-MM-DD",
+                          },
+                        })
                       }
+                      disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="dateFormat">
                         <SelectValue />
@@ -252,14 +439,42 @@ export default function SettingsPage() {
                         <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-sm text-muted-foreground">
+                      Preview: {(() => {
+                        const now = new Date();
+                        const day = String(now.getDate()).padStart(2, "0");
+                        const month = String(now.getMonth() + 1).padStart(
+                          2,
+                          "0",
+                        );
+                        const year = now.getFullYear();
+                        const format =
+                          companyForm.regional?.dateFormat || "DD/MM/YYYY";
+
+                        if (format === "DD/MM/YYYY")
+                          return `${day}/${month}/${year}`;
+                        if (format === "MM/DD/YYYY")
+                          return `${month}/${day}/${year}`;
+                        if (format === "YYYY-MM-DD")
+                          return `${year}-${month}-${day}`;
+                        return `${day}/${month}/${year}`;
+                      })()}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="currency">Currency</Label>
                     <Select
-                      value={settings.currency}
+                      value={companyForm.regional?.currency || "GBP"}
                       onValueChange={(value) =>
-                        setSettings({ ...settings, currency: value })
+                        setCompanyForm({
+                          ...companyForm,
+                          regional: {
+                            ...companyForm.regional!,
+                            currency: value as "GBP" | "USD" | "EUR",
+                          },
+                        })
                       }
+                      disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="currency">
                         <SelectValue />
@@ -274,10 +489,53 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button onClick={() => handleSave("General")}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+              <div className="pt-4 border-t">
+                <h3 className="font-medium mb-4">Fiscal Year</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="fiscalYear">Fiscal Year Start (MM-DD)</Label>
+                  <Input
+                    id="fiscalYear"
+                    placeholder="04-06"
+                    value={companyForm.fiscal?.fiscalYearStart || ""}
+                    onChange={(e) =>
+                      setCompanyForm({
+                        ...companyForm,
+                        fiscal: {
+                          ...companyForm.fiscal!,
+                          fiscalYearStart: e.target.value,
+                        },
+                      })
+                    }
+                    disabled={updateTenant.isPending}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Format: MM-DD (e.g., 04-06 for April 6)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end items-center gap-2">
+                {showCompanySaved && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span className="text-sm">Saved</span>
+                  </div>
+                )}
+                <Button
+                  onClick={handleSaveCompanySettings}
+                  disabled={updateTenant.isPending}
+                >
+                  {updateTenant.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -307,40 +565,33 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     id="emailNotif"
-                    checked={settings.emailNotifications}
+                    checked={userForm.emailNotifications ?? true}
                     onCheckedChange={(checked) =>
-                      setSettings({ ...settings, emailNotifications: checked })
+                      setUserForm({
+                        ...userForm,
+                        emailNotifications: checked,
+                      })
                     }
+                    disabled={updateUserSettings.isPending}
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="smsNotif">SMS Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications via SMS
-                    </p>
-                  </div>
-                  <Switch
-                    id="smsNotif"
-                    checked={settings.smsNotifications}
-                    onCheckedChange={(checked) =>
-                      setSettings({ ...settings, smsNotifications: checked })
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="pushNotif">Push Notifications</Label>
+                    <Label htmlFor="inAppNotif">In-App Notifications</Label>
                     <p className="text-sm text-muted-foreground">
                       Browser push notifications
                     </p>
                   </div>
                   <Switch
-                    id="pushNotif"
-                    checked={settings.pushNotifications}
+                    id="inAppNotif"
+                    checked={userForm.inAppNotifications ?? true}
                     onCheckedChange={(checked) =>
-                      setSettings({ ...settings, pushNotifications: checked })
+                      setUserForm({
+                        ...userForm,
+                        inAppNotifications: checked,
+                      })
                     }
+                    disabled={updateUserSettings.isPending}
                   />
                 </div>
               </div>
@@ -348,375 +599,74 @@ export default function SettingsPage() {
               <div className="pt-4 border-t">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="notifFreq">Notification Frequency</Label>
+                    <Label htmlFor="digestEmail">Digest Email</Label>
                     <Select
-                      value={settings.notificationFrequency}
+                      value={userForm.digestEmail || "daily"}
                       onValueChange={(value) =>
-                        setSettings({
-                          ...settings,
-                          notificationFrequency: value,
+                        setUserForm({
+                          ...userForm,
+                          digestEmail: value as "daily" | "weekly" | "never",
                         })
                       }
+                      disabled={updateUserSettings.isPending}
                     >
-                      <SelectTrigger id="notifFreq">
+                      <SelectTrigger id="digestEmail">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="instant">Instant</SelectItem>
-                        <SelectItem value="hourly">Hourly Digest</SelectItem>
                         <SelectItem value="daily">Daily Digest</SelectItem>
                         <SelectItem value="weekly">Weekly Digest</SelectItem>
+                        <SelectItem value="never">Never</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="reminderDays">
-                      Reminder Days Before Due
-                    </Label>
+                    <Label htmlFor="theme">Theme</Label>
                     <Select
-                      value={settings.reminderDays}
+                      value={userForm.theme || "system"}
                       onValueChange={(value) =>
-                        setSettings({ ...settings, reminderDays: value })
+                        setUserForm({
+                          ...userForm,
+                          theme: value as "light" | "dark" | "system",
+                        })
                       }
+                      disabled={updateUserSettings.isPending}
                     >
-                      <SelectTrigger id="reminderDays">
+                      <SelectTrigger id="theme">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 Day</SelectItem>
-                        <SelectItem value="3">3 Days</SelectItem>
-                        <SelectItem value="7">7 Days</SelectItem>
-                        <SelectItem value="14">14 Days</SelectItem>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="dark">Dark</SelectItem>
+                        <SelectItem value="system">System</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button onClick={() => handleSave("Notifications")}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Security Settings */}
-        <TabsContent value="security">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Security Settings
-              </CardTitle>
-              <CardDescription>
-                Configure security and authentication options
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="twoFactor">Two-Factor Authentication</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Require 2FA for all users
-                    </p>
+              <div className="flex justify-end items-center gap-2">
+                {showUserSaved && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span className="text-sm">Saved</span>
                   </div>
-                  <Switch
-                    id="twoFactor"
-                    checked={settings.twoFactorAuth}
-                    onCheckedChange={(checked) =>
-                      setSettings({ ...settings, twoFactorAuth: checked })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <h3 className="font-medium mb-4">Session & Password Policy</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sessionTimeout">
-                      Session Timeout (minutes)
-                    </Label>
-                    <Input
-                      id="sessionTimeout"
-                      type="number"
-                      value={settings.sessionTimeout}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          sessionTimeout: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="passwordExpiry">
-                      Password Expiry (days)
-                    </Label>
-                    <Input
-                      id="passwordExpiry"
-                      type="number"
-                      value={settings.passwordExpiry}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          passwordExpiry: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="minPassword">Min Password Length</Label>
-                    <Input
-                      id="minPassword"
-                      type="number"
-                      value={settings.minPasswordLength}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          minPasswordLength: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="complexPassword">
-                      Complex Password Required
-                    </Label>
-                    <Switch
-                      id="complexPassword"
-                      checked={settings.requireComplexPassword}
-                      onCheckedChange={(checked) =>
-                        setSettings({
-                          ...settings,
-                          requireComplexPassword: checked,
-                        })
-                      }
-                      className="mt-2"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <Card className="bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-orange-600" />
-                      Security Audit
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      Last security audit: 15 days ago
-                    </p>
-                    <Button variant="outline" size="sm" className="mt-2">
-                      Run Security Audit
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="flex justify-end">
-                <Button onClick={() => handleSave("Security")}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Integrations */}
-        <TabsContent value="integrations">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                Third-Party Integrations
-              </CardTitle>
-              <CardDescription>
-                Connect with external services and applications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Accounting Software */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">
-                      Accounting Software
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="xero">Xero</Label>
-                      <Switch
-                        id="xero"
-                        checked={settings.xeroEnabled}
-                        onCheckedChange={(checked) =>
-                          setSettings({ ...settings, xeroEnabled: checked })
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="quickbooks">QuickBooks</Label>
-                      <Switch
-                        id="quickbooks"
-                        checked={settings.quickbooksEnabled}
-                        onCheckedChange={(checked) =>
-                          setSettings({
-                            ...settings,
-                            quickbooksEnabled: checked,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="sage">Sage</Label>
-                      <Switch
-                        id="sage"
-                        checked={settings.sageEnabled}
-                        onCheckedChange={(checked) =>
-                          setSettings({ ...settings, sageEnabled: checked })
-                        }
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Communication Tools */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Communication</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="slack">Slack</Label>
-                      <Switch
-                        id="slack"
-                        checked={settings.slackEnabled}
-                        onCheckedChange={(checked) =>
-                          setSettings({ ...settings, slackEnabled: checked })
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="teams">Microsoft Teams</Label>
-                      <Switch
-                        id="teams"
-                        checked={settings.teamsEnabled}
-                        onCheckedChange={(checked) =>
-                          setSettings({ ...settings, teamsEnabled: checked })
-                        }
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="stripe">Stripe Payments</Label>
-                      <Switch
-                        id="stripe"
-                        checked={settings.stripeEnabled}
-                        onCheckedChange={(checked) =>
-                          setSettings({ ...settings, stripeEnabled: checked })
-                        }
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="flex justify-end">
-                <Button onClick={() => handleSave("Integrations")}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Email Templates */}
-        <TabsContent value="email">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Email Templates
-              </CardTitle>
-              <CardDescription>
-                Customize your email communications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="emailSig">Email Signature</Label>
-                <Textarea
-                  id="emailSig"
-                  value={settings.emailSignature}
-                  onChange={(e) =>
-                    setSettings({ ...settings, emailSignature: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="welcomeEmail">Welcome Email Template</Label>
-                <Textarea
-                  id="welcomeEmail"
-                  value={settings.welcomeEmailTemplate}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      welcomeEmailTemplate: e.target.value,
-                    })
-                  }
-                  rows={4}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="invoiceEmail">Invoice Email Template</Label>
-                <Textarea
-                  id="invoiceEmail"
-                  value={settings.invoiceEmailTemplate}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      invoiceEmailTemplate: e.target.value,
-                    })
-                  }
-                  rows={4}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="reminderEmail">Reminder Email Template</Label>
-                <Textarea
-                  id="reminderEmail"
-                  value={settings.reminderEmailTemplate}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      reminderEmailTemplate: e.target.value,
-                    })
-                  }
-                  rows={4}
-                />
-              </div>
-
-              <div className="flex justify-between">
-                <Button variant="outline">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Preview Templates
-                </Button>
-                <Button onClick={() => handleSave("Email Templates")}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                )}
+                <Button
+                  onClick={handleSaveUserSettings}
+                  disabled={updateUserSettings.isPending}
+                >
+                  {updateUserSettings.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>

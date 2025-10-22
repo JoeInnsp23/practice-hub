@@ -128,6 +128,14 @@ let cachedToken: {
 } | null = null;
 
 /**
+ * Reset cached token (for testing purposes only)
+ * @internal
+ */
+export function __resetTokenCache() {
+  cachedToken = null;
+}
+
+/**
  * Get OAuth 2.0 access token using Client Credentials Grant
  *
  * Token is cached in memory until it expires (minus 60 second buffer)

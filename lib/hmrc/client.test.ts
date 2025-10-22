@@ -4,6 +4,7 @@ import {
   VATNotFoundError,
   AuthenticationError,
   RateLimitError,
+  __resetTokenCache,
 } from "./client";
 
 // Mock fetch globally
@@ -12,6 +13,7 @@ global.fetch = vi.fn();
 describe("HMRC VAT Validation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    __resetTokenCache(); // Reset module-level cached token
     // Set environment variables for tests
     process.env.HMRC_CLIENT_ID = "test-client-id";
     process.env.HMRC_CLIENT_SECRET = "test-client-secret";

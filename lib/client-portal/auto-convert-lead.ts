@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { and, desc, eq, like } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
@@ -46,17 +47,18 @@ export async function autoConvertLeadToClient(
     .limit(1);
 
   if (!lead) {
-    console.log("Lead not found for auto-conversion:", leadId);
+    Sentry.captureMessage("Lead not found for auto-conversion", {
+      level: "warning",
+      tags: { operation: "auto_convert_lead" },
+      extra: { leadId },
+    });
     return null;
   }
 
   // Check if already converted
   if (lead.convertedToClientId) {
-    console.log("Lead already converted, skipping:", leadId);
-    return null;
+    return null; // Already converted, silently skip
   }
-
-  console.log("Auto-converting lead to client:", lead.email);
 
   // Determine client type based on lead data
   const clientType = determineClientType(lead.companyName);
@@ -238,9 +240,11 @@ export async function autoConvertLeadToClient(
         dbError?.constraint?.includes("client_code")
       ) {
         retryCount++;
-        console.log(
-          `Client code collision detected, retrying (${retryCount}/${maxRetries})...`,
-        );
+        Sentry.captureMessage("Client code collision detected, retrying", {
+          level: "info",
+          tags: { operation: "client_code_generation" },
+          extra: { retryCount, maxRetries, leadId },
+        });
         if (retryCount >= maxRetries) {
           throw new Error(
             `Failed to generate unique client code after ${maxRetries} attempts`,
@@ -255,10 +259,12 @@ export async function autoConvertLeadToClient(
   }
 
   if (!result) {
+    Sentry.captureException(new Error("Failed to convert lead to client"), {
+      tags: { operation: "auto_convert_lead" },
+      extra: { leadId },
+    });
     throw new Error("Failed to convert lead to client");
   }
-
-  console.log("Lead converted to client successfully:", result.clientId);
 
   // Get or create portal user (outside transaction)
   const portalUserResult = await getOrCreatePortalUser(
@@ -266,13 +272,6 @@ export async function autoConvertLeadToClient(
     lead.firstName,
     lead.lastName,
     tenantId,
-  );
-
-  console.log(
-    portalUserResult.isNewUser
-      ? "New portal user created"
-      : "Using existing portal user",
-    portalUserResult.portalUserId,
   );
 
   // Grant client access to portal user
@@ -284,8 +283,6 @@ export async function autoConvertLeadToClient(
     tenantId,
   );
 
-  console.log("Client access granted to portal user");
-
   // Send portal invitation email
   try {
     await sendPortalInvitation(
@@ -295,9 +292,15 @@ export async function autoConvertLeadToClient(
       { firstName: "Practice", lastName: "Hub" }, // System sender
       "Welcome! Your proposal has been accepted. Please complete your client onboarding to get started.",
     );
-    console.log("Portal invitation email sent");
   } catch (emailError) {
-    console.error("Failed to send portal invitation email:", emailError);
+    Sentry.captureException(emailError, {
+      level: "warning",
+      tags: { operation: "send_portal_invitation" },
+      extra: {
+        portalUserId: portalUserResult.portalUserId,
+        clientId: result.clientId,
+      },
+    });
     // Don't throw - email failure shouldn't break the conversion
   }
 

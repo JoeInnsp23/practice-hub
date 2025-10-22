@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { ArrowLeft, Download, Edit, Mail, Check } from "lucide-react";
+import { ArrowLeft, Check, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -26,9 +26,8 @@ interface InvoiceDetailProps {
 export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
   const router = useRouter();
 
-  const { data: invoice, isLoading } = trpc.invoices.getById.useQuery(
-    invoiceId,
-  );
+  const { data: invoice, isLoading } =
+    trpc.invoices.getById.useQuery(invoiceId);
 
   const updateStatusMutation = trpc.invoices.updateStatus.useMutation({
     onSuccess: () => {
@@ -76,11 +75,6 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
     );
   }
 
-  const handleExportPDF = () => {
-    toast.success("PDF export coming soon");
-    // TODO: Implement PDF export using existing PDF service
-  };
-
   const handleStatusChange = (newStatus: string) => {
     updateStatusMutation.mutate({
       id: invoiceId,
@@ -89,7 +83,8 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
   };
 
   const formatCurrency = (amount: string | number) => {
-    const value = typeof amount === "string" ? Number.parseFloat(amount) : amount;
+    const value =
+      typeof amount === "string" ? Number.parseFloat(amount) : amount;
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
       currency: invoice.currency || "GBP",
@@ -126,18 +121,6 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
           </Link>
         </div>
         <div className="flex items-center gap-2">
-          {invoice.status === "draft" && (
-            <Link href={`/client-hub/invoices/${invoiceId}/edit`}>
-              <Button variant="outline" size="sm">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-            </Link>
-          )}
-          <Button variant="outline" size="sm" onClick={handleExportPDF}>
-            <Download className="mr-2 h-4 w-4" />
-            Export PDF
-          </Button>
           {invoice.status === "draft" && (
             <Button
               size="sm"

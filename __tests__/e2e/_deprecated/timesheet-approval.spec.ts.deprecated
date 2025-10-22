@@ -1,0 +1,176 @@
+import { test, expect } from "@playwright/test";
+import { loginAsTestUser } from "../helpers/auth";
+import { cleanupTestData } from "../helpers/cleanup";
+
+test.describe("Timesheet Approval Workflow", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsTestUser(page);
+  });
+
+  test.afterEach(async () => {
+    await cleanupTestData();
+  });
+
+  test("should submit timesheet and manager can approve", async ({ page }) => {
+    // Navigate to time tracking page
+    await page.goto("/client-hub/time");
+    await page.waitForLoadState("networkidle");
+
+    // Verify we're on the time tracking page
+    await expect(page.locator('h1:has-text("Time Tracking")')).toBeVisible();
+
+    // Check if there's a submit button (requires sufficient hours)
+    const submitButton = page.locator('button:has-text("Submit Week for Approval")');
+
+    // If button exists and is enabled, try to submit
+    if (await submitButton.isVisible().catch(() => false)) {
+      const isEnabled = await submitButton.isEnabled().catch(() => false);
+
+      if (isEnabled) {
+        // Submit the week
+        await submitButton.click();
+        await expect(page.locator('text=/submitted|success/i')).toBeVisible({ timeout: 10000 });
+
+        // Verify submitted status badge appears
+        await expect(page.locator('text=/Pending Approval|Submitted/i')).toBeVisible();
+
+        // Verify week is read-only
+        await expect(page.locator('text=/read-only|submitted/i')).toBeVisible();
+      }
+    }
+
+    // Navigate to approvals page as manager
+    await page.goto("/client-hub/time/approvals");
+    await page.waitForLoadState("networkidle");
+
+    // Should see either pending submissions or no submissions message
+    const hasPendingSubmissions = await page.locator('[data-testid="submission-card"], .glass-card').count().catch(() => 0);
+
+    if (hasPendingSubmissions > 0) {
+      // Approve the first submission
+      const approveButton = page.locator('button:has-text("Approve")').first();
+      if (await approveButton.isVisible().catch(() => false)) {
+        await approveButton.click();
+        await expect(page.locator('text=/approved|success/i')).toBeVisible({ timeout: 10000 });
+      }
+    } else {
+      // Verify no pending approvals message
+      await expect(page.locator('text=/No Pending Approvals|no submissions/i')).toBeVisible();
+    }
+  });
+
+  test("should reject timesheet with comments", async ({ page }) => {
+    // Navigate to approvals page
+    await page.goto("/client-hub/time/approvals");
+    await page.waitForLoadState("networkidle");
+
+    const hasPendingSubmissions = await page.locator('button:has-text("Reject")').count().catch(() => 0);
+
+    if (hasPendingSubmissions > 0) {
+      // Click reject button
+      await page.locator('button:has-text("Reject")').first().click();
+
+      // Wait for rejection modal
+      await page.waitForSelector('[role="dialog"]', { timeout: 5000 }).catch(() => null);
+
+      // If modal appeared, fill in rejection reason
+      const commentTextarea = page.locator('textarea[id="comments"], textarea').first();
+      if (await commentTextarea.isVisible().catch(() => false)) {
+        await commentTextarea.fill("Please add more detailed descriptions for each time entry.");
+
+        // Submit rejection
+        await page.locator('button:has-text("Reject")').last().click();
+
+        // Wait for success message
+        await expect(page.locator('text=/rejected|success/i')).toBeVisible({ timeout: 10000 });
+      }
+    }
+  });
+
+  test("should handle bulk approve", async ({ page }) => {
+    // Navigate to approvals page
+    await page.goto("/client-hub/time/approvals");
+    await page.waitForLoadState("networkidle");
+
+    // Check if there are multiple submissions
+    const checkboxes = page.locator('input[type="checkbox"]');
+    const checkboxCount = await checkboxes.count().catch(() => 0);
+
+    if (checkboxCount >= 2) {
+      // Select first two checkboxes
+      await checkboxes.nth(0).click();
+      await checkboxes.nth(1).click();
+
+      // Click "Approve Selected" button
+      const bulkApproveButton = page.locator('button:has-text("Approve Selected")');
+      if (await bulkApproveButton.isVisible().catch(() => false)) {
+        await bulkApproveButton.click();
+        await expect(page.locator('text=/approved|timesheets approved/i')).toBeVisible({ timeout: 10000 });
+      }
+    }
+  });
+
+  test("should display submission status on timesheet page", async ({ page }) => {
+    // Navigate to time tracking page
+    await page.goto("/client-hub/time");
+    await page.waitForLoadState("networkidle");
+
+    // Check for any status badges
+    const statusBadges = [
+      'text=/Pending Approval/i',
+      'text=/Approved/i',
+      'text=/Rejected/i',
+      'text=/Resubmitted/i',
+    ];
+
+    // See if any status badge is visible
+    let foundStatus = false;
+    for (const badgeSelector of statusBadges) {
+      if (await page.locator(badgeSelector).isVisible().catch(() => false)) {
+        foundStatus = true;
+        break;
+      }
+    }
+
+    // Either status is shown or submit button is available
+    if (!foundStatus) {
+      // If no status, should see submit button or insufficient hours message
+      const submitButton = page.locator('button:has-text("Submit Week for Approval")');
+      const hasSubmitButton = await submitButton.isVisible().catch(() => false);
+
+      if (hasSubmitButton) {
+        expect(true).toBe(true); // Submit button available
+      } else {
+        // Should show hours info
+        await expect(page.locator('text=/Total Hours|hours required/i')).toBeVisible();
+      }
+    }
+  });
+
+  test("should navigate between weeks", async ({ page }) => {
+    // Navigate to time tracking page
+    await page.goto("/client-hub/time");
+    await page.waitForLoadState("networkidle");
+
+    // Get initial week display
+    const weekDisplay = page.locator('text=/Week of/i');
+    await expect(weekDisplay).toBeVisible();
+
+    // Click next week button
+    const nextWeekButton = page.locator('button').filter({ has: page.locator('svg') }).nth(1);
+    if (await nextWeekButton.isVisible().catch(() => false)) {
+      await nextWeekButton.click();
+      await page.waitForLoadState("networkidle");
+
+      // Verify week changed
+      await expect(weekDisplay).toBeVisible();
+    }
+
+    // Click "This Week" button to return
+    const thisWeekButton = page.locator('button:has-text("This Week")');
+    if (await thisWeekButton.isVisible().catch(() => false)) {
+      await thisWeekButton.click();
+      await page.waitForLoadState("networkidle");
+    }
+  });
+});

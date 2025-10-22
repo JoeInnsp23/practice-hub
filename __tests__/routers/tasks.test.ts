@@ -1330,11 +1330,644 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       expect(procedures).toContain("bulkUpdateStatus");
       expect(procedures).toContain("bulkAssign");
       expect(procedures).toContain("bulkDelete");
+      expect(procedures).toContain("createNote");
+      expect(procedures).toContain("getNotes");
+      expect(procedures).toContain("updateNote");
+      expect(procedures).toContain("deleteNote");
+      expect(procedures).toContain("getNoteCount");
+      expect(procedures).toContain("getMentionableUsers");
     });
 
-    it("should have 13 procedures total", () => {
+    it("should have 22 procedures total", () => {
       const procedures = Object.keys(tasksRouter._def.procedures);
-      expect(procedures).toHaveLength(13);
+      expect(procedures).toHaveLength(22);
+    });
+  });
+
+  describe("Task Notes Procedures (Integration)", () => {
+    let taskId: string;
+    let clientId: string;
+
+    beforeEach(async () => {
+      // Create a test task for notes
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      clientId = client.id;
+      tracker.clients?.push(clientId);
+
+      const task = await createTestTask(ctx.authContext.tenantId, clientId, ctx.authContext.userId, {
+        title: "Test Task for Notes",
+      });
+      taskId = task.id;
+      tracker.tasks?.push(taskId);
+    });
+
+    describe("createNote", () => {
+      it("should create a task note", async () => {
+        const result = await caller.createNote({
+          taskId,
+          note: "This is a test note",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.noteId).toBeDefined();
+      });
+
+      it("should create an internal note", async () => {
+        const result = await caller.createNote({
+          taskId,
+          note: "This is an internal note",
+          isInternal: true,
+          mentionedUsers: [],
+        });
+
+        expect(result.success).toBe(true);
+
+        // Verify note was created with internal flag
+        const notes = await caller.getNotes({ taskId });
+        expect(notes).toHaveLength(1);
+        expect(notes[0].isInternal).toBe(true);
+      });
+
+      it("should create notifications for mentioned users", async () => {
+        // Create another user to mention
+        const mentionedUserId = await createTestUser(ctx.authContext.tenantId);
+        tracker.users?.push(mentionedUserId);
+
+        await caller.createNote({
+          taskId,
+          note: "Hey @[Test User], please review this",
+          isInternal: false,
+          mentionedUsers: [mentionedUserId],
+        });
+
+        // Verify notification was created
+        const notifications = await db
+          .select()
+          .from(await import("@/lib/db/schema").then((m) => m.notifications))
+          .where(
+            eq(
+              (await import("@/lib/db/schema").then((m) => m.notifications)).userId,
+              mentionedUserId,
+            ),
+          );
+
+        expect(notifications).toHaveLength(1);
+        expect(notifications[0].type).toBe("task_mention");
+      });
+
+      it("should reject note for non-existent task", async () => {
+        await expect(
+          caller.createNote({
+            taskId: "00000000-0000-0000-0000-000000000000",
+            note: "Test note",
+            isInternal: false,
+            mentionedUsers: [],
+          }),
+        ).rejects.toThrow("Task not found");
+      });
+
+      it("should enforce tenant isolation", async () => {
+        // Create task in different tenant
+        const otherTenantId = await createTestTenant();
+        tracker.tenants?.push(otherTenantId);
+
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherTask = await createTestTask(otherTenantId, otherClient.id, otherUserId, {
+          title: "Other Tenant Task",
+        });
+        tracker.tasks?.push(otherTask.id);
+
+        // Try to create note on other tenant's task
+        await expect(
+          caller.createNote({
+            taskId: otherTask.id,
+            note: "Unauthorized note",
+            isInternal: false,
+            mentionedUsers: [],
+          }),
+        ).rejects.toThrow("Task not found");
+      });
+    });
+
+    describe("getNotes", () => {
+      beforeEach(async () => {
+        // Create some test notes
+        await caller.createNote({
+          taskId,
+          note: "First note",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+        await caller.createNote({
+          taskId,
+          note: "Second note",
+          isInternal: true,
+          mentionedUsers: [],
+        });
+      });
+
+      it("should get all notes for a task", async () => {
+        const notes = await caller.getNotes({ taskId });
+
+        expect(notes).toHaveLength(2);
+        expect(notes[0].note).toBeDefined();
+        expect(notes[0].author).toBeDefined();
+      });
+
+      it("should order notes by creation date (newest first)", async () => {
+        const notes = await caller.getNotes({ taskId });
+
+        expect(notes[0].note).toBe("Second note");
+        expect(notes[1].note).toBe("First note");
+      });
+
+      it("should support pagination", async () => {
+        const notes = await caller.getNotes({ taskId, limit: 1, offset: 0 });
+
+        expect(notes).toHaveLength(1);
+      });
+
+      it("should not return soft-deleted notes", async () => {
+        const notes = await caller.getNotes({ taskId });
+        const noteId = notes[0].id;
+
+        // Delete the note
+        await caller.deleteNote({ noteId });
+
+        // Get notes again
+        const remainingNotes = await caller.getNotes({ taskId });
+        expect(remainingNotes).toHaveLength(1);
+        expect(remainingNotes[0].id).not.toBe(noteId);
+      });
+    });
+
+    describe("updateNote", () => {
+      let noteId: string;
+
+      beforeEach(async () => {
+        const result = await caller.createNote({
+          taskId,
+          note: "Original note",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+        noteId = result.noteId;
+      });
+
+      it("should update note content", async () => {
+        await caller.updateNote({
+          noteId,
+          note: "Updated note",
+        });
+
+        const notes = await caller.getNotes({ taskId });
+        expect(notes[0].note).toBe("Updated note");
+      });
+
+      it("should update updatedAt timestamp", async () => {
+        const beforeUpdate = await caller.getNotes({ taskId });
+        const originalUpdatedAt = beforeUpdate[0].updatedAt;
+
+        // Wait a bit to ensure timestamp difference
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
+        await caller.updateNote({
+          noteId,
+          note: "Updated note",
+        });
+
+        const afterUpdate = await caller.getNotes({ taskId });
+        expect(afterUpdate[0].updatedAt).not.toEqual(originalUpdatedAt);
+      });
+
+      it("should allow admin to update any note", async () => {
+        // Create another user's note
+        const otherUserId = await createTestUser(ctx.authContext.tenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherCtx = createMockContext({
+          authContext: {
+            ...ctx.authContext,
+            userId: otherUserId,
+            role: "member",
+          },
+        });
+        const otherCaller = createCaller(tasksRouter, otherCtx);
+
+        const otherNote = await otherCaller.createNote({
+          taskId,
+          note: "Other user's note",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        // Admin should be able to update it
+        await caller.updateNote({
+          noteId: otherNote.noteId,
+          note: "Admin updated note",
+        });
+
+        const notes = await caller.getNotes({ taskId });
+        const updated = notes.find((n) => n.id === otherNote.noteId);
+        expect(updated?.note).toBe("Admin updated note");
+      });
+
+      it("should reject update by non-owner non-admin", async () => {
+        // Create another non-admin user
+        const otherUserId = await createTestUser(ctx.authContext.tenantId, {
+          role: "member",
+        });
+        tracker.users?.push(otherUserId);
+
+        const otherCtx = createMockContext({
+          authContext: {
+            ...ctx.authContext,
+            userId: otherUserId,
+            role: "member",
+          },
+        });
+        const otherCaller = createCaller(tasksRouter, otherCtx);
+
+        // Try to update note created by original user
+        await expect(
+          otherCaller.updateNote({
+            noteId,
+            note: "Unauthorized update",
+          }),
+        ).rejects.toThrow("You do not have permission to edit this note");
+      });
+    });
+
+    describe("deleteNote", () => {
+      let noteId: string;
+
+      beforeEach(async () => {
+        const result = await caller.createNote({
+          taskId,
+          note: "Note to delete",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+        noteId = result.noteId;
+      });
+
+      it("should soft delete a note", async () => {
+        await caller.deleteNote({ noteId });
+
+        // Note should not appear in getNotes
+        const notes = await caller.getNotes({ taskId });
+        expect(notes).toHaveLength(0);
+      });
+
+      it("should allow admin to delete any note", async () => {
+        // Admin can delete - already tested above
+        await caller.deleteNote({ noteId });
+
+        const notes = await caller.getNotes({ taskId });
+        expect(notes).toHaveLength(0);
+      });
+
+      it("should reject delete by non-owner non-admin", async () => {
+        // Create another non-admin user
+        const otherUserId = await createTestUser(ctx.authContext.tenantId, {
+          role: "member",
+        });
+        tracker.users?.push(otherUserId);
+
+        const otherCtx = createMockContext({
+          authContext: {
+            ...ctx.authContext,
+            userId: otherUserId,
+            role: "member",
+          },
+        });
+        const otherCaller = createCaller(tasksRouter, otherCtx);
+
+        // Try to delete note created by original user
+        await expect(
+          otherCaller.deleteNote({ noteId }),
+        ).rejects.toThrow("You do not have permission to delete this note");
+      });
+    });
+
+    describe("getNoteCount", () => {
+      it("should return 0 for task with no notes", async () => {
+        const count = await caller.getNoteCount({ taskId });
+        expect(count).toBe(0);
+      });
+
+      it("should return correct count", async () => {
+        await caller.createNote({
+          taskId,
+          note: "Note 1",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+        await caller.createNote({
+          taskId,
+          note: "Note 2",
+          isInternal: true,
+          mentionedUsers: [],
+        });
+
+        const count = await caller.getNoteCount({ taskId });
+        expect(count).toBe(2);
+      });
+
+      it("should exclude soft-deleted notes from count", async () => {
+        const note1 = await caller.createNote({
+          taskId,
+          note: "Note 1",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+        await caller.createNote({
+          taskId,
+          note: "Note 2",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        // Delete one note
+        await caller.deleteNote({ noteId: note1.noteId });
+
+        const count = await caller.getNoteCount({ taskId });
+        expect(count).toBe(1);
+      });
+    });
+
+    describe("getMentionableUsers", () => {
+      beforeEach(async () => {
+        // Create some test users with different names - use unique emails with timestamps
+        const timestamp = Date.now();
+        await createTestUser(ctx.authContext.tenantId, {
+          firstName: "John",
+          lastName: "Doe",
+          email: `john.doe.${timestamp}@example.com`,
+        });
+        await createTestUser(ctx.authContext.tenantId, {
+          firstName: "Jane",
+          lastName: "Smith",
+          email: `jane.smith.${timestamp}@example.com`,
+        });
+        await createTestUser(ctx.authContext.tenantId, {
+          firstName: "Bob",
+          lastName: "Johnson",
+          email: `bob.johnson.${timestamp}@example.com`,
+        });
+      });
+
+      it("should search by first name", async () => {
+        const users = await caller.getMentionableUsers({ query: "john" });
+        expect(users.length).toBeGreaterThan(0);
+        expect(users.some((u) => u.firstName === "John")).toBe(true);
+      });
+
+      it("should search by last name", async () => {
+        const users = await caller.getMentionableUsers({ query: "smith" });
+        expect(users.length).toBeGreaterThan(0);
+        expect(users.some((u) => u.lastName === "Smith")).toBe(true);
+      });
+
+      it("should search by email", async () => {
+        const users = await caller.getMentionableUsers({ query: "bob.johnson" });
+        expect(users.length).toBeGreaterThan(0);
+        expect(users.some((u) => u.email?.includes("bob.johnson"))).toBe(true);
+      });
+
+      it("should be case insensitive", async () => {
+        const users = await caller.getMentionableUsers({ query: "JOHN" });
+        expect(users.length).toBeGreaterThan(0);
+      });
+
+      it("should limit results to 10", async () => {
+        const users = await caller.getMentionableUsers({ query: "" });
+        expect(users.length).toBeLessThanOrEqual(10);
+      });
+
+      it("should only return users from same tenant", async () => {
+        // Create user in different tenant
+        const otherTenantId = await createTestTenant();
+        tracker.tenants?.push(otherTenantId);
+
+        await createTestUser(otherTenantId, {
+          firstName: "Other",
+          lastName: "User",
+          email: `other.user.${Date.now()}@example.com`,
+        });
+
+        const users = await caller.getMentionableUsers({ query: "other" });
+        expect(users).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("reassign (Integration)", () => {
+    it("should reassign a task to a new user", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: ctx.authContext.userId,
+        }
+      );
+      tracker.clients?.push(client.id);
+      tracker.tasks?.push(task.id);
+
+      // Create another user to reassign to
+      const newUserId = await createTestUser(ctx.authContext.tenantId, {
+        firstName: "New",
+        lastName: "Assignee",
+        email: `new.assignee.${Date.now()}@example.com`,
+      });
+      tracker.users?.push(newUserId);
+
+      const result = await caller.reassign({
+        taskId: task.id,
+        toUserId: newUserId,
+        assignmentType: "assigned_to",
+        changeReason: "Workload balancing",
+      });
+
+      expect(result.success).toBe(true);
+
+      // Verify task was updated
+      const updatedTask = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.id, task.id))
+        .limit(1);
+
+      expect(updatedTask[0].assignedToId).toBe(newUserId);
+    });
+
+    it("should prevent self-reassignment", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: ctx.authContext.userId,
+        }
+      );
+      tracker.clients?.push(client.id);
+      tracker.tasks?.push(task.id);
+
+      await expect(
+        caller.reassign({
+          taskId: task.id,
+          toUserId: ctx.authContext.userId,
+          assignmentType: "assigned_to",
+        }),
+      ).rejects.toThrow(TRPCError);
+    });
+
+    it("should enforce tenant isolation", async () => {
+      const otherTenantId = await createTestTenant();
+      tracker.tenants?.push(otherTenantId);
+
+      const otherClient = await createTestClient(otherTenantId);
+      const otherUserId = await createTestUser(otherTenantId, {
+        firstName: "Other",
+        lastName: "User",
+        email: `other.user.${Date.now()}@example.com`,
+      });
+      const otherTask = await createTestTask(
+        otherTenantId,
+        otherClient.id,
+        otherUserId,
+        {}
+      );
+
+      const newUserId = await createTestUser(ctx.authContext.tenantId, {
+        firstName: "New",
+        lastName: "Assignee",
+        email: `new.assignee.${Date.now()}@example.com`,
+      });
+      tracker.users?.push(newUserId);
+
+      await expect(
+        caller.reassign({
+          taskId: otherTask.id,
+          toUserId: newUserId,
+          assignmentType: "assigned_to",
+        }),
+      ).rejects.toThrow(TRPCError);
+    });
+  });
+
+  describe("bulkReassign (Integration)", () => {
+    it("should reassign multiple tasks", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: ctx.authContext.userId,
+        }
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: ctx.authContext.userId,
+        }
+      );
+      tracker.clients?.push(client.id);
+      tracker.tasks?.push(task1.id, task2.id);
+
+      const newUserId = await createTestUser(ctx.authContext.tenantId, {
+        firstName: "New",
+        lastName: "Assignee",
+        email: `new.assignee.${Date.now()}@example.com`,
+      });
+      tracker.users?.push(newUserId);
+
+      const result = await caller.bulkReassign({
+        taskIds: [task1.id, task2.id],
+        toUserId: newUserId,
+        assignmentType: "assigned_to",
+        changeReason: "Bulk workload balancing",
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(2);
+
+      // Verify both tasks were updated
+      const updatedTasks = await db
+        .select()
+        .from(tasks)
+        .where(and(eq(tasks.tenantId, ctx.authContext.tenantId)));
+
+      const reassignedTasks = updatedTasks.filter(
+        (t) => t.assignedToId === newUserId,
+      );
+      expect(reassignedTasks.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  describe("getAssignmentHistory (Integration)", () => {
+    it("should return assignment history for a task", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: ctx.authContext.userId,
+        }
+      );
+      tracker.clients?.push(client.id);
+      tracker.tasks?.push(task.id);
+
+      // Create another user and reassign
+      const newUserId = await createTestUser(ctx.authContext.tenantId, {
+        firstName: "New",
+        lastName: "Assignee",
+        email: `new.assignee.${Date.now()}@example.com`,
+      });
+      tracker.users?.push(newUserId);
+
+      await caller.reassign({
+        taskId: task.id,
+        toUserId: newUserId,
+        assignmentType: "assigned_to",
+        changeReason: "Test reassignment",
+      });
+
+      const history = await caller.getAssignmentHistory({ taskId: task.id });
+
+      expect(history.length).toBeGreaterThan(0);
+      expect(history[0].toUser.id).toBe(newUserId);
+      expect(history[0].changeReason).toBe("Test reassignment");
+      expect(history[0].assignmentType).toBe("assigned_to");
+    });
+
+    it("should return empty array for task with no history", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {}
+      );
+      tracker.clients?.push(client.id);
+      tracker.tasks?.push(task.id);
+
+      const history = await caller.getAssignmentHistory({ taskId: task.id });
+      expect(history).toEqual([]);
     });
   });
 });

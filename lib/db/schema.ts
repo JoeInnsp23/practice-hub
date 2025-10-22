@@ -8,6 +8,7 @@ import {
   pgEnum,
   pgTable,
   pgView,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -102,6 +103,26 @@ export const verifications = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// User Settings table - for user-scoped preferences
+export const userSettings = pgTable("user_settings", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull()
+    .unique(),
+  emailNotifications: boolean("email_notifications").default(true),
+  inAppNotifications: boolean("in_app_notifications").default(true),
+  digestEmail: text("digest_email").default("daily"), // "daily" | "weekly" | "never"
+  theme: text("theme").default("system"), // "light" | "dark" | "system"
+  language: text("language").default("en"),
+  timezone: text("timezone").default("Europe/London"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -270,6 +291,21 @@ export const invoiceStatusEnum = pgEnum("invoice_status", [
   "cancelled",
 ]);
 
+// Import enums
+export const importStatusEnum = pgEnum("import_status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+  "partial",
+]);
+
+export const importEntityTypeEnum = pgEnum("import_entity_type", [
+  "clients",
+  "tasks",
+  "services",
+]);
+
 // Work Type enum for time entries
 export const workTypeEnum = pgEnum("work_type", [
   "work",
@@ -331,6 +367,13 @@ export const clients = pgTable(
     yearEnd: varchar("year_end", { length: 10 }), // MM-DD format
     notes: text("notes"),
     healthScore: integer("health_score").default(50), // 0-100 scale for client health
+
+    // Xero Integration (Two-way sync)
+    xeroContactId: text("xero_contact_id"), // Xero's contact UUID
+    xeroSyncStatus: text("xero_sync_status"), // "synced" | "pending" | "error" | null
+    xeroLastSyncedAt: timestamp("xero_last_synced_at"),
+    xeroSyncError: text("xero_sync_error"), // Error message if sync failed
+
     metadata: jsonb("metadata"),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -345,6 +388,8 @@ export const clients = pgTable(
     nameIdx: index("idx_client_name").on(table.name),
     statusIdx: index("idx_client_status").on(table.status),
     managerIdx: index("idx_client_manager").on(table.accountManagerId),
+    xeroContactIdIdx: index("idx_client_xero_contact_id").on(table.xeroContactId),
+    xeroSyncStatusIdx: index("idx_client_xero_sync_status").on(table.xeroSyncStatus),
   }),
 );
 
@@ -462,7 +507,31 @@ export const servicePriceTypeEnum = pgEnum("service_price_type", [
   "percentage",
 ]);
 
-// Services table
+// Service Component Category Enum
+export const serviceComponentCategoryEnum = pgEnum(
+  "service_component_category",
+  [
+    "compliance",
+    "vat",
+    "bookkeeping",
+    "payroll",
+    "management",
+    "secretarial",
+    "tax_planning",
+    "addon",
+  ],
+);
+
+// Pricing Model Enum
+export const pricingModelEnum = pgEnum("pricing_model", [
+  "turnover",
+  "transaction",
+  "both",
+  "fixed",
+]);
+
+// Services table (unified - previously serviceComponents)
+// This is the master catalog for all services offered by the practice
 export const services = pgTable(
   "services",
   {
@@ -470,34 +539,48 @@ export const services = pgTable(
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
-    code: varchar("code", { length: 50 }).notNull(),
-    name: varchar("name", { length: 255 }).notNull(),
-    description: text("description"),
-    category: varchar("category", { length: 100 }),
 
-    // Pricing fields
-    defaultRate: decimal("default_rate", { precision: 10, scale: 2 }),
-    price: decimal("price", { precision: 10, scale: 2 }), // Alias for defaultRate
+    // Core fields
+    code: varchar("code", { length: 50 }).notNull(), // e.g., 'COMP_ACCOUNTS', 'BOOK_BASIC'
+    name: varchar("name", { length: 255 }).notNull(),
+    category: serviceComponentCategoryEnum("category").notNull(),
+    description: text("description"),
+
+    // Pricing configuration
+    pricingModel: pricingModelEnum("pricing_model").notNull(),
+    basePrice: decimal("base_price", { precision: 10, scale: 2 }),
+    price: decimal("price", { precision: 10, scale: 2 }), // Alias for basePrice
     priceType: servicePriceTypeEnum("price_type").default("fixed"),
+    defaultRate: decimal("default_rate", { precision: 10, scale: 2 }),
     duration: integer("duration"), // Duration in minutes
+    supportsComplexity: boolean("supports_complexity").default(false).notNull(),
 
     // Additional fields
     tags: jsonb("tags"), // Array of strings
+
+    // Status
     isActive: boolean("is_active").default(true).notNull(),
+
+    // Metadata
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => ({
-    tenantServiceCodeIdx: uniqueIndex("idx_tenant_service_code").on(
+    tenantCodeIdx: uniqueIndex("idx_service_code").on(
       table.tenantId,
       table.code,
     ),
     categoryIdx: index("idx_service_category").on(table.category),
+    activeIdx: index("idx_service_active").on(table.isActive),
   }),
 );
 
 // Client Services table (many-to-many)
+// Links clients to services they have activated
 export const clientServices = pgTable(
   "client_services",
   {
@@ -508,20 +591,23 @@ export const clientServices = pgTable(
     clientId: uuid("client_id")
       .references(() => clients.id, { onDelete: "cascade" })
       .notNull(),
-    serviceComponentId: uuid("service_component_id")
-      .references(() => serviceComponents.id, { onDelete: "cascade" })
+    serviceId: uuid("service_id")
+      .references(() => services.id, { onDelete: "cascade" })
       .notNull(),
     customRate: decimal("custom_rate", { precision: 10, scale: 2 }),
     startDate: date("start_date"),
     endDate: date("end_date"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => ({
     clientServiceIdx: uniqueIndex("idx_client_service").on(
       table.clientId,
-      table.serviceComponentId,
+      table.serviceId,
     ),
   }),
 );
@@ -587,6 +673,9 @@ export const tasks = pgTable(
     assignedToId: text("assigned_to_id").references(() => users.id, {
       onDelete: "set null",
     }),
+    preparerId: text("preparer_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     reviewerId: text("reviewer_id").references(() => users.id, {
       onDelete: "set null",
     }),
@@ -623,6 +712,7 @@ export const tasks = pgTable(
   },
   (table) => ({
     assigneeIdx: index("idx_task_assignee").on(table.assignedToId),
+    preparerIdx: index("idx_task_preparer").on(table.preparerId),
     reviewerIdx: index("idx_task_reviewer").on(table.reviewerId),
     clientTaskIdx: index("idx_task_client").on(table.clientId),
     statusIdx: index("idx_task_status").on(table.status),
@@ -664,6 +754,140 @@ export const taskNotes = pgTable(
   }),
 );
 
+// ============================================
+// TASK TEMPLATES SYSTEM
+// ============================================
+
+// Task Templates table - defines reusable task patterns for services
+export const taskTemplates = pgTable(
+  "task_templates",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Service linkage - one template belongs to ONE service
+    serviceId: uuid("service_id")
+      .references(() => services.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Template pattern fields (with placeholder support)
+    namePattern: text("name_pattern").notNull(), // e.g., "Prepare {service_name} for {client_name}"
+    descriptionPattern: text("description_pattern"),
+
+    // Task configuration
+    estimatedHours: real("estimated_hours"),
+    priority: taskPriorityEnum("priority").notNull().default("medium"),
+    taskType: varchar("task_type", { length: 100 }),
+
+    // Due date offset configuration
+    dueDateOffsetDays: integer("due_date_offset_days").default(0).notNull(),
+    dueDateOffsetMonths: integer("due_date_offset_months").default(0).notNull(),
+
+    // Recurring configuration
+    isRecurring: boolean("is_recurring").default(false).notNull(),
+
+    // Status
+    isActive: boolean("is_active").default(true).notNull(),
+
+    // Metadata
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("task_templates_tenant_id_idx").on(table.tenantId),
+    serviceIdIdx: index("task_templates_service_id_idx").on(table.serviceId),
+    activeIdx: index("task_templates_active_idx").on(table.isActive),
+  }),
+);
+
+// Client Task Template Overrides - client-specific customization of templates
+export const clientTaskTemplateOverrides = pgTable(
+  "client_task_template_overrides",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    clientId: uuid("client_id")
+      .references(() => clients.id, { onDelete: "cascade" })
+      .notNull(),
+    templateId: text("template_id")
+      .references(() => taskTemplates.id, { onDelete: "cascade" })
+      .notNull(),
+
+    // Override fields (null = use template default)
+    customDueDate: date("custom_due_date"),
+    customPriority: taskPriorityEnum("custom_priority"),
+    isDisabled: boolean("is_disabled").default(false).notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("client_task_template_overrides_tenant_id_idx").on(
+      table.tenantId,
+    ),
+    clientTemplateUnique: uniqueIndex(
+      "client_task_template_overrides_client_template_unique",
+    ).on(table.clientId, table.templateId),
+  }),
+);
+
+// Timesheet Submissions table - for weekly approval workflow
+export const timesheetSubmissions = pgTable(
+  "timesheet_submissions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    weekStartDate: date("week_start_date").notNull(),
+    weekEndDate: date("week_end_date").notNull(),
+    status: text("status").notNull(), // "pending" | "approved" | "rejected" | "resubmitted"
+    totalHours: decimal("total_hours", { precision: 7, scale: 2 }).notNull(),
+    submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+    reviewedBy: text("reviewed_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewerComments: text("reviewer_comments"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    // Unique constraint: prevent duplicate submissions for same week
+    userWeekUnique: uniqueIndex("timesheet_submissions_user_week_unique").on(
+      table.userId,
+      table.weekStartDate,
+    ),
+    // Indexes for query performance
+    tenantIdIdx: index("timesheet_submissions_tenant_id_idx").on(
+      table.tenantId,
+    ),
+    statusIdx: index("timesheet_submissions_status_idx").on(table.status),
+    reviewerIdx: index("timesheet_submissions_reviewer_idx").on(
+      table.reviewedBy,
+    ),
+    weekDateIdx: index("timesheet_submissions_week_date_idx").on(
+      table.weekStartDate,
+    ),
+  }),
+);
+
 // Time Entries table
 export const timeEntries = pgTable(
   "time_entries",
@@ -681,10 +905,9 @@ export const timeEntries = pgTable(
     taskId: uuid("task_id").references(() => tasks.id, {
       onDelete: "set null",
     }),
-    serviceComponentId: uuid("service_component_id").references(
-      () => serviceComponents.id,
-      { onDelete: "set null" },
-    ),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
     // Time tracking
     date: date("date").notNull(),
@@ -707,6 +930,10 @@ export const timeEntries = pgTable(
 
     // Approval workflow
     status: timeEntryStatusEnum("status").default("draft").notNull(),
+    submissionId: uuid("submission_id").references(
+      () => timesheetSubmissions.id,
+      { onDelete: "set null" },
+    ),
     submittedAt: timestamp("submitted_at"),
     approvedById: text("approved_by_id").references(() => users.id, {
       onDelete: "set null",
@@ -872,6 +1099,12 @@ export const invoices = pgTable(
     // References
     purchaseOrderNumber: varchar("po_number", { length: 100 }),
 
+    // Xero Integration (Two-way sync)
+    xeroInvoiceId: text("xero_invoice_id"), // Xero's invoice UUID
+    xeroSyncStatus: text("xero_sync_status"), // "synced" | "pending" | "error" | null
+    xeroLastSyncedAt: timestamp("xero_last_synced_at"),
+    xeroSyncError: text("xero_sync_error"), // Error message if sync failed
+
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -887,6 +1120,8 @@ export const invoices = pgTable(
     clientInvoiceIdx: index("idx_invoice_client").on(table.clientId),
     statusIdx: index("idx_invoice_status").on(table.status),
     dueDateIdx: index("idx_invoice_due_date").on(table.dueDate),
+    xeroInvoiceIdIdx: index("idx_invoice_xero_id").on(table.xeroInvoiceId),
+    xeroSyncStatusIdx: index("idx_invoice_xero_sync_status").on(table.xeroSyncStatus),
   }),
 );
 
@@ -907,10 +1142,9 @@ export const invoiceItems = pgTable(
     timeEntryId: uuid("time_entry_id").references(() => timeEntries.id, {
       onDelete: "set null",
     }),
-    serviceComponentId: uuid("service_component_id").references(
-      () => serviceComponents.id,
-      { onDelete: "set null" },
-    ),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
     sortOrder: integer("sort_order").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -942,10 +1176,9 @@ export const workflows = pgTable(
     estimatedDays: integer("estimated_days"),
 
     // Service association
-    serviceComponentId: uuid("service_component_id").references(
-      () => serviceComponents.id,
-      { onDelete: "set null" },
-    ),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
 
     // Configuration
     config: jsonb("config").notNull(), // Workflow-specific configuration
@@ -962,7 +1195,7 @@ export const workflows = pgTable(
   (table) => ({
     typeIdx: index("idx_workflow_type").on(table.type),
     activeIdx: index("idx_workflow_active").on(table.isActive),
-    serviceIdx: index("idx_workflow_service").on(table.serviceComponentId),
+    serviceIdx: index("idx_workflow_service").on(table.serviceId),
     versionIdx: index("idx_workflow_version").on(table.id, table.version),
   }),
 );
@@ -1043,28 +1276,7 @@ export const compliance = pgTable(
 // PROPOSAL HUB & PRICING SYSTEM
 // ============================================
 
-// Service Component Category Enum
-export const serviceComponentCategoryEnum = pgEnum(
-  "service_component_category",
-  [
-    "compliance",
-    "vat",
-    "bookkeeping",
-    "payroll",
-    "management",
-    "secretarial",
-    "tax_planning",
-    "addon",
-  ],
-);
-
-// Pricing Model Enum
-export const pricingModelEnum = pgEnum("pricing_model", [
-  "turnover",
-  "transaction",
-  "both",
-  "fixed",
-]);
+// NOTE: serviceComponentCategoryEnum and pricingModelEnum moved to before services table (line ~494)
 
 // Pricing Rule Type Enum
 export const pricingRuleTypeEnum = pgEnum("pricing_rule_type", [
@@ -1114,52 +1326,10 @@ export const transactionDataSourceEnum = pgEnum("transaction_data_source", [
   "estimated",
 ]);
 
-// Service Components table - catalog of all services (master table)
-export const serviceComponents = pgTable(
-  "service_components",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    tenantId: text("tenant_id")
-      .references(() => tenants.id, { onDelete: "cascade" })
-      .notNull(),
+// NOTE: serviceComponents table has been unified into services table (see line ~495)
+// This section left intentionally removed to avoid duplication
 
-    // Core fields
-    code: varchar("code", { length: 50 }).notNull(), // e.g., 'COMP_ACCOUNTS', 'BOOK_BASIC'
-    name: varchar("name", { length: 255 }).notNull(),
-    category: serviceComponentCategoryEnum("category").notNull(),
-    description: text("description"),
-
-    // Pricing configuration
-    pricingModel: pricingModelEnum("pricing_model").notNull(),
-    basePrice: decimal("base_price", { precision: 10, scale: 2 }),
-    price: decimal("price", { precision: 10, scale: 2 }), // Alias for basePrice
-    priceType: servicePriceTypeEnum("price_type").default("fixed"),
-    defaultRate: decimal("default_rate", { precision: 10, scale: 2 }),
-    duration: integer("duration"), // Duration in minutes
-    supportsComplexity: boolean("supports_complexity").default(false).notNull(),
-
-    // Additional fields
-    tags: jsonb("tags"), // Array of strings
-
-    // Status
-    isActive: boolean("is_active").default(true).notNull(),
-
-    // Metadata
-    metadata: jsonb("metadata"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  (table) => ({
-    tenantCodeIdx: uniqueIndex("idx_service_component_code").on(
-      table.tenantId,
-      table.code,
-    ),
-    categoryIdx: index("idx_service_component_category").on(table.category),
-    activeIdx: index("idx_service_component_active").on(table.isActive),
-  }),
-);
-
-// Pricing Rules table - defines pricing for each service component
+// Pricing Rules table - defines pricing for each service
 export const pricingRules = pgTable(
   "pricing_rules",
   {
@@ -1167,8 +1337,8 @@ export const pricingRules = pgTable(
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
-    componentId: uuid("component_id")
-      .references(() => serviceComponents.id, { onDelete: "cascade" })
+    serviceId: uuid("service_id")
+      .references(() => services.id, { onDelete: "cascade" })
       .notNull(),
 
     // Rule type and range
@@ -1185,10 +1355,13 @@ export const pricingRules = pgTable(
     isActive: boolean("is_active").default(true).notNull(),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => ({
-    componentIdx: index("idx_pricing_rule_component").on(table.componentId),
+    serviceIdx: index("idx_pricing_rule_service").on(table.serviceId),
     ruleTypeIdx: index("idx_pricing_rule_type").on(table.ruleType),
     activeIdx: index("idx_pricing_rule_active").on(table.isActive),
   }),
@@ -1908,7 +2081,7 @@ export const workflowVersions = pgTable(
     type: varchar("type", { length: 50 }).notNull(),
     trigger: varchar("trigger", { length: 100 }),
     estimatedDays: integer("estimated_days"),
-    serviceComponentId: uuid("service_component_id"),
+    serviceId: uuid("service_id"),
     config: jsonb("config").notNull(),
 
     // Snapshot of stages (denormalized for performance)
@@ -2845,3 +3018,134 @@ export const companiesHouseRateLimit = pgTable("companies_house_rate_limit", {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+// Integration Settings - External service integrations (Xero, QuickBooks, Slack, etc.)
+export const integrationSettings = pgTable(
+  "integration_settings",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    integrationType: text("integration_type").notNull(), // "xero" | "quickbooks" | "sage" | "slack" | "teams" | "stripe"
+    enabled: boolean("enabled").default(false).notNull(),
+    credentials: text("credentials"), // Encrypted JSON (access_token, refresh_token, api_key, etc.)
+    config: jsonb("config"), // Integration-specific configuration (sync frequency, account mappings, etc.)
+    lastSyncAt: timestamp("last_sync_at"),
+    syncStatus: text("sync_status"), // "success" | "error" | null
+    syncError: text("sync_error"), // Error message if sync failed
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("integration_settings_tenant_id_idx").on(table.tenantId),
+    typeIdx: index("integration_settings_type_idx").on(table.integrationType),
+    tenantTypeIdx: uniqueIndex("integration_settings_tenant_type_idx").on(
+      table.tenantId,
+      table.integrationType,
+    ), // One integration per type per tenant
+  }),
+);
+
+// Import Logs - Track CSV bulk import operations
+export const importLogs = pgTable(
+  "import_logs",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    entityType: importEntityTypeEnum("entity_type").notNull(), // What's being imported
+    fileName: text("file_name").notNull(), // Original CSV filename
+    status: importStatusEnum("status").default("pending").notNull(),
+    totalRows: integer("total_rows").notNull(), // Total rows in CSV
+    processedRows: integer("processed_rows").default(0).notNull(), // Successfully processed
+    failedRows: integer("failed_rows").default(0).notNull(), // Failed with errors
+    skippedRows: integer("skipped_rows").default(0).notNull(), // Skipped (e.g., duplicates)
+    errors: jsonb("errors"), // Array of {row: number, field: string, message: string}
+    dryRun: boolean("dry_run").default(false).notNull(), // Was this a validation-only run?
+    importedBy: text("imported_by")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    startedAt: timestamp("started_at").defaultNow().notNull(),
+    completedAt: timestamp("completed_at"),
+    metadata: jsonb("metadata"), // Additional context (e.g., mapping config)
+  },
+  (table) => ({
+    tenantIdIdx: index("import_logs_tenant_id_idx").on(table.tenantId),
+    statusIdx: index("import_logs_status_idx").on(table.status),
+    entityTypeIdx: index("import_logs_entity_type_idx").on(table.entityType),
+    startedAtIdx: index("import_logs_started_at_idx").on(table.startedAt),
+    importedByIdx: index("import_logs_imported_by_idx").on(table.importedBy),
+  }),
+);
+
+// Xero Webhook Events - Store incoming webhook events from Xero
+export const xeroWebhookEvents = pgTable(
+  "xero_webhook_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    eventId: text("event_id").notNull().unique(), // Xero's unique event ID for idempotency
+    eventType: text("event_type").notNull(), // "CREATE", "UPDATE", "DELETE"
+    eventCategory: text("event_category").notNull(), // "INVOICE", "CONTACT", "PAYMENT", etc.
+    eventDateUtc: timestamp("event_date_utc").notNull(),
+    resourceId: text("resource_id").notNull(), // UUID of the resource (invoice, contact, etc.)
+    resourceUrl: text("resource_url"), // API URL to fetch the resource
+    xeroTenantId: text("xero_tenant_id").notNull(), // Xero tenant/organization ID
+    processed: boolean("processed").default(false).notNull(),
+    processedAt: timestamp("processed_at"),
+    processingError: text("processing_error"),
+    rawPayload: jsonb("raw_payload").notNull(), // Full webhook payload for debugging
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    eventIdIdx: uniqueIndex("xero_webhook_events_event_id_idx").on(table.eventId),
+    tenantIdIdx: index("xero_webhook_events_tenant_id_idx").on(table.tenantId),
+    processedIdx: index("xero_webhook_events_processed_idx").on(table.processed),
+    eventTypeIdx: index("xero_webhook_events_event_type_idx").on(table.eventType),
+    eventCategoryIdx: index("xero_webhook_events_event_category_idx").on(table.eventCategory),
+    createdAtIdx: index("xero_webhook_events_created_at_idx").on(table.createdAt),
+  }),
+);
+
+// Task Assignment History - Track task reassignments for audit trail
+export const taskAssignmentHistory = pgTable(
+  "task_assignment_history",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    taskId: uuid("task_id")
+      .references(() => tasks.id, { onDelete: "cascade" })
+      .notNull(),
+    fromUserId: text("from_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }), // null for first assignment
+    toUserId: text("to_user_id")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    changedBy: text("changed_by")
+      .references(() => users.id, { onDelete: "set null" })
+      .notNull(),
+    changeReason: text("change_reason"),
+    assignmentType: varchar("assignment_type", { length: 20 }).notNull(), // "preparer" | "reviewer" | "assigned_to"
+    changedAt: timestamp("changed_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    taskIdIdx: index("task_assignment_history_task_id_idx").on(table.taskId),
+    tenantIdIdx: index("task_assignment_history_tenant_id_idx").on(
+      table.tenantId,
+    ),
+    changedAtIdx: index("task_assignment_history_changed_at_idx").on(
+      table.changedAt,
+    ),
+  }),
+);
+

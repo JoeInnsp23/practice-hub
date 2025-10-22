@@ -7,7 +7,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
-import { tenants, users, accounts } from "../lib/db/schema";
+import { tenants, users, accounts, portalCategories, portalLinks } from "../lib/db/schema";
 import bcryptjs from "bcryptjs";
 import crypto from "node:crypto";
 
@@ -117,6 +117,134 @@ async function seedTestDatabase() {
       updatedAt: new Date(),
     });
     console.log("✅ Member user account credentials created");
+
+    // Step 7: Create Portal Categories and Links (same as dev seed)
+    console.log("🔗 Creating portal categories and links...");
+
+    const [practiceHubCategory] = await db
+      .insert(portalCategories)
+      .values({
+        tenantId: testTenant.id,
+        name: "Practice Hub",
+        description: "Internal practice management modules",
+        iconName: "LayoutGrid",
+        colorHex: "#ff8609",
+        sortOrder: 1,
+        isActive: true,
+        createdById: adminUser.id,
+      })
+      .returning();
+
+    const [externalToolsCategory] = await db
+      .insert(portalCategories)
+      .values({
+        tenantId: testTenant.id,
+        name: "External Tools",
+        description: "Government and regulatory services",
+        iconName: "ExternalLink",
+        colorHex: "#3b82f6",
+        sortOrder: 2,
+        isActive: true,
+        createdById: adminUser.id,
+      })
+      .returning();
+
+    const [practiceResourcesCategory] = await db
+      .insert(portalCategories)
+      .values({
+        tenantId: testTenant.id,
+        name: "Practice Resources",
+        description: "Professional bodies and resources",
+        iconName: "BookOpen",
+        colorHex: "#8b5cf6",
+        sortOrder: 3,
+        isActive: true,
+        createdById: adminUser.id,
+      })
+      .returning();
+
+    // Create Practice Hub internal module links
+    const practiceHubLinks = [
+      {
+        title: "Client Hub",
+        description: "Manage clients, contacts, and relationships",
+        url: "/client-hub",
+        iconName: "Users",
+        sortOrder: 1,
+      },
+      {
+        title: "Proposal Hub",
+        description: "Create and manage client proposals",
+        url: "/proposal-hub",
+        iconName: "FileText",
+        sortOrder: 2,
+      },
+      {
+        title: "Social Hub",
+        description: "Practice social features (coming soon)",
+        url: "/social-hub",
+        iconName: "Share2",
+        sortOrder: 3,
+      },
+      {
+        title: "Bookkeeping Hub",
+        description: "Bookkeeping and reconciliation (coming soon)",
+        url: "/bookkeeping",
+        iconName: "Calculator",
+        sortOrder: 4,
+      },
+      {
+        title: "Accounts Hub",
+        description: "Annual accounts preparation (coming soon)",
+        url: "/accounts-hub",
+        iconName: "Building",
+        sortOrder: 5,
+      },
+      {
+        title: "Payroll Hub",
+        description: "Payroll processing and RTI (coming soon)",
+        url: "/payroll",
+        iconName: "DollarSign",
+        sortOrder: 6,
+      },
+      {
+        title: "Employee Portal",
+        description: "Employee self-service portal (coming soon)",
+        url: "/employee-portal",
+        iconName: "Briefcase",
+        sortOrder: 7,
+      },
+      {
+        title: "Client Admin",
+        description: "Manage external client portal users and access",
+        url: "/client-admin",
+        iconName: "Users",
+        sortOrder: 8,
+      },
+      {
+        title: "Admin Panel",
+        description: "System administration and configuration",
+        url: "/admin",
+        iconName: "Settings",
+        sortOrder: 9,
+      },
+    ];
+
+    await db.insert(portalLinks).values(
+      practiceHubLinks.map((link) => ({
+        tenantId: testTenant.id,
+        categoryId: practiceHubCategory.id,
+        title: link.title,
+        description: link.description,
+        url: link.url,
+        isInternal: true,
+        iconName: link.iconName,
+        sortOrder: link.sortOrder,
+        isActive: true,
+        createdById: adminUser.id,
+      })),
+    );
+    console.log(`✅ Created ${practiceHubLinks.length} Practice Hub links`);
 
     console.log("\n✨ E2E test database seeded successfully!");
     console.log("\n📋 Test Credentials:");

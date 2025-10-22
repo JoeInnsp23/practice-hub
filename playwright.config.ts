@@ -8,11 +8,11 @@ export default defineConfig({
   testDir: "./__tests__/e2e",
 
   // Test execution settings
-  timeout: 30000, // 30 seconds per test
-  fullyParallel: false, // Run tests serially to avoid conflicts
+  timeout: 300000, // 300 seconds (5min) per test (increased for Turbopack cold-start compilation)
+  fullyParallel: true, // Run tests in parallel for better performance
   forbidOnly: !!process.env.CI, // Fail if test.only in CI
   retries: process.env.CI ? 2 : 0, // Retry failed tests in CI
-  workers: 1, // Single worker to prevent database conflicts
+  workers: process.env.CI ? 2 : 3, // Multiple workers for parallel execution (3 local, 2 in CI)
 
   // Reporter configuration
   reporter: [

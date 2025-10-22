@@ -33,6 +33,9 @@ process.env.DOCUSEAL_API_KEY = "test-docuseal-api-key";
 process.env.XERO_CLIENT_ID = "test-xero-client-id";
 process.env.XERO_CLIENT_SECRET = "test-xero-client-secret";
 process.env.XERO_REDIRECT_URI = "http://localhost:3000/api/xero/callback";
+// Encryption key for testing (32 bytes hex)
+process.env.ENCRYPTION_KEY =
+  "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 // Suppress console output during tests (uncomment to reduce noise)
 // global.console = {

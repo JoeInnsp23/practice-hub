@@ -686,29 +686,42 @@ See Better Auth official docs: https://better-auth.com/docs
 
 ### Overview
 
-✅ **COMPLETE & TESTED** - Xero integration provides:
+✅ **COMPLETE** - Xero integration provides complete two-way sync:
+- **Practice Hub → Xero**: Push clients, invoices, and payments to Xero
+- **Xero → Practice Hub**: Receive webhook events for data changes
 - OAuth 2.0 authentication with PKCE
-- Automatic token refresh
-- Bank transactions fetching
-- Organisation access management
+- Automatic token refresh (API middleware + background worker)
+- Webhook infrastructure (event receiving and processing)
+- AES-256-GCM encrypted credential storage
+- Tenant-level integration (one connection per accountancy firm)
+- Sync status tracking and error handling
 
 **Pricing**: Free API (requires Xero account)
 
-**Testing**: Comprehensive test coverage with 30+ unit tests and integration tests. See [Xero Integration Guide](../guides/integrations/xero.md#testing) for testing documentation.
+**Architecture**: Complete two-way sync with automatic token management and conflict resolution.
 
 ### Implementation
 
-**Status**: Fully implemented and tested in `lib/xero/client.ts` (287 lines)
-- **Unit Tests**: 30 tests, 90%+ coverage (`lib/xero/client.test.ts`)
-- **Integration Tests**: Manual testing with Xero sandbox (`lib/xero/client.integration.test.ts`)
-- **Router Tests**: 6 implementation tests (`__tests__/routers/transactionData.test.ts`)
+**Status**: ✅ Complete two-way sync infrastructure
+- **Integration Settings**: Tenant-level configuration (`integrationSettings` table)
+- **Credential Storage**: AES-256-GCM encrypted (`lib/services/encryption.ts`)
+- **Webhook Events**: Incoming events storage (`xeroWebhookEvents` table)
+- **Token Refresh**: Dual-layer refresh (API client + background worker)
+- **Sync Service**: Orchestrates two-way sync between Practice Hub and Xero
+- **Sync Tracking**: Database fields track sync status for invoices and clients
 
 **Features**:
 - ✅ OAuth 2.0 flow with PKCE for secure authentication
-- ✅ Automatic token refresh (30-minute expiry)
-- ✅ Token storage in database (`xero_tokens` table)
-- ✅ Bank transactions API integration
-- ✅ Organisation context management
+- ✅ Tenant-level integration settings (`integrationSettings` table)
+- ✅ AES-256-GCM encrypted credential storage
+- ✅ Webhook receiver with HMAC-SHA256 signature validation
+- ✅ Webhook event processor (INVOICE, CONTACT, PAYMENT, BANKTRANSACTION)
+- ✅ Token refresh worker (background job, runs every 10 days)
+- ✅ Token refresh middleware (auto-refresh with 5-min buffer)
+- ✅ Xero API client (push contacts, invoices, payments to Xero)
+- ✅ Sync orchestration service (two-way sync coordination)
+- ✅ Sync status tracking (pending, synced, error states)
+- ✅ Automatic retry for failed syncs
 
 ### Setup
 
@@ -732,16 +745,94 @@ XERO_REDIRECT_URI="https://practicehub.com/api/xero/callback"
 **3. Database Schema**:
 ```typescript
 // lib/db/schema.ts
-export const xeroTokens = pgTable("xero_tokens", {
+
+// Integration Settings - Tenant-level Xero configuration
+export const integrationSettings = pgTable("integration_settings", {
   id: text("id").primaryKey(),
   tenantId: text("tenant_id").references(() => tenants.id).notNull(),
-  accessToken: text("access_token").notNull(),
-  refreshToken: text("refresh_token").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  tenantXeroId: text("tenant_xero_id"),  // Xero organisation ID
+  integrationType: text("integration_type").notNull(),  // "xero" | "quickbooks" | "slack"
+  enabled: boolean("enabled").default(false).notNull(),
+  credentials: text("credentials"),  // AES-256-GCM encrypted JSON
+  config: jsonb("config"),  // Integration-specific config
+  metadata: jsonb("metadata"),  // Integration metadata (org name, etc.)
+  lastSyncedAt: timestamp("last_synced_at"),
+  syncStatus: text("sync_status"),  // "connected" | "error" | null
+  syncError: text("sync_error"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Xero Webhook Events - Store incoming webhooks from Xero
+export const xeroWebhookEvents = pgTable("xero_webhook_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: text("tenant_id").references(() => tenants.id).notNull(),
+  eventId: text("event_id").notNull().unique(),  // Xero's event ID (idempotency)
+  eventType: text("event_type").notNull(),  // "CREATE" | "UPDATE" | "DELETE"
+  eventCategory: text("event_category").notNull(),  // "INVOICE" | "CONTACT" | "PAYMENT"
+  eventDateUtc: timestamp("event_date_utc").notNull(),
+  resourceId: text("resource_id").notNull(),  // Resource UUID
+  resourceUrl: text("resource_url"),  // Xero API resource URL
+  xeroTenantId: text("xero_tenant_id").notNull(),  // Xero org ID
+  processed: boolean("processed").default(false).notNull(),
+  processedAt: timestamp("processed_at"),
+  processingError: text("processing_error"),
+  rawPayload: jsonb("raw_payload").notNull(),  // Full webhook payload
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Invoices - Add Xero sync tracking fields
+export const invoices = pgTable("invoices", {
+  // ... existing fields ...
+
+  // Xero Integration (Two-way sync)
+  xeroInvoiceId: text("xero_invoice_id"),  // Xero's invoice UUID
+  xeroSyncStatus: text("xero_sync_status"),  // "synced" | "pending" | "error" | null
+  xeroLastSyncedAt: timestamp("xero_last_synced_at"),
+  xeroSyncError: text("xero_sync_error"),  // Error message if sync failed
+});
+
+// Clients - Add Xero sync tracking fields
+export const clients = pgTable("clients", {
+  // ... existing fields ...
+
+  // Xero Integration (Two-way sync)
+  xeroContactId: text("xero_contact_id"),  // Xero's contact UUID
+  xeroSyncStatus: text("xero_sync_status"),  // "synced" | "pending" | "error" | null
+  xeroLastSyncedAt: timestamp("xero_last_synced_at"),
+  xeroSyncError: text("xero_sync_error"),  // Error message if sync failed
+});
+
+```
+
+**4. Credential Encryption**:
+```bash
+# Generate encryption key (required for credential storage)
+openssl rand -hex 32
+
+# Add to .env.local
+ENCRYPTION_KEY="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+```
+
+**Credentials Format** (encrypted JSON):
+```typescript
+{
+  accessToken: "xxx",
+  refreshToken: "xxx",
+  expiresAt: "2025-10-22T12:00:00Z",
+  selectedTenantId: "xxx",  // Xero organisation ID
+  tokenType: "Bearer",
+  scope: "accounting.transactions offline_access"
+}
+```
+
+**5. Webhook Configuration**:
+```bash
+# Xero Developer Portal → Webhooks
+# URL: https://practicehub.com/api/webhooks/xero
+# Signing Key: Copy from Xero dashboard
+
+# Add to .env.local
+XERO_WEBHOOK_KEY="your-webhook-signing-key"
 ```
 
 ### API Documentation
@@ -763,6 +854,10 @@ const { authUrl, codeVerifier } = await xeroClient.getAuthorizationUrl();
 ```typescript
 // app/api/xero/callback/route.ts
 import { XeroClient } from "@/lib/xero/client";
+import { encryptObject } from "@/lib/services/encryption";
+import { db } from "@/lib/db";
+import { integrationSettings } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -774,17 +869,42 @@ export async function GET(request: Request) {
   // Exchange code for tokens
   const tokens = await xeroClient.exchangeCodeForToken(code, codeVerifier);
 
-  // Store in database
-  await db.insert(xeroTokens).values({
-    id: generateId(),
-    tenantId: authContext.tenantId,
+  // Prepare credentials object
+  const credentials = {
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token,
-    expiresAt: new Date(Date.now() + tokens.expires_in * 1000),
-    tenantXeroId: tokens.tenantId,
-  });
+    expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+    selectedTenantId: tokens.tenantId,  // Xero organisation ID
+    tokenType: "Bearer",
+    scope: tokens.scope,
+  };
 
-  return redirect("/admin/integrations?success=xero");
+  // Encrypt credentials
+  const encryptedCredentials = encryptObject(credentials);
+
+  // Upsert integration settings (tenant-level)
+  await db
+    .insert(integrationSettings)
+    .values({
+      tenantId: authContext.tenantId,
+      integrationType: "xero",
+      enabled: true,
+      credentials: encryptedCredentials,
+      config: {
+        syncFrequency: "daily",
+        autoSync: false,
+      },
+    })
+    .onConflictDoUpdate({
+      target: [integrationSettings.tenantId, integrationSettings.integrationType],
+      set: {
+        credentials: encryptedCredentials,
+        enabled: true,
+        updatedAt: new Date(),
+      },
+    });
+
+  return redirect("/client-hub/settings/integrations?success=xero");
 }
 ```
 
@@ -831,18 +951,290 @@ await xeroClient.refreshAccessToken(tenantId);
 
 ### Token Management
 
-**Automatic Refresh**:
-- Tokens expire after 30 minutes
-- `XeroClient` automatically refreshes tokens when needed
-- Refresh happens if token expires within 5 minutes
-- Updated tokens saved to database
+**Dual-Layer Token Refresh Architecture**:
 
-**Manual Refresh**:
+1. **API Middleware** (auto-refresh with 5-min buffer):
 ```typescript
-import { XeroClient } from "@/lib/xero/client";
+// lib/xero/middleware.ts
+export async function withXeroTokenRefresh(tenantId: string) {
+  const settings = await getIntegrationSettings(tenantId, "xero");
+  const credentials = decryptObject(settings.credentials);
 
-const xeroClient = new XeroClient();
-await xeroClient.refreshAccessToken(tenantId);
+  // Check if token expires within 5 minutes
+  const expiresAt = new Date(credentials.expiresAt);
+  const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+
+  if (expiresAt < fiveMinutesFromNow) {
+    // Refresh token
+    const newTokens = await xeroClient.refreshAccessToken(credentials.refreshToken);
+
+    // Update credentials
+    const updatedCredentials = {
+      ...credentials,
+      accessToken: newTokens.access_token,
+      refreshToken: newTokens.refresh_token,
+      expiresAt: new Date(Date.now() + newTokens.expires_in * 1000).toISOString(),
+    };
+
+    // Encrypt and save
+    await updateIntegrationCredentials(tenantId, "xero", updatedCredentials);
+  }
+
+  return credentials;
+}
+```
+
+2. **Background Worker** (runs every 10 days):
+```typescript
+// scripts/token-refresh-worker.ts
+import { CronJob } from "cron";
+
+// Run every 10 days
+const job = new CronJob("0 0 */10 * *", async () => {
+  console.log("🔄 Running token refresh worker...");
+
+  const activeIntegrations = await db
+    .select()
+    .from(integrationSettings)
+    .where(
+      and(
+        eq(integrationSettings.integrationType, "xero"),
+        eq(integrationSettings.enabled, true)
+      )
+    );
+
+  for (const integration of activeIntegrations) {
+    try {
+      const credentials = decryptObject(integration.credentials);
+
+      // Refresh token (Xero refresh tokens expire after 60 days)
+      const newTokens = await xeroClient.refreshAccessToken(credentials.refreshToken);
+
+      // Update credentials
+      await updateIntegrationCredentials(
+        integration.tenantId,
+        "xero",
+        {
+          ...credentials,
+          accessToken: newTokens.access_token,
+          refreshToken: newTokens.refresh_token,
+          expiresAt: new Date(Date.now() + newTokens.expires_in * 1000).toISOString(),
+        }
+      );
+
+      console.log(`✓ Refreshed token for tenant ${integration.tenantId}`);
+    } catch (error) {
+      console.error(`✗ Failed to refresh token for tenant ${integration.tenantId}:`, error);
+    }
+  }
+});
+
+job.start();
+```
+
+**Circuit Breaker Pattern**:
+- Automatic retry with exponential backoff
+- Circuit opens after 5 consecutive failures
+- Half-open state after 5 minutes
+- Prevents cascading failures
+
+### Webhook Infrastructure
+
+**1. Webhook Receiver** (`/api/webhooks/xero`):
+```typescript
+// app/api/webhooks/xero/route.ts
+import crypto from "node:crypto";
+import { db } from "@/lib/db";
+import { xeroWebhookEvents } from "@/lib/db/schema";
+
+export async function POST(request: Request) {
+  const body = await request.text();
+  const signature = request.headers.get("x-xero-signature");
+
+  // Verify signature (HMAC-SHA256)
+  const webhookKey = process.env.XERO_WEBHOOK_KEY!;
+  const expectedSignature = crypto
+    .createHmac("sha256", webhookKey)
+    .update(body)
+    .digest("base64");
+
+  if (signature !== expectedSignature) {
+    return new Response("Invalid signature", { status: 401 });
+  }
+
+  const payload = JSON.parse(body);
+
+  // Store events (idempotent)
+  for (const event of payload.events) {
+    await db.insert(xeroWebhookEvents).values({
+      tenantId: getTenantIdFromXeroTenantId(event.tenantId),
+      eventId: event.eventId,
+      eventType: event.eventType,
+      eventCategory: event.eventCategory,
+      eventDateUtc: new Date(event.eventDateUtc),
+      resourceId: event.resourceId,
+      resourceUrl: event.resourceUrl,
+      xeroTenantId: event.tenantId,
+      processed: false,
+      rawPayload: payload,
+    }).onConflictDoNothing();
+  }
+
+  return new Response("OK", { status: 200 });
+}
+```
+
+**2. Webhook Event Processor**:
+```typescript
+// lib/xero/webhook-processor.ts
+export async function processWebhookEvents() {
+  const unprocessedEvents = await db
+    .select()
+    .from(xeroWebhookEvents)
+    .where(eq(xeroWebhookEvents.processed, false))
+    .limit(100);
+
+  for (const event of unprocessedEvents) {
+    try {
+      // Handle event based on category
+      switch (event.eventCategory) {
+        case "INVOICE":
+          await handleInvoiceEvent(event);
+          break;
+        case "CONTACT":
+          await handleContactEvent(event);
+          break;
+        case "PAYMENT":
+          await handlePaymentEvent(event);
+          break;
+        case "BANKTRANSACTION":
+          await handleBankTransactionEvent(event);
+          break;
+      }
+
+      // Mark as processed
+      await db
+        .update(xeroWebhookEvents)
+        .set({ processed: true, processedAt: new Date() })
+        .where(eq(xeroWebhookEvents.id, event.id));
+    } catch (error) {
+      // Log error but don't fail the batch
+      await db
+        .update(xeroWebhookEvents)
+        .set({ processingError: error.message })
+        .where(eq(xeroWebhookEvents.id, event.id));
+    }
+  }
+}
+```
+
+### Two-Way Sync Service
+
+**1. Push Client to Xero** (Practice Hub → Xero):
+```typescript
+// lib/xero/sync-service.ts
+import { syncClientToXero } from "@/lib/xero/sync-service";
+
+// Sync a client to Xero (creates or updates contact)
+const result = await syncClientToXero(clientId, tenantId);
+
+if (result.success) {
+  console.log("Client synced to Xero successfully");
+} else {
+  console.error("Sync failed:", result.error);
+}
+```
+
+**2. Push Invoice to Xero** (Practice Hub → Xero):
+```typescript
+import { syncInvoiceToXero } from "@/lib/xero/sync-service";
+
+// Sync an invoice to Xero (creates or updates invoice)
+const result = await syncInvoiceToXero(invoiceId, tenantId);
+
+if (result.success) {
+  console.log("Invoice synced to Xero successfully");
+}
+```
+
+**3. Push Payment to Xero** (Practice Hub → Xero):
+```typescript
+import { syncPaymentToXero } from "@/lib/xero/sync-service";
+
+// Record a payment in Xero
+const result = await syncPaymentToXero(
+  invoiceId,
+  tenantId,
+  paymentAmount,
+  paymentDate,
+  bankAccountCode,
+  reference
+);
+```
+
+**4. Mark Entities as Pending Sync**:
+```typescript
+import { markClientAsPendingSync, markInvoiceAsPendingSync } from "@/lib/xero/sync-service";
+
+// Mark client for sync (will be picked up by background worker)
+await markClientAsPendingSync(clientId);
+
+// Mark invoice for sync
+await markInvoiceAsPendingSync(invoiceId);
+```
+
+**5. Process Pending Syncs** (Background Worker):
+```typescript
+import { processPendingSyncs } from "@/lib/xero/sync-service";
+
+// Process all pending syncs for a tenant
+const result = await processPendingSyncs(tenantId);
+console.log(`Synced ${result.clientsSynced} clients, ${result.invoicesSynced} invoices`);
+```
+
+**6. Retry Failed Syncs**:
+```typescript
+import { retryFailedSyncs } from "@/lib/xero/sync-service";
+
+// Retry all failed syncs for a tenant
+const result = await retryFailedSyncs(tenantId);
+console.log(`Retried: ${result.clientsRetried} clients, ${result.invoicesRetried} invoices`);
+```
+
+**Sync Flow**:
+```
+┌─────────────────────┐
+│  Practice Hub       │
+│  Create/Update      │
+│  Client/Invoice     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Mark as "pending"  │
+│  xeroSyncStatus     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Sync Service       │
+│  syncClientToXero() │
+│  syncInvoiceToXero()│
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Xero API Client    │
+│  POST /Contacts     │
+│  POST /Invoices     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Update Status      │
+│  "synced" or "error"│
+│  Store xeroId       │
+└─────────────────────┘
 ```
 
 ### Rate Limits
@@ -902,10 +1294,25 @@ vi.spyOn(xero.XeroClient.prototype, "getBankTransactions").mockResolvedValue([
 
 ### Implementation Files
 
-- `lib/xero/client.ts` - Main Xero API client (286 lines)
-- `app/api/xero/authorize/route.ts` - OAuth initiation
-- `app/api/xero/callback/route.ts` - OAuth callback handler
-- `lib/db/schema.ts` - Token storage schema
+**Core Integration**:
+- `lib/xero/client.ts` - OAuth 2.0 client (authorization, token exchange)
+- `lib/xero/api-client.ts` - Xero API client (create/update contacts, invoices, payments)
+- `lib/xero/sync-service.ts` - Two-way sync orchestration service
+- `lib/xero/middleware.ts` - Token refresh middleware for API routes
+- `lib/xero/token-refresh-worker.ts` - Background token refresh worker
+- `lib/xero/webhook-processor.ts` - Webhook event processor (Xero → Practice Hub)
+
+**API Routes**:
+- `app/api/xero/authorize/route.ts` - OAuth authorization initiation (tenant-level)
+- `app/api/xero/callback/route.ts` - OAuth callback handler (encrypted credential storage)
+- `app/api/webhooks/xero/route.ts` - Webhook receiver (HMAC-SHA256 validation)
+- `app/api/cron/xero-token-refresh/route.ts` - Token refresh cron endpoint
+
+**Database**:
+- `lib/db/schema.ts` - Integration settings, webhook events, sync tracking fields
+- `lib/services/encryption.ts` - AES-256-GCM credential encryption service
+
+**Total**: ~1,500 lines of code across 10 files
 
 ---
 

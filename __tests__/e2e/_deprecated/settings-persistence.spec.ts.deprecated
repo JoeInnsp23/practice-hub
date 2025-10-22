@@ -1,0 +1,172 @@
+import { expect, test } from "@playwright/test";
+import { loginAsTestUser } from "../helpers/auth";
+
+test.describe("Settings Persistence", () => {
+  test("should persist user settings across logout/login sessions", async ({
+    page,
+    context,
+  }) => {
+    // Step 1: Login as test user
+    await loginAsTestUser(page);
+
+    // Step 2: Navigate to settings page
+    await page.goto("/client-hub/settings");
+    await page.waitForURL("**/client-hub/settings", { timeout: 10000 });
+
+    // Wait for settings page to load
+    await expect(
+      page.locator('text="Settings", text="Notification Preferences"').first(),
+    ).toBeVisible({ timeout: 15000 });
+
+    // Step 3: Navigate to notifications tab
+    await page.click('button:has-text("Notifications")');
+    await page.waitForTimeout(500);
+
+    // Step 4: Change user settings - toggle email notifications off
+    const emailNotifSwitch = page.locator('input[id="emailNotif"]');
+    await emailNotifSwitch.click();
+
+    // Step 5: Change theme to dark
+    await page.click('[id="theme"]');
+    await page.click('text="Dark"');
+
+    // Step 6: Save settings
+    const saveButton = page.locator('button:has-text("Save Changes")').last();
+    await saveButton.click();
+
+    // Wait for success toast
+    await expect(
+      page.locator("text=/Settings saved|saved successfully/i"),
+    ).toBeVisible({ timeout: 10000 });
+
+    // Step 7: Logout - clear session by clearing cookies
+    await context.clearCookies();
+
+    // Step 8: Login again
+    await loginAsTestUser(page);
+
+    // Step 9: Navigate back to settings page
+    await page.goto("/client-hub/settings");
+    await page.waitForURL("**/client-hub/settings", { timeout: 10000 });
+
+    // Step 10: Navigate to notifications tab
+    await page.click('button:has-text("Notifications")');
+    await page.waitForTimeout(500);
+
+    // Step 11: Verify email notifications is still off (unchecked)
+    const emailNotifSwitchAfter = page.locator('input[id="emailNotif"]');
+    await expect(emailNotifSwitchAfter).not.toBeChecked();
+
+    // Step 12: Verify theme is still dark
+    const themeSelect = page.locator('[id="theme"]');
+    await expect(themeSelect).toContainText("Dark");
+  });
+
+  test("should persist company settings across logout/login sessions", async ({
+    page,
+    context,
+  }) => {
+    // Step 1: Login as test user
+    await loginAsTestUser(page);
+
+    // Step 2: Navigate to settings page
+    await page.goto("/client-hub/settings");
+    await page.waitForURL("**/client-hub/settings", { timeout: 10000 });
+
+    // Wait for settings page to load
+    await expect(
+      page.locator('text="Settings", text="Company Information"').first(),
+    ).toBeVisible({ timeout: 15000 });
+
+    // Step 3: Stay on General tab (default)
+    // Step 4: Change company phone
+    const uniquePhone = `+44-7700-${Math.floor(Math.random() * 900000) + 100000}`;
+    await page.fill('input[id="companyPhone"]', uniquePhone);
+
+    // Step 5: Change date format to YYYY-MM-DD
+    await page.click('[id="dateFormat"]');
+    await page.click('text="YYYY-MM-DD"');
+
+    // Step 6: Save settings
+    const saveButton = page.locator('button:has-text("Save Changes")').first();
+    await saveButton.click();
+
+    // Wait for success toast
+    await expect(
+      page.locator("text=/Company settings saved|saved successfully/i"),
+    ).toBeVisible({ timeout: 10000 });
+
+    // Step 7: Logout
+    await context.clearCookies();
+
+    // Step 8: Login again
+    await loginAsTestUser(page);
+
+    // Step 9: Navigate back to settings page
+    await page.goto("/client-hub/settings");
+    await page.waitForURL("**/client-hub/settings", { timeout: 10000 });
+
+    // Step 10: Verify company phone persisted
+    const phoneInput = page.locator('input[id="companyPhone"]');
+    await expect(phoneInput).toHaveValue(uniquePhone);
+
+    // Step 11: Verify date format is still YYYY-MM-DD
+    const dateFormatSelect = page.locator('[id="dateFormat"]');
+    await expect(dateFormatSelect).toContainText("YYYY-MM-DD");
+  });
+
+  test("should show validation errors for invalid company email", async ({
+    page,
+  }) => {
+    // Step 1: Login as test user
+    await loginAsTestUser(page);
+
+    // Step 2: Navigate to settings page
+    await page.goto("/client-hub/settings");
+    await page.waitForURL("**/client-hub/settings", { timeout: 10000 });
+
+    // Step 3: Enter invalid email
+    await page.fill('input[id="companyEmail"]', "invalid-email");
+
+    // Step 4: Try to save
+    const saveButton = page.locator('button:has-text("Save Changes")').first();
+    await saveButton.click();
+
+    // Step 5: Verify validation error appears
+    await expect(
+      page.locator("text=/Validation error|Invalid email/i"),
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test("should display date preview that updates when format changes", async ({
+    page,
+  }) => {
+    // Step 1: Login as test user
+    await loginAsTestUser(page);
+
+    // Step 2: Navigate to settings page
+    await page.goto("/client-hub/settings");
+    await page.waitForURL("**/client-hub/settings", { timeout: 10000 });
+
+    // Step 3: Check preview exists
+    await expect(page.locator("text=/Preview:/i")).toBeVisible({
+      timeout: 5000,
+    });
+
+    // Step 4: Change date format to MM/DD/YYYY
+    await page.click('[id="dateFormat"]');
+    await page.click('text="MM/DD/YYYY"');
+
+    // Step 5: Verify preview updates (should show format like 10/22/2025)
+    const preview = page.locator("text=/Preview: \\d{2}\\/\\d{2}\\/\\d{4}/i");
+    await expect(preview).toBeVisible({ timeout: 2000 });
+
+    // Step 6: Change to YYYY-MM-DD
+    await page.click('[id="dateFormat"]');
+    await page.click('text="YYYY-MM-DD"');
+
+    // Step 7: Verify preview updates (should show format like 2025-10-22)
+    const previewYMD = page.locator("text=/Preview: \\d{4}-\\d{2}-\\d{2}/i");
+    await expect(previewYMD).toBeVisible({ timeout: 2000 });
+  });
+});

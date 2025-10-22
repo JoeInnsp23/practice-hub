@@ -51,7 +51,7 @@ FROM time_entries te
 LEFT JOIN users u ON te.user_id = u.id
 LEFT JOIN clients c ON te.client_id = c.id
 LEFT JOIN tasks t ON te.task_id = t.id
-LEFT JOIN service_components s ON te.service_component_id = s.id
+LEFT JOIN services s ON te.service_id = s.id
 LEFT JOIN users a ON te.approved_by_id = a.id;
 --> statement-breakpoint
 
@@ -87,7 +87,7 @@ SELECT
     s.category AS service_category
 FROM invoice_items ii
 LEFT JOIN invoices i ON ii.invoice_id = i.id
-LEFT JOIN service_components s ON ii.service_component_id = s.id;
+LEFT JOIN services s ON ii.service_id = s.id;
 --> statement-breakpoint
 
 -- Client Services View (with full service details)
@@ -103,7 +103,7 @@ SELECT
     COALESCE(cs.custom_rate, s.price) AS effective_rate
 FROM client_services cs
 LEFT JOIN clients c ON cs.client_id = c.id
-LEFT JOIN service_components s ON cs.service_component_id = s.id;
+LEFT JOIN services s ON cs.service_id = s.id;
 --> statement-breakpoint
 
 -- Compliance Details View

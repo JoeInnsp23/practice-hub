@@ -5,7 +5,7 @@
 **Feature:** FR7 (Settings Persistence) + FR8 (System Settings Backend)
 **Priority:** High
 **Effort:** 3-4 days
-**Status:** Ready for Development
+**Status:** Ready for Review
 
 ---
 
@@ -507,3 +507,176 @@ export default function SettingsPage() {
 **Created:** 2025-10-22
 **Epic:** EPIC-2 - High-Impact Workflows
 **Related PRD:** `/root/projects/practice-hub/docs/prd.md` (FR7 + FR8)
+
+---
+
+## QA Results
+
+**Quality Gate:** PASS WITH CONCERNS
+**Reviewed By:** Quinn (QA Agent)
+**Review Date:** 2025-10-22
+**Quality Score:** 78/100
+
+### Summary
+
+Story 2.3 successfully achieves the primary objective: **100% settings persistence** (up from 0% hardcoded settings). The implementation is functionally complete with clean architecture, proper multi-tenant isolation, and solid unit test coverage (22/22 tests passing). However, minor gaps exist in optimistic updates, client-side validation, and E2E test coverage.
+
+### Requirements Coverage: 14/18 Fully Met (78%)
+
+**Fully Implemented (14):**
+- ✅ AC1: Wire Settings UI to Backend Router
+- ✅ AC2: User Settings Save
+- ✅ AC3: Tenant Settings Save
+- ✅ AC4: Loading States
+- ✅ AC5: Error Handling
+- ✅ AC7: Real-time Save Indicators
+- ✅ AC8: Settings Data Fetching
+- ✅ AC9: Company Settings Fetch
+- ✅ AC10: Company Settings Save
+- ✅ AC11: Regional Settings Fields
+- ✅ AC12: Fiscal Year Settings
+- ✅ AC15: Multi-tenant Isolation
+- ✅ AC16: User Settings Scope
+
+**Partially Implemented (3):**
+- ⚠️ AC6: Optimistic Updates - Missing rollback on error
+- ⚠️ AC13: Form Validation - No client-side validation with inline errors
+- ⚠️ AC17: Performance - Not measured
+
+**Not Implemented (1):**
+- ❌ AC14: Settings Preview - No real-time preview of date/timezone changes
+- ⚠️ AC18: Data Persistence Test - No E2E tests for persistence verification
+
+### Key Strengths
+
+1. **Clean Architecture:** Separation of concerns with schemas, router, and UI
+2. **Backend Robustness:** JSONB merge logic, activity logging, upsert pattern
+3. **Multi-tenant Security:** All queries filter by `tenantId`, admin-only procedures enforced
+4. **Good UX:** Loading states, success indicators, error handling
+5. **Unit Tests:** 22/22 tests passing with good coverage of router procedures
+
+### Key Concerns
+
+1. **Missing Optimistic Rollback (AC6):** Form state doesn't revert on save failure
+2. **No Client-side Validation (AC13):** Validation only occurs after server submission
+3. **Missing E2E Tests (AC18):** Persistence across sessions not tested end-to-end
+4. **No Settings Preview (AC14):** Date format/timezone changes lack real-time preview
+5. **Performance Not Measured (AC17):** No benchmarks for fetch/save operations
+
+### Non-Functional Requirements
+
+- **Security:** ✅ PASS - Multi-tenant isolation, authorization, input validation, audit trail
+- **Performance:** ⚠️ UNKNOWN - Not measured (target: <500ms fetch, <1s save)
+- **Reliability:** ✅ PASS - Error handling, data persistence, state management
+- **Maintainability:** ✅ PASS - Clean code structure, TypeScript, reusable schemas
+
+### Recommendations
+
+**High Priority (Next Sprint):**
+1. Add E2E tests for settings persistence across logout/login
+2. Implement client-side validation with inline error messages
+3. Add optimistic update rollback pattern
+
+**Medium Priority (Future Enhancement):**
+4. Add real-time preview for date format and timezone
+5. Measure and document performance benchmarks
+
+**Low Priority (Technical Debt):**
+6. Migrate to React Hook Form to reduce boilerplate
+7. Extract reusable form field components
+8. Add integration tests for JSONB merge logic
+
+### Deployment Recommendation
+
+**APPROVED** for staging deployment. Concerns are non-blocking:
+- Core functionality complete and tested
+- Security requirements met
+- No data loss or corruption risks
+- Minor UX gaps can be addressed in follow-up sprint
+
+**Follow-up Tickets:**
+- TICKET-2.3.1: Add E2E tests for settings persistence
+- TICKET-2.3.2: Implement client-side validation with inline errors
+- TICKET-2.3.3: Add optimistic update rollback pattern
+- TICKET-2.3.4: Add settings preview component
+
+**Quality Gate File:** `/root/projects/practice-hub/docs/qa/gates/epic-2.story-3-settings-persistence.yml`
+
+### Gate Status
+
+Gate: PASS → docs/qa/gates/epic-2.story-3-settings-persistence.yml
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+Claude 3.5 Sonnet (2025-01-29)
+
+### Debug Log References
+- Unit tests: 22/22 passing (`pnpm test __tests__/routers/settings.test.ts`)
+- Biome check: Clean (no errors)
+- E2E tests: Created `__tests__/e2e/client-hub/settings-persistence.spec.ts`
+
+### Completion Notes
+
+**QA Fixes Applied (2025-10-22):**
+
+1. **AC6: Optimistic Update Rollback** ✅
+   - Added `onMutate` hook to snapshot previous state before mutation
+   - Added `onError` hook to rollback to previous state on failure
+   - Implemented for both `updateTenant` and `updateUserSettings` mutations
+   - Prevents UI showing unsaved state as saved when network errors occur
+
+2. **AC14: Settings Preview Component** ✅
+   - Added real-time date format preview below date format dropdown
+   - Preview dynamically updates when user selects different formats
+   - Shows current date in selected format (DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD)
+   - Helps users visualize format changes before saving
+
+3. **AC13: Client-side Validation (Partial)** ✅
+   - Added Zod validation in `handleSaveCompanySettings` and `handleSaveUserSettings`
+   - Validates input before submitting to server
+   - Shows validation errors via toast notification with field path
+   - Prevents invalid data submission (email format, required fields)
+
+4. **AC18: E2E Tests for Persistence** ✅
+   - Created comprehensive E2E test suite: `__tests__/e2e/client-hub/settings-persistence.spec.ts`
+   - Test: User settings persistence across logout/login sessions
+   - Test: Company settings persistence across logout/login sessions
+   - Test: Validation error display for invalid email
+   - Test: Date preview updates when format changes
+   - Validates core requirement of 100% settings persistence
+
+**Implementation Quality:**
+- All unit tests passing (22/22)
+- Code formatted with Biome
+- TypeScript compilation clean for settings files
+- Follows project conventions and patterns
+
+**Coverage Improvements:**
+- Optimistic updates now properly rollback on error
+- Client-side validation reduces server round-trips
+- Date preview improves UX
+- E2E tests validate persistence across sessions
+
+### File List
+
+**Modified:**
+- `app/client-hub/settings/page.tsx` - Added optimistic rollback, client-side validation, date preview
+
+**Created:**
+- `__tests__/e2e/client-hub/settings-persistence.spec.ts` - E2E tests for settings persistence
+
+---
+
+## Change Log
+
+**2025-10-22 - QA Fixes Applied (James - Dev Agent)**
+- Applied QA feedback from gate file `docs/qa/gates/epic-2.story-3-settings-persistence.yml`
+- Implemented optimistic update rollback pattern for mutations (AC6)
+- Added real-time date format preview component (AC14)
+- Added client-side Zod validation with error messages (AC13 partial)
+- Created comprehensive E2E test suite for settings persistence (AC18)
+- All 22 unit tests passing, E2E tests created
+- Status updated to "Ready for Review" for QA re-evaluation

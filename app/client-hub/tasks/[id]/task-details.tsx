@@ -25,6 +25,9 @@ import { useCallback, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import type { TaskStatus } from "@/components/client-hub/tasks/types";
+import { TaskAssignmentHistory } from "@/components/client-hub/task-assignment-history";
+import { TaskNotesSection } from "@/components/client-hub/task-notes-section";
+import { TaskReassignmentModal } from "@/components/client-hub/task-reassignment-modal";
 import { WorkflowAssignmentModal } from "@/components/client-hub/workflows/workflow-assignment-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -127,6 +130,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
   const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+  const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
 
   // Fetch task from database using tRPC
   const taskQuery = trpc.tasks.getById.useQuery(taskId);
@@ -554,6 +558,13 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
               <Edit className="h-4 w-4 mr-2" />
               Edit Task
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsReassignModalOpen(true)}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Reassign
+            </Button>
             <Button variant="outline">
               <Plus className="h-4 w-4 mr-2" />
               Add Note
@@ -565,6 +576,23 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Task Reassignment Modal */}
+      <TaskReassignmentModal
+        open={isReassignModalOpen}
+        onOpenChange={setIsReassignModalOpen}
+        taskId={taskId}
+        taskTitle={task.title}
+        currentAssignee={
+          task.assignee.id
+            ? { id: task.assignee.id, name: task.assignee.name }
+            : undefined
+        }
+        onSuccess={() => {
+          refetch();
+          toast.success("Task reassigned successfully");
+        }}
+      />
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -872,49 +900,8 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-4">
-          <Card className="glass-card">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Notes & Activity</CardTitle>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Note
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {task.notes && task.notes.length > 0 ? (
-                <div className="space-y-4">
-                  {task.notes.map((note) => (
-                    <div key={note.id} className="flex gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <User className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">
-                            {note.author}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {format(
-                              new Date(note.createdAt),
-                              "dd/MM/yyyy 'at' HH:mm",
-                            )}
-                          </span>
-                        </div>
-                        <p className="text-sm">{note.content}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No notes yet</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <TaskNotesSection taskId={params.id} />
+          <TaskAssignmentHistory taskId={taskId} />
         </TabsContent>
       </Tabs>
 
