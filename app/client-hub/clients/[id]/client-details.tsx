@@ -48,6 +48,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ClientTemplateOverrides } from "@/components/client-hub/client-template-overrides";
 
 interface ClientDetailsProps {
   clientId: string;
@@ -1528,6 +1529,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
               </div>
             )}
           </Card>
+
+          {/* Task Template Overrides */}
+          <ClientTemplateOverrides clientId={clientId} />
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">

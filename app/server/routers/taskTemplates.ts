@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { taskTemplates, services } from "@/lib/db/schema";
+import { taskTemplates, services, clientTaskTemplateOverrides, clientServices } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 import crypto from "node:crypto";
 
@@ -232,5 +232,152 @@ export const taskTemplatesRouter = router({
       });
 
       return { success: true, newTemplateId };
+    }),
+
+  // Get templates for a specific client (with overrides)
+  getClientTemplates: protectedProcedure
+    .input(z.object({ clientId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      // Get client's active services
+      const clientServicesList = await db
+        .select()
+        .from(clientServices)
+        .where(
+          and(
+            eq(clientServices.clientId, input.clientId),
+            eq(clientServices.tenantId, ctx.authContext.tenantId),
+          ),
+        );
+
+      if (clientServicesList.length === 0) {
+        return [];
+      }
+
+      const serviceIds = clientServicesList.map((s) => s.serviceId);
+
+      // Get all templates for these services
+      const templatesData = await db
+        .select({
+          id: taskTemplates.id,
+          tenantId: taskTemplates.tenantId,
+          serviceId: taskTemplates.serviceId,
+          serviceName: services.name,
+          namePattern: taskTemplates.namePattern,
+          descriptionPattern: taskTemplates.descriptionPattern,
+          estimatedHours: taskTemplates.estimatedHours,
+          priority: taskTemplates.priority,
+          taskType: taskTemplates.taskType,
+          dueDateOffsetDays: taskTemplates.dueDateOffsetDays,
+          dueDateOffsetMonths: taskTemplates.dueDateOffsetMonths,
+          isRecurring: taskTemplates.isRecurring,
+          isActive: taskTemplates.isActive,
+        })
+        .from(taskTemplates)
+        .leftJoin(services, eq(taskTemplates.serviceId, services.id))
+        .where(
+          and(
+            eq(taskTemplates.tenantId, ctx.authContext.tenantId),
+            eq(taskTemplates.isActive, true),
+          ),
+        );
+
+      // Get existing overrides for this client
+      const overrides = await db
+        .select()
+        .from(clientTaskTemplateOverrides)
+        .where(
+          and(
+            eq(clientTaskTemplateOverrides.clientId, input.clientId),
+            eq(clientTaskTemplateOverrides.tenantId, ctx.authContext.tenantId),
+          ),
+        );
+
+      // Merge templates with overrides
+      const templatesWithOverrides = templatesData.map((template) => {
+        const override = overrides.find((o) => o.templateId === template.id);
+        return {
+          ...template,
+          override: override || null,
+        };
+      });
+
+      return templatesWithOverrides;
+    }),
+
+  // Set client override for a template
+  setClientOverride: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+        templateId: z.string(),
+        customDueDate: z.string().optional(),
+        customPriority: z.enum(["low", "medium", "high", "urgent", "critical"]).optional(),
+        isDisabled: z.boolean().default(false),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const overrideId = crypto.randomUUID();
+
+      // Check if override already exists
+      const existing = await db
+        .select()
+        .from(clientTaskTemplateOverrides)
+        .where(
+          and(
+            eq(clientTaskTemplateOverrides.clientId, input.clientId),
+            eq(clientTaskTemplateOverrides.templateId, input.templateId),
+            eq(clientTaskTemplateOverrides.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Update existing override
+        await db
+          .update(clientTaskTemplateOverrides)
+          .set({
+            customDueDate: input.customDueDate,
+            customPriority: input.customPriority,
+            isDisabled: input.isDisabled,
+          })
+          .where(eq(clientTaskTemplateOverrides.id, existing[0].id));
+
+        return { success: true, overrideId: existing[0].id };
+      }
+
+      // Create new override
+      await db.insert(clientTaskTemplateOverrides).values({
+        id: overrideId,
+        tenantId: ctx.authContext.tenantId,
+        clientId: input.clientId,
+        templateId: input.templateId,
+        customDueDate: input.customDueDate,
+        customPriority: input.customPriority,
+        isDisabled: input.isDisabled,
+      });
+
+      return { success: true, overrideId };
+    }),
+
+  // Remove client override
+  removeClientOverride: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+        templateId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await db
+        .delete(clientTaskTemplateOverrides)
+        .where(
+          and(
+            eq(clientTaskTemplateOverrides.clientId, input.clientId),
+            eq(clientTaskTemplateOverrides.templateId, input.templateId),
+            eq(clientTaskTemplateOverrides.tenantId, ctx.authContext.tenantId),
+          ),
+        );
+
+      return { success: true };
     }),
 });
