@@ -2641,7 +2641,7 @@ For more information, visit the ICO website: https://ico.org.uk
           userId: user.id,
           clientId: client.id,
           taskId: task?.id || null,
-          serviceComponentId: faker.helpers.arrayElement(
+          serviceId: faker.helpers.arrayElement(
             createdServices,
           ).id,
           date: dateStr,
@@ -2828,7 +2828,7 @@ For more information, visit the ICO website: https://ico.org.uk
         quantity: String(quantity),
         rate: String(rate),
         amount: String(itemAmount),
-        serviceComponentId: faker.helpers.arrayElement(createdServices)
+        serviceId: faker.helpers.arrayElement(createdServices)
           .id,
         sortOrder: j,
       });
@@ -3352,13 +3352,13 @@ For more information, visit the ICO website: https://ico.org.uk
 
   for (const template of workflowTemplates) {
     // Find the service component if specified
-    let serviceComponentId = null;
+    let serviceId = null;
     if (template.serviceCode) {
       const component = createdServices.find(
         (s) => s.code === template.serviceCode,
       );
       if (component) {
-        serviceComponentId = component.id;
+        serviceId = component.id;
       }
     }
 
@@ -3374,7 +3374,7 @@ For more information, visit the ICO website: https://ico.org.uk
         // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
         trigger: template.trigger as any,
         estimatedDays: template.estimatedDays,
-        serviceComponentId,
+        serviceId,
         isActive: true,
         config: {},
         createdById: adminUser.id,
@@ -3434,7 +3434,7 @@ For more information, visit the ICO website: https://ico.org.uk
         // biome-ignore lint/suspicious/noExplicitAny: seed data enum cast
         trigger: template.trigger as any,
         estimatedDays: template.estimatedDays,
-        serviceComponentId,
+        serviceId,
         config: {},
         stagesSnapshot,
         changeDescription: "Initial version",

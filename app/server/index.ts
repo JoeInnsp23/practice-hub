@@ -8,6 +8,7 @@ import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
 import { documentsRouter } from "./routers/documents";
+import { importLogsRouter } from "./routers/import-logs";
 import { integrationsRouter } from "./routers/integrations";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
@@ -66,6 +67,7 @@ export const appRouter = router({
   calendar: calendarRouter,
   documents: documentsRouter,
   legal: legalRouter,
+  importLogs: importLogsRouter,
   integrations: integrationsRouter,
 });
 

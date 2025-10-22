@@ -36,21 +36,21 @@ interface DataImportModalProps {
 
 interface ImportResult {
   success: boolean;
-  dryRun: boolean;
+  dryRun?: boolean;
+  importLogId?: string;
   summary: {
-    total: number;
-    successful: number;
-    failed: number;
-    skipped: number;
+    totalRows: number;
+    processedRows?: number;
+    validRows?: number;
+    invalidRows?: number;
+    failedRows?: number;
+    skippedRows: number;
   };
   errors?: Array<{
     row: number;
     field: string;
     message: string;
-  }>;
-  skipped?: Array<{
-    row: number;
-    reason: string;
+    value?: string;
   }>;
 }
 
@@ -113,8 +113,9 @@ export function DataImportModal({
       setProgress(100);
 
       if (data.success && !isDryRun) {
+        const importedCount = data.summary.processedRows || 0;
         toast.success(
-          `Successfully imported ${data.summary.successful} ${entityName}`,
+          `Successfully imported ${importedCount} ${entityName}`,
         );
         if (onSuccess) {
           onSuccess();
@@ -255,18 +256,30 @@ export function DataImportModal({
                       {result.dryRun ? "Validation" : "Import"} Complete
                     </p>
                     <div className="text-sm space-y-0.5">
-                      <p>Total rows: {result.summary.total}</p>
-                      <p className="text-green-600 dark:text-green-400">
-                        ✓ Valid: {result.summary.successful}
-                      </p>
-                      {result.summary.failed > 0 && (
-                        <p className="text-destructive">
-                          ✗ Failed: {result.summary.failed}
+                      <p>Total rows: {result.summary.totalRows}</p>
+                      {result.summary.validRows !== undefined && (
+                        <p className="text-green-600 dark:text-green-400">
+                          ✓ Valid: {result.summary.validRows}
                         </p>
                       )}
-                      {result.summary.skipped > 0 && (
+                      {result.summary.processedRows !== undefined && (
+                        <p className="text-green-600 dark:text-green-400">
+                          ✓ Processed: {result.summary.processedRows}
+                        </p>
+                      )}
+                      {result.summary.failedRows !== undefined && result.summary.failedRows > 0 && (
+                        <p className="text-destructive">
+                          ✗ Failed: {result.summary.failedRows}
+                        </p>
+                      )}
+                      {result.summary.invalidRows !== undefined && result.summary.invalidRows > 0 && (
+                        <p className="text-destructive">
+                          ✗ Invalid: {result.summary.invalidRows}
+                        </p>
+                      )}
+                      {result.summary.skippedRows > 0 && (
                         <p className="text-orange-600 dark:text-orange-400">
-                          ⚠ Skipped: {result.summary.skipped}
+                          ⚠ Skipped: {result.summary.skippedRows}
                         </p>
                       )}
                     </div>
@@ -277,35 +290,21 @@ export function DataImportModal({
               {/* Errors */}
               {result.errors && result.errors.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Errors:</p>
+                  <p className="text-sm font-medium">Errors ({result.errors.length}):</p>
                   <div className="max-h-40 overflow-y-auto space-y-1">
-                    {result.errors.map((error) => (
+                    {result.errors.map((error, index) => (
                       <div
-                        key={`error-${error.row}-${error.field}`}
+                        key={`error-${error.row}-${error.field}-${index}`}
                         className="text-xs p-2 bg-destructive/10 rounded flex items-start gap-2"
                       >
-                        <XCircle className="h-3 w-3 text-destructive mt-0.5" />
-                        <div>
+                        <XCircle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
                           <span className="font-medium">Row {error.row}:</span>{" "}
                           {error.message} ({error.field})
+                          {error.value && (
+                            <span className="text-muted-foreground"> - Value: {error.value}</span>
+                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Skipped */}
-              {result.skipped && result.skipped.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Skipped:</p>
-                  <div className="max-h-40 overflow-y-auto space-y-1">
-                    {result.skipped.map((skip) => (
-                      <div
-                        key={`skip-${skip.row}`}
-                        className="text-xs p-2 bg-orange-100 dark:bg-orange-900/20 rounded"
-                      >
-                        Row {skip.row}: {skip.reason}
                       </div>
                     ))}
                   </div>

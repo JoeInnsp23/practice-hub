@@ -433,7 +433,7 @@ export default function TasksPage() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         endpoint="/api/import/tasks"
-        templateEndpoint="/api/import/tasks"
+        templateEndpoint="/api/import/template?type=tasks&example=true"
         entityName="Tasks"
         onSuccess={() => utils.tasks.list.invalidate()}
       />
