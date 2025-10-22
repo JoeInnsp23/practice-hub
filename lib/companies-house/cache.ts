@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { companiesHouseCache } from "@/lib/db/schema";
@@ -25,8 +26,6 @@ export interface CompanyData {
 export async function getCachedCompany(
   companyNumber: string,
 ): Promise<CompanyData | null> {
-  const startTime = Date.now();
-
   try {
     const cached = await db
       .select()
@@ -35,11 +34,6 @@ export async function getCachedCompany(
       .limit(1);
 
     if (cached.length === 0) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `[Companies House Cache] MISS: ${companyNumber} (not found in cache)`,
-        );
-      }
       return null;
     }
 
@@ -48,29 +42,15 @@ export async function getCachedCompany(
 
     // Check if cache entry has expired
     if (cacheEntry.expiresAt < now) {
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `[Companies House Cache] MISS: ${companyNumber} (expired at ${cacheEntry.expiresAt.toISOString()})`,
-        );
-      }
       return null;
-    }
-
-    const duration = Date.now() - startTime;
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `[Companies House Cache] HIT: ${companyNumber} (${duration}ms)`,
-      );
     }
 
     return cacheEntry.cachedData as CompanyData;
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(
-        `[Companies House Cache] ERROR reading cache for ${companyNumber}:`,
-        error,
-      );
-    }
+    Sentry.captureException(error, {
+      tags: { operation: "companies_house_cache_read" },
+      extra: { companyNumber },
+    });
     return null;
   }
 }
@@ -107,19 +87,11 @@ export async function setCachedCompany(
           expiresAt,
         },
       });
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `[Companies House Cache] STORED: ${companyNumber} (expires ${expiresAt.toISOString()})`,
-      );
-    }
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(
-        `[Companies House Cache] ERROR storing cache for ${companyNumber}:`,
-        error,
-      );
-    }
+    Sentry.captureException(error, {
+      tags: { operation: "companies_house_cache_write" },
+      extra: { companyNumber },
+    });
     throw error;
   }
 }
@@ -136,21 +108,14 @@ export async function clearCache(companyNumber?: string): Promise<void> {
       await db
         .delete(companiesHouseCache)
         .where(eq(companiesHouseCache.companyNumber, companyNumber));
-
-      if (process.env.NODE_ENV === "development") {
-        console.log(`[Companies House Cache] CLEARED: ${companyNumber}`);
-      }
     } else {
       await db.delete(companiesHouseCache);
-
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Companies House Cache] CLEARED: all entries");
-      }
     }
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("[Companies House Cache] ERROR clearing cache:", error);
-    }
+    Sentry.captureException(error, {
+      tags: { operation: "companies_house_cache_clear" },
+      extra: { companyNumber: companyNumber || "all" },
+    });
     throw error;
   }
 }

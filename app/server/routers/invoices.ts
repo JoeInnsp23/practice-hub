@@ -3,7 +3,7 @@ import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, invoiceItems, invoices } from "@/lib/db/schema";
+import { activityLogs, clients, invoiceItems, invoices } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Status enum for filtering
@@ -99,13 +99,35 @@ export const invoicesRouter = router({
     .query(async ({ ctx, input: id }) => {
       const { tenantId } = ctx.authContext;
 
-      const invoice = await db
-        .select()
+      const [invoice] = await db
+        .select({
+          id: invoices.id,
+          invoiceNumber: invoices.invoiceNumber,
+          issueDate: invoices.issueDate,
+          dueDate: invoices.dueDate,
+          paidDate: invoices.paidDate,
+          subtotal: invoices.subtotal,
+          taxRate: invoices.taxRate,
+          taxAmount: invoices.taxAmount,
+          discount: invoices.discount,
+          total: invoices.total,
+          amountPaid: invoices.amountPaid,
+          status: invoices.status,
+          currency: invoices.currency,
+          notes: invoices.notes,
+          terms: invoices.terms,
+          purchaseOrderNumber: invoices.purchaseOrderNumber,
+          createdAt: invoices.createdAt,
+          clientId: invoices.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+        })
         .from(invoices)
+        .innerJoin(clients, eq(invoices.clientId, clients.id))
         .where(and(eq(invoices.id, id), eq(invoices.tenantId, tenantId)))
         .limit(1);
 
-      if (!invoice[0]) {
+      if (!invoice) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Invoice not found",
@@ -118,7 +140,7 @@ export const invoicesRouter = router({
         .from(invoiceItems)
         .where(eq(invoiceItems.invoiceId, id));
 
-      return { ...invoice[0], items };
+      return { ...invoice, items };
     }),
 
   create: protectedProcedure

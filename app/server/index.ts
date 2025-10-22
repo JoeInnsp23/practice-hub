@@ -11,6 +11,7 @@ import { documentsRouter } from "./routers/documents";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
+import { legalRouter } from "./routers/legal";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
 import { onboardingRouter } from "./routers/onboarding";
@@ -61,6 +62,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   calendar: calendarRouter,
   documents: documentsRouter,
+  legal: legalRouter,
 });
 
 export type AppRouter = typeof appRouter;

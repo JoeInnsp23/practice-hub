@@ -3,6 +3,7 @@
 import { Building2, Calendar, FileText, Search } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { VATValidationIndicator } from "@/components/client-hub/vat-validation-indicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -253,7 +254,7 @@ export function RegistrationDetailsStep({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div className="space-y-2">
+          <div className="space-y-2 lg:col-span-2">
             <Label htmlFor="vatNumber">VAT Number</Label>
             <Input
               id="vatNumber"
@@ -264,6 +265,17 @@ export function RegistrationDetailsStep({
               placeholder="GB 123 4567 89"
               className="font-mono"
             />
+            {formData.vatNumber && formData.vatNumber.length >= 9 && (
+              <VATValidationIndicator
+                vatNumber={formData.vatNumber}
+                onValidationComplete={(result) => {
+                  if (result.isValid && result.businessName) {
+                    // Optionally update company name if VAT validation returns business name
+                    toast.success(`VAT validated: ${result.businessName}`);
+                  }
+                }}
+              />
+            )}
           </div>
 
           <div className="space-y-2">

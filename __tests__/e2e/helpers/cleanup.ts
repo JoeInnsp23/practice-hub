@@ -39,7 +39,7 @@ export async function cleanupTestData(): Promise<void> {
 
     // Delete test documents
     await db.execute(
-      sql`DELETE FROM documents WHERE file_name LIKE 'E2E-Test-%'`
+      sql`DELETE FROM documents WHERE name LIKE 'E2E-Test-%'`
     );
 
     console.log("✅ E2E test data cleaned up successfully");
@@ -69,7 +69,7 @@ export async function verifyCleanup(): Promise<number> {
           UNION ALL
           SELECT id FROM invoices WHERE invoice_number LIKE 'E2E-TEST-%'
           UNION ALL
-          SELECT id FROM documents WHERE file_name LIKE 'E2E-Test-%'
+          SELECT id FROM documents WHERE name LIKE 'E2E-Test-%'
         ) as test_records
       `
     );

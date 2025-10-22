@@ -22,7 +22,7 @@ export default defineConfig({
 
   // Shared test settings
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3001",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -43,8 +43,8 @@ export default defineConfig({
 
   // Web server configuration
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3000",
+    command: "dotenv -e .env.test -- pnpm dev",
+    url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     timeout: 120000, // 2 minutes to start dev server
   },

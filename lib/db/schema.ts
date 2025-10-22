@@ -199,6 +199,31 @@ export const feedback = pgTable(
   }),
 );
 
+// Legal Pages table - for storing tenant-specific legal content (Privacy Policy, Terms, Cookie Policy)
+export const legalPages = pgTable(
+  "legal_pages",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    pageType: text("page_type").notNull(), // "privacy" | "terms" | "cookie_policy"
+    content: text("content").notNull(),
+    version: integer("version").default(1).notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    updatedBy: text("updated_by").references(() => users.id),
+  },
+  (table) => ({
+    tenantTypeIdx: index("idx_legal_pages_tenant_type").on(
+      table.tenantId,
+      table.pageType,
+    ),
+  }),
+);
+
 // Enums for CRM entities
 export const clientTypeEnum = pgEnum("client_type", [
   "individual",
@@ -283,6 +308,8 @@ export const clients = pgTable(
     website: varchar("website", { length: 255 }),
     vatRegistered: boolean("vat_registered").default(false).notNull(),
     vatNumber: varchar("vat_number", { length: 50 }),
+    vatValidationStatus: text("vat_validation_status"), // "valid" | "invalid" | "pending" | null
+    vatValidatedAt: timestamp("vat_validated_at"),
     registrationNumber: varchar("registration_number", { length: 50 }),
 
     // Address fields
@@ -602,6 +629,38 @@ export const tasks = pgTable(
     dueDateIdx: index("idx_task_due_date").on(table.dueDate),
     parentTaskIdx: index("idx_parent_task").on(table.parentTaskId),
     progressIdx: index("idx_task_progress").on(table.progress),
+  }),
+);
+
+// Task Notes table - for task comments and discussions
+export const taskNotes = pgTable(
+  "task_notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    taskId: uuid("task_id")
+      .references(() => tasks.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    note: text("note").notNull(),
+    isInternal: boolean("is_internal").default(false).notNull(),
+    mentionedUsers: text("mentioned_users").array().default([]).notNull(), // PostgreSQL text[] for user IDs
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: timestamp("deleted_at"), // Soft delete
+  },
+  (table) => ({
+    // Indexes for query performance
+    taskIdIdx: index("task_notes_task_id_idx").on(table.taskId),
+    tenantIdIdx: index("task_notes_tenant_id_idx").on(table.tenantId),
+    userIdIdx: index("task_notes_user_id_idx").on(table.userId),
   }),
 );
 

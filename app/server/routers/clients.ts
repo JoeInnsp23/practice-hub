@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -19,6 +20,14 @@ import {
   checkRateLimit,
   incrementRateLimit,
 } from "@/lib/companies-house/rate-limit";
+import {
+  validateVAT as hmrcValidateVAT,
+  VATNotFoundError,
+  RateLimitError as HMRCRateLimitError,
+  APIServerError as HMRCAPIServerError,
+  NetworkError as HMRCNetworkError,
+  AuthenticationError,
+} from "@/lib/hmrc/client";
 import { db } from "@/lib/db";
 import { getClientsList } from "@/lib/db/queries/client-queries";
 import {
@@ -560,7 +569,17 @@ export const clientsRouter = router({
         return data;
       } catch (error) {
         // Convert Companies House errors to TRPCError with user-friendly messages
+        const errorContext = {
+          tags: { operation: "companies_house_lookup" },
+          extra: {
+            companyNumber,
+            tenantId,
+            userId,
+          },
+        };
+
         if (error instanceof CompanyNotFoundError) {
+          Sentry.captureException(error, errorContext);
           throw new TRPCError({
             code: "NOT_FOUND",
             message:
@@ -569,6 +588,7 @@ export const clientsRouter = router({
         }
 
         if (error instanceof RateLimitError) {
+          Sentry.captureException(error, errorContext);
           throw new TRPCError({
             code: "TOO_MANY_REQUESTS",
             message: "Too many requests. Please try again in 5 minutes.",
@@ -576,6 +596,7 @@ export const clientsRouter = router({
         }
 
         if (error instanceof APIServerError) {
+          Sentry.captureException(error, errorContext);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message:
@@ -584,6 +605,7 @@ export const clientsRouter = router({
         }
 
         if (error instanceof NetworkError) {
+          Sentry.captureException(error, errorContext);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message:
@@ -596,12 +618,144 @@ export const clientsRouter = router({
           throw error;
         }
 
-        // Unknown error - log and throw generic error
-        console.error("[Companies House Lookup] Unexpected error:", error);
+        // Unknown error - capture and throw generic error
+        Sentry.captureException(error, errorContext);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "An unexpected error occurred while looking up company data.",
+        });
+      }
+    }),
+
+  validateVAT: protectedProcedure
+    .input(
+      z.object({
+        vatNumber: z
+          .string()
+          .regex(/^(GB)?[0-9]{9}$/, "VAT number must be 9 digits (GB prefix optional)"),
+        clientId: z.string().uuid().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { vatNumber, clientId } = input;
+
+      try {
+        // Call HMRC VAT validation API
+        const result = await hmrcValidateVAT(vatNumber);
+
+        // If clientId provided, update the client record
+        if (clientId) {
+          await db
+            .update(clients)
+            .set({
+              vatValidationStatus: result.isValid ? "valid" : "invalid",
+              vatValidatedAt: new Date(),
+              // Optionally update business name if validated and name matches
+              ...(result.isValid && result.businessName
+                ? { name: result.businessName }
+                : {}),
+            })
+            .where(
+              and(
+                eq(clients.id, clientId),
+                eq(clients.tenantId, tenantId),
+              ),
+            );
+        }
+
+        // Log activity
+        await db.insert(activityLogs).values({
+          tenantId,
+          entityType: "vat_validation",
+          entityId: clientId || crypto.randomUUID(),
+          action: result.isValid ? "validated" : "validation_failed",
+          description: `VAT validation ${result.isValid ? "succeeded" : "failed"} for ${vatNumber}${result.businessName ? ` (${result.businessName})` : ""}`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          metadata: {
+            vatNumber,
+            isValid: result.isValid,
+            businessName: result.businessName,
+            clientId,
+          },
+        });
+
+        return {
+          isValid: result.isValid,
+          vatNumber: result.vatNumber,
+          businessName: result.businessName,
+          businessAddress: result.businessAddress,
+        };
+      } catch (error) {
+        // Convert HMRC errors to TRPCError with user-friendly messages
+        const errorContext = {
+          tags: { operation: "vat_validation" },
+          extra: {
+            vatNumber,
+            clientId,
+            tenantId,
+            userId,
+          },
+        };
+
+        if (error instanceof VATNotFoundError) {
+          Sentry.captureException(error, errorContext);
+          // Return invalid result instead of throwing (validation is advisory)
+          return {
+            isValid: false,
+            vatNumber,
+            error: "VAT number not found or invalid",
+          };
+        }
+
+        if (error instanceof HMRCRateLimitError) {
+          Sentry.captureException(error, errorContext);
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Too many requests. Please try again later.",
+          });
+        }
+
+        if (error instanceof HMRCAPIServerError) {
+          Sentry.captureException(error, errorContext);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              "HMRC API is currently unavailable. Please try again later.",
+          });
+        }
+
+        if (error instanceof HMRCNetworkError) {
+          Sentry.captureException(error, errorContext);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              "Unable to connect to HMRC. Please check your internet connection and try again.",
+          });
+        }
+
+        if (error instanceof AuthenticationError) {
+          Sentry.captureException(error, errorContext);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              "HMRC authentication failed. Please contact support.",
+          });
+        }
+
+        // If it's already a TRPCError, re-throw it
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+
+        // Unknown error - capture and throw generic error
+        Sentry.captureException(error, errorContext);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "An unexpected error occurred while validating VAT number.",
         });
       }
     }),

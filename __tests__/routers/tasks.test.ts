@@ -16,11 +16,13 @@ import {
   createTestUser,
   createTestClient,
   createTestTask,
+  createTestWorkflow,
+  createTestWorkflowStage,
   cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
 import { db } from "@/lib/db";
-import { tasks, activityLogs } from "@/lib/db/schema";
+import { tasks, activityLogs, workflows, workflowVersions, workflowStages, taskWorkflowInstances } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import type { Context } from "@/app/server/context";
 
@@ -32,6 +34,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     users: [],
     clients: [],
     tasks: [],
+    workflows: [],
+    workflowVersions: [],
+    workflowStages: [],
+    taskWorkflowInstances: [],
   };
 
   beforeEach(async () => {
@@ -65,6 +71,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     tracker.users = [];
     tracker.clients = [];
     tracker.tasks = [];
+    tracker.workflows = [];
+    tracker.workflowVersions = [];
+    tracker.workflowStages = [];
+    tracker.taskWorkflowInstances = [];
   });
 
   describe("create (Integration)", () => {
@@ -902,6 +912,404 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
       expect(log).toBeDefined();
       expect(log.description).toContain("Bulk Delete Log Test");
+    });
+  });
+
+  describe("assignWorkflow (Integration)", () => {
+    it("should assign workflow to task and create workflow instance", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
+        title: "Task for Workflow Assignment",
+      });
+      tracker.tasks?.push(task.id);
+
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
+        name: "Test Workflow for Assignment",
+      });
+      tracker.workflows?.push(workflow.id);
+
+      // Create a workflow version (required for assignment)
+      const [workflowVersion] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: workflow.description || "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+          isActive: true, // Mark as active version
+        })
+        .returning();
+      tracker.workflowVersions?.push(workflowVersion.id);
+
+      const result = await caller.assignWorkflow({
+        taskId: task.id,
+        workflowId: workflow.id,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.instance).toBeDefined();
+      expect(result.instance.taskId).toBe(task.id);
+      expect(result.instance.workflowId).toBe(workflow.id);
+      expect(result.instance.workflowVersionId).toBe(workflowVersion.id);
+      tracker.taskWorkflowInstances?.push(result.instance.id);
+
+      // Verify task.workflowId is updated
+      const [dbTask] = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.id, task.id));
+
+      expect(dbTask.workflowId).toBe(workflow.id);
+
+      // Verify workflow instance created
+      const [instance] = await db
+        .select()
+        .from(taskWorkflowInstances)
+        .where(eq(taskWorkflowInstances.id, result.instance.id));
+
+      expect(instance).toBeDefined();
+      expect(instance.status).toBe("active");
+    });
+
+    it("should throw NOT_FOUND for non-existent task", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const nonExistentTaskId = crypto.randomUUID();
+
+      await expect(
+        caller.assignWorkflow({
+          taskId: nonExistentTaskId,
+          workflowId: workflow.id,
+        })
+      ).rejects.toThrow("Task not found");
+    });
+
+    it("should throw NOT_FOUND for non-existent workflow", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const nonExistentWorkflowId = crypto.randomUUID();
+
+      await expect(
+        caller.assignWorkflow({
+          taskId: task.id,
+          workflowId: nonExistentWorkflowId,
+        })
+      ).rejects.toThrow("Workflow not found");
+    });
+
+    it("should prevent cross-tenant workflow assignment", async () => {
+      // Create task for tenant B (our test tenant)
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      // Create workflow for tenant A (different tenant)
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+
+      const workflowA = await createTestWorkflow(tenantAId, userAId);
+      tracker.workflows?.push(workflowA.id);
+
+      // Attempt to assign tenant A's workflow to tenant B's task
+      await expect(
+        caller.assignWorkflow({
+          taskId: task.id,
+          workflowId: workflowA.id,
+        })
+      ).rejects.toThrow("Workflow not found");
+    });
+  });
+
+  describe("getWorkflowInstance (Integration)", () => {
+    it("should retrieve workflow instance for task", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const stage = await createTestWorkflowStage(workflow.id, {
+        name: "Stage 1",
+        stageOrder: 1,
+      });
+      tracker.workflowStages?.push(stage.id);
+
+      // Create workflow version
+      const [workflowVersion] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: workflow.description || "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [{ id: stage.id, name: stage.name, stageOrder: stage.stageOrder }],
+        })
+        .returning();
+      tracker.workflowVersions?.push(workflowVersion.id);
+
+      // Create workflow instance
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task.id,
+          workflowId: workflow.id,
+          workflowVersionId: workflowVersion.id,
+          version: 1,
+          stagesSnapshot: [{ id: stage.id, name: stage.name, stageOrder: stage.stageOrder }],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance.id);
+
+      // Update task with workflowId
+      await db
+        .update(tasks)
+        .set({ workflowId: workflow.id })
+        .where(eq(tasks.id, task.id));
+
+      const result = await caller.getWorkflowInstance(task.id);
+
+      expect(result).toBeDefined();
+      expect(result.instance).toBeDefined();
+      expect(result.instance.id).toBe(instance.id);
+      expect(result.workflow).toBeDefined();
+      expect(result.workflow.id).toBe(workflow.id);
+      expect(result.stages).toBeDefined();
+    });
+
+    it("should return null if task has no workflow", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const result = await caller.getWorkflowInstance(task.id);
+
+      expect(result).toBeNull();
+    });
+
+    it("should throw NOT_FOUND for non-existent task", async () => {
+      const nonExistentTaskId = crypto.randomUUID();
+
+      await expect(caller.getWorkflowInstance(nonExistentTaskId)).rejects.toThrow("Task not found");
+    });
+
+    it("should prevent cross-tenant access", async () => {
+      // Create task for tenant A
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      const clientA = await createTestClient(tenantAId, userAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+      tracker.clients?.push(clientA.id);
+
+      const taskA = await createTestTask(tenantAId, clientA.id, userAId);
+      tracker.tasks?.push(taskA.id);
+
+      // Attempt to access tenant A's task from tenant B
+      await expect(caller.getWorkflowInstance(taskA.id)).rejects.toThrow("Task not found");
+    });
+  });
+
+  describe("updateChecklistItem (Integration)", () => {
+    it("should update checklist item completion status", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const stageId = crypto.randomUUID();
+      const itemId = crypto.randomUUID();
+
+      const [workflowVersion] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: workflow.description || "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [
+            {
+              id: stageId,
+              name: "Test Stage",
+              stageOrder: 1,
+              checklistItems: [{ id: itemId, text: "Test Item", isRequired: true }],
+            },
+          ],
+        })
+        .returning();
+      tracker.workflowVersions?.push(workflowVersion.id);
+
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task.id,
+          workflowId: workflow.id,
+          workflowVersionId: workflowVersion.id,
+          version: 1,
+          stagesSnapshot: workflowVersion.stagesSnapshot,
+          status: "active",
+          stageProgress: {},
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance.id);
+
+      await db
+        .update(tasks)
+        .set({ workflowId: workflow.id })
+        .where(eq(tasks.id, task.id));
+
+      const result = await caller.updateChecklistItem({
+        taskId: task.id,
+        stageId,
+        itemId,
+        completed: true,
+      });
+
+      expect(result.success).toBe(true);
+
+      // Verify stageProgress updated
+      const [updatedInstance] = await db
+        .select()
+        .from(taskWorkflowInstances)
+        .where(eq(taskWorkflowInstances.id, instance.id));
+
+      expect(updatedInstance.stageProgress).toBeDefined();
+      const progress = updatedInstance.stageProgress as any;
+      expect(progress[stageId]).toBeDefined();
+      expect(progress[stageId].checklistItems[itemId].completed).toBe(true);
+    });
+
+    it("should create activity log for checklist update", async () => {
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const itemId = crypto.randomUUID();
+
+      // Create actual workflow stage (required for progress calculation)
+      const stage = await createTestWorkflowStage(workflow.id, {
+        name: "Test Stage",
+        stageOrder: 1,
+        checklistItems: [{ id: itemId, text: "Test Item", isRequired: true }],
+      });
+      tracker.workflowStages?.push(stage.id);
+
+      const [workflowVersion] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: workflow.description || "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [
+            {
+              id: stage.id,
+              name: "Test Stage",
+              stageOrder: 1,
+              checklistItems: [{ id: itemId, text: "Test Item", isRequired: true }],
+            },
+          ],
+        })
+        .returning();
+      tracker.workflowVersions?.push(workflowVersion.id);
+
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task.id,
+          workflowId: workflow.id,
+          workflowVersionId: workflowVersion.id,
+          version: 1,
+          stagesSnapshot: workflowVersion.stagesSnapshot,
+          status: "active",
+          stageProgress: {},
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance.id);
+
+      await db
+        .update(tasks)
+        .set({ workflowId: workflow.id })
+        .where(eq(tasks.id, task.id));
+
+      await caller.updateChecklistItem({
+        taskId: task.id,
+        stageId: stage.id,
+        itemId,
+        completed: true,
+      });
+
+      // Verify activity log
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .where(
+          and(
+            eq(activityLogs.entityId, task.id),
+            eq(activityLogs.action, "checklist_updated")
+          )
+        );
+
+      expect(logs.length).toBeGreaterThanOrEqual(1);
+      const log = logs[logs.length - 1];
+      expect(log.userId).toBe(ctx.authContext.userId);
+    });
+
+    it("should throw NOT_FOUND for non-existent workflow instance", async () => {
+      const nonExistentTaskId = crypto.randomUUID();
+      const stageId = crypto.randomUUID();
+      const itemId = crypto.randomUUID();
+
+      await expect(
+        caller.updateChecklistItem({
+          taskId: nonExistentTaskId,
+          stageId,
+          itemId,
+          completed: true,
+        })
+      ).rejects.toThrow("Workflow instance not found");
     });
   });
 

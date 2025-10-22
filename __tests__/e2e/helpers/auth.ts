@@ -12,12 +12,16 @@ export async function loginAsTestUser(page: Page): Promise<void> {
     throw new Error("E2E test credentials not configured in environment");
   }
 
-  // Navigate to sign-in page
-  await page.goto("/sign-in");
+  // Navigate to sign-in page with redirect to client-hub
+  await page.goto("/sign-in?from=/client-hub");
 
-  // Fill in credentials
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
+  // Wait for form to be fully loaded and visible
+  await page.waitForSelector('input#email', { state: 'visible' });
+  await page.waitForSelector('input#password', { state: 'visible' });
+
+  // Fill in credentials using ID selectors
+  await page.fill('input#email', email);
+  await page.fill('input#password', password);
 
   // Submit form
   await page.click('button[type="submit"]');
@@ -38,12 +42,16 @@ export async function loginAsTestAdmin(page: Page): Promise<void> {
     throw new Error("E2E admin password not configured in environment");
   }
 
-  // Navigate to sign-in page
-  await page.goto("/sign-in");
+  // Navigate to sign-in page with redirect to client-hub
+  await page.goto("/sign-in?from=/client-hub");
 
-  // Fill in credentials
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
+  // Wait for form to be fully loaded and visible
+  await page.waitForSelector('input#email', { state: 'visible' });
+  await page.waitForSelector('input#password', { state: 'visible' });
+
+  // Fill in credentials using ID selectors
+  await page.fill('input#email', email);
+  await page.fill('input#password', password);
 
   // Submit form
   await page.click('button[type="submit"]');

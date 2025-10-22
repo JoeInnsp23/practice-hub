@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
+import { VATValidationIndicator } from "@/components/client-hub/vat-validation-indicator";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -383,19 +384,34 @@ export function ClientModal({
 
               <TabsContent value="business" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="vatNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>VAT Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="GB123456789" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <div className="col-span-2">
+                    <FormField
+                      control={form.control}
+                      name="vatNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>VAT Number</FormLabel>
+                          <FormControl>
+                            <Input placeholder="GB123456789" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {form.watch("vatNumber") && form.watch("vatNumber").length >= 9 && (
+                      <div className="mt-2">
+                        <VATValidationIndicator
+                          vatNumber={form.watch("vatNumber")}
+                          clientId={client?.id}
+                          onValidationComplete={(result) => {
+                            if (result.isValid && result.businessName) {
+                              toast.success(`VAT validated: ${result.businessName}`);
+                            }
+                          }}
+                        />
+                      </div>
                     )}
-                  />
+                  </div>
 
                   <FormField
                     control={form.control}

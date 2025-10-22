@@ -42,12 +42,12 @@ test.describe("Document Upload", () => {
     // Navigate to documents page
     await page.goto("/client-hub/documents");
 
-    // Click upload button
-    await page.click('text="Upload", text="Add Document", text="New Document"');
+    // Click upload button using stable selector
+    await page.click('[data-testid="document-upload-button"]');
     await page.waitForSelector('[role="dialog"]');
 
-    // Upload file
-    const fileInput = page.locator('input[type="file"]');
+    // Upload file using stable selector
+    const fileInput = page.locator('[data-testid="document-upload-input"]');
     await fileInput.setInputFiles(testFilePath);
 
     // Select client if needed
@@ -82,10 +82,10 @@ test.describe("Document Upload", () => {
 
     // Upload document
     await page.goto("/client-hub/documents");
-    await page.click('text="Upload", text="Add Document", text="New Document"');
+    await page.click('[data-testid="document-upload-button"]');
     await page.waitForSelector('[role="dialog"]');
 
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('[data-testid="document-upload-input"]');
     await fileInput.setInputFiles(testFilePath);
 
     const clientSelector = page.locator('select, button:has-text("Select client")').first();

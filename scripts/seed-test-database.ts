@@ -7,9 +7,9 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
-import { tenants, users } from "../lib/db/schema";
+import { tenants, users, accounts } from "../lib/db/schema";
 import bcryptjs from "bcryptjs";
-import { nanoid } from "nanoid";
+import crypto from "node:crypto";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -58,41 +58,65 @@ async function seedTestDatabase() {
 
     // Step 5: Create test admin user
     console.log("👤 Creating test admin user...");
+    const adminUserId = crypto.randomUUID();
     const [adminUser] = await db
       .insert(users)
       .values({
-        id: nanoid(),
+        id: adminUserId,
         tenantId: testTenant.id,
         email: "e2e-admin@test.com",
         emailVerified: true,
         role: "admin",
         firstName: "E2E",
         lastName: "Admin",
-        password: hashedAdminPassword,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
       .returning();
     console.log(`✅ Test admin user created: ${adminUser.email}`);
 
+    // Create account record with password for admin
+    await db.insert(accounts).values({
+      id: crypto.randomUUID(),
+      accountId: adminUser.email,
+      providerId: "credential",
+      userId: adminUserId,
+      password: hashedAdminPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    console.log("✅ Admin account credentials created");
+
     // Step 6: Create test member user
     console.log("👤 Creating test member user...");
+    const memberUserId = crypto.randomUUID();
     const [memberUser] = await db
       .insert(users)
       .values({
-        id: nanoid(),
+        id: memberUserId,
         tenantId: testTenant.id,
         email: "e2e-user@test.com",
         emailVerified: true,
         role: "member",
         firstName: "E2E",
         lastName: "User",
-        password: hashedUserPassword,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
       .returning();
     console.log(`✅ Test member user created: ${memberUser.email}`);
+
+    // Create account record with password for member user
+    await db.insert(accounts).values({
+      id: crypto.randomUUID(),
+      accountId: memberUser.email,
+      providerId: "credential",
+      userId: memberUserId,
+      password: hashedUserPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    console.log("✅ Member user account credentials created");
 
     console.log("\n✨ E2E test database seeded successfully!");
     console.log("\n📋 Test Credentials:");

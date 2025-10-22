@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -59,6 +60,7 @@ type Invoice = {
 };
 
 export default function InvoicesPage() {
+  const router = useRouter();
   const utils = trpc.useUtils();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<
@@ -206,7 +208,7 @@ export default function InvoicesPage() {
   };
 
   const handleViewInvoice = (invoice: Invoice) => {
-    toast.success(`Viewing invoice ${invoice.invoiceNumber}`);
+    router.push(`/client-hub/invoices/${invoice.id}`);
   };
 
   const handleDuplicateInvoice = (invoice: Invoice) => {
@@ -259,7 +261,10 @@ export default function InvoicesPage() {
             Create and manage your invoices
           </p>
         </div>
-        <Button onClick={handleCreateInvoice} data-testid="invoice-create-button">
+        <Button
+          onClick={handleCreateInvoice}
+          data-testid="invoice-create-button"
+        >
           <Plus className="h-4 w-4 mr-2" />
           New Invoice
         </Button>

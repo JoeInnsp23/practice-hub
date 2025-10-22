@@ -7,21 +7,29 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { clientsRouter } from "@/app/server/routers/clients";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import type {
+  CompanyDetails,
+  Officer,
+  PSC,
+} from "@/lib/companies-house/client";
+import { db } from "@/lib/db";
 import {
+  activityLogs,
+  companiesHouseCache,
+  companiesHouseRateLimit,
+} from "@/lib/db/schema";
+import {
+  cleanupTestData,
   createTestTenant,
   createTestUser,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { companiesHouseCache, companiesHouseRateLimit, activityLogs } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
-import type { CompanyDetails, Officer, PSC } from "@/lib/companies-house/client";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock the Companies House API client module
 vi.mock("@/lib/companies-house/client", () => ({
@@ -143,8 +151,8 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
         .where(
           and(
             eq(activityLogs.tenantId, ctx.authContext.tenantId),
-            eq(activityLogs.entityType, "companies_house_lookup")
-          )
+            eq(activityLogs.entityType, "companies_house_lookup"),
+          ),
         );
     }
 
@@ -160,7 +168,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
   describe("Basic Functionality", () => {
     it("should successfully lookup company and return data", async () => {
       // Mock API client functions
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
       vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
       vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
@@ -182,15 +192,15 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
 
     it("should validate company number format (8 digits)", async () => {
       await expect(
-        caller.lookupCompaniesHouse({ companyNumber: "123" })
+        caller.lookupCompaniesHouse({ companyNumber: "123" }),
       ).rejects.toThrow("Company number must be 8 digits");
 
       await expect(
-        caller.lookupCompaniesHouse({ companyNumber: "123456789" })
+        caller.lookupCompaniesHouse({ companyNumber: "123456789" }),
       ).rejects.toThrow("Company number must be 8 digits");
 
       await expect(
-        caller.lookupCompaniesHouse({ companyNumber: "ABCD1234" })
+        caller.lookupCompaniesHouse({ companyNumber: "ABCD1234" }),
       ).rejects.toThrow("Company number must be 8 digits");
     });
 
@@ -207,7 +217,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
   describe("Cache Scenarios", () => {
     it("should return cached data on second lookup (cache hit)", async () => {
       // Mock API client functions for first call
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
       vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
       vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
@@ -246,7 +258,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
 
     it("should bypass cache and call API after cache expires", async () => {
       // Mock API client functions
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
       vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
       vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
@@ -278,12 +292,43 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       expect(getOfficers).toHaveBeenCalledTimes(1);
       expect(getPSCs).toHaveBeenCalledTimes(1);
     });
+
+    it("should complete cached lookup in under 100ms (AC #19 performance requirement)", async () => {
+      // Mock API client functions
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
+      vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
+      vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
+      vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
+
+      // First lookup - populate cache
+      await caller.lookupCompaniesHouse({
+        companyNumber: "12345678",
+      });
+
+      // Second lookup - measure cache hit performance
+      const startTime = performance.now();
+      const result = await caller.lookupCompaniesHouse({
+        companyNumber: "12345678",
+      });
+      const duration = performance.now() - startTime;
+
+      // Verify cache hit
+      expect(result.company).toEqual(mockCompanyDetails);
+      expect(getCompany).toHaveBeenCalledTimes(1); // Only called once (first lookup)
+
+      // Verify performance: cached lookup should complete in under 100ms
+      expect(duration).toBeLessThan(100);
+    });
   });
 
   describe("Rate Limiting", () => {
     it("should return cached data when rate limit exceeded", async () => {
       // Mock API client functions
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
       vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
       vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
@@ -349,7 +394,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
   describe("Activity Logging", () => {
     it("should log lookup activity in activityLogs table", async () => {
       // Mock API client functions
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
       vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
       vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
@@ -363,8 +410,8 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
         .where(
           and(
             eq(activityLogs.entityType, "companies_house_lookup"),
-            eq(activityLogs.action, "looked_up")
-          )
+            eq(activityLogs.action, "looked_up"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -374,13 +421,19 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
 
       // Verify company number is stored in metadata
       expect(log.metadata).toBeDefined();
-      expect((log.metadata as any).companyNumber).toBe("12345678");
-      expect((log.metadata as any).companyName).toBe("Test Company Ltd");
+      const metadata = log.metadata as {
+        companyNumber: string;
+        companyName: string;
+      };
+      expect(metadata.companyNumber).toBe("12345678");
+      expect(metadata.companyName).toBe("Test Company Ltd");
     });
 
     it("should include tenantId and userId in activity log", async () => {
       // Mock API client functions
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue(mockCompanyDetails);
       vi.mocked(getOfficers).mockResolvedValue(mockOfficers);
       vi.mocked(getPSCs).mockResolvedValue(mockPSCs);
@@ -394,8 +447,8 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
         .where(
           and(
             eq(activityLogs.entityType, "companies_house_lookup"),
-            eq(activityLogs.action, "looked_up")
-          )
+            eq(activityLogs.action, "looked_up"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -409,7 +462,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
   describe("Tenant Isolation", () => {
     it("should isolate cache entries by company number (no tenantId needed)", async () => {
       // Mock API client functions
-      const { getCompany, getOfficers, getPSCs } = await import("@/lib/companies-house/client");
+      const { getCompany, getOfficers, getPSCs } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockResolvedValue({
         ...mockCompanyDetails,
         companyNumber: "11111111",
@@ -441,7 +496,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       const caller2 = createCaller(clientsRouter, ctx2);
 
       // Second tenant should also access same cache (cache is global, not per-tenant)
-      const result = await caller2.lookupCompaniesHouse({ companyNumber: "11111111" });
+      const result = await caller2.lookupCompaniesHouse({
+        companyNumber: "11111111",
+      });
 
       expect(result.company.companyNumber).toBe("11111111");
       // API should only be called once (first tenant), second tenant uses cache
@@ -473,7 +530,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       });
 
       // First tenant lookup - should use cache (rate limited)
-      const result1 = await caller.lookupCompaniesHouse({ companyNumber: "22222222" });
+      const result1 = await caller.lookupCompaniesHouse({
+        companyNumber: "22222222",
+      });
       expect(result1.company.companyNumber).toBe("22222222");
 
       // Create second tenant
@@ -497,7 +556,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       const caller2 = createCaller(clientsRouter, ctx2);
 
       // Second tenant should also be rate limited (global rate limit)
-      const result2 = await caller2.lookupCompaniesHouse({ companyNumber: "22222222" });
+      const result2 = await caller2.lookupCompaniesHouse({
+        companyNumber: "22222222",
+      });
       expect(result2.company.companyNumber).toBe("22222222");
 
       // Verify rate limit is still at 600 (no new API calls made)
@@ -514,8 +575,12 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
   describe("Error Handling", () => {
     it("should throw NOT_FOUND for 404 errors", async () => {
       // Mock API to throw CompanyNotFoundError
-      const { getCompany, CompanyNotFoundError } = await import("@/lib/companies-house/client");
-      vi.mocked(getCompany).mockRejectedValue(new CompanyNotFoundError("99999999"));
+      const { getCompany, CompanyNotFoundError } = await import(
+        "@/lib/companies-house/client"
+      );
+      vi.mocked(getCompany).mockRejectedValue(
+        new CompanyNotFoundError("99999999"),
+      );
 
       try {
         await caller.lookupCompaniesHouse({ companyNumber: "99999999" });
@@ -529,7 +594,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
 
     it("should throw TOO_MANY_REQUESTS for 429 errors", async () => {
       // Mock API to throw RateLimitError
-      const { getCompany, RateLimitError } = await import("@/lib/companies-house/client");
+      const { getCompany, RateLimitError } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockRejectedValue(new RateLimitError());
 
       try {
@@ -544,7 +611,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
 
     it("should throw INTERNAL_SERVER_ERROR for API server errors", async () => {
       // Mock API to throw APIServerError
-      const { getCompany, APIServerError } = await import("@/lib/companies-house/client");
+      const { getCompany, APIServerError } = await import(
+        "@/lib/companies-house/client"
+      );
       vi.mocked(getCompany).mockRejectedValue(new APIServerError(503));
 
       try {
@@ -553,14 +622,20 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       } catch (error) {
         expect(error).toBeInstanceOf(TRPCError);
         expect((error as TRPCError).code).toBe("INTERNAL_SERVER_ERROR");
-        expect((error as TRPCError).message).toContain("Companies House API is currently unavailable");
+        expect((error as TRPCError).message).toContain(
+          "Companies House API is currently unavailable",
+        );
       }
     });
 
     it("should throw INTERNAL_SERVER_ERROR for network errors", async () => {
       // Mock API to throw NetworkError
-      const { getCompany, NetworkError } = await import("@/lib/companies-house/client");
-      vi.mocked(getCompany).mockRejectedValue(new NetworkError(new Error("Connection refused")));
+      const { getCompany, NetworkError } = await import(
+        "@/lib/companies-house/client"
+      );
+      vi.mocked(getCompany).mockRejectedValue(
+        new NetworkError(new Error("Connection refused")),
+      );
 
       try {
         await caller.lookupCompaniesHouse({ companyNumber: "66666666" });
@@ -568,7 +643,9 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       } catch (error) {
         expect(error).toBeInstanceOf(TRPCError);
         expect((error as TRPCError).code).toBe("INTERNAL_SERVER_ERROR");
-        expect((error as TRPCError).message).toContain("Unable to connect to Companies House");
+        expect((error as TRPCError).message).toContain(
+          "Unable to connect to Companies House",
+        );
       }
     });
   });

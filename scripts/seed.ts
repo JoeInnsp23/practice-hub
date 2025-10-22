@@ -21,6 +21,7 @@ import {
   invoiceItems,
   invoices,
   leads,
+  legalPages,
   messages,
   messageThreadParticipants,
   messageThreads,
@@ -36,6 +37,7 @@ import {
   serviceComponents,
   services,
   tasks,
+  taskNotes,
   taskWorkflowInstances,
   tenants,
   timeEntries,
@@ -80,6 +82,9 @@ async function clearDatabase() {
   // Clear portal data
   await db.delete(portalLinks);
   await db.delete(portalCategories);
+
+  // Clear legal pages
+  await db.delete(legalPages);
 
   await db.delete(invitations);
   await db.delete(users);
@@ -180,7 +185,257 @@ async function seedDatabase() {
     },
   ]);
 
-  // 2.6. Create Portal Categories and Links
+  // 2.6. Create Legal Pages
+  console.log("Creating legal pages...");
+  await db.insert(legalPages).values([
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      pageType: "privacy",
+      content: `# Privacy Policy
+
+**Last Updated:** ${new Date().toISOString().split("T")[0]}
+
+## Introduction
+
+This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our Practice Hub platform. We are committed to protecting your privacy and ensuring transparency in how we handle your data in compliance with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
+
+## Data Controller
+
+The data controller responsible for your personal information is:
+
+**[Company Name]**
+[Address]
+[Contact Email]
+[Contact Phone]
+
+## Information We Collect
+
+### Personal Information
+We collect the following types of personal information:
+- Name and contact information (email, phone number, address)
+- Professional information (company name, role, industry)
+- Account credentials and authentication data
+- Financial information (for billing purposes)
+- Communication records and correspondence
+
+### Usage Data
+We automatically collect certain information when you use our platform:
+- Log data (IP address, browser type, pages visited)
+- Device information (device type, operating system)
+- Usage patterns and interaction data
+- Performance and diagnostic data
+
+## Legal Basis for Processing
+
+We process your personal data under the following legal bases:
+- **Contract Performance:** To provide our services and fulfill our contractual obligations
+- **Legitimate Interests:** To improve our services, prevent fraud, and ensure security
+- **Legal Obligation:** To comply with legal and regulatory requirements
+- **Consent:** Where specifically obtained for certain processing activities
+
+## How We Use Your Information
+
+We use your personal information to:
+- Provide, maintain, and improve our services
+- Process transactions and manage your account
+- Communicate with you about our services
+- Provide customer support
+- Send administrative and service-related communications
+- Ensure platform security and prevent fraud
+- Comply with legal obligations
+- Analyze usage to improve user experience
+
+## Data Sharing and Disclosure
+
+We may share your personal information with:
+- **Service Providers:** Third-party vendors who assist in operating our platform
+- **Legal Authorities:** When required by law or to protect our rights
+- **Business Transfers:** In connection with mergers, acquisitions, or asset sales
+
+We do not sell your personal information to third parties.
+
+## Your Rights
+
+Under UK GDPR, you have the following rights:
+- **Right of Access:** Request access to your personal data
+- **Right to Rectification:** Request correction of inaccurate data
+- **Right to Erasure:** Request deletion of your data
+- **Right to Restrict Processing:** Request limitation of processing
+- **Right to Data Portability:** Receive your data in a structured format
+- **Right to Object:** Object to processing based on legitimate interests
+
+To exercise your rights, please contact us at [data protection email].
+
+## Security
+
+We implement appropriate technical and organizational measures to protect your personal information, including encryption, access controls, and regular security assessments.
+
+## Contact Us
+
+If you have questions about this Privacy Policy, please contact our Data Protection Officer at [email address].
+
+You also have the right to lodge a complaint with the Information Commissioner's Office (ICO):
+- Website: https://ico.org.uk
+- Phone: 0303 123 1113
+
+---
+
+*This is a placeholder Privacy Policy. It must be reviewed and approved by legal counsel before production deployment.*`,
+      version: 1,
+      updatedBy: adminUser.id,
+    },
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      pageType: "terms",
+      content: `# Terms of Service
+
+**Last Updated:** ${new Date().toISOString().split("T")[0]}
+
+## Agreement to Terms
+
+By accessing and using Practice Hub ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.
+
+## Description of Service
+
+Practice Hub is a cloud-based practice management platform designed for accountancy firms and professional services.
+
+## Account Registration
+
+### Eligibility
+You must be at least 18 years old to use the Service.
+
+### Account Security
+You are responsible for maintaining the confidentiality of your account credentials and all activities under your account.
+
+### Accurate Information
+You agree to provide accurate, current, and complete information during registration.
+
+## Acceptable Use
+
+### Permitted Use
+You may use the Service only for lawful purposes and in accordance with these Terms.
+
+### Prohibited Activities
+You may not:
+- Violate any applicable laws or regulations
+- Infringe upon intellectual property rights
+- Upload malicious code or viruses
+- Attempt unauthorized access to the Service
+- Interfere with or disrupt the Service
+- Use the Service to transmit spam
+
+## Intellectual Property
+
+The Service and its content are owned by us and protected by copyright and trademark laws. You retain ownership of content you upload.
+
+## Payment Terms
+
+### Subscription Fees
+Access requires payment of subscription fees as outlined in your selected plan.
+
+### Billing
+Fees are billed in advance monthly or annually. All fees are non-refundable except as required by law.
+
+## Termination
+
+We may suspend or terminate your account if you breach these Terms. Upon termination, your right to access the Service ceases immediately.
+
+## Disclaimers
+
+THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED.
+
+## Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES.
+
+## Governing Law
+
+These Terms are governed by the laws of England and Wales.
+
+## Contact Information
+
+For questions about these Terms, please contact: [Email]
+
+---
+
+*This is a placeholder Terms of Service. It must be reviewed and approved by legal counsel before production deployment.*`,
+      version: 1,
+      updatedBy: adminUser.id,
+    },
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      pageType: "cookie_policy",
+      content: `# Cookie Policy
+
+**Last Updated:** ${new Date().toISOString().split("T")[0]}
+
+## Introduction
+
+This Cookie Policy explains how Practice Hub uses cookies and similar tracking technologies on our platform.
+
+## What Are Cookies?
+
+Cookies are small text files placed on your device when you visit a website.
+
+## How We Use Cookies
+
+### Essential Cookies (Strictly Necessary)
+These cookies are necessary for the platform to function:
+- Authentication and session management
+- Security and fraud prevention
+- Load balancing
+
+### Functional Cookies
+These enable enhanced functionality:
+- Remember your preferences (theme, language)
+- Store feature preferences
+
+### Analytics Cookies
+These help us understand usage:
+- Analyze usage patterns
+- Measure platform performance
+- Identify and fix issues
+
+## Cookies We Use
+
+| Cookie Name | Type | Purpose | Duration |
+|-------------|------|---------|----------|
+| session_token | Essential | Session management | Session |
+| auth_token | Essential | Authentication | 30 days |
+| theme | Functional | Theme preference | 1 year |
+
+## Your Cookie Choices
+
+### Managing Cookies
+You can control cookies through your browser settings. Note that blocking essential cookies may impact functionality.
+
+### Browser Settings
+Most browsers allow you to view, delete, and block cookies in their privacy settings.
+
+## Third-Party Cookies
+
+We may use third-party services that set their own cookies:
+- **Microsoft Azure AD:** For authentication
+- **Sentry:** For error monitoring
+
+## Contact Us
+
+If you have questions about our use of cookies, please contact: [Email]
+
+For more information, visit the ICO website: https://ico.org.uk
+
+---
+
+*This is a placeholder Cookie Policy. It must be reviewed and approved by legal counsel before production deployment.*`,
+      version: 1,
+      updatedBy: adminUser.id,
+    },
+  ]);
+
+  // 2.7. Create Portal Categories and Links
   console.log("Creating portal categories and links...");
 
   // Create Portal Categories
@@ -1209,7 +1464,7 @@ async function seedDatabase() {
   for (let i = 0; i < 25; i++) {
     const isCompany = faker.datatype.boolean();
     clientList.push({
-      clientCode: `CLI-${String(i + 1).padStart(4, "0")}`,
+      clientCode: `CLIENT-${String(i + 1).padStart(3, "0")}`,
       name: isCompany ? faker.company.name() : faker.person.fullName(),
       type: isCompany
         ? faker.helpers.arrayElement(["company", "partnership"] as const)
@@ -1220,6 +1475,13 @@ async function seedDatabase() {
       website: isCompany ? faker.internet.url() : null,
       vatRegistered: isCompany,
       vatNumber: isCompany ? `GB${faker.string.numeric(9)}` : null,
+      vatValidationStatus: isCompany
+        ? faker.helpers.arrayElement(["valid", "pending", null] as const)
+        : null,
+      vatValidatedAt:
+        isCompany && faker.datatype.boolean()
+          ? faker.date.recent({ days: 30 })
+          : null,
       registrationNumber: isCompany
         ? faker.string.alphanumeric(8).toUpperCase()
         : null,
@@ -1513,7 +1775,13 @@ async function seedDatabase() {
     "dormant",
   ] as const;
 
-  const proposalStatuses = ["draft", "sent", "viewed", "signed", "rejected"] as const;
+  const proposalStatuses = [
+    "draft",
+    "sent",
+    "viewed",
+    "signed",
+    "rejected",
+  ] as const;
 
   const proposalsList: any[] = [];
 
@@ -1524,7 +1792,7 @@ async function seedDatabase() {
     const salesStage = faker.helpers.arrayElement(salesStages);
 
     // Determine status based on stage
-    let status: typeof proposalStatuses[number];
+    let status: (typeof proposalStatuses)[number];
     if (salesStage === "won") {
       status = "signed";
     } else if (salesStage === "lost") {
@@ -1535,7 +1803,11 @@ async function seedDatabase() {
       status = "draft";
     }
 
-    const monthlyTotal = faker.number.float({ min: 500, max: 5000, fractionDigits: 2 });
+    const monthlyTotal = faker.number.float({
+      min: 500,
+      max: 5000,
+      fractionDigits: 2,
+    });
     const annualTotal = monthlyTotal * 12;
 
     const [proposal] = await db
@@ -1547,14 +1819,22 @@ async function seedDatabase() {
         title: `${faker.company.buzzPhrase()} Services for ${randomClient.name}`,
         status,
         salesStage,
-        turnover: faker.helpers.arrayElement(["50k-100k", "100k-250k", "250k-500k", "500k-1M", "1M+"]),
-        industry: randomClient.industry || faker.helpers.arrayElement([
-          "Technology",
-          "Retail",
-          "Healthcare",
-          "Manufacturing",
-          "Professional Services",
+        turnover: faker.helpers.arrayElement([
+          "50k-100k",
+          "100k-250k",
+          "250k-500k",
+          "500k-1M",
+          "1M+",
         ]),
+        industry:
+          randomClient.industry ||
+          faker.helpers.arrayElement([
+            "Technology",
+            "Retail",
+            "Healthcare",
+            "Manufacturing",
+            "Professional Services",
+          ]),
         monthlyTransactions: faker.number.int({ min: 50, max: 500 }),
         pricingModelUsed: faker.helpers.arrayElement(["model_a", "model_b"]),
         monthlyTotal: String(monthlyTotal),
@@ -1612,7 +1892,9 @@ async function seedDatabase() {
           "Self Assessment",
         ]),
         calculation: `Based on ${faker.helpers.arrayElement(["turnover", "complexity", "transaction volume"])}`,
-        price: String(faker.number.float({ min: 100, max: 1000, fractionDigits: 2 })),
+        price: String(
+          faker.number.float({ min: 100, max: 1000, fractionDigits: 2 }),
+        ),
         config: {
           complexity: faker.helpers.arrayElement(["low", "medium", "high"]),
         },
@@ -1923,7 +2205,75 @@ async function seedDatabase() {
     createdTasks.push(task[0]);
   }
 
-  // 8. Create Time Entries
+  // 8. Create Task Notes
+  console.log("Creating task notes...");
+  const createdTaskNotes = [];
+
+  // Add 2-4 notes to each of the first 10 tasks
+  for (const task of createdTasks.slice(0, 10)) {
+    const noteCount = faker.number.int({ min: 2, max: 4 });
+
+    for (let i = 0; i < noteCount; i++) {
+      const author = faker.helpers.arrayElement(createdUsers);
+      const isInternal = faker.datatype.boolean({ probability: 0.3 }); // 30% internal notes
+
+      // 40% chance of having @mentions
+      const hasMention = faker.datatype.boolean({ probability: 0.4 });
+      const mentionedUsers: string[] = [];
+      let noteText = faker.lorem.paragraph();
+
+      if (hasMention) {
+        // Mention 1-2 random users
+        const mentionCount = faker.number.int({ min: 1, max: 2 });
+        const usersToMention = faker.helpers.arrayElements(
+          createdUsers.filter((u) => u.id !== author.id),
+          mentionCount,
+        );
+
+        for (const user of usersToMention) {
+          mentionedUsers.push(user.id);
+          // Add @mention to note text
+          noteText += ` @[${user.firstName} ${user.lastName}] `;
+        }
+      }
+
+      const taskNote = await db
+        .insert(taskNotes)
+        .values({
+          tenantId: tenant.id,
+          taskId: task.id,
+          userId: author.id,
+          note: noteText.trim(),
+          isInternal,
+          mentionedUsers,
+          createdAt: faker.date.recent({ days: 7 }),
+        })
+        .returning();
+
+      createdTaskNotes.push(taskNote[0]);
+
+      // Create notifications for mentioned users
+      for (const mentionedUserId of mentionedUsers) {
+        await db.insert(notifications).values({
+          tenantId: tenant.id,
+          userId: mentionedUserId,
+          type: "task_mention",
+          title: "You were mentioned in a task",
+          message: `${author.firstName} ${author.lastName} mentioned you in a task comment`,
+          actionUrl: `/client-hub/tasks/${task.id}`,
+          entityType: "task",
+          entityId: task.id,
+          isRead: faker.datatype.boolean({ probability: 0.5 }), // 50% read
+        });
+      }
+    }
+  }
+
+  console.log(
+    `✅ Created ${createdTaskNotes.length} task notes for ${createdTasks.slice(0, 10).length} tasks`,
+  );
+
+  // 9. Create Time Entries
   console.log("Creating time entries...");
   const workTypes = [
     "work",
@@ -2049,11 +2399,13 @@ async function seedDatabase() {
 
     for (let j = 0; j < itemCount; j++) {
       const isLastItem = j === itemCount - 1;
+      const maxAmount = remainingAmount / 2;
+      const minAmount = Math.min(100, maxAmount * 0.5);
       const itemAmount = isLastItem
         ? remainingAmount
         : faker.number.float({
-            min: 100,
-            max: remainingAmount / 2,
+            min: minAmount,
+            max: maxAmount,
             multipleOf: 0.01,
           });
 
@@ -2737,9 +3089,7 @@ async function seedDatabase() {
       const [activeVersion] = await db
         .select()
         .from(workflowVersions)
-        .where(
-          eq(workflowVersions.workflowId, workflowToAssign.id)
-        )
+        .where(eq(workflowVersions.workflowId, workflowToAssign.id))
         .limit(1);
 
       if (activeVersion) {

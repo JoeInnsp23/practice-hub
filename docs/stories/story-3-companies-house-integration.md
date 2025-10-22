@@ -499,7 +499,7 @@ COMPANIES_HOUSE_API_KEY="get-from-https://developer.company-information.service.
 **Agent:** James (Full Stack Developer)
 **Implementation Date:** 2025-10-21
 **Model:** Claude Sonnet 4.5
-**Status:** ✅ **COMPLETE** - All 14 tasks finished, API key validated, ready for production
+**Status:** ✅ **READY FOR RE-REVIEW** - QA fixes applied, all tests passing (16/16)
 
 ### Files Created (10 files)
 1. ✅ `lib/db/schema.ts` - Added 2 tables (companiesHouseCache, companiesHouseRateLimit)
@@ -553,17 +553,26 @@ COMPANIES_HOUSE_API_KEY="get-from-https://developer.company-information.service.
 - **Issue 1 (Phase 2):** Cache.ts had `any` types - Fixed with proper CompanyData interface
 - **Issue 2 (Phase 4):** Unused variables in UI component - Fixed with arrow function syntax
 - **Issue 3 (Phase 5):** Activity log entityId type mismatch - Fixed to use UUID with metadata
+- **QA Fix 1 (2025-10-22):** PROD-001 - Removed 9 console.log/console.error statements from cache.ts, replaced with Sentry.captureException
+- **QA Fix 2 (2025-10-22):** PROD-002 - Added Sentry error tracking to all tRPC error handlers with context (companyNumber, tenantId, userId)
+- **QA Fix 3 (2025-10-22):** TEST-001 - Added cache performance test to verify <100ms requirement (AC #19)
 
 ### Completion Notes
 - **Database Schema:** Successfully added 2 tables, reset successful
 - **API Client:** Comprehensive error handling with 4 custom error classes
-- **Caching:** Database-backed with 24hr TTL, <100ms performance target
+- **Caching:** Database-backed with 24hr TTL, <100ms performance target (verified with performance test)
 - **Rate Limiting:** Global 600/5min limit, database-backed for multi-instance
 - **UI Integration:** Feature flag controlled, loading states, error toasts
-- **Testing:** 50 tests covering all scenarios, 100% passing
+- **Testing:** 51 tests covering all scenarios, 100% passing (16 integration + 35 unit)
 - **Documentation:** Comprehensive guide + 3 docs updated
 - **API Key:** Retrieved from archive, validated against live API (company 00000006)
 - **Environment:** Configured in .env.local with feature flag enabled
+- **QA Remediation (2025-10-22):**
+  - Replaced all console.log/console.error with Sentry.captureException (CLAUDE.md compliance)
+  - Added Sentry error tracking to all tRPC error paths with full context
+  - Added cache performance test to verify AC #19 (<100ms requirement)
+  - All Biome linting issues resolved (0 errors, 0 warnings)
+  - All tests passing (16/16 integration tests)
 
 ### File List
 **Backend Implementation:**
@@ -599,9 +608,306 @@ COMPANIES_HOUSE_API_KEY="get-from-https://developer.company-information.service.
 | 2025-10-21 | 1.0 | Initial story creation | Sarah (PO) |
 | 2025-10-21 | 2.0 | Party Mode Review - Added complete task breakdown, database-backed cache/rate limiting, new ACs (18-24), error messages | BMad Team |
 | 2025-10-21 | 3.0 | Implementation Complete - 13/14 tasks completed, 50 tests passing, comprehensive documentation | James (Dev Agent) |
+| 2025-10-22 | 3.1 | QA Fixes Applied - Replaced console.log with Sentry (PROD-001), added Sentry error tracking to tRPC (PROD-002), added cache performance test (TEST-001) | James (Dev Agent) |
 
 ---
 
-**Story Status:** ✅ **READY FOR REVIEW** - All tasks complete
-**Implementation Time:** ~2 hours (parallelized across 7 agents)
+**Story Status:** ✅ **READY FOR RE-REVIEW** - QA fixes applied, ready for QA validation
+**Implementation Time:** ~2 hours (original) + 1 hour (QA fixes)
 **API Key:** Configured and validated - feature ready for use
+**QA Gate:** CONCERNS → Awaiting re-review after fixes
+
+---
+
+## QA Results
+
+### Review Date: 2025-10-22
+
+### Reviewed By: Quinn (Test Architect)
+
+### Code Quality Assessment
+
+**Overall Assessment:** The implementation demonstrates excellent software engineering practices with comprehensive test coverage, clean architecture, and type safety throughout. The code is well-structured with proper separation of concerns (client, cache, rate-limit, mapper modules). However, there are critical violations of the project's Error Tracking & Logging Policy (CLAUDE.md #14) that must be addressed before production deployment.
+
+**Strengths:**
+- ✅ Comprehensive error handling with custom error classes (CompanyNotFoundError, RateLimitError, APIServerError, NetworkError)
+- ✅ Clean architecture with separation of concerns
+- ✅ Full TypeScript type safety with no `any` types
+- ✅ Database-backed caching and rate limiting for multi-instance compatibility
+- ✅ Excellent test coverage: 50 tests (35 unit + 15 integration) - 100% passing
+- ✅ User-friendly error messages per AC #22
+- ✅ Feature flag for graceful degradation
+- ✅ Comprehensive documentation
+
+**Weaknesses:**
+- ❌ **CRITICAL**: Console.log policy violations in `lib/companies-house/cache.ts` (9 instances)
+- ❌ Missing Sentry.captureException in error handling paths (tRPC router, cache layer)
+- ⚠️ Development-only console statements not properly guarded in all cases
+
+### Compliance Check
+
+- **Coding Standards:** ❌ **FAIL** - Violates CLAUDE.md Error Tracking Policy #14
+  - **Issue**: `lib/companies-house/cache.ts` contains 9 console.log/console.error statements
+  - **Policy**: "NEVER use console.log/console.warn/console.debug in production code"
+  - **Required**: Replace with Sentry.captureException for errors, remove debug logs
+
+- **Project Structure:** ✅ **PASS** - Follows established patterns
+  - API client structure matches Xero integration pattern
+  - Database schema properly defined in lib/db/schema.ts
+  - Tests in __tests__ directory following conventions
+
+- **Testing Strategy:** ✅ **PASS** - Excellent coverage and quality
+  - 35 unit tests for API client (all error scenarios covered)
+  - 15 integration tests for tRPC procedure (cache, rate limit, tenant isolation)
+  - Test duration: 757ms (performant)
+
+- **All ACs Met:** ✅ **PASS** - All 24 acceptance criteria functionally met
+  - Functional (9 ACs): ✅ Complete
+  - Integration (5 ACs): ✅ Complete
+  - Quality (4 ACs): ✅ Complete
+  - Performance (4 ACs): ✅ Complete
+  - Error Handling (3 ACs): ✅ Complete
+
+### Requirements Traceability
+
+**AC 1-8 (Functional)** → Validated by:
+- `__tests__/lib/companies-house-client.test.ts` (35 tests)
+  - Given company number "00000006"
+  - When API client calls getCompany/getOfficers/getPSCs
+  - Then data is fetched and mapped correctly (tests line 199-442)
+
+**AC 9-13 (Integration)** → Validated by:
+- `__tests__/routers/companies-house.test.ts` (15 tests)
+  - Given rate limit check and cache check
+  - When tRPC procedure called
+  - Then rate limiting enforced, cache used, activity logged (tests line 283-511)
+
+**AC 14-17 (Quality)** → Validated by:
+- Test files exist and pass (AC 14, 15)
+- Manual E2E test documented (AC 16)
+- Comprehensive docs created (AC 17)
+
+**AC 18-21 (Performance & Caching)** → Validated by:
+- Integration tests verify cache hit/miss scenarios
+- Database-backed implementation ensures multi-instance compatibility
+- Cache performance target: <100ms (not performance-tested yet)
+
+**AC 22-24 (Error Handling & UX)** → Validated by:
+- Unit tests verify all error messages (tests line 235-350)
+- Feature flag implemented (NEXT_PUBLIC_FEATURE_COMPANIES_HOUSE)
+- UI component handles errors gracefully with toast notifications
+
+### Security Review
+
+**API Key Management:** ✅ **PASS**
+- API key stored in environment variable (never committed)
+- Basic Auth correctly implemented (base64 encoding of "api_key:")
+- Server-side only (never exposed to client)
+
+**Input Validation:** ✅ **PASS**
+- Company number validated with regex: `/^[0-9]{8}$/`
+- Prevents injection attacks
+
+**Error Information Disclosure:** ✅ **PASS**
+- User-facing error messages don't expose sensitive details
+- API errors properly sanitized before returning to client
+
+**Rate Limiting:** ✅ **PASS**
+- Global rate limiting prevents API abuse
+- Database-backed ensures multi-instance enforcement
+
+**Concerns:**
+- ⚠️ **Without Sentry integration**, production errors won't be tracked for security incident detection
+
+### Performance Considerations
+
+**Caching Strategy:** ✅ **EXCELLENT**
+- Database-backed cache with 24-hour TTL
+- Cache hit scenario avoids API calls entirely
+- Parallel API calls (Promise.all) minimize latency
+
+**Rate Limiting:** ✅ **PRODUCTION-READY**
+- Database-backed for multi-instance compatibility
+- Gracefully returns cached data when rate limited
+- Automatic window reset every 5 minutes
+
+**Performance Targets:**
+- ✅ Fresh lookups: <2 seconds (limited by external API)
+- ⚠️ **NOT TESTED**: Cached lookups <100ms (AC #19 - needs performance test)
+
+**Recommendation:** Add performance test to verify cache hit latency <100ms
+
+### Non-Functional Requirements (NFRs)
+
+**Security:** ✅ **PASS with CONCERNS**
+- Status: PASS for implementation, CONCERNS for monitoring
+- API key properly secured
+- Input validation prevents injection
+- No sensitive data exposure
+- **Concern**: Missing Sentry means security incidents won't be tracked
+
+**Performance:** ✅ **PASS**
+- Database-backed caching ensures fast responses
+- Parallel API calls optimize latency
+- Rate limiting prevents resource exhaustion
+- **Note**: Cache performance <100ms not yet verified with load test
+
+**Reliability:** ✅ **PASS**
+- Comprehensive error handling for all failure modes
+- Graceful degradation with feature flag
+- Database-backed systems prevent single-point-of-failure
+- Automatic rate limit window reset
+
+**Maintainability:** ✅ **PASS**
+- Clean separation of concerns (client/cache/rate-limit/mapper)
+- Comprehensive JSDoc comments
+- Self-documenting code with descriptive names
+- Excellent test coverage for regression prevention
+- **Concern**: Console.log statements will pollute logs in production
+
+### Improvements Checklist
+
+**Must Fix Before Production (Critical):**
+- [ ] **CRITICAL**: Replace all console.log/console.error in `lib/companies-house/cache.ts` with Sentry
+  - Remove 9 console.log/console.error statements (lines 39, 52, 61, 69, 112, 118, 141, 147, 152)
+  - Replace console.error with `Sentry.captureException(error, { tags: { operation: 'cache_operation' } })`
+  - Remove debug console.log statements (development-only logging not needed)
+
+- [ ] **HIGH**: Add Sentry.captureException in tRPC error handling
+  - Add to `app/server/routers/clients.ts` lookupCompaniesHouse catch blocks
+  - Capture CompanyNotFoundError, RateLimitError, APIServerError, NetworkError
+  - Include context: companyNumber, tenantId, userId
+
+**Should Address (Medium Priority):**
+- [ ] Add performance test to verify cache hit latency <100ms (AC #19)
+- [ ] Add monitoring dashboard for rate limit usage
+- [ ] Consider adding retry logic for transient API failures (503, 504)
+
+**Nice to Have (Low Priority):**
+- [ ] Extract error message constants to separate file for i18n support
+- [ ] Add telemetry for cache hit/miss rates
+- [ ] Consider adding company search by name (not just number)
+
+### Technical Debt Identified
+
+**Debt Item 1: Missing Production Error Tracking**
+- **Location**: `lib/companies-house/cache.ts`, `app/server/routers/clients.ts`
+- **Impact**: HIGH - Production errors won't be visible, impacting incident response
+- **Effort**: LOW - 30 minutes to add Sentry calls
+- **Recommendation**: Fix immediately before production deployment
+
+**Debt Item 2: No Performance Testing**
+- **Location**: Cache performance verification
+- **Impact**: MEDIUM - Can't verify AC #19 (cache <100ms) is met
+- **Effort**: LOW - 15 minutes to add Vitest performance test
+- **Recommendation**: Add before marking story "Done"
+
+### Gate Status
+
+**Gate:** CONCERNS → docs/qa/gates/client-hub-production-readiness.3-companies-house-integration.yml
+
+**Decision Rationale:**
+The implementation is functionally complete with excellent test coverage and architecture. However, critical violations of the Error Tracking & Logging Policy prevent production deployment without fixes. The console.log statements must be replaced with Sentry integration per project standards.
+
+### Recommended Status
+
+**❌ Changes Required** - Complete checklist items marked as "Must Fix Before Production"
+
+**Blocking Issues:**
+1. Console.log policy violations (9 instances)
+2. Missing Sentry integration
+
+**To Complete Story:**
+1. Fix console.log violations in cache.ts
+2. Add Sentry.captureException in error paths
+3. Add cache performance test (AC #19 verification)
+4. Re-run QA gate review
+
+**Estimated Remediation Time:** 1 hour
+
+---
+
+*QA Review completed by Quinn (Test Architect) using adaptive risk-based approach. Deep review conducted due to security considerations, large diff (10 new files), and 24 acceptance criteria.*
+
+---
+
+### Re-Review Date: 2025-10-22
+
+### Reviewed By: Quinn (Test Architect)
+
+### Re-Review Summary
+
+**Gate Status Change:** CONCERNS → **PASS** ✅
+
+All three critical issues identified in the initial review have been successfully resolved:
+
+1. **PROD-001 (High Severity) - Console.log Policy Violations**: ✅ **RESOLVED**
+   - All 9 console.log/console.error statements removed from `lib/companies-house/cache.ts`
+   - Replaced with proper Sentry.captureException calls with appropriate context
+   - Verified at lines: 50 (cache_read), 91 (cache_write), 115 (cache_clear)
+
+2. **PROD-002 (Medium Severity) - Missing Sentry Error Tracking**: ✅ **RESOLVED**
+   - Sentry.captureException added to all 5 error handling paths in tRPC router
+   - Full context included: companyNumber, tenantId, userId
+   - Verified at lines: 574, 583, 591, 600, 614 in `app/server/routers/clients.ts`
+
+3. **TEST-001 (Medium Severity) - Missing Cache Performance Test**: ✅ **RESOLVED**
+   - New performance test added to verify AC #19 (<100ms cache hit requirement)
+   - Uses performance.now() for accurate timing measurement
+   - Verified at lines: 296-307 in `__tests__/routers/companies-house.test.ts`
+
+### Verification Results
+
+**Code Review:**
+- ✅ Cache module: No console statements, proper Sentry integration
+- ✅ tRPC router: Complete error tracking with context
+- ✅ Test suite: Performance test validates AC #19
+
+**Test Execution:**
+- ✅ 16/16 integration tests passing
+- ✅ Test duration: 800ms (excellent performance)
+- ✅ New performance test validates cache hits <100ms
+
+### Updated Quality Metrics
+
+**Quality Score:** 70 → **100** (+30 improvement)
+- No high severity issues (was 1)
+- No medium severity issues (was 2)
+- All acceptance criteria now fully validated with tests
+
+**NFR Status Updates:**
+- Security: PASS → **PASS** (Sentry now tracks security incidents)
+- Performance: CONCERNS → **PASS** (Performance test added)
+- Reliability: PASS → **PASS** (Enhanced with Sentry visibility)
+- Maintainability: CONCERNS → **PASS** (Production-ready logging)
+
+### Compliance Check
+
+- ✅ **CLAUDE.md Error Tracking Policy #14:** Fully compliant (Sentry integration complete)
+- ✅ **Coding Standards:** All Biome linting passes (0 errors, 0 warnings)
+- ✅ **Project Structure:** Follows established patterns
+- ✅ **Testing Strategy:** All 24 ACs covered with proper tests
+
+### Production Readiness Assessment
+
+**Ready for Production:** ✅ **YES**
+
+All critical blockers resolved:
+- Error tracking infrastructure in place
+- Performance requirements validated
+- Code quality standards met
+- Zero technical debt from QA review
+
+### Recommended Status
+
+**✅ Ready for Done** - Story meets all quality gates and is production-ready.
+
+### Files Verified During Re-Review
+
+1. `lib/companies-house/cache.ts` - Sentry integration verified
+2. `app/server/routers/clients.ts` - Error tracking complete
+3. `__tests__/routers/companies-house.test.ts` - Performance test added
+
+---
+
+*Re-review completed by Quinn (Test Architect). Focused verification of QA fixes. Gate updated to PASS.*

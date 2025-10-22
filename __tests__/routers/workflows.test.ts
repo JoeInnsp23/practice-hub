@@ -22,7 +22,7 @@ import {
   type TestDataTracker,
 } from "../helpers/factories";
 import { db } from "@/lib/db";
-import { workflows, workflowStages, workflowVersions, taskWorkflowInstances } from "@/lib/db/schema";
+import { workflows, workflowStages, workflowVersions, taskWorkflowInstances, tasks } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import type { Context } from "@/app/server/context";
 
@@ -835,6 +835,470 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           versionId2: nonExistentId,
         })
       ).rejects.toThrow("One or both versions not found");
+    });
+  });
+
+  describe("getActiveInstances (Integration)", () => {
+    it("should retrieve active workflow instances for a workflow", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
+        title: "Task 1 with Workflow",
+      });
+      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
+        title: "Task 2 with Workflow",
+      });
+      tracker.tasks?.push(task1.id, task2.id);
+
+      // Create workflow version
+      const [version] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: workflow.description || "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version.id);
+
+      // Create active instances
+      const [instance1] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task1.id,
+          workflowId: workflow.id,
+          workflowVersionId: version.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance1.id);
+
+      const [instance2] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task2.id,
+          workflowId: workflow.id,
+          workflowVersionId: version.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance2.id);
+
+      // Update tasks to link them to workflow
+      await db.update(tasks).set({ workflowId: workflow.id }).where(eq(tasks.id, task1.id));
+      await db.update(tasks).set({ workflowId: workflow.id }).where(eq(tasks.id, task2.id));
+
+      const result = await caller.getActiveInstances(workflow.id);
+
+      expect(result).toBeDefined();
+      expect(result.length).toBeGreaterThanOrEqual(2);
+      expect(result.some((i) => i.instanceId === instance1.id)).toBe(true);
+      expect(result.some((i) => i.instanceId === instance2.id)).toBe(true);
+      expect(result[0]).toHaveProperty("taskId");
+      expect(result[0]).toHaveProperty("taskTitle");
+      expect(result[0]).toHaveProperty("currentVersion");
+    });
+
+    it("should return empty array if no active instances", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const result = await caller.getActiveInstances(workflow.id);
+
+      expect(result).toEqual([]);
+    });
+
+    it("should only return active instances, not completed", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const [version] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: workflow.description || "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version.id);
+
+      // Create completed instance
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task.id,
+          workflowId: workflow.id,
+          workflowVersionId: version.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "completed",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance.id);
+
+      await db.update(tasks).set({ workflowId: workflow.id }).where(eq(tasks.id, task.id));
+
+      const result = await caller.getActiveInstances(workflow.id);
+
+      expect(result.length).toBe(0);
+    });
+
+    it("should prevent cross-tenant access", async () => {
+      // Create workflow for tenant A
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+
+      const workflowA = await createTestWorkflow(tenantAId, userAId);
+      tracker.workflows?.push(workflowA.id);
+
+      // Attempt to access tenant A's workflow from tenant B
+      const result = await caller.getActiveInstances(workflowA.id);
+
+      // Should return empty array (no instances for this tenant)
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("migrateInstances (Integration)", () => {
+    it("should migrate instances to new workflow version", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      // Create version 1
+      const [version1] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: "Version 1",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version1.id);
+
+      // Create version 2
+      const [version2] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 2,
+          name: workflow.name,
+          description: "Version 2",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version2.id);
+
+      // Create instance on version 1
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task.id,
+          workflowId: workflow.id,
+          workflowVersionId: version1.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance.id);
+
+      const result = await caller.migrateInstances({
+        instanceIds: [instance.id],
+        newVersionId: version2.id,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.migratedCount).toBe(1);
+
+      // Verify instance updated
+      const [updated] = await db
+        .select()
+        .from(taskWorkflowInstances)
+        .where(eq(taskWorkflowInstances.id, instance.id));
+
+      expect(updated.workflowVersionId).toBe(version2.id);
+      expect(updated.version).toBe(2);
+      expect(updated.upgradedFromVersionId).toBe(version1.id);
+      expect(updated.upgradedAt).toBeDefined();
+      expect(updated.upgradedById).toBe(ctx.authContext.userId);
+    });
+
+    it("should throw NOT_FOUND for non-existent version", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task.id);
+
+      const [version] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version.id);
+
+      const [instance] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task.id,
+          workflowId: workflow.id,
+          workflowVersionId: version.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance.id);
+
+      const nonExistentVersionId = crypto.randomUUID();
+
+      await expect(
+        caller.migrateInstances({
+          instanceIds: [instance.id],
+          newVersionId: nonExistentVersionId,
+        })
+      ).rejects.toThrow("Version not found");
+    });
+
+    it("should handle multiple instances", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.clients?.push(client.id);
+
+      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      tracker.tasks?.push(task1.id, task2.id);
+
+      const [version1] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: workflow.name,
+          description: "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version1.id);
+
+      const [version2] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 2,
+          name: workflow.name,
+          description: "",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version2.id);
+
+      const [instance1] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task1.id,
+          workflowId: workflow.id,
+          workflowVersionId: version1.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance1.id);
+
+      const [instance2] = await db
+        .insert(taskWorkflowInstances)
+        .values({
+          taskId: task2.id,
+          workflowId: workflow.id,
+          workflowVersionId: version1.id,
+          version: 1,
+          stagesSnapshot: [],
+          status: "active",
+        })
+        .returning();
+      tracker.taskWorkflowInstances?.push(instance2.id);
+
+      const result = await caller.migrateInstances({
+        instanceIds: [instance1.id, instance2.id],
+        newVersionId: version2.id,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.migratedCount).toBe(2);
+    });
+  });
+
+  describe("rollbackToVersion (Integration)", () => {
+    it("should create new version based on previous version", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      // Create version 1
+      const [version1] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflow.id,
+          tenantId: ctx.authContext.tenantId,
+          version: 1,
+          name: "Original Name",
+          description: "Original Description",
+          type: workflow.type,
+          trigger: workflow.trigger || "manual",
+          estimatedDays: 5,
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(version1.id);
+
+      // Update workflow version counter
+      await db.update(workflows).set({ version: 2 }).where(eq(workflows.id, workflow.id));
+
+      const result = await caller.rollbackToVersion({
+        workflowId: workflow.id,
+        targetVersionId: version1.id,
+        publishImmediately: false,
+        publishNotes: "Rolling back to version 1",
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.newVersion).toBeDefined();
+      expect(result.newVersion.version).toBe(3); // Should be next version number
+      expect(result.newVersion.name).toBe("Original Name");
+      expect(result.newVersion.description).toBe("Original Description");
+      expect(result.newVersion.estimatedDays).toBe(5);
+      tracker.workflowVersions?.push(result.newVersion.id);
+    });
+
+    it("should throw NOT_FOUND for non-existent workflow", async () => {
+      const nonExistentWorkflowId = crypto.randomUUID();
+      const nonExistentVersionId = crypto.randomUUID();
+
+      await expect(
+        caller.rollbackToVersion({
+          workflowId: nonExistentWorkflowId,
+          targetVersionId: nonExistentVersionId,
+          publishImmediately: false,
+        })
+      ).rejects.toThrow("Workflow not found");
+    });
+
+    it("should throw NOT_FOUND for non-existent target version", async () => {
+      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      tracker.workflows?.push(workflow.id);
+
+      const nonExistentVersionId = crypto.randomUUID();
+
+      await expect(
+        caller.rollbackToVersion({
+          workflowId: workflow.id,
+          targetVersionId: nonExistentVersionId,
+          publishImmediately: false,
+        })
+      ).rejects.toThrow("Target version not found");
+    });
+
+    it("should prevent cross-tenant rollback", async () => {
+      // Create workflow for tenant A
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId);
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+
+      const workflowA = await createTestWorkflow(tenantAId, userAId);
+      tracker.workflows?.push(workflowA.id);
+
+      const [versionA] = await db
+        .insert(workflowVersions)
+        .values({
+          workflowId: workflowA.id,
+          tenantId: tenantAId,
+          version: 1,
+          name: "Version A",
+          description: "",
+          type: "task_template",
+          trigger: "manual",
+          config: {},
+          stagesSnapshot: [],
+        })
+        .returning();
+      tracker.workflowVersions?.push(versionA.id);
+
+      // Attempt to rollback tenant A's workflow from tenant B
+      await expect(
+        caller.rollbackToVersion({
+          workflowId: workflowA.id,
+          targetVersionId: versionA.id,
+          publishImmediately: false,
+        })
+      ).rejects.toThrow("Workflow not found");
     });
   });
 

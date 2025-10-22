@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, like } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   activityLogs,
@@ -58,165 +58,205 @@ export async function autoConvertLeadToClient(
 
   console.log("Auto-converting lead to client:", lead.email);
 
-  // Auto-generate client code from company name or lead name
-  const clientCode = generateClientCode(
-    lead.companyName || `${lead.firstName} ${lead.lastName}`,
-  );
-
   // Determine client type based on lead data
   const clientType = determineClientType(lead.companyName);
 
-  // Start transaction for lead-to-client conversion
-  const result = await db.transaction(async (tx) => {
-    // Create client record
-    const [newClient] = await tx
-      .insert(clients)
-      .values({
+  // Retry logic for client code collision handling
+  const maxRetries = 5;
+  let retryCount = 0;
+  let result: {
+    clientId: string;
+    onboardingSessionId: string;
+  } | null = null;
+
+  while (retryCount < maxRetries && !result) {
+    try {
+      // Auto-generate client code from company name or lead name
+      const clientCode = await generateClientCode(
+        lead.companyName || `${lead.firstName} ${lead.lastName}`,
         tenantId,
-        clientCode,
-        name: lead.companyName || `${lead.firstName} ${lead.lastName}`,
-        type: clientType,
-        status: "onboarding", // Will stay in onboarding until AML approved
-        email: lead.email,
-        phone: lead.phone,
-        website: lead.website,
-        accountManagerId: lead.assignedToId,
-        createdBy: lead.createdBy,
-      })
-      .returning();
+      );
 
-    // Update lead with conversion info
-    await tx
-      .update(leads)
-      .set({
-        status: "converted",
-        convertedToClientId: newClient.id,
-        convertedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(leads.id, leadId));
+      // Start transaction for lead-to-client conversion
+      result = await db.transaction(async (tx) => {
+        // Create client record
+        const [newClient] = await tx
+          .insert(clients)
+          .values({
+            tenantId,
+            clientCode,
+            name: lead.companyName || `${lead.firstName} ${lead.lastName}`,
+            type: clientType,
+            status: "onboarding", // Will stay in onboarding until AML approved
+            email: lead.email,
+            phone: lead.phone,
+            website: lead.website,
+            accountManagerId: lead.assignedToId,
+            createdBy: lead.createdBy,
+          })
+          .returning();
 
-    // Update proposal to link to new client
-    await tx
-      .update(proposals)
-      .set({
-        clientId: newClient.id,
-        updatedAt: new Date(),
-      })
-      .where(eq(proposals.id, proposalId));
+        // Update lead with conversion info
+        await tx
+          .update(leads)
+          .set({
+            status: "converted",
+            convertedToClientId: newClient.id,
+            convertedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(leads.id, leadId));
 
-    // Log activity for lead
-    await tx.insert(activityLogs).values({
-      tenantId,
-      entityType: "lead",
-      entityId: leadId,
-      action: "converted",
-      description: `Lead automatically converted to client after proposal signature`,
-      userId: null,
-      userName: "System",
-      metadata: {
-        clientId: newClient.id,
-        proposalId,
-        autoConversion: true,
-      },
-    });
+        // Update proposal to link to new client
+        await tx
+          .update(proposals)
+          .set({
+            clientId: newClient.id,
+            updatedAt: new Date(),
+          })
+          .where(eq(proposals.id, proposalId));
 
-    // Log activity for client
-    await tx.insert(activityLogs).values({
-      tenantId,
-      entityType: "client",
-      entityId: newClient.id,
-      action: "created",
-      description: `Client created from signed proposal (Lead: ${lead.firstName} ${lead.lastName})`,
-      userId: null,
-      userName: "System",
-      metadata: {
-        source: "lead_conversion",
-        leadId,
-        proposalId,
-        autoConversion: true,
-      },
-    });
+        // Log activity for lead
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "lead",
+          entityId: leadId,
+          action: "converted",
+          description: `Lead automatically converted to client after proposal signature`,
+          userId: null,
+          userName: "System",
+          metadata: {
+            clientId: newClient.id,
+            proposalId,
+            autoConversion: true,
+          },
+        });
 
-    // Create onboarding session (status: pending_questionnaire)
-    const startDate = new Date();
-    const targetCompletion = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
+        // Log activity for client
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "client",
+          entityId: newClient.id,
+          action: "created",
+          description: `Client created from signed proposal (Lead: ${lead.firstName} ${lead.lastName})`,
+          userId: null,
+          userName: "System",
+          metadata: {
+            source: "lead_conversion",
+            leadId,
+            proposalId,
+            autoConversion: true,
+          },
+        });
 
-    const [onboardingSession] = await tx
-      .insert(onboardingSessions)
-      .values({
-        tenantId,
-        clientId: newClient.id,
-        startDate,
-        targetCompletionDate: targetCompletion,
-        assignedToId: newClient.accountManagerId,
-        priority: "high", // Higher priority for auto-conversions
-        status: "pending_questionnaire", // Waiting for client to complete AML questionnaire
-        progress: 0,
-      })
-      .returning();
+        // Create onboarding session (status: pending_questionnaire)
+        const startDate = new Date();
+        const targetCompletion = new Date(
+          Date.now() + 14 * 24 * 60 * 60 * 1000,
+        ); // 14 days
 
-    // Create standard onboarding tasks (will be accessible after AML approval)
-    const tasks = [
-      {
-        title: "Complete AML Questionnaire",
-        description:
-          "Complete the client information and compliance questionnaire",
-        category: "compliance",
-        sortOrder: 1,
-        isRequired: true,
-        estimatedDuration: 15,
-      },
-      {
-        title: "Upload ID Documents",
-        description: "Upload proof of identity and address documents",
-        category: "compliance",
-        sortOrder: 2,
-        isRequired: true,
-        estimatedDuration: 10,
-      },
-      {
-        title: "Review & Sign Engagement Letter",
-        description: "Review and electronically sign the engagement letter",
-        category: "legal",
-        sortOrder: 3,
-        isRequired: true,
-        estimatedDuration: 10,
-      },
-      {
-        title: "Provide Bank Details",
-        description: "Securely provide bank account details for payments",
-        category: "finance",
-        sortOrder: 4,
-        isRequired: true,
-        estimatedDuration: 5,
-      },
-      {
-        title: "Grant Accounting Software Access",
-        description:
-          "Provide access to your accounting software (Xero/QuickBooks)",
-        category: "technical",
-        sortOrder: 5,
-        isRequired: false,
-        estimatedDuration: 15,
-      },
-    ];
+        const [onboardingSession] = await tx
+          .insert(onboardingSessions)
+          .values({
+            tenantId,
+            clientId: newClient.id,
+            startDate,
+            targetCompletionDate: targetCompletion,
+            assignedToId: newClient.accountManagerId,
+            priority: "high", // Higher priority for auto-conversions
+            status: "pending_questionnaire", // Waiting for client to complete AML questionnaire
+            progress: 0,
+          })
+          .returning();
 
-    for (const task of tasks) {
-      await tx.insert(onboardingTasks).values({
-        tenantId,
-        sessionId: onboardingSession.id,
-        clientId: newClient.id,
-        ...task,
-        status: "not_started",
+        // Create standard onboarding tasks (will be accessible after AML approval)
+        const tasks = [
+          {
+            title: "Complete AML Questionnaire",
+            description:
+              "Complete the client information and compliance questionnaire",
+            category: "compliance",
+            sortOrder: 1,
+            isRequired: true,
+            estimatedDuration: 15,
+          },
+          {
+            title: "Upload ID Documents",
+            description: "Upload proof of identity and address documents",
+            category: "compliance",
+            sortOrder: 2,
+            isRequired: true,
+            estimatedDuration: 10,
+          },
+          {
+            title: "Review & Sign Engagement Letter",
+            description: "Review and electronically sign the engagement letter",
+            category: "legal",
+            sortOrder: 3,
+            isRequired: true,
+            estimatedDuration: 10,
+          },
+          {
+            title: "Provide Bank Details",
+            description: "Securely provide bank account details for payments",
+            category: "finance",
+            sortOrder: 4,
+            isRequired: true,
+            estimatedDuration: 5,
+          },
+          {
+            title: "Grant Accounting Software Access",
+            description:
+              "Provide access to your accounting software (Xero/QuickBooks)",
+            category: "technical",
+            sortOrder: 5,
+            isRequired: false,
+            estimatedDuration: 15,
+          },
+        ];
+
+        for (const task of tasks) {
+          await tx.insert(onboardingTasks).values({
+            tenantId,
+            sessionId: onboardingSession.id,
+            clientId: newClient.id,
+            ...task,
+            status: "not_started",
+          });
+        }
+
+        return {
+          clientId: newClient.id,
+          onboardingSessionId: onboardingSession.id,
+        };
       });
+    } catch (error: unknown) {
+      // Handle unique constraint violation (client code collision)
+      const dbError = error as { code?: string; constraint?: string };
+      if (
+        dbError?.code === "23505" &&
+        dbError?.constraint?.includes("client_code")
+      ) {
+        retryCount++;
+        console.log(
+          `Client code collision detected, retrying (${retryCount}/${maxRetries})...`,
+        );
+        if (retryCount >= maxRetries) {
+          throw new Error(
+            `Failed to generate unique client code after ${maxRetries} attempts`,
+          );
+        }
+        // Continue to next retry iteration
+        continue;
+      }
+      // Re-throw other errors
+      throw error;
     }
+  }
 
-    return {
-      clientId: newClient.id,
-      onboardingSessionId: onboardingSession.id,
-    };
-  });
+  if (!result) {
+    throw new Error("Failed to convert lead to client");
+  }
 
   console.log("Lead converted to client successfully:", result.clientId);
 
@@ -270,18 +310,42 @@ export async function autoConvertLeadToClient(
 
 /**
  * Generate a unique client code from company/person name
+ * Uses sequential suffix based on existing client codes in the tenant
  */
-function generateClientCode(name: string): string {
+async function generateClientCode(
+  name: string,
+  tenantId: string,
+): Promise<string> {
   // Remove special characters and spaces
   const cleaned = name.replace(/[^a-zA-Z0-9]/g, "");
 
-  // Take first 6 characters and add random suffix
-  const prefix = cleaned.substring(0, 6).toUpperCase();
-  const suffix = Math.floor(Math.random() * 1000)
-    .toString()
-    .padStart(3, "0");
+  // Take first 6 characters as prefix
+  const prefix = cleaned.substring(0, 6).toUpperCase() || "CLIENT";
 
-  return `${prefix}${suffix}`;
+  // Query for the maximum existing client code with this prefix
+  const maxCode = await db
+    .select({ clientCode: clients.clientCode })
+    .from(clients)
+    .where(
+      and(
+        eq(clients.tenantId, tenantId),
+        like(clients.clientCode, `${prefix}-%`),
+      ),
+    )
+    .orderBy(desc(clients.clientCode))
+    .limit(1);
+
+  let suffix = 1;
+  if (maxCode.length > 0 && maxCode[0].clientCode) {
+    // Parse existing suffix and increment
+    const parts = maxCode[0].clientCode.split("-");
+    if (parts.length === 2) {
+      const existingSuffix = Number.parseInt(parts[1] || "0", 10);
+      suffix = existingSuffix + 1;
+    }
+  }
+
+  return `${prefix}-${suffix.toString().padStart(3, "0")}`;
 }
 
 /**

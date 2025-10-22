@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn, signUp } from "@/lib/auth-client";
@@ -28,6 +29,16 @@ const signUpSchema = z
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
     organizationName: z.string().min(1, "Organization name is required"),
+    acceptTerms: z
+      .boolean()
+      .refine((val) => val === true, {
+        message: "You must accept the Terms of Service to continue",
+      }),
+    acceptPrivacy: z
+      .boolean()
+      .refine((val) => val === true, {
+        message: "You must accept the Privacy Policy to continue",
+      }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -44,9 +55,18 @@ export default function SignUpPage() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      acceptTerms: false,
+      acceptPrivacy: false,
+    },
   });
+
+  const acceptTerms = watch("acceptTerms");
+  const acceptPrivacy = watch("acceptPrivacy");
 
   const onSubmit = async (data: SignUpForm) => {
     setIsLoading(true);
@@ -243,6 +263,71 @@ export default function SignUpPage() {
                   {errors.confirmPassword.message}
                 </p>
               )}
+            </div>
+
+            {/* Legal Acceptance Checkboxes */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="acceptTerms"
+                  checked={acceptTerms}
+                  onCheckedChange={(checked) =>
+                    setValue("acceptTerms", checked === true)
+                  }
+                  disabled={isLoading}
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label
+                    htmlFor="acceptTerms"
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    I accept the{" "}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Terms of Service
+                    </Link>
+                  </Label>
+                  {errors.acceptTerms && (
+                    <p className="text-sm text-destructive">
+                      {errors.acceptTerms.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="acceptPrivacy"
+                  checked={acceptPrivacy}
+                  onCheckedChange={(checked) =>
+                    setValue("acceptPrivacy", checked === true)
+                  }
+                  disabled={isLoading}
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label
+                    htmlFor="acceptPrivacy"
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    I accept the{" "}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </Label>
+                  {errors.acceptPrivacy && (
+                    <p className="text-sm text-destructive">
+                      {errors.acceptPrivacy.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
 
