@@ -162,3 +162,47 @@ export function exportReport(
   const csv = convertToCSV(formattedData);
   downloadCSV(csv, filename);
 }
+
+/**
+ * Export staff utilization data to CSV
+ * @param data Array of staff utilization records
+ */
+export function exportStaffUtilizationToCSV(
+  data: Array<{
+    userId: string;
+    firstName: string | null;
+    lastName: string | null;
+    role: string | null;
+    departmentName: string | null;
+    totalLoggedHours: number;
+    capacityHours: number;
+    utilization: number;
+    billablePercentage: number;
+    status: string;
+  }>,
+): void {
+  if (!data || data.length === 0) {
+    console.warn("No staff data to export");
+    return;
+  }
+
+  // Format data for CSV
+  const formattedData = data.map((staff) => ({
+    Name: `${staff.firstName || ""} ${staff.lastName || ""}`.trim(),
+    Role: staff.role || "N/A",
+    Department: staff.departmentName || "N/A",
+    "Logged Hours": staff.totalLoggedHours.toFixed(1),
+    "Capacity Hours": staff.capacityHours.toFixed(1),
+    "Utilization %": staff.utilization.toString(),
+    "Billable %": staff.billablePercentage.toString(),
+    Status: staff.status.charAt(0).toUpperCase() + staff.status.slice(1),
+  }));
+
+  // Generate filename with timestamp
+  const timestamp = new Date().toISOString().split("T")[0];
+  const filename = `staff-utilization-${timestamp}.csv`;
+
+  // Convert to CSV and download
+  const csv = convertToCSV(formattedData);
+  downloadCSV(csv, filename);
+}

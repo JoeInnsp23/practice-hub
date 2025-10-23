@@ -14,6 +14,8 @@ import { integrationsRouter } from "./routers/integrations";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
+import { leaveRouter } from "./routers/leave";
+import { toilRouter } from "./routers/toil";
 import { legalRouter } from "./routers/legal";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
@@ -29,6 +31,8 @@ import { reportsRouter } from "./routers/reports";
 import { servicesRouter } from "./routers/services";
 import { settingsRouter } from "./routers/settings";
 import { staffCapacityRouter } from "./routers/staffCapacity";
+import { staffStatisticsRouter } from "./routers/staffStatistics";
+import { workingPatternsRouter } from "./routers/workingPatterns";
 import { taskGenerationRouter } from "./routers/task-generation";
 import { tasksRouter } from "./routers/tasks";
 import { taskTemplatesRouter } from "./routers/taskTemplates";
@@ -36,6 +40,7 @@ import { timesheetsRouter } from "./routers/timesheets";
 import { transactionDataRouter } from "./routers/transactionData";
 import { usersRouter } from "./routers/users";
 import { workflowsRouter } from "./routers/workflows";
+import { workTypesRouter } from "./routers/workTypes";
 import { router } from "./trpc";
 
 export const appRouter = router({
@@ -51,8 +56,11 @@ export const appRouter = router({
   users: usersRouter,
   departments: departmentsRouter,
   staffCapacity: staffCapacityRouter,
+  staffStatistics: staffStatisticsRouter,
+  workingPatterns: workingPatternsRouter,
   settings: settingsRouter,
   workflows: workflowsRouter,
+  workTypes: workTypesRouter,
   portal: portalRouter,
   pricing: pricingRouter,
   pricingAdmin: pricingAdminRouter,
@@ -62,6 +70,8 @@ export const appRouter = router({
   reports: reportsRouter,
   transactionData: transactionDataRouter,
   leads: leadsRouter,
+  leave: leaveRouter,
+  toil: toilRouter,
   pipeline: pipelineRouter,
   activities: activitiesRouter,
   analytics: analyticsRouter,

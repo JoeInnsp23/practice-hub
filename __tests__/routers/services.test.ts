@@ -39,6 +39,7 @@ async function createTestService(
       name: overrides.name || `Test Service ${timestamp}`,
       category: overrides.category || "bookkeeping",
       description: overrides.description || "Test service description",
+      pricingModel: overrides.pricingModel || "fixed",
       priceType: overrides.priceType || "fixed",
       price: overrides.price || "500.00",
       defaultRate: overrides.defaultRate,
@@ -117,6 +118,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         name: "Bookkeeping Service",
         category: "bookkeeping",
         description: "Monthly bookkeeping service",
+        pricingModel: "fixed" as const,
         priceType: "fixed" as const,
         price: "500.00",
       };
@@ -148,8 +150,9 @@ describe("app/server/routers/services.ts (Integration)", () => {
       const input = {
         code: `SVC-${Date.now()}`,
         name: "Hourly Consulting",
-        category: "consulting",
+        category: "management",
         description: "Hourly consulting service",
+        pricingModel: "fixed" as const,
         priceType: "hourly" as const,
         price: "150.00",
         defaultRate: "150.00",
@@ -181,6 +184,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         name: "Default Active Service",
         category: "bookkeeping",
         description: "Test service",
+        pricingModel: "fixed" as const,
         priceType: "fixed" as const,
         price: "300.00",
       };
@@ -200,8 +204,9 @@ describe("app/server/routers/services.ts (Integration)", () => {
       const input = {
         code: `SVC-${Date.now()}`,
         name: "Activity Log Test Service",
-        category: "tax",
+        category: "tax_planning",
         description: "Test service",
+        pricingModel: "fixed" as const,
         priceType: "fixed" as const,
         price: "750.00",
       };
@@ -342,14 +347,14 @@ describe("app/server/routers/services.ts (Integration)", () => {
     it("should handle multiple filters simultaneously", async () => {
       const service1 = await createTestService(ctx.authContext.tenantId, {
         name: "Multi Filter Service",
-        category: "consulting",
+        category: "management",
         isActive: true,
       });
       tracker.services?.push(service1.id);
 
       const result = await caller.list({
         search: "Multi Filter",
-        category: "consulting",
+        category: "management",
         isActive: true,
       });
 

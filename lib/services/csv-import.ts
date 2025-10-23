@@ -53,7 +53,7 @@ export async function parseCsvFile<T>(
     skipEmptyLines = true,
     trimHeaders = true,
     trimValues = true,
-    dynamicTyping = true,
+    dynamicTyping = false, // Disabled: schemas expect strings and handle their own transformations
   } = options;
 
   return new Promise((resolve) => {
@@ -64,7 +64,7 @@ export async function parseCsvFile<T>(
 
     Papa.parse(file, {
       header: true,
-      skipEmptyLines: skipEmptyLines ? "greedy" : false,
+      skipEmptyLines: false, // Get all rows so we can count skipped ones
       dynamicTyping,
       transformHeader: (header: string) => {
         return trimHeaders ? header.trim() : header;
@@ -73,22 +73,31 @@ export async function parseCsvFile<T>(
         return trimValues ? value.trim() : value;
       },
       complete: (results) => {
-        totalRows = results.data.length;
+        // Process all rows and manually handle empty row skipping
+        const rowsToProcess: Array<{ row: any; rowNumber: number }> = [];
+        let currentRowNumber = 1; // Start after header
+        const headers = results.meta.fields || [];
 
-        // Validate each row
-        results.data.forEach((row, index) => {
-          const rowNumber = index + 2; // +2 for header row and 0-based index
+        results.data.forEach((row: any) => {
+          currentRowNumber++;
 
-          // Skip completely empty rows
-          if (
-            Object.values(row).every(
-              (v) => v === "" || v === null || v === undefined,
-            )
-          ) {
+          // Check if this is a blank line vs a row with empty values
+          // Blank lines have MISSING fields (undefined), rows with commas have empty string values
+          const isTrulyBlankLine = headers.some((field) => !(field in row));
+
+          if (isTrulyBlankLine && skipEmptyLines) {
+            // Skip truly blank lines (missing fields) if option is enabled
             skippedRows++;
-            return;
+          } else {
+            // Keep all other rows (including rows with empty values to be validated)
+            rowsToProcess.push({ row, rowNumber: currentRowNumber });
           }
+        });
 
+        totalRows = rowsToProcess.length + skippedRows;
+
+        // Validate each row (including rows with empty field values)
+        rowsToProcess.forEach(({ row, rowNumber }) => {
           // Validate row against schema
           const validation = schema.safeParse(row);
 

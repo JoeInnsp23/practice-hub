@@ -15,6 +15,8 @@ import {
   SERVICE_EXAMPLE_DATA,
   TASK_CSV_FIELDS,
   TASK_EXAMPLE_DATA,
+  USER_CSV_FIELDS,
+  USER_EXAMPLE_DATA,
 } from "@/lib/validators/csv-import";
 
 export const runtime = "nodejs";
@@ -32,6 +34,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Generate date suffix for filename (format: YYYY-MM-DD)
+    const dateSuffix = new Date().toISOString().split("T")[0];
+
     let csvContent: string;
     let filename: string;
 
@@ -42,7 +47,7 @@ export async function GET(request: NextRequest) {
           includeExample,
           includeExample ? CLIENT_EXAMPLE_DATA : undefined,
         );
-        filename = "clients_import_template.csv";
+        filename = `clients_import_template_${dateSuffix}.csv`;
         break;
 
       case "tasks":
@@ -51,7 +56,7 @@ export async function GET(request: NextRequest) {
           includeExample,
           includeExample ? TASK_EXAMPLE_DATA : undefined,
         );
-        filename = "tasks_import_template.csv";
+        filename = `tasks_import_template_${dateSuffix}.csv`;
         break;
 
       case "services":
@@ -60,12 +65,24 @@ export async function GET(request: NextRequest) {
           includeExample,
           includeExample ? SERVICE_EXAMPLE_DATA : undefined,
         );
-        filename = "services_import_template.csv";
+        filename = `services_import_template_${dateSuffix}.csv`;
+        break;
+
+      case "users":
+        csvContent = generateCsvTemplate(
+          USER_CSV_FIELDS,
+          includeExample,
+          includeExample ? USER_EXAMPLE_DATA : undefined,
+        );
+        filename = `users_import_template_${dateSuffix}.csv`;
         break;
 
       default:
         return NextResponse.json(
-          { error: "Invalid type. Must be one of: clients, tasks, services" },
+          {
+            error:
+              "Invalid type. Must be one of: clients, tasks, services, users",
+          },
           { status: 400 },
         );
     }

@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { getWorkTypeByCode, WORK_TYPES } from "@/lib/constants/work-types";
+import { useWorkTypes, useWorkTypeByCode } from "@/lib/hooks/use-work-types";
 import {
   useDeleteTimeEntry,
   useUpdateTimeEntry,
@@ -88,6 +88,10 @@ export function TimeEntryModal({
   const updateTimeEntry = useUpdateTimeEntry();
   const deleteTimeEntry = useDeleteTimeEntry();
 
+  // Fetch work types from database
+  const { data: workTypesData } = useWorkTypes();
+  const workTypes = workTypesData?.workTypes || [];
+
   const getDefaultStartTime = useCallback(() => {
     if (selectedEntry?.startTime) return selectedEntry.startTime;
     if (selectedHour !== null && selectedHour !== undefined) {
@@ -113,7 +117,7 @@ export function TimeEntryModal({
     hours: selectedEntry?.hours || 1,
     billable:
       selectedEntry?.billable !== undefined ? selectedEntry.billable : false,
-    workType: selectedEntry?.workType || "work",
+    workType: selectedEntry?.workType || "WORK",
     startTime: getDefaultStartTime(),
     endTime: getDefaultEndTime(),
     fullDescription: selectedEntry?.fullDescription || "",
@@ -135,7 +139,7 @@ export function TimeEntryModal({
           selectedEntry?.billable !== undefined
             ? selectedEntry.billable
             : false,
-        workType: selectedEntry?.workType || "work",
+        workType: selectedEntry?.workType || "WORK",
         startTime: getDefaultStartTime(),
         endTime: getDefaultEndTime(),
         fullDescription: selectedEntry?.fullDescription || "",
@@ -174,15 +178,15 @@ export function TimeEntryModal({
 
   // Auto-set billable based on work type and client
   useEffect(() => {
-    const workType = getWorkTypeByCode(formData.workType);
+    const workType = workTypes.find((wt) => wt.code === formData.workType.toUpperCase());
     const hasClient = formData.clientId !== "none";
 
     // Only set billable if work type is typically billable AND there's a client
     setFormData((prev) => ({
       ...prev,
-      billable: hasClient && workType?.billable !== false,
+      billable: hasClient && workType?.isBillable !== false,
     }));
-  }, [formData.workType, formData.clientId]);
+  }, [formData.workType, formData.clientId, workTypes]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,7 +283,7 @@ export function TimeEntryModal({
                     <SelectValue placeholder="Select work type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {WORK_TYPES.map((type) => (
+                    {workTypes.map((type) => (
                       <SelectItem key={type.code} value={type.code}>
                         <div className="flex items-center gap-2">
                           <div
@@ -287,6 +291,9 @@ export function TimeEntryModal({
                             style={{ backgroundColor: type.colorCode }}
                           />
                           <span>{type.label}</span>
+                          {type.isBillable && (
+                            <span className="text-xs text-muted-foreground">(Billable)</span>
+                          )}
                         </div>
                       </SelectItem>
                     ))}

@@ -1,0 +1,196 @@
+schema: 1
+story: '5.1'
+story_title: 'Service CSV Import & Import Templates'
+gate: CONCERNS
+status_reason: 'Implementation complete and functional. Test failures (8/24) indicate CSV parsing edge cases need attention. TypeScript type casting issue present but runtime functional.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-10-23T22:30:00Z'
+
+top_issues:
+  - id: 'TEST-001'
+    severity: medium
+    finding: '8 out of 24 unit tests failing - CSV parsing edge cases not handled correctly'
+    suggested_action: 'Fix CSV parsing logic for empty rows, client_type enum validation, and service required field validation'
+    suggested_owner: dev
+  - id: 'MNT-001'
+    severity: low
+    finding: 'TypeScript type error on line 171 (services insert) - enum types cast as strings causing compile warning'
+    suggested_action: 'Use proper type inference or define explicit interface for service insert data'
+    suggested_owner: dev
+  - id: 'ARCH-001'
+    severity: low
+    finding: 'Hardcoded pricingModel=turnover with no CSV control - limits flexibility'
+    suggested_action: 'Consider adding pricing_model to CSV schema in future sprint or document limitation'
+    suggested_owner: dev
+  - id: 'DOC-001'
+    severity: low
+    finding: 'Documentation DoD checkbox unchecked - no user-facing import guide created'
+    suggested_action: 'Add CSV import guide to docs or user help section'
+    suggested_owner: dev
+  - id: 'REQ-001'
+    severity: low
+    finding: 'AC10 requires "Row 3 (comments)" but template only generates Row 1 (headers) + Row 2 (examples)'
+    suggested_action: 'Either implement comments row or update AC to reflect actual implementation'
+    suggested_owner: dev
+
+waiver: { active: false }
+
+quality_score: 70
+# Calculation: 100 - (0 × 20) - (3 × 10) = 70
+
+expires: '2025-11-06T22:30:00Z'
+# 2 weeks from review date
+
+evidence:
+  tests_reviewed: 24
+  tests_passing: 16
+  tests_failing: 8
+  risks_identified: 5
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12]
+    ac_gaps: [10]  # AC10 comments row not implemented
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'Proper authentication check, Sentry error tracking, multi-tenant isolation enforced via tenantId filtering'
+  performance:
+    status: PASS
+    notes: 'Batch processing (50 services/batch) ensures efficient imports. No N+1 queries detected. Target <30s for 100 services likely achievable'
+  reliability:
+    status: CONCERNS
+    notes: 'Test failures indicate edge case handling issues. Dry-run mode provides validation safety. Import logging comprehensive'
+  maintainability:
+    status: PASS
+    notes: 'Well-structured code with clear separation of concerns. Good error messages. Zod schemas provide type safety'
+
+requirements_traceability:
+  - ac: 1
+    requirement: 'Service CSV import endpoint at /api/import/services'
+    validation: 'PASS - Endpoint implemented with POST handler'
+    test_coverage: 'Integration test needed'
+  - ac: 2
+    requirement: 'Template structure with specific fields'
+    validation: 'PASS - All required fields present in schema'
+    test_coverage: 'Unit tests cover template generation'
+  - ac: 3
+    requirement: 'Validation rules for name, category, billing_type, rate/hours'
+    validation: 'PASS - Zod schema validates all requirements'
+    test_coverage: 'Unit tests validate schema (some failing)'
+  - ac: 4
+    requirement: 'Category validation against database categories'
+    validation: 'PASS - Type casting enforces valid categories'
+    test_coverage: 'No explicit test for invalid categories'
+  - ac: 5
+    requirement: 'Duplicate detection by (tenant_id, name)'
+    validation: 'PASS - Line 110-142 implements case-insensitive name checking'
+    test_coverage: 'No test for duplicate detection'
+  - ac: 6
+    requirement: 'Import preview (first 5 rows, dry-run)'
+    validation: 'PARTIAL - Dry-run validates ALL rows, not just first 5'
+    test_coverage: 'No test for dry-run preview limit'
+  - ac: 7
+    requirement: 'Import summary with counts'
+    validation: 'PASS - Lines 215-220 return comprehensive summary'
+    test_coverage: 'Manual testing required'
+  - ac: 8
+    requirement: 'Template generation endpoint at /api/import/templates/[type]'
+    validation: 'PASS - GET endpoint at /api/import/template with type param'
+    test_coverage: 'Unit tests cover template generation'
+  - ac: 9
+    requirement: 'Template types: clients, services, tasks, users'
+    validation: 'PASS - All 4 types implemented (lines 44-78)'
+    test_coverage: 'Unit tests cover all 4 types'
+  - ac: 10
+    requirement: 'Template structure: Row 1 (headers), Row 2 (examples), Row 3 (comments)'
+    validation: 'FAIL - Only Row 1 + Row 2 implemented, Row 3 (comments) missing'
+    test_coverage: 'No test validates 3-row structure'
+  - ac: 11
+    requirement: 'Template download button in DataImportModal'
+    validation: 'PASS - DataImportModal already has download functionality (pre-existing)'
+    test_coverage: 'Manual UI testing required'
+  - ac: 12
+    requirement: 'File naming: {entity}_import_template_{date}.csv'
+    validation: 'PASS - Line 38-50 implements dated filename'
+    test_coverage: 'Unit test could verify filename format'
+
+recommendations:
+  immediate:
+    - action: 'Fix 8 failing unit tests before production deployment'
+      priority: high
+      effort: 2-3 hours
+      refs: ['lib/services/csv-import.test.ts']
+    - action: 'Add integration test for duplicate detection (AC5)'
+      priority: high
+      effort: 1 hour
+      refs: ['app/api/import/services/route.ts:110-142']
+    - action: 'Clarify AC10 requirement - implement comments row or update AC'
+      priority: medium
+      effort: 30 minutes
+      refs: ['AC10 in story']
+
+  future:
+    - action: 'Add CSV import user guide to documentation'
+      priority: low
+      effort: 2-3 hours
+      refs: ['DoD checkbox']
+    - action: 'Consider exposing pricingModel as CSV field for flexibility'
+      priority: low
+      effort: 1-2 hours
+      refs: ['app/api/import/services/route.ts:159']
+    - action: 'Extract enum type definitions to shared constants to eliminate TypeScript warnings'
+      priority: low
+      effort: 1 hour
+      refs: ['app/api/import/services/route.ts:150-166']
+    - action: 'Add E2E test for complete import workflow (upload → validate → import → verify)'
+      priority: medium
+      effort: 3-4 hours
+      refs: ['Full import flow']
+    - action: 'Standardize error logging across all import routes (Sentry-first, console.error only in dev)'
+      priority: low
+      effort: 1-2 hours
+      refs: ['app/api/import/*/route.ts']
+
+test_gaps:
+  - description: 'No integration test for service import API endpoint'
+    priority: high
+    suggested_test: 'POST /api/import/services with valid CSV, verify services created in DB'
+  - description: 'No test for duplicate name detection across tenant boundary'
+    priority: high
+    suggested_test: 'Import same service name in two different tenants, verify both succeed'
+  - description: 'No test for large file performance (100+ services)'
+    priority: medium
+    suggested_test: 'Generate CSV with 150 services, verify import completes in <30s'
+  - description: 'No test for category enum validation'
+    priority: medium
+    suggested_test: 'Import service with invalid category, verify error message'
+  - description: 'No test for CSV special characters (commas, quotes in fields)'
+    priority: low
+    suggested_test: 'Import service with "Company, Ltd" name, verify parsed correctly'
+
+code_quality_notes:
+  strengths:
+    - 'Excellent error handling with Sentry integration'
+    - 'Comprehensive import logging for audit trail'
+    - 'Batch processing design for scalability'
+    - 'Multi-tenant isolation properly enforced'
+    - 'Zod schemas provide strong type safety at runtime'
+    - 'Dry-run feature provides safety net for users'
+
+  improvements_needed:
+    - 'Fix TypeScript type errors to eliminate compile warnings'
+    - 'Fix failing unit tests to ensure edge cases handled'
+    - 'Add integration tests for critical paths'
+    - 'Document CSV schema limitations (e.g., hardcoded pricingModel)'
+    - 'Consider extracting magic numbers (batchSize: 50) to constants'
+
+technical_debt:
+  - item: 'Hardcoded pricingModel limits CSV import flexibility'
+    impact: 'Users cannot specify pricing model via CSV import'
+    mitigation: 'Document limitation or add to future enhancement backlog'
+  - item: 'Missing basePrice field population'
+    impact: 'Database has basePrice field but CSV import doesn't populate it'
+    mitigation: 'Verify if basePrice is needed or if price field is sufficient'
+  - item: 'Metadata JSONB used for schema mismatch fields'
+    impact: 'is_taxable, tax_rate stored in metadata instead of schema fields'
+    mitigation: 'Document this design decision or plan schema migration'

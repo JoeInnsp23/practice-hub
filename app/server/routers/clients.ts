@@ -360,7 +360,7 @@ export const clientsRouter = router({
           createdAt: clientServices.createdAt,
         })
         .from(clientServices)
-        .innerJoin(services, eq(clientServices.serviceComponentId, services.id))
+        .innerJoin(services, eq(clientServices.serviceId, services.id))
         .where(
           and(
             eq(clientServices.clientId, clientId),

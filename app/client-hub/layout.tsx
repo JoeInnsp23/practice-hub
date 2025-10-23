@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Calendar,
   CheckSquare,
   Clock,
   DollarSign,
@@ -29,6 +30,7 @@ const sections = [
     title: "Time Management",
     items: [
       { name: "Time Tracking", href: "/client-hub/time-tracking", icon: Clock },
+      { name: "Leave Management", href: "/client-hub/leave", icon: Calendar },
     ],
   },
   {

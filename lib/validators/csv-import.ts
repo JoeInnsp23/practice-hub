@@ -252,6 +252,30 @@ export const serviceImportSchema = z.object({
 export type ServiceImportData = z.infer<typeof serviceImportSchema>;
 
 // ============================================
+// User Import Schema
+// ============================================
+
+export const userImportSchema = z.object({
+  // Required fields
+  email: z.string().email("Invalid email format"),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+
+  // Optional fields
+  role: z.enum(["admin", "accountant", "member"]).optional().or(z.literal("")),
+  department: z.string().optional().or(z.literal("")),
+  hourly_rate: z
+    .string()
+    .optional()
+    .transform((val) => (val ? Number.parseFloat(val) : undefined))
+    .pipe(z.number().nonnegative("Hourly rate must be non-negative").optional())
+    .or(z.literal("")),
+  status: z.enum(["active", "inactive"]).optional().or(z.literal("")),
+});
+
+export type UserImportData = z.infer<typeof userImportSchema>;
+
+// ============================================
 // CSV Template Field Definitions
 // ============================================
 
@@ -304,6 +328,16 @@ export const SERVICE_CSV_FIELDS = [
   "is_taxable",
   "tax_rate",
   "notes",
+];
+
+export const USER_CSV_FIELDS = [
+  "email",
+  "first_name",
+  "last_name",
+  "role",
+  "department",
+  "hourly_rate",
+  "status",
 ];
 
 // ============================================
@@ -359,4 +393,14 @@ export const SERVICE_EXAMPLE_DATA: Record<string, string> = {
   is_taxable: "true",
   tax_rate: "20",
   notes: "Includes Companies House filing",
+};
+
+export const USER_EXAMPLE_DATA: Record<string, string> = {
+  email: "john.smith@firm.com",
+  first_name: "John",
+  last_name: "Smith",
+  role: "accountant",
+  department: "Tax",
+  hourly_rate: "75.00",
+  status: "active",
 };

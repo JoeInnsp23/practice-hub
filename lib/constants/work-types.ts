@@ -1,3 +1,21 @@
+/**
+ * @deprecated This file is deprecated as of STORY-4.6: Work Type Migration to Database
+ *
+ * Work types are now stored in the database (work_types table) and managed via:
+ * - Admin UI: /admin/settings/work-types
+ * - React Hook: useWorkTypes() from @/lib/hooks/use-work-types
+ * - tRPC Router: workTypesRouter in @/app/server/routers/workTypes
+ *
+ * This file is kept for reference only. All new code should use database-backed work types.
+ *
+ * Migration guide:
+ * - Replace WORK_TYPES array with useWorkTypes() hook
+ * - Replace getWorkTypeColor() with workType?.colorCode || "#94a3b8"
+ * - Replace getWorkTypeLabel() with workType?.label || "Unknown"
+ *
+ * See: docs/stories/epic-4/story-6-work-types-migration.md
+ */
+
 export interface WorkType {
   code: string;
   label: string;

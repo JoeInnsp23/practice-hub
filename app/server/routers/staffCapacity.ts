@@ -3,7 +3,12 @@ import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { staffCapacity, timeEntries, users } from "@/lib/db/schema";
+import {
+  staffCapacity,
+  timeEntries,
+  users,
+  workingPatterns,
+} from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Generate schema from Drizzle table definition
@@ -284,27 +289,14 @@ export const staffCapacityRouter = router({
       // Get current capacity for each user (most recent effective_from)
       const utilizationData = await Promise.all(
         activeUsers.map(async (user) => {
-          // Get most recent capacity record
-          const [capacity] = await db
-            .select({
-              weeklyHours: staffCapacity.weeklyHours,
-              effectiveFrom: staffCapacity.effectiveFrom,
-            })
-            .from(staffCapacity)
-            .where(
-              and(
-                eq(staffCapacity.userId, user.userId),
-                eq(staffCapacity.tenantId, tenantId),
-                lte(
-                  staffCapacity.effectiveFrom,
-                  weekStart.toISOString().split("T")[0],
-                ),
-              ),
-            )
-            .orderBy(desc(staffCapacity.effectiveFrom))
-            .limit(1);
+          // Get weekly hours from working pattern or staff capacity
+          const weeklyHours = await getWeeklyHoursForUser(
+            user.userId,
+            tenantId,
+            weekStart.toISOString().split("T")[0],
+          );
 
-          if (!capacity) {
+          if (weeklyHours === 0) {
             return {
               userId: user.userId,
               userName: user.userName,
@@ -332,9 +324,7 @@ export const staffCapacityRouter = router({
 
           const actual = Number(actualHours?.total ?? 0);
           const utilizationPercent =
-            capacity.weeklyHours > 0
-              ? (actual / capacity.weeklyHours) * 100
-              : 0;
+            weeklyHours > 0 ? (actual / weeklyHours) * 100 : 0;
 
           // Determine status
           let status: "overallocated" | "optimal" | "underutilized" = "optimal";
@@ -347,7 +337,7 @@ export const staffCapacityRouter = router({
           return {
             userId: user.userId,
             userName: user.userName,
-            weeklyHours: capacity.weeklyHours,
+            weeklyHours,
             actualHours: actual,
             utilizationPercent,
             status,
@@ -414,26 +404,14 @@ export const staffCapacityRouter = router({
         // - Materialized view updated nightly
         const weekData = await Promise.all(
           activeUsers.map(async (user) => {
-            // Get capacity for this week
-            const [capacity] = await db
-              .select({
-                weeklyHours: staffCapacity.weeklyHours,
-              })
-              .from(staffCapacity)
-              .where(
-                and(
-                  eq(staffCapacity.userId, user.userId),
-                  eq(staffCapacity.tenantId, tenantId),
-                  lte(
-                    staffCapacity.effectiveFrom,
-                    weekStart.toISOString().split("T")[0],
-                  ),
-                ),
-              )
-              .orderBy(desc(staffCapacity.effectiveFrom))
-              .limit(1);
+            // Get weekly hours from working pattern or staff capacity
+            const weeklyHours = await getWeeklyHoursForUser(
+              user.userId,
+              tenantId,
+              weekStart.toISOString().split("T")[0],
+            );
 
-            if (!capacity) return null;
+            if (weeklyHours === 0) return null;
 
             // Get actual hours for this week
             const [actualHours] = await db
@@ -452,15 +430,13 @@ export const staffCapacityRouter = router({
 
             const actual = Number(actualHours?.total ?? 0);
             const utilizationPercent =
-              capacity.weeklyHours > 0
-                ? (actual / capacity.weeklyHours) * 100
-                : 0;
+              weeklyHours > 0 ? (actual / weeklyHours) * 100 : 0;
 
             return {
               userId: user.userId,
               userName: user.userName,
               weekStart: weekStart.toISOString().split("T")[0],
-              weeklyHours: capacity.weeklyHours,
+              weeklyHours,
               actualHours: actual,
               utilizationPercent,
             };
@@ -495,25 +471,14 @@ export const staffCapacityRouter = router({
 
     const utilization = await Promise.all(
       activeUsers.map(async (user) => {
-        const [capacity] = await db
-          .select({
-            weeklyHours: staffCapacity.weeklyHours,
-          })
-          .from(staffCapacity)
-          .where(
-            and(
-              eq(staffCapacity.userId, user.userId),
-              eq(staffCapacity.tenantId, tenantId),
-              lte(
-                staffCapacity.effectiveFrom,
-                weekStart.toISOString().split("T")[0],
-              ),
-            ),
-          )
-          .orderBy(desc(staffCapacity.effectiveFrom))
-          .limit(1);
+        // Get weekly hours from working pattern or staff capacity
+        const weeklyHours = await getWeeklyHoursForUser(
+          user.userId,
+          tenantId,
+          weekStart.toISOString().split("T")[0],
+        );
 
-        if (!capacity) {
+        if (weeklyHours === 0) {
           return {
             userId: user.userId,
             userName: user.userName,
@@ -540,7 +505,7 @@ export const staffCapacityRouter = router({
 
         const actual = Number(actualHours?.total ?? 0);
         const utilizationPercent =
-          capacity.weeklyHours > 0 ? (actual / capacity.weeklyHours) * 100 : 0;
+          weeklyHours > 0 ? (actual / weeklyHours) * 100 : 0;
 
         let status: "overallocated" | "optimal" | "underutilized" = "optimal";
         if (utilizationPercent > 100) {
@@ -552,7 +517,7 @@ export const staffCapacityRouter = router({
         return {
           userId: user.userId,
           userName: user.userName,
-          weeklyHours: capacity.weeklyHours,
+          weeklyHours,
           actualHours: actual,
           utilizationPercent,
           status,
@@ -617,4 +582,50 @@ function getWeekStart(date: Date): Date {
   d.setDate(diff);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+// Helper function to get weekly hours for a user (working pattern or staff capacity)
+// Prefers working patterns (more detailed) over staff capacity (legacy)
+async function getWeeklyHoursForUser(
+  userId: string,
+  tenantId: string,
+  effectiveDate: string,
+): Promise<number> {
+  // First, try to get the active working pattern
+  const [workingPattern] = await db
+    .select({
+      contractedHours: workingPatterns.contractedHours,
+    })
+    .from(workingPatterns)
+    .where(
+      and(
+        eq(workingPatterns.userId, userId),
+        eq(workingPatterns.tenantId, tenantId),
+        lte(workingPatterns.effectiveFrom, effectiveDate),
+      ),
+    )
+    .orderBy(desc(workingPatterns.effectiveFrom))
+    .limit(1);
+
+  if (workingPattern) {
+    return workingPattern.contractedHours;
+  }
+
+  // Fall back to staff capacity if no working pattern exists
+  const [capacity] = await db
+    .select({
+      weeklyHours: staffCapacity.weeklyHours,
+    })
+    .from(staffCapacity)
+    .where(
+      and(
+        eq(staffCapacity.userId, userId),
+        eq(staffCapacity.tenantId, tenantId),
+        lte(staffCapacity.effectiveFrom, effectiveDate),
+      ),
+    )
+    .orderBy(desc(staffCapacity.effectiveFrom))
+    .limit(1);
+
+  return capacity?.weeklyHours ?? 0;
 }

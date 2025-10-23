@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import {
   activityLogs,
+  staffCapacity,
   timeEntries,
   timesheetSubmissions,
   users,
@@ -14,6 +15,82 @@ import {
   sendTimesheetRejectionEmail,
 } from "@/lib/email/timesheet-notifications";
 import { protectedProcedure, router } from "../trpc";
+
+/**
+ * Helper function to accrue TOIL from approved timesheet
+ * Calculates overtime based on logged hours vs contracted hours
+ */
+async function accrueToilFromTimesheet(
+  timesheetId: string,
+  userId: string,
+  weekEndDate: string,
+  totalHours: number,
+  tenantId: string,
+): Promise<void> {
+  // Get user's contracted hours from staffCapacity
+  const capacity = await db
+    .select()
+    .from(staffCapacity)
+    .where(
+      and(
+        eq(staffCapacity.userId, userId),
+        eq(staffCapacity.tenantId, tenantId),
+      ),
+    )
+    .limit(1);
+
+  if (capacity.length === 0) {
+    // No capacity record - skip TOIL accrual
+    console.warn(`No staffCapacity record found for user ${userId} - skipping TOIL accrual`);
+    return;
+  }
+
+  const contractedHours = capacity[0].weeklyHours;
+  const toilHours = Math.max(0, totalHours - contractedHours);
+
+  // Only accrue TOIL if overtime was worked
+  if (toilHours > 0) {
+    // Import toil router at runtime to avoid circular dependency
+    const { toilRouter } = await import("./toil");
+
+    // Create caller context for internal procedure call
+    const caller = toilRouter.createCaller({
+      authContext: {
+        userId,
+        tenantId,
+        role: "staff",
+        email: "",
+        firstName: null,
+        lastName: null,
+      },
+      session: {
+        user: {
+          id: userId,
+          email: "",
+          name: "",
+        },
+        session: {
+          id: "internal-call",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId,
+          expiresAt: new Date(Date.now() + 86400000),
+          token: "internal-call-token",
+          ipAddress: "127.0.0.1",
+          userAgent: "internal",
+        },
+      },
+    });
+
+    await caller.accrueToil({
+      userId,
+      timesheetId,
+      weekEnding: weekEndDate,
+      loggedHours: totalHours,
+      contractedHours,
+    });
+  }
+}
 
 // Generate schema from Drizzle table definition
 const insertTimeEntrySchema = createInsertSchema(timeEntries, {
@@ -434,6 +511,15 @@ export const timesheetsRouter = router({
         totalHours: Number(result[0].totalHours),
       });
 
+      // TOIL Accrual: Calculate and accrue TOIL if overtime worked
+      await accrueToilFromTimesheet(
+        result[0].id,
+        result[0].userId,
+        result[0].weekEndDate,
+        Number(result[0].totalHours),
+        tenantId,
+      );
+
       return { success: true };
     }),
 
@@ -540,6 +626,19 @@ export const timesheetsRouter = router({
             managerName: `${firstName} ${lastName}`,
             totalHours: Number(submission.totalHours),
           }),
+        ),
+      );
+
+      // TOIL Accrual: Process TOIL for each approved submission
+      await Promise.all(
+        submissions.map((submission) =>
+          accrueToilFromTimesheet(
+            submission.id,
+            submission.userId,
+            submission.weekEndDate,
+            Number(submission.totalHours),
+            tenantId,
+          ),
         ),
       );
 

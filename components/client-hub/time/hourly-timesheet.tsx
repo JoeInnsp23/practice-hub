@@ -4,7 +4,7 @@ import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getWorkTypeColor, getWorkTypeLabel } from "@/lib/constants/work-types";
+import { useWorkTypes } from "@/lib/hooks/use-work-types";
 import {
   useCreateTimeEntry,
   useTimeEntries,
@@ -32,6 +32,10 @@ export function HourlyTimesheet({
   const [refreshKey, setRefreshKey] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
   const createTimeEntry = useCreateTimeEntry();
+
+  // Fetch work types from database
+  const { data: workTypesData } = useWorkTypes();
+  const workTypes = workTypesData?.workTypes || [];
 
   // Empty arrays until API is connected
   const clients: Array<{ id: string; name: string }> = [];
@@ -320,12 +324,12 @@ export function HourlyTimesheet({
                       {entries.length > 0 && (
                         <div className="space-y-1">
                           {entries.slice(0, 2).map((entry) => {
-                            const workTypeColor = getWorkTypeColor(
-                              entry.workType || "work",
+                            // Get work type from database
+                            const workType = workTypes.find(
+                              (wt) => wt.code === (entry.workType || "WORK").toUpperCase(),
                             );
-                            const workTypeLabel = getWorkTypeLabel(
-                              entry.workType || "work",
-                            );
+                            const workTypeColor = workType?.colorCode || "#94a3b8";
+                            const workTypeLabel = workType?.label || "Unknown";
 
                             return (
                               <div

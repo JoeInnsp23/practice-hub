@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from "date-fns";
+
 export function formatCurrency(amount: number, currency = "GBP"): string {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",
@@ -59,4 +61,9 @@ export function getInitials(name: string): string {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+}
+
+export function formatRelativeTime(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return formatDistanceToNow(d, { addSuffix: true });
 }

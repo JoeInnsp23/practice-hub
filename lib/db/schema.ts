@@ -245,6 +245,23 @@ export const workingPatterns = pgTable(
   }),
 );
 
+// Leave Type enum
+export const leaveTypeEnum = pgEnum("leave_type", [
+  "annual_leave",
+  "sick_leave",
+  "toil",
+  "unpaid",
+  "other",
+]);
+
+// Leave Status enum
+export const leaveStatusEnum = pgEnum("leave_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "cancelled",
+]);
+
 // Leave Requests table - for holiday/leave request management
 export const leaveRequests = pgTable(
   "leave_requests",
@@ -312,6 +329,41 @@ export const leaveBalances = pgTable(
       table.userId,
       table.year,
     ),
+  }),
+);
+
+// TOIL Accrual History table - tracks TOIL (Time Off In Lieu) accrual from overtime
+export const toilAccrualHistory = pgTable(
+  "toil_accrual_history",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    timesheetId: text("timesheet_id").references(() => timesheetSubmissions.id, {
+      onDelete: "set null",
+    }), // Reference to the timesheet submission that generated this TOIL
+    weekEnding: date("week_ending").notNull(), // Week ending date for the accrual period
+    hoursAccrued: real("hours_accrued").notNull(), // Overtime hours accrued as TOIL
+    accrualDate: timestamp("accrual_date").defaultNow().notNull(), // When TOIL was accrued (timesheet approval date)
+    expiryDate: date("expiry_date"), // Optional: when TOIL expires (6 months from accrual)
+    expired: boolean("expired").default(false).notNull(), // Whether TOIL has expired
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_toil_accrual_tenant").on(table.tenantId),
+    userIdx: index("idx_toil_accrual_user").on(table.userId),
+    expiryIdx: index("idx_toil_accrual_expiry").on(table.expiryDate),
+    weekEndingIdx: index("idx_toil_accrual_week_ending").on(table.weekEnding),
   }),
 );
 
@@ -518,23 +570,6 @@ export const timeEntryStatusEnum = pgEnum("time_entry_status", [
   "submitted",
   "approved",
   "rejected",
-]);
-
-// Leave Type enum
-export const leaveTypeEnum = pgEnum("leave_type", [
-  "annual_leave",
-  "sick_leave",
-  "toil",
-  "unpaid",
-  "other",
-]);
-
-// Leave Status enum
-export const leaveStatusEnum = pgEnum("leave_status", [
-  "pending",
-  "approved",
-  "rejected",
-  "cancelled",
 ]);
 
 // Clients table
@@ -2847,7 +2882,7 @@ export const timeEntriesView = pgView("time_entries_view", {
   startTime: varchar("start_time", { length: 8 }),
   endTime: varchar("end_time", { length: 8 }),
   hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
-  workType: varchar("work_type", { length: 50 }),
+  workType: text("work_type"),
   billable: boolean("billable"),
   billed: boolean("billed"),
   rate: decimal("rate", { precision: 10, scale: 2 }),

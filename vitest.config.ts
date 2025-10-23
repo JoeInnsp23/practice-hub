@@ -14,6 +14,7 @@ export default defineConfig({
       "**/.archive/**",
       "**/dist/**",
       "**/.pnpm/**",
+      "**/__tests__/e2e/**/*.spec.ts", // Exclude E2E tests (run with Playwright)
     ],
     coverage: {
       provider: "v8",

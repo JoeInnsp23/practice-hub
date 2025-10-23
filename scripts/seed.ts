@@ -41,6 +41,9 @@ import {
   services,
   staffCapacity,
   workingPatterns,
+  leaveRequests,
+  leaveBalances,
+  toilAccrualHistory,
   taskAssignmentHistory,
   taskNotes,
   tasks,
@@ -55,6 +58,7 @@ import {
   workflows,
   workflowTemplates,
   workflowVersions,
+  workTypes,
   xeroWebhookEvents,
 } from "../lib/db/schema";
 
@@ -109,10 +113,13 @@ async function clearDatabase() {
   await db.delete(xeroWebhookEvents);
 
   await db.delete(invitations);
+  await db.delete(leaveRequests);
+  await db.delete(leaveBalances);
   await db.delete(staffCapacity);
   await db.delete(workingPatterns);
   await db.delete(userSettings);
   await db.delete(users);
+  await db.delete(workTypes);
   await db.delete(departments);
   await db.delete(tenants);
 
@@ -196,7 +203,66 @@ async function seedDatabase() {
 
   const [taxDept, auditDept, advisoryDept, adminDept] = createdDepartments;
 
-  // 3. Create Users (team members)
+  // 3. Create Work Types
+  console.log("Creating work types...");
+  const defaultWorkTypesData = [
+    {
+      code: "WORK",
+      label: "Work",
+      colorCode: "#3b82f6", // blue
+      isBillable: true,
+      sortOrder: 1,
+    },
+    {
+      code: "ADMIN",
+      label: "Admin",
+      colorCode: "#8b5cf6", // violet
+      isBillable: true,
+      sortOrder: 2,
+    },
+    {
+      code: "TRAINING",
+      label: "Training",
+      colorCode: "#f59e0b", // amber
+      isBillable: false,
+      sortOrder: 3,
+    },
+    {
+      code: "MEETING",
+      label: "Meeting",
+      colorCode: "#10b981", // green
+      isBillable: false,
+      sortOrder: 4,
+    },
+    {
+      code: "HOLIDAY",
+      label: "Holiday",
+      colorCode: "#ec4899", // pink
+      isBillable: false,
+      sortOrder: 5,
+    },
+    {
+      code: "SICK",
+      label: "Sick",
+      colorCode: "#ef4444", // red
+      isBillable: false,
+      sortOrder: 6,
+    },
+  ];
+
+  await db
+    .insert(workTypes)
+    .values(
+      defaultWorkTypesData.map((wt) => ({
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        ...wt,
+        isActive: true,
+      })),
+    )
+    .returning();
+
+  // 4. Create Users (team members)
   console.log("Creating users...");
   const userList = [
     {
@@ -410,7 +476,193 @@ async function seedDatabase() {
     },
   ]);
 
-  // 2.5. Create Invitations
+  // 2.5. Create Leave Balances
+  console.log("Creating leave balances...");
+  const currentYear = new Date().getFullYear();
+  await db.insert(leaveBalances).values([
+    // Admin user - 25 days entitlement, 3 used, 2 carried over
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: adminUser.id,
+      year: currentYear,
+      annualEntitlement: 25,
+      annualUsed: 3,
+      sickUsed: 0,
+      toilBalance: 0,
+      carriedOver: 2,
+    },
+    // Sarah (accountant) - 25 days entitlement, 5 used
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: sarahUser.id,
+      year: currentYear,
+      annualEntitlement: 25,
+      annualUsed: 5,
+      sickUsed: 1,
+      toilBalance: 2,
+      carriedOver: 0,
+    },
+    // Mike (accountant) - 25 days entitlement, 8 used
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: mikeUser.id,
+      year: currentYear,
+      annualEntitlement: 25,
+      annualUsed: 8,
+      sickUsed: 0,
+      toilBalance: 0,
+      carriedOver: 5,
+    },
+    // Emily (member) - 15 days (part-time prorated), 4 used
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: emilyUser.id,
+      year: currentYear,
+      annualEntitlement: 15, // Pro-rated for part-time
+      annualUsed: 4,
+      sickUsed: 2,
+      toilBalance: 0,
+      carriedOver: 0,
+    },
+  ]);
+
+  // 2.5.1. Create TOIL Accrual History
+  console.log("Creating TOIL accrual history...");
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+  const oneWeekAgoDate = new Date();
+  oneWeekAgoDate.setDate(oneWeekAgoDate.getDate() - 7);
+
+  const sixMonthsFromNow = new Date();
+  sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+
+  await db.insert(toilAccrualHistory).values([
+    // Sarah's TOIL accrual from 2 weeks ago (worked overtime)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: sarahUser.id,
+      timesheetId: null, // No timesheet system yet (Epic 2)
+      weekEnding: twoWeeksAgo.toISOString().split("T")[0],
+      hoursAccrued: 2.0, // 2 hours overtime
+      accrualDate: twoWeeksAgo,
+      expiryDate: sixMonthsFromNow.toISOString().split("T")[0],
+      expired: false,
+    },
+    // Mike's previous TOIL that's already been used (historical record)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: mikeUser.id,
+      timesheetId: null,
+      weekEnding: oneWeekAgoDate.toISOString().split("T")[0],
+      hoursAccrued: 3.5, // 3.5 hours overtime (already used/redeemed)
+      accrualDate: oneWeekAgoDate,
+      expiryDate: sixMonthsFromNow.toISOString().split("T")[0],
+      expired: false,
+    },
+  ]);
+
+  // 2.6. Create Leave Requests
+  console.log("Creating leave requests...");
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const twoWeeksFromNow = new Date();
+  twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
+
+  const threeWeeksFromNow = new Date();
+  threeWeeksFromNow.setDate(threeWeeksFromNow.getDate() + 21);
+
+  const oneMonthFromNow = new Date();
+  oneMonthFromNow.setDate(oneMonthFromNow.getDate() + 30);
+
+  await db.insert(leaveRequests).values([
+    // Admin user - Approved annual leave (past)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: adminUser.id,
+      leaveType: "annual_leave",
+      startDate: oneWeekAgo.toISOString().split("T")[0],
+      endDate: oneWeekAgo.toISOString().split("T")[0],
+      daysCount: 3,
+      status: "approved",
+      requestedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 2 weeks ago
+      reviewedBy: adminUser.id,
+      reviewedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      notes: "Summer holiday",
+    },
+    // Sarah - Pending annual leave (future)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: sarahUser.id,
+      leaveType: "annual_leave",
+      startDate: twoWeeksFromNow.toISOString().split("T")[0],
+      endDate: new Date(twoWeeksFromNow.getTime() + 4 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+      daysCount: 5,
+      status: "pending",
+      requestedAt: new Date(),
+      notes: "Family vacation",
+    },
+    // Mike - Approved annual leave (future)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: mikeUser.id,
+      leaveType: "annual_leave",
+      startDate: threeWeeksFromNow.toISOString().split("T")[0],
+      endDate: new Date(threeWeeksFromNow.getTime() + 6 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+      daysCount: 7,
+      status: "approved",
+      requestedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      reviewedBy: adminUser.id,
+      reviewedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      notes: "Summer break",
+    },
+    // Emily - TOIL request (pending)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: emilyUser.id,
+      leaveType: "toil",
+      startDate: oneMonthFromNow.toISOString().split("T")[0],
+      endDate: oneMonthFromNow.toISOString().split("T")[0],
+      daysCount: 1,
+      status: "pending",
+      requestedAt: new Date(),
+      notes: "Time off for overtime worked last month",
+    },
+    // Sarah - Rejected leave (past)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: sarahUser.id,
+      leaveType: "annual_leave",
+      startDate: twoWeeksFromNow.toISOString().split("T")[0],
+      endDate: new Date(twoWeeksFromNow.getTime() + 2 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+      daysCount: 3,
+      status: "rejected",
+      requestedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      reviewedBy: adminUser.id,
+      reviewedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      reviewerComments: "Too many people off during this period",
+    },
+  ]);
+
+  // 2.7. Create Invitations
   console.log("Creating invitations...");
   await db.insert(invitations).values([
     {
@@ -2885,12 +3137,13 @@ For more information, visit the ICO website: https://ico.org.uk
 
   // 9. Create Time Entries
   console.log("Creating time entries...");
-  const workTypes = [
-    "work",
-    "admin",
-    "meeting",
-    "training",
-    "research",
+  const workTypeCodes = [
+    "WORK",
+    "ADMIN",
+    "MEETING",
+    "TRAINING",
+    "HOLIDAY",
+    "SICK",
   ] as const;
   const timeEntryStatuses = [
     "draft",
@@ -2935,7 +3188,7 @@ For more information, visit the ICO website: https://ico.org.uk
           serviceId: faker.helpers.arrayElement(createdServices).id,
           date: dateStr,
           hours: String(hours),
-          workType: faker.helpers.arrayElement(workTypes),
+          workType: faker.helpers.arrayElement(workTypeCodes),
           billable: faker.datatype.boolean({ probability: 0.8 }),
           billed: faker.datatype.boolean({ probability: 0.3 }),
           rate: String(rate),

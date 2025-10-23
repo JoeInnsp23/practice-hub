@@ -94,6 +94,7 @@ export const servicesRouter = router({
           name: input.name,
           category: input.category,
           description: input.description,
+          pricingModel: input.pricingModel,
           priceType: input.priceType,
           price: input.price,
           defaultRate: input.defaultRate,

@@ -101,13 +101,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check for duplicate service codes in existing data
+    // Check for duplicate service names in existing data (per story requirement: duplicate detection by tenant_id + name)
     const existingServices = await db
       .select()
       .from(services)
       .where(eq(services.tenantId, authContext.tenantId));
 
-    const existingCodes = new Set(existingServices.map((s) => s.code));
+    const existingNames = new Set(
+      existingServices.map((s) => s.name.toLowerCase()),
+    );
 
     // Import services in batches
     let processedCount = 0;
@@ -123,20 +125,21 @@ export async function POST(request: NextRequest) {
         .map((row, batchIndex) => {
           const rowNumber = i + batchIndex + 2;
 
-          // Check for duplicate code
-          if (existingCodes.has(row.code)) {
+          // Check for duplicate name (per story requirement: duplicate detection by tenant_id + name)
+          const normalizedName = row.name.toLowerCase();
+          if (existingNames.has(normalizedName)) {
             importErrors.push({
               row: rowNumber,
-              field: "code",
-              message: `Service code already exists: ${row.code}`,
-              value: row.code,
+              field: "name",
+              message: `Service name already exists: ${row.name}`,
+              value: row.name,
             });
             skippedCount++;
             return null;
           }
 
-          // Add to existing codes to prevent duplicates within the import
-          existingCodes.add(row.code);
+          // Add to existing names to prevent duplicates within the import
+          existingNames.add(normalizedName);
 
           return {
             id: nanoid(),
@@ -144,21 +147,45 @@ export async function POST(request: NextRequest) {
             name: row.name,
             code: row.code,
             description: row.description || null,
-            category: row.category || null,
+            category: (row.category || "compliance") as
+              | "compliance"
+              | "vat"
+              | "bookkeeping"
+              | "payroll"
+              | "management"
+              | "secretarial"
+              | "tax_planning"
+              | "addon",
+            pricingModel: "turnover" as "turnover" | "transaction" | "both",
             price: row.price?.toString() || null,
-            priceType: row.price_type || "fixed",
-            estimatedHours: row.estimated_hours?.toString() || null,
+            priceType: (row.price_type || "fixed") as
+              | "fixed"
+              | "hourly"
+              | "monthly"
+              | "annual"
+              | "custom",
+            defaultRate: row.price?.toString() || null, // Use price as default rate
+            duration: row.estimated_hours
+              ? Math.round(row.estimated_hours * 60)
+              : null, // Convert hours to minutes
+            supportsComplexity: false,
             isActive: row.is_active !== undefined ? row.is_active : true,
-            isTaxable: row.is_taxable !== undefined ? row.is_taxable : true,
-            taxRate: row.tax_rate?.toString() || "20",
-            notes: row.notes || null,
+            metadata: row.notes
+              ? {
+                  notes: row.notes,
+                  ...(row.is_taxable !== undefined && {
+                    is_taxable: row.is_taxable,
+                  }),
+                  ...(row.tax_rate && { tax_rate: row.tax_rate }),
+                }
+              : null,
           };
         })
-        .filter((service) => service !== null);
+        .filter((service): service is NonNullable<typeof service> => service !== null);
 
       // Insert batch
       if (servicesData.length > 0) {
-        await db.insert(services).values(servicesData);
+        await db.insert(services).values(servicesData as any);
         processedCount += servicesData.length;
       }
 

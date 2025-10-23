@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Calendar,
   Globe,
   LayoutDashboard,
   Mail,
@@ -21,7 +22,14 @@ const navigation = [
 const sections: {
   title: string;
   items: { name: string; href: string; icon: typeof Globe }[];
-}[] = [];
+}[] = [
+  {
+    title: "Time Management",
+    items: [
+      { name: "Leave Approvals", href: "/admin/leave/approvals", icon: Calendar },
+    ],
+  },
+];
 
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   return (

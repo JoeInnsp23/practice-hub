@@ -282,6 +282,7 @@ describe("lib/services/template-placeholders.ts", () => {
         "client_name",
         "service_name",
         "period",
+        "period_end_date",
         "tax_year",
         "company_number",
         "quarter",
@@ -302,8 +303,8 @@ describe("lib/services/template-placeholders.ts", () => {
       }
     });
 
-    it("should have exactly 8 supported placeholders", () => {
-      expect(Object.keys(SUPPORTED_PLACEHOLDERS)).toHaveLength(8);
+    it("should have exactly 9 supported placeholders", () => {
+      expect(Object.keys(SUPPORTED_PLACEHOLDERS)).toHaveLength(9);
     });
   });
 });
