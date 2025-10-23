@@ -384,7 +384,7 @@ CRON_SECRET="your-secret-key-here"  # Generate with: openssl rand -base64 32
    -- Users with admin role
    SELECT id, email, role, created_at
    FROM users
-   WHERE role IN ('admin', 'org:admin')
+   WHERE role IN ('admin')
    ORDER BY created_at DESC;
    ```
 

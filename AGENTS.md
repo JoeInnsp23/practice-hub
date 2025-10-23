@@ -155,15 +155,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    import { redirect } from "next/navigation";
    import { getAuthContext } from "@/lib/auth";
 
-   export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-     const authContext = await getAuthContext();
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const authContext = await getAuthContext();
 
-     if (!authContext || (authContext.role !== "admin" && authContext.role !== "org:admin")) {
-       redirect("/");
-     }
+  if (!authContext || authContext.role !== "admin") {
+    redirect("/");
+  }
 
-     return <AdminLayoutClient>{children}</AdminLayoutClient>;
-   }
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+}
    ```
 
 9. **Checklist Components** - All checklist-type UI components must follow this design language:
@@ -324,7 +324,7 @@ const isAdmin = t.middleware(({ next, ctx }) => {
     });
   }
 
-  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+  if (ctx.authContext.role !== "admin") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Admin access required",
@@ -527,7 +527,7 @@ export async function requireAuth(): Promise<AuthContext> {
 // Require admin role (throw if not admin)
 export async function requireAdmin(): Promise<AuthContext> {
   const authContext = await requireAuth();
-  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
+  if (authContext.role !== "admin") {
     throw new Error("Forbidden: Admin access required");
   }
   return authContext;
@@ -5934,4 +5934,3 @@ Choose a number (0-8) or 9 to proceed:
 ```
 
 <!-- END: BMAD-AGENTS -->
-

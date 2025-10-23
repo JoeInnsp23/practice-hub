@@ -93,7 +93,7 @@ As an admin, you have full access to:
 **Direct URL**: `/admin` (if logged in as admin)
 
 **Access Control**:
-- Only users with `admin` or `org:admin` role can access
+- Only users with `admin` role can access
 - Non-admin users see "Access Denied" error
 - Role checked on every page load (security)
 

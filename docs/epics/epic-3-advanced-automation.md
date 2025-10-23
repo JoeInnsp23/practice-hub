@@ -82,7 +82,7 @@ This epic implements 6 advanced automation features (8 individual capabilities):
    - **Value:** Complete automation loop
 
 **How It Integrates:**
-- Task templates: New taskTemplates/taskTemplateServices/clientTaskTemplateOverrides tables, new settings page
+- Task templates: New taskTemplates/clientTaskTemplateOverrides tables with one-to-many service linkage, new settings page
 - Auto task generation: Extend tasks router, integrate with workflows system
 - Reports: New reports router querying existing database views, wire to reports UI
 - Real-time: New SSE endpoint (/api/activity/stream), EventSource client integration
@@ -108,21 +108,21 @@ This epic implements 6 advanced automation features (8 individual capabilities):
 Implement task template management with placeholder system, service-level assignment, and client overrides to enable automated task generation from templates.
 
 **Acceptance Criteria:**
-- taskTemplates table created (name_pattern, description_pattern, estimated_hours, priority, task_type, due_date_offset_days, due_date_offset_months, service_component_id, tenant_id)
-- taskTemplateServices table created (template_id, service_id) for many-to-many linkage
+- taskTemplates table created (name_pattern, description_pattern, estimated_hours, priority, task_type, due_date_offset_days, due_date_offset_months, service_id, tenant_id)
+- One-to-many service linkage via serviceId foreign key (one template → one service)
 - clientTaskTemplateOverrides table created (client_id, template_id, custom_due_date, custom_priority, is_disabled)
 - Task Settings UI at app/client-hub/settings/task-templates/page.tsx
 - Template list view with search and filter (by service, task type)
-- Template create/edit form with fields: name pattern, description pattern, estimated hours, priority, task type, due date offset
-- Placeholder system: {client_name}, {service_name}, {period}, {tax_year}, {company_number}
+- Template create/edit form with fields: service, name pattern, description pattern, estimated hours, priority, task type, due date offset
+- Placeholder system: {client_name}, {service_name}, {period}, {tax_year}, {company_number}, {quarter}, {month}, {year}
 - Placeholder preview: show example with sample data ("Corporation Tax Return for Acme Ltd")
-- Due date offset configuration: "3 months after service activation" or "15th of month"
+- Due date offset configuration: "3 months after service activation" with days/months offsets
 - Template preview modal showing generated task with placeholders replaced
-- Service-level template assignment: assign templates to services (one-to-many)
+- Service-level template assignment: each template linked to exactly one service (simplified architecture)
 - Client-level override interface: disable templates or customize due dates per client
 - Template soft delete (is_active flag, don't hard delete)
-- Template cloning: "Duplicate" button creates copy
-- tRPC procedures: taskTemplates.list, taskTemplates.create, taskTemplates.update, taskTemplates.delete, taskTemplates.preview, taskTemplates.assignToService
+- Template cloning: "Duplicate" button creates copy with " (Copy)" suffix
+- tRPC procedures: taskTemplates.list, taskTemplates.create, taskTemplates.update, taskTemplates.delete, taskTemplates.getById, taskTemplates.clone, taskTemplates.getClientTemplates, taskTemplates.setClientOverride, taskTemplates.removeClientOverride
 
 **Technical Notes:**
 - Reference archived CRM: .archive/practice-hub/crm-app/main/src/pages/TaskSettings.tsx
@@ -257,7 +257,7 @@ Implement Server-Sent Events (SSE) for real-time activity feed and notification 
 ## Compatibility Requirements
 
 - [x] Existing APIs remain unchanged (only additions: taskTemplates, reports, SSE endpoints)
-- [x] Database schema changes are backward compatible (new tables: taskTemplates, taskTemplateServices, clientTaskTemplateOverrides, workflowTemplates; add fields to tasks: auto_generated, template_id, generated_at)
+- [x] Database schema changes are backward compatible (new tables: taskTemplates, clientTaskTemplateOverrides, workflowTemplates; add fields to tasks: auto_generated, template_id, generated_at)
 - [x] UI changes follow existing patterns (GlobalHeader/Sidebar, glass-card, shadcn/ui)
 - [x] Performance impact is minimal (SSE connections managed, report queries use indexed views)
 - [x] Multi-tenant isolation enforced (all queries filter by tenantId, SSE streams scoped to tenant)
@@ -265,40 +265,46 @@ Implement Server-Sent Events (SSE) for real-time activity feed and notification 
 
 **Schema Changes Required:**
 ```typescript
-// taskTemplates table
+// taskTemplates table (one-to-many with services)
 export const taskTemplates = pgTable("task_templates", {
   id: text("id").primaryKey(),
   tenantId: text("tenant_id").references(() => tenants.id).notNull(),
+
+  // Service linkage - one template belongs to ONE service (simplified architecture)
+  serviceId: uuid("service_id").references(() => services.id, { onDelete: "cascade" }).notNull(),
+
   namePattern: text("name_pattern").notNull(), // "Q{quarter} VAT Return for {client_name}"
   descriptionPattern: text("description_pattern"),
   estimatedHours: real("estimated_hours"),
-  priority: text("priority").notNull(), // "low" | "medium" | "high" | "urgent"
-  taskType: text("task_type").notNull(),
-  dueDateOffsetDays: integer("due_date_offset_days").default(0),
-  dueDateOffsetMonths: integer("due_date_offset_months").default(0),
-  serviceComponentId: text("service_component_id").references(() => serviceComponents.id),
-  isRecurring: boolean("is_recurring").default(false),
-  isActive: boolean("is_active").default(true),
+  priority: taskPriorityEnum("priority").notNull().default("medium"),
+  taskType: varchar("task_type", { length: 100 }),
+  dueDateOffsetDays: integer("due_date_offset_days").default(0).notNull(),
+  dueDateOffsetMonths: integer("due_date_offset_months").default(0).notNull(),
+  isRecurring: boolean("is_recurring").default(false).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// taskTemplateServices (many-to-many)
-export const taskTemplateServices = pgTable("task_template_services", {
-  templateId: text("template_id").references(() => taskTemplates.id).notNull(),
-  serviceId: text("service_id").references(() => services.id).notNull(),
-});
+}, (table) => ({
+  tenantIdIdx: index("task_templates_tenant_id_idx").on(table.tenantId),
+  serviceIdIdx: index("task_templates_service_id_idx").on(table.serviceId),
+  activeIdx: index("task_templates_active_idx").on(table.isActive),
+}));
 
 // clientTaskTemplateOverrides
 export const clientTaskTemplateOverrides = pgTable("client_task_template_overrides", {
   id: text("id").primaryKey(),
   tenantId: text("tenant_id").references(() => tenants.id).notNull(),
-  clientId: text("client_id").references(() => clients.id).notNull(),
-  templateId: text("template_id").references(() => taskTemplates.id).notNull(),
+  clientId: uuid("client_id").references(() => clients.id, { onDelete: "cascade" }).notNull(),
+  templateId: text("template_id").references(() => taskTemplates.id, { onDelete: "cascade" }).notNull(),
   customDueDate: date("custom_due_date"),
-  customPriority: text("custom_priority"),
-  isDisabled: boolean("is_disabled").default(false),
-});
+  customPriority: taskPriorityEnum("custom_priority"),
+  isDisabled: boolean("is_disabled").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  tenantIdIdx: index("client_task_template_overrides_tenant_id_idx").on(table.tenantId),
+  clientTemplateUnique: uniqueIndex("client_task_template_overrides_client_template_unique").on(table.clientId, table.templateId),
+}));
 
 // workflowTemplates
 export const workflowTemplates = pgTable("workflow_templates", {

@@ -175,13 +175,12 @@ const hashedPassword = await bcrypt.hash(password, saltRounds);
 **Roles**:
 - `user` - Standard staff member
 - `admin` - System administrator
-- `org:admin` - Organization administrator
 
 **Authorization checks**:
 ```typescript
 // Server-side (tRPC)
 export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+  if (ctx.authContext.role !== "admin") {
     throw new TRPCError({ code: "FORBIDDEN" });
   }
   return next();

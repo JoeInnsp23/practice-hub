@@ -86,7 +86,30 @@ export const invoicesRouter = router({
       }
 
       const invoicesList = await db
-        .select()
+        .select({
+          id: invoices.id,
+          tenantId: invoices.tenantId,
+          invoiceNumber: invoices.invoiceNumber,
+          clientId: invoices.clientId,
+          issueDate: invoices.issueDate,
+          dueDate: invoices.dueDate,
+          paidDate: invoices.paidDate,
+          subtotal: invoices.subtotal,
+          taxRate: invoices.taxRate,
+          taxAmount: invoices.taxAmount,
+          discount: invoices.discount,
+          total: invoices.total,
+          amountPaid: invoices.amountPaid,
+          status: invoices.status,
+          currency: invoices.currency,
+          notes: invoices.notes,
+          terms: invoices.terms,
+          purchaseOrderNumber: invoices.purchaseOrderNumber,
+          metadata: invoices.metadata,
+          createdAt: invoices.createdAt,
+          updatedAt: invoices.updatedAt,
+          createdById: invoices.createdById,
+        })
         .from(invoices)
         .where(and(...conditions))
         .orderBy(desc(invoices.createdAt));

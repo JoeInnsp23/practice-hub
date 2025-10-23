@@ -330,7 +330,7 @@ const { data: session, isPending } = useSession();
 - `accountant` - Accountant role
 - `member` - Standard team member
 
-**Note:** The Better Auth organization plugin is configured but `org:admin` role is not actively used in the current implementation. Admin checks only verify `role === "admin"`.
+**Note:** The Better Auth organization plugin is configured, but admin checks only verify `role === "admin"`; no secondary administrator role is used.
 
 **Middleware Protection:**
 - `middleware.ts` protects all routes except `/`, `/sign-in`, `/sign-up`, `/api/auth/*`
@@ -1649,4 +1649,4 @@ Practice Hub is a **production-ready multi-tenant accountancy platform** with th
 - tRPC middleware patterns verified against app/server/trpc.ts
 - Console statements count verified (53 found)
 - TODO/FIXME count corrected (0 found, previously reported 6)
-- Admin role checking corrected (only "admin" supported, not "org:admin")
+- Admin role checking corrected (only "admin" is supported)

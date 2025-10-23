@@ -1,37 +1,17 @@
 import { test, expect } from "@playwright/test";
 
+// Tests now use shared authenticated state from global-setup.ts
+// No individual login needed - all tests start already authenticated
+
 test.describe("Module Navigation", () => {
   test("should navigate between Practice Hub and Client Hub", async ({ page }) => {
-    // Get test credentials
-    const email = process.env.E2E_TEST_USER_EMAIL || "e2e-user@test.com";
-    const password = process.env.E2E_TEST_USER_PASSWORD;
+    // No login needed - test starts with authenticated state from global-setup
 
-    if (!password) {
-      throw new Error("E2E_TEST_USER_PASSWORD not configured");
-    }
-
-    // Login
-    await page.goto("/sign-in");
+    // Navigate to Practice Hub first
+    await page.goto("/practice-hub");
     await page.waitForLoadState("networkidle");
 
-    const emailInput = page.locator('input[type="email"], input#email');
-    await emailInput.waitFor({ state: "visible", timeout: 60000 });
-    await emailInput.fill(email);
-
-    const passwordInput = page.locator('input[type="password"], input#password');
-    await passwordInput.waitFor({ state: "visible", timeout: 60000 });
-    await passwordInput.fill(password);
-
-    const submitButton = page.locator('button[type="submit"]');
-    await submitButton.click();
-
-    await page.waitForURL((url) => !url.pathname.includes("/sign-in"), {
-      timeout: 120000,
-    });
-
-    await page.waitForLoadState("networkidle");
-
-    // Should start on Practice Hub
+    // Verify we're on Practice Hub
     await expect(page).toHaveURL(/.*practice-hub/);
 
     // Navigate to Client Hub (looking for navigation links)

@@ -260,7 +260,7 @@ export const tasksRouter = router({
       }
 
       const isOwner = existingNote[0].userId === ctx.authContext.userId;
-      const isAdmin = ctx.authContext.role === "admin" || ctx.authContext.role === "org:admin";
+      const isAdmin = ctx.authContext.role === "admin";
 
       if (!isOwner && !isAdmin) {
         throw new Error("Unauthorized to edit this note");
@@ -298,7 +298,7 @@ export const tasksRouter = router({
       }
 
       const isOwner = existingNote[0].userId === ctx.authContext.userId;
-      const isAdmin = ctx.authContext.role === "admin" || ctx.authContext.role === "org:admin";
+      const isAdmin = ctx.authContext.role === "admin";
 
       if (!isOwner && !isAdmin) {
         throw new Error("Unauthorized to delete this note");

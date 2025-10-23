@@ -226,7 +226,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger data-testid="task-form-priority-select">
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                       </FormControl>

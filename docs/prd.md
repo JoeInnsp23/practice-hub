@@ -447,11 +447,10 @@ The system shall provide task reassignment:
 **FR13: Task Templates System**
 
 The system shall implement task template management:
-- FR13.1: Create taskTemplates table (name_pattern, description_pattern, estimated_hours, priority, task_type, due_date_offset_days/months, service_component_id)
-- FR13.2: Create taskTemplateServices table (template_id, service_id linkage)
-- FR13.3: Create clientTaskTemplateOverrides table (client_id, template_id, custom_due_date, custom_priority)
-- FR13.4: Task Settings UI at app/client-hub/settings/task-templates/page.tsx
-- FR13.5: Template list/create/edit/delete interface
+- FR13.1: Create taskTemplates table (name_pattern, description_pattern, estimated_hours, priority, task_type, due_date_offset_days/months, service_id) with one-to-many service linkage
+- FR13.2: Create clientTaskTemplateOverrides table (client_id, template_id, custom_due_date, custom_priority)
+- FR13.3: Task Settings UI at app/client-hub/settings/task-templates/page.tsx
+- FR13.4: Template list/create/edit/delete interface with 8 placeholder types
 - FR13.6: Placeholder system: {client_name}, {service_name}, {period}, {tax_year}
 - FR13.7: Due date offset configuration (e.g. "3 months after service activation")
 - FR13.8: Template preview with example values

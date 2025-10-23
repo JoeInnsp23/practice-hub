@@ -2125,7 +2125,7 @@ Default role-based permissions.
 |--------|------|-------------|
 | `id` | uuid | Primary key |
 | `tenantId` | text | Foreign key to `tenants` |
-| `role` | varchar(50) | Role: admin, org:admin, user, viewer |
+| `role` | varchar(50) | Role: admin, user, viewer |
 | `module` | varchar(50) | Module: clients, tasks, invoices, proposals, etc. |
 | `canView` | boolean | View permission |
 | `canCreate` | boolean | Create permission |

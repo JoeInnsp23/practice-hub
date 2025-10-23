@@ -1,7 +1,16 @@
 import { test, expect } from "@playwright/test";
 
-// Run auth tests serially to avoid resource contention during parallel execution
-test.describe.configure({ mode: 'serial' });
+/**
+ * Authentication Flow Tests
+ *
+ * These tests verify the login/logout flow itself, so they:
+ * 1. Do NOT use the shared authentication state from global-setup
+ * 2. Start with a fresh, unauthenticated browser context
+ * 3. Test the actual login process
+ */
+
+// Override storageState to start with fresh, unauthenticated context
+test.use({ storageState: undefined });
 
 test.describe("Authentication Flow", () => {
   test("should successfully log in with valid credentials", async ({ page }) => {

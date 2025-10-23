@@ -148,7 +148,7 @@
 - **Given** a user without manager role attempts to access approvals page
 - **When** they navigate to `/client-hub/time/approvals`
 - **Then** they are redirected with error message
-- **And** only users with role "manager", "admin", or "org:admin" can approve
+- **And** only users with role "manager" or "admin" can approve
 
 ### Quality Requirements
 
@@ -285,8 +285,7 @@ export const timesheetsRouter = router({
       // Check if user is manager/admin
       if (
         ctx.authContext.role !== "manager" &&
-        ctx.authContext.role !== "admin" &&
-        ctx.authContext.role !== "org:admin"
+        ctx.authContext.role !== "admin"
       ) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
@@ -326,8 +325,7 @@ export const timesheetsRouter = router({
       // Check manager role
       if (
         ctx.authContext.role !== "manager" &&
-        ctx.authContext.role !== "admin" &&
-        ctx.authContext.role !== "org:admin"
+        ctx.authContext.role !== "admin"
       ) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
@@ -373,8 +371,7 @@ export const timesheetsRouter = router({
       // Check manager role
       if (
         ctx.authContext.role !== "manager" &&
-        ctx.authContext.role !== "admin" &&
-        ctx.authContext.role !== "org:admin"
+        ctx.authContext.role !== "admin"
       ) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
@@ -425,8 +422,7 @@ export const timesheetsRouter = router({
       // Check manager role
       if (
         ctx.authContext.role !== "manager" &&
-        ctx.authContext.role !== "admin" &&
-        ctx.authContext.role !== "org:admin"
+        ctx.authContext.role !== "admin"
       ) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
@@ -792,7 +788,7 @@ During the review, I performed critical refactoring to ensure compliance with pr
 | AC13 | Rejection Email | Unit: Mocked in all tests<br>Code: HTML template with rejection reason display | ✅ PASS |
 | AC14 | Manager Dashboard Widget | Implementation: PendingApprovalsWidget component + integration | ✅ PASS |
 | AC15 | Multi-tenant Isolation | All queries filter by tenantId<br>Unit tests verify isolation | ✅ PASS |
-| AC16 | Role-Based Access Control | Unit: "should prevent non-managers from approving"<br>All procedures check manager/admin/org:admin roles | ✅ PASS |
+| AC16 | Role-Based Access Control | Unit: "should prevent non-managers from approving"<br>All procedures check manager/admin roles | ✅ PASS |
 | AC17 | Performance | Schema: 4 indexes added (tenant, status, reviewer, week_date)<br>Note: Benchmarks not run yet | ⚠️ PENDING |
 
 **Coverage Analysis:**
@@ -948,4 +944,3 @@ The implementation is **production-ready** with one pending item:
 This is a **high-quality implementation** that demonstrates professional software engineering practices. The timesheet approval workflow is well-architected, thoroughly tested, and ready for production use. The single refactoring (Sentry logging) ensures compliance with project standards, and all acceptance criteria are met except for pending performance benchmarks.
 
 **Kudos to the development team** for the comprehensive test coverage, clean code, and attention to detail throughout this story. 🎉
-

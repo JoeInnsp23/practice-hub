@@ -270,7 +270,7 @@ export async function requireAuth(): Promise<AuthContext> {
 // Require admin role (throw if not admin)
 export async function requireAdmin(): Promise<AuthContext> {
   const authContext = await requireAuth();
-  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
+  if (authContext.role !== "admin") {
     throw new Error("Forbidden: Admin access required");
   }
   return authContext;
@@ -489,7 +489,7 @@ const isAdmin = t.middleware(({ next, ctx }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+  if (ctx.authContext.role !== "admin") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Admin access required",
@@ -521,7 +521,7 @@ import { getAuthContext } from "@/lib/auth";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const authContext = await getAuthContext();
 
-  if (!authContext || (authContext.role !== "admin" && authContext.role !== "org:admin")) {
+  if (!authContext || authContext.role !== "admin") {
     redirect("/");
   }
 
@@ -675,7 +675,7 @@ import { getAuthContext } from "@/lib/auth";
 export default async function AdminLayout({ children }: { children: React.NodeNode }) {
   const authContext = await getAuthContext();
 
-  if (!authContext || (authContext.role !== "admin" && authContext.role !== "org:admin")) {
+  if (!authContext || authContext.role !== "admin") {
     redirect("/");
   }
 

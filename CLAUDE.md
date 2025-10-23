@@ -40,6 +40,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
    **NEVER** manually run individual commands. **ALWAYS** use `pnpm db:reset`. If you don't use this command, you FAIL.
 
+13. **FORBIDDEN: Never use killall commands** - **NEVER** run `killall`, `killall -9`, or any variant that could kill system processes. These commands are EXTREMELY DANGEROUS and can:
+   - Kill VS Code and lose unsaved work
+   - Terminate critical system processes
+   - Destroy active development sessions
+
+   **FORBIDDEN COMMANDS:**
+   - `killall node` / `killall -9 node` - Will kill VS Code and all Node processes
+   - `killall pnpm` / `killall -9 pnpm` - Will kill package manager processes
+   - `killall -9` with ANY process name
+
+   **SAFE ALTERNATIVES:**
+   - Use `ps aux | grep <process>` to find specific PIDs
+   - Use `kill <specific-pid>` for targeted termination
+   - Use `pkill -f "specific-pattern"` with VERY specific patterns
+   - For Playwright: `pkill -f "playwright test"` (specific pattern only)
+
 13. **ALWAYS use Practice Hub Skills for their intended purposes** - The following skills are installed in `.claude/skills/` and must be used:
    - **practice-hub-testing**: Generate router tests, validate multi-tenant isolation, check test coverage
    - **practice-hub-debugging**: Find/remove console.log statements, track TODOs, code quality checks
@@ -194,15 +210,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    import { redirect } from "next/navigation";
    import { getAuthContext } from "@/lib/auth";
 
-   export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-     const authContext = await getAuthContext();
+  export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+    const authContext = await getAuthContext();
 
-     if (!authContext || (authContext.role !== "admin" && authContext.role !== "org:admin")) {
-       redirect("/");
-     }
+    if (!authContext || authContext.role !== "admin") {
+      redirect("/");
+    }
 
-     return <AdminLayoutClient>{children}</AdminLayoutClient>;
-   }
+    return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  }
    ```
 
 9. **Checklist Components** - All checklist-type UI components must follow this design language:
@@ -593,7 +609,7 @@ const isAdmin = t.middleware(({ next, ctx }) => {
     });
   }
 
-  if (ctx.authContext.role !== "admin" && ctx.authContext.role !== "org:admin") {
+  if (ctx.authContext.role !== "admin") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Admin access required",
@@ -796,7 +812,7 @@ export async function requireAuth(): Promise<AuthContext> {
 // Require admin role (throw if not admin)
 export async function requireAdmin(): Promise<AuthContext> {
   const authContext = await requireAuth();
-  if (authContext.role !== "admin" && authContext.role !== "org:admin") {
+  if (authContext.role !== "admin") {
     throw new Error("Forbidden: Admin access required");
   }
   return authContext;

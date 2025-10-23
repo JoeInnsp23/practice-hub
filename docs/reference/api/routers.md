@@ -121,7 +121,7 @@ interface AuthContext {
   userId: string;
   tenantId: string;
   organizationName?: string;
-  role: string;  // "admin" | "org:admin" | "member"
+  role: string;  // "admin" | "member"
   email: string;
   firstName: string | null;
   lastName: string | null;
