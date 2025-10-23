@@ -7,6 +7,7 @@ import { clientPortalAdminRouter } from "./routers/clientPortalAdmin";
 import { clientsRouter } from "./routers/clients";
 import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
+import { departmentsRouter } from "./routers/departments";
 import { documentsRouter } from "./routers/documents";
 import { importLogsRouter } from "./routers/import-logs";
 import { integrationsRouter } from "./routers/integrations";
@@ -24,9 +25,12 @@ import { pricingAdminRouter } from "./routers/pricingAdmin";
 import { pricingConfigRouter } from "./routers/pricingConfig";
 import { proposalsRouter } from "./routers/proposals";
 import { proposalTemplatesRouter } from "./routers/proposalTemplates";
+import { reportsRouter } from "./routers/reports";
 import { servicesRouter } from "./routers/services";
 import { settingsRouter } from "./routers/settings";
+import { staffCapacityRouter } from "./routers/staffCapacity";
 import { tasksRouter } from "./routers/tasks";
+import { taskGenerationRouter } from "./routers/task-generation";
 import { taskTemplatesRouter } from "./routers/taskTemplates";
 import { timesheetsRouter } from "./routers/timesheets";
 import { transactionDataRouter } from "./routers/transactionData";
@@ -38,12 +42,15 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   clients: clientsRouter,
   tasks: tasksRouter,
+  taskGeneration: taskGenerationRouter,
   taskTemplates: taskTemplatesRouter,
   invoices: invoicesRouter,
   timesheets: timesheetsRouter,
   services: servicesRouter,
   compliance: complianceRouter,
   users: usersRouter,
+  departments: departmentsRouter,
+  staffCapacity: staffCapacityRouter,
   settings: settingsRouter,
   workflows: workflowsRouter,
   portal: portalRouter,
@@ -52,6 +59,7 @@ export const appRouter = router({
   pricingConfig: pricingConfigRouter,
   proposals: proposalsRouter,
   proposalTemplates: proposalTemplatesRouter,
+  reports: reportsRouter,
   transactionData: transactionDataRouter,
   leads: leadsRouter,
   pipeline: pipelineRouter,

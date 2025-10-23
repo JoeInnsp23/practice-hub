@@ -26,6 +26,23 @@ export const tenants = pgTable("tenants", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Departments table - Organizational structure for staff management
+export const departments = pgTable("departments", {
+  id: text("id").primaryKey(),
+  tenantId: text("tenant_id")
+    .references(() => tenants.id, { onDelete: "cascade" })
+    .notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  managerId: text("manager_id").references(() => users.id), // Can be null if no manager assigned
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 // Users table - Better Auth compatible schema with tenant extension
 export const users = pgTable(
   "users",
@@ -43,6 +60,7 @@ export const users = pgTable(
     role: varchar("role", { length: 50 }).default("member").notNull(), // admin, accountant, member
     status: varchar("status", { length: 20 }).default("active").notNull(), // pending, active, inactive
     isActive: boolean("is_active").default(true).notNull(),
+    departmentId: text("department_id").references(() => departments.id), // Optional department assignment
     hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -129,6 +147,35 @@ export const userSettings = pgTable("user_settings", {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+// Staff Capacity table - for staff capacity planning and utilization tracking
+export const staffCapacity = pgTable(
+  "staff_capacity",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    effectiveFrom: date("effective_from").notNull(),
+    weeklyHours: real("weekly_hours").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_staff_capacity_tenant").on(table.tenantId),
+    userIdx: index("idx_staff_capacity_user").on(table.userId),
+    effectiveFromIdx: index("idx_staff_capacity_effective_from").on(
+      table.effectiveFrom,
+    ),
+  }),
+);
 
 // Invitations table - for user invitations from admins
 export const invitations = pgTable(
@@ -396,8 +443,12 @@ export const clients = pgTable(
     nameIdx: index("idx_client_name").on(table.name),
     statusIdx: index("idx_client_status").on(table.status),
     managerIdx: index("idx_client_manager").on(table.accountManagerId),
-    xeroContactIdIdx: index("idx_client_xero_contact_id").on(table.xeroContactId),
-    xeroSyncStatusIdx: index("idx_client_xero_sync_status").on(table.xeroSyncStatus),
+    xeroContactIdIdx: index("idx_client_xero_contact_id").on(
+      table.xeroContactId,
+    ),
+    xeroSyncStatusIdx: index("idx_client_xero_sync_status").on(
+      table.xeroSyncStatus,
+    ),
   }),
 );
 
@@ -786,7 +837,9 @@ export const taskNotes = pgTable(
 export const taskTemplates = pgTable(
   "task_templates",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
@@ -835,7 +888,9 @@ export const taskTemplates = pgTable(
 export const clientTaskTemplateOverrides = pgTable(
   "client_task_template_overrides",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
@@ -1147,7 +1202,9 @@ export const invoices = pgTable(
     statusIdx: index("idx_invoice_status").on(table.status),
     dueDateIdx: index("idx_invoice_due_date").on(table.dueDate),
     xeroInvoiceIdIdx: index("idx_invoice_xero_id").on(table.xeroInvoiceId),
-    xeroSyncStatusIdx: index("idx_invoice_xero_sync_status").on(table.xeroSyncStatus),
+    xeroSyncStatusIdx: index("idx_invoice_xero_sync_status").on(
+      table.xeroSyncStatus,
+    ),
   }),
 );
 
@@ -1230,7 +1287,9 @@ export const workflows = pgTable(
 export const workflowTemplates = pgTable(
   "workflow_templates",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
@@ -1547,7 +1606,9 @@ export const proposals = pgTable(
     docusealSubmissionId: text("docuseal_submission_id"),
     docusealSignedPdfUrl: text("docuseal_signed_pdf_url"), // DEPRECATED: Use docusealSignedPdfKey instead
     docusealSignedPdfKey: text("docuseal_signed_pdf_key"), // S3 key for secure presigned URL access
-    docusealSignedPdfUrlExpiresAt: timestamp("docuseal_signed_pdf_url_expires_at"), // Optional: Track presigned URL expiration for auditing
+    docusealSignedPdfUrlExpiresAt: timestamp(
+      "docuseal_signed_pdf_url_expires_at",
+    ), // Optional: Track presigned URL expiration for auditing
     documentHash: text("document_hash"), // SHA-256 hash of final signed PDF
 
     // Template and content
@@ -1658,7 +1719,10 @@ export const proposalVersions = pgTable(
 
     // Pricing
     pricingModelUsed: varchar("pricing_model_used", { length: 10 }),
-    monthlyTotal: decimal("monthly_total", { precision: 10, scale: 2 }).notNull(),
+    monthlyTotal: decimal("monthly_total", {
+      precision: 10,
+      scale: 2,
+    }).notNull(),
     annualTotal: decimal("annual_total", { precision: 10, scale: 2 }).notNull(),
 
     // Services snapshot (denormalized for historical accuracy)
@@ -1684,7 +1748,10 @@ export const proposalVersions = pgTable(
   },
   (table) => ({
     proposalIdx: index("idx_proposal_version_proposal").on(table.proposalId),
-    versionIdx: index("idx_proposal_version_number").on(table.proposalId, table.version),
+    versionIdx: index("idx_proposal_version_number").on(
+      table.proposalId,
+      table.version,
+    ),
     createdAtIdx: index("idx_proposal_version_created").on(table.createdAt),
   }),
 );
@@ -2459,6 +2526,30 @@ export const dashboardKpiView = pgView("dashboard_kpi_view", {
   overdueCompliance: integer("overdue_compliance"),
 }).existing();
 
+// Monthly Revenue View - revenue grouped by month for charts
+export const monthlyRevenueView = pgView("monthly_revenue_view", {
+  tenantId: text("tenant_id").notNull(),
+  month: timestamp("month").notNull(),
+  invoiced: decimal("invoiced", { precision: 10, scale: 2 }),
+  collected: decimal("collected", { precision: 10, scale: 2 }),
+  invoiceCount: integer("invoice_count"),
+  uniqueClients: integer("unique_clients"),
+}).existing();
+
+// Client Revenue View - revenue breakdown by client for charts
+export const clientRevenueView = pgView("client_revenue_view", {
+  tenantId: text("tenant_id").notNull(),
+  clientId: uuid("client_id").notNull(),
+  clientName: varchar("client_name", { length: 255 }),
+  clientCode: varchar("client_code", { length: 50 }),
+  totalInvoiced: decimal("total_invoiced", { precision: 10, scale: 2 }),
+  totalPaid: decimal("total_paid", { precision: 10, scale: 2 }),
+  outstanding: decimal("outstanding", { precision: 10, scale: 2 }),
+  invoiceCount: integer("invoice_count"),
+  firstInvoiceDate: date("first_invoice_date"),
+  lastInvoiceDate: date("last_invoice_date"),
+}).existing();
+
 // Activity Feed View - activity logs with entity names and user info
 export const activityFeedView = pgView("activity_feed_view", {
   id: uuid("id").notNull(),
@@ -3054,16 +3145,18 @@ export const calendarEventAttendees = pgTable(
 export const companiesHouseCache = pgTable(
   "companies_house_cache",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     companyNumber: text("company_number").notNull().unique(),
     cachedData: jsonb("cached_data").notNull(), // Store CompanyDetails + Officers + PSCs
     cachedAt: timestamp("cached_at").defaultNow().notNull(),
     expiresAt: timestamp("expires_at").notNull(),
   },
   (table) => ({
-    companyNumberIdx: uniqueIndex("companies_house_cache_company_number_idx").on(
-      table.companyNumber,
-    ),
+    companyNumberIdx: uniqueIndex(
+      "companies_house_cache_company_number_idx",
+    ).on(table.companyNumber),
     expiresAtIdx: index("companies_house_cache_expires_at_idx").on(
       table.expiresAt,
     ),
@@ -3085,7 +3178,9 @@ export const companiesHouseRateLimit = pgTable("companies_house_rate_limit", {
 export const integrationSettings = pgTable(
   "integration_settings",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
@@ -3116,7 +3211,9 @@ export const integrationSettings = pgTable(
 export const importLogs = pgTable(
   "import_logs",
   {
-    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
@@ -3167,12 +3264,22 @@ export const xeroWebhookEvents = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    eventIdIdx: uniqueIndex("xero_webhook_events_event_id_idx").on(table.eventId),
+    eventIdIdx: uniqueIndex("xero_webhook_events_event_id_idx").on(
+      table.eventId,
+    ),
     tenantIdIdx: index("xero_webhook_events_tenant_id_idx").on(table.tenantId),
-    processedIdx: index("xero_webhook_events_processed_idx").on(table.processed),
-    eventTypeIdx: index("xero_webhook_events_event_type_idx").on(table.eventType),
-    eventCategoryIdx: index("xero_webhook_events_event_category_idx").on(table.eventCategory),
-    createdAtIdx: index("xero_webhook_events_created_at_idx").on(table.createdAt),
+    processedIdx: index("xero_webhook_events_processed_idx").on(
+      table.processed,
+    ),
+    eventTypeIdx: index("xero_webhook_events_event_type_idx").on(
+      table.eventType,
+    ),
+    eventCategoryIdx: index("xero_webhook_events_event_category_idx").on(
+      table.eventCategory,
+    ),
+    createdAtIdx: index("xero_webhook_events_created_at_idx").on(
+      table.createdAt,
+    ),
   }),
 );
 
@@ -3210,4 +3317,3 @@ export const taskAssignmentHistory = pgTable(
     ),
   }),
 );
-
