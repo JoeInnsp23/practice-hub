@@ -1,0 +1,551 @@
+import { z } from "zod";
+import { router, protectedProcedure } from "../trpc";
+import {
+	tasks,
+	taskTemplates,
+	clients,
+	services,
+	notifications,
+	clientServices,
+} from "@/lib/db/schema";
+import {
+	replacePlaceholders,
+	calculateDueDate,
+	calculateTargetDate,
+	calculatePeriodInfo,
+	calculateTaxYear,
+	type PlaceholderData,
+} from "@/lib/utils/task-generation";
+import { eq, and } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { TRPCError } from "@trpc/server";
+import * as Sentry from "@sentry/nextjs";
+
+export const taskGenerationRouter = router({
+	/**
+	 * Generate a single task from a template
+	 * AC1, AC2, AC3, AC4, AC6, AC7, AC11
+	 */
+	generateFromTemplate: protectedProcedure
+		.input(
+			z.object({
+				templateId: z.string(),
+				clientId: z.string(),
+				serviceId: z.string(),
+				activationDate: z.string().optional(),
+				periodOffset: z.number().optional().default(0),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			try {
+				// 1. Fetch template with tenant validation
+				const [template] = await db
+					.select()
+					.from(taskTemplates)
+					.where(
+						and(
+							eq(taskTemplates.id, input.templateId),
+							eq(taskTemplates.tenantId, ctx.authContext.tenantId),
+						),
+					)
+					.limit(1);
+
+				if (!template) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Task template not found",
+					});
+				}
+
+				// 2. Fetch client data
+				const [client] = await db
+					.select()
+					.from(clients)
+					.where(
+						and(
+							eq(clients.id, input.clientId),
+							eq(clients.tenantId, ctx.authContext.tenantId),
+						),
+					)
+					.limit(1);
+
+				if (!client) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Client not found",
+					});
+				}
+
+				// 3. Fetch service data
+				const [service] = await db
+					.select()
+					.from(services)
+					.where(
+						and(
+							eq(services.id, input.serviceId),
+							eq(services.tenantId, ctx.authContext.tenantId),
+						),
+					)
+					.limit(1);
+
+				if (!service) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Service not found",
+					});
+				}
+
+				// 4. Calculate period info for recurring tasks
+				const activationDate = input.activationDate
+					? new Date(input.activationDate)
+					: new Date();
+
+				const periodInfo =
+					template.isRecurring && template.recurringFrequency
+						? calculatePeriodInfo(
+								activationDate,
+								input.periodOffset,
+								template.recurringFrequency as "monthly" | "quarterly" | "annually",
+							)
+						: { period: "", date: activationDate };
+
+				// 5. Build placeholder data
+				const placeholderData: PlaceholderData = {
+					clientName: client.name,
+					serviceName: service.name,
+					companyNumber: client.companiesHouseNumber || undefined,
+					period: periodInfo.period,
+					month: periodInfo.date.toLocaleDateString("en-GB", { month: "long" }),
+					year: periodInfo.date.getFullYear().toString(),
+					taxYear: calculateTaxYear(periodInfo.date),
+					activationDate: periodInfo.date,
+				};
+
+				// 6. Replace placeholders in name and description
+				const taskName = replacePlaceholders(
+					template.namePattern,
+					placeholderData,
+				);
+				const taskDescription = template.descriptionPattern
+					? replacePlaceholders(template.descriptionPattern, placeholderData)
+					: undefined;
+
+				// 7. Calculate due date and target date
+				const dueDate = calculateDueDate(
+					periodInfo.date,
+					template.dueDateOffsetDays || undefined,
+					template.dueDateOffsetMonths || undefined,
+				);
+				const targetDate = calculateTargetDate(dueDate);
+
+				// 8. Check for duplicates (AC4)
+				const [existingTask] = await db
+					.select()
+					.from(tasks)
+					.where(
+						and(
+							eq(tasks.tenantId, ctx.authContext.tenantId),
+							eq(tasks.clientId, input.clientId),
+							eq(tasks.serviceId, input.serviceId),
+							eq(tasks.title, taskName),
+						),
+					)
+					.limit(1);
+
+				if (existingTask) {
+					return {
+						success: false,
+						skipped: true,
+						reason: "Duplicate task exists",
+						taskId: existingTask.id,
+					};
+				}
+
+				// 9. Determine assignee (AC6)
+				const assignedToId = client.assignedToId || null;
+
+				// 10. Create task (AC7)
+				const taskId = crypto.randomUUID();
+				const [createdTask] = await db
+					.insert(tasks)
+					.values({
+						id: taskId,
+						tenantId: ctx.authContext.tenantId,
+						clientId: input.clientId,
+						serviceId: input.serviceId,
+						title: taskName,
+						description: taskDescription,
+						priority: template.priority,
+						taskType: template.taskType,
+						estimatedHours: template.estimatedHours
+							? String(template.estimatedHours)
+							: null,
+						dueDate: dueDate.toISOString(),
+						targetDate: targetDate.toISOString(),
+						assignedToId,
+						createdById: ctx.authContext.userId,
+						status: "pending",
+						progress: 0,
+						autoGenerated: true,
+						templateId: input.templateId,
+						generatedAt: new Date(),
+					})
+					.returning();
+
+				// 11. Create notification for assignee (AC11)
+				if (assignedToId) {
+					await db.insert(notifications).values({
+						id: crypto.randomUUID(),
+						tenantId: ctx.authContext.tenantId,
+						userId: assignedToId,
+						type: "task_assigned",
+						title: "New task assigned",
+						message: `Task "${taskName}" has been automatically assigned to you`,
+						link: `/client-hub/tasks/${taskId}`,
+						read: false,
+						createdAt: new Date(),
+					});
+				}
+
+				return {
+					success: true,
+					taskId: createdTask.id,
+					taskName,
+					skipped: false,
+				};
+			} catch (error) {
+				// Error handling with Sentry
+				Sentry.captureException(error, {
+					tags: { operation: "generateFromTemplate" },
+					extra: { input },
+				});
+
+				if (error instanceof TRPCError) {
+					throw error;
+				}
+
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to generate task from template",
+					cause: error,
+				});
+			}
+		}),
+
+	/**
+	 * Generate recurring tasks for multiple periods
+	 * AC5
+	 */
+	generateRecurringTasks: protectedProcedure
+		.input(
+			z.object({
+				templateId: z.string(),
+				clientId: z.string(),
+				serviceId: z.string(),
+				periods: z.number().min(1).max(12).default(4),
+				activationDate: z.string().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			try {
+				const generatedTasks: string[] = [];
+				const skippedTasks: string[] = [];
+
+				// Generate tasks for each period
+				for (let i = 0; i < input.periods; i++) {
+					const result = await ctx.caller.taskGeneration.generateFromTemplate({
+						templateId: input.templateId,
+						clientId: input.clientId,
+						serviceId: input.serviceId,
+						activationDate: input.activationDate,
+						periodOffset: i,
+					});
+
+					if (result.success && !result.skipped) {
+						generatedTasks.push(result.taskId);
+					} else if (result.skipped) {
+						skippedTasks.push(result.taskId);
+					}
+				}
+
+				return {
+					success: true,
+					generated: generatedTasks.length,
+					skipped: skippedTasks.length,
+					taskIds: generatedTasks,
+				};
+			} catch (error) {
+				Sentry.captureException(error, {
+					tags: { operation: "generateRecurringTasks" },
+					extra: { input },
+				});
+
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to generate recurring tasks",
+					cause: error,
+				});
+			}
+		}),
+
+	/**
+	 * Preview tasks that would be generated without creating them
+	 * AC9
+	 */
+	previewGeneration: protectedProcedure
+		.input(
+			z.object({
+				serviceId: z.string(),
+				clientId: z.string(),
+			}),
+		)
+		.query(async ({ ctx, input }) => {
+			try {
+				// 1. Fetch all templates for this service
+				const templates = await db
+					.select()
+					.from(taskTemplates)
+					.where(
+						and(
+							eq(taskTemplates.serviceId, input.serviceId),
+							eq(taskTemplates.tenantId, ctx.authContext.tenantId),
+						),
+					);
+
+				if (templates.length === 0) {
+					return [];
+				}
+
+				// 2. Fetch client and service data
+				const [client] = await db
+					.select()
+					.from(clients)
+					.where(
+						and(
+							eq(clients.id, input.clientId),
+							eq(clients.tenantId, ctx.authContext.tenantId),
+						),
+					)
+					.limit(1);
+
+				if (!client) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Client not found",
+					});
+				}
+
+				const [service] = await db
+					.select()
+					.from(services)
+					.where(
+						and(
+							eq(services.id, input.serviceId),
+							eq(services.tenantId, ctx.authContext.tenantId),
+						),
+					)
+					.limit(1);
+
+				if (!service) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Service not found",
+					});
+				}
+
+				// 3. Build preview for each template
+				const activationDate = new Date();
+				const previews = templates.map((template) => {
+					const periodInfo =
+						template.isRecurring && template.recurringFrequency
+							? calculatePeriodInfo(
+									activationDate,
+									0,
+									template.recurringFrequency as
+										| "monthly"
+										| "quarterly"
+										| "annually",
+								)
+							: { period: "", date: activationDate };
+
+					const placeholderData: PlaceholderData = {
+						clientName: client.name,
+						serviceName: service.name,
+						companyNumber: client.companiesHouseNumber || undefined,
+						period: periodInfo.period,
+						month: periodInfo.date.toLocaleDateString("en-GB", {
+							month: "long",
+						}),
+						year: periodInfo.date.getFullYear().toString(),
+						taxYear: calculateTaxYear(periodInfo.date),
+						activationDate: periodInfo.date,
+					};
+
+					const taskName = replacePlaceholders(
+						template.namePattern,
+						placeholderData,
+					);
+					const taskDescription = template.descriptionPattern
+						? replacePlaceholders(template.descriptionPattern, placeholderData)
+						: "";
+
+					const dueDate = calculateDueDate(
+						periodInfo.date,
+						template.dueDateOffsetDays || undefined,
+						template.dueDateOffsetMonths || undefined,
+					);
+
+					return {
+						templateId: template.id,
+						taskName,
+						description: taskDescription,
+						dueDate: dueDate.toISOString(),
+						priority: template.priority,
+						estimatedHours: template.estimatedHours || 0,
+						taskType: template.taskType,
+						isRecurring: template.isRecurring,
+					};
+				});
+
+				return previews;
+			} catch (error) {
+				Sentry.captureException(error, {
+					tags: { operation: "previewGeneration" },
+					extra: { input },
+				});
+
+				if (error instanceof TRPCError) {
+					throw error;
+				}
+
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to preview task generation",
+					cause: error,
+				});
+			}
+		}),
+
+	/**
+	 * Bulk generate tasks for multiple clients with the same service
+	 * AC10
+	 */
+	bulkGenerateForService: protectedProcedure
+		.input(
+			z.object({
+				serviceId: z.string(),
+				clientIds: z.array(z.string()).optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			try {
+				// 1. Get clients to generate for
+				let clientsToProcess: { id: string }[];
+
+				if (input.clientIds && input.clientIds.length > 0) {
+					// Use provided client IDs
+					clientsToProcess = input.clientIds.map((id) => ({ id }));
+				} else {
+					// Get all clients with this service
+					const clientsWithService = await db
+						.select({ id: clientServices.clientId })
+						.from(clientServices)
+						.where(
+							and(
+								eq(clientServices.serviceId, input.serviceId),
+								eq(clientServices.tenantId, ctx.authContext.tenantId),
+							),
+						);
+
+					clientsToProcess = clientsWithService.map((cs) => ({ id: cs.clientId }));
+				}
+
+				// 2. Get all templates for this service
+				const templates = await db
+					.select()
+					.from(taskTemplates)
+					.where(
+						and(
+							eq(taskTemplates.serviceId, input.serviceId),
+							eq(taskTemplates.tenantId, ctx.authContext.tenantId),
+						),
+					);
+
+				if (templates.length === 0) {
+					return {
+						total: 0,
+						generated: 0,
+						skipped: 0,
+						failed: 0,
+						details: [],
+					};
+				}
+
+				// 3. Generate tasks for each client
+				let totalGenerated = 0;
+				let totalSkipped = 0;
+				let totalFailed = 0;
+				const details: {
+					clientId: string;
+					status: "success" | "skipped" | "failed";
+					taskId?: string;
+					error?: string;
+				}[] = [];
+
+				for (const client of clientsToProcess) {
+					for (const template of templates) {
+						try {
+							const result = await ctx.caller.taskGeneration.generateFromTemplate({
+								templateId: template.id,
+								clientId: client.id,
+								serviceId: input.serviceId,
+							});
+
+							if (result.success && !result.skipped) {
+								totalGenerated++;
+								details.push({
+									clientId: client.id,
+									status: "success",
+									taskId: result.taskId,
+								});
+							} else if (result.skipped) {
+								totalSkipped++;
+								details.push({
+									clientId: client.id,
+									status: "skipped",
+									taskId: result.taskId,
+								});
+							}
+						} catch (error) {
+							totalFailed++;
+							details.push({
+								clientId: client.id,
+								status: "failed",
+								error: error instanceof Error ? error.message : "Unknown error",
+							});
+							// Continue processing other clients even if one fails
+						}
+					}
+				}
+
+				return {
+					total: clientsToProcess.length * templates.length,
+					generated: totalGenerated,
+					skipped: totalSkipped,
+					failed: totalFailed,
+					details,
+				};
+			} catch (error) {
+				Sentry.captureException(error, {
+					tags: { operation: "bulkGenerateForService" },
+					extra: { input },
+				});
+
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to bulk generate tasks",
+					cause: error,
+				});
+			}
+		}),
+});
