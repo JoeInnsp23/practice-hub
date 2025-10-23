@@ -558,9 +558,15 @@ export const protectedProcedure = t.procedure.use(isAuthed).use(rateLimiter);
 
 ### Client Usage
 
-**Setup**: `app/_trpc/client.ts`
+**Setup**: `app/providers/trpc-provider.tsx`
 
 ```typescript
+// NOTE: tRPC client is set up in app/providers/trpc-provider.tsx
+// See that file for the complete implementation including:
+// - createTRPCReact<AppRouter>() initialization
+// - TRPCProvider component with QueryClient setup
+// - httpBatchLink configuration with SuperJSON transformer
+
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "@/app/server";
 
@@ -570,7 +576,7 @@ export const trpc = createTRPCReact<AppRouter>();
 **Query Hook**:
 ```typescript
 "use client";
-import { trpc } from "@/app/_trpc/client";
+import { trpc } from "@/app/providers/trpc-provider";
 
 export function ClientsList() {
   const { data, isLoading, error } = trpc.clients.list.useQuery({
@@ -593,7 +599,7 @@ export function ClientsList() {
 **Mutation Hook**:
 ```typescript
 "use client";
-import { trpc } from "@/app/_trpc/client";
+import { trpc } from "@/app/providers/trpc-provider";
 
 export function CreateClientForm() {
   const utils = trpc.useUtils();

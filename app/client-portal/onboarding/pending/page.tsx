@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { trpc } from "@/app/_trpc/client";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SUPPORT_EMAIL } from "@/lib/config";

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { trpc } from "@/app/_trpc/client";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useClientPortalContext } from "@/contexts/client-portal-context";
 
