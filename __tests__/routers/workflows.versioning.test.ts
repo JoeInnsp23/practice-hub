@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { workflowsRouter } from "@/app/server/routers/workflows";
-import { tasksRouter } from "@/app/server/routers/tasks";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
+import { tasksRouter } from "@/app/server/routers/tasks";
+import { workflowsRouter } from "@/app/server/routers/workflows";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -76,7 +76,9 @@ describe("Workflow Versioning System", () => {
       };
 
       expect(() => {
-        workflowsRouter._def.procedures.publishVersion._def.inputs[0]?.parse(input);
+        workflowsRouter._def.procedures.publishVersion._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -88,7 +90,9 @@ describe("Workflow Versioning System", () => {
       };
 
       expect(() => {
-        workflowsRouter._def.procedures.publishVersion._def.inputs[0]?.parse(input);
+        workflowsRouter._def.procedures.publishVersion._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -100,7 +104,9 @@ describe("Workflow Versioning System", () => {
       };
 
       expect(() => {
-        workflowsRouter._def.procedures.compareVersions._def.inputs[0]?.parse(input);
+        workflowsRouter._def.procedures.compareVersions._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -113,7 +119,9 @@ describe("Workflow Versioning System", () => {
       };
 
       expect(() => {
-        workflowsRouter._def.procedures.rollbackToVersion._def.inputs[0]?.parse(input);
+        workflowsRouter._def.procedures.rollbackToVersion._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -124,7 +132,9 @@ describe("Workflow Versioning System", () => {
       };
 
       expect(() => {
-        workflowsRouter._def.procedures.rollbackToVersion._def.inputs[0]?.parse(input);
+        workflowsRouter._def.procedures.rollbackToVersion._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -135,7 +145,9 @@ describe("Workflow Versioning System", () => {
       };
 
       expect(() => {
-        workflowsRouter._def.procedures.migrateInstances._def.inputs[0]?.parse(input);
+        workflowsRouter._def.procedures.migrateInstances._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
   });

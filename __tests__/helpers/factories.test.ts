@@ -5,23 +5,30 @@
  * and cleanup works properly.
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
+import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { db } from "@/lib/db";
 import {
+  clients,
+  documents,
+  invoices,
+  tasks,
+  tenants,
+  users,
+} from "@/lib/db/schema";
+import {
+  cleanupTestData,
+  createCompleteTestSetup,
+  createTestClient,
+  createTestClients,
+  createTestDocument,
+  createTestInvoice,
+  createTestTask,
+  createTestTasks,
   createTestTenant,
   createTestUser,
-  createTestClient,
-  createTestTask,
-  createTestInvoice,
-  createTestDocument,
-  createTestClients,
-  createTestTasks,
-  createCompleteTestSetup,
-  cleanupTestData,
   type TestDataTracker,
 } from "./factories";
-import { db } from "@/lib/db";
-import { tenants, users, clients, tasks, invoices, documents } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
 describe("Test Data Factories", () => {
   const tracker: TestDataTracker = {
@@ -85,10 +92,7 @@ describe("Test Data Factories", () => {
       const userId = await createTestUser(tenantId);
       tracker.users?.push(userId);
 
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId));
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
 
       expect(user).toBeDefined();
       expect(user.id).toBe(userId);
@@ -110,10 +114,7 @@ describe("Test Data Factories", () => {
       });
       tracker.users?.push(userId);
 
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId));
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
 
       expect(user.email).toContain("custom-");
       expect(user.role).toBe("admin");
@@ -258,7 +259,7 @@ describe("Test Data Factories", () => {
       tracker.users?.push(userId);
 
       const clientsArray = await createTestClients(tenantId, userId, 3);
-      tracker.clients?.push(...clientsArray.map(c => c.id));
+      tracker.clients?.push(...clientsArray.map((c) => c.id));
 
       expect(clientsArray).toHaveLength(3);
       expect(clientsArray[0].name).toContain("Test Client 1");
@@ -283,7 +284,7 @@ describe("Test Data Factories", () => {
       tracker.clients?.push(client.id);
 
       const tasksArray = await createTestTasks(tenantId, client.id, userId, 5);
-      tracker.tasks?.push(...tasksArray.map(t => t.id));
+      tracker.tasks?.push(...tasksArray.map((t) => t.id));
 
       expect(tasksArray).toHaveLength(5);
 
@@ -354,16 +355,28 @@ describe("Test Data Factories", () => {
       await cleanupTestData(tracker);
 
       // Verify all deleted
-      const [dbTask] = await db.select().from(tasks).where(eq(tasks.id, task.id));
+      const [dbTask] = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.id, task.id));
       expect(dbTask).toBeUndefined();
 
-      const [dbClient] = await db.select().from(clients).where(eq(clients.id, client.id));
+      const [dbClient] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, client.id));
       expect(dbClient).toBeUndefined();
 
-      const [dbUser] = await db.select().from(users).where(eq(users.id, userId));
+      const [dbUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId));
       expect(dbUser).toBeUndefined();
 
-      const [dbTenant] = await db.select().from(tenants).where(eq(tenants.id, tenantId));
+      const [dbTenant] = await db
+        .select()
+        .from(tenants)
+        .where(eq(tenants.id, tenantId));
       expect(dbTenant).toBeUndefined();
     });
 
@@ -375,7 +388,7 @@ describe("Test Data Factories", () => {
       await expect(
         cleanupTestData({
           clients: ["non-existent-id"],
-        })
+        }),
       ).resolves.not.toThrow();
     });
   });

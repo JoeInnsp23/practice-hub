@@ -27,27 +27,25 @@ export function TemplateList() {
     search,
   });
 
-  const { mutate: deleteTemplate } =
-    trpc.proposalTemplates.delete.useMutation({
-      onSuccess: () => {
-        toast.success("Template deleted");
-        refetch();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to delete template");
-      },
-    });
+  const { mutate: deleteTemplate } = trpc.proposalTemplates.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Template deleted");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete template");
+    },
+  });
 
-  const { mutate: setDefault } =
-    trpc.proposalTemplates.setDefault.useMutation({
-      onSuccess: () => {
-        toast.success("Default template updated");
-        refetch();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to set default");
-      },
-    });
+  const { mutate: setDefault } = trpc.proposalTemplates.setDefault.useMutation({
+    onSuccess: () => {
+      toast.success("Default template updated");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to set default");
+    },
+  });
 
   const handleEdit = (id: string) => {
     setEditingId(id);

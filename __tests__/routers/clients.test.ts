@@ -7,21 +7,21 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { clientsRouter } from "@/app/server/routers/clients";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
+import { activityLogs, clientContacts, clients } from "@/lib/db/schema";
 import {
+  cleanupTestData,
+  createTestClient,
   createTestTenant,
   createTestUser,
-  createTestClient,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { clients, activityLogs, clientContacts } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock HMRC client module for VAT validation tests
 const { mockValidateVAT } = vi.hoisted(() => ({
@@ -134,8 +134,8 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         .where(
           and(
             eq(clientContacts.clientId, result.client.id),
-            eq(clientContacts.isPrimary, true)
-          )
+            eq(clientContacts.isPrimary, true),
+          ),
         );
 
       expect(contact).toBeDefined();
@@ -163,8 +163,8 @@ describe("app/server/routers/clients.ts (Integration)", () => {
           and(
             eq(activityLogs.entityId, result.client.id),
             eq(activityLogs.entityType, "client"),
-            eq(activityLogs.action, "created")
-          )
+            eq(activityLogs.action, "created"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -201,12 +201,20 @@ describe("app/server/routers/clients.ts (Integration)", () => {
   describe("list (Integration)", () => {
     it("should list clients with tenant isolation", async () => {
       // Create test clients
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Alpha",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Beta",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Alpha",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Beta",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const result = await caller.list({});
@@ -220,36 +228,54 @@ describe("app/server/routers/clients.ts (Integration)", () => {
       }
 
       // Verify our test clients are in the list
-      const clientIds = result.clients.map(c => c.id);
+      const clientIds = result.clients.map((c) => c.id);
       expect(clientIds).toContain(client1.id);
       expect(clientIds).toContain(client2.id);
     });
 
     it("should filter clients by search term", async () => {
       // Create clients with specific names
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Searchable Alpha Corp",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Beta Industries",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Searchable Alpha Corp",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Beta Industries",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const result = await caller.list({ search: "Searchable" });
 
       expect(result.clients.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableClient = result.clients.some(c => c.name.includes("Searchable"));
+      const hasSearchableClient = result.clients.some((c) =>
+        c.name.includes("Searchable"),
+      );
       expect(hasSearchableClient).toBe(true);
     });
 
     it("should filter clients by type", async () => {
       // Create clients with different types
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        type: "limited_company",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        type: "individual",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          type: "limited_company",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          type: "individual",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const result = await caller.list({ type: "limited_company" });
@@ -263,12 +289,20 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
     it("should filter clients by status", async () => {
       // Create clients with different statuses
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        status: "active",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        status: "onboarding",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          status: "active",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          status: "onboarding",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const result = await caller.list({ status: "active" });
@@ -283,9 +317,13 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("getById (Integration)", () => {
     it("should retrieve client by ID", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "GetById Test Client",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "GetById Test Client",
+        },
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.getById(client.id);
@@ -298,7 +336,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent ID", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.getById(nonExistentId)).rejects.toThrow("Client not found");
+      await expect(caller.getById(nonExistentId)).rejects.toThrow(
+        "Client not found",
+      );
     });
 
     it("should prevent cross-tenant access (CRITICAL)", async () => {
@@ -315,7 +355,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
       // Create context for tenant B (our test tenant)
       // Attempt to access tenant A's client from tenant B
-      await expect(caller.getById(clientA.id)).rejects.toThrow("Client not found");
+      await expect(caller.getById(clientA.id)).rejects.toThrow(
+        "Client not found",
+      );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
       try {
@@ -330,10 +372,14 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("update (Integration)", () => {
     it("should update client and persist changes", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Original Name",
-        email: "original@client.com",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Original Name",
+          email: "original@client.com",
+        },
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.update({
@@ -358,9 +404,13 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
 
     it("should create activity log for update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Update Log Test",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Update Log Test",
+        },
+      );
       tracker.clients?.push(client.id);
 
       await caller.update({
@@ -375,8 +425,8 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, client.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -391,7 +441,7 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { name: "Should Fail" },
-        })
+        }),
       ).rejects.toThrow("Client not found");
     });
 
@@ -410,16 +460,20 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         caller.update({
           id: clientA.id,
           data: { name: "Malicious Update" },
-        })
+        }),
       ).rejects.toThrow("Client not found");
     });
 
     it("should allow partial updates", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Partial Update Test",
-        email: "original@client.com",
-        phone: "+44 20 1111 2222",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Partial Update Test",
+          email: "original@client.com",
+          phone: "+44 20 1111 2222",
+        },
+      );
       tracker.clients?.push(client.id);
 
       // Update only phone
@@ -443,10 +497,14 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("delete (Integration)", () => {
     it("should archive client (soft delete)", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Delete Test Client",
-        status: "active",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Delete Test Client",
+          status: "active",
+        },
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.delete(client.id);
@@ -464,9 +522,13 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
 
     it("should create activity log for archiving", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Delete Log Test",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Delete Log Test",
+        },
+      );
       tracker.clients?.push(client.id);
 
       await caller.delete(client.id);
@@ -478,8 +540,8 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, client.id),
-            eq(activityLogs.action, "archived")
-          )
+            eq(activityLogs.action, "archived"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -490,7 +552,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent client", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.delete(nonExistentId)).rejects.toThrow("Client not found");
+      await expect(caller.delete(nonExistentId)).rejects.toThrow(
+        "Client not found",
+      );
     });
 
     it("should prevent cross-tenant deletion", async () => {
@@ -504,7 +568,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
       tracker.clients?.push(clientA.id);
 
       // Attempt to delete from different tenant
-      await expect(caller.delete(clientA.id)).rejects.toThrow("Client not found");
+      await expect(caller.delete(clientA.id)).rejects.toThrow(
+        "Client not found",
+      );
 
       // Verify client still exists
       const [dbClient] = await db
@@ -518,7 +584,10 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("getClientServices (Integration)", () => {
     it("should retrieve client services", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.getClientServices(client.id);
@@ -545,7 +614,10 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("getClientContacts (Integration)", () => {
     it("should retrieve client contacts", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.getClientContacts(client.id);
@@ -557,7 +629,10 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("getClientDirectors (Integration)", () => {
     it("should retrieve client directors", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.getClientDirectors(client.id);
@@ -569,7 +644,10 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
   describe("getClientPSCs (Integration)", () => {
     it("should retrieve client PSCs (Persons with Significant Control)", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const result = await caller.getClientPSCs(client.id);
@@ -607,10 +685,14 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
 
     it("should validate VAT number and update database when clientId provided", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        vatNumber: "GB123456789",
-        vatValidationStatus: null,
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          vatNumber: "GB123456789",
+          vatValidationStatus: null,
+        },
+      );
       tracker.clients?.push(client.id);
 
       mockValidateVAT.mockResolvedValue({
@@ -678,7 +760,10 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
 
     it("should handle invalid VAT number gracefully", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       mockValidateVAT.mockResolvedValue({
@@ -704,7 +789,10 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
 
     it("should log activity when validating VAT number", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       mockValidateVAT.mockResolvedValue({
@@ -726,8 +814,8 @@ describe("app/server/routers/clients.ts (Integration)", () => {
           and(
             eq(activityLogs.tenantId, ctx.authContext.tenantId),
             eq(activityLogs.entityType, "vat_validation"),
-            eq(activityLogs.entityId, client.id)
-          )
+            eq(activityLogs.entityId, client.id),
+          ),
         );
 
       expect(logs.length).toBeGreaterThan(0);

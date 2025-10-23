@@ -69,9 +69,7 @@ export function EditProposalDialog({
   const { mutate: updateProposal, isPending } =
     trpc.proposals.updateWithVersion.useMutation({
       onSuccess: (data) => {
-        toast.success(
-          `Proposal updated to version ${data.newVersion}`,
-        );
+        toast.success(`Proposal updated to version ${data.newVersion}`);
         utils.proposals.getById.invalidate(proposalId);
         utils.proposals.list.invalidate();
         setOpen(false);
@@ -246,7 +244,9 @@ export function EditProposalDialog({
                         />
                       </div>
                       <div>
-                        <Label className="text-xs">Calculation (optional)</Label>
+                        <Label className="text-xs">
+                          Calculation (optional)
+                        </Label>
                         <Input
                           value={service.calculation || ""}
                           onChange={(e) =>
@@ -283,10 +283,7 @@ export function EditProposalDialog({
               <div className="flex justify-between text-sm">
                 <span className="font-medium">Monthly Total:</span>
                 <span className="font-bold">
-                  £
-                  {services
-                    .reduce((sum, s) => sum + s.price, 0)
-                    .toFixed(2)}
+                  £{services.reduce((sum, s) => sum + s.price, 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between text-xs text-muted-foreground mt-1">

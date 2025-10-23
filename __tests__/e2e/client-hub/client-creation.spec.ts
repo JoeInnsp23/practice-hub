@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
+  clickButton,
   fillInputField,
   selectRadixOption,
-  clickButton,
   waitForDialogOpen,
 } from "../helpers/radix-interactions";
 
@@ -18,7 +18,11 @@ test.describe("Client Creation", () => {
     await page.waitForLoadState("networkidle");
 
     // Look for "New Client", "Add Client", or "Create" button
-    const createButton = page.locator('button:has-text("New Client"), button:has-text("Add Client"), button:has-text("Create"), a:has-text("New Client")').first();
+    const createButton = page
+      .locator(
+        'button:has-text("New Client"), button:has-text("Add Client"), button:has-text("Create"), a:has-text("New Client")',
+      )
+      .first();
 
     if (await createButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await createButton.click();
@@ -26,7 +30,7 @@ test.describe("Client Creation", () => {
 
       // Check for form fields
       const hasFormFields =
-        (await page.locator('input, textarea, select').count()) > 0 ||
+        (await page.locator("input, textarea, select").count()) > 0 ||
         (await page.locator('[role="form"], form').count()) > 0;
 
       expect(hasFormFields).toBeTruthy();
@@ -45,7 +49,11 @@ test.describe("Client Creation", () => {
     await page.waitForLoadState("networkidle");
 
     // Look for create button
-    const createButton = page.locator('button:has-text("New Client"), button:has-text("Add Client"), button:has-text("Create"), a:has-text("New Client")').first();
+    const createButton = page
+      .locator(
+        'button:has-text("New Client"), button:has-text("Add Client"), button:has-text("Create"), a:has-text("New Client")',
+      )
+      .first();
 
     if (await createButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await createButton.click();
@@ -53,10 +61,18 @@ test.describe("Client Creation", () => {
 
       // Check for expected fields (name, email, etc.)
       const hasNameField =
-        (await page.locator('input[name*="name" i], input[placeholder*="name" i], label:has-text("Name")').count()) > 0;
+        (await page
+          .locator(
+            'input[name*="name" i], input[placeholder*="name" i], label:has-text("Name")',
+          )
+          .count()) > 0;
 
       const hasEmailField =
-        (await page.locator('input[type="email"], input[name*="email" i], input[placeholder*="email" i]').count()) > 0;
+        (await page
+          .locator(
+            'input[type="email"], input[name*="email" i], input[placeholder*="email" i]',
+          )
+          .count()) > 0;
 
       if (hasNameField || hasEmailField) {
         console.log("Client form has expected fields");
@@ -72,7 +88,9 @@ test.describe("Client Creation", () => {
     }
   });
 
-  test("should create new client with contact information", async ({ page }) => {
+  test("should create new client with contact information", async ({
+    page,
+  }) => {
     // No login needed - test starts with authenticated state from global-setup
 
     // Generate unique test data
@@ -81,16 +99,19 @@ test.describe("Client Creation", () => {
 
     // Navigate to clients page
     await page.goto("/client-hub/clients");
-    await page.waitForLoadState("networkidle");
 
-    // Click "Add Client" button
+    // CRITICAL: Wait for Turbopack compilation and network to stabilize
+    // Turbopack can take 60-90 seconds on cold start
+    await page.waitForLoadState("networkidle", { timeout: 90000 });
+
+    // Click "Add Client" button via stable testid
     await clickButton(page, '[data-testid="client-creation-button"]');
 
-    // Small wait to ensure React state updates
-    await page.waitForTimeout(200);
-
-    // Wait for wizard modal to open
-    await waitForDialogOpen(page);
+    // Wait for the specific client wizard modal to open
+    await waitForDialogOpen(page, {
+      selector: '[data-testid="client-wizard-modal"]',
+      timeout: 30000,
+    });
 
     // Fill in client name using data-testid
     await fillInputField(page, "client-form-name-input", testClientName);
@@ -101,11 +122,20 @@ test.describe("Client Creation", () => {
     // Select client status
     await selectRadixOption(page, "client-form-status-select", "Active");
 
-    // Select account manager (use the seeded account manager "Sarah Smith")
+    // Wait for any previous interactions to settle and modal content to stabilize
+    await page.waitForTimeout(500);
+
+    // Ensure the modal's scrollable content area is visible and stable
+    const modalContent = page.locator(
+      '[data-testid="client-wizard-modal"] .overflow-y-auto',
+    );
+    await modalContent.waitFor({ state: "visible", timeout: 5000 });
+
+    // Select account manager (use available option "John Smith")
     await selectRadixOption(
       page,
       "client-form-account-manager-select",
-      "Sarah Smith",
+      "John Smith",
     );
 
     // Click Next button to proceed through wizard
@@ -141,15 +171,13 @@ test.describe("Client Creation", () => {
       timeout: 10000,
     });
 
-    // Verify success: client should appear in the list
-    await page.waitForTimeout(1000); // Brief wait for list to refresh
+    // Verify success: Wait for client to appear in the list with proper retry
+    // This waits for React Query to invalidate cache and re-render the table
+    await page.waitForSelector(`text="${testClientName}"`, {
+      state: "visible",
+      timeout: 10000, // Allow up to 10 seconds for React Query to refresh
+    });
 
-    const clientInList = await page
-      .locator(`text="${testClientName}"`)
-      .isVisible({ timeout: 5000 })
-      .catch(() => false);
-
-    expect(clientInList).toBeTruthy();
     console.log(`Successfully created client: ${testClientName}`);
   });
 
@@ -165,20 +193,32 @@ test.describe("Client Creation", () => {
     await page.waitForLoadState("networkidle");
 
     // Create a client first
-    const createButton = page.locator('button:has-text("New Client"), button:has-text("Add Client"), button:has-text("Create"), a:has-text("New Client")').first();
+    const createButton = page
+      .locator(
+        'button:has-text("New Client"), button:has-text("Add Client"), button:has-text("Create"), a:has-text("New Client")',
+      )
+      .first();
 
     if (await createButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await createButton.click();
       await page.waitForLoadState("networkidle");
 
       // Fill in minimal required fields
-      const nameInput = page.locator('input[name="name"], input[name="clientName"], input[placeholder*="name" i]').first();
+      const nameInput = page
+        .locator(
+          'input[name="name"], input[name="clientName"], input[placeholder*="name" i]',
+        )
+        .first();
       if (await nameInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         await nameInput.fill(testClientName);
       }
 
       // Submit
-      const submitButton = page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first();
+      const submitButton = page
+        .locator(
+          'button[type="submit"], button:has-text("Save"), button:has-text("Create")',
+        )
+        .first();
       if (await submitButton.isVisible({ timeout: 5000 }).catch(() => false)) {
         await submitButton.click();
         await page.waitForLoadState("networkidle");
@@ -189,7 +229,10 @@ test.describe("Client Creation", () => {
         await page.waitForLoadState("networkidle");
 
         // Check if client appears in list
-        const clientVisible = await page.locator(`text="${testClientName}"`).isVisible({ timeout: 5000 }).catch(() => false);
+        const clientVisible = await page
+          .locator(`text="${testClientName}"`)
+          .isVisible({ timeout: 5000 })
+          .catch(() => false);
 
         if (clientVisible) {
           // Refresh the page
@@ -197,10 +240,15 @@ test.describe("Client Creation", () => {
           await page.waitForLoadState("networkidle");
 
           // Check if client still appears after refresh
-          const clientStillVisible = await page.locator(`text="${testClientName}"`).isVisible({ timeout: 5000 }).catch(() => false);
+          const clientStillVisible = await page
+            .locator(`text="${testClientName}"`)
+            .isVisible({ timeout: 5000 })
+            .catch(() => false);
 
           if (clientStillVisible) {
-            console.log(`Client ${testClientName} persisted after page refresh`);
+            console.log(
+              `Client ${testClientName} persisted after page refresh`,
+            );
             expect(true).toBeTruthy();
           } else {
             console.log("Client not visible after refresh");

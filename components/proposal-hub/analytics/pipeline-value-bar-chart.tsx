@@ -41,8 +41,12 @@ export function PipelineValueBarChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Pipeline Value by Stage</h3>
-          <p className="text-sm text-muted-foreground">Active deals value distribution</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Pipeline Value by Stage
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Active deals value distribution
+          </p>
         </div>
         <div className="flex items-center justify-center h-[350px]">
           <div className="text-muted-foreground">Loading chart...</div>
@@ -55,8 +59,12 @@ export function PipelineValueBarChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Pipeline Value by Stage</h3>
-          <p className="text-sm text-muted-foreground">Active deals value distribution</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Pipeline Value by Stage
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Active deals value distribution
+          </p>
         </div>
         <div className="flex items-center justify-center h-[350px]">
           <div className="text-center">
@@ -79,7 +87,9 @@ export function PipelineValueBarChart({
   return (
     <Card className="p-6">
       <div className="space-y-2 mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Pipeline Value by Stage</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Pipeline Value by Stage
+        </h3>
         <p className="text-sm text-muted-foreground">
           Total: £{Math.round(data.totalValue).toLocaleString()}
         </p>

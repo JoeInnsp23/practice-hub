@@ -22,8 +22,8 @@ import {
   sendTeamNotificationEmail,
 } from "@/lib/email/send-proposal-email";
 import { generateProposalPdf } from "@/lib/pdf/generate-proposal-pdf";
-import { getProposalSignedPdfUrl } from "@/lib/s3/signed-pdf-access";
 import { checkSigningRateLimit, getClientIp } from "@/lib/rate-limit/signing";
+import { getProposalSignedPdfUrl } from "@/lib/s3/signed-pdf-access";
 import {
   getAutomationReason,
   getAutoSalesStage,
@@ -866,7 +866,10 @@ export const proposalsRouter = router({
         } catch (error) {
           Sentry.captureException(error, {
             tags: { operation: "create_docuseal_template" },
-            extra: { proposalId: input.id, proposalNumber: existingProposal.proposalNumber },
+            extra: {
+              proposalId: input.id,
+              proposalNumber: existingProposal.proposalNumber,
+            },
           });
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -943,7 +946,10 @@ export const proposalsRouter = router({
       } catch (emailError) {
         Sentry.captureException(emailError, {
           tags: { operation: "send_signing_invitation_email" },
-          extra: { proposalId: input.id, recipientEmail: existingProposal.clientEmail },
+          extra: {
+            proposalId: input.id,
+            recipientEmail: existingProposal.clientEmail,
+          },
         });
         // Don't fail the mutation if email fails, just log it
         // The proposal is still marked as sent
@@ -1085,7 +1091,10 @@ export const proposalsRouter = router({
       } catch (emailError) {
         Sentry.captureException(emailError, {
           tags: { operation: "send_client_confirmation_email" },
-          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+          extra: {
+            proposalId: input.proposalId,
+            signerEmail: input.signerEmail,
+          },
         });
         // Don't fail the mutation if email fails
       }
@@ -1101,7 +1110,10 @@ export const proposalsRouter = router({
       } catch (emailError) {
         Sentry.captureException(emailError, {
           tags: { operation: "send_team_notification_email" },
-          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+          extra: {
+            proposalId: input.proposalId,
+            signerEmail: input.signerEmail,
+          },
         });
         // Don't fail the mutation if email fails
       }
@@ -1189,7 +1201,10 @@ export const proposalsRouter = router({
         .select()
         .from(proposals)
         .where(
-          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+          and(
+            eq(proposals.id, input.proposalId),
+            eq(proposals.tenantId, tenantId),
+          ),
         )
         .limit(1);
 
@@ -1695,7 +1710,10 @@ export const proposalsRouter = router({
         // Log error but don't fail the signature process
         Sentry.captureException(emailError, {
           tags: { operation: "send_proposal_signed_emails" },
-          extra: { proposalId: input.proposalId, signerEmail: input.signerEmail },
+          extra: {
+            proposalId: input.proposalId,
+            signerEmail: input.signerEmail,
+          },
         });
       }
 
@@ -1710,7 +1728,10 @@ export const proposalsRouter = router({
     .input(
       z.object({
         proposalId: z.string().uuid(),
-        ttlSeconds: z.number().default(48 * 60 * 60).optional(),
+        ttlSeconds: z
+          .number()
+          .default(48 * 60 * 60)
+          .optional(),
       }),
     )
     .query(async ({ input, ctx }) => {

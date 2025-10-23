@@ -1,6 +1,13 @@
 "use client";
 
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 
 interface WinLossData {
@@ -15,13 +22,20 @@ interface WinLossPieChartProps {
   isLoading?: boolean;
 }
 
-export function WinLossPieChart({ data, isLoading = false }: WinLossPieChartProps) {
+export function WinLossPieChart({
+  data,
+  isLoading = false,
+}: WinLossPieChartProps) {
   if (isLoading) {
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Win/Loss Distribution</h3>
-          <p className="text-sm text-muted-foreground">Proposal outcome breakdown</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Win/Loss Distribution
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Proposal outcome breakdown
+          </p>
         </div>
         <div className="flex items-center justify-center h-[300px]">
           <div className="text-muted-foreground">Loading chart...</div>
@@ -34,8 +48,12 @@ export function WinLossPieChart({ data, isLoading = false }: WinLossPieChartProp
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Win/Loss Distribution</h3>
-          <p className="text-sm text-muted-foreground">Proposal outcome breakdown</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Win/Loss Distribution
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Proposal outcome breakdown
+          </p>
         </div>
         <div className="flex items-center justify-center h-[300px]">
           <div className="text-center">
@@ -57,7 +75,9 @@ export function WinLossPieChart({ data, isLoading = false }: WinLossPieChartProp
   return (
     <Card className="p-6">
       <div className="space-y-2 mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Win/Loss Distribution</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Win/Loss Distribution
+        </h3>
         <p className="text-sm text-muted-foreground">
           {data.won} won, {data.lost} lost ({data.winRate.toFixed(1)}% win rate)
         </p>
@@ -69,7 +89,9 @@ export function WinLossPieChart({ data, isLoading = false }: WinLossPieChartProp
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) =>
+              `${name}: ${(percent * 100).toFixed(0)}%`
+            }
             outerRadius={100}
             fill="#8884d8"
             dataKey="value"

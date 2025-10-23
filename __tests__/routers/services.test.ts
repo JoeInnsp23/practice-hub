@@ -7,25 +7,25 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
 import { servicesRouter } from "@/app/server/routers/services";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
+import { activityLogs, services } from "@/lib/db/schema";
 import {
+  cleanupTestData,
   createTestTenant,
   createTestUser,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { services, activityLogs } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 // Helper function to create test service
 async function createTestService(
   tenantId: string,
-  overrides: Partial<typeof services.$inferInsert> = {}
+  overrides: Partial<typeof services.$inferInsert> = {},
 ) {
   const serviceId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -90,12 +90,16 @@ describe("app/server/routers/services.ts (Integration)", () => {
   afterEach(async () => {
     // Cleanup services first (before tenants/users)
     if (tracker.services && tracker.services.length > 0) {
-      await db.delete(services).where(
-        eq(services.id, tracker.services[0])
-      ).catch(() => {});
+      await db
+        .delete(services)
+        .where(eq(services.id, tracker.services[0]))
+        .catch(() => {});
 
       for (const serviceId of tracker.services) {
-        await db.delete(services).where(eq(services.id, serviceId)).catch(() => {});
+        await db
+          .delete(services)
+          .where(eq(services.id, serviceId))
+          .catch(() => {});
       }
     }
 
@@ -213,8 +217,8 @@ describe("app/server/routers/services.ts (Integration)", () => {
           and(
             eq(activityLogs.entityId, result.service.id),
             eq(activityLogs.entityType, "service"),
-            eq(activityLogs.action, "created")
-          )
+            eq(activityLogs.action, "created"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -275,7 +279,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
       const hasSearchableService = result.services.some((s) =>
-        s.name.includes("Searchable")
+        s.name.includes("Searchable"),
       );
       expect(hasSearchableService).toBe(true);
     });
@@ -292,7 +296,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
       const hasSearchableService = result.services.some(
-        (s) => s.code === uniqueCode
+        (s) => s.code === uniqueCode,
       );
       expect(hasSearchableService).toBe(true);
     });
@@ -375,7 +379,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.getById(nonExistentId)).rejects.toThrow(
-        "Service not found"
+        "Service not found",
       );
     });
 
@@ -394,7 +398,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
       // Create context for tenant B (our test tenant)
       // Attempt to access tenant A's service from tenant B
       await expect(caller.getById(serviceA.id)).rejects.toThrow(
-        "Service not found"
+        "Service not found",
       );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
@@ -459,8 +463,8 @@ describe("app/server/routers/services.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, service.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -476,7 +480,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { name: "Should Fail" },
-        })
+        }),
       ).rejects.toThrow("Service not found");
     });
 
@@ -495,7 +499,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         caller.update({
           id: serviceA.id,
           data: { name: "Malicious Update" },
-        })
+        }),
       ).rejects.toThrow("Service not found");
     });
 
@@ -594,8 +598,8 @@ describe("app/server/routers/services.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, service.id),
-            eq(activityLogs.action, "deactivated")
-          )
+            eq(activityLogs.action, "deactivated"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -607,7 +611,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.delete(nonExistentId)).rejects.toThrow(
-        "Service not found"
+        "Service not found",
       );
     });
 
@@ -623,7 +627,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
 
       // Attempt to delete from different tenant
       await expect(caller.delete(serviceA.id)).rejects.toThrow(
-        "Service not found"
+        "Service not found",
       );
 
       // Verify service still exists and is still active

@@ -4,7 +4,6 @@ import { Check, Trash2, User, X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import type { TaskStatus } from "./types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { TaskStatus } from "./types";
 
 interface BulkActionBarProps {
   selectedTaskIds: string[];
@@ -221,9 +221,7 @@ export function BulkActionBar({
             </Button>
             <Button
               onClick={handleStatusUpdate}
-              disabled={
-                !selectedStatus || bulkUpdateStatusMutation.isPending
-              }
+              disabled={!selectedStatus || bulkUpdateStatusMutation.isPending}
             >
               {bulkUpdateStatusMutation.isPending
                 ? "Updating..."

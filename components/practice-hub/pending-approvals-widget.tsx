@@ -1,21 +1,39 @@
 "use client";
 
-import { Clock, CheckCircle2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc/client";
+import { CheckCircle2, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useSession } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc/client";
 
 export function PendingApprovalsWidget() {
   const router = useRouter();
-  const { data: submissions, isLoading } = trpc.timesheets.getPendingApprovals.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
+  const { data: session } = useSession();
 
-  // Don't show widget if error (user not manager) or no pending approvals
-  if (isLoading) return null;
-  if (!submissions || submissions.length === 0) return null;
+  // Check if user is manager/admin from session
+  const isManagerOrAdmin =
+    session?.user?.role === "manager" ||
+    session?.user?.role === "admin" ||
+    session?.user?.role === "org:admin";
+
+  // Conditionally enable query - only run if manager/admin
+  const { data: submissions, isLoading } =
+    trpc.timesheets.getPendingApprovals.useQuery(undefined, {
+      enabled: isManagerOrAdmin,
+      retry: false,
+      refetchOnWindowFocus: false,
+    });
+
+  // Don't show widget if not manager/admin or no pending approvals
+  if (
+    !isManagerOrAdmin ||
+    isLoading ||
+    !submissions ||
+    submissions.length === 0
+  ) {
+    return null;
+  }
 
   return (
     <Card className="glass-card p-6">
@@ -25,9 +43,12 @@ export function PendingApprovalsWidget() {
             <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">Pending Timesheet Approvals</h3>
+            <h3 className="font-semibold text-lg">
+              Pending Timesheet Approvals
+            </h3>
             <p className="text-sm text-muted-foreground">
-              {submissions.length} timesheet{submissions.length !== 1 ? "s" : ""} awaiting your review
+              {submissions.length} timesheet
+              {submissions.length !== 1 ? "s" : ""} awaiting your review
             </p>
           </div>
         </div>
@@ -45,7 +66,9 @@ export function PendingApprovalsWidget() {
       {/* Show preview of pending submissions */}
       {submissions.length > 0 && (
         <div className="mt-4 space-y-2">
-          <div className="text-xs text-muted-foreground font-medium">Recent Submissions:</div>
+          <div className="text-xs text-muted-foreground font-medium">
+            Recent Submissions:
+          </div>
           <div className="space-y-1">
             {submissions.slice(0, 3).map((submission) => (
               <div

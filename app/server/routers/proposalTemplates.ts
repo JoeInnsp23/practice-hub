@@ -4,8 +4,8 @@ import { and, desc, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { proposalTemplates, activityLogs, users } from "@/lib/db/schema";
-import { protectedProcedure, adminProcedure, router } from "../trpc";
+import { activityLogs, proposalTemplates, users } from "@/lib/db/schema";
+import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Validation schema
 const defaultServiceSchema = z.object({
@@ -279,9 +279,7 @@ export const proposalTemplatesRouter = router({
         }
 
         // Delete template
-        await db
-          .delete(proposalTemplates)
-          .where(eq(proposalTemplates.id, id));
+        await db.delete(proposalTemplates).where(eq(proposalTemplates.id, id));
 
         // Log activity
         await db.insert(activityLogs).values({

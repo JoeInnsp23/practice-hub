@@ -33,7 +33,9 @@ export function MonthlyTrendChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Monthly Trend</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Monthly Trend
+          </h3>
           <p className="text-sm text-muted-foreground">
             Proposals, wins, and losses over time
           </p>
@@ -49,7 +51,9 @@ export function MonthlyTrendChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Monthly Trend</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Monthly Trend
+          </h3>
           <p className="text-sm text-muted-foreground">
             Proposals, wins, and losses over time
           </p>

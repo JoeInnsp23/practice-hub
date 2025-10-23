@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import type {
+  ConnectionState,
+  RealtimeEvent,
+  SubscriptionCallback,
+} from "@/lib/realtime/client";
+import { SSEClient } from "@/lib/realtime/sse-client";
 
 interface SSEMessage {
   type: string;
@@ -17,146 +23,188 @@ interface UseSSEOptions {
   onDisconnect?: () => void;
   reconnectDelay?: number;
   maxReconnectAttempts?: number;
+  enablePollingFallback?: boolean;
+  pollingInterval?: number;
 }
 
-export function useSSE(url: string = "/api/sse", options: UseSSEOptions = {}) {
+/**
+ * React hook for SSE connections
+ *
+ * Provides a simple interface for connecting to SSE endpoints with:
+ * - Automatic reconnection with exponential backoff
+ * - Heartbeat monitoring
+ * - Polling fallback when SSE fails
+ * - Connection state management
+ *
+ * @example
+ * ```typescript
+ * const { isConnected, connectionState, subscribe } = useSSE('/api/activity/stream', {
+ *   maxReconnectAttempts: 3,
+ *   enablePollingFallback: true,
+ * });
+ *
+ * // Subscribe to activity events
+ * useEffect(() => {
+ *   const unsubscribe = subscribe('activity:new', (event) => {
+ *     console.log('New activity:', event.data);
+ *   });
+ *   return unsubscribe;
+ * }, [subscribe]);
+ * ```
+ */
+export function useSSE(
+  url: string = "/api/activity/stream",
+  options: UseSSEOptions = {},
+) {
   const {
     onMessage,
     onError,
     onConnect,
     onDisconnect,
-    reconnectDelay = 5000,
-    maxReconnectAttempts = 5,
+    reconnectDelay = 1000,
+    maxReconnectAttempts = 3,
+    enablePollingFallback = true,
+    pollingInterval = 30000,
   } = options;
 
+  const [connectionState, setConnectionState] =
+    useState<ConnectionState>("disconnected");
   const [isConnected, setIsConnected] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   const [lastMessage, setLastMessage] = useState<SSEMessage | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectAttemptsRef = useRef(0);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const clientRef = useRef<SSEClient | null>(null);
 
-  const connect = useCallback(() => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-    }
+  // Initialize SSE client
+  useEffect(() => {
+    const client = new SSEClient();
+    clientRef.current = client;
 
-    try {
-      const eventSource = new EventSource(url);
-      eventSourceRef.current = eventSource;
+    // Subscribe to connection state changes
+    const unsubscribeState = client.subscribe("connection:state", (event) => {
+      const { state } = event.data as { state: ConnectionState };
+      setConnectionState(state);
+      setIsConnected(state === "connected");
 
-      eventSource.onopen = () => {
-        console.log("SSE connected");
-        setIsConnected(true);
-        reconnectAttemptsRef.current = 0;
+      // Notify callbacks
+      if (state === "connected") {
         onConnect?.();
-      };
-
-      eventSource.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data) as SSEMessage;
-          setLastMessage(message);
-
-          // Handle different message types
-          switch (message.type) {
-            case "connected":
-              console.log("SSE connection established:", message.connectionId);
-              break;
-
-            case "heartbeat":
-              // Heartbeat to keep connection alive
-              break;
-
-            case "notification": {
-              // Show toast for notifications
-              const data = message.data as { message?: string; level?: string };
-              if (data?.message) {
-                const notificationType = data.level || "info";
-                switch (notificationType) {
-                  case "success":
-                    toast.success(data.message);
-                    break;
-                  case "error":
-                    toast.error(data.message);
-                    break;
-                  default:
-                    toast(data.message);
-                }
-              }
-              break;
-            }
-
-            default:
-              // Pass to custom handler
-              onMessage?.(message);
-          }
-        } catch (error) {
-          console.error("Failed to parse SSE message:", error);
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        console.error("SSE error:", error);
-        setIsConnected(false);
-        eventSource.close();
-        eventSourceRef.current = null;
+      } else if (state === "disconnected" || state === "failed") {
         onDisconnect?.();
-        onError?.(new Error("SSE connection failed"));
+      }
+    });
 
-        // Attempt to reconnect
-        if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-          reconnectAttemptsRef.current++;
-          console.log(
-            `Reconnecting SSE (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`,
-          );
+    // Subscribe to polling events
+    const unsubscribePollingStarted = client.subscribe(
+      "polling:started",
+      () => {
+        setIsPolling(true);
+        toast("Real-time updates unavailable, using polling", {
+          icon: "⚠️",
+          duration: 5000,
+        });
+      },
+    );
 
-          reconnectTimeoutRef.current = setTimeout(() => {
-            connect();
-          }, reconnectDelay * reconnectAttemptsRef.current);
-        } else {
-          toast.error(
-            "Real-time updates disconnected. Please refresh the page.",
-          );
-        }
-      };
-    } catch (error) {
-      console.error("Failed to create SSE connection:", error);
-      onError?.(error as Error);
-    }
+    const unsubscribePollingStopped = client.subscribe(
+      "polling:stopped",
+      () => {
+        setIsPolling(false);
+      },
+    );
+
+    // Connect to SSE endpoint
+    client.connect(url, {
+      reconnectDelay,
+      maxReconnectAttempts,
+      enablePollingFallback,
+      pollingInterval,
+      heartbeatTimeout: 60000,
+    });
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribeState();
+      unsubscribePollingStarted();
+      unsubscribePollingStopped();
+      client.disconnect();
+    };
   }, [
     url,
-    onMessage,
-    onError,
-    onConnect,
-    onDisconnect,
     reconnectDelay,
     maxReconnectAttempts,
+    enablePollingFallback,
+    pollingInterval,
+    onConnect,
+    onDisconnect,
   ]);
 
+  // Subscribe to event types
+  const subscribe = useCallback(
+    <T = unknown>(eventType: string, callback: SubscriptionCallback<T>) => {
+      if (!clientRef.current) {
+        console.warn("[useSSE] Client not initialized");
+        return () => {};
+      }
+
+      return clientRef.current.subscribe(eventType, (event) => {
+        // Update last message state
+        setLastMessage({
+          type: event.type,
+          data: event.data,
+          timestamp: event.timestamp,
+        });
+
+        // Call callback
+        callback(event);
+
+        // Call legacy onMessage handler
+        onMessage?.({
+          type: event.type,
+          data: event.data,
+          timestamp: event.timestamp,
+        });
+      });
+    },
+    [onMessage],
+  );
+
+  // Manual reconnect
+  const reconnect = useCallback(() => {
+    if (!clientRef.current) {
+      console.warn("[useSSE] Client not initialized");
+      return;
+    }
+
+    clientRef.current.reconnect();
+  }, []);
+
+  // Manual disconnect
   const disconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
+    if (!clientRef.current) {
+      console.warn("[useSSE] Client not initialized");
+      return;
     }
 
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-      setIsConnected(false);
-      onDisconnect?.();
+    clientRef.current.disconnect();
+  }, []);
+
+  // Get connection stats
+  const getStats = useCallback(() => {
+    if (!clientRef.current) {
+      return null;
     }
-  }, [onDisconnect]);
 
-  useEffect(() => {
-    connect();
-
-    return () => {
-      disconnect();
-    };
-  }, [connect, disconnect]);
+    return clientRef.current.getStats();
+  }, []);
 
   return {
     isConnected,
+    connectionState,
+    isPolling,
     lastMessage,
-    reconnect: connect,
+    subscribe,
+    reconnect,
     disconnect,
+    getStats,
   };
 }

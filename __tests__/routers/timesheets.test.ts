@@ -7,22 +7,22 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
+import { activityLogs, timeEntries } from "@/lib/db/schema";
 import {
-  createTestTenant,
-  createTestUser,
-  createTestClient,
-  createTestTimeEntry,
   cleanupTestData,
+  createTestClient,
+  createTestTenant,
+  createTestTimeEntry,
+  createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { timeEntries, activityLogs } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/timesheets.ts (Integration)", () => {
   let ctx: Context;
@@ -69,7 +69,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
   describe("create (Integration)", () => {
     it("should create time entry and persist to database", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -106,7 +109,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should create time entry with optional fields", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -132,7 +138,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should create activity log for time entry creation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -156,8 +165,8 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
           and(
             eq(activityLogs.entityId, result.timeEntry.id),
             eq(activityLogs.entityType, "timeEntry"),
-            eq(activityLogs.action, "created")
-          )
+            eq(activityLogs.action, "created"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -178,7 +187,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
   describe("list (Integration)", () => {
     it("should list time entries with tenant isolation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create test time entries
@@ -186,13 +198,13 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { description: "Entry Alpha", hours: "5.00" }
+        { description: "Entry Alpha", hours: "5.00" },
       );
       const entry2 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { description: "Entry Beta", hours: "3.00" }
+        { description: "Entry Beta", hours: "3.00" },
       );
       tracker.timeEntries?.push(entry1.id, entry2.id);
 
@@ -207,13 +219,16 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       }
 
       // Verify our test entries are in the list
-      const entryIds = result.timeEntries.map(e => e.id);
+      const entryIds = result.timeEntries.map((e) => e.id);
       expect(entryIds).toContain(entry1.id);
       expect(entryIds).toContain(entry2.id);
     });
 
     it("should filter time entries by date range", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create entries with different dates
@@ -221,13 +236,13 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-10", hours: "5.00" }
+        { date: "2025-01-10", hours: "5.00" },
       );
       const entry2 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-20", hours: "3.00" }
+        { date: "2025-01-20", hours: "3.00" },
       );
       tracker.timeEntries?.push(entry1.id, entry2.id);
 
@@ -236,19 +251,22 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
       expect(result.timeEntries.length).toBeGreaterThanOrEqual(1);
       // Should include entry2, might not include entry1
-      const hasEntry2 = result.timeEntries.some(e => e.id === entry2.id);
+      const hasEntry2 = result.timeEntries.some((e) => e.id === entry2.id);
       expect(hasEntry2).toBe(true);
     });
 
     it("should filter time entries by user", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create entry for our test user
       const entry = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
-        client.id
+        client.id,
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -262,24 +280,32 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should filter time entries by client", async () => {
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client One",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Two",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client One",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Two",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       // Create entries for different clients
       const entry1 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
-        client1.id
+        client1.id,
       );
       const entry2 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
-        client2.id
+        client2.id,
       );
       tracker.timeEntries?.push(entry1.id, entry2.id);
 
@@ -293,7 +319,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should filter time entries by billable status", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create billable and non-billable entries
@@ -301,13 +330,13 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { billable: true, hours: "5.00" }
+        { billable: true, hours: "5.00" },
       );
       const entry2 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { billable: false, hours: "3.00" }
+        { billable: false, hours: "3.00" },
       );
       tracker.timeEntries?.push(entry1.id, entry2.id);
 
@@ -323,14 +352,17 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
   describe("getById (Integration)", () => {
     it("should retrieve time entry by ID", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { description: "GetById Test Entry" }
+        { description: "GetById Test Entry" },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -344,7 +376,9 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent ID", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.getById(nonExistentId)).rejects.toThrow("Time entry not found");
+      await expect(caller.getById(nonExistentId)).rejects.toThrow(
+        "Time entry not found",
+      );
     });
 
     it("should prevent cross-tenant access (CRITICAL)", async () => {
@@ -356,13 +390,20 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       tracker.users?.push(userAId);
       tracker.clients?.push(clientAId.id);
 
-      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id, {
-        description: "Tenant A Entry",
-      });
+      const entryA = await createTestTimeEntry(
+        tenantAId,
+        userAId,
+        clientAId.id,
+        {
+          description: "Tenant A Entry",
+        },
+      );
       tracker.timeEntries?.push(entryA.id);
 
       // Attempt to access tenant A's entry from tenant B (our test tenant)
-      await expect(caller.getById(entryA.id)).rejects.toThrow("Time entry not found");
+      await expect(caller.getById(entryA.id)).rejects.toThrow(
+        "Time entry not found",
+      );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
       try {
@@ -377,7 +418,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
   describe("update (Integration)", () => {
     it("should update time entry and persist changes", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
@@ -388,7 +432,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
           description: "Original Description",
           hours: "5.00",
           billable: true,
-        }
+        },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -417,14 +461,17 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should create activity log for update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { description: "Update Log Test" }
+        { description: "Update Log Test" },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -440,8 +487,8 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, entry.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -456,7 +503,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { hours: "10.00" },
-        })
+        }),
       ).rejects.toThrow("Time entry not found");
     });
 
@@ -469,7 +516,11 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       tracker.users?.push(userAId);
       tracker.clients?.push(clientAId.id);
 
-      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id);
+      const entryA = await createTestTimeEntry(
+        tenantAId,
+        userAId,
+        clientAId.id,
+      );
       tracker.timeEntries?.push(entryA.id);
 
       // Attempt to update from different tenant
@@ -477,12 +528,15 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         caller.update({
           id: entryA.id,
           data: { description: "Malicious Update" },
-        })
+        }),
       ).rejects.toThrow("Time entry not found");
     });
 
     it("should allow partial updates", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
@@ -493,7 +547,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
           description: "Partial Update Test",
           hours: "5.00",
           notes: "Original notes",
-        }
+        },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -518,14 +572,17 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
   describe("delete (Integration)", () => {
     it("should delete time entry", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { description: "Delete Test Entry" }
+        { description: "Delete Test Entry" },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -543,14 +600,17 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should create activity log for deletion", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { description: "Delete Log Test", hours: "5.00" }
+        { description: "Delete Log Test", hours: "5.00" },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -563,8 +623,8 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, entry.id),
-            eq(activityLogs.action, "deleted")
-          )
+            eq(activityLogs.action, "deleted"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -575,7 +635,9 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent time entry", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.delete(nonExistentId)).rejects.toThrow("Time entry not found");
+      await expect(caller.delete(nonExistentId)).rejects.toThrow(
+        "Time entry not found",
+      );
     });
 
     it("should prevent cross-tenant deletion", async () => {
@@ -587,11 +649,17 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       tracker.users?.push(userAId);
       tracker.clients?.push(clientAId.id);
 
-      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id);
+      const entryA = await createTestTimeEntry(
+        tenantAId,
+        userAId,
+        clientAId.id,
+      );
       tracker.timeEntries?.push(entryA.id);
 
       // Attempt to delete from different tenant
-      await expect(caller.delete(entryA.id)).rejects.toThrow("Time entry not found");
+      await expect(caller.delete(entryA.id)).rejects.toThrow(
+        "Time entry not found",
+      );
 
       // Verify entry still exists
       const [dbEntry] = await db
@@ -605,7 +673,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
   describe("summary (Integration)", () => {
     it("should calculate summary statistics correctly", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create multiple time entries
@@ -613,19 +684,19 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-10", hours: "8.00", billable: true }
+        { date: "2025-01-10", hours: "8.00", billable: true },
       );
       const entry2 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-11", hours: "5.00", billable: true }
+        { date: "2025-01-11", hours: "5.00", billable: true },
       );
       const entry3 = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-12", hours: "3.00", billable: false }
+        { date: "2025-01-12", hours: "3.00", billable: false },
       );
       tracker.timeEntries?.push(entry1.id, entry2.id, entry3.id);
 
@@ -643,7 +714,10 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
 
     it("should filter summary by user", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create entry for our test user
@@ -651,7 +725,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-15", hours: "6.00" }
+        { date: "2025-01-15", hours: "6.00" },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -667,14 +741,17 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
     it("should respect tenant isolation in summary", async () => {
       // Create entry for our tenant
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const entry = await createTestTimeEntry(
         ctx.authContext.tenantId,
         ctx.authContext.userId,
         client.id,
-        { date: "2025-01-15", hours: "7.00" }
+        { date: "2025-01-15", hours: "7.00" },
       );
       tracker.timeEntries?.push(entry.id);
 
@@ -686,10 +763,15 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       tracker.users?.push(userAId);
       tracker.clients?.push(clientAId.id);
 
-      const entryA = await createTestTimeEntry(tenantAId, userAId, clientAId.id, {
-        date: "2025-01-15",
-        hours: "100.00", // Large hours to detect if included
-      });
+      const entryA = await createTestTimeEntry(
+        tenantAId,
+        userAId,
+        clientAId.id,
+        {
+          date: "2025-01-15",
+          hours: "100.00", // Large hours to detect if included
+        },
+      );
       tracker.timeEntries?.push(entryA.id);
 
       // Summary should only include our tenant's data

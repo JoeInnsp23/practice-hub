@@ -53,12 +53,7 @@ export const pricingAdminRouter = router({
       const [component] = await db
         .select()
         .from(services)
-        .where(
-          and(
-            eq(services.id, id),
-            eq(services.tenantId, tenantId),
-          ),
-        )
+        .where(and(eq(services.id, id), eq(services.tenantId, tenantId)))
         .limit(1);
 
       if (!component) {
@@ -82,10 +77,7 @@ export const pricingAdminRouter = router({
         .select()
         .from(services)
         .where(
-          and(
-            eq(services.code, input.code),
-            eq(services.tenantId, tenantId),
-          ),
+          and(eq(services.code, input.code), eq(services.tenantId, tenantId)),
         )
         .limit(1);
 
@@ -135,12 +127,7 @@ export const pricingAdminRouter = router({
       const [existing] = await db
         .select()
         .from(services)
-        .where(
-          and(
-            eq(services.id, input.id),
-            eq(services.tenantId, tenantId),
-          ),
-        )
+        .where(and(eq(services.id, input.id), eq(services.tenantId, tenantId)))
         .limit(1);
 
       if (!existing) {
@@ -207,12 +194,7 @@ export const pricingAdminRouter = router({
       const [existing] = await db
         .select()
         .from(services)
-        .where(
-          and(
-            eq(services.id, id),
-            eq(services.tenantId, tenantId),
-          ),
-        )
+        .where(and(eq(services.id, id), eq(services.tenantId, tenantId)))
         .limit(1);
 
       if (!existing) {
@@ -290,12 +272,7 @@ export const pricingAdminRouter = router({
       const [existing] = await db
         .select()
         .from(services)
-        .where(
-          and(
-            eq(services.id, input.id),
-            eq(services.tenantId, tenantId),
-          ),
-        )
+        .where(and(eq(services.id, input.id), eq(services.tenantId, tenantId)))
         .limit(1);
 
       if (!existing) {
@@ -428,10 +405,7 @@ export const pricingAdminRouter = router({
         componentCode: services.code,
       })
       .from(pricingRules)
-      .leftJoin(
-        services,
-        eq(pricingRules.componentId, services.id),
-      )
+      .leftJoin(services, eq(pricingRules.componentId, services.id))
       .where(eq(pricingRules.tenantId, tenantId))
       .orderBy(services.name, pricingRules.ruleType);
 
@@ -722,10 +696,7 @@ export const pricingAdminRouter = router({
         name: services.name,
       })
       .from(services)
-      .leftJoin(
-        pricingRules,
-        eq(services.id, pricingRules.componentId),
-      )
+      .leftJoin(pricingRules, eq(services.id, pricingRules.componentId))
       .where(
         and(
           eq(services.tenantId, tenantId),
@@ -750,15 +721,9 @@ export const pricingAdminRouter = router({
         ruleType: pricingRules.ruleType,
       })
       .from(pricingRules)
-      .leftJoin(
-        services,
-        eq(pricingRules.componentId, services.id),
-      )
+      .leftJoin(services, eq(pricingRules.componentId, services.id))
       .where(
-        and(
-          eq(pricingRules.tenantId, tenantId),
-          sql`${services.id} IS NULL`,
-        ),
+        and(eq(pricingRules.tenantId, tenantId), sql`${services.id} IS NULL`),
       );
 
     if (rulesWithoutComponents.length > 0) {
@@ -778,10 +743,7 @@ export const pricingAdminRouter = router({
         ruleCount: sql<number>`count(${pricingRules.id})::int`,
       })
       .from(services)
-      .innerJoin(
-        pricingRules,
-        eq(services.id, pricingRules.componentId),
-      )
+      .innerJoin(pricingRules, eq(services.id, pricingRules.componentId))
       .where(
         and(
           eq(services.tenantId, tenantId),

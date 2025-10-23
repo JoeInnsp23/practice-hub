@@ -60,11 +60,20 @@ export const clientImportSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? Number.parseInt(val, 10) : undefined))
-    .pipe(z.number().int().nonnegative("Employee count must be a positive integer").optional())
+    .pipe(
+      z
+        .number()
+        .int()
+        .nonnegative("Employee count must be a positive integer")
+        .optional(),
+    )
     .or(z.literal("")),
 
   // Status
-  status: z.enum(["prospect", "onboarding", "active", "inactive", "archived"]).optional().or(z.literal("")),
+  status: z
+    .enum(["prospect", "onboarding", "active", "inactive", "archived"])
+    .optional()
+    .or(z.literal("")),
 
   // Notes
   notes: z.string().optional().or(z.literal("")),
@@ -97,7 +106,10 @@ export const taskImportSchema = z.object({
     ])
     .optional()
     .or(z.literal("")),
-  priority: z.enum(["low", "medium", "high", "urgent", "critical"]).optional().or(z.literal("")),
+  priority: z
+    .enum(["low", "medium", "high", "urgent", "critical"])
+    .optional()
+    .or(z.literal("")),
 
   // Dates
   due_date: z
@@ -106,7 +118,9 @@ export const taskImportSchema = z.object({
     .transform((val) => {
       if (!val || val === "") return undefined;
       const date = new Date(val);
-      return Number.isNaN(date.getTime()) ? undefined : date.toISOString().split("T")[0];
+      return Number.isNaN(date.getTime())
+        ? undefined
+        : date.toISOString().split("T")[0];
     })
     .or(z.literal("")),
   start_date: z
@@ -115,13 +129,23 @@ export const taskImportSchema = z.object({
     .transform((val) => {
       if (!val || val === "") return undefined;
       const date = new Date(val);
-      return Number.isNaN(date.getTime()) ? undefined : date.toISOString().split("T")[0];
+      return Number.isNaN(date.getTime())
+        ? undefined
+        : date.toISOString().split("T")[0];
     })
     .or(z.literal("")),
 
   // Assignment
-  assigned_to_email: z.string().email("Invalid email format").optional().or(z.literal("")),
-  reviewer_email: z.string().email("Invalid email format").optional().or(z.literal("")),
+  assigned_to_email: z
+    .string()
+    .email("Invalid email format")
+    .optional()
+    .or(z.literal("")),
+  reviewer_email: z
+    .string()
+    .email("Invalid email format")
+    .optional()
+    .or(z.literal("")),
 
   // Hours
   estimated_hours: z
@@ -134,7 +158,9 @@ export const taskImportSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? Number.parseFloat(val) : undefined))
-    .pipe(z.number().nonnegative("Actual hours must be non-negative").optional())
+    .pipe(
+      z.number().nonnegative("Actual hours must be non-negative").optional(),
+    )
     .or(z.literal("")),
 
   // Type
@@ -166,7 +192,10 @@ export const serviceImportSchema = z.object({
     .transform((val) => (val ? Number.parseFloat(val) : undefined))
     .pipe(z.number().nonnegative("Price must be non-negative").optional())
     .or(z.literal("")),
-  price_type: z.enum(["fixed", "hourly", "monthly", "annual", "custom"]).optional().or(z.literal("")),
+  price_type: z
+    .enum(["fixed", "hourly", "monthly", "annual", "custom"])
+    .optional()
+    .or(z.literal("")),
 
   // Time estimates
   estimated_hours: z
@@ -182,7 +211,11 @@ export const serviceImportSchema = z.object({
     .optional()
     .transform((val) => {
       if (!val || val === "") return true;
-      return val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
+      return (
+        val.toLowerCase() === "true" ||
+        val === "1" ||
+        val.toLowerCase() === "yes"
+      );
     })
     .or(z.literal("")),
   is_taxable: z
@@ -190,7 +223,11 @@ export const serviceImportSchema = z.object({
     .optional()
     .transform((val) => {
       if (!val || val === "") return true;
-      return val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
+      return (
+        val.toLowerCase() === "true" ||
+        val === "1" ||
+        val.toLowerCase() === "yes"
+      );
     })
     .or(z.literal("")),
 

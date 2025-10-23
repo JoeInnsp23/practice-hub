@@ -19,9 +19,12 @@
  * Minimum Required: At least once every 60 days
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { refreshAllTokens, refreshTenantToken } from "@/lib/xero/token-refresh-worker";
 import * as Sentry from "@sentry/nextjs";
+import { type NextRequest, NextResponse } from "next/server";
+import {
+  refreshAllTokens,
+  refreshTenantToken,
+} from "@/lib/xero/token-refresh-worker";
 
 export const runtime = "nodejs";
 
@@ -55,7 +58,9 @@ export async function POST(request: NextRequest) {
 
     // If tenantId provided, refresh only that tenant
     if (tenantId) {
-      console.log(`[Xero Token Refresh Cron] Refreshing specific tenant: ${tenantId}`);
+      console.log(
+        `[Xero Token Refresh Cron] Refreshing specific tenant: ${tenantId}`,
+      );
       const result = await refreshTenantToken(tenantId);
 
       return NextResponse.json({

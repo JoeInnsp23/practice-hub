@@ -1,7 +1,17 @@
 "use client";
 
+import { format } from "date-fns";
+import {
+  CheckCircle2,
+  Clock,
+  GitBranch,
+  History,
+  Layers,
+  Undo2,
+} from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,18 +21,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { trpc } from "@/app/providers/trpc-provider";
-import { CheckCircle2, Clock, GitBranch, History, Layers, Undo2 } from "lucide-react";
-import { format } from "date-fns";
-import { VersionComparisonModal } from "./version-comparison-modal";
 import { PublishNotesDialog } from "./publish-notes-dialog";
+import { VersionComparisonModal } from "./version-comparison-modal";
 
 interface VersionHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   workflowId: string;
-  onPublishVersion: (versionId: string, versionNumber: number, notes?: string) => void;
-  onRollback?: (versionId: string, versionNumber: number, notes?: string) => void;
+  onPublishVersion: (
+    versionId: string,
+    versionNumber: number,
+    notes?: string,
+  ) => void;
+  onRollback?: (
+    versionId: string,
+    versionNumber: number,
+    notes?: string,
+  ) => void;
 }
 
 export function VersionHistoryModal({
@@ -117,7 +132,9 @@ export function VersionHistoryModal({
               <div
                 key={version.id}
                 className={`border rounded-lg p-4 ${
-                  version.isActive ? "border-green-500 bg-green-50 dark:bg-green-950" : ""
+                  version.isActive
+                    ? "border-green-500 bg-green-50 dark:bg-green-950"
+                    : ""
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -130,7 +147,10 @@ export function VersionHistoryModal({
                         v{version.version}
                       </Badge>
                       {version.isActive && (
-                        <Badge variant="outline" className="text-green-600 border-green-600">
+                        <Badge
+                          variant="outline"
+                          className="text-green-600 border-green-600"
+                        >
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Active
                         </Badge>
@@ -159,17 +179,26 @@ export function VersionHistoryModal({
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          Created {format(new Date(version.createdAt), "MMM dd, yyyy HH:mm")}
+                          Created{" "}
+                          {format(
+                            new Date(version.createdAt),
+                            "MMM dd, yyyy HH:mm",
+                          )}
                         </span>
                         {version.publishedAt && (
                           <span>
-                            Published {format(new Date(version.publishedAt), "MMM dd, yyyy HH:mm")}
+                            Published{" "}
+                            {format(
+                              new Date(version.publishedAt),
+                              "MMM dd, yyyy HH:mm",
+                            )}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
                         <Layers className="h-3 w-3" />
-                        {(version.stagesSnapshot as any)?.stages?.length || 0} stages
+                        {(version.stagesSnapshot as any)?.stages?.length || 0}{" "}
+                        stages
                       </div>
                     </div>
                   </div>
@@ -180,7 +209,9 @@ export function VersionHistoryModal({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleCompare(version.id, version.version)}
+                          onClick={() =>
+                            handleCompare(version.id, version.version)
+                          }
                         >
                           <GitBranch className="h-3 w-3 mr-1" />
                           Compare
@@ -188,20 +219,25 @@ export function VersionHistoryModal({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handlePublishClick(version.id, version.version)}
+                          onClick={() =>
+                            handlePublishClick(version.id, version.version)
+                          }
                         >
                           Activate
                         </Button>
-                        {onRollback && version.version < (versions[0]?.version || 0) && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleRollbackClick(version.id, version.version)}
-                          >
-                            <Undo2 className="h-3 w-3 mr-1" />
-                            Rollback
-                          </Button>
-                        )}
+                        {onRollback &&
+                          version.version < (versions[0]?.version || 0) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                handleRollbackClick(version.id, version.version)
+                              }
+                            >
+                              <Undo2 className="h-3 w-3 mr-1" />
+                              Rollback
+                            </Button>
+                          )}
                       </>
                     )}
                   </div>

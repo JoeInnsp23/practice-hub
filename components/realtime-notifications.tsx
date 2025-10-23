@@ -3,7 +3,8 @@
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,52 +18,126 @@ import { useSSE } from "@/lib/hooks/use-sse";
 
 interface Notification {
   id: string;
-  type: "info" | "success" | "warning" | "error";
+  type: "info" | "success" | "warning" | "error" | "urgent";
   title: string;
   message: string;
   timestamp: Date;
   read: boolean;
   actionUrl?: string;
+  groupKey?: string; // For grouping similar notifications
+  count?: number; // Count of grouped notifications
+}
+
+interface NotificationPreferences {
+  soundEnabled: boolean;
+  urgentToastEnabled: boolean;
 }
 
 export function RealtimeNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-
-  const { isConnected } = useSSE("/api/sse", {
-    onMessage: (message) => {
-      if (message.type === "notification") {
-        const data = message.data as {
-          type?: "success" | "error" | "info" | "warning";
-          title?: string;
-          message?: string;
-          actionUrl?: string;
-        };
-        const newNotification: Notification = {
-          id: `notif-${Date.now()}`,
-          type: data.type || "info",
-          title: data.title || "New Notification",
-          message: data.message || "",
-          timestamp: new Date(),
-          read: false,
-          actionUrl: data.actionUrl,
-        };
-
-        setNotifications((prev) => [newNotification, ...prev].slice(0, 50)); // Keep last 50
-        setUnreadCount((prev) => prev + 1);
-
-        // Play notification sound
-        if ("Audio" in window) {
-          const audio = new Audio("/sounds/notification.mp3");
-          audio.volume = 0.5;
-          audio.play().catch(() => {
-            // Ignore if autoplay is blocked
-          });
-        }
-      }
-    },
+  const [preferences, setPreferences] = useState<NotificationPreferences>({
+    soundEnabled: true,
+    urgentToastEnabled: true,
   });
+
+  const { isConnected, connectionState, subscribe } = useSSE(
+    "/api/activity/stream",
+    {
+      maxReconnectAttempts: 3,
+      enablePollingFallback: true,
+    },
+  );
+
+  const playNotificationSound = useCallback(() => {
+    if (typeof window !== "undefined" && "Audio" in window) {
+      try {
+        const audio = new Audio("/sounds/notification.mp3");
+        audio.volume = 0.5;
+        audio.play().catch(() => {
+          // Ignore if autoplay is blocked
+        });
+      } catch (_error) {
+        // Ignore sound errors
+      }
+    }
+  }, []);
+
+  // Subscribe to notification events
+  useEffect(() => {
+    const unsubscribe = subscribe("notification:new", (event) => {
+      const data = event.data as {
+        id?: string;
+        type?: "success" | "error" | "info" | "warning" | "urgent";
+        title?: string;
+        message?: string;
+        actionUrl?: string;
+        groupKey?: string;
+      };
+
+      const newNotification: Notification = {
+        id: data.id || `notif-${Date.now()}`,
+        type: data.type || "info",
+        title: data.title || "New Notification",
+        message: data.message || "",
+        timestamp: new Date(),
+        read: false,
+        actionUrl: data.actionUrl,
+        groupKey: data.groupKey,
+      };
+
+      // Handle notification grouping
+      if (data.groupKey) {
+        setNotifications((prev) => {
+          const existingIndex = prev.findIndex(
+            (n) => n.groupKey === data.groupKey,
+          );
+          if (existingIndex !== -1) {
+            // Update existing grouped notification
+            const updated = [...prev];
+            const existing = updated[existingIndex];
+            updated[existingIndex] = {
+              ...existing,
+              count: (existing.count || 1) + 1,
+              timestamp: new Date(), // Update to latest timestamp
+              read: false, // Mark as unread since new notification arrived
+            };
+            return updated;
+          }
+          // New notification
+          return [{ ...newNotification, count: 1 }, ...prev].slice(0, 50);
+        });
+      } else {
+        // Add non-grouped notification
+        setNotifications((prev) => [newNotification, ...prev].slice(0, 50));
+      }
+
+      setUnreadCount((prev) => prev + 1);
+
+      // Handle urgent notifications with toast
+      if (data.type === "urgent" && preferences.urgentToastEnabled) {
+        toast.error(data.message || data.title || "Urgent notification", {
+          duration: 5000,
+          icon: "🔔",
+        });
+      }
+
+      // Play notification sound
+      if (preferences.soundEnabled) {
+        playNotificationSound();
+      }
+    });
+
+    return unsubscribe;
+  }, [subscribe, preferences, playNotificationSound]);
+
+  const toggleSoundPreference = () => {
+    setPreferences((prev) => ({
+      ...prev,
+      soundEnabled: !prev.soundEnabled,
+    }));
+  };
 
   const markAsRead = (notificationId: string) => {
     setNotifications((prev) =>
@@ -95,9 +170,42 @@ export function RealtimeNotifications() {
       success: "text-green-500",
       warning: "text-orange-500",
       error: "text-red-500",
+      urgent: "text-red-600",
     };
 
     return colors[type] || colors.info;
+  };
+
+  const getConnectionStatusColor = () => {
+    switch (connectionState) {
+      case "connected":
+        return "bg-green-500";
+      case "connecting":
+      case "reconnecting":
+        return "bg-yellow-500";
+      case "disconnected":
+      case "failed":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
+  const getConnectionStatusText = () => {
+    switch (connectionState) {
+      case "connected":
+        return "Live";
+      case "connecting":
+        return "Connecting...";
+      case "reconnecting":
+        return "Reconnecting...";
+      case "disconnected":
+        return "Disconnected";
+      case "failed":
+        return "Failed";
+      default:
+        return "Unknown";
+    }
   };
 
   return (
@@ -119,16 +227,32 @@ export function RealtimeNotifications() {
               </motion.div>
             )}
           </AnimatePresence>
-          {isConnected && (
-            <span className="absolute bottom-1 right-1 h-2 w-2 rounded-full bg-green-500" />
-          )}
+          <span
+            className={`absolute bottom-1 right-1 h-2 w-2 rounded-full ${getConnectionStatusColor()}`}
+            title={getConnectionStatusText()}
+          />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-96">
         <div className="flex items-center justify-between p-3 border-b">
-          <h3 className="font-semibold">Notifications</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold">Notifications</h3>
+            <Badge variant="secondary" className="text-xs">
+              {getConnectionStatusText()}
+            </Badge>
+          </div>
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSoundPreference}
+              title={
+                preferences.soundEnabled ? "Disable sound" : "Enable sound"
+              }
+            >
+              {preferences.soundEnabled ? "🔊" : "🔇"}
+            </Button>
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" onClick={markAllAsRead}>
                 Mark all read
@@ -172,9 +296,19 @@ export function RealtimeNotifications() {
                       <div className="flex-1">
                         <p className="font-medium text-sm">
                           {notification.title}
+                          {notification.count && notification.count > 1 && (
+                            <Badge variant="secondary" className="ml-2 text-xs">
+                              {notification.count}
+                            </Badge>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {notification.message}
+                          {notification.count && notification.count > 1 && (
+                            <span className="ml-1">
+                              (+{notification.count - 1} more)
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {formatDistanceToNow(notification.timestamp, {

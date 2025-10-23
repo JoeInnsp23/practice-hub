@@ -10,11 +10,11 @@
  * Based on original CRM app architecture
  */
 
+import * as Sentry from "@sentry/nextjs";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { integrationSettings } from "@/lib/db/schema";
 import { decryptObject, encryptObject } from "@/lib/services/encryption";
-import { eq, and } from "drizzle-orm";
-import * as Sentry from "@sentry/nextjs";
 
 interface XeroCredentials {
   accessToken: string;
@@ -114,7 +114,9 @@ export class XeroApiClient {
         return null;
       }
 
-      const credentials = decryptObject<XeroCredentials>(settings[0].credentials);
+      const credentials = decryptObject<XeroCredentials>(
+        settings[0].credentials,
+      );
 
       // Check if token is expired or expires within 5 minutes
       const expiresAt = new Date(credentials.expiresAt);
@@ -317,7 +319,10 @@ export class XeroApiClient {
   /**
    * Get a contact from Xero by ID
    */
-  async getContact(tenantId: string, contactId: string): Promise<XeroContact | null> {
+  async getContact(
+    tenantId: string,
+    contactId: string,
+  ): Promise<XeroContact | null> {
     try {
       const credentials = await this.getCredentials(tenantId);
       if (!credentials) {
@@ -355,7 +360,10 @@ export class XeroApiClient {
   /**
    * Get an invoice from Xero by ID
    */
-  async getInvoice(tenantId: string, invoiceId: string): Promise<XeroInvoice | null> {
+  async getInvoice(
+    tenantId: string,
+    invoiceId: string,
+  ): Promise<XeroInvoice | null> {
     try {
       const credentials = await this.getCredentials(tenantId);
       if (!credentials) {

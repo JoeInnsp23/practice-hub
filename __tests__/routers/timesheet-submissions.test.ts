@@ -5,19 +5,19 @@
  * Tests verify submission validation, approval/rejection, and multi-tenant isolation.
  */
 
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
+import { timeEntries, timesheetSubmissions } from "@/lib/db/schema";
 import {
+  cleanupTestData,
   createTestTenant,
   createTestUser,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { timesheetSubmissions, timeEntries } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock email notifications
 vi.mock("@/lib/email/timesheet-notifications", () => ({
@@ -76,8 +76,12 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
 
   afterEach(async () => {
     // Clean up time entries and submissions
-    await db.delete(timeEntries).where(eq(timeEntries.tenantId, ctx.authContext.tenantId));
-    await db.delete(timesheetSubmissions).where(eq(timesheetSubmissions.tenantId, ctx.authContext.tenantId));
+    await db
+      .delete(timeEntries)
+      .where(eq(timeEntries.tenantId, ctx.authContext.tenantId));
+    await db
+      .delete(timesheetSubmissions)
+      .where(eq(timesheetSubmissions.tenantId, ctx.authContext.tenantId));
 
     await cleanupTestData(tracker);
     tracker.tenants = [];
@@ -143,7 +147,7 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
         caller.submit({
           weekStartDate,
           weekEndDate,
-        })
+        }),
       ).rejects.toThrow("Minimum 37.5 hours required");
     });
 
@@ -173,7 +177,7 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
         caller.submit({
           weekStartDate,
           weekEndDate,
-        })
+        }),
       ).rejects.toThrow("already been submitted");
     });
   });
@@ -214,7 +218,7 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
       await expect(
         caller.approve({
           submissionId: "fake-id",
-        })
+        }),
       ).rejects.toThrow("FORBIDDEN");
     });
   });

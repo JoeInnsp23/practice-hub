@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { activitiesRouter } from "@/app/server/routers/activities";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -109,12 +109,11 @@ describe("app/server/routers/activities.ts", () => {
     });
 
     it("should default limit to 50", () => {
-      const result = activitiesRouter._def.procedures.list._def.inputs[0]?.parse(
-        {
+      const result =
+        activitiesRouter._def.procedures.list._def.inputs[0]?.parse({
           entityType: "proposal",
           entityId: "770e8400-e29b-41d4-a716-446655440000",
-        },
-      );
+        });
       expect(result?.limit).toBe(50);
     });
   });

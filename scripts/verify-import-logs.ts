@@ -38,7 +38,9 @@ async function verifyImportLogs() {
       console.log("\n🔧 Verifying table structure:");
       for (const field of requiredFields) {
         const exists = field in log;
-        console.log(`  ${exists ? "✓" : "✗"} ${field}: ${exists ? "present" : "MISSING"}`);
+        console.log(
+          `  ${exists ? "✓" : "✗"} ${field}: ${exists ? "present" : "MISSING"}`,
+        );
       }
     }
 

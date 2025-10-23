@@ -1,25 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TimesheetSubmissionCard } from "@/components/client-hub/timesheet-submission-card";
-import { TimesheetRejectModal } from "@/components/client-hub/timesheet-reject-modal";
-import { trpc } from "@/lib/trpc/client";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { TimesheetRejectModal } from "@/components/client-hub/timesheet-reject-modal";
+import { TimesheetSubmissionCard } from "@/components/client-hub/timesheet-submission-card";
+import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc/client";
 
 export default function ApprovalsPage() {
   const [selectedSubmissions, setSelectedSubmissions] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [isBulkRejecting, setIsBulkRejecting] = useState(false);
 
   const utils = trpc.useUtils();
-  const {
-    data: submissions = [],
-    isLoading,
-  } = trpc.timesheets.getPendingApprovals.useQuery();
+  const { data: submissions = [], isLoading } =
+    trpc.timesheets.getPendingApprovals.useQuery();
 
   const approveMutation = trpc.timesheets.approve.useMutation({
     onSuccess: () => {
@@ -144,11 +142,7 @@ export default function ApprovalsPage() {
 
         {submissions.length > 0 && (
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSelectAll}
-            >
+            <Button variant="outline" size="sm" onClick={handleSelectAll}>
               {selectedSubmissions.size === submissions.length
                 ? "Deselect All"
                 : "Select All"}

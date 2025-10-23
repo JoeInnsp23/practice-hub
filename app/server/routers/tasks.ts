@@ -1,13 +1,23 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, inArray, ilike, isNull, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getTasksList } from "@/lib/db/queries/task-queries";
 import {
   activityLogs,
-  clients,
   clientServices,
+  clients,
   notifications,
   services,
   taskAssignmentHistory,
@@ -24,8 +34,8 @@ import {
   calculateDueDate,
   calculateNextPeriod,
   calculatePeriodEndDate,
-  replacePlaceholders,
   type PlaceholderData,
+  replacePlaceholders,
 } from "@/lib/services/template-placeholders";
 import { protectedProcedure, router } from "../trpc";
 
@@ -60,7 +70,12 @@ async function generateTaskFromTemplateInternal(params: {
   activationDate?: Date;
   tenantId: string;
   userId: string;
-}): Promise<{ success: boolean; taskId?: string; skipped?: boolean; reason?: string }> {
+}): Promise<{
+  success: boolean;
+  taskId?: string;
+  skipped?: boolean;
+  reason?: string;
+}> {
   // Fetch template
   const template = await db
     .select()
@@ -85,7 +100,12 @@ async function generateTaskFromTemplateInternal(params: {
   const client = await db
     .select()
     .from(clients)
-    .where(and(eq(clients.id, params.clientId), eq(clients.tenantId, params.tenantId)))
+    .where(
+      and(
+        eq(clients.id, params.clientId),
+        eq(clients.tenantId, params.tenantId),
+      ),
+    )
     .limit(1);
 
   if (client.length === 0) {
@@ -101,7 +121,9 @@ async function generateTaskFromTemplateInternal(params: {
   const service = await db
     .select()
     .from(services)
-    .where(and(eq(services.id, serviceId), eq(services.tenantId, params.tenantId)))
+    .where(
+      and(eq(services.id, serviceId), eq(services.tenantId, params.tenantId)),
+    )
     .limit(1);
 
   if (service.length === 0) {
@@ -145,7 +167,10 @@ async function generateTaskFromTemplateInternal(params: {
   };
 
   // Replace placeholders
-  const taskName = replacePlaceholders(template[0].namePattern, placeholderData);
+  const taskName = replacePlaceholders(
+    template[0].namePattern,
+    placeholderData,
+  );
   const taskDescription = template[0].descriptionPattern
     ? replacePlaceholders(template[0].descriptionPattern, placeholderData)
     : undefined;
@@ -799,7 +824,10 @@ export const tasksRouter = router({
           .limit(1);
 
         if (!workflow) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
         }
 
         // Get ACTIVE version (snapshot)
@@ -815,7 +843,10 @@ export const tasksRouter = router({
           .limit(1);
 
         if (!activeVersion) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "No active version found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No active version found",
+          });
         }
 
         // Update task
@@ -1035,10 +1066,7 @@ export const tasksRouter = router({
           .select()
           .from(tasks)
           .where(
-            and(
-              inArray(tasks.id, input.taskIds),
-              eq(tasks.tenantId, tenantId),
-            ),
+            and(inArray(tasks.id, input.taskIds), eq(tasks.tenantId, tenantId)),
           );
 
         if (existingTasks.length !== input.taskIds.length) {
@@ -1053,8 +1081,7 @@ export const tasksRouter = router({
           .update(tasks)
           .set({
             status: input.status,
-            completedAt:
-              input.status === "completed" ? new Date() : undefined,
+            completedAt: input.status === "completed" ? new Date() : undefined,
             progress: input.status === "completed" ? 100 : undefined,
             updatedAt: new Date(),
           })
@@ -1099,10 +1126,7 @@ export const tasksRouter = router({
           .select()
           .from(tasks)
           .where(
-            and(
-              inArray(tasks.id, input.taskIds),
-              eq(tasks.tenantId, tenantId),
-            ),
+            and(inArray(tasks.id, input.taskIds), eq(tasks.tenantId, tenantId)),
           );
 
         if (existingTasks.length !== input.taskIds.length) {
@@ -1159,10 +1183,7 @@ export const tasksRouter = router({
           .select()
           .from(tasks)
           .where(
-            and(
-              inArray(tasks.id, input.taskIds),
-              eq(tasks.tenantId, tenantId),
-            ),
+            and(inArray(tasks.id, input.taskIds), eq(tasks.tenantId, tenantId)),
           );
 
         if (existingTasks.length !== input.taskIds.length) {
@@ -1717,7 +1738,9 @@ export const tasksRouter = router({
         templateId: input.templateId,
         clientId: input.clientId,
         serviceId: input.serviceId,
-        activationDate: input.activationDate ? new Date(input.activationDate) : undefined,
+        activationDate: input.activationDate
+          ? new Date(input.activationDate)
+          : undefined,
         tenantId,
         userId,
       });
@@ -1755,13 +1778,20 @@ export const tasksRouter = router({
       const client = await db
         .select()
         .from(clients)
-        .where(and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)))
+        .where(
+          and(eq(clients.id, input.clientId), eq(clients.tenantId, tenantId)),
+        )
         .limit(1);
 
       const service = await db
         .select()
         .from(services)
-        .where(and(eq(services.id, input.serviceId), eq(services.tenantId, tenantId)))
+        .where(
+          and(
+            eq(services.id, input.serviceId),
+            eq(services.tenantId, tenantId),
+          ),
+        )
         .limit(1);
 
       if (client.length === 0 || service.length === 0) {
@@ -1810,7 +1840,9 @@ export const tasksRouter = router({
           template.dueDateOffsetMonths,
         );
 
-        const targetDate = new Date(dueDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const targetDate = new Date(
+          dueDate.getTime() - 7 * 24 * 60 * 60 * 1000,
+        );
 
         return {
           templateId: template.id,
@@ -1862,7 +1894,9 @@ export const tasksRouter = router({
         });
       }
 
-      const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      const startDate = input.startDate
+        ? new Date(input.startDate)
+        : new Date();
 
       // Generate ONLY the first period
       // Subsequent periods will auto-generate when this one is completed

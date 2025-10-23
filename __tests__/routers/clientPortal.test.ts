@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { clientPortalRouter } from "@/app/server/routers/clientPortal";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -34,8 +34,9 @@ vi.mock("@/lib/db", () => ({
 // Mock DocuSeal client
 vi.mock("@/lib/docuseal/client", () => ({
   docusealClient: {
-    getEmbedUrl: vi.fn((submissionId: string, email: string) => 
-      `https://docuseal.com/embed/${submissionId}?email=${email}`
+    getEmbedUrl: vi.fn(
+      (submissionId: string, email: string) =>
+        `https://docuseal.com/embed/${submissionId}?email=${email}`,
     ),
   },
 }));
@@ -54,9 +55,9 @@ describe("app/server/routers/clientPortal.ts", () => {
     it("should have no required input", () => {
       const procedure = clientPortalRouter._def.procedures.getMyClients;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -211,12 +212,10 @@ describe("app/server/routers/clientPortal.ts", () => {
 
       for (const status of validStatuses) {
         expect(() => {
-          clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse(
-            {
-              clientId: "550e8400-e29b-41d4-a716-446655440000",
-              status,
-            },
-          );
+          clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse({
+            clientId: "550e8400-e29b-41d4-a716-446655440000",
+            status,
+          });
         }).not.toThrow();
       }
     });

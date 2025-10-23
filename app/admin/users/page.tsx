@@ -18,6 +18,7 @@ export default async function UserManagementPage() {
       role: users.role,
       status: users.status,
       isActive: users.isActive,
+      departmentId: users.departmentId,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
     })

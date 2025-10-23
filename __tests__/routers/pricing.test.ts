@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { pricingRouter } from "@/app/server/routers/pricing";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -161,9 +161,9 @@ describe("app/server/routers/pricing.ts", () => {
     it("should have no required input", () => {
       const procedure = pricingRouter._def.procedures.getComponents;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

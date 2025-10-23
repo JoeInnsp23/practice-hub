@@ -29,16 +29,12 @@ const signUpSchema = z
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
     organizationName: z.string().min(1, "Organization name is required"),
-    acceptTerms: z
-      .boolean()
-      .refine((val) => val === true, {
-        message: "You must accept the Terms of Service to continue",
-      }),
-    acceptPrivacy: z
-      .boolean()
-      .refine((val) => val === true, {
-        message: "You must accept the Privacy Policy to continue",
-      }),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: "You must accept the Terms of Service to continue",
+    }),
+    acceptPrivacy: z.boolean().refine((val) => val === true, {
+      message: "You must accept the Privacy Policy to continue",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

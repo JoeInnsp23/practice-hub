@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   extractUserIds,
   getMentionQuery,
   insertMention,
   isInMentionContext,
 } from "@/lib/services/mention-parser";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 
 interface MentionAutocompleteProps {
@@ -164,13 +168,16 @@ export function MentionAutocomplete({
                   onClick={() => selectUser(user)}
                   className={cn(
                     "w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                    index === selectedIndex && "bg-accent text-accent-foreground",
+                    index === selectedIndex &&
+                      "bg-accent text-accent-foreground",
                   )}
                 >
                   <div className="font-medium">
                     {user.firstName} {user.lastName}
                   </div>
-                  <div className="text-xs text-muted-foreground">{user.email}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {user.email}
+                  </div>
                 </button>
               ))
             )}

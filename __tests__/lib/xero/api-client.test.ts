@@ -4,12 +4,12 @@
  * Tests Xero API interactions for creating/updating contacts, invoices, payments
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
 import { integrationSettings, tenants } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { XeroApiClient } from "@/lib/xero/api-client";
 import { encryptObject } from "@/lib/services/encryption";
+import { XeroApiClient } from "@/lib/xero/api-client";
 
 // Mock fetch
 global.fetch = vi.fn();
@@ -170,7 +170,10 @@ describe("XeroApiClient", () => {
         IsSupplier: false,
       };
 
-      const result = await xeroClient.createOrUpdateContact(testTenantId, contact);
+      const result = await xeroClient.createOrUpdateContact(
+        testTenantId,
+        contact,
+      );
 
       // Assert: Contact created successfully
       expect(result).toBeTruthy();
@@ -286,7 +289,10 @@ describe("XeroApiClient", () => {
         CurrencyCode: "GBP",
       };
 
-      const result = await xeroClient.createOrUpdateInvoice(testTenantId, invoice);
+      const result = await xeroClient.createOrUpdateInvoice(
+        testTenantId,
+        invoice,
+      );
 
       // Assert: Invoice created successfully
       expect(result).toBeTruthy();
@@ -395,7 +401,10 @@ describe("XeroApiClient", () => {
       });
 
       // Execute: Get contact
-      const result = await xeroClient.getContact(testTenantId, "xero-contact-123");
+      const result = await xeroClient.getContact(
+        testTenantId,
+        "xero-contact-123",
+      );
 
       // Assert: Contact fetched successfully
       expect(result).toBeTruthy();
@@ -472,7 +481,10 @@ describe("XeroApiClient", () => {
       });
 
       // Execute: Get invoice
-      const result = await xeroClient.getInvoice(testTenantId, "xero-invoice-123");
+      const result = await xeroClient.getInvoice(
+        testTenantId,
+        "xero-invoice-123",
+      );
 
       // Assert: Invoice fetched successfully
       expect(result).toBeTruthy();

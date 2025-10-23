@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // Tests now use shared authenticated state from global-setup.ts
 // No individual login needed - all tests start already authenticated
@@ -8,7 +8,7 @@ test.describe("Practice Hub Dashboard", () => {
     // No login needed - test starts with authenticated state from global-setup
 
     // Navigate to practice-hub
-    await page.goto('/practice-hub');
+    await page.goto("/practice-hub");
     await page.waitForLoadState("networkidle");
 
     // Verify dashboard content is visible (looking for common dashboard elements)
@@ -31,7 +31,9 @@ test.describe("Practice Hub Dashboard", () => {
     // Verify navigation is present (sidebar or header navigation)
     const hasNavigation =
       (await page.locator('nav, [role="navigation"]').count()) > 0 ||
-      (await page.locator('a[href*="/practice-hub"], a[href*="/client-hub"]').count()) > 0;
+      (await page
+        .locator('a[href*="/practice-hub"], a[href*="/client-hub"]')
+        .count()) > 0;
 
     expect(hasNavigation).toBeTruthy();
   });

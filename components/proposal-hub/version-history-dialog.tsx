@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { History, FileText, User, Clock, ChevronRight } from "lucide-react";
+import { ChevronRight, Clock, FileText, History, User } from "lucide-react";
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -21,7 +22,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface VersionHistoryDialogProps {
   proposalId: string;

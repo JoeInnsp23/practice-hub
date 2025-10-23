@@ -10,17 +10,17 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  APIServerError,
+  CompaniesHouseError,
+  type CompanyDetails,
+  CompanyNotFoundError,
   getCompany,
   getOfficers,
   getPSCs,
-  CompanyNotFoundError,
-  RateLimitError,
-  APIServerError,
   NetworkError,
-  CompaniesHouseError,
-  type CompanyDetails,
   type Officer,
   type PSC,
+  RateLimitError,
 } from "@/lib/companies-house/client";
 
 // ============================================================================
@@ -412,7 +412,9 @@ describe("getCompany()", () => {
       ...mockCompanyResponse,
       sic_codes: undefined,
     };
-    mockFetch.mockResolvedValueOnce(createMockResponse(responseWithoutSIC, 200));
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse(responseWithoutSIC, 200),
+    );
 
     const result = await getCompany("00000006");
 
@@ -483,9 +485,7 @@ describe("getOfficers()", () => {
 
   it("should handle empty officers list", async () => {
     const mockFetch = vi.mocked(global.fetch);
-    mockFetch.mockResolvedValueOnce(
-      createMockResponse({ items: [] }, 200),
-    );
+    mockFetch.mockResolvedValueOnce(createMockResponse({ items: [] }, 200));
 
     const result = await getOfficers("00000006");
 
@@ -582,7 +582,9 @@ describe("getOfficers()", () => {
         },
       ],
     };
-    mockFetch.mockResolvedValueOnce(createMockResponse(activeOfficersOnly, 200));
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse(activeOfficersOnly, 200),
+    );
 
     const result = await getOfficers("00000006");
 
@@ -598,9 +600,7 @@ describe("getOfficers()", () => {
 describe("getPSCs()", () => {
   it("should successfully fetch PSCs array", async () => {
     const mockFetch = vi.mocked(global.fetch);
-    mockFetch.mockResolvedValueOnce(
-      createMockResponse(mockPSCsResponse, 200),
-    );
+    mockFetch.mockResolvedValueOnce(createMockResponse(mockPSCsResponse, 200));
 
     const result = await getPSCs("00000006");
 
@@ -636,9 +636,7 @@ describe("getPSCs()", () => {
 
   it("should handle empty PSCs list", async () => {
     const mockFetch = vi.mocked(global.fetch);
-    mockFetch.mockResolvedValueOnce(
-      createMockResponse({ items: [] }, 200),
-    );
+    mockFetch.mockResolvedValueOnce(createMockResponse({ items: [] }, 200));
 
     const result = await getPSCs("00000006");
 
@@ -701,15 +699,15 @@ describe("getPSCs()", () => {
       expect.fail("Should have thrown NetworkError");
     } catch (error) {
       expect(error).toBeInstanceOf(NetworkError);
-      expect((error as NetworkError).message).toContain("DNS resolution failed");
+      expect((error as NetworkError).message).toContain(
+        "DNS resolution failed",
+      );
     }
   });
 
   it("should map snake_case API response to camelCase", async () => {
     const mockFetch = vi.mocked(global.fetch);
-    mockFetch.mockResolvedValueOnce(
-      createMockResponse(mockPSCsResponse, 200),
-    );
+    mockFetch.mockResolvedValueOnce(createMockResponse(mockPSCsResponse, 200));
 
     const result = await getPSCs("00000006");
 

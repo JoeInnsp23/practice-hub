@@ -114,8 +114,9 @@ export function extractUserIds(
     const normalizedName = name.toLowerCase().trim();
 
     const matchedUser = availableUsers.find((user) => {
-      const fullName =
-        `${user.firstName || ""} ${user.lastName || ""}`.toLowerCase().trim();
+      const fullName = `${user.firstName || ""} ${user.lastName || ""}`
+        .toLowerCase()
+        .trim();
       const email = user.email?.toLowerCase() || "";
 
       // Match against full name or email
@@ -244,10 +245,7 @@ export function isInMentionContext(
  * getMentionQuery("Hello @jo", 9) // Returns: "jo"
  * getMentionQuery("Hello @", 7) // Returns: ""
  */
-export function getMentionQuery(
-  text: string,
-  cursorPosition: number,
-): string {
+export function getMentionQuery(text: string, cursorPosition: number): string {
   // Search backwards from cursor to find @ symbol
   let atPosition = cursorPosition - 1;
 

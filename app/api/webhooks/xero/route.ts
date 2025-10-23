@@ -10,11 +10,11 @@
  */
 
 import crypto from "node:crypto";
+import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { integrationSettings, xeroWebhookEvents } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import * as Sentry from "@sentry/nextjs";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // 1 minute timeout
@@ -28,7 +28,12 @@ interface XeroWebhookPayload {
     resourceId: string;
     eventDateUtc: string;
     eventType: "CREATE" | "UPDATE" | "DELETE";
-    eventCategory: "INVOICE" | "CONTACT" | "PAYMENT" | "BANKTRANSACTION" | "ACCOUNT";
+    eventCategory:
+      | "INVOICE"
+      | "CONTACT"
+      | "PAYMENT"
+      | "BANKTRANSACTION"
+      | "ACCOUNT";
     tenantId: string; // Xero tenant/organisation ID
     tenantType: string;
     eventId: string; // Unique event ID for idempotency
@@ -42,7 +47,9 @@ interface XeroWebhookPayload {
  * Get tenant ID from Xero tenant ID
  * Looks up the Practice Hub tenant that has this Xero organisation connected
  */
-async function getTenantIdFromXeroTenantId(xeroTenantId: string): Promise<string | null> {
+async function getTenantIdFromXeroTenantId(
+  xeroTenantId: string,
+): Promise<string | null> {
   try {
     const settings = await db
       .select()
@@ -60,10 +67,7 @@ async function getTenantIdFromXeroTenantId(xeroTenantId: string): Promise<string
           if (config?.selectedTenantId === xeroTenantId) {
             return setting.tenantId;
           }
-        } catch (error) {
-          // Skip if credentials can't be parsed
-          continue;
-        }
+        } catch (error) {}
       }
     }
 
@@ -93,7 +97,10 @@ export async function POST(request: Request) {
 
     if (!webhookKey) {
       console.error("XERO_WEBHOOK_KEY not configured");
-      return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Webhook not configured" },
+        { status: 500 },
+      );
     }
 
     if (!signature) {
@@ -132,7 +139,9 @@ export async function POST(request: Request) {
         const tenantId = await getTenantIdFromXeroTenantId(event.tenantId);
 
         if (!tenantId) {
-          console.warn(`No tenant found for Xero tenant ${event.tenantId}, skipping event`);
+          console.warn(
+            `No tenant found for Xero tenant ${event.tenantId}, skipping event`,
+          );
           skippedCount++;
           continue;
         }

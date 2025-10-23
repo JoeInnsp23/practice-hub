@@ -1,10 +1,15 @@
+import crypto from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { taskTemplates, services, clientTaskTemplateOverrides, clientServices } from "@/lib/db/schema";
+import {
+  clientServices,
+  clientTaskTemplateOverrides,
+  services,
+  taskTemplates,
+} from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
-import crypto from "node:crypto";
 
 export const taskTemplatesRouter = router({
   // List all templates
@@ -311,7 +316,9 @@ export const taskTemplatesRouter = router({
         clientId: z.string(),
         templateId: z.string(),
         customDueDate: z.string().optional(),
-        customPriority: z.enum(["low", "medium", "high", "urgent", "critical"]).optional(),
+        customPriority: z
+          .enum(["low", "medium", "high", "urgent", "critical"])
+          .optional(),
         isDisabled: z.boolean().default(false),
       }),
     )

@@ -4,11 +4,11 @@
  * Endpoints for managing and viewing CSV import history
  */
 
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { eq, and, desc } from "drizzle-orm";
-import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { importLogs } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
 
 export const importLogsRouter = router({
   /**
@@ -20,7 +20,9 @@ export const importLogsRouter = router({
       z
         .object({
           entityType: z.enum(["clients", "tasks", "services"]).optional(),
-          status: z.enum(["pending", "processing", "completed", "failed", "partial"]).optional(),
+          status: z
+            .enum(["pending", "processing", "completed", "failed", "partial"])
+            .optional(),
         })
         .optional(),
     )
@@ -47,19 +49,26 @@ export const importLogsRouter = router({
   /**
    * Get a single import log by ID
    */
-  getById: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    const [log] = await db
-      .select()
-      .from(importLogs)
-      .where(and(eq(importLogs.id, input.id), eq(importLogs.tenantId, ctx.authContext.tenantId)))
-      .limit(1);
+  getById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const [log] = await db
+        .select()
+        .from(importLogs)
+        .where(
+          and(
+            eq(importLogs.id, input.id),
+            eq(importLogs.tenantId, ctx.authContext.tenantId),
+          ),
+        )
+        .limit(1);
 
-    if (!log) {
-      throw new Error("Import log not found");
-    }
+      if (!log) {
+        throw new Error("Import log not found");
+      }
 
-    return log;
-  }),
+      return log;
+    }),
 
   /**
    * Get summary statistics for all imports
@@ -72,11 +81,18 @@ export const importLogsRouter = router({
 
     const summary = {
       totalImports: logs.length,
-      successfulImports: logs.filter((log) => log.status === "completed").length,
+      successfulImports: logs.filter((log) => log.status === "completed")
+        .length,
       failedImports: logs.filter((log) => log.status === "failed").length,
       partialImports: logs.filter((log) => log.status === "partial").length,
-      totalRowsProcessed: logs.reduce((sum, log) => sum + (log.processedRows || 0), 0),
-      totalRowsFailed: logs.reduce((sum, log) => sum + (log.failedRows || 0), 0),
+      totalRowsProcessed: logs.reduce(
+        (sum, log) => sum + (log.processedRows || 0),
+        0,
+      ),
+      totalRowsFailed: logs.reduce(
+        (sum, log) => sum + (log.failedRows || 0),
+        0,
+      ),
       byEntityType: {
         clients: logs.filter((log) => log.entityType === "clients").length,
         tasks: logs.filter((log) => log.entityType === "tasks").length,

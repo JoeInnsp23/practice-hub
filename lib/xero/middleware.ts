@@ -20,8 +20,8 @@
  * ```
  */
 
-import { XeroApiClient } from "./api-client";
 import * as Sentry from "@sentry/nextjs";
+import { XeroApiClient } from "./api-client";
 
 const xeroClient = new XeroApiClient();
 
@@ -81,7 +81,10 @@ export async function isXeroEnabled(tenantId: string): Promise<boolean> {
     const credentials = await xeroClient.getCredentials(tenantId);
     return credentials !== null;
   } catch (error) {
-    console.error(`[Xero Middleware] Failed to check if enabled for tenant ${tenantId}:`, error);
+    console.error(
+      `[Xero Middleware] Failed to check if enabled for tenant ${tenantId}:`,
+      error,
+    );
     return false;
   }
 }
@@ -94,7 +97,9 @@ export async function isXeroEnabled(tenantId: string): Promise<boolean> {
  *
  * @param tenantId - Tenant ID to validate
  */
-export async function ensureXeroCredentials(tenantId: string): Promise<XeroCredentials> {
+export async function ensureXeroCredentials(
+  tenantId: string,
+): Promise<XeroCredentials> {
   const credentials = await xeroClient.getCredentials(tenantId);
 
   if (!credentials) {
@@ -110,12 +115,17 @@ export async function ensureXeroCredentials(tenantId: string): Promise<XeroCrede
  * @param tenantId - Practice Hub tenant ID
  * @returns Xero tenant ID or null if not found
  */
-export async function getXeroTenantId(tenantId: string): Promise<string | null> {
+export async function getXeroTenantId(
+  tenantId: string,
+): Promise<string | null> {
   try {
     const credentials = await xeroClient.getCredentials(tenantId);
     return credentials?.selectedTenantId || null;
   } catch (error) {
-    console.error(`[Xero Middleware] Failed to get Xero tenant ID for tenant ${tenantId}:`, error);
+    console.error(
+      `[Xero Middleware] Failed to get Xero tenant ID for tenant ${tenantId}:`,
+      error,
+    );
     return null;
   }
 }

@@ -78,8 +78,12 @@ export default function ProposalsPipelinePage() {
     assignedToId: filters.assignedToId,
     dateFrom: filters.dateFrom?.toISOString(),
     dateTo: filters.dateTo?.toISOString(),
-    minValue: filters.minValue ? Number.parseFloat(filters.minValue) : undefined,
-    maxValue: filters.maxValue ? Number.parseFloat(filters.maxValue) : undefined,
+    minValue: filters.minValue
+      ? Number.parseFloat(filters.minValue)
+      : undefined,
+    maxValue: filters.maxValue
+      ? Number.parseFloat(filters.maxValue)
+      : undefined,
   });
 
   // Fetch team members for assignee filter
@@ -270,7 +274,9 @@ export default function ProposalsPipelinePage() {
                     className="justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateFrom ? format(filters.dateFrom, "PPP") : "From"}
+                    {filters.dateFrom
+                      ? format(filters.dateFrom, "PPP")
+                      : "From"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">

@@ -1,15 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { trpc } from "@/app/providers/trpc-provider";
 import {
   ArrowRight,
   CheckCircle2,
@@ -17,7 +7,17 @@ import {
   MinusCircle,
   PlusCircle,
 } from "lucide-react";
+import { trpc } from "@/app/providers/trpc-provider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface VersionComparisonModalProps {
   isOpen: boolean;
@@ -38,14 +38,15 @@ export function VersionComparisonModal({
   version1Number,
   version2Number,
 }: VersionComparisonModalProps) {
-  const { data: comparison, isLoading } = trpc.workflows.compareVersions.useQuery(
-    {
-      workflowId,
-      versionId1,
-      versionId2,
-    },
-    { enabled: isOpen },
-  );
+  const { data: comparison, isLoading } =
+    trpc.workflows.compareVersions.useQuery(
+      {
+        workflowId,
+        versionId1,
+        versionId2,
+      },
+      { enabled: isOpen },
+    );
 
   if (!comparison && !isLoading) {
     return null;
@@ -86,25 +87,33 @@ export function VersionComparisonModal({
                   <div className="text-2xl font-bold text-green-600">
                     {comparison.summary.stagesAdded}
                   </div>
-                  <div className="text-xs text-muted-foreground">Stages Added</div>
+                  <div className="text-xs text-muted-foreground">
+                    Stages Added
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">
                     {comparison.summary.stagesRemoved}
                   </div>
-                  <div className="text-xs text-muted-foreground">Stages Removed</div>
+                  <div className="text-xs text-muted-foreground">
+                    Stages Removed
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-yellow-600">
                     {comparison.summary.stagesModified}
                   </div>
-                  <div className="text-xs text-muted-foreground">Stages Modified</div>
+                  <div className="text-xs text-muted-foreground">
+                    Stages Modified
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">
                     {comparison.summary.metadataChanged ? "Yes" : "No"}
                   </div>
-                  <div className="text-xs text-muted-foreground">Metadata Changed</div>
+                  <div className="text-xs text-muted-foreground">
+                    Metadata Changed
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -118,7 +127,9 @@ export function VersionComparisonModal({
                 <CardContent className="space-y-2">
                   {comparison.metadataChanges.includes("name") && (
                     <div className="flex items-start gap-2">
-                      <Badge variant="outline" className="text-xs">Name</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Name
+                      </Badge>
                       <div className="flex-1 space-y-1">
                         <div className="text-sm line-through text-red-600">
                           {comparison.version1.name}
@@ -131,7 +142,9 @@ export function VersionComparisonModal({
                   )}
                   {comparison.metadataChanges.includes("description") && (
                     <div className="flex items-start gap-2">
-                      <Badge variant="outline" className="text-xs">Description</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Description
+                      </Badge>
                       <div className="flex-1 space-y-1">
                         <div className="text-sm line-through text-red-600">
                           {comparison.version1.description || "(none)"}
@@ -144,7 +157,9 @@ export function VersionComparisonModal({
                   )}
                   {comparison.metadataChanges.includes("estimatedDays") && (
                     <div className="flex items-start gap-2">
-                      <Badge variant="outline" className="text-xs">Est. Days</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Est. Days
+                      </Badge>
                       <div className="flex-1 space-y-1">
                         <div className="text-sm line-through text-red-600">
                           {comparison.version1.estimatedDays || "N/A"}
@@ -224,10 +239,16 @@ export function VersionComparisonModal({
                       key={item.new.id}
                       className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-900 rounded"
                     >
-                      <div className="font-medium text-sm mb-2">{item.new.name}</div>
+                      <div className="font-medium text-sm mb-2">
+                        {item.new.name}
+                      </div>
                       <div className="flex flex-wrap gap-1">
                         {item.changes.map((change: string) => (
-                          <Badge key={change} variant="outline" className="text-xs">
+                          <Badge
+                            key={change}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {change}
                           </Badge>
                         ))}

@@ -34,9 +34,7 @@ interface SalesKanbanBoardProps {
   proposalsByStage: Record<SalesStage, Proposal[]>;
 }
 
-export function SalesKanbanBoard({
-  proposalsByStage,
-}: SalesKanbanBoardProps) {
+export function SalesKanbanBoard({ proposalsByStage }: SalesKanbanBoardProps) {
   const utils = trpc.useUtils();
   const [activeProposal, setActiveProposal] = useState<Proposal | null>(null);
 

@@ -21,7 +21,10 @@ try {
     });
   }
 } catch (error) {
-  console.warn("Failed to initialize Upstash Redis, falling back to in-memory rate limiting", error);
+  console.warn(
+    "Failed to initialize Upstash Redis, falling back to in-memory rate limiting",
+    error,
+  );
   redis = null;
 }
 
@@ -142,7 +145,9 @@ export function checkRateLimit(
 ): RateLimitResult {
   // Use in-memory fallback if Upstash not configured
   if (!redis) {
-    console.warn("Rate limiting using in-memory fallback (not suitable for production)");
+    console.warn(
+      "Rate limiting using in-memory fallback (not suitable for production)",
+    );
     return checkInMemoryRateLimit(identifier, config);
   }
 

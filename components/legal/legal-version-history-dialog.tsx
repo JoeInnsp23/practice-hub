@@ -1,9 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
-import { History, FileText, User, Clock } from "lucide-react";
+import { Clock, FileText, History, User } from "lucide-react";
 import { useState } from "react";
-import { trpc } from "@/lib/trpc/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { trpc } from "@/lib/trpc/client";
 
 interface LegalVersionHistoryDialogProps {
   pageType: "privacy" | "terms" | "cookie_policy";
@@ -34,12 +34,13 @@ export function LegalVersionHistoryDialog({
   const [open, setOpen] = useState(false);
 
   // Fetch version history from activity logs
-  const { data: historyData, isLoading } = trpc.legal.getVersionHistory.useQuery(
-    { pageType },
-    {
-      enabled: open, // Only fetch when dialog is opened
-    },
-  );
+  const { data: historyData, isLoading } =
+    trpc.legal.getVersionHistory.useQuery(
+      { pageType },
+      {
+        enabled: open, // Only fetch when dialog is opened
+      },
+    );
 
   const versions = historyData || [];
 

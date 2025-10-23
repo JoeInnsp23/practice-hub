@@ -4,9 +4,9 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
   Legend,
   Line,
-  ComposedChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -39,8 +39,12 @@ export function SalesCycleChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Sales Cycle Duration</h3>
-          <p className="text-sm text-muted-foreground">Average days to close won deals</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Sales Cycle Duration
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Average days to close won deals
+          </p>
         </div>
         <div className="flex items-center justify-center h-[350px]">
           <div className="text-muted-foreground">Loading chart...</div>
@@ -53,8 +57,12 @@ export function SalesCycleChart({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Sales Cycle Duration</h3>
-          <p className="text-sm text-muted-foreground">Average days to close won deals</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Sales Cycle Duration
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Average days to close won deals
+          </p>
         </div>
         <div className="flex items-center justify-center h-[350px]">
           <div className="text-center">
@@ -85,10 +93,12 @@ export function SalesCycleChart({
   return (
     <Card className="p-6">
       <div className="space-y-2 mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Sales Cycle Duration</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Sales Cycle Duration
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Avg: {data.avgDaysToWon} days | Median: {data.medianDays} days | Range:{" "}
-          {data.minDays}-{data.maxDays} days
+          Avg: {data.avgDaysToWon} days | Median: {data.medianDays} days |
+          Range: {data.minDays}-{data.maxDays} days
         </p>
       </div>
       <ResponsiveContainer width="100%" height={350}>

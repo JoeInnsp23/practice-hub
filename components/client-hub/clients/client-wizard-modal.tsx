@@ -267,7 +267,7 @@ export function ClientWizardModal({
   };
 
   const handleSubmit = () => {
-    // Prepare final data for submission
+    // Prepare final data for submission - flatten structure to match router schema
     const finalData: WizardFormData = {
       ...formData,
       // Convert "none" values to undefined for proper database handling
@@ -275,37 +275,38 @@ export function ClientWizardModal({
         formData.vatPeriods === "none" ? undefined : formData.vatPeriods,
       payePeriods:
         formData.payePeriods === "none" ? undefined : formData.payePeriods,
-      // Convert metadata to include contact info and other details
-      metadata: {
-        ...formData.metadata,
-        contact: {
-          primaryContactName:
-            [
-              formData.primaryContactFirstName,
-              formData.primaryContactMiddleName,
-              formData.primaryContactLastName,
-            ]
-              .filter(Boolean)
-              .join(" ") || formData.primaryContactName,
-          primaryContactFirstName: formData.primaryContactFirstName,
-          primaryContactMiddleName: formData.primaryContactMiddleName,
-          primaryContactLastName: formData.primaryContactLastName,
-          primaryContactEmail: formData.primaryContactEmail,
-          primaryContactPhone: formData.primaryContactPhone,
-        },
-        address: {
-          addressLine1: formData.addressLine1,
-          addressLine2: formData.addressLine2,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
-        },
-        registration: {
-          yearEndDate: formData.yearEndDate,
-          incorporationDate: formData.incorporationDate,
-        },
-        notes: formData.notes,
-      },
+
+      // Flatten address fields to top level (router expects direct fields)
+      addressLine1: formData.addressLine1,
+      addressLine2: formData.addressLine2,
+      city: formData.city,
+      postalCode: formData.postalCode,
+      country: formData.country,
+
+      // Flatten registration fields to top level
+      incorporationDate: formData.incorporationDate,
+      yearEnd: formData.yearEndDate,
+
+      // Notes as top-level field
+      notes: formData.notes,
+
+      // Primary contact as structured object (matches router primaryContact schema)
+      primaryContact:
+        formData.primaryContactFirstName ||
+        formData.primaryContactLastName ||
+        formData.primaryContactEmail
+          ? {
+              firstName: formData.primaryContactFirstName || "",
+              lastName: formData.primaryContactLastName || "",
+              email: formData.primaryContactEmail || "",
+              phone: formData.primaryContactPhone,
+              mobile: undefined,
+              position: undefined,
+            }
+          : undefined,
+
+      // Remove metadata wrapping - not expected by router schema
+      metadata: undefined,
     };
 
     // Handle "unassigned" client manager
@@ -391,8 +392,16 @@ export function ClientWizardModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[1400px] w-[95vw] max-h-[90vh] flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        data-testid="client-wizard-modal"
+        className="max-w-[1400px] w-[95vw] max-h-[90vh] flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800"
+      >
         <DialogHeader className="space-y-4 pb-6">
           <div>
             <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">

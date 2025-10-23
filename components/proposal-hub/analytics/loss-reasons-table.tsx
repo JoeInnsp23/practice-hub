@@ -29,10 +29,10 @@ export function LossReasonsTable({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Loss Reasons</h3>
-          <p className="text-sm text-muted-foreground">
-            Why deals were lost
-          </p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Loss Reasons
+          </h3>
+          <p className="text-sm text-muted-foreground">Why deals were lost</p>
         </div>
         <div className="flex items-center justify-center py-8">
           <div className="text-muted-foreground">Loading data...</div>
@@ -45,10 +45,10 @@ export function LossReasonsTable({
     return (
       <Card className="p-6">
         <div className="space-y-2 mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Loss Reasons</h3>
-          <p className="text-sm text-muted-foreground">
-            Why deals were lost
-          </p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Loss Reasons
+          </h3>
+          <p className="text-sm text-muted-foreground">Why deals were lost</p>
         </div>
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
@@ -83,9 +83,7 @@ export function LossReasonsTable({
             <TableBody>
               {data.reasons.map((reason, index) => (
                 <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    {reason.reason}
-                  </TableCell>
+                  <TableCell className="font-medium">{reason.reason}</TableCell>
                   <TableCell className="text-right">{reason.count}</TableCell>
                   <TableCell className="text-right font-semibold">
                     {reason.percentage.toFixed(1)}%

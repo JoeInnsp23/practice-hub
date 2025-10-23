@@ -1,5 +1,5 @@
-import { requireAuth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
 
 // Client CSV Template
 // Defines the structure for bulk client import

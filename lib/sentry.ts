@@ -14,7 +14,7 @@ import * as Sentry from "@sentry/nextjs";
  */
 export function captureError(
   error: Error,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     console.error("Error (Sentry not configured):", error, context);
@@ -38,7 +38,7 @@ export function captureError(
 export function captureMessage(
   message: string,
   level: "info" | "warning" | "error" = "info",
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     console.log(`[${level.toUpperCase()}]`, message, context);
@@ -65,7 +65,7 @@ export function setUserContext(
   userId: string,
   email: string,
   tenantId: string,
-  role?: string
+  role?: string,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     return;
@@ -100,7 +100,7 @@ export function clearUserContext(): void {
 export function addBreadcrumb(
   message: string,
   category: string,
-  data?: Record<string, any>
+  data?: Record<string, any>,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     return;
@@ -141,7 +141,7 @@ export function startTransaction(name: string, op: string) {
 export function captureTRPCError(
   error: Error,
   path: string,
-  input?: unknown
+  input?: unknown,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     console.error(`tRPC Error [${path}]:`, error, input);

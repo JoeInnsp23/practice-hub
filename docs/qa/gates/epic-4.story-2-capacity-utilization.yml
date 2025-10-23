@@ -1,0 +1,76 @@
+# Quality Gate Decision - Story 4.2
+schema: 1
+story: "4.2"
+story_title: "Staff Capacity Planning & Utilization Tracking"
+gate: CONCERNS
+status_reason: "Solid implementation with all 12 ACs met, but test coverage is limited to smoke tests and performance optimization opportunities exist. Recommend addressing before production."
+reviewer: "Quinn (Test Architect)"
+updated: "2025-01-23T19:15:00Z"
+
+waiver: { active: false }
+
+top_issues:
+  - id: "TEST-001"
+    severity: medium
+    finding: "Tests are primarily structural/smoke tests - lack comprehensive integration tests with real data scenarios (e.g., capacity overlaps, edge cases, timezone boundaries)"
+    suggested_action: "Add integration tests covering capacity history changes, utilization calculations with real time entries, and edge cases"
+    suggested_owner: dev
+  - id: "PERF-001"
+    severity: medium
+    finding: "N+1 query pattern in getUtilization and getUtilizationTrends procedures using Promise.all with individual DB queries per user"
+    suggested_action: "Consider batch query optimization for teams >20 staff, or document acceptable performance threshold"
+    suggested_owner: dev
+  - id: "MONITOR-001"
+    severity: low
+    finding: "UI error handlers use toast.error but don't capture exceptions with Sentry (per CLAUDE.md Error Tracking policy)"
+    suggested_action: "Add Sentry.captureException in mutation error handlers for unexpected errors"
+    suggested_owner: dev
+  - id: "VALID-001"
+    severity: low
+    finding: "No validation preventing overlapping or conflicting capacity records for same user with different effective dates"
+    suggested_action: "Add business logic validation to prevent capacity record conflicts"
+    suggested_owner: dev
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 2, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "Performance under load with >50 active staff"
+      - "Capacity record overlap scenarios in production"
+
+quality_score: 80
+expires: "2025-02-06T00:00:00Z"
+
+evidence:
+  tests_reviewed: 15
+  risks_identified: 4
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "Multi-tenant isolation verified across all 26 tenantId references. No console.log leaks. TRPCError used for backend errors. No security vulnerabilities found."
+  performance:
+    status: CONCERNS
+    notes: "N+1 query pattern acceptable for expected scale (<50 staff) but could impact larger organizations. Recommend load testing or query optimization."
+  reliability:
+    status: PASS
+    notes: "Proper error handling with TRPCError. Edge case handling for users without capacity records. Division by zero protection in utilization calculation."
+  maintainability:
+    status: PASS
+    notes: "Clean code structure with type safety via tRPC + Drizzle ORM. Proper use of Zod validation. Good component separation. No console statements."
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Add comprehensive integration tests for capacity workflows"
+      refs: ["app/server/routers/staffCapacity.test.ts"]
+    - action: "Optimize utilization queries with batch fetching if team size grows"
+      refs: ["app/server/routers/staffCapacity.ts:246-317", "app/server/routers/staffCapacity.ts:360-413"]
+    - action: "Add Sentry error tracking in UI mutation handlers"
+      refs: ["components/admin/staff/capacity-form-dialog.tsx:73-75", "components/admin/staff/capacity-form-dialog.tsx:84-86"]
+    - action: "Add validation for capacity record overlaps"
+      refs: ["app/server/routers/staffCapacity.ts:93-122"]

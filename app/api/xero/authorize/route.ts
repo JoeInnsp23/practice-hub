@@ -1,7 +1,7 @@
+import * as Sentry from "@sentry/nextjs";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
 import { getAuthorizationUrl } from "@/lib/xero/client";
-import * as Sentry from "@sentry/nextjs";
 
 /**
  * Xero OAuth Authorization Endpoint

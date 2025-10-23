@@ -6,11 +6,11 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  replacePlaceholders,
-  validatePlaceholders,
   calculateDueDate,
-  SUPPORTED_PLACEHOLDERS,
   type PlaceholderData,
+  replacePlaceholders,
+  SUPPORTED_PLACEHOLDERS,
+  validatePlaceholders,
 } from "@/lib/services/template-placeholders";
 
 describe("lib/services/template-placeholders.ts", () => {
@@ -81,9 +81,7 @@ describe("lib/services/template-placeholders.ts", () => {
         "{service_name} for {client_name} - {tax_year}",
         sampleData,
       );
-      expect(result).toBe(
-        "Corporation Tax Return for Acme Ltd - 2024/25",
-      );
+      expect(result).toBe("Corporation Tax Return for Acme Ltd - 2024/25");
     });
 
     it("should replace the same placeholder multiple times", () => {

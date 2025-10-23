@@ -219,10 +219,7 @@ export const settingsRouter = router({
         | "daily"
         | "weekly"
         | "never",
-      theme: (userSetting[0].theme ?? "system") as
-        | "light"
-        | "dark"
-        | "system",
+      theme: (userSetting[0].theme ?? "system") as "light" | "dark" | "system",
       language: (userSetting[0].language ?? "en") as "en" | "es" | "fr" | "de",
       timezone: userSetting[0].timezone ?? "Europe/London",
     };

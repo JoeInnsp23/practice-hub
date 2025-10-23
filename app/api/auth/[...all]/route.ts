@@ -18,7 +18,8 @@ async function handleRateLimit(request: Request) {
   }
 
   const clientId = getClientIdentifier(request);
-  const { success, limit, reset, remaining } = await authRateLimit.limit(clientId);
+  const { success, limit, reset, remaining } =
+    await authRateLimit.limit(clientId);
 
   if (!success) {
     return NextResponse.json(
@@ -34,7 +35,7 @@ async function handleRateLimit(request: Request) {
           "X-RateLimit-Reset": new Date(reset).toISOString(),
           "Retry-After": Math.ceil((reset - Date.now()) / 1000).toString(),
         },
-      }
+      },
     );
   }
 
@@ -48,8 +49,7 @@ export async function POST(request: Request) {
   // Only rate limit authentication endpoints (sign-in, sign-up)
   const url = new URL(request.url);
   const shouldRateLimit =
-    url.pathname.includes("/sign-in") ||
-    url.pathname.includes("/sign-up");
+    url.pathname.includes("/sign-in") || url.pathname.includes("/sign-up");
 
   if (shouldRateLimit) {
     const rateLimitResponse = await handleRateLimit(request);

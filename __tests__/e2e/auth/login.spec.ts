@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * Authentication Flow Tests
@@ -13,7 +13,9 @@ import { test, expect } from "@playwright/test";
 test.use({ storageState: undefined });
 
 test.describe("Authentication Flow", () => {
-  test("should successfully log in with valid credentials", async ({ page }) => {
+  test("should successfully log in with valid credentials", async ({
+    page,
+  }) => {
     // Get test credentials from environment
     const email = process.env.E2E_TEST_USER_EMAIL || "e2e-user@test.com";
     const password = process.env.E2E_TEST_USER_PASSWORD;
@@ -37,7 +39,9 @@ test.describe("Authentication Flow", () => {
     await emailInput.fill(email);
 
     // Wait for and fill in the password field
-    const passwordInput = page.locator('input[type="password"], input#password');
+    const passwordInput = page.locator(
+      'input[type="password"], input#password',
+    );
     await passwordInput.waitFor({ state: "visible", timeout: 10000 });
     await passwordInput.fill(password);
 
@@ -85,7 +89,7 @@ test.describe("Authentication Flow", () => {
     const hasError =
       (await page.locator('[role="alert"]').count()) > 0 ||
       (await page.locator('.error, [class*="error"]').count()) > 0 ||
-      (await page.locator('text=/invalid|incorrect|wrong/i').count()) > 0;
+      (await page.locator("text=/invalid|incorrect|wrong/i").count()) > 0;
 
     expect(hasError).toBeTruthy();
   });

@@ -4,8 +4,8 @@
  * Utilities for testing tRPC routers with mocked auth context
  */
 
-import type { AuthContext } from "@/lib/auth";
 import type { Context } from "@/app/server/context";
+import type { AuthContext } from "@/lib/auth";
 
 /**
  * Create a mock auth context for testing

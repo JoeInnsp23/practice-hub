@@ -8,15 +8,15 @@
  * - Looks up clients by client_code and users by email
  */
 
-import { type NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import { type NextRequest, NextResponse } from "next/server";
+import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { tasks, clients, users, importLogs } from "@/lib/db/schema";
+import { clients, importLogs, tasks, users } from "@/lib/db/schema";
 import { parseCsvFile } from "@/lib/services/csv-import";
 import { taskImportSchema } from "@/lib/validators/csv-import";
-import { getAuthContext } from "@/lib/auth";
-import { nanoid } from "nanoid";
-import * as Sentry from "@sentry/nextjs";
 
 export const runtime = "nodejs";
 
@@ -112,8 +112,12 @@ export async function POST(request: NextRequest) {
       .from(users)
       .where(eq(users.tenantId, authContext.tenantId));
 
-    const clientLookup = new Map(tenantClients.map((c) => [c.clientCode, c.id]));
-    const userLookup = new Map(tenantUsers.map((u) => [u.email.toLowerCase(), u.id]));
+    const clientLookup = new Map(
+      tenantClients.map((c) => [c.clientCode, c.id]),
+    );
+    const userLookup = new Map(
+      tenantUsers.map((u) => [u.email.toLowerCase(), u.id]),
+    );
 
     // Import tasks in batches
     let processedCount = 0;
@@ -145,7 +149,8 @@ export async function POST(request: NextRequest) {
           // Look up assigned user
           let assignedToId: string | null = null;
           if (row.assigned_to_email) {
-            assignedToId = userLookup.get(row.assigned_to_email.toLowerCase()) || null;
+            assignedToId =
+              userLookup.get(row.assigned_to_email.toLowerCase()) || null;
             if (!assignedToId) {
               importErrors.push({
                 row: rowNumber,
@@ -159,7 +164,8 @@ export async function POST(request: NextRequest) {
           // Look up reviewer
           let reviewerId: string | null = null;
           if (row.reviewer_email) {
-            reviewerId = userLookup.get(row.reviewer_email.toLowerCase()) || null;
+            reviewerId =
+              userLookup.get(row.reviewer_email.toLowerCase()) || null;
             if (!reviewerId) {
               importErrors.push({
                 row: rowNumber,

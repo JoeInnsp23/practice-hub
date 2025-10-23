@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import path from "path";
 import { clickButton, waitForDialogOpen } from "../helpers/radix-interactions";
 
@@ -49,7 +49,7 @@ test.describe("Document Upload", () => {
         timeout: 20000,
       }),
       // Option 2: Success toast appears
-      page.waitForSelector('text=/uploaded|success/i', { timeout: 20000 }),
+      page.waitForSelector("text=/uploaded|success/i", { timeout: 20000 }),
     ]).catch(() => {
       // If neither happens within 20s, continue anyway (upload may have succeeded)
       console.log("Upload button clicked, waiting for confirmation timed out");
@@ -60,7 +60,12 @@ test.describe("Document Upload", () => {
 
     // Verify document appears in the documents list
     // Navigate back to list if modal didn't auto-close
-    if (await page.locator('[role="dialog"]').isVisible().catch(() => false)) {
+    if (
+      await page
+        .locator('[role="dialog"]')
+        .isVisible()
+        .catch(() => false)
+    ) {
       // Modal still open, close it manually
       const closeButton = page.locator('button[aria-label="Close"]');
       if (await closeButton.isVisible().catch(() => false)) {
@@ -78,7 +83,7 @@ test.describe("Document Upload", () => {
     // Try multiple selectors to find the document
     const documentSelectors = [
       'text="test-document.txt"',
-      'text=/test-document/',
+      "text=/test-document/",
       '[data-testid*="document-item"]',
       'td:has-text("test-document")',
       'tr:has-text("test-document")',
@@ -86,7 +91,10 @@ test.describe("Document Upload", () => {
 
     let documentFound = false;
     for (const selector of documentSelectors) {
-      const isVisible = await page.locator(selector).isVisible({ timeout: 1000 }).catch(() => false);
+      const isVisible = await page
+        .locator(selector)
+        .isVisible({ timeout: 1000 })
+        .catch(() => false);
       if (isVisible) {
         documentFound = true;
         console.log(`Document found with selector: ${selector}`);
@@ -97,9 +105,13 @@ test.describe("Document Upload", () => {
     // If not found with specific selectors, check if ANY documents are listed
     if (!documentFound) {
       // Check if the file count increased (we saw "1 file" in the screenshot)
-      const fileCount = await page.locator('text=/1.*file/i').isVisible({ timeout: 2000 });
+      const fileCount = await page
+        .locator("text=/1.*file/i")
+        .isVisible({ timeout: 2000 });
       if (fileCount) {
-        console.log("Document upload confirmed by file count, but filename not visible in UI");
+        console.log(
+          "Document upload confirmed by file count, but filename not visible in UI",
+        );
         documentFound = true; // Accept this as success since file was uploaded
       }
     }
@@ -118,32 +130,51 @@ test.describe("Document Upload", () => {
       await page.waitForTimeout(500); // Brief wait for page stability
 
       // Check if there are existing documents to download
-      const hasDocuments = await page.locator('text=/1.*file/i').isVisible({ timeout: 3000 }).catch(() => false);
+      const hasDocuments = await page
+        .locator("text=/1.*file/i")
+        .isVisible({ timeout: 3000 })
+        .catch(() => false);
 
       if (!hasDocuments) {
         // No documents available, try to upload one
-        const uploadButton = page.locator('button:has-text("Upload Files")').first();
+        const uploadButton = page
+          .locator('button:has-text("Upload Files")')
+          .first();
 
-        if (await uploadButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (
+          await uploadButton.isVisible({ timeout: 3000 }).catch(() => false)
+        ) {
           await uploadButton.click();
           await page.waitForTimeout(200);
 
           // Wait for modal
-          const modalVisible = await page.locator('[role="dialog"]').isVisible({ timeout: 5000 }).catch(() => false);
+          const modalVisible = await page
+            .locator('[role="dialog"]')
+            .isVisible({ timeout: 5000 })
+            .catch(() => false);
 
           if (modalVisible) {
             const fileInput = page.locator('input[type="file"]').first();
             await fileInput.setInputFiles(testFilePath);
             await page.waitForTimeout(500);
 
-            const submitButton = page.locator('button:has-text("Upload 1 File")').first();
-            if (await submitButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+            const submitButton = page
+              .locator('button:has-text("Upload 1 File")')
+              .first();
+            if (
+              await submitButton.isVisible({ timeout: 3000 }).catch(() => false)
+            ) {
               await submitButton.click();
 
               // Wait for upload to complete
               await Promise.race([
-                page.waitForSelector('[role="dialog"]', { state: "hidden", timeout: 10000 }),
-                page.waitForSelector('text=/uploaded|success/i', { timeout: 10000 }),
+                page.waitForSelector('[role="dialog"]', {
+                  state: "hidden",
+                  timeout: 10000,
+                }),
+                page.waitForSelector("text=/uploaded|success/i", {
+                  timeout: 10000,
+                }),
               ]).catch(() => {
                 console.log("Upload completed or timed out");
               });
@@ -160,7 +191,9 @@ test.describe("Document Upload", () => {
       await page.waitForTimeout(500);
 
       // Look for download buttons or links
-      const downloadButtons = page.locator('button:has-text("Download"), a:has-text("Download"), button[title*="download" i], a[download]');
+      const downloadButtons = page.locator(
+        'button:has-text("Download"), a:has-text("Download"), button[title*="download" i], a[download]',
+      );
       const downloadCount = await downloadButtons.count();
 
       if (downloadCount > 0) {
@@ -169,7 +202,9 @@ test.describe("Document Upload", () => {
 
         try {
           // Set up download listener with shorter timeout
-          const downloadPromise = page.waitForEvent('download', { timeout: 5000 });
+          const downloadPromise = page.waitForEvent("download", {
+            timeout: 5000,
+          });
 
           // Click download button
           await downloadButton.click();
@@ -184,15 +219,18 @@ test.describe("Document Upload", () => {
           }
         } catch (error) {
           // Download might not trigger an event if it opens in new tab/window
-          console.log("Download functionality available but couldn't capture event");
+          console.log(
+            "Download functionality available but couldn't capture event",
+          );
           expect(true).toBeTruthy(); // Still pass as download button exists
         }
       } else {
         // No download buttons found, but documents exist
-        console.log("Documents exist but no download buttons visible - feature may not be implemented");
+        console.log(
+          "Documents exist but no download buttons visible - feature may not be implemented",
+        );
         expect(true).toBeTruthy(); // Soft pass since upload works
       }
-
     } catch (error) {
       console.log("Download test encountered an error:", error.message);
       // Pass the test anyway to prevent false negatives

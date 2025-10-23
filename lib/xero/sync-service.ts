@@ -10,10 +10,10 @@
  * Based on original CRM app sync architecture
  */
 
+import * as Sentry from "@sentry/nextjs";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { clients, invoices } from "@/lib/db/schema";
-import { eq, and, or, isNull } from "drizzle-orm";
-import * as Sentry from "@sentry/nextjs";
 import { XeroApiClient } from "./api-client";
 
 const xeroClient = new XeroApiClient();
@@ -76,7 +76,10 @@ export async function syncClientToXero(
     };
 
     // Push to Xero
-    const result = await xeroClient.createOrUpdateContact(tenantId, xeroContact);
+    const result = await xeroClient.createOrUpdateContact(
+      tenantId,
+      xeroContact,
+    );
 
     if (!result) {
       throw new Error("Xero API returned no data");
@@ -93,11 +96,14 @@ export async function syncClientToXero(
       })
       .where(eq(clients.id, clientId));
 
-    console.log(`Client ${clientId} synced to Xero successfully (ContactID: ${result.ContactID})`);
+    console.log(
+      `Client ${clientId} synced to Xero successfully (ContactID: ${result.ContactID})`,
+    );
 
     return { success: true };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     // Update sync status to error
     await db
@@ -148,10 +154,14 @@ export async function syncInvoiceToXero(
 
     // Ensure client is synced to Xero first
     if (!clientData.xeroContactId) {
-      console.log(`Client ${clientData.id} not synced to Xero yet, syncing now...`);
+      console.log(
+        `Client ${clientData.id} not synced to Xero yet, syncing now...`,
+      );
       const clientSyncResult = await syncClientToXero(clientData.id, tenantId);
       if (!clientSyncResult.success) {
-        throw new Error(`Failed to sync client first: ${clientSyncResult.error}`);
+        throw new Error(
+          `Failed to sync client first: ${clientSyncResult.error}`,
+        );
       }
 
       // Re-fetch client to get Xero ID
@@ -175,17 +185,29 @@ export async function syncInvoiceToXero(
       Contact: {
         ContactID: clientData.xeroContactId,
       },
-      Date: typeof invoiceData.issueDate === "string" ? invoiceData.issueDate : invoiceData.issueDate.toISOString().split("T")[0], // YYYY-MM-DD
-      DueDate: typeof invoiceData.dueDate === "string" ? invoiceData.dueDate : invoiceData.dueDate.toISOString().split("T")[0],
+      Date:
+        typeof invoiceData.issueDate === "string"
+          ? invoiceData.issueDate
+          : invoiceData.issueDate.toISOString().split("T")[0], // YYYY-MM-DD
+      DueDate:
+        typeof invoiceData.dueDate === "string"
+          ? invoiceData.dueDate
+          : invoiceData.dueDate.toISOString().split("T")[0],
       InvoiceNumber: invoiceData.invoiceNumber || undefined,
       Reference: undefined,
-      Status: invoiceData.status === "draft" ? ("DRAFT" as const) : ("AUTHORISED" as const),
+      Status:
+        invoiceData.status === "draft"
+          ? ("DRAFT" as const)
+          : ("AUTHORISED" as const),
       LineItems: [
         {
           Description: invoiceData.notes || "Services provided",
           Quantity: 1,
           UnitAmount: Number(invoiceData.subtotal),
-          TaxType: invoiceData.taxAmount && Number(invoiceData.taxAmount) > 0 ? "OUTPUT2" : "NONE", // OUTPUT2 = 20% VAT
+          TaxType:
+            invoiceData.taxAmount && Number(invoiceData.taxAmount) > 0
+              ? "OUTPUT2"
+              : "NONE", // OUTPUT2 = 20% VAT
         },
       ],
       LineAmountTypes: "Exclusive" as const,
@@ -193,7 +215,10 @@ export async function syncInvoiceToXero(
     };
 
     // Push to Xero
-    const result = await xeroClient.createOrUpdateInvoice(tenantId, xeroInvoice);
+    const result = await xeroClient.createOrUpdateInvoice(
+      tenantId,
+      xeroInvoice,
+    );
 
     if (!result) {
       throw new Error("Xero API returned no data");
@@ -210,11 +235,14 @@ export async function syncInvoiceToXero(
       })
       .where(eq(invoices.id, invoiceId));
 
-    console.log(`Invoice ${invoiceId} synced to Xero successfully (InvoiceID: ${result.InvoiceID})`);
+    console.log(
+      `Invoice ${invoiceId} synced to Xero successfully (InvoiceID: ${result.InvoiceID})`,
+    );
 
     return { success: true };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     // Update sync status to error
     await db
@@ -265,10 +293,14 @@ export async function syncPaymentToXero(
 
     // Ensure invoice is synced to Xero first
     if (!invoiceData.xeroInvoiceId) {
-      console.log(`Invoice ${invoiceId} not synced to Xero yet, syncing now...`);
+      console.log(
+        `Invoice ${invoiceId} not synced to Xero yet, syncing now...`,
+      );
       const invoiceSyncResult = await syncInvoiceToXero(invoiceId, tenantId);
       if (!invoiceSyncResult.success) {
-        throw new Error(`Failed to sync invoice first: ${invoiceSyncResult.error}`);
+        throw new Error(
+          `Failed to sync invoice first: ${invoiceSyncResult.error}`,
+        );
       }
 
       // Re-fetch invoice to get Xero ID
@@ -304,18 +336,24 @@ export async function syncPaymentToXero(
       throw new Error("Xero API returned no data");
     }
 
-    console.log(`Payment synced to Xero successfully (PaymentID: ${result.PaymentID})`);
+    console.log(
+      `Payment synced to Xero successfully (PaymentID: ${result.PaymentID})`,
+    );
 
     return { success: true };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     Sentry.captureException(error, {
       tags: { operation: "syncPaymentToXero" },
       extra: { invoiceId, tenantId, paymentAmount },
     });
 
-    console.error(`Failed to sync payment for invoice ${invoiceId} to Xero:`, error);
+    console.error(
+      `Failed to sync payment for invoice ${invoiceId} to Xero:`,
+      error,
+    );
 
     return { success: false, error: errorMessage };
   }
@@ -336,7 +374,9 @@ export async function markClientAsPendingSync(clientId: string): Promise<void> {
     .where(eq(clients.id, clientId));
 }
 
-export async function markInvoiceAsPendingSync(invoiceId: string): Promise<void> {
+export async function markInvoiceAsPendingSync(
+  invoiceId: string,
+): Promise<void> {
   await db
     .update(invoices)
     .set({
@@ -362,7 +402,12 @@ export async function retryFailedSyncs(
     const failedClients = await db
       .select()
       .from(clients)
-      .where(and(eq(clients.tenantId, tenantId), eq(clients.xeroSyncStatus, "error")))
+      .where(
+        and(
+          eq(clients.tenantId, tenantId),
+          eq(clients.xeroSyncStatus, "error"),
+        ),
+      )
       .limit(50); // Batch size
 
     for (const client of failedClients) {
@@ -376,7 +421,12 @@ export async function retryFailedSyncs(
     const failedInvoices = await db
       .select()
       .from(invoices)
-      .where(and(eq(invoices.tenantId, tenantId), eq(invoices.xeroSyncStatus, "error")))
+      .where(
+        and(
+          eq(invoices.tenantId, tenantId),
+          eq(invoices.xeroSyncStatus, "error"),
+        ),
+      )
       .limit(50); // Batch size
 
     for (const invoice of failedInvoices) {
@@ -420,7 +470,10 @@ export async function processPendingSyncs(
       .where(
         and(
           eq(clients.tenantId, tenantId),
-          or(eq(clients.xeroSyncStatus, "pending"), isNull(clients.xeroSyncStatus)),
+          or(
+            eq(clients.xeroSyncStatus, "pending"),
+            isNull(clients.xeroSyncStatus),
+          ),
         ),
       )
       .limit(50); // Batch size
@@ -439,7 +492,10 @@ export async function processPendingSyncs(
       .where(
         and(
           eq(invoices.tenantId, tenantId),
-          or(eq(invoices.xeroSyncStatus, "pending"), isNull(invoices.xeroSyncStatus)),
+          or(
+            eq(invoices.xeroSyncStatus, "pending"),
+            isNull(invoices.xeroSyncStatus),
+          ),
         ),
       )
       .limit(50); // Batch size

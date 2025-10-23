@@ -7,9 +7,9 @@
 
 import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { legalRouter } from "@/app/server/routers/legal";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -160,9 +160,9 @@ describe("app/server/routers/legal.ts", () => {
     it("should have no required input", () => {
       const procedure = legalRouter._def.procedures.getAll;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
-import { AnalyticsFiltersComponent } from "@/components/proposal-hub/analytics/analytics-filters";
 import type { AnalyticsFilters } from "@/components/proposal-hub/analytics/analytics-filters";
+import { AnalyticsFiltersComponent } from "@/components/proposal-hub/analytics/analytics-filters";
 import { AnalyticsKpiCards } from "@/components/proposal-hub/analytics/analytics-kpi-cards";
-import { WinLossPieChart } from "@/components/proposal-hub/analytics/win-loss-pie-chart";
-import { PipelineValueBarChart } from "@/components/proposal-hub/analytics/pipeline-value-bar-chart";
-import { MonthlyTrendChart } from "@/components/proposal-hub/analytics/monthly-trend-chart";
-import { SalesCycleChart } from "@/components/proposal-hub/analytics/sales-cycle-chart";
 import { LossReasonsTable } from "@/components/proposal-hub/analytics/loss-reasons-table";
+import { MonthlyTrendChart } from "@/components/proposal-hub/analytics/monthly-trend-chart";
+import { PipelineValueBarChart } from "@/components/proposal-hub/analytics/pipeline-value-bar-chart";
+import { SalesCycleChart } from "@/components/proposal-hub/analytics/sales-cycle-chart";
+import { WinLossPieChart } from "@/components/proposal-hub/analytics/win-loss-pie-chart";
 import { SalesFunnelChart } from "@/components/proposal-hub/charts/sales-funnel-chart";
 
 export default function AnalyticsPage() {
@@ -56,15 +56,17 @@ export default function AnalyticsPage() {
   const { data: usersData } = trpc.users.list.useQuery();
   const { data: clientsData } = trpc.clients.list.useQuery();
 
-  const users = usersData?.users.map((u) => ({
-    id: u.id,
-    name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email,
-  })) || [];
+  const users =
+    usersData?.users.map((u) => ({
+      id: u.id,
+      name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email,
+    })) || [];
 
-  const clients = clientsData?.clients.map((c) => ({
-    id: c.id,
-    name: c.name,
-  })) || [];
+  const clients =
+    clientsData?.clients.map((c) => ({
+      id: c.id,
+      name: c.name,
+    })) || [];
 
   return (
     <div className="space-y-6">
@@ -95,7 +97,10 @@ export default function AnalyticsPage() {
         avgSalesCycle={salesCycleData?.avgDaysToWon || 0}
         pipelineValue={pipelineData?.totalValue || 0}
         isLoading={
-          winLossLoading || avgDealLoading || salesCycleLoading || pipelineLoading
+          winLossLoading ||
+          avgDealLoading ||
+          salesCycleLoading ||
+          pipelineLoading
         }
       />
 
@@ -105,16 +110,25 @@ export default function AnalyticsPage() {
         <WinLossPieChart data={winLossData} isLoading={winLossLoading} />
 
         {/* Pipeline Value Bar Chart */}
-        <PipelineValueBarChart data={pipelineData} isLoading={pipelineLoading} />
+        <PipelineValueBarChart
+          data={pipelineData}
+          isLoading={pipelineLoading}
+        />
       </div>
 
       {/* Monthly Trend - Full Width */}
-      <MonthlyTrendChart data={monthlyTrendData} isLoading={monthlyTrendLoading} />
+      <MonthlyTrendChart
+        data={monthlyTrendData}
+        isLoading={monthlyTrendLoading}
+      />
 
       {/* Sales Cycle and Loss Reasons */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SalesCycleChart data={salesCycleData} isLoading={salesCycleLoading} />
-        <LossReasonsTable data={lossReasonsData} isLoading={lossReasonsLoading} />
+        <LossReasonsTable
+          data={lossReasonsData}
+          isLoading={lossReasonsLoading}
+        />
       </div>
 
       {/* Sales Funnel - Full Width */}

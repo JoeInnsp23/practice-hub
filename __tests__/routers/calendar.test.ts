@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { calendarRouter } from "@/app/server/routers/calendar";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({

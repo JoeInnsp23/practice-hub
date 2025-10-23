@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, X, Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";

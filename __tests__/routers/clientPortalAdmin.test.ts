@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { clientPortalAdminRouter } from "@/app/server/routers/clientPortalAdmin";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -294,9 +294,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     it("should have no required input", () => {
       const procedure = clientPortalAdminRouter._def.procedures.listPortalUsers;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -494,9 +494,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
 
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
-      const procedures = Object.keys(
-        clientPortalAdminRouter._def.procedures,
-      );
+      const procedures = Object.keys(clientPortalAdminRouter._def.procedures);
 
       expect(procedures).toContain("sendInvitation");
       expect(procedures).toContain("listInvitations");
@@ -511,9 +509,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should have 10 procedures total", () => {
-      const procedures = Object.keys(
-        clientPortalAdminRouter._def.procedures,
-      );
+      const procedures = Object.keys(clientPortalAdminRouter._def.procedures);
       expect(procedures).toHaveLength(10);
     });
   });

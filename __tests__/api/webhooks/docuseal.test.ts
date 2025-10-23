@@ -5,9 +5,9 @@
  * Tests all event types, security, rate limiting, idempotency, and error handling
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import crypto from "node:crypto";
 import * as Sentry from "@sentry/nextjs";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Import real handler
 import { POST } from "@/app/api/webhooks/docuseal/route";
@@ -63,7 +63,10 @@ vi.mock("@/lib/db", () => {
     obj.where = whereSpy.mockImplementation(() => obj);
     obj.limit = limitSpy.mockImplementation(() => {
       const currentTable = currentTableRef.value;
-      if (currentTable === "proposal_signatures_table" || currentTable === "document_signatures_table") {
+      if (
+        currentTable === "proposal_signatures_table" ||
+        currentTable === "document_signatures_table"
+      ) {
         return mockProposalSignatures;
       }
       if (currentTable === "proposals_table") {
@@ -122,13 +125,17 @@ vi.mock("@/lib/rate-limit/webhook", () => ({
 // Mock DocuSeal client
 vi.mock("@/lib/docuseal/client", () => ({
   docusealClient: {
-    downloadSignedPdf: vi.fn().mockResolvedValue(Buffer.from("mock-pdf-content")),
+    downloadSignedPdf: vi
+      .fn()
+      .mockResolvedValue(Buffer.from("mock-pdf-content")),
   },
 }));
 
 // Mock S3 upload
 vi.mock("@/lib/s3/upload", () => ({
-  uploadToS3: vi.fn().mockResolvedValue("https://s3.example.com/proposals/signed/mock.pdf"),
+  uploadToS3: vi
+    .fn()
+    .mockResolvedValue("https://s3.example.com/proposals/signed/mock.pdf"),
 }));
 
 // Mock email handlers
@@ -337,7 +344,9 @@ describe("DocuSeal Webhook Handler", () => {
 
     const { db } = await import("@/lib/db");
     const { uploadToS3 } = await import("@/lib/s3/upload");
-    const { sendSignedConfirmation } = await import("@/lib/docuseal/email-handler");
+    const { sendSignedConfirmation } = await import(
+      "@/lib/docuseal/email-handler"
+    );
 
     // Execute
     const response = await POST(request);
@@ -411,12 +420,18 @@ describe("DocuSeal Webhook Handler", () => {
 
   it("processes 'declined' event and updates proposal to 'rejected'", async () => {
     // Setup
-    setupMockProposal({ id: "prop_declined", status: "sent", proposalNumber: "PROP-2025-002" });
+    setupMockProposal({
+      id: "prop_declined",
+      status: "sent",
+      proposalNumber: "PROP-2025-002",
+    });
     const event = createDeclinedEvent();
     const request = createWebhookRequest(event);
 
     const { db } = await import("@/lib/db");
-    const { sendProposalDeclinedTeamEmail } = await import("@/lib/email/send-proposal-email");
+    const { sendProposalDeclinedTeamEmail } = await import(
+      "@/lib/email/send-proposal-email"
+    );
 
     // Execute
     const response = await POST(request);
@@ -451,12 +466,18 @@ describe("DocuSeal Webhook Handler", () => {
 
   it("processes 'expired' event and updates proposal to 'expired'", async () => {
     // Setup
-    setupMockProposal({ id: "prop_expired", status: "sent", proposalNumber: "PROP-2025-003" });
+    setupMockProposal({
+      id: "prop_expired",
+      status: "sent",
+      proposalNumber: "PROP-2025-003",
+    });
     const event = createExpiredEvent();
     const request = createWebhookRequest(event);
 
     const { db } = await import("@/lib/db");
-    const { sendProposalExpiredTeamEmail } = await import("@/lib/email/send-proposal-email");
+    const { sendProposalExpiredTeamEmail } = await import(
+      "@/lib/email/send-proposal-email"
+    );
 
     // Execute
     const response = await POST(request);
@@ -597,7 +618,9 @@ describe("DocuSeal Webhook Handler", () => {
 
   it("prevents submission spam with 409 Conflict (2+ requests in 1 second)", async () => {
     // Setup submission rate limiter to fail
-    const { checkSubmissionRateLimit } = await import("@/lib/rate-limit/webhook");
+    const { checkSubmissionRateLimit } = await import(
+      "@/lib/rate-limit/webhook"
+    );
     const resetTime = Date.now() + 1000;
 
     vi.mocked(checkSubmissionRateLimit).mockResolvedValue({
@@ -653,7 +676,10 @@ describe("DocuSeal Webhook Handler", () => {
     expect(insertCallCount).toBeGreaterThan(0);
 
     // Setup for idempotent request
-    mockProposalSignatures.push({ id: "sig_existing", docusealSubmissionId: "sub_123abc" });
+    mockProposalSignatures.push({
+      id: "sig_existing",
+      docusealSubmissionId: "sub_123abc",
+    });
     vi.clearAllMocks();
 
     // Execute duplicate request (cached)
@@ -698,7 +724,10 @@ describe("DocuSeal Webhook Handler", () => {
         request: () => {
           const event = createCompletedEvent();
           const body = JSON.stringify(event);
-          const sig = generateWebhookSignature(body, process.env.DOCUSEAL_WEBHOOK_SECRET!);
+          const sig = generateWebhookSignature(
+            body,
+            process.env.DOCUSEAL_WEBHOOK_SECRET!,
+          );
           return new Request("http://localhost:3000/api/webhooks/docuseal", {
             method: "POST",
             body,

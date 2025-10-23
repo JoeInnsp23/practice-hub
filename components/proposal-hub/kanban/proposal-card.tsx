@@ -2,9 +2,9 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { format } from "date-fns";
 import { Building2, Calendar, FileText, Mail } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -107,7 +107,8 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
               className={`${statusConfig.color} ml-2 flex-shrink-0`}
             >
               <FileText className="h-3 w-3 mr-1" />
-              {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+              {proposal.status.charAt(0).toUpperCase() +
+                proposal.status.slice(1)}
             </Badge>
           </div>
 

@@ -1,5 +1,5 @@
-import { chromium, type FullConfig } from "@playwright/test";
 import path from "node:path";
+import { chromium, type FullConfig } from "@playwright/test";
 
 /**
  * Global Setup for E2E Tests
@@ -25,7 +25,7 @@ async function globalSetup(config: FullConfig) {
 
   if (!email || !password) {
     throw new Error(
-      "E2E test credentials not configured. Please set E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD in .env.test"
+      "E2E test credentials not configured. Please set E2E_TEST_USER_EMAIL and E2E_TEST_USER_PASSWORD in .env.test",
     );
   }
 
@@ -47,7 +47,9 @@ async function globalSetup(config: FullConfig) {
     await emailInput.waitFor({ state: "visible", timeout: 60000 });
     await emailInput.fill(email);
 
-    const passwordInput = page.locator('input[type="password"], input#password');
+    const passwordInput = page.locator(
+      'input[type="password"], input#password',
+    );
     await passwordInput.waitFor({ state: "visible", timeout: 10000 });
     await passwordInput.fill(password);
 
@@ -61,12 +63,15 @@ async function globalSetup(config: FullConfig) {
       timeout: 120000, // 2 minutes for Turbopack compilation
     });
 
-    console.log(`✅ Global Setup: Successfully authenticated. Current URL: ${page.url()}`);
+    console.log(
+      `✅ Global Setup: Successfully authenticated. Current URL: ${page.url()}`,
+    );
 
     // Save authenticated state to file
     await context.storageState({ path: storageStatePath });
-    console.log(`💾 Global Setup: Saved authentication state to ${storageStatePath}`);
-
+    console.log(
+      `💾 Global Setup: Saved authentication state to ${storageStatePath}`,
+    );
   } catch (error) {
     console.error("❌ Global Setup: Authentication failed");
     console.error(`Current URL: ${page.url()}`);

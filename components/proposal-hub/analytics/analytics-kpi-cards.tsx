@@ -1,6 +1,12 @@
 "use client";
 
-import { TrendingDown, TrendingUp, DollarSign, Clock, Target } from "lucide-react";
+import {
+  Clock,
+  DollarSign,
+  Target,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface AnalyticsKpiCardsProps {
@@ -39,7 +45,10 @@ export function AnalyticsKpiCards({
       value: `${winRate.toFixed(1)}%`,
       icon: Target,
       color: winRate >= 50 ? "text-green-600" : "text-yellow-600",
-      bgColor: winRate >= 50 ? "bg-green-100 dark:bg-green-900/20" : "bg-yellow-100 dark:bg-yellow-900/20",
+      bgColor:
+        winRate >= 50
+          ? "bg-green-100 dark:bg-green-900/20"
+          : "bg-yellow-100 dark:bg-yellow-900/20",
     },
     {
       title: "Avg Deal Size",

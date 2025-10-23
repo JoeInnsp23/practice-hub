@@ -1,8 +1,8 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import type { Context } from "./context";
-import { trpcRateLimit, getClientId } from "@/lib/rate-limit";
+import { getClientId, trpcRateLimit } from "@/lib/rate-limit";
 import { captureTRPCError } from "@/lib/sentry";
+import type { Context } from "./context";
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
@@ -16,7 +16,7 @@ const t = initTRPC.context<Context>().create({
       captureTRPCError(
         error.cause,
         shape.data.path || "unknown",
-        undefined // input will be added in middleware if needed
+        undefined, // input will be added in middleware if needed
       );
     }
 
@@ -35,7 +35,8 @@ const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
   const headers = await import("next/headers").then((mod) => mod.headers());
   const clientId = getClientId(headers);
 
-  const { success, limit, reset, remaining } = await trpcRateLimit.limit(clientId);
+  const { success, limit, reset, remaining } =
+    await trpcRateLimit.limit(clientId);
 
   if (!success) {
     throw new TRPCError({
@@ -124,6 +125,10 @@ const isClientPortalAuthed = t.middleware(({ next, ctx }) => {
 
 export const router = t.router;
 export const publicProcedure = t.procedure.use(rateLimitMiddleware);
-export const protectedProcedure = t.procedure.use(rateLimitMiddleware).use(isAuthed);
+export const protectedProcedure = t.procedure
+  .use(rateLimitMiddleware)
+  .use(isAuthed);
 export const adminProcedure = t.procedure.use(rateLimitMiddleware).use(isAdmin);
-export const clientPortalProcedure = t.procedure.use(rateLimitMiddleware).use(isClientPortalAuthed);
+export const clientPortalProcedure = t.procedure
+  .use(rateLimitMiddleware)
+  .use(isClientPortalAuthed);

@@ -1,6 +1,11 @@
 "use client";
 
-import { Calculator as CalculatorIcon, FileText, Save, Send } from "lucide-react";
+import {
+  Calculator as CalculatorIcon,
+  FileText,
+  Save,
+  Send,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -260,7 +265,10 @@ export default function CalculatorPage() {
             Start from Template (Optional)
           </h2>
         </div>
-        <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+        <Select
+          value={selectedTemplateId}
+          onValueChange={setSelectedTemplateId}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select a template to prefill services..." />
           </SelectTrigger>

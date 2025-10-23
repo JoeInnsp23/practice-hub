@@ -1,12 +1,12 @@
 "use client";
 
+import { FileText } from "lucide-react";
+import type { Components } from "react-markdown";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc/client";
-import { FileText } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import type { Components } from "react-markdown";
 
 interface LegalPageViewerProps {
   pageType: "privacy" | "terms" | "cookie_policy";
@@ -19,7 +19,11 @@ interface LegalPageViewerProps {
  * Fetches content from the database via tRPC
  */
 export function LegalPageViewer({ pageType, title }: LegalPageViewerProps) {
-  const { data: legalPage, isLoading, error } = trpc.legal.getByType.useQuery({
+  const {
+    data: legalPage,
+    isLoading,
+    error,
+  } = trpc.legal.getByType.useQuery({
     pageType,
   });
 
@@ -83,22 +87,13 @@ export function LegalPageViewer({ pageType, title }: LegalPageViewerProps) {
             components={
               {
                 h1: ({ ...props }) => (
-                  <h1
-                    className="text-3xl font-bold mb-4 mt-8"
-                    {...props}
-                  />
+                  <h1 className="text-3xl font-bold mb-4 mt-8" {...props} />
                 ),
                 h2: ({ ...props }) => (
-                  <h2
-                    className="text-2xl font-semibold mb-3 mt-6"
-                    {...props}
-                  />
+                  <h2 className="text-2xl font-semibold mb-3 mt-6" {...props} />
                 ),
                 h3: ({ ...props }) => (
-                  <h3
-                    className="text-xl font-semibold mb-2 mt-4"
-                    {...props}
-                  />
+                  <h3 className="text-xl font-semibold mb-2 mt-4" {...props} />
                 ),
                 p: ({ ...props }) => (
                   <p className="mb-4 leading-relaxed" {...props} />
@@ -123,10 +118,7 @@ export function LegalPageViewer({ pageType, title }: LegalPageViewerProps) {
                 ),
                 table: ({ ...props }) => (
                   <div className="overflow-x-auto my-4">
-                    <table
-                      className="min-w-full border-collapse"
-                      {...props}
-                    />
+                    <table className="min-w-full border-collapse" {...props} />
                   </div>
                 ),
                 th: ({ ...props }) => (

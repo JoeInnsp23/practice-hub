@@ -331,7 +331,9 @@ export default function ProposalsPage() {
                     </TableCell>
                     <TableCell>{proposal.clientName || "—"}</TableCell>
                     <TableCell>{getStatusBadge(proposal.status)}</TableCell>
-                    <TableCell>{getSalesStageBadge(proposal.salesStage)}</TableCell>
+                    <TableCell>
+                      {getSalesStageBadge(proposal.salesStage)}
+                    </TableCell>
                     <TableCell>
                       {proposal.pricingModelUsed ? (
                         <Badge variant="outline">

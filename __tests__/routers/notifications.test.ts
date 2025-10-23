@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { notificationsRouter } from "@/app/server/routers/notifications";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -82,9 +82,9 @@ describe("app/server/routers/notifications.ts", () => {
     it("should have no required input", () => {
       const procedure = notificationsRouter._def.procedures.getUnreadCount;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -130,9 +130,9 @@ describe("app/server/routers/notifications.ts", () => {
     it("should have no required input", () => {
       const procedure = notificationsRouter._def.procedures.markAllAsRead;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

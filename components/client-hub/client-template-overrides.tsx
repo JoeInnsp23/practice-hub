@@ -1,17 +1,10 @@
 "use client";
 
+import { Ban, Calendar, Flag, RotateCcw, Settings } from "lucide-react";
 import { useState } from "react";
-import { Settings, Calendar, Flag, Ban, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { toast } from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,17 +22,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { trpc } from "@/lib/trpc/client";
-import { toast } from "react-hot-toast";
 
 interface ClientTemplateOverridesProps {
   clientId: string;
 }
 
-export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesProps) {
+export function ClientTemplateOverrides({
+  clientId,
+}: ClientTemplateOverridesProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,7 +49,11 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
   });
 
   // Fetch client templates with overrides
-  const { data: templates, isLoading, refetch } = trpc.taskTemplates.getClientTemplates.useQuery({
+  const {
+    data: templates,
+    isLoading,
+    refetch,
+  } = trpc.taskTemplates.getClientTemplates.useQuery({
     clientId,
   });
 
@@ -65,15 +71,16 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
   });
 
   // Remove override mutation
-  const removeOverrideMutation = trpc.taskTemplates.removeClientOverride.useMutation({
-    onSuccess: () => {
-      toast.success("Template override removed");
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to remove override");
-    },
-  });
+  const removeOverrideMutation =
+    trpc.taskTemplates.removeClientOverride.useMutation({
+      onSuccess: () => {
+        toast.success("Template override removed");
+        refetch();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to remove override");
+      },
+    });
 
   const handleOpenDialog = (templateId: string) => {
     const template = templates?.find((t) => t.id === templateId);
@@ -95,7 +102,13 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
       clientId,
       templateId: selectedTemplate,
       isDisabled: formData.isDisabled,
-      customPriority: formData.customPriority as "low" | "medium" | "high" | "urgent" | "critical" | undefined,
+      customPriority: formData.customPriority as
+        | "low"
+        | "medium"
+        | "high"
+        | "urgent"
+        | "critical"
+        | undefined,
       customDueDate: formData.customDueDate,
     });
   };
@@ -110,7 +123,8 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
   const getPriorityBadge = (priority: string) => {
     const colors = {
       critical: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-      urgent: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
+      urgent:
+        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
       high: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
       medium: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
       low: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100",
@@ -118,7 +132,9 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
     return colors[priority as keyof typeof colors] || colors.medium;
   };
 
-  const selectedTemplateData = templates?.find((t) => t.id === selectedTemplate);
+  const selectedTemplateData = templates?.find(
+    (t) => t.id === selectedTemplate,
+  );
 
   if (isLoading) {
     return (
@@ -151,8 +167,8 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
         <h3 className="text-lg font-semibold">Task Template Overrides</h3>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Customize task templates for this specific client. You can disable templates, change
-        priorities, or adjust due date offsets.
+        Customize task templates for this specific client. You can disable
+        templates, change priorities, or adjust due date offsets.
       </p>
 
       <div className="glass-table">
@@ -172,8 +188,13 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
               const isDisabled = template.override?.isDisabled || false;
 
               return (
-                <TableRow key={template.id} className={isDisabled ? "opacity-50" : ""}>
-                  <TableCell className="font-medium">{template.namePattern}</TableCell>
+                <TableRow
+                  key={template.id}
+                  className={isDisabled ? "opacity-50" : ""}
+                >
+                  <TableCell className="font-medium">
+                    {template.namePattern}
+                  </TableCell>
                   <TableCell>
                     <span className="text-sm">{template.serviceName}</span>
                   </TableCell>
@@ -206,7 +227,9 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
                       </Badge>
                     )}
                     {!hasOverride && (
-                      <span className="text-sm text-muted-foreground">No override</span>
+                      <span className="text-sm text-muted-foreground">
+                        No override
+                      </span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -245,8 +268,7 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
           <DialogHeader>
             <DialogTitle>Configure Template Override</DialogTitle>
             <DialogDescription>
-              Customize this template for{" "}
-              {selectedTemplateData?.namePattern}
+              Customize this template for {selectedTemplateData?.namePattern}
             </DialogDescription>
           </DialogHeader>
 
@@ -322,12 +344,18 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
               <div className="text-sm space-y-1">
                 <div>
                   <span className="text-muted-foreground">Priority:</span>{" "}
-                  <Badge className={getPriorityBadge(selectedTemplateData?.priority || "medium")}>
+                  <Badge
+                    className={getPriorityBadge(
+                      selectedTemplateData?.priority || "medium",
+                    )}
+                  >
                     {selectedTemplateData?.priority}
                   </Badge>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Due Date Offset:</span>{" "}
+                  <span className="text-muted-foreground">
+                    Due Date Offset:
+                  </span>{" "}
                   {selectedTemplateData?.dueDateOffsetMonths || 0} months +{" "}
                   {selectedTemplateData?.dueDateOffsetDays || 0} days
                 </div>
@@ -339,7 +367,10 @@ export function ClientTemplateOverrides({ clientId }: ClientTemplateOverridesPro
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveOverride} disabled={setOverrideMutation.isLoading}>
+            <Button
+              onClick={handleSaveOverride}
+              disabled={setOverrideMutation.isLoading}
+            >
               Save Override
             </Button>
           </DialogFooter>

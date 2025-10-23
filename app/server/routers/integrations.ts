@@ -4,14 +4,14 @@
  * Handles integration configuration, OAuth flows, and connection testing
  */
 
+import * as Sentry from "@sentry/nextjs";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { integrationSettings } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import { getAuthorizationUrl } from "@/lib/xero/client";
 import { XeroApiClient } from "@/lib/xero/api-client";
-import * as Sentry from "@sentry/nextjs";
+import { getAuthorizationUrl } from "@/lib/xero/client";
+import { protectedProcedure, router } from "../trpc";
 
 const xeroClient = new XeroApiClient();
 
@@ -69,7 +69,9 @@ export const integrationsRouter = router({
       try {
         if (input.integrationType === "xero") {
           // Get credentials and test connection
-          const credentials = await xeroClient.getCredentials(ctx.authContext.tenantId);
+          const credentials = await xeroClient.getCredentials(
+            ctx.authContext.tenantId,
+          );
 
           if (!credentials) {
             return {
@@ -111,7 +113,8 @@ export const integrationsRouter = router({
 
         return {
           success: false,
-          message: error instanceof Error ? error.message : "Connection test failed",
+          message:
+            error instanceof Error ? error.message : "Connection test failed",
         };
       }
     }),

@@ -7,22 +7,22 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
 import { invoicesRouter } from "@/app/server/routers/invoices";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
+import { activityLogs, invoiceItems, invoices } from "@/lib/db/schema";
 import {
-  createTestTenant,
-  createTestUser,
+  cleanupTestData,
   createTestClient,
   createTestInvoice,
-  cleanupTestData,
+  createTestTenant,
+  createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { invoices, invoiceItems, activityLogs } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/invoices.ts (Integration)", () => {
   let ctx: Context;
@@ -199,8 +199,8 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
           and(
             eq(activityLogs.entityId, result.invoice.id),
             eq(activityLogs.entityType, "invoice"),
-            eq(activityLogs.action, "created")
-          )
+            eq(activityLogs.action, "created"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -257,7 +257,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         {
           invoiceNumber: `INV-LIST-1-${Date.now()}`,
           status: "draft",
-        }
+        },
       );
       const invoice2 = await createTestInvoice(
         ctx.authContext.tenantId,
@@ -266,7 +266,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         {
           invoiceNumber: `INV-LIST-2-${Date.now()}`,
           status: "sent",
-        }
+        },
       );
       tracker.invoices?.push(invoice1.id, invoice2.id);
 
@@ -294,7 +294,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           invoiceNumber: uniqueNumber,
-        }
+        },
       );
       const invoice2 = await createTestInvoice(
         ctx.authContext.tenantId,
@@ -302,7 +302,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           invoiceNumber: `OTHER-${Date.now()}`,
-        }
+        },
       );
       tracker.invoices?.push(invoice1.id, invoice2.id);
 
@@ -310,7 +310,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
 
       expect(result.invoices.length).toBeGreaterThanOrEqual(1);
       const hasSearchableInvoice = result.invoices.some((i) =>
-        i.invoiceNumber.includes("SEARCHABLE")
+        i.invoiceNumber.includes("SEARCHABLE"),
       );
       expect(hasSearchableInvoice).toBe(true);
     });
@@ -322,7 +322,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           status: "paid",
-        }
+        },
       );
       const invoice2 = await createTestInvoice(
         ctx.authContext.tenantId,
@@ -330,7 +330,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           status: "draft",
-        }
+        },
       );
       tracker.invoices?.push(invoice1.id, invoice2.id);
 
@@ -350,19 +350,19 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           name: "Other Client for Filter",
-        }
+        },
       );
       tracker.clients?.push(otherClient.id);
 
       const invoice1 = await createTestInvoice(
         ctx.authContext.tenantId,
         testClientId,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       const invoice2 = await createTestInvoice(
         ctx.authContext.tenantId,
         otherClient.id,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       tracker.invoices?.push(invoice1.id, invoice2.id);
 
@@ -387,7 +387,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         {
           status: "sent",
           dueDate: pastDate,
-        }
+        },
       );
       tracker.invoices?.push(overdueInvoice.id);
 
@@ -412,7 +412,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           invoiceNumber: `INV-GETBYID-${Date.now()}`,
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 
@@ -449,7 +449,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.getById(nonExistentId)).rejects.toThrow(
-        "Invoice not found"
+        "Invoice not found",
       );
     });
 
@@ -472,7 +472,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
 
       // Attempt to access tenant A's invoice from tenant B
       await expect(caller.getById(invoiceA.id)).rejects.toThrow(
-        "Invoice not found"
+        "Invoice not found",
       );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
@@ -496,7 +496,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
           invoiceNumber: `INV-UPDATE-${Date.now()}`,
           status: "draft",
           notes: "Original notes",
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 
@@ -528,7 +528,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       const invoice = await createTestInvoice(
         ctx.authContext.tenantId,
         testClientId,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       tracker.invoices?.push(invoice.id);
 
@@ -544,8 +544,8 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, invoice.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -561,7 +561,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { status: "sent" },
-        })
+        }),
       ).rejects.toThrow("Invoice not found");
     });
 
@@ -583,7 +583,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         caller.update({
           id: invoiceA.id,
           data: { status: "paid" },
-        })
+        }),
       ).rejects.toThrow("Invoice not found");
     });
 
@@ -597,7 +597,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
           status: "draft",
           notes: "Original notes",
           total: "1000.00",
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 
@@ -628,7 +628,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           status: "draft",
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 
@@ -655,7 +655,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           status: "draft",
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 
@@ -671,8 +671,8 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, invoice.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -688,7 +688,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         caller.updateStatus({
           id: nonExistentId,
           status: "paid",
-        })
+        }),
       ).rejects.toThrow("Invoice not found");
     });
 
@@ -710,7 +710,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         caller.updateStatus({
           id: invoiceA.id,
           status: "paid",
-        })
+        }),
       ).rejects.toThrow("Invoice not found");
     });
   });
@@ -720,7 +720,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       const invoice = await createTestInvoice(
         ctx.authContext.tenantId,
         testClientId,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       tracker.invoices?.push(invoice.id);
 
@@ -763,7 +763,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           invoiceNumber: "INV-DELETE-LOG",
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 
@@ -776,8 +776,8 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, invoice.id),
-            eq(activityLogs.action, "deleted")
-          )
+            eq(activityLogs.action, "deleted"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -790,7 +790,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.delete(nonExistentId)).rejects.toThrow(
-        "Invoice not found"
+        "Invoice not found",
       );
     });
 
@@ -809,7 +809,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
 
       // Attempt to delete from different tenant
       await expect(caller.delete(invoiceA.id)).rejects.toThrow(
-        "Invoice not found"
+        "Invoice not found",
       );
 
       // Verify invoice still exists
@@ -858,7 +858,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
           total: "1000.00",
           amountPaid: "0.00",
           status: "sent",
-        }
+        },
       );
       tracker.invoices?.push(invoice.id);
 

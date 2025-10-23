@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { proposalsRouter } from "@/app/server/routers/proposals";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -35,9 +35,7 @@ vi.mock("@/lib/pdf/proposal-generator", () => ({
 
 // Mock S3 upload
 vi.mock("@/lib/s3/upload", () => ({
-  uploadToS3: vi
-    .fn()
-    .mockResolvedValue("https://s3.example.com/proposal.pdf"),
+  uploadToS3: vi.fn().mockResolvedValue("https://s3.example.com/proposal.pdf"),
 }));
 
 // Mock email
@@ -345,9 +343,9 @@ describe("app/server/routers/proposals.ts", () => {
     it("should have no required input", () => {
       const procedure = proposalsRouter._def.procedures.getStats;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -364,9 +362,7 @@ describe("app/server/routers/proposals.ts", () => {
 
     it("should validate input is a string", () => {
       expect(() => {
-        proposalsRouter._def.procedures.generatePdf._def.inputs[0]?.parse(
-          null,
-        );
+        proposalsRouter._def.procedures.generatePdf._def.inputs[0]?.parse(null);
       }).toThrow();
     });
   });
@@ -484,7 +480,9 @@ describe("app/server/routers/proposals.ts", () => {
     it("should filter by assignedToId", () => {
       const input = { assignedToId: "user-123" };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -494,28 +492,36 @@ describe("app/server/routers/proposals.ts", () => {
         dateTo: "2025-01-31T23:59:59Z",
       };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
     it("should filter by value range", () => {
       const input = { minValue: 1000, maxValue: 5000 };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
     it("should filter by specific stages", () => {
       const input = { stages: ["enquiry", "qualified", "won"] };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
     it("should accept search parameter", () => {
       const input = { search: "accounting services" };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
@@ -530,14 +536,18 @@ describe("app/server/routers/proposals.ts", () => {
         stages: ["enquiry", "qualified"],
       };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).not.toThrow();
     });
 
     it("should reject invalid stage values", () => {
       const input = { stages: ["invalid_stage"] };
       expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(input);
+        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
+          input,
+        );
       }).toThrow();
     });
 

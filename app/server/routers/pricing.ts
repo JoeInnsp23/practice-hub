@@ -649,12 +649,7 @@ export const pricingRouter = router({
     return await db
       .select()
       .from(services)
-      .where(
-        and(
-          eq(services.tenantId, tenantId),
-          eq(services.isActive, true),
-        ),
-      )
+      .where(and(eq(services.tenantId, tenantId), eq(services.isActive, true)))
       .orderBy(services.category, services.name);
   }),
 

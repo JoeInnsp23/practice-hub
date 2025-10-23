@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Sentry from "@sentry/nextjs";
 import { format } from "date-fns";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -71,6 +72,10 @@ export function CapacityFormDialog({
       onSuccess();
     },
     onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { operation: "create_capacity" },
+        extra: { errorMessage: error.message },
+      });
       toast.error(error.message || "Failed to create capacity record");
     },
   });
@@ -82,6 +87,10 @@ export function CapacityFormDialog({
       onSuccess();
     },
     onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { operation: "update_capacity" },
+        extra: { errorMessage: error.message, capacityId: capacity?.id },
+      });
       toast.error(error.message || "Failed to update capacity record");
     },
   });

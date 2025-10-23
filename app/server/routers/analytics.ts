@@ -638,7 +638,8 @@ export const analyticsRouter = router({
             (s) => s.stage === previousStage,
           );
           const previousCount = Number(previousData?.count || 0);
-          conversionRate = previousCount > 0 ? (count / previousCount) * 100 : 0;
+          conversionRate =
+            previousCount > 0 ? (count / previousCount) * 100 : 0;
         }
 
         return {
@@ -654,10 +655,12 @@ export const analyticsRouter = router({
         (sum, s) => sum + Number(s.count),
         0,
       );
-      const wonCount =
-        Number(proposalsByStage.find((s) => s.stage === "won")?.count || 0);
-      const lostCount =
-        Number(proposalsByStage.find((s) => s.stage === "lost")?.count || 0);
+      const wonCount = Number(
+        proposalsByStage.find((s) => s.stage === "won")?.count || 0,
+      );
+      const lostCount = Number(
+        proposalsByStage.find((s) => s.stage === "lost")?.count || 0,
+      );
       const closedCount = wonCount + lostCount;
       const winRate = closedCount > 0 ? (wonCount / closedCount) * 100 : 0;
 
@@ -1037,8 +1040,7 @@ export const analyticsRouter = router({
       const wonProposals = await db
         .select({
           id: proposals.id,
-          daysToWon:
-            sql<number>`EXTRACT(EPOCH FROM (${proposals.signedAt} - ${proposals.createdAt})) / 86400`,
+          daysToWon: sql<number>`EXTRACT(EPOCH FROM (${proposals.signedAt} - ${proposals.createdAt})) / 86400`,
           month: sql<string>`TO_CHAR(${proposals.createdAt}, 'YYYY-MM')`,
         })
         .from(proposals)
@@ -1058,17 +1060,13 @@ export const analyticsRouter = router({
       const days = wonProposals
         .map((p) => Number(p.daysToWon))
         .sort((a, b) => a - b);
-      const avgDaysToWon =
-        days.reduce((sum, d) => sum + d, 0) / days.length;
+      const avgDaysToWon = days.reduce((sum, d) => sum + d, 0) / days.length;
       const medianDays = days[Math.floor(days.length / 2)];
       const minDays = days[0];
       const maxDays = days[days.length - 1];
 
       // Group by month
-      const monthlyData: Record<
-        string,
-        { total: number; count: number }
-      > = {};
+      const monthlyData: Record<string, { total: number; count: number }> = {};
       for (const proposal of wonProposals) {
         const month = proposal.month;
         if (!monthlyData[month]) {
@@ -1120,8 +1118,7 @@ export const analyticsRouter = router({
           proposals: sql<number>`count(*)::int`,
           won: sql<number>`count(CASE WHEN ${proposals.salesStage} = 'won' THEN 1 END)::int`,
           lost: sql<number>`count(CASE WHEN ${proposals.salesStage} = 'lost' THEN 1 END)::int`,
-          revenue:
-            sql<number>`sum(CASE WHEN ${proposals.salesStage} = 'won' THEN ${proposals.monthlyTotal} ELSE 0 END)::decimal`,
+          revenue: sql<number>`sum(CASE WHEN ${proposals.salesStage} = 'won' THEN ${proposals.monthlyTotal} ELSE 0 END)::decimal`,
         })
         .from(proposals)
         .where(

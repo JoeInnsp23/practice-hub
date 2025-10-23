@@ -1,10 +1,10 @@
-import { eq, and } from "drizzle-orm";
+import * as Sentry from "@sentry/nextjs";
+import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { integrationSettings } from "@/lib/db/schema";
-import { getAccessToken, getConnections } from "@/lib/xero/client";
 import { encryptObject } from "@/lib/services/encryption";
-import * as Sentry from "@sentry/nextjs";
+import { getAccessToken, getConnections } from "@/lib/xero/client";
 
 /**
  * Xero OAuth Callback Endpoint
@@ -24,7 +24,9 @@ export async function GET(request: NextRequest) {
     // Handle OAuth errors
     if (error) {
       const errorDescription = searchParams.get("error_description");
-      console.error(`[Xero OAuth] Authorization error: ${error} - ${errorDescription}`);
+      console.error(
+        `[Xero OAuth] Authorization error: ${error} - ${errorDescription}`,
+      );
 
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=${encodeURIComponent(errorDescription || error)}`,
@@ -32,14 +34,19 @@ export async function GET(request: NextRequest) {
     }
 
     if (!code || !state) {
-      return NextResponse.json({ error: "Missing code or state parameter" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing code or state parameter" },
+        { status: 400 },
+      );
     }
 
     // Decode state to get tenantId and userId
     const stateData = JSON.parse(Buffer.from(state, "base64").toString());
     const { tenantId, userId } = stateData;
 
-    console.log(`[Xero OAuth] Processing callback for tenant ${tenantId}, user ${userId}`);
+    console.log(
+      `[Xero OAuth] Processing callback for tenant ${tenantId}, user ${userId}`,
+    );
 
     // Exchange code for access token
     const tokenResponse = await getAccessToken(code);
@@ -113,7 +120,9 @@ export async function GET(request: NextRequest) {
         })
         .where(eq(integrationSettings.id, existingIntegration[0].id));
 
-      console.log(`[Xero OAuth] Updated existing integration for tenant ${tenantId}`);
+      console.log(
+        `[Xero OAuth] Updated existing integration for tenant ${tenantId}`,
+      );
     } else {
       // Create new integration
       await db.insert(integrationSettings).values({
@@ -126,7 +135,9 @@ export async function GET(request: NextRequest) {
         metadata,
       });
 
-      console.log(`[Xero OAuth] Created new integration for tenant ${tenantId}`);
+      console.log(
+        `[Xero OAuth] Created new integration for tenant ${tenantId}`,
+      );
     }
 
     // Redirect to integrations settings page with success
@@ -167,7 +178,8 @@ export async function GET(request: NextRequest) {
               .update(integrationSettings)
               .set({
                 syncStatus: "error",
-                syncError: error instanceof Error ? error.message : "Connection failed",
+                syncError:
+                  error instanceof Error ? error.message : "Connection failed",
                 updatedAt: new Date(),
               })
               .where(eq(integrationSettings.id, existingIntegration[0].id));

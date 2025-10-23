@@ -10,11 +10,11 @@ import { type NextRequest, NextResponse } from "next/server";
 import { generateCsvTemplate } from "@/lib/services/csv-import";
 import {
   CLIENT_CSV_FIELDS,
-  TASK_CSV_FIELDS,
-  SERVICE_CSV_FIELDS,
   CLIENT_EXAMPLE_DATA,
-  TASK_EXAMPLE_DATA,
+  SERVICE_CSV_FIELDS,
   SERVICE_EXAMPLE_DATA,
+  TASK_CSV_FIELDS,
+  TASK_EXAMPLE_DATA,
 } from "@/lib/validators/csv-import";
 
 export const runtime = "nodejs";
@@ -83,7 +83,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Template generation failed",
+        error:
+          error instanceof Error ? error.message : "Template generation failed",
       },
       { status: 500 },
     );

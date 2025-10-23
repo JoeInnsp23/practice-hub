@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  validateVAT,
-  VATNotFoundError,
+  __resetTokenCache,
   AuthenticationError,
   RateLimitError,
-  __resetTokenCache,
+  VATNotFoundError,
+  validateVAT,
 } from "./client";
 
 // Mock fetch globally

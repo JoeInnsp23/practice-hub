@@ -142,8 +142,7 @@ export function ServiceSelectionStep({
                 const isSelected = selectedServices.includes(service.id);
 
                 return (
-                  <button
-                    type="button"
+                  <div
                     key={service.id}
                     className={`
                         flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all text-left
@@ -153,12 +152,10 @@ export function ServiceSelectionStep({
                             : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600"
                         }
                       `}
-                    onClick={() => toggleService(service.id)}
                   >
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => toggleService(service.id)}
-                      onClick={(e) => e.stopPropagation()}
                     />
                     <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div className="flex-1">
@@ -174,7 +171,7 @@ export function ServiceSelectionStep({
                         {service.description}
                       </p>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>

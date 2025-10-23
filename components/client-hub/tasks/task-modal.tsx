@@ -144,8 +144,13 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent data-testid="task-form-modal" className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{task ? "Edit Task" : "Create Task"}</DialogTitle>
           <DialogDescription>
@@ -162,7 +167,11 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Task title" {...field} data-testid="task-form-title-input" />
+                    <Input
+                      placeholder="Task title"
+                      {...field}
+                      data-testid="task-form-title-input"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -323,10 +332,17 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} data-testid="task-form-cancel-button">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                data-testid="task-form-cancel-button"
+              >
                 Cancel
               </Button>
-              <Button type="submit" data-testid="task-form-save-button">{task ? "Update" : "Create"}</Button>
+              <Button type="submit" data-testid="task-form-save-button">
+                {task ? "Update" : "Create"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

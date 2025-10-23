@@ -16,7 +16,9 @@ describe("mention-parser", () => {
     });
 
     it("should parse multiple bracketed mentions", () => {
-      const mentions = parseMentions("@[John Doe] and @[Jane Smith] please help");
+      const mentions = parseMentions(
+        "@[John Doe] and @[Jane Smith] please help",
+      );
       expect(mentions).toEqual(["John Doe", "Jane Smith"]);
     });
 
@@ -44,7 +46,9 @@ describe("mention-parser", () => {
   describe("highlightMentions", () => {
     it("should wrap mentions in styled spans", () => {
       const result = highlightMentions("Hey @[John Doe]");
-      expect(result).toContain('<span class="mention text-primary font-semibold">');
+      expect(result).toContain(
+        '<span class="mention text-primary font-semibold">',
+      );
       expect(result).toContain("@John Doe");
     });
 
@@ -88,7 +92,8 @@ describe("mention-parser", () => {
       });
 
       it("should handle multiple XSS attack vectors", () => {
-        const malicious = "@[<img src=x onerror=alert('XSS')>] normal text <script>alert(2)</script>";
+        const malicious =
+          "@[<img src=x onerror=alert('XSS')>] normal text <script>alert(2)</script>";
         const result = highlightMentions(malicious);
         // Ensure no unescaped HTML tags that could execute
         expect(result).not.toContain("<img src=");
@@ -106,8 +111,18 @@ describe("mention-parser", () => {
 
   describe("extractUserIds", () => {
     const users = [
-      { id: "1", firstName: "John", lastName: "Doe", email: "john@example.com" },
-      { id: "2", firstName: "Jane", lastName: "Smith", email: "jane@example.com" },
+      {
+        id: "1",
+        firstName: "John",
+        lastName: "Doe",
+        email: "john@example.com",
+      },
+      {
+        id: "2",
+        firstName: "Jane",
+        lastName: "Smith",
+        email: "jane@example.com",
+      },
       { id: "3", firstName: "Bob", lastName: null, email: "bob@example.com" },
     ];
 

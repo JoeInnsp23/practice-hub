@@ -80,7 +80,11 @@ export async function parseCsvFile<T>(
           const rowNumber = index + 2; // +2 for header row and 0-based index
 
           // Skip completely empty rows
-          if (Object.values(row).every((v) => v === "" || v === null || v === undefined)) {
+          if (
+            Object.values(row).every(
+              (v) => v === "" || v === null || v === undefined,
+            )
+          ) {
             skippedRows++;
             return;
           }
@@ -155,7 +159,9 @@ export function generateCsvTemplate(
     return headers;
   }
 
-  const exampleRow = fields.map((field) => exampleData?.[field] || "").join(",");
+  const exampleRow = fields
+    .map((field) => exampleData?.[field] || "")
+    .join(",");
 
   return `${headers}\n${exampleRow}`;
 }
@@ -206,7 +212,9 @@ export async function validateCsvHeaders(
       complete: (results) => {
         const headers = results.meta.fields || [];
         const normalizedHeaders = headers.map((h) => h.trim().toLowerCase());
-        const normalizedExpected = expectedFields.map((f) => f.trim().toLowerCase());
+        const normalizedExpected = expectedFields.map((f) =>
+          f.trim().toLowerCase(),
+        );
 
         const missingFields = normalizedExpected.filter(
           (field) => !normalizedHeaders.includes(field),

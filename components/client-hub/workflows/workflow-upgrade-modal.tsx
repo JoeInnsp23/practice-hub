@@ -1,8 +1,10 @@
 "use client";
 
+import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -13,8 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 
 interface WorkflowUpgradeModalProps {
   isOpen: boolean;
@@ -33,13 +33,13 @@ export function WorkflowUpgradeModal({
   newVersionNumber,
   onUpgradeComplete,
 }: WorkflowUpgradeModalProps) {
-  const [selectedInstances, setSelectedInstances] = useState<Set<string>>(new Set());
+  const [selectedInstances, setSelectedInstances] = useState<Set<string>>(
+    new Set(),
+  );
   const [isUpgrading, setIsUpgrading] = useState(false);
 
-  const { data: instances = [], isLoading } = trpc.workflows.getActiveInstances.useQuery(
-    workflowId,
-    { enabled: isOpen },
-  );
+  const { data: instances = [], isLoading } =
+    trpc.workflows.getActiveInstances.useQuery(workflowId, { enabled: isOpen });
 
   const migrateMutation = trpc.workflows.migrateInstances.useMutation();
 
@@ -73,7 +73,9 @@ export function WorkflowUpgradeModal({
         instanceIds: Array.from(selectedInstances),
         newVersionId,
       });
-      toast.success(`Upgraded ${selectedInstances.size} task(s) to version ${newVersionNumber}`);
+      toast.success(
+        `Upgraded ${selectedInstances.size} task(s) to version ${newVersionNumber}`,
+      );
       onUpgradeComplete();
       onClose();
     } catch (error) {
@@ -83,7 +85,9 @@ export function WorkflowUpgradeModal({
     }
   };
 
-  const oldVersionInstances = instances.filter((i) => i.currentVersion < newVersionNumber);
+  const oldVersionInstances = instances.filter(
+    (i) => i.currentVersion < newVersionNumber,
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -102,7 +106,9 @@ export function WorkflowUpgradeModal({
         ) : oldVersionInstances.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <CheckCircle2 className="h-12 w-12 mx-auto mb-3 text-green-600" />
-            <p className="font-medium">All active tasks are already on the latest version</p>
+            <p className="font-medium">
+              All active tasks are already on the latest version
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -110,8 +116,9 @@ export function WorkflowUpgradeModal({
               <div className="flex items-center gap-2 text-sm">
                 <AlertTriangle className="h-4 w-4 text-orange-600" />
                 <span className="font-medium">
-                  {oldVersionInstances.length} task{oldVersionInstances.length !== 1 ? "s" : ""} on
-                  older versions
+                  {oldVersionInstances.length} task
+                  {oldVersionInstances.length !== 1 ? "s" : ""} on older
+                  versions
                 </span>
               </div>
               <div className="flex gap-2">
@@ -133,7 +140,9 @@ export function WorkflowUpgradeModal({
                   <Checkbox
                     id={instance.instanceId}
                     checked={selectedInstances.has(instance.instanceId)}
-                    onCheckedChange={() => handleToggleInstance(instance.instanceId)}
+                    onCheckedChange={() =>
+                      handleToggleInstance(instance.instanceId)
+                    }
                     className="mt-1"
                   />
                   <label
@@ -146,7 +155,9 @@ export function WorkflowUpgradeModal({
                         v{instance.currentVersion}
                       </Badge>
                       <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                      <Badge className="font-mono text-xs">v{newVersionNumber}</Badge>
+                      <Badge className="font-mono text-xs">
+                        v{newVersionNumber}
+                      </Badge>
                       <span className="text-xs text-muted-foreground ml-2">
                         Progress: {instance.progress}%
                       </span>
@@ -159,11 +170,18 @@ export function WorkflowUpgradeModal({
             <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg p-4 text-sm">
               <p className="font-medium mb-2">What happens when you upgrade:</p>
               <ul className="space-y-1 text-muted-foreground text-xs">
-                <li>✓ Tasks will use the new workflow structure and checklist items</li>
-                <li>✓ Existing completed items will be preserved where possible</li>
+                <li>
+                  ✓ Tasks will use the new workflow structure and checklist
+                  items
+                </li>
+                <li>
+                  ✓ Existing completed items will be preserved where possible
+                </li>
                 <li>✓ New checklist items will appear as uncompleted</li>
                 <li>✓ Removed checklist items will no longer be visible</li>
-                <li>✓ Progress percentage may change based on new total items</li>
+                <li>
+                  ✓ Progress percentage may change based on new total items
+                </li>
               </ul>
             </div>
           </div>
@@ -178,7 +196,9 @@ export function WorkflowUpgradeModal({
               <Button
                 variant="secondary"
                 onClick={() => {
-                  setSelectedInstances(new Set(oldVersionInstances.map((i) => i.instanceId)));
+                  setSelectedInstances(
+                    new Set(oldVersionInstances.map((i) => i.instanceId)),
+                  );
                   handleUpgrade();
                 }}
                 disabled={isUpgrading}

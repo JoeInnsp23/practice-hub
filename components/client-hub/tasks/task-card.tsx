@@ -8,7 +8,6 @@ import {
   MessageSquare,
   MoreVertical,
 } from "lucide-react";
-import { trpc } from "@/lib/trpc/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 import type { TaskStatus, TaskSummary } from "./types";

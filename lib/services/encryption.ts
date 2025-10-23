@@ -136,7 +136,11 @@ export function decrypt(encryptedText: string): string {
   } catch (error) {
     if (error instanceof Error) {
       // Authentication tag mismatch indicates tampering
-      if (error.message.includes("Unsupported state or unable to authenticate data")) {
+      if (
+        error.message.includes(
+          "Unsupported state or unable to authenticate data",
+        )
+      ) {
         throw new Error(
           "Decryption failed: Data may have been tampered with or encryption key is incorrect",
         );
@@ -156,7 +160,9 @@ export function decrypt(encryptedText: string): string {
  * @example
  * const encrypted = encryptObject({ accessToken: 'token123', refreshToken: 'refresh456' });
  */
-export function encryptObject<T extends Record<string, unknown>>(obj: T): string {
+export function encryptObject<T extends Record<string, unknown>>(
+  obj: T,
+): string {
   const json = JSON.stringify(obj);
   return encrypt(json);
 }

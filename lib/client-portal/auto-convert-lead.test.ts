@@ -44,9 +44,7 @@ describe("Client Code Generation", () => {
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
             orderBy: vi.fn().mockReturnValue({
-              limit: vi.fn().mockResolvedValue([
-                { clientCode: "ACMECO-002" },
-              ]),
+              limit: vi.fn().mockResolvedValue([{ clientCode: "ACMECO-002" }]),
             }),
           }),
         }),
@@ -131,12 +129,7 @@ describe("Client Code Generation", () => {
 
   describe("Code Format Validation", () => {
     it("should match expected format: PREFIX-###", () => {
-      const validCodes = [
-        "CLIENT-001",
-        "ACMECO-099",
-        "TEST-100",
-        "A-001",
-      ];
+      const validCodes = ["CLIENT-001", "ACMECO-099", "TEST-100", "A-001"];
 
       for (const code of validCodes) {
         expect(code).toMatch(/^[A-Z]+-\d{3}$/);

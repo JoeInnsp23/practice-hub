@@ -285,11 +285,16 @@ export const workflowsRouter = router({
         const [workflow] = await tx
           .select()
           .from(workflows)
-          .where(and(eq(workflows.id, input.id), eq(workflows.tenantId, tenantId)))
+          .where(
+            and(eq(workflows.id, input.id), eq(workflows.tenantId, tenantId)),
+          )
           .limit(1);
 
         if (!workflow) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
         }
 
         const newVersion = workflow.version + 1;
@@ -307,7 +312,9 @@ export const workflowsRouter = router({
 
         // 3. Update stages if provided
         if (input.data.stages) {
-          await tx.delete(workflowStages).where(eq(workflowStages.workflowId, input.id));
+          await tx
+            .delete(workflowStages)
+            .where(eq(workflowStages.workflowId, input.id));
           for (const stage of input.data.stages) {
             await tx.insert(workflowStages).values({
               workflowId: input.id,
@@ -334,7 +341,8 @@ export const workflowsRouter = router({
             type: input.data.type || workflow.type,
             trigger: input.data.trigger || workflow.trigger || "manual",
             estimatedDays: input.data.estimatedDays ?? workflow.estimatedDays,
-            serviceComponentId: input.data.serviceComponentId ?? workflow.serviceComponentId,
+            serviceComponentId:
+              input.data.serviceComponentId ?? workflow.serviceComponentId,
             config: input.data.config || workflow.config,
           },
           input.changeDescription || "Updated workflow",
@@ -568,7 +576,10 @@ export const workflowsRouter = router({
           .limit(1);
 
         if (!newVersion) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Version not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Version not found",
+          });
         }
 
         // Update each instance
@@ -791,7 +802,10 @@ export const workflowsRouter = router({
         ]);
 
         if (!workflow[0]) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
         }
 
         if (!targetVersion[0]) {
@@ -821,9 +835,12 @@ export const workflowsRouter = router({
           .returning();
 
         // 3. Recreate stages from target version
-        await tx.delete(workflowStages).where(eq(workflowStages.workflowId, input.workflowId));
+        await tx
+          .delete(workflowStages)
+          .where(eq(workflowStages.workflowId, input.workflowId));
 
-        const targetStages = (targetVersion[0].stagesSnapshot as any)?.stages || [];
+        const targetStages =
+          (targetVersion[0].stagesSnapshot as any)?.stages || [];
         for (const stage of targetStages) {
           await tx.insert(workflowStages).values({
             id: stage.id, // Keep original IDs for consistency

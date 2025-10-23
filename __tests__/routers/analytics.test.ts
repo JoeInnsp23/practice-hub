@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { analyticsRouter } from "@/app/server/routers/analytics";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -77,12 +77,10 @@ describe("app/server/routers/analytics.ts", () => {
 
     it("should accept date range", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getProposalStats._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
+        analyticsRouter._def.procedures.getProposalStats._def.inputs[0]?.parse({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        });
       }).not.toThrow();
     });
   });
@@ -246,9 +244,9 @@ describe("app/server/routers/analytics.ts", () => {
     it("should have no required input", () => {
       const procedure = analyticsRouter._def.procedures.getTaskMetrics;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -276,7 +274,9 @@ describe("app/server/routers/analytics.ts", () => {
   describe("getWinLossStats", () => {
     it("should accept empty input", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse(
+          {},
+        );
       }).not.toThrow();
     });
 
@@ -320,15 +320,19 @@ describe("app/server/routers/analytics.ts", () => {
   describe("getPipelineValueByStage", () => {
     it("should accept empty input", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse(
+          {},
+        );
       }).not.toThrow();
     });
 
     it("should accept asOf date", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse({
-          asOf: "2025-01-31",
-        });
+        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse(
+          {
+            asOf: "2025-01-31",
+          },
+        );
       }).not.toThrow();
     });
   });
@@ -336,16 +340,20 @@ describe("app/server/routers/analytics.ts", () => {
   describe("getAverageDealSize", () => {
     it("should accept empty input", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse(
+          {},
+        );
       }).not.toThrow();
     });
 
     it("should accept date range", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse({
-          startDate: "2025-01-01",
-          endDate: "2025-01-31",
-        });
+        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse(
+          {
+            startDate: "2025-01-01",
+            endDate: "2025-01-31",
+          },
+        );
       }).not.toThrow();
     });
   });
@@ -353,16 +361,20 @@ describe("app/server/routers/analytics.ts", () => {
   describe("getSalesCycleDuration", () => {
     it("should accept empty input", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse(
+          {},
+        );
       }).not.toThrow();
     });
 
     it("should accept date range", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse({
-          startDate: "2025-01-01",
-          endDate: "2025-01-31",
-        });
+        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse(
+          {
+            startDate: "2025-01-01",
+            endDate: "2025-01-31",
+          },
+        );
       }).not.toThrow();
     });
   });
@@ -370,7 +382,9 @@ describe("app/server/routers/analytics.ts", () => {
   describe("getMonthlyTrend", () => {
     it("should accept empty input", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse(
+          {},
+        );
       }).not.toThrow();
     });
 
@@ -400,7 +414,9 @@ describe("app/server/routers/analytics.ts", () => {
 
     it("should default months to 12", () => {
       const result =
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse(
+          {},
+        );
       expect(result?.months).toBe(12);
     });
   });
@@ -408,7 +424,9 @@ describe("app/server/routers/analytics.ts", () => {
   describe("getLossReasons", () => {
     it("should accept empty input", () => {
       expect(() => {
-        analyticsRouter._def.procedures.getLossReasons._def.inputs[0]?.parse({});
+        analyticsRouter._def.procedures.getLossReasons._def.inputs[0]?.parse(
+          {},
+        );
       }).not.toThrow();
     });
 

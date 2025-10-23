@@ -73,7 +73,12 @@ export async function parseCSV<T>(
   file: File,
   options: CSVParseOptions<T>,
 ): Promise<CSVParseResult<T>> {
-  const { validator, transform, skipEmptyLines = true, trimValues = true } = options;
+  const {
+    validator,
+    transform,
+    skipEmptyLines = true,
+    trimValues = true,
+  } = options;
 
   return new Promise((resolve, reject) => {
     const errors: CSVRowError[] = [];
@@ -108,7 +113,9 @@ export async function parseCSV<T>(
 
         if (validation.valid) {
           // Transform and add to valid data
-          const transformed = transform ? transform(row as Record<string, unknown>) : (row as unknown as T);
+          const transformed = transform
+            ? transform(row as Record<string, unknown>)
+            : (row as unknown as T);
           validData.push(transformed);
         } else {
           // Add errors for this row
@@ -116,7 +123,9 @@ export async function parseCSV<T>(
             // Try to extract field name from error message if present
             const fieldMatch = errorMsg.match(/^(\w+):/);
             const field = fieldMatch ? fieldMatch[1] : "unknown";
-            const error = fieldMatch ? errorMsg.replace(/^\w+:\s*/, "") : errorMsg;
+            const error = fieldMatch
+              ? errorMsg.replace(/^\w+:\s*/, "")
+              : errorMsg;
 
             errors.push({
               row: rowCount,
@@ -156,7 +165,12 @@ export async function parseCSVFromText<T>(
   csvText: string,
   options: CSVParseOptions<T>,
 ): Promise<CSVParseResult<T>> {
-  const { validator, transform, skipEmptyLines = true, trimValues = true } = options;
+  const {
+    validator,
+    transform,
+    skipEmptyLines = true,
+    trimValues = true,
+  } = options;
 
   return new Promise((resolve, reject) => {
     const errors: CSVRowError[] = [];
@@ -184,13 +198,17 @@ export async function parseCSVFromText<T>(
         const validation = validator(row as Record<string, unknown>);
 
         if (validation.valid) {
-          const transformed = transform ? transform(row as Record<string, unknown>) : (row as unknown as T);
+          const transformed = transform
+            ? transform(row as Record<string, unknown>)
+            : (row as unknown as T);
           validData.push(transformed);
         } else {
           for (const errorMsg of validation.errors) {
             const fieldMatch = errorMsg.match(/^(\w+):/);
             const field = fieldMatch ? fieldMatch[1] : "unknown";
-            const error = fieldMatch ? errorMsg.replace(/^\w+:\s*/, "") : errorMsg;
+            const error = fieldMatch
+              ? errorMsg.replace(/^\w+:\s*/, "")
+              : errorMsg;
 
             errors.push({
               row: rowCount,

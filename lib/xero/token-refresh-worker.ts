@@ -13,11 +13,11 @@
  * - Manual: Call refreshAllTokens() directly
  */
 
+import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { integrationSettings } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { decryptObject } from "@/lib/services/encryption";
-import * as Sentry from "@sentry/nextjs";
 import { XeroApiClient } from "./api-client";
 
 interface XeroCredentials {
@@ -52,7 +52,9 @@ export async function refreshAllTokens(
       .from(integrationSettings)
       .where(eq(integrationSettings.integrationType, "xero"));
 
-    console.log(`[Xero Token Refresh] Found ${allIntegrations.length} Xero integrations`);
+    console.log(
+      `[Xero Token Refresh] Found ${allIntegrations.length} Xero integrations`,
+    );
 
     if (allIntegrations.length === 0) {
       console.log(`[Xero Token Refresh] No Xero integrations found`);
@@ -60,7 +62,9 @@ export async function refreshAllTokens(
     }
 
     // Calculate expiry threshold
-    const expiryThreshold = new Date(Date.now() + daysBeforeExpiry * 24 * 60 * 60 * 1000);
+    const expiryThreshold = new Date(
+      Date.now() + daysBeforeExpiry * 24 * 60 * 60 * 1000,
+    );
 
     for (const integration of allIntegrations) {
       try {
@@ -83,7 +87,9 @@ export async function refreshAllTokens(
         }
 
         // Decrypt credentials
-        const credentials = decryptObject<XeroCredentials>(integration.credentials);
+        const credentials = decryptObject<XeroCredentials>(
+          integration.credentials,
+        );
 
         // Check if token expires within threshold
         const expiresAt = new Date(credentials.expiresAt);
@@ -104,14 +110,20 @@ export async function refreshAllTokens(
         await xeroClient.getCredentials(integration.tenantId);
 
         refreshed++;
-        console.log(`[Xero Token Refresh] Successfully refreshed token for tenant ${integration.tenantId}`);
+        console.log(
+          `[Xero Token Refresh] Successfully refreshed token for tenant ${integration.tenantId}`,
+        );
       } catch (error) {
         failed++;
 
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
 
         Sentry.captureException(error, {
-          tags: { operation: "refreshXeroToken", worker: "token-refresh-worker" },
+          tags: {
+            operation: "refreshXeroToken",
+            worker: "token-refresh-worker",
+          },
           extra: {
             tenantId: integration.tenantId,
             integrationId: integration.id,
@@ -132,7 +144,10 @@ export async function refreshAllTokens(
     return { refreshed, failed, skipped };
   } catch (error) {
     Sentry.captureException(error, {
-      tags: { operation: "refreshAllXeroTokens", worker: "token-refresh-worker" },
+      tags: {
+        operation: "refreshAllXeroTokens",
+        worker: "token-refresh-worker",
+      },
     });
 
     console.error(`[Xero Token Refresh] Worker failed:`, error);
@@ -146,7 +161,9 @@ export async function refreshAllTokens(
  *
  * Useful for manual refresh or testing
  */
-export async function refreshTenantToken(tenantId: string): Promise<{ success: boolean; error?: string }> {
+export async function refreshTenantToken(
+  tenantId: string,
+): Promise<{ success: boolean; error?: string }> {
   try {
     console.log(`[Xero Token Refresh] Refreshing token for tenant ${tenantId}`);
 
@@ -157,18 +174,24 @@ export async function refreshTenantToken(tenantId: string): Promise<{ success: b
       throw new Error("Xero credentials not found or disabled");
     }
 
-    console.log(`[Xero Token Refresh] Successfully refreshed token for tenant ${tenantId}`);
+    console.log(
+      `[Xero Token Refresh] Successfully refreshed token for tenant ${tenantId}`,
+    );
 
     return { success: true };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     Sentry.captureException(error, {
       tags: { operation: "refreshTenantXeroToken" },
       extra: { tenantId },
     });
 
-    console.error(`[Xero Token Refresh] Failed to refresh token for tenant ${tenantId}:`, error);
+    console.error(
+      `[Xero Token Refresh] Failed to refresh token for tenant ${tenantId}:`,
+      error,
+    );
 
     return { success: false, error: errorMessage };
   }

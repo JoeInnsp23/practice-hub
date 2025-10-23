@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
-import { eq } from "drizzle-orm";
 import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { autoConvertLeadToClient } from "@/lib/client-portal/auto-convert-lead";
 import { db } from "@/lib/db";
 import {
@@ -13,16 +13,16 @@ import {
 } from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import { sendSignedConfirmation } from "@/lib/docuseal/email-handler";
+import { extractAuditTrail } from "@/lib/docuseal/uk-compliance-fields";
 import {
   sendProposalDeclinedTeamEmail,
   sendProposalExpiredTeamEmail,
 } from "@/lib/email/send-proposal-email";
-import { extractAuditTrail } from "@/lib/docuseal/uk-compliance-fields";
-import { uploadToS3 } from "@/lib/s3/upload";
 import {
-  checkTenantRateLimit,
   checkSubmissionRateLimit,
+  checkTenantRateLimit,
 } from "@/lib/rate-limit/webhook";
+import { uploadToS3 } from "@/lib/s3/upload";
 
 export const runtime = "nodejs";
 
@@ -94,7 +94,10 @@ export async function POST(request: Request) {
     if (!signature) {
       Sentry.captureException(
         new Error("Missing DocuSeal webhook signature"),
-        sentryCtx({ operation: "webhook_signature_missing", endpoint: "/api/webhooks/docuseal" }),
+        sentryCtx({
+          operation: "webhook_signature_missing",
+          endpoint: "/api/webhooks/docuseal",
+        }),
       );
       return new Response("Missing signature", { status: 401 });
     }
@@ -117,7 +120,10 @@ export async function POST(request: Request) {
     if (signature !== expectedSignature) {
       Sentry.captureException(
         new Error("Invalid DocuSeal webhook signature"),
-        sentryCtx({ operation: "webhook_signature_invalid" }, { providedSignature: signature.substring(0, 10) + "..." }),
+        sentryCtx(
+          { operation: "webhook_signature_invalid" },
+          { providedSignature: signature.substring(0, 10) + "..." },
+        ),
       );
       return new Response("Invalid signature", { status: 401 });
     }
@@ -128,7 +134,10 @@ export async function POST(request: Request) {
     if (!timestampHeader) {
       Sentry.captureException(
         new Error("Missing DocuSeal webhook timestamp"),
-        sentryCtx({ operation: "webhook_timestamp_missing", endpoint: "/api/webhooks/docuseal" }),
+        sentryCtx({
+          operation: "webhook_timestamp_missing",
+          endpoint: "/api/webhooks/docuseal",
+        }),
       );
       return new Response("Missing timestamp", { status: 400 });
     }
@@ -151,7 +160,9 @@ export async function POST(request: Request) {
 
     if (requestAge > 300) {
       Sentry.captureException(
-        new Error("DocuSeal webhook request too old (replay attack protection)"),
+        new Error(
+          "DocuSeal webhook request too old (replay attack protection)",
+        ),
         sentryCtx(
           { operation: "webhook_replay_rejected" },
           {
@@ -239,7 +250,9 @@ export async function POST(request: Request) {
       return new Response(
         JSON.stringify({
           error: "Duplicate submission spam detected",
-          retryAfter: Math.ceil((submissionRateLimit.reset - Date.now()) / 1000),
+          retryAfter: Math.ceil(
+            (submissionRateLimit.reset - Date.now()) / 1000,
+          ),
         }),
         {
           status: 409, // Conflict (duplicate spam)
@@ -270,10 +283,16 @@ export async function POST(request: Request) {
 
         if (proposalId) {
           entityType = "proposal";
-          existingSignature = await findSignatureBySubmissionId(submissionId, "proposal");
+          existingSignature = await findSignatureBySubmissionId(
+            submissionId,
+            "proposal",
+          );
         } else if (documentId) {
           entityType = "document";
-          existingSignature = await findSignatureBySubmissionId(submissionId, "document");
+          existingSignature = await findSignatureBySubmissionId(
+            submissionId,
+            "document",
+          );
         }
 
         if (existingSignature) {
@@ -288,7 +307,10 @@ export async function POST(request: Request) {
           Sentry.captureMessage(
             "DocuSeal webhook already processed (idempotent)",
             sentryCtx(
-              { operation: "webhook_idempotency_cache", entity_type: entityType },
+              {
+                operation: "webhook_idempotency_cache",
+                entity_type: entityType,
+              },
               { submissionId, proposalId, documentId },
             ),
           );
@@ -302,7 +324,10 @@ export async function POST(request: Request) {
     }
 
     // ✅ IDEMPOTENCY GUARD: Check for declined/expired duplicates
-    if (event.event === "submission.declined" || event.event === "submission.expired") {
+    if (
+      event.event === "submission.declined" ||
+      event.event === "submission.expired"
+    ) {
       // Note: metadata already extracted above for rate limiting
       const proposalId = metadata.proposal_id;
 
@@ -313,20 +338,28 @@ export async function POST(request: Request) {
           .where(eq(proposals.id, proposalId))
           .limit(1);
 
-        const expectedStatus = event.event === "submission.declined" ? "rejected" : "expired";
+        const expectedStatus =
+          event.event === "submission.declined" ? "rejected" : "expired";
 
         if (existingProposal && existingProposal.status === expectedStatus) {
           Sentry.addBreadcrumb({
             category: "webhook",
             message: `DocuSeal ${event.event} idempotency cache hit`,
             level: "info",
-            data: { proposalId, submissionId: event.data?.id, status: expectedStatus },
+            data: {
+              proposalId,
+              submissionId: event.data?.id,
+              status: expectedStatus,
+            },
           });
 
           Sentry.captureMessage(
             `DocuSeal ${event.event} already processed (idempotent)`,
             sentryCtx(
-              { operation: `webhook_${expectedStatus}_idempotency`, entity_type: "proposal" },
+              {
+                operation: `webhook_${expectedStatus}_idempotency`,
+                entity_type: "proposal",
+              },
               { proposalId, submissionId: event.data?.id },
             ),
           );
@@ -349,7 +382,10 @@ export async function POST(request: Request) {
     } else {
       Sentry.captureMessage(
         "Unsupported DocuSeal webhook event",
-        sentryCtx({ operation: "webhook_unsupported_event" }, { eventType: event.event, submissionId: event.data?.id }),
+        sentryCtx(
+          { operation: "webhook_unsupported_event" },
+          { eventType: event.event, submissionId: event.data?.id },
+        ),
       );
     }
 
@@ -360,7 +396,10 @@ export async function POST(request: Request) {
   } catch (error) {
     Sentry.captureException(
       error as Error,
-      sentryCtx({ operation: "webhook_processing_error" }, { error: String(error) }),
+      sentryCtx(
+        { operation: "webhook_processing_error" },
+        { error: String(error) },
+      ),
     );
     return new Response("Internal server error", { status: 500 });
   }
@@ -391,7 +430,10 @@ async function handleSubmissionCompleted(submission: any) {
   } else {
     Sentry.captureException(
       new Error("No proposal_id or document_id in metadata"),
-      sentryCtx({ operation: "webhook_entity_id_missing" }, { submissionId, tenantId }),
+      sentryCtx(
+        { operation: "webhook_entity_id_missing" },
+        { submissionId, tenantId },
+      ),
     );
     throw new Error("Invalid submission metadata");
   }
@@ -416,7 +458,10 @@ async function handleProposalSigning(
   if (!proposalDetails) {
     Sentry.captureException(
       new Error("Proposal not found in webhook handler"),
-      sentryCtx({ operation: "webhook_entity_not_found" }, { proposalId, tenantId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_entity_not_found" },
+        { proposalId, tenantId, submissionId },
+      ),
     );
     throw new Error("Proposal not found");
   }
@@ -435,11 +480,7 @@ async function handleProposalSigning(
 
   // Upload signed PDF to S3/MinIO and store key (not public URL)
   const s3Key = `proposals/signed/${submissionId}.pdf`;
-  await uploadToS3(
-    signedPdfBuffer,
-    s3Key,
-    "application/pdf",
-  );
+  await uploadToS3(signedPdfBuffer, s3Key, "application/pdf");
   // Note: We store the S3 key, not the URL, for secure presigned URL access
 
   // Check if signer is a portal user
@@ -532,7 +573,10 @@ async function handleProposalSigning(
     } catch (conversionError) {
       Sentry.captureException(
         conversionError as Error,
-        sentryCtx({ operation: "lead_conversion_error" }, { proposalId, leadId: proposalDetails.leadId }),
+        sentryCtx(
+          { operation: "lead_conversion_error" },
+          { proposalId, leadId: proposalDetails.leadId },
+        ),
       );
     }
   }
@@ -554,7 +598,10 @@ async function handleProposalSigning(
   } catch (emailError) {
     Sentry.captureException(
       emailError as Error,
-      sentryCtx({ operation: "webhook_email_send_failed" }, { proposalId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_email_send_failed" },
+        { proposalId, submissionId },
+      ),
     );
     // Don't throw - email failure shouldn't break the webhook
   }
@@ -578,7 +625,10 @@ async function handleDocumentSigning(
   if (!doc) {
     Sentry.captureException(
       new Error("Document not found in webhook handler"),
-      sentryCtx({ operation: "webhook_document_not_found" }, { documentId, tenantId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_document_not_found" },
+        { documentId, tenantId, submissionId },
+      ),
     );
     throw new Error("Document not found");
   }
@@ -597,11 +647,7 @@ async function handleDocumentSigning(
 
   // Upload signed PDF to S3 and store key (not public URL)
   const s3Key = `documents/signed/${tenantId}/${documentId}-${submissionId}.pdf`;
-  await uploadToS3(
-    signedPdfBuffer,
-    s3Key,
-    "application/pdf",
-  );
+  await uploadToS3(signedPdfBuffer, s3Key, "application/pdf");
   // Note: We store the S3 key, not the URL, for secure presigned URL access
 
   // Update database in transaction
@@ -658,7 +704,10 @@ async function handleSubmissionDeclined(submission: any) {
   if (!tenantId || !proposalId) {
     Sentry.captureException(
       new Error("Missing metadata in declined webhook"),
-      sentryCtx({ operation: "webhook_declined_metadata_missing" }, { submissionId }),
+      sentryCtx(
+        { operation: "webhook_declined_metadata_missing" },
+        { submissionId },
+      ),
     );
     throw new Error("Missing metadata in declined webhook");
   }
@@ -673,7 +722,10 @@ async function handleSubmissionDeclined(submission: any) {
   if (!proposal) {
     Sentry.captureException(
       new Error("Proposal not found for declined event"),
-      sentryCtx({ operation: "webhook_declined_entity_not_found" }, { proposalId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_declined_entity_not_found" },
+        { proposalId, submissionId },
+      ),
     );
     throw new Error("Proposal not found for declined event");
   }
@@ -716,7 +768,10 @@ async function handleSubmissionDeclined(submission: any) {
   } catch (emailError) {
     Sentry.captureException(
       emailError as Error,
-      sentryCtx({ operation: "webhook_declined_email_failed" }, { proposalId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_declined_email_failed" },
+        { proposalId, submissionId },
+      ),
     );
     // Don't throw - email failure shouldn't break the webhook
   }
@@ -737,7 +792,10 @@ async function handleSubmissionExpired(submission: any) {
   if (!tenantId || !proposalId) {
     Sentry.captureException(
       new Error("Missing metadata in expired webhook"),
-      sentryCtx({ operation: "webhook_expired_metadata_missing" }, { submissionId }),
+      sentryCtx(
+        { operation: "webhook_expired_metadata_missing" },
+        { submissionId },
+      ),
     );
     throw new Error("Missing metadata in expired webhook");
   }
@@ -752,7 +810,10 @@ async function handleSubmissionExpired(submission: any) {
   if (!proposal) {
     Sentry.captureException(
       new Error("Proposal not found for expired event"),
-      sentryCtx({ operation: "webhook_expired_entity_not_found" }, { proposalId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_expired_entity_not_found" },
+        { proposalId, submissionId },
+      ),
     );
     throw new Error("Proposal not found for expired event");
   }
@@ -793,7 +854,10 @@ async function handleSubmissionExpired(submission: any) {
   } catch (emailError) {
     Sentry.captureException(
       emailError as Error,
-      sentryCtx({ operation: "webhook_expired_email_failed" }, { proposalId, submissionId }),
+      sentryCtx(
+        { operation: "webhook_expired_email_failed" },
+        { proposalId, submissionId },
+      ),
     );
     // Don't throw - email failure shouldn't break the webhook
   }

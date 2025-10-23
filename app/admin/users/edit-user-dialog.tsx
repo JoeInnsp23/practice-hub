@@ -32,6 +32,7 @@ interface UserData {
   role: string;
   status: string;
   isActive: boolean;
+  departmentId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -54,6 +55,12 @@ export function EditUserDialog({
     lastName: user.lastName || "",
     role: user.role,
     isActive: user.isActive,
+    departmentId: user.departmentId || "",
+  });
+
+  // Fetch departments for dropdown
+  const { data: departmentsData } = trpc.departments.list.useQuery({
+    includeInactive: false,
   });
 
   const updateMutation = trpc.users.update.useMutation({
@@ -77,6 +84,7 @@ export function EditUserDialog({
         firstName: formData.firstName,
         lastName: formData.lastName,
         role: formData.role as "admin" | "member" | "client",
+        departmentId: formData.departmentId || null,
       },
     });
   };
@@ -147,6 +155,28 @@ export function EditUserDialog({
                   </SelectItem>
                   <SelectItem value="accountant">Accountant</SelectItem>
                   <SelectItem value="member">Member</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="editDepartment">Department</Label>
+              <Select
+                value={formData.departmentId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, departmentId: value })
+                }
+              >
+                <SelectTrigger id="editDepartment">
+                  <SelectValue placeholder="Select department (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No Department</SelectItem>
+                  {departmentsData?.departments.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

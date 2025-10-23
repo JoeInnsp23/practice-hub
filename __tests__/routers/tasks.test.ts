@@ -7,24 +7,31 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
 import { tasksRouter } from "@/app/server/routers/tasks";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
 import {
-  createTestTenant,
-  createTestUser,
+  activityLogs,
+  tasks,
+  taskWorkflowInstances,
+  workflowStages,
+  workflows,
+  workflowVersions,
+} from "@/lib/db/schema";
+import {
+  cleanupTestData,
   createTestClient,
   createTestTask,
+  createTestTenant,
+  createTestUser,
   createTestWorkflow,
   createTestWorkflowStage,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { tasks, activityLogs, workflows, workflowVersions, workflowStages, taskWorkflowInstances } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/tasks.ts (Integration)", () => {
   let ctx: Context;
@@ -79,7 +86,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("create (Integration)", () => {
     it("should create task and persist to database", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -113,7 +123,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity log for task creation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -133,8 +146,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
           and(
             eq(activityLogs.entityId, result.task.id),
             eq(activityLogs.entityType, "task"),
-            eq(activityLogs.action, "created")
-          )
+            eq(activityLogs.action, "created"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -144,7 +157,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should auto-assign to current user if no assignee specified", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -159,7 +175,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should set default status to pending if not provided", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -174,7 +193,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should set default priority to medium if not provided", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -200,15 +222,28 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("list (Integration)", () => {
     it("should list tasks with tenant isolation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Task Alpha",
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Task Beta",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Task Alpha",
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Task Beta",
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.list({});
@@ -222,42 +257,70 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       }
 
       // Verify our test tasks are in the list
-      const taskIds = result.tasks.map(t => t.id);
+      const taskIds = result.tasks.map((t) => t.id);
       expect(taskIds).toContain(task1.id);
       expect(taskIds).toContain(task2.id);
     });
 
     it("should filter tasks by search term", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Searchable Unique Task",
-        description: "Special description",
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Other Task",
-        description: "Normal description",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Searchable Unique Task",
+          description: "Special description",
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Other Task",
+          description: "Normal description",
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.list({ search: "Searchable Unique" });
 
       expect(result.tasks.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableTask = result.tasks.some(t => t.title.includes("Searchable Unique"));
+      const hasSearchableTask = result.tasks.some((t) =>
+        t.title.includes("Searchable Unique"),
+      );
       expect(hasSearchableTask).toBe(true);
     });
 
     it("should filter tasks by status", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "in_progress",
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "completed",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "in_progress",
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "completed",
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.list({ status: "in_progress" });
@@ -270,15 +333,28 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should filter tasks by priority", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        priority: "high",
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        priority: "low",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          priority: "high",
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          priority: "low",
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.list({ priority: "high" });
@@ -291,18 +367,33 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should filter tasks by assignee", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const assigneeId = await createTestUser(ctx.authContext.tenantId, { role: "user" });
+      const assigneeId = await createTestUser(ctx.authContext.tenantId, {
+        role: "user",
+      });
       tracker.users?.push(assigneeId);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        assignedToId: assigneeId,
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        assignedToId: ctx.authContext.userId,
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: assigneeId,
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          assignedToId: ctx.authContext.userId,
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.list({ assigneeId });
@@ -315,16 +406,32 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should filter tasks by client", async () => {
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Alpha",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Beta",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Alpha",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Beta",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client1.id, ctx.authContext.userId);
-      const task2 = await createTestTask(ctx.authContext.tenantId, client2.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client1.id,
+        ctx.authContext.userId,
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client2.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.list({ clientId: client1.id });
@@ -339,13 +446,21 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("getById (Integration)", () => {
     it("should retrieve task by ID", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "GetById Test Task",
-        description: "Test task for getById",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "GetById Test Task",
+          description: "Test task for getById",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.getById(task.id);
@@ -358,7 +473,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent ID", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.getById(nonExistentId)).rejects.toThrow("Task not found");
+      await expect(caller.getById(nonExistentId)).rejects.toThrow(
+        "Task not found",
+      );
     });
 
     it("should prevent cross-tenant access (CRITICAL)", async () => {
@@ -389,12 +506,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should include client information in response", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client With Details",
-      });
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client With Details",
+        },
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.getById(task.id);
@@ -407,14 +532,22 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("update (Integration)", () => {
     it("should update task and persist changes", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Original Title",
-        description: "Original Description",
-        status: "pending",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Original Title",
+          description: "Original Description",
+          status: "pending",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.update({
@@ -442,12 +575,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should auto-set progress to 100 when status changes to completed", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "in_progress",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "in_progress",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.update({
@@ -469,12 +610,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity log for update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Update Log Test",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Update Log Test",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       await caller.update({
@@ -489,8 +638,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, task.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -505,7 +654,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { title: "Should Fail" },
-        })
+        }),
       ).rejects.toThrow("Task not found");
     });
 
@@ -526,19 +675,27 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.update({
           id: taskA.id,
           data: { title: "Malicious Update" },
-        })
+        }),
       ).rejects.toThrow("Task not found");
     });
 
     it("should allow partial updates", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Partial Update Test",
-        description: "Original Description",
-        priority: "medium",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Partial Update Test",
+          description: "Original Description",
+          priority: "medium",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       // Update only priority
@@ -562,12 +719,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("delete (Integration)", () => {
     it("should delete task from database", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Delete Test Task",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Delete Test Task",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.delete(task.id);
@@ -584,12 +749,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity log for deletion", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Delete Log Test",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Delete Log Test",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       await caller.delete(task.id);
@@ -601,8 +774,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, task.id),
-            eq(activityLogs.action, "deleted")
-          )
+            eq(activityLogs.action, "deleted"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -613,7 +786,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent task", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.delete(nonExistentId)).rejects.toThrow("Task not found");
+      await expect(caller.delete(nonExistentId)).rejects.toThrow(
+        "Task not found",
+      );
     });
 
     it("should prevent cross-tenant deletion", async () => {
@@ -643,12 +818,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("updateStatus (Integration)", () => {
     it("should update task status", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "pending",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "pending",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.updateStatus({
@@ -668,12 +851,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should set completedAt when status changes to completed", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "in_progress",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "in_progress",
+        },
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.updateStatus({
@@ -686,10 +877,17 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity log for status update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       await caller.updateStatus({
@@ -704,8 +902,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, task.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -720,25 +918,43 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.updateStatus({
           id: nonExistentId,
           status: "completed",
-        })
+        }),
       ).rejects.toThrow("Task not found");
     });
   });
 
   describe("bulkUpdateStatus (Integration)", () => {
     it("should update status for multiple tasks", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "pending",
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "pending",
-      });
-      const task3 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        status: "pending",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "pending",
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "pending",
+        },
+      );
+      const task3 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          status: "pending",
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id, task3.id);
 
       const result = await caller.bulkUpdateStatus({
@@ -759,11 +975,22 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity logs for each task", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       await caller.bulkUpdateStatus({
@@ -775,20 +1002,23 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       const logs = await db
         .select()
         .from(activityLogs)
-        .where(
-          and(
-            eq(activityLogs.action, "bulk_status_update")
-          )
-        );
+        .where(and(eq(activityLogs.action, "bulk_status_update")));
 
       expect(logs.length).toBeGreaterThanOrEqual(2);
     });
 
     it("should throw error if any task not found", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id);
 
       const nonExistentId = crypto.randomUUID();
@@ -797,21 +1027,34 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.bulkUpdateStatus({
           taskIds: [task1.id, nonExistentId],
           status: "completed",
-        })
+        }),
       ).rejects.toThrow("One or more tasks not found");
     });
   });
 
   describe("bulkAssign (Integration)", () => {
     it("should assign multiple tasks to a user", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const assigneeId = await createTestUser(ctx.authContext.tenantId, { role: "user" });
+      const assigneeId = await createTestUser(ctx.authContext.tenantId, {
+        role: "user",
+      });
       tracker.users?.push(assigneeId);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.bulkAssign({
@@ -832,13 +1075,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity logs for each assignment", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const assigneeId = await createTestUser(ctx.authContext.tenantId);
       tracker.users?.push(assigneeId);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id);
 
       await caller.bulkAssign({
@@ -853,8 +1103,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, task1.id),
-            eq(activityLogs.action, "bulk_assign")
-          )
+            eq(activityLogs.action, "bulk_assign"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -863,11 +1113,22 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("bulkDelete (Integration)", () => {
     it("should delete multiple tasks", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const result = await caller.bulkDelete({
@@ -887,12 +1148,20 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity logs before deletion", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Bulk Delete Log Test",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Bulk Delete Log Test",
+        },
+      );
       tracker.tasks?.push(task1.id);
 
       await caller.bulkDelete({
@@ -906,8 +1175,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, task1.id),
-            eq(activityLogs.action, "bulk_delete")
-          )
+            eq(activityLogs.action, "bulk_delete"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -917,17 +1186,29 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
   describe("assignWorkflow (Integration)", () => {
     it("should assign workflow to task and create workflow instance", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Task for Workflow Assignment",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Task for Workflow Assignment",
+        },
+      );
       tracker.tasks?.push(task.id);
 
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Test Workflow for Assignment",
-      });
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Test Workflow for Assignment",
+        },
+      );
       tracker.workflows?.push(workflow.id);
 
       // Create a workflow version (required for assignment)
@@ -979,7 +1260,10 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should throw NOT_FOUND for non-existent task", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const nonExistentTaskId = crypto.randomUUID();
@@ -988,15 +1272,22 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.assignWorkflow({
           taskId: nonExistentTaskId,
           workflowId: workflow.id,
-        })
+        }),
       ).rejects.toThrow("Task not found");
     });
 
     it("should throw NOT_FOUND for non-existent workflow", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       const nonExistentWorkflowId = crypto.randomUUID();
@@ -1005,16 +1296,23 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.assignWorkflow({
           taskId: task.id,
           workflowId: nonExistentWorkflowId,
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
 
     it("should prevent cross-tenant workflow assignment", async () => {
       // Create task for tenant B (our test tenant)
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       // Create workflow for tenant A (different tenant)
@@ -1031,20 +1329,30 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         caller.assignWorkflow({
           taskId: task.id,
           workflowId: workflowA.id,
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
   });
 
   describe("getWorkflowInstance (Integration)", () => {
     it("should retrieve workflow instance for task", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const stage = await createTestWorkflowStage(workflow.id, {
@@ -1065,7 +1373,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
           type: workflow.type,
           trigger: workflow.trigger || "manual",
           config: {},
-          stagesSnapshot: [{ id: stage.id, name: stage.name, stageOrder: stage.stageOrder }],
+          stagesSnapshot: [
+            { id: stage.id, name: stage.name, stageOrder: stage.stageOrder },
+          ],
         })
         .returning();
       tracker.workflowVersions?.push(workflowVersion.id);
@@ -1078,7 +1388,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
           workflowId: workflow.id,
           workflowVersionId: workflowVersion.id,
           version: 1,
-          stagesSnapshot: [{ id: stage.id, name: stage.name, stageOrder: stage.stageOrder }],
+          stagesSnapshot: [
+            { id: stage.id, name: stage.name, stageOrder: stage.stageOrder },
+          ],
           status: "active",
         })
         .returning();
@@ -1101,10 +1413,17 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should return null if task has no workflow", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       const result = await caller.getWorkflowInstance(task.id);
@@ -1115,7 +1434,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent task", async () => {
       const nonExistentTaskId = crypto.randomUUID();
 
-      await expect(caller.getWorkflowInstance(nonExistentTaskId)).rejects.toThrow("Task not found");
+      await expect(
+        caller.getWorkflowInstance(nonExistentTaskId),
+      ).rejects.toThrow("Task not found");
     });
 
     it("should prevent cross-tenant access", async () => {
@@ -1131,19 +1452,31 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       tracker.tasks?.push(taskA.id);
 
       // Attempt to access tenant A's task from tenant B
-      await expect(caller.getWorkflowInstance(taskA.id)).rejects.toThrow("Task not found");
+      await expect(caller.getWorkflowInstance(taskA.id)).rejects.toThrow(
+        "Task not found",
+      );
     });
   });
 
   describe("updateChecklistItem (Integration)", () => {
     it("should update checklist item completion status", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const stageId = crypto.randomUUID();
@@ -1165,7 +1498,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
               id: stageId,
               name: "Test Stage",
               stageOrder: 1,
-              checklistItems: [{ id: itemId, text: "Test Item", isRequired: true }],
+              checklistItems: [
+                { id: itemId, text: "Test Item", isRequired: true },
+              ],
             },
           ],
         })
@@ -1213,13 +1548,23 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
     });
 
     it("should create activity log for checklist update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const itemId = crypto.randomUUID();
@@ -1248,7 +1593,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
               id: stage.id,
               name: "Test Stage",
               stageOrder: 1,
-              checklistItems: [{ id: itemId, text: "Test Item", isRequired: true }],
+              checklistItems: [
+                { id: itemId, text: "Test Item", isRequired: true },
+              ],
             },
           ],
         })
@@ -1288,8 +1635,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, task.id),
-            eq(activityLogs.action, "checklist_updated")
-          )
+            eq(activityLogs.action, "checklist_updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -1308,7 +1655,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
           stageId,
           itemId,
           completed: true,
-        })
+        }),
       ).rejects.toThrow("Workflow instance not found");
     });
   });
@@ -1350,13 +1697,21 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
     beforeEach(async () => {
       // Create a test task for notes
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       clientId = client.id;
       tracker.clients?.push(clientId);
 
-      const task = await createTestTask(ctx.authContext.tenantId, clientId, ctx.authContext.userId, {
-        title: "Test Task for Notes",
-      });
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        clientId,
+        ctx.authContext.userId,
+        {
+          title: "Test Task for Notes",
+        },
+      );
       taskId = task.id;
       tracker.tasks?.push(taskId);
     });
@@ -1408,7 +1763,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
           .from(await import("@/lib/db/schema").then((m) => m.notifications))
           .where(
             eq(
-              (await import("@/lib/db/schema").then((m) => m.notifications)).userId,
+              (await import("@/lib/db/schema").then((m) => m.notifications))
+                .userId,
               mentionedUserId,
             ),
           );
@@ -1439,9 +1795,14 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         const otherClient = await createTestClient(otherTenantId, otherUserId);
         tracker.clients?.push(otherClient.id);
 
-        const otherTask = await createTestTask(otherTenantId, otherClient.id, otherUserId, {
-          title: "Other Tenant Task",
-        });
+        const otherTask = await createTestTask(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+          {
+            title: "Other Tenant Task",
+          },
+        );
         tracker.tasks?.push(otherTask.id);
 
         // Try to create note on other tenant's task
@@ -1651,9 +2012,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         // Try to delete note created by original user
-        await expect(
-          otherCaller.deleteNote({ noteId }),
-        ).rejects.toThrow("You do not have permission to delete this note");
+        await expect(otherCaller.deleteNote({ noteId })).rejects.toThrow(
+          "You do not have permission to delete this note",
+        );
       });
     });
 
@@ -1737,7 +2098,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       });
 
       it("should search by email", async () => {
-        const users = await caller.getMentionableUsers({ query: "bob.johnson" });
+        const users = await caller.getMentionableUsers({
+          query: "bob.johnson",
+        });
         expect(users.length).toBeGreaterThan(0);
         expect(users.some((u) => u.email?.includes("bob.johnson"))).toBe(true);
       });
@@ -1778,7 +2141,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           assignedToId: ctx.authContext.userId,
-        }
+        },
       );
       tracker.clients?.push(client.id);
       tracker.tasks?.push(task.id);
@@ -1818,7 +2181,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           assignedToId: ctx.authContext.userId,
-        }
+        },
       );
       tracker.clients?.push(client.id);
       tracker.tasks?.push(task.id);
@@ -1846,7 +2209,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         otherTenantId,
         otherClient.id,
         otherUserId,
-        {}
+        {},
       );
 
       const newUserId = await createTestUser(ctx.authContext.tenantId, {
@@ -1875,7 +2238,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           assignedToId: ctx.authContext.userId,
-        }
+        },
       );
       const task2 = await createTestTask(
         ctx.authContext.tenantId,
@@ -1883,7 +2246,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           assignedToId: ctx.authContext.userId,
-        }
+        },
       );
       tracker.clients?.push(client.id);
       tracker.tasks?.push(task1.id, task2.id);
@@ -1927,7 +2290,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         ctx.authContext.userId,
         {
           assignedToId: ctx.authContext.userId,
-        }
+        },
       );
       tracker.clients?.push(client.id);
       tracker.tasks?.push(task.id);
@@ -1961,7 +2324,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        {}
+        {},
       );
       tracker.clients?.push(client.id);
       tracker.tasks?.push(task.id);

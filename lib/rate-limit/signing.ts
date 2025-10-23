@@ -8,8 +8,8 @@
  * Uses in-memory store (can be upgraded to Redis if needed).
  */
 
-import { TRPCError } from "@trpc/server";
 import * as Sentry from "@sentry/nextjs";
+import { TRPCError } from "@trpc/server";
 
 interface RateLimitConfig {
   maxRequests: number;

@@ -24,25 +24,25 @@
  * ```
  */
 
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
-  clients,
-  tasks,
-  invoices,
-  documents,
-  tenants,
-  users,
-  workflows,
-  workflowStages,
-  workflowVersions,
-  taskWorkflowInstances,
-  timeEntries,
   type Client,
-  type Task,
-  type Invoice,
+  clients,
   type Document,
+  documents,
+  type Invoice,
+  invoices,
+  type Task,
+  tasks,
+  taskWorkflowInstances,
+  tenants,
+  timeEntries,
+  users,
+  workflowStages,
+  workflows,
+  workflowVersions,
 } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
 
 /**
  * Tracking object for test data cleanup
@@ -64,7 +64,9 @@ export interface TestDataTracker {
 /**
  * Create a test tenant with unique slug
  */
-export async function createTestTenant(overrides: Partial<typeof tenants.$inferInsert> = {}) {
+export async function createTestTenant(
+  overrides: Partial<typeof tenants.$inferInsert> = {},
+) {
   const tenantId = crypto.randomUUID();
   const uniqueId = crypto.randomUUID();
 
@@ -85,7 +87,7 @@ export async function createTestTenant(overrides: Partial<typeof tenants.$inferI
  */
 export async function createTestUser(
   tenantId: string,
-  overrides: Partial<typeof users.$inferInsert> = {}
+  overrides: Partial<typeof users.$inferInsert> = {},
 ) {
   const userId = crypto.randomUUID();
   const uniqueId = crypto.randomUUID();
@@ -111,7 +113,7 @@ export async function createTestUser(
 export async function createTestClient(
   tenantId: string,
   createdBy: string,
-  overrides: Partial<typeof clients.$inferInsert> = {}
+  overrides: Partial<typeof clients.$inferInsert> = {},
 ): Promise<Client> {
   const clientId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -144,7 +146,7 @@ export async function createTestTask(
   tenantId: string,
   clientId: string,
   createdById: string,
-  overrides: Partial<typeof tasks.$inferInsert> = {}
+  overrides: Partial<typeof tasks.$inferInsert> = {},
 ): Promise<Task> {
   const taskId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -157,7 +159,8 @@ export async function createTestTask(
       clientId,
       createdById,
       title: overrides.title || `Test Task ${timestamp}`,
-      description: overrides.description || `Test task description ${timestamp}`,
+      description:
+        overrides.description || `Test task description ${timestamp}`,
       status: overrides.status || "pending",
       priority: overrides.priority || "medium",
       dueDate: overrides.dueDate,
@@ -178,7 +181,7 @@ export async function createTestInvoice(
   tenantId: string,
   clientId: string,
   createdById: string,
-  overrides: Partial<typeof invoices.$inferInsert> = {}
+  overrides: Partial<typeof invoices.$inferInsert> = {},
 ): Promise<Invoice> {
   const invoiceId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -191,8 +194,12 @@ export async function createTestInvoice(
       clientId,
       createdById,
       invoiceNumber: overrides.invoiceNumber || `INV-TEST-${timestamp}`,
-      issueDate: overrides.issueDate || new Date().toISOString().split('T')[0], // Date string YYYY-MM-DD
-      dueDate: overrides.dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days
+      issueDate: overrides.issueDate || new Date().toISOString().split("T")[0], // Date string YYYY-MM-DD
+      dueDate:
+        overrides.dueDate ||
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0], // 30 days
       status: overrides.status || "draft",
       subtotal: overrides.subtotal || "1000.00",
       taxAmount: overrides.taxAmount || "200.00",
@@ -214,7 +221,7 @@ export async function createTestDocument(
   tenantId: string,
   clientId: string,
   uploadedById: string,
-  overrides: Partial<typeof documents.$inferInsert> = {}
+  overrides: Partial<typeof documents.$inferInsert> = {},
 ): Promise<Document> {
   const documentId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -247,10 +254,10 @@ export async function createTestTimeEntry(
   tenantId: string,
   userId: string,
   clientId: string,
-  overrides: Partial<typeof timeEntries.$inferInsert> = {}
+  overrides: Partial<typeof timeEntries.$inferInsert> = {},
 ) {
   const timeEntryId = crypto.randomUUID();
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   const [entry] = await db
     .insert(timeEntries)
@@ -291,28 +298,45 @@ export async function createTestTimeEntry(
 export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
   try {
     // Delete in reverse order of foreign key dependencies
-    if (tracker.taskWorkflowInstances && tracker.taskWorkflowInstances.length > 0) {
-      await db.delete(taskWorkflowInstances).where(inArray(taskWorkflowInstances.id, tracker.taskWorkflowInstances));
+    if (
+      tracker.taskWorkflowInstances &&
+      tracker.taskWorkflowInstances.length > 0
+    ) {
+      await db
+        .delete(taskWorkflowInstances)
+        .where(
+          inArray(taskWorkflowInstances.id, tracker.taskWorkflowInstances),
+        );
     }
 
     if (tracker.workflowStages && tracker.workflowStages.length > 0) {
-      await db.delete(workflowStages).where(inArray(workflowStages.id, tracker.workflowStages));
+      await db
+        .delete(workflowStages)
+        .where(inArray(workflowStages.id, tracker.workflowStages));
     }
 
     if (tracker.workflowVersions && tracker.workflowVersions.length > 0) {
-      await db.delete(workflowVersions).where(inArray(workflowVersions.id, tracker.workflowVersions));
+      await db
+        .delete(workflowVersions)
+        .where(inArray(workflowVersions.id, tracker.workflowVersions));
     }
 
     if (tracker.workflows && tracker.workflows.length > 0) {
-      await db.delete(workflows).where(inArray(workflows.id, tracker.workflows));
+      await db
+        .delete(workflows)
+        .where(inArray(workflows.id, tracker.workflows));
     }
 
     if (tracker.timeEntries && tracker.timeEntries.length > 0) {
-      await db.delete(timeEntries).where(inArray(timeEntries.id, tracker.timeEntries));
+      await db
+        .delete(timeEntries)
+        .where(inArray(timeEntries.id, tracker.timeEntries));
     }
 
     if (tracker.documents && tracker.documents.length > 0) {
-      await db.delete(documents).where(inArray(documents.id, tracker.documents));
+      await db
+        .delete(documents)
+        .where(inArray(documents.id, tracker.documents));
     }
 
     if (tracker.invoices && tracker.invoices.length > 0) {
@@ -347,7 +371,7 @@ export async function createTestClients(
   tenantId: string,
   createdBy: string,
   count: number,
-  overrides: Partial<typeof clients.$inferInsert> = {}
+  overrides: Partial<typeof clients.$inferInsert> = {},
 ): Promise<Client[]> {
   const clients: Client[] = [];
 
@@ -371,7 +395,7 @@ export async function createTestTasks(
   clientId: string,
   createdById: string,
   count: number,
-  overrides: Partial<typeof tasks.$inferInsert> = {}
+  overrides: Partial<typeof tasks.$inferInsert> = {},
 ): Promise<Task[]> {
   const tasksArray: Task[] = [];
 
@@ -422,7 +446,7 @@ export async function createCompleteTestSetup(): Promise<{
 export async function createTestWorkflow(
   tenantId: string,
   createdById: string,
-  overrides: Partial<typeof workflows.$inferInsert> = {}
+  overrides: Partial<typeof workflows.$inferInsert> = {},
 ) {
   const workflowId = crypto.randomUUID();
   const timestamp = Date.now();
@@ -434,7 +458,8 @@ export async function createTestWorkflow(
       tenantId,
       createdById,
       name: overrides.name || `Test Workflow ${timestamp}`,
-      description: overrides.description || `Test workflow description ${timestamp}`,
+      description:
+        overrides.description || `Test workflow description ${timestamp}`,
       type: overrides.type || "task_template",
       trigger: overrides.trigger || "manual",
       isActive: overrides.isActive ?? true,
@@ -456,7 +481,7 @@ export async function createTestWorkflow(
  */
 export async function createTestWorkflowStage(
   workflowId: string,
-  overrides: Partial<typeof workflowStages.$inferInsert> = {}
+  overrides: Partial<typeof workflowStages.$inferInsert> = {},
 ) {
   const stageId = crypto.randomUUID();
   const timestamp = Date.now();

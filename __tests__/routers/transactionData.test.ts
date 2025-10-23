@@ -4,11 +4,11 @@
  * Tests for the transactionData tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { transactionDataRouter } from "@/app/server/routers/transactionData";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -213,8 +213,11 @@ describe("app/server/routers/transactionData.ts", () => {
         const clientId = "test-client-1";
 
         // Import the mocked functions
-        const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions } =
-          await import("@/lib/xero/client");
+        const {
+          getValidAccessToken,
+          fetchBankTransactions,
+          calculateMonthlyTransactions,
+        } = await import("@/lib/xero/client");
 
         // Mock getValidAccessToken to return a valid token
         vi.mocked(getValidAccessToken).mockResolvedValue({
@@ -224,9 +227,27 @@ describe("app/server/routers/transactionData.ts", () => {
 
         // Mock fetchBankTransactions to return test transactions
         vi.mocked(fetchBankTransactions).mockResolvedValue([
-          { date: "2025-01-15", type: "SPEND", total: 100, description: "Test 1", reference: "REF1" },
-          { date: "2025-01-20", type: "SPEND", total: 200, description: "Test 2", reference: "REF2" },
-          { date: "2025-02-10", type: "RECEIVE", total: 150, description: "Test 3", reference: "REF3" },
+          {
+            date: "2025-01-15",
+            type: "SPEND",
+            total: 100,
+            description: "Test 1",
+            reference: "REF1",
+          },
+          {
+            date: "2025-01-20",
+            type: "SPEND",
+            total: 200,
+            description: "Test 2",
+            reference: "REF2",
+          },
+          {
+            date: "2025-02-10",
+            type: "RECEIVE",
+            total: 150,
+            description: "Test 3",
+            reference: "REF3",
+          },
         ]);
 
         // Mock calculateMonthlyTransactions to return the average
@@ -242,11 +263,13 @@ describe("app/server/routers/transactionData.ts", () => {
           expect.any(Date),
           expect.any(Date),
         );
-        expect(calculateMonthlyTransactions).toHaveBeenCalledWith(expect.arrayContaining([
-          expect.objectContaining({ total: 100 }),
-          expect.objectContaining({ total: 200 }),
-          expect.objectContaining({ total: 150 }),
-        ]));
+        expect(calculateMonthlyTransactions).toHaveBeenCalledWith(
+          expect.arrayContaining([
+            expect.objectContaining({ total: 100 }),
+            expect.objectContaining({ total: 200 }),
+            expect.objectContaining({ total: 150 }),
+          ]),
+        );
 
         // Verify the result matches router's return structure
         expect(result).toMatchObject({
@@ -270,7 +293,7 @@ describe("app/server/routers/transactionData.ts", () => {
 
         // Mock getValidAccessToken to throw error
         vi.mocked(getValidAccessToken).mockRejectedValue(
-          new Error("No Xero connection found for this client")
+          new Error("No Xero connection found for this client"),
         );
 
         // Router catches errors with "No Xero connection" and throws NOT_FOUND
@@ -287,7 +310,7 @@ describe("app/server/routers/transactionData.ts", () => {
 
         // Mock getValidAccessToken to throw token refresh error
         vi.mocked(getValidAccessToken).mockRejectedValue(
-          new Error("Xero token refresh failed: Refresh token expired")
+          new Error("Xero token refresh failed: Refresh token expired"),
         );
 
         // Router catches and wraps the error with INTERNAL_SERVER_ERROR
@@ -300,7 +323,9 @@ describe("app/server/routers/transactionData.ts", () => {
       it("should handle errors when fetching transactions fails", async () => {
         const clientId = "test-client-fetch-fail";
 
-        const { getValidAccessToken, fetchBankTransactions } = await import("@/lib/xero/client");
+        const { getValidAccessToken, fetchBankTransactions } = await import(
+          "@/lib/xero/client"
+        );
 
         vi.mocked(getValidAccessToken).mockResolvedValue({
           accessToken: "test-access-token",
@@ -309,7 +334,7 @@ describe("app/server/routers/transactionData.ts", () => {
 
         // Mock fetchBankTransactions to throw error
         vi.mocked(fetchBankTransactions).mockRejectedValue(
-          new Error("Failed to fetch Xero bank transactions: Unauthorized")
+          new Error("Failed to fetch Xero bank transactions: Unauthorized"),
         );
 
         // Router catches and wraps the error with INTERNAL_SERVER_ERROR
@@ -322,8 +347,11 @@ describe("app/server/routers/transactionData.ts", () => {
       it("should handle empty transaction list", async () => {
         const clientId = "test-client-no-transactions";
 
-        const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions } =
-          await import("@/lib/xero/client");
+        const {
+          getValidAccessToken,
+          fetchBankTransactions,
+          calculateMonthlyTransactions,
+        } = await import("@/lib/xero/client");
 
         vi.mocked(getValidAccessToken).mockResolvedValue({
           accessToken: "test-access-token",
@@ -357,8 +385,11 @@ describe("app/server/routers/transactionData.ts", () => {
       it("should respect tenant isolation (uses correct client's connection)", async () => {
         const clientId = "test-client-tenant-1";
 
-        const { getValidAccessToken, fetchBankTransactions, calculateMonthlyTransactions } =
-          await import("@/lib/xero/client");
+        const {
+          getValidAccessToken,
+          fetchBankTransactions,
+          calculateMonthlyTransactions,
+        } = await import("@/lib/xero/client");
 
         vi.mocked(getValidAccessToken).mockResolvedValue({
           accessToken: "tenant-1-token",
@@ -366,7 +397,13 @@ describe("app/server/routers/transactionData.ts", () => {
         });
 
         vi.mocked(fetchBankTransactions).mockResolvedValue([
-          { date: "2025-01-15", type: "SPEND", total: 100, description: "Test", reference: "REF" },
+          {
+            date: "2025-01-15",
+            type: "SPEND",
+            total: 100,
+            description: "Test",
+            reference: "REF",
+          },
         ]);
 
         vi.mocked(calculateMonthlyTransactions).mockReturnValue(1);
@@ -454,9 +491,9 @@ describe("app/server/routers/transactionData.ts", () => {
       const procedure = transactionDataRouter._def.procedures.getAllWithData;
 
       // Check that inputs array is empty or undefined
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

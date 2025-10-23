@@ -4,14 +4,24 @@
  * Tests two-way sync orchestration between Practice Hub and Xero
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { db } from "@/lib/db";
-import { clients, invoices, integrationSettings, tenants } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { db } from "@/lib/db";
+import {
+  clients,
+  integrationSettings,
+  invoices,
+  tenants,
+} from "@/lib/db/schema";
 import { encryptObject } from "@/lib/services/encryption";
 
 // Hoist mock functions to module scope BEFORE mocking
-const { mockGetCredentials, mockCreateOrUpdateContact, mockCreateOrUpdateInvoice, mockCreatePayment } = vi.hoisted(() => ({
+const {
+  mockGetCredentials,
+  mockCreateOrUpdateContact,
+  mockCreateOrUpdateInvoice,
+  mockCreatePayment,
+} = vi.hoisted(() => ({
   mockGetCredentials: vi.fn(),
   mockCreateOrUpdateContact: vi.fn(),
   mockCreateOrUpdateInvoice: vi.fn(),
@@ -30,12 +40,12 @@ vi.mock("@/lib/xero/api-client", () => ({
 
 // Import after mocking
 import {
-  syncClientToXero,
-  syncInvoiceToXero,
   markClientAsPendingSync,
   markInvoiceAsPendingSync,
   processPendingSyncs,
   retryFailedSyncs,
+  syncClientToXero,
+  syncInvoiceToXero,
 } from "@/lib/xero/sync-service";
 
 describe("Xero Sync Service", () => {
@@ -111,7 +121,9 @@ describe("Xero Sync Service", () => {
 
       // Mock: XeroApiClient methods
       mockGetCredentials.mockResolvedValue(credentials);
-      mockCreateOrUpdateContact.mockResolvedValue({ ContactID: "xero-contact-123" });
+      mockCreateOrUpdateContact.mockResolvedValue({
+        ContactID: "xero-contact-123",
+      });
 
       // Execute: Sync client to Xero
       const result = await syncClientToXero(testClientId, testTenantId);
@@ -184,7 +196,9 @@ describe("Xero Sync Service", () => {
         .limit(1);
 
       expect(updatedClient[0].xeroSyncStatus).toBe("error");
-      expect(updatedClient[0].xeroSyncError).toBe("Xero API error: Rate limit exceeded");
+      expect(updatedClient[0].xeroSyncError).toBe(
+        "Xero API error: Rate limit exceeded",
+      );
     });
   });
 
@@ -236,8 +250,12 @@ describe("Xero Sync Service", () => {
 
       // Mock: XeroApiClient methods
       mockGetCredentials.mockResolvedValue(credentials);
-      mockCreateOrUpdateContact.mockResolvedValue({ ContactID: "xero-contact-123" });
-      mockCreateOrUpdateInvoice.mockResolvedValue({ InvoiceID: "xero-invoice-123" });
+      mockCreateOrUpdateContact.mockResolvedValue({
+        ContactID: "xero-contact-123",
+      });
+      mockCreateOrUpdateInvoice.mockResolvedValue({
+        InvoiceID: "xero-invoice-123",
+      });
 
       // Execute: Sync invoice to Xero
       const result = await syncInvoiceToXero(testInvoiceId, testTenantId);
@@ -435,7 +453,9 @@ describe("Xero Sync Service", () => {
 
       // Mock: XeroApiClient methods (now succeeds)
       mockGetCredentials.mockResolvedValue(credentials);
-      mockCreateOrUpdateContact.mockResolvedValue({ ContactID: "xero-contact-123" });
+      mockCreateOrUpdateContact.mockResolvedValue({
+        ContactID: "xero-contact-123",
+      });
 
       // Execute: Retry failed syncs
       const result = await retryFailedSyncs(testTenantId);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 import {
   CheckCircle2,
   Circle,
@@ -10,6 +10,7 @@ import {
   Unplug,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +20,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +29,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { trpc } from "@/lib/trpc/client";
-import { formatDistanceToNow } from "date-fns";
 
 interface Integration {
   id: string;
@@ -47,7 +47,8 @@ const AVAILABLE_INTEGRATIONS: Integration[] = [
   {
     id: "xero",
     name: "Xero",
-    description: "Sync clients, invoices, and financial data with Xero accounting software",
+    description:
+      "Sync clients, invoices, and financial data with Xero accounting software",
     icon: "🔵",
     type: "xero",
     category: "accounting",
@@ -56,7 +57,8 @@ const AVAILABLE_INTEGRATIONS: Integration[] = [
   {
     id: "quickbooks",
     name: "QuickBooks",
-    description: "Connect with QuickBooks Online for seamless accounting integration",
+    description:
+      "Connect with QuickBooks Online for seamless accounting integration",
     icon: "🟢",
     type: "quickbooks",
     category: "accounting",
@@ -66,7 +68,8 @@ const AVAILABLE_INTEGRATIONS: Integration[] = [
   {
     id: "sage",
     name: "Sage",
-    description: "Integrate with Sage accounting platform for automated bookkeeping",
+    description:
+      "Integrate with Sage accounting platform for automated bookkeeping",
     icon: "🟡",
     type: "sage",
     category: "accounting",
@@ -86,7 +89,8 @@ const AVAILABLE_INTEGRATIONS: Integration[] = [
   {
     id: "teams",
     name: "Microsoft Teams",
-    description: "Receive practice updates and notifications in Microsoft Teams",
+    description:
+      "Receive practice updates and notifications in Microsoft Teams",
     icon: "👥",
     type: "teams",
     category: "communication",
@@ -106,13 +110,17 @@ const AVAILABLE_INTEGRATIONS: Integration[] = [
 ];
 
 export default function IntegrationsPage() {
-  const [testingConnection, setTestingConnection] = useState<string | null>(null);
+  const [testingConnection, setTestingConnection] = useState<string | null>(
+    null,
+  );
   const [configModalOpen, setConfigModalOpen] = useState(false);
-  const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null);
+  const [selectedIntegration, setSelectedIntegration] =
+    useState<Integration | null>(null);
   const [disconnectModalOpen, setDisconnectModalOpen] = useState(false);
 
   const utils = trpc.useUtils();
-  const { data: integrationsList, isLoading } = trpc.integrations.list.useQuery();
+  const { data: integrationsList, isLoading } =
+    trpc.integrations.list.useQuery();
   const { data: xeroAuthData } = trpc.integrations.getXeroAuthUrl.useQuery();
   const testConnectionMutation = trpc.integrations.testConnection.useMutation();
   const disconnectMutation = trpc.integrations.disconnect.useMutation();
@@ -203,7 +211,9 @@ export default function IntegrationsPage() {
           Accounting Software
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {AVAILABLE_INTEGRATIONS.filter((i) => i.category === "accounting").map((integration) => {
+          {AVAILABLE_INTEGRATIONS.filter(
+            (i) => i.category === "accounting",
+          ).map((integration) => {
             const connected = isConnected(integration.type);
             const status = getIntegrationStatus(integration.type);
             const lastSync = getLastSyncText(integration.type);
@@ -215,7 +225,9 @@ export default function IntegrationsPage() {
                     <div className="flex items-center gap-3">
                       <div className="text-3xl">{integration.icon}</div>
                       <div>
-                        <CardTitle className="text-lg">{integration.name}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {integration.name}
+                        </CardTitle>
                         {integration.comingSoon && (
                           <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
                             Coming Soon
@@ -229,7 +241,9 @@ export default function IntegrationsPage() {
                       <Circle className="h-5 w-5 text-muted-foreground" />
                     )}
                   </div>
-                  <CardDescription className="mt-2">{integration.description}</CardDescription>
+                  <CardDescription className="mt-2">
+                    {integration.description}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {/* Status indicator */}
@@ -244,7 +258,9 @@ export default function IntegrationsPage() {
 
                   {/* Last sync time */}
                   {lastSync && (
-                    <div className="text-xs text-muted-foreground">{lastSync}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {lastSync}
+                    </div>
                   )}
 
                   {/* Error message */}
@@ -264,7 +280,9 @@ export default function IntegrationsPage() {
                               variant="outline"
                               size="sm"
                               className="flex-1"
-                              onClick={() => handleTestConnection(integration.type)}
+                              onClick={() =>
+                                handleTestConnection(integration.type)
+                              }
                               disabled={testingConnection === integration.type}
                             >
                               {testingConnection === integration.type ? (
@@ -332,7 +350,45 @@ export default function IntegrationsPage() {
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Communication</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {AVAILABLE_INTEGRATIONS.filter((i) => i.category === "communication").map(
+          {AVAILABLE_INTEGRATIONS.filter(
+            (i) => i.category === "communication",
+          ).map((integration) => {
+            return (
+              <Card key={integration.id} className="glass-card opacity-75">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">{integration.icon}</div>
+                      <div>
+                        <CardTitle className="text-lg">
+                          {integration.name}
+                        </CardTitle>
+                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                          Coming Soon
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <CardDescription className="mt-2">
+                    {integration.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" disabled>
+                    Coming Soon
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Payment Integrations */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Payments</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {AVAILABLE_INTEGRATIONS.filter((i) => i.category === "payment").map(
             (integration) => {
               return (
                 <Card key={integration.id} className="glass-card opacity-75">
@@ -341,14 +397,18 @@ export default function IntegrationsPage() {
                       <div className="flex items-center gap-3">
                         <div className="text-3xl">{integration.icon}</div>
                         <div>
-                          <CardTitle className="text-lg">{integration.name}</CardTitle>
+                          <CardTitle className="text-lg">
+                            {integration.name}
+                          </CardTitle>
                           <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
                             Coming Soon
                           </span>
                         </div>
                       </div>
                     </div>
-                    <CardDescription className="mt-2">{integration.description}</CardDescription>
+                    <CardDescription className="mt-2">
+                      {integration.description}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full" disabled>
@@ -359,38 +419,6 @@ export default function IntegrationsPage() {
               );
             },
           )}
-        </div>
-      </div>
-
-      {/* Payment Integrations */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Payments</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {AVAILABLE_INTEGRATIONS.filter((i) => i.category === "payment").map((integration) => {
-            return (
-              <Card key={integration.id} className="glass-card opacity-75">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="text-3xl">{integration.icon}</div>
-                      <div>
-                        <CardTitle className="text-lg">{integration.name}</CardTitle>
-                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                          Coming Soon
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <CardDescription className="mt-2">{integration.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full" disabled>
-                    Coming Soon
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
         </div>
       </div>
 
@@ -455,12 +483,15 @@ export default function IntegrationsPage() {
           <DialogHeader>
             <DialogTitle>Disconnect {selectedIntegration?.name}?</DialogTitle>
             <DialogDescription>
-              This will stop syncing data with {selectedIntegration?.name}. You can reconnect at
-              any time.
+              This will stop syncing data with {selectedIntegration?.name}. You
+              can reconnect at any time.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDisconnectModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDisconnectModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button

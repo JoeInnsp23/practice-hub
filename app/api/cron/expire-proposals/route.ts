@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import { type NextRequest, NextResponse } from "next/server";
 import { expireProposals } from "@/lib/cron/expire-proposals";
 
 export const runtime = "nodejs";

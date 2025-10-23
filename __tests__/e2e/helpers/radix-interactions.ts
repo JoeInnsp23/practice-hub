@@ -6,7 +6,7 @@
  * and focus management that cause brittleness in E2E tests.
  */
 
-import type { Page, Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 /**
  * Interact with Radix Select component
@@ -31,7 +31,7 @@ export async function selectRadixOption(
     timeout?: number;
   },
 ): Promise<void> {
-  const { scrollIntoView = true, timeout = 10000 } = options || {};
+  const { scrollIntoView = true, timeout = 30000 } = options || {}; // Increased for Turbopack
 
   // Retry logic for handling detached elements
   let retries = 3;
@@ -47,17 +47,44 @@ export async function selectRadixOption(
       // 3. Scroll into view if needed (handles scrollable modals)
       if (scrollIntoView) {
         await trigger.scrollIntoViewIfNeeded();
+
+        // Wait for scroll animation to complete
+        await page.waitForTimeout(300);
+
+        // Verify element is actually in viewport
+        const isInViewport = await trigger.evaluate((el) => {
+          const rect = el.getBoundingClientRect();
+          return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= window.innerHeight &&
+            rect.right <= window.innerWidth
+          );
+        });
+
+        // If not in viewport, manually scroll within parent scroll container
+        if (!isInViewport) {
+          await trigger.evaluate((el) => {
+            // Find the nearest scrollable parent (modal content area)
+            const scrollContainer = el.closest(".overflow-y-auto");
+            if (scrollContainer) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+              // Fallback to regular scroll if no overflow container found
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          });
+
+          // Wait for smooth scroll to complete
+          await page.waitForTimeout(400);
+        }
       }
 
       // 4. Ensure trigger is visible and enabled
       await trigger.waitFor({ state: "visible", timeout });
 
-      // 5. Blur any focused elements to prevent pointer interception
-      // (Focused input fields can block clicks on other elements)
-      await page.keyboard.press("Escape");
-      await page.waitForTimeout(100);
-
-      // 6. Click the trigger to open dropdown with force if needed
+      // 5. Click the trigger to open dropdown with force if needed
+      // (Playwright's actionability checks handle focus automatically)
       try {
         await trigger.click();
       } catch (error) {
@@ -65,21 +92,28 @@ export async function selectRadixOption(
         await trigger.click({ force: true });
       }
 
-      // 7. Wait for dropdown content to appear (renders in Portal at z-[100])
+      // 6. Wait for dropdown content to appear (renders in Portal at z-[100])
       await page.waitForSelector('[data-testid="select-content"]', {
         state: "visible",
         timeout: 5000,
       });
 
-      // 8. Additional wait for animation to complete
+      // 7. Additional wait for animation to complete
       await page.waitForTimeout(200);
 
-      // 9. Click the option by text
-      const option = page.locator('[role="option"]').filter({ hasText: optionText });
+      // 8. Click the option by exact text match (avoid partial matches like "Active" in "Inactive")
+      const option = page.getByRole("option", {
+        name: optionText,
+        exact: true,
+      });
       await option.waitFor({ state: "visible", timeout: 5000 });
+
+      // Scroll option into view if needed (for long dropdowns)
+      await option.scrollIntoViewIfNeeded();
+
       await option.click();
 
-      // 10. Wait for dropdown to close
+      // 9. Wait for dropdown to close
       await page.waitForSelector('[data-testid="select-content"]', {
         state: "hidden",
         timeout: 5000,
@@ -91,11 +125,15 @@ export async function selectRadixOption(
       retries--;
       if (retries === 0) {
         // If all retries exhausted, throw the error
-        throw new Error(`Failed to select option "${optionText}" after 3 attempts: ${error.message}`);
+        throw new Error(
+          `Failed to select option "${optionText}" after 3 attempts: ${error.message}`,
+        );
       }
       // Wait before retry
       await page.waitForTimeout(500);
-      console.log(`Retrying select interaction, ${retries} attempts remaining...`);
+      console.log(
+        `Retrying select interaction, ${retries} attempts remaining...`,
+      );
     }
   }
 }
@@ -117,7 +155,7 @@ export async function fillInputField(
   value: string,
   options?: { scrollIntoView?: boolean; timeout?: number },
 ): Promise<void> {
-  const { scrollIntoView = true, timeout = 10000 } = options || {};
+  const { scrollIntoView = true, timeout = 30000 } = options || {}; // Increased for Turbopack
 
   const input = page.locator(`[data-testid="${dataTestId}"]`);
 
@@ -146,16 +184,23 @@ export async function clickButton(
   selector: string,
   options?: { scrollIntoView?: boolean; timeout?: number },
 ): Promise<void> {
-  const { scrollIntoView = true, timeout = 10000 } = options || {};
+  const { scrollIntoView = true, timeout = 30000 } = options || {};
 
   const button = page.locator(selector);
+
+  // Wait for button to be attached to DOM
+  await button.waitFor({ state: "attached", timeout });
 
   if (scrollIntoView) {
     await button.scrollIntoViewIfNeeded();
   }
 
+  // Wait for button to be visible (Playwright's built-in actionability checks)
   await button.waitFor({ state: "visible", timeout });
-  await button.click();
+
+  // Playwright automatically checks for actionability (enabled, not obscured, etc.)
+  // Just click with a reasonable timeout
+  await button.click({ timeout: 10000 });
 }
 
 /**
@@ -197,18 +242,53 @@ export async function fillTextarea(
  */
 export async function waitForDialogOpen(
   page: Page,
-  options?: { timeout?: number },
+  options?: { timeout?: number; selector?: string },
 ): Promise<void> {
-  const { timeout = 10000 } = options || {};
+  const { timeout = 90000, selector } = options || {}; // generous by default
 
-  // Wait for any potential state updates to complete
-  await page.waitForTimeout(100);
+  // First, ensure DOM is ready
+  await page.waitForLoadState("domcontentloaded");
 
-  // Wait for the dialog to be visible
-  await page.waitForSelector('[role="dialog"]', { state: "visible", timeout });
+  // Robust wait: support Radix Content in portal with either role or data-testid
+  const candidates = selector
+    ? [
+        selector,
+        `${selector}[data-state="open"]`,
+        `${selector} [data-state="open"]`,
+      ]
+    : [
+        '[role="dialog"][data-state="open"]',
+        '[data-testid="dialog-content"][data-state="open"]',
+        '[data-slot="dialog-content"][data-state="open"]',
+        '[role="dialog"]',
+        '[data-testid="dialog-content"]',
+      ];
 
-  // Additional wait for animation to complete
-  await page.waitForTimeout(300);
+  // Wait until any candidate is visible
+  await page.waitForFunction(
+    (sels) => {
+      for (const sel of sels as string[]) {
+        const el = document.querySelector(sel) as HTMLElement | null;
+        if (!el) continue;
+        const style = window.getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        const visible =
+          style.visibility !== "hidden" &&
+          style.display !== "none" &&
+          rect.width > 0 &&
+          rect.height > 0 &&
+          rect.bottom > 0 &&
+          rect.top < window.innerHeight;
+        if (visible) return true;
+      }
+      return false;
+    },
+    candidates,
+    { timeout },
+  );
+
+  // Extra settle time for entrance animations
+  await page.waitForTimeout(200);
 }
 
 /**
@@ -221,6 +301,6 @@ export async function waitForDialogClose(
   page: Page,
   options?: { timeout?: number },
 ): Promise<void> {
-  const { timeout = 10000 } = options || {};
+  const { timeout = 30000 } = options || {}; // Increased for Turbopack
   await page.waitForSelector('[role="dialog"]', { state: "hidden", timeout });
 }

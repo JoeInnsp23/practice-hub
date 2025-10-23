@@ -45,9 +45,9 @@ export function ProposalExpiredTeamEmail({
           <Heading style={h1}>Proposal Signature Link Expired</Heading>
 
           <Text style={text}>
-            The signature link for Proposal #{proposalNumber} has expired without
-            being signed. Follow up with the client to check their interest and
-            resend if needed.
+            The signature link for Proposal #{proposalNumber} has expired
+            without being signed. Follow up with the client to check their
+            interest and resend if needed.
           </Text>
 
           <Section style={detailsBox}>
@@ -114,8 +114,8 @@ export function ProposalExpiredTeamEmail({
           <Hr style={hr} />
 
           <Text style={footer}>
-            This notification was automatically generated when the signature link
-            for this proposal expired.
+            This notification was automatically generated when the signature
+            link for this proposal expired.
           </Text>
         </Container>
       </Body>

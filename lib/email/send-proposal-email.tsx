@@ -3,11 +3,11 @@ import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 import { db } from "@/lib/db";
 import { clients, proposals } from "@/lib/db/schema";
+import { ProposalDeclinedTeamEmail } from "./templates/proposal-declined-team";
+import { ProposalExpiredTeamEmail } from "./templates/proposal-expired-team";
 import { ProposalSentEmail } from "./templates/proposal-sent";
 import { ProposalSignedClientEmail } from "./templates/proposal-signed-client";
 import { ProposalSignedTeamEmail } from "./templates/proposal-signed-team";
-import { ProposalDeclinedTeamEmail } from "./templates/proposal-declined-team";
-import { ProposalExpiredTeamEmail } from "./templates/proposal-expired-team";
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);

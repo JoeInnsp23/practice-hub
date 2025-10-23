@@ -133,9 +133,12 @@ export function checkWebhookRateLimitInMemory(
  *
  * Returns rate limit result with success/failure and metadata
  */
-export async function checkTenantRateLimit(
-  tenantId: string,
-): Promise<{ success: boolean; limit: number; reset: number; remaining: number }> {
+export async function checkTenantRateLimit(tenantId: string): Promise<{
+  success: boolean;
+  limit: number;
+  reset: number;
+  remaining: number;
+}> {
   if (webhookTenantRateLimit) {
     return await webhookTenantRateLimit.limit(tenantId);
   }
@@ -156,9 +159,12 @@ export async function checkTenantRateLimit(
  *
  * Returns rate limit result with success/failure and metadata
  */
-export async function checkSubmissionRateLimit(
-  submissionId: string,
-): Promise<{ success: boolean; limit: number; reset: number; remaining: number }> {
+export async function checkSubmissionRateLimit(submissionId: string): Promise<{
+  success: boolean;
+  limit: number;
+  reset: number;
+  remaining: number;
+}> {
   if (webhookSubmissionRateLimit) {
     return await webhookSubmissionRateLimit.limit(submissionId);
   }

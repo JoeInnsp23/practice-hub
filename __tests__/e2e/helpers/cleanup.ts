@@ -1,6 +1,6 @@
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { sql } from "drizzle-orm";
 
 /**
  * Cleanup helper for E2E tests
@@ -23,24 +23,18 @@ export async function cleanupTestData(): Promise<void> {
 
   try {
     // Delete test clients (cascades to related records due to foreign keys)
-    await db.execute(
-      sql`DELETE FROM clients WHERE name LIKE 'E2E-Test-%'`
-    );
+    await db.execute(sql`DELETE FROM clients WHERE name LIKE 'E2E-Test-%'`);
 
     // Delete test tasks
-    await db.execute(
-      sql`DELETE FROM tasks WHERE title LIKE 'E2E-Test-%'`
-    );
+    await db.execute(sql`DELETE FROM tasks WHERE title LIKE 'E2E-Test-%'`);
 
     // Delete test invoices
     await db.execute(
-      sql`DELETE FROM invoices WHERE invoice_number LIKE 'E2E-TEST-%'`
+      sql`DELETE FROM invoices WHERE invoice_number LIKE 'E2E-TEST-%'`,
     );
 
     // Delete test documents
-    await db.execute(
-      sql`DELETE FROM documents WHERE name LIKE 'E2E-Test-%'`
-    );
+    await db.execute(sql`DELETE FROM documents WHERE name LIKE 'E2E-Test-%'`);
 
     console.log("✅ E2E test data cleaned up successfully");
   } catch (error) {
@@ -71,7 +65,7 @@ export async function verifyCleanup(): Promise<number> {
           UNION ALL
           SELECT id FROM documents WHERE name LIKE 'E2E-Test-%'
         ) as test_records
-      `
+      `,
     );
 
     const count = Number(result[0]?.count || 0);

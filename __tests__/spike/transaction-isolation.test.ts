@@ -15,13 +15,13 @@
  *           If any fail → use unique test IDs + afterEach cleanup
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
+import { clientsRouter } from "@/app/server/routers/clients";
 import { db } from "@/lib/db";
 import { clients, tenants, users } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import { clientsRouter } from "@/app/server/routers/clients";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 describe("SPIKE: Transaction-Based Test Isolation", () => {
   const testTenantId = crypto.randomUUID();
@@ -65,7 +65,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
       await expect(
         db.transaction(async (tx) => {
           return { success: true };
-        })
+        }),
       ).resolves.toEqual({ success: true });
     });
 
@@ -130,7 +130,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
 
           // Throw error to trigger rollback
           throw new Error("Intentional error to test rollback");
-        })
+        }),
       ).rejects.toThrow("Intentional error to test rollback");
 
       // CRITICAL: Verify data was NOT persisted
@@ -221,7 +221,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
 
           // Throw to rollback
           throw new Error("Testing tRPC rollback");
-        })
+        }),
       ).rejects.toThrow("Testing tRPC rollback");
 
       expect(procedureCalled).toBe(true);
@@ -283,7 +283,9 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
       console.log("\n📊 Performance Results:");
       console.log(`Without transaction: ${durationWithout}ms`);
       console.log(`With transaction: ${durationWith}ms`);
-      console.log(`Overhead: ${durationWith - durationWithout}ms (${((durationWith / durationWithout - 1) * 100).toFixed(1)}%)`);
+      console.log(
+        `Overhead: ${durationWith - durationWithout}ms (${((durationWith / durationWithout - 1) * 100).toFixed(1)}%)`,
+      );
 
       // Performance should be acceptable (< 50% overhead)
       const overhead = durationWith / durationWithout - 1;

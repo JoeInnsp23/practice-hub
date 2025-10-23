@@ -1,11 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { TrendingDown, TrendingUp, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils/format";
 
 interface ClientData {
+  clientId?: string;
   name: string;
   revenue: number;
   percentage: number;
@@ -19,6 +21,7 @@ interface ClientBreakdownProps {
 }
 
 export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
+  const router = useRouter();
   const topClients = data.slice(0, 10);
 
   const getColorClass = (index: number) => {
@@ -35,6 +38,12 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
       "bg-gray-500",
     ];
     return colors[index % colors.length];
+  };
+
+  const handleClientClick = (clientId?: string) => {
+    if (clientId) {
+      router.push(`/client-hub/clients/${clientId}`);
+    }
   };
 
   return (
@@ -78,7 +87,12 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
             {topClients.map((client, index) => (
               <div
                 key={client.name}
-                className="flex items-center justify-between"
+                onClick={() => handleClientClick(client.clientId)}
+                className={`flex items-center justify-between p-2 rounded-lg transition-colors ${
+                  client.clientId
+                    ? "cursor-pointer hover:bg-accent/50"
+                    : "cursor-default"
+                }`}
               >
                 <div className="flex items-center gap-3 flex-1">
                   <div

@@ -7,10 +7,10 @@
  * and sends them to Sentry for tracking.
  */
 
-import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
-import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function Error({
   error,
@@ -36,22 +36,22 @@ export default function Error({
         <h2 className="mb-2 text-2xl font-bold">Something went wrong!</h2>
 
         <p className="mb-6 text-muted-foreground">
-          An unexpected error occurred. Our team has been notified and is working on a fix.
+          An unexpected error occurred. Our team has been notified and is
+          working on a fix.
         </p>
 
         {error.digest && (
           <p className="mb-4 text-sm text-muted-foreground">
-            Error ID: <code className="rounded bg-muted px-1">{error.digest}</code>
+            Error ID:{" "}
+            <code className="rounded bg-muted px-1">{error.digest}</code>
           </p>
         )}
 
         <div className="flex gap-2 justify-center">
-          <Button onClick={() => reset()}>
-            Try again
-          </Button>
+          <Button onClick={() => reset()}>Try again</Button>
           <Button
             variant="outline"
-            onClick={() => window.location.href = "/"}
+            onClick={() => (window.location.href = "/")}
           >
             Go home
           </Button>

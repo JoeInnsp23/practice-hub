@@ -7,21 +7,21 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
 import { complianceRouter } from "@/app/server/routers/compliance";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
+import { activityLogs, compliance } from "@/lib/db/schema";
 import {
+  cleanupTestData,
+  createTestClient,
   createTestTenant,
   createTestUser,
-  createTestClient,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { compliance, activityLogs } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/compliance.ts (Integration)", () => {
   let ctx: Context;
@@ -62,9 +62,12 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     // Clean up compliance items first (foreign key dependency)
     if (complianceIds.length > 0) {
       for (const id of complianceIds) {
-        await db.delete(compliance).where(eq(compliance.id, id)).catch(() => {
-          // Ignore errors - item may already be deleted
-        });
+        await db
+          .delete(compliance)
+          .where(eq(compliance.id, id))
+          .catch(() => {
+            // Ignore errors - item may already be deleted
+          });
       }
       complianceIds.length = 0; // Clear array
     }
@@ -78,7 +81,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
   describe("create (Integration)", () => {
     it("should create compliance item and persist to database", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -116,7 +122,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should create compliance with optional fields", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const assigneeId = await createTestUser(ctx.authContext.tenantId, {
@@ -147,7 +156,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should create activity log for compliance creation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -168,8 +180,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           and(
             eq(activityLogs.entityId, result.compliance.id),
             eq(activityLogs.entityType, "compliance"),
-            eq(activityLogs.action, "created")
-          )
+            eq(activityLogs.action, "created"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -179,7 +191,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should default assignedToId to current user if not provided", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -208,7 +223,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
   describe("list (Integration)", () => {
     it("should list compliance items with tenant isolation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create compliance items
@@ -243,7 +261,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should filter compliance by search term", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const searchTerm = `SearchableVAT-${Date.now()}`;
@@ -264,12 +285,17 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.list({ search: searchTerm });
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
-      const hasSearchable = result.compliance.some((c) => c.title.includes(searchTerm));
+      const hasSearchable = result.compliance.some((c) =>
+        c.title.includes(searchTerm),
+      );
       expect(hasSearchable).toBe(true);
     });
 
     it("should filter compliance by type", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const item1Result = await caller.create({
@@ -296,7 +322,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should filter compliance by status", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const item1Result = await caller.create({
@@ -325,12 +354,20 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should filter compliance by clientId", async () => {
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Filter Test 1",
-      });
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Client Filter Test 2",
-      });
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Filter Test 1",
+        },
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Client Filter Test 2",
+        },
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const item1Result = await caller.create({
@@ -357,7 +394,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should filter compliance by assigneeId", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const assignee1 = await createTestUser(ctx.authContext.tenantId, {
@@ -396,7 +436,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should filter overdue compliance items", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create overdue item (past due date, not completed)
@@ -412,14 +455,19 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.list({ overdue: true });
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
-      const hasOverdueItem = result.compliance.some((c) => c.id === overdueResult.compliance.id);
+      const hasOverdueItem = result.compliance.some(
+        (c) => c.id === overdueResult.compliance.id,
+      );
       expect(hasOverdueItem).toBe(true);
     });
   });
 
   describe("getById (Integration)", () => {
     it("should retrieve compliance item by ID", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -441,7 +489,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.getById(nonExistentId)).rejects.toThrow(
-        "Compliance item not found"
+        "Compliance item not found",
       );
     });
 
@@ -478,7 +526,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       // Attempt to access tenant A's compliance from tenant B (our test tenant)
       await expect(caller.getById(complianceA.compliance.id)).rejects.toThrow(
-        "Compliance item not found"
+        "Compliance item not found",
       );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
@@ -494,7 +542,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
   describe("update (Integration)", () => {
     it("should update compliance item and persist changes", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -531,7 +582,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should set completedDate when status changes to completed", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -563,7 +617,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should create activity log for update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -586,8 +643,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, createResult.compliance.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -602,7 +659,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { title: "Should Fail" },
-        })
+        }),
       ).rejects.toThrow("Compliance item not found");
     });
 
@@ -641,12 +698,15 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         caller.update({
           id: complianceA.compliance.id,
           data: { title: "Malicious Update" },
-        })
+        }),
       ).rejects.toThrow("Compliance item not found");
     });
 
     it("should allow partial updates", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -680,7 +740,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
   describe("delete (Integration)", () => {
     it("should delete compliance item from database", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -705,7 +768,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should create activity log for deletion", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -725,8 +791,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, createResult.compliance.id),
-            eq(activityLogs.action, "deleted")
-          )
+            eq(activityLogs.action, "deleted"),
+          ),
         );
 
       expect(log).toBeDefined();
@@ -738,7 +804,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.delete(nonExistentId)).rejects.toThrow(
-        "Compliance item not found"
+        "Compliance item not found",
       );
     });
 
@@ -774,7 +840,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       // Attempt to delete from different tenant
       await expect(caller.delete(complianceA.compliance.id)).rejects.toThrow(
-        "Compliance item not found"
+        "Compliance item not found",
       );
 
       // Verify compliance still exists
@@ -789,7 +855,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
   describe("updateStatus (Integration)", () => {
     it("should update status and persist changes", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -818,7 +887,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should set completedDate when status changes to completed", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -848,7 +920,10 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
 
     it("should create activity log for status update", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const createResult = await caller.create({
@@ -871,8 +946,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         .where(
           and(
             eq(activityLogs.entityId, createResult.compliance.id),
-            eq(activityLogs.action, "updated")
-          )
+            eq(activityLogs.action, "updated"),
+          ),
         );
 
       expect(logs.length).toBeGreaterThanOrEqual(1);
@@ -887,7 +962,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         caller.updateStatus({
           id: nonExistentId,
           status: "completed",
-        })
+        }),
       ).rejects.toThrow("Compliance item not found");
     });
 
@@ -926,20 +1001,20 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         caller.updateStatus({
           id: complianceA.compliance.id,
           status: "completed",
-        })
+        }),
       ).rejects.toThrow("Compliance item not found");
     });
 
     it("should accept all valid status values", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const validStatuses: Array<"pending" | "in_progress" | "completed" | "overdue"> = [
-        "pending",
-        "in_progress",
-        "completed",
-        "overdue",
-      ];
+      const validStatuses: Array<
+        "pending" | "in_progress" | "completed" | "overdue"
+      > = ["pending", "in_progress", "completed", "overdue"];
 
       for (const status of validStatuses) {
         const createResult = await caller.create({

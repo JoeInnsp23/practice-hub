@@ -3,12 +3,6 @@
 import { Download, FileSpreadsheet, Settings } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import type { TaskSummary } from "./tasks/types";
-import {
-  DEFAULT_TASK_EXPORT_COLUMNS,
-  exportTasks,
-  type TaskExportColumn,
-} from "@/lib/export/task-export";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -27,6 +21,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DEFAULT_TASK_EXPORT_COLUMNS,
+  exportTasks,
+  type TaskExportColumn,
+} from "@/lib/export/task-export";
+import type { TaskSummary } from "./tasks/types";
 
 interface DataExportButtonProps {
   data: TaskSummary[];
@@ -122,8 +122,8 @@ export function DataExportButton({
           <DialogHeader>
             <DialogTitle>Select Columns to Export</DialogTitle>
             <DialogDescription>
-              Choose which columns to include in your {selectedFormat.toUpperCase()}{" "}
-              export ({data.length} tasks)
+              Choose which columns to include in your{" "}
+              {selectedFormat.toUpperCase()} export ({data.length} tasks)
             </DialogDescription>
           </DialogHeader>
 
@@ -150,10 +150,7 @@ export function DataExportButton({
             <ScrollArea className="h-[400px] border rounded-lg p-4">
               <div className="space-y-3">
                 {columns.map((column, index) => (
-                  <div
-                    key={column.key}
-                    className="flex items-center space-x-2"
-                  >
+                  <div key={column.key} className="flex items-center space-x-2">
                     <Checkbox
                       id={`column-${index}`}
                       checked={column.enabled}

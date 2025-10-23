@@ -1,14 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Edit2, MessageSquare, Trash2 } from "lucide-react";
-import { trpc } from "@/lib/trpc/client";
-import { highlightMentions } from "@/lib/services/mention-parser";
-import { MentionAutocomplete } from "./mention-autocomplete";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,8 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useSession } from "@/lib/auth-client";
+import { highlightMentions } from "@/lib/services/mention-parser";
+import { trpc } from "@/lib/trpc/client";
+import { MentionAutocomplete } from "./mention-autocomplete";
 
 interface TaskNotesSectionProps {
   taskId: string;
@@ -259,7 +259,9 @@ export function TaskNotesSection({ taskId }: TaskNotesSectionProps) {
                           {formatTimestamp(noteItem.createdAt)}
                         </span>
                         {noteItem.updatedAt > noteItem.createdAt && (
-                          <span className="text-xs text-muted-foreground">(edited)</span>
+                          <span className="text-xs text-muted-foreground">
+                            (edited)
+                          </span>
                         )}
                         {noteItem.isInternal && (
                           <span className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded font-medium">
@@ -274,7 +276,9 @@ export function TaskNotesSection({ taskId }: TaskNotesSectionProps) {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => startEdit(noteItem.id, noteItem.note)}
+                            onClick={() =>
+                              startEdit(noteItem.id, noteItem.note)
+                            }
                             className="h-7 w-7 p-0"
                           >
                             <Edit2 className="h-3 w-3" />
@@ -316,8 +320,8 @@ export function TaskNotesSection({ taskId }: TaskNotesSectionProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Comment</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this comment? This action cannot be
-              undone.
+              Are you sure you want to delete this comment? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

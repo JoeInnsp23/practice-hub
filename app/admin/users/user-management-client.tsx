@@ -54,6 +54,7 @@ interface User {
   role: string;
   status: string;
   isActive: boolean;
+  departmentId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -87,7 +88,13 @@ export function UserManagementClient({
     search: searchQuery || undefined,
   });
 
+  // Fetch departments to display names
+  const { data: departmentsData } = trpc.departments.list.useQuery({
+    includeInactive: false,
+  });
+
   const users = usersData?.users || initialUsers;
+  const departments = departmentsData?.departments || [];
 
   // Calculate stats from users
   const stats = useMemo(() => {
@@ -192,6 +199,12 @@ export function UserManagementClient({
 
   const getStatusBadgeVariant = (isActive: boolean) => {
     return isActive ? "default" : "outline";
+  };
+
+  const getDepartmentName = (departmentId: string | null) => {
+    if (!departmentId) return null;
+    const department = departments.find((d) => d.id === departmentId);
+    return department?.name || null;
   };
 
   return (
@@ -301,6 +314,7 @@ export function UserManagementClient({
               <TableRow>
                 <TableHead>User</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Department</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Joined</TableHead>
                 <TableHead className="w-[70px]"></TableHead>
@@ -334,6 +348,15 @@ export function UserManagementClient({
                       )}
                       {getDisplayRole(user.role)}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {getDepartmentName(user.departmentId) ? (
+                      <span className="text-sm">
+                        {getDepartmentName(user.departmentId)}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusBadgeVariant(user.isActive)}>

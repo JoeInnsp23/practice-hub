@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // Tests now use shared authenticated state from global-setup.ts
 // No individual login needed - all tests start already authenticated
@@ -23,7 +23,9 @@ test.describe("Client Detail View", () => {
     }
 
     // Click on first client row (skip header if it's a table)
-    const firstClientRow = page.locator('table tbody tr, [role="row"]:not(:first-child)').first();
+    const firstClientRow = page
+      .locator('table tbody tr, [role="row"]:not(:first-child)')
+      .first();
 
     if (await firstClientRow.isVisible({ timeout: 5000 }).catch(() => false)) {
       await firstClientRow.click();
@@ -65,7 +67,9 @@ test.describe("Client Detail View", () => {
     }
 
     // Navigate to first client
-    const firstClientRow = page.locator('table tbody tr, [role="row"]:not(:first-child)').first();
+    const firstClientRow = page
+      .locator('table tbody tr, [role="row"]:not(:first-child)')
+      .first();
 
     if (await firstClientRow.isVisible({ timeout: 5000 }).catch(() => false)) {
       await firstClientRow.click();
@@ -75,7 +79,11 @@ test.describe("Client Detail View", () => {
       // Check for tabs or navigation elements
       const hasTabs =
         (await page.locator('[role="tablist"], [role="tab"]').count()) > 0 ||
-        (await page.locator('nav a, button:has-text("Overview"), button:has-text("Details")').count()) > 0;
+        (await page
+          .locator(
+            'nav a, button:has-text("Overview"), button:has-text("Details")',
+          )
+          .count()) > 0;
 
       if (hasTabs) {
         console.log("Client detail tabs are available");

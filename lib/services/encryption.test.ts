@@ -1,5 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { decrypt, decryptObject, encrypt, encryptObject, validateEncryptionKey } from "./encryption";
+import {
+  decrypt,
+  decryptObject,
+  encrypt,
+  encryptObject,
+  validateEncryptionKey,
+} from "./encryption";
 
 describe("Encryption Service", () => {
   beforeAll(() => {
@@ -84,13 +90,13 @@ describe("Encryption Service", () => {
       parts[2] = parts[2].slice(0, -2) + "ff"; // Change last byte
       const tampered = parts.join(":");
 
-      expect(() => decrypt(tampered)).toThrow("Data may have been tampered with");
+      expect(() => decrypt(tampered)).toThrow(
+        "Data may have been tampered with",
+      );
     });
 
     it("should throw error for invalid format", () => {
-      expect(() => decrypt("invalid")).toThrow(
-        "Invalid encrypted text format",
-      );
+      expect(() => decrypt("invalid")).toThrow("Invalid encrypted text format");
       expect(() => decrypt("only:two:parts")).toThrow(); // Will fail on invalid hex or length
     });
   });

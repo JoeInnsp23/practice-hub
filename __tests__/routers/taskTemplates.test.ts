@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { taskTemplatesRouter } from "@/app/server/routers/taskTemplates";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -69,7 +69,8 @@ describe("app/server/routers/taskTemplates.ts", () => {
     });
 
     it("should default includeInactive to false", () => {
-      const parsed = taskTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({});
+      const parsed =
+        taskTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({});
       expect(parsed?.includeInactive).toBe(false);
     });
 
@@ -87,7 +88,9 @@ describe("app/server/routers/taskTemplates.ts", () => {
   describe("getById", () => {
     it("should require string ID", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.getById._def.inputs[0]?.parse("template-123");
+        taskTemplatesRouter._def.procedures.getById._def.inputs[0]?.parse(
+          "template-123",
+        );
       }).not.toThrow();
     });
 
@@ -111,7 +114,8 @@ describe("app/server/routers/taskTemplates.ts", () => {
         taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Prepare {service_name} for {client_name}",
-          descriptionPattern: "Complete the {service_name} task for {client_name}",
+          descriptionPattern:
+            "Complete the {service_name} task for {client_name}",
           estimatedHours: 8,
           priority: "high",
           taskType: "compliance",
@@ -202,32 +206,35 @@ describe("app/server/routers/taskTemplates.ts", () => {
     });
 
     it("should default dueDateOffsetDays to 0", () => {
-      const parsed = taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
-        serviceId: "550e8400-e29b-41d4-a716-446655440000",
-        namePattern: "Test",
-        priority: "medium",
-        taskType: "compliance",
-      });
+      const parsed =
+        taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
+          serviceId: "550e8400-e29b-41d4-a716-446655440000",
+          namePattern: "Test",
+          priority: "medium",
+          taskType: "compliance",
+        });
       expect(parsed?.dueDateOffsetDays).toBe(0);
     });
 
     it("should default dueDateOffsetMonths to 0", () => {
-      const parsed = taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
-        serviceId: "550e8400-e29b-41d4-a716-446655440000",
-        namePattern: "Test",
-        priority: "medium",
-        taskType: "compliance",
-      });
+      const parsed =
+        taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
+          serviceId: "550e8400-e29b-41d4-a716-446655440000",
+          namePattern: "Test",
+          priority: "medium",
+          taskType: "compliance",
+        });
       expect(parsed?.dueDateOffsetMonths).toBe(0);
     });
 
     it("should default isRecurring to false", () => {
-      const parsed = taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
-        serviceId: "550e8400-e29b-41d4-a716-446655440000",
-        namePattern: "Test",
-        priority: "medium",
-        taskType: "compliance",
-      });
+      const parsed =
+        taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse({
+          serviceId: "550e8400-e29b-41d4-a716-446655440000",
+          namePattern: "Test",
+          priority: "medium",
+          taskType: "compliance",
+        });
       expect(parsed?.isRecurring).toBe(false);
     });
   });
@@ -303,15 +310,19 @@ describe("app/server/routers/taskTemplates.ts", () => {
   describe("getClientTemplates", () => {
     it("should accept clientId", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.getClientTemplates._def.inputs[0]?.parse({
-          clientId: "client-123",
-        });
+        taskTemplatesRouter._def.procedures.getClientTemplates._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+          },
+        );
       }).not.toThrow();
     });
 
     it("should require clientId", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.getClientTemplates._def.inputs[0]?.parse({});
+        taskTemplatesRouter._def.procedures.getClientTemplates._def.inputs[0]?.parse(
+          {},
+        );
       }).toThrow();
     });
   });
@@ -319,21 +330,25 @@ describe("app/server/routers/taskTemplates.ts", () => {
   describe("setClientOverride", () => {
     it("should accept valid override data", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-          templateId: "template-123",
-          isDisabled: true,
-        });
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+            isDisabled: true,
+          },
+        );
       }).not.toThrow();
     });
 
     it("should accept customPriority", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-          templateId: "template-123",
-          customPriority: "urgent",
-        });
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+            customPriority: "urgent",
+          },
+        );
       }).not.toThrow();
     });
 
@@ -341,60 +356,73 @@ describe("app/server/routers/taskTemplates.ts", () => {
       const validPriorities = ["low", "medium", "high", "urgent", "critical"];
       for (const priority of validPriorities) {
         expect(() => {
-          taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-            clientId: "client-123",
-            templateId: "template-123",
-            customPriority: priority,
-          });
+          taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+            {
+              clientId: "client-123",
+              templateId: "template-123",
+              customPriority: priority,
+            },
+          );
         }).not.toThrow();
       }
     });
 
     it("should reject invalid customPriority", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-          templateId: "template-123",
-          customPriority: "invalid",
-        });
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+            customPriority: "invalid",
+          },
+        );
       }).toThrow();
     });
 
     it("should accept customDueDate as string", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-          templateId: "template-123",
-          customDueDate: "2025-12-31",
-        });
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+            customDueDate: "2025-12-31",
+          },
+        );
       }).not.toThrow();
     });
 
     it("should default isDisabled to false", () => {
-      const parsed = taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-        clientId: "client-123",
-        templateId: "template-123",
-      });
+      const parsed =
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+          },
+        );
       expect(parsed?.isDisabled).toBe(false);
     });
 
     it("should require clientId and templateId", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-          isDisabled: true,
-        });
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            isDisabled: true,
+          },
+        );
       }).toThrow();
     });
 
     it("should accept all override fields combined", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-          templateId: "template-123",
-          customDueDate: "2025-12-31",
-          customPriority: "critical",
-          isDisabled: true,
-        });
+        taskTemplatesRouter._def.procedures.setClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+            customDueDate: "2025-12-31",
+            customPriority: "critical",
+            isDisabled: true,
+          },
+        );
       }).not.toThrow();
     });
   });
@@ -402,24 +430,30 @@ describe("app/server/routers/taskTemplates.ts", () => {
   describe("removeClientOverride", () => {
     it("should accept clientId and templateId", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.removeClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-          templateId: "template-123",
-        });
+        taskTemplatesRouter._def.procedures.removeClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+            templateId: "template-123",
+          },
+        );
       }).not.toThrow();
     });
 
     it("should require both clientId and templateId", () => {
       expect(() => {
-        taskTemplatesRouter._def.procedures.removeClientOverride._def.inputs[0]?.parse({
-          clientId: "client-123",
-        });
+        taskTemplatesRouter._def.procedures.removeClientOverride._def.inputs[0]?.parse(
+          {
+            clientId: "client-123",
+          },
+        );
       }).toThrow();
 
       expect(() => {
-        taskTemplatesRouter._def.procedures.removeClientOverride._def.inputs[0]?.parse({
-          templateId: "template-123",
-        });
+        taskTemplatesRouter._def.procedures.removeClientOverride._def.inputs[0]?.parse(
+          {
+            templateId: "template-123",
+          },
+        );
       }).toThrow();
     });
   });
@@ -465,7 +499,9 @@ describe("app/server/routers/taskTemplates.ts", () => {
       };
 
       expect(() => {
-        taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
+        taskTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
+          validInput,
+        );
       }).not.toThrow();
     });
 
@@ -479,7 +515,9 @@ describe("app/server/routers/taskTemplates.ts", () => {
       };
 
       expect(() => {
-        taskTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(validInput);
+        taskTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(
+          validInput,
+        );
       }).not.toThrow();
     });
   });

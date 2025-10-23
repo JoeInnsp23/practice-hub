@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 4. **Always keep light/dark theme aligned throughout all modules** - Please ensure all styles, and themes are consistent throughout the app.
 
-5. **Never run pnpm dev** - The user will manually run dev to test front end UI.
+5. **Limited pnpm dev usage** - The user will manually run dev to test front end UI. Exception: Dev server may be run for testing purposes ONLY when explicitly authorized, and must be stopped immediately after testing completes.
 
 6. **Always follow Critical Design Elements** - Must strictly adhere to all design standards outlined in the Critical Design Elements section without fail.
 

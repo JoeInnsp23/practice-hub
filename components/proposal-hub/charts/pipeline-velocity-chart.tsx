@@ -85,7 +85,8 @@ export function PipelineVelocityChart({
   const chartData = data.velocityByStage
     .filter((stage) => stage.count > 0) // Only show stages with data
     .map((stage) => {
-      const stageConfig = SALES_STAGES[stage.stage as keyof typeof SALES_STAGES];
+      const stageConfig =
+        SALES_STAGES[stage.stage as keyof typeof SALES_STAGES];
       return {
         name: stageConfig?.label || stage.stage,
         avgDays: stage.avgDays,
@@ -122,8 +123,8 @@ export function PipelineVelocityChart({
           Pipeline Velocity
         </h3>
         <p className="text-sm text-muted-foreground">
-          Average time: {data.avgTimeToWin} days to win | {data.totalTransitions}{" "}
-          total transitions
+          Average time: {data.avgTimeToWin} days to win |{" "}
+          {data.totalTransitions} total transitions
         </p>
       </div>
 

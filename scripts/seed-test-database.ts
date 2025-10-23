@@ -4,12 +4,18 @@
  * Run with: DATABASE_URL=$DATABASE_URL_TEST pnpm tsx scripts/seed-test-database.ts
  */
 
+import crypto from "node:crypto";
+import bcryptjs from "bcryptjs";
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { sql } from "drizzle-orm";
-import { tenants, users, accounts, portalCategories, portalLinks } from "../lib/db/schema";
-import bcryptjs from "bcryptjs";
-import crypto from "node:crypto";
+import {
+  accounts,
+  portalCategories,
+  portalLinks,
+  tenants,
+  users,
+} from "../lib/db/schema";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -48,8 +54,10 @@ async function seedTestDatabase() {
     console.log(`✅ Test tenant created: ${testTenant.name}`);
 
     // Step 3: Get test user passwords from environment
-    const adminPassword = process.env.E2E_TEST_ADMIN_PASSWORD || "E2ETestAdmin123!";
-    const userPassword = process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!";
+    const adminPassword =
+      process.env.E2E_TEST_ADMIN_PASSWORD || "E2ETestAdmin123!";
+    const userPassword =
+      process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!";
 
     // Step 4: Hash passwords
     console.log("🔐 Hashing passwords...");
@@ -253,7 +261,6 @@ async function seedTestDatabase() {
     console.log("\n💡 Add these to your .env.test file:");
     console.log('   E2E_TEST_ADMIN_PASSWORD="E2ETestAdmin123!"');
     console.log('   E2E_TEST_USER_PASSWORD="E2ETestUser123!"');
-
   } catch (error) {
     console.error("❌ Error seeding test database:", error);
     throw error;

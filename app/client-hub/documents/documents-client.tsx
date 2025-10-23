@@ -272,7 +272,10 @@ export default function DocumentsClient() {
             <FileSignature className="h-4 w-4 mr-2" />
             Request Signature
           </Button>
-          <Button onClick={() => setIsUploadModalOpen(true)} data-testid="document-upload-button">
+          <Button
+            onClick={() => setIsUploadModalOpen(true)}
+            data-testid="document-upload-button"
+          >
             <Upload className="h-4 w-4 mr-2" />
             Upload Files
           </Button>

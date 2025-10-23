@@ -3,8 +3,21 @@
  * Automatically determines the appropriate sales stage based on proposal status changes
  */
 
-type ProposalStatus = "draft" | "sent" | "viewed" | "signed" | "rejected" | "expired";
-type SalesStage = "enquiry" | "qualified" | "proposal_sent" | "follow_up" | "won" | "lost" | "dormant";
+type ProposalStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "signed"
+  | "rejected"
+  | "expired";
+type SalesStage =
+  | "enquiry"
+  | "qualified"
+  | "proposal_sent"
+  | "follow_up"
+  | "won"
+  | "lost"
+  | "dormant";
 
 /**
  * Determines if sales stage should be auto-updated based on status change
@@ -14,7 +27,7 @@ type SalesStage = "enquiry" | "qualified" | "proposal_sent" | "follow_up" | "won
  */
 export function getAutoSalesStage(
   newStatus: ProposalStatus,
-  currentStage: SalesStage
+  currentStage: SalesStage,
 ): SalesStage | null {
   // Terminal statuses always trigger auto-update
   if (newStatus === "signed") {
@@ -59,7 +72,7 @@ export function wasStageChangeAutomated(
   oldStatus: ProposalStatus,
   newStatus: ProposalStatus,
   oldStage: SalesStage,
-  newStage: SalesStage
+  newStage: SalesStage,
 ): boolean {
   const autoStage = getAutoSalesStage(newStatus, oldStage);
   return autoStage === newStage && oldStage !== newStage;
@@ -73,7 +86,7 @@ export function wasStageChangeAutomated(
  */
 export function getAutomationReason(
   status: ProposalStatus,
-  stage: SalesStage
+  stage: SalesStage,
 ): string {
   if (status === "signed" && stage === "won") {
     return "Auto-updated to Won when proposal was signed";
@@ -106,7 +119,7 @@ export function getAutomationReason(
  */
 export function calculateTimeInStage(
   stageStartDate: Date,
-  stageEndDate?: Date
+  stageEndDate?: Date,
 ): number {
   const end = stageEndDate || new Date();
   const diff = end.getTime() - stageStartDate.getTime();

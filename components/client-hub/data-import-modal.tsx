@@ -114,9 +114,7 @@ export function DataImportModal({
 
       if (data.success && !isDryRun) {
         const importedCount = data.summary.processedRows || 0;
-        toast.success(
-          `Successfully imported ${importedCount} ${entityName}`,
-        );
+        toast.success(`Successfully imported ${importedCount} ${entityName}`);
         if (onSuccess) {
           onSuccess();
         }
@@ -267,16 +265,18 @@ export function DataImportModal({
                           ✓ Processed: {result.summary.processedRows}
                         </p>
                       )}
-                      {result.summary.failedRows !== undefined && result.summary.failedRows > 0 && (
-                        <p className="text-destructive">
-                          ✗ Failed: {result.summary.failedRows}
-                        </p>
-                      )}
-                      {result.summary.invalidRows !== undefined && result.summary.invalidRows > 0 && (
-                        <p className="text-destructive">
-                          ✗ Invalid: {result.summary.invalidRows}
-                        </p>
-                      )}
+                      {result.summary.failedRows !== undefined &&
+                        result.summary.failedRows > 0 && (
+                          <p className="text-destructive">
+                            ✗ Failed: {result.summary.failedRows}
+                          </p>
+                        )}
+                      {result.summary.invalidRows !== undefined &&
+                        result.summary.invalidRows > 0 && (
+                          <p className="text-destructive">
+                            ✗ Invalid: {result.summary.invalidRows}
+                          </p>
+                        )}
                       {result.summary.skippedRows > 0 && (
                         <p className="text-orange-600 dark:text-orange-400">
                           ⚠ Skipped: {result.summary.skippedRows}
@@ -290,7 +290,9 @@ export function DataImportModal({
               {/* Errors */}
               {result.errors && result.errors.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Errors ({result.errors.length}):</p>
+                  <p className="text-sm font-medium">
+                    Errors ({result.errors.length}):
+                  </p>
                   <div className="max-h-40 overflow-y-auto space-y-1">
                     {result.errors.map((error, index) => (
                       <div
@@ -302,7 +304,10 @@ export function DataImportModal({
                           <span className="font-medium">Row {error.row}:</span>{" "}
                           {error.message} ({error.field})
                           {error.value && (
-                            <span className="text-muted-foreground"> - Value: {error.value}</span>
+                            <span className="text-muted-foreground">
+                              {" "}
+                              - Value: {error.value}
+                            </span>
                           )}
                         </div>
                       </div>

@@ -1,11 +1,11 @@
 "use client";
 
 import { format } from "date-fns";
-import { CheckCircle2, XCircle, Clock } from "lucide-react";
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 
 interface TimesheetSubmission {
   id: string;
@@ -37,21 +37,28 @@ export function TimesheetSubmissionCard({
   isSelected,
   onSelectionChange,
 }: TimesheetSubmissionCardProps) {
-  const userName = `${submission.user.firstName || ""} ${submission.user.lastName || ""}`.trim() ||
+  const userName =
+    `${submission.user.firstName || ""} ${submission.user.lastName || ""}`.trim() ||
     submission.user.email;
 
   const getStatusBadge = () => {
     switch (submission.status) {
       case "pending":
         return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
+          <Badge
+            variant="secondary"
+            className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+          >
             <Clock className="h-3 w-3 mr-1" />
             Pending
           </Badge>
         );
       case "resubmitted":
         return (
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+          <Badge
+            variant="secondary"
+            className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+          >
             <Clock className="h-3 w-3 mr-1" />
             Resubmitted
           </Badge>

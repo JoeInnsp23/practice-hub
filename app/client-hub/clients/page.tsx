@@ -15,14 +15,14 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
+import { ClientImportModal } from "@/components/client-hub/client-import-modal";
 import {
   ClientWizardModal,
   type WizardFormData,
 } from "@/components/client-hub/clients/client-wizard-modal";
 import { ClientsTable } from "@/components/client-hub/clients/clients-table";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-// import { DataExportButton } from "@/components/client-hub/data-export-button"; // Temporarily disabled
-import { ClientImportModal } from "@/components/client-hub/client-import-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -218,7 +218,10 @@ export default function ClientsPage() {
             <Upload className="h-4 w-4 mr-2" />
             Import
           </Button>
-          <Button onClick={handleAddClient} data-testid="client-creation-button">
+          <Button
+            onClick={handleAddClient}
+            data-testid="client-creation-button"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>

@@ -1,7 +1,21 @@
 "use client";
 
+import { Copy, Edit, Eye, Filter, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Plus, Search, Filter, Copy, Edit, Trash2, Eye } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { TaskTemplateFormDialog } from "@/components/client-hub/task-template-form-dialog";
+import { TaskTemplatePreviewDialog } from "@/components/client-hub/task-template-preview-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,21 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { trpc } from "@/lib/trpc/client";
-import { toast } from "react-hot-toast";
-import { TaskTemplateFormDialog } from "@/components/client-hub/task-template-form-dialog";
-import { TaskTemplatePreviewDialog } from "@/components/client-hub/task-template-preview-dialog";
 
 export default function TaskTemplatesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +46,11 @@ export default function TaskTemplatesPage() {
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
 
   // Fetch templates
-  const { data: templates, isLoading, refetch } = trpc.taskTemplates.list.useQuery({
+  const {
+    data: templates,
+    isLoading,
+    refetch,
+  } = trpc.taskTemplates.list.useQuery({
     includeInactive,
   });
 
@@ -84,7 +88,9 @@ export default function TaskTemplatesPage() {
   const filteredTemplates = templates?.filter((template) => {
     const matchesSearch =
       template.namePattern.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.descriptionPattern?.toLowerCase().includes(searchQuery.toLowerCase());
+      template.descriptionPattern
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
     const matchesService =
       serviceFilter === "all" || template.serviceId === serviceFilter;
@@ -122,7 +128,8 @@ export default function TaskTemplatesPage() {
   const getPriorityBadge = (priority: string) => {
     const colors = {
       critical: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-      urgent: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
+      urgent:
+        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
       high: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
       medium: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
       low: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100",
@@ -141,10 +148,12 @@ export default function TaskTemplatesPage() {
               Manage task templates for automated task generation
             </p>
           </div>
-          <Button onClick={() => {
-            setSelectedTemplate(null);
-            setIsFormOpen(true);
-          }}>
+          <Button
+            onClick={() => {
+              setSelectedTemplate(null);
+              setIsFormOpen(true);
+            }}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Create Template
           </Button>
@@ -187,7 +196,9 @@ export default function TaskTemplatesPage() {
                 <SelectItem value="bookkeeping">Bookkeeping</SelectItem>
                 <SelectItem value="advisory">Advisory</SelectItem>
                 <SelectItem value="review">Review</SelectItem>
-                <SelectItem value="client_communication">Client Communication</SelectItem>
+                <SelectItem value="client_communication">
+                  Client Communication
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -232,8 +243,12 @@ export default function TaskTemplatesPage() {
               )}
               {!isLoading && filteredTemplates?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    No templates found. Create your first template to get started.
+                  <TableCell
+                    colSpan={9}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    No templates found. Create your first template to get
+                    started.
                   </TableCell>
                 </TableRow>
               )}
@@ -243,7 +258,9 @@ export default function TaskTemplatesPage() {
                     {template.namePattern}
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">{template.serviceName || "-"}</span>
+                    <span className="text-sm">
+                      {template.serviceName || "-"}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="capitalize">
@@ -262,12 +279,15 @@ export default function TaskTemplatesPage() {
                     {template.dueDateOffsetDays > 0 && (
                       <span>{template.dueDateOffsetDays}d</span>
                     )}
-                    {template.dueDateOffsetMonths === 0 && template.dueDateOffsetDays === 0 && (
-                      <span className="text-muted-foreground">Same day</span>
-                    )}
+                    {template.dueDateOffsetMonths === 0 &&
+                      template.dueDateOffsetDays === 0 && (
+                        <span className="text-muted-foreground">Same day</span>
+                      )}
                   </TableCell>
                   <TableCell>
-                    {template.estimatedHours ? `${template.estimatedHours}h` : "-"}
+                    {template.estimatedHours
+                      ? `${template.estimatedHours}h`
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     {template.isRecurring ? (
@@ -278,7 +298,10 @@ export default function TaskTemplatesPage() {
                   </TableCell>
                   <TableCell>
                     {template.isActive ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                      <Badge
+                        variant="default"
+                        className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                      >
                         Active
                       </Badge>
                     ) : (
@@ -332,7 +355,8 @@ export default function TaskTemplatesPage() {
         {/* Summary */}
         {filteredTemplates && filteredTemplates.length > 0 && (
           <div className="text-sm text-muted-foreground">
-            Showing {filteredTemplates.length} of {templates?.length || 0} templates
+            Showing {filteredTemplates.length} of {templates?.length || 0}{" "}
+            templates
           </div>
         )}
       </div>
@@ -359,13 +383,17 @@ export default function TaskTemplatesPage() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!templateToDelete} onOpenChange={() => setTemplateToDelete(null)}>
+      <AlertDialog
+        open={!!templateToDelete}
+        onOpenChange={() => setTemplateToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Template</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this template? This will soft delete the template,
-              making it inactive. Tasks already generated from this template will not be affected.
+              Are you sure you want to delete this template? This will soft
+              delete the template, making it inactive. Tasks already generated
+              from this template will not be affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

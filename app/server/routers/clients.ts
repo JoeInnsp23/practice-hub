@@ -21,14 +21,6 @@ import {
   checkRateLimit,
   incrementRateLimit,
 } from "@/lib/companies-house/rate-limit";
-import {
-  validateVAT as hmrcValidateVAT,
-  VATNotFoundError,
-  RateLimitError as HMRCRateLimitError,
-  APIServerError as HMRCAPIServerError,
-  NetworkError as HMRCNetworkError,
-  AuthenticationError,
-} from "@/lib/hmrc/client";
 import { db } from "@/lib/db";
 import { getClientsList } from "@/lib/db/queries/client-queries";
 import {
@@ -43,6 +35,14 @@ import {
   services,
   users,
 } from "@/lib/db/schema";
+import {
+  AuthenticationError,
+  APIServerError as HMRCAPIServerError,
+  NetworkError as HMRCNetworkError,
+  RateLimitError as HMRCRateLimitError,
+  validateVAT as hmrcValidateVAT,
+  VATNotFoundError,
+} from "@/lib/hmrc/client";
 import {
   generateClientCode,
   validateClientImport,
@@ -639,7 +639,10 @@ export const clientsRouter = router({
       z.object({
         vatNumber: z
           .string()
-          .regex(/^(GB)?[0-9]{9}$/, "VAT number must be 9 digits (GB prefix optional)"),
+          .regex(
+            /^(GB)?[0-9]{9}$/,
+            "VAT number must be 9 digits (GB prefix optional)",
+          ),
         clientId: z.string().uuid().optional(),
       }),
     )
@@ -664,10 +667,7 @@ export const clientsRouter = router({
                 : {}),
             })
             .where(
-              and(
-                eq(clients.id, clientId),
-                eq(clients.tenantId, tenantId),
-              ),
+              and(eq(clients.id, clientId), eq(clients.tenantId, tenantId)),
             );
         }
 
@@ -746,8 +746,7 @@ export const clientsRouter = router({
           Sentry.captureException(error, errorContext);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message:
-              "HMRC authentication failed. Please contact support.",
+            message: "HMRC authentication failed. Please contact support.",
           });
         }
 
@@ -760,8 +759,7 @@ export const clientsRouter = router({
         Sentry.captureException(error, errorContext);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message:
-            "An unexpected error occurred while validating VAT number.",
+          message: "An unexpected error occurred while validating VAT number.",
         });
       }
     }),

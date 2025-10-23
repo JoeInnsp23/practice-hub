@@ -9,10 +9,10 @@
  * Based on original CRM app webhook architecture
  */
 
+import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { xeroWebhookEvents } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import * as Sentry from "@sentry/nextjs";
 
 export interface XeroWebhookEvent {
   id: string;
@@ -52,7 +52,9 @@ export async function processWebhookEvents(): Promise<{
       .where(eq(xeroWebhookEvents.processed, false))
       .limit(100);
 
-    console.log(`Processing ${unprocessedEvents.length} unprocessed webhook events...`);
+    console.log(
+      `Processing ${unprocessedEvents.length} unprocessed webhook events...`,
+    );
 
     for (const event of unprocessedEvents) {
       try {
@@ -70,7 +72,8 @@ export async function processWebhookEvents(): Promise<{
         failed++;
 
         // Log error but don't fail the batch
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
 
         await db
           .update(xeroWebhookEvents)
@@ -78,7 +81,10 @@ export async function processWebhookEvents(): Promise<{
           .where(eq(xeroWebhookEvents.id, event.id));
 
         Sentry.captureException(error, {
-          tags: { operation: "process_webhook_event", eventCategory: event.eventCategory },
+          tags: {
+            operation: "process_webhook_event",
+            eventCategory: event.eventCategory,
+          },
           extra: { eventId: event.eventId, resourceId: event.resourceId },
         });
 
@@ -86,7 +92,9 @@ export async function processWebhookEvents(): Promise<{
       }
     }
 
-    console.log(`Webhook processing complete: ${processed} processed, ${failed} failed`);
+    console.log(
+      `Webhook processing complete: ${processed} processed, ${failed} failed`,
+    );
 
     return { processed, failed };
   } catch (error) {
@@ -102,7 +110,9 @@ export async function processWebhookEvents(): Promise<{
  * Handle individual webhook event based on category
  */
 async function handleWebhookEvent(event: XeroWebhookEvent): Promise<void> {
-  console.log(`Handling ${event.eventCategory} event: ${event.eventType} ${event.resourceId}`);
+  console.log(
+    `Handling ${event.eventCategory} event: ${event.eventType} ${event.resourceId}`,
+  );
 
   switch (event.eventCategory) {
     case "INVOICE":
@@ -141,7 +151,9 @@ async function handleInvoiceEvent(event: XeroWebhookEvent): Promise<void> {
   // 3. Upsert to Practice Hub database
   // 4. Update sync status in integrationSettings
 
-  console.log(`TODO: Handle INVOICE ${event.eventType} for ${event.resourceId}`);
+  console.log(
+    `TODO: Handle INVOICE ${event.eventType} for ${event.resourceId}`,
+  );
 }
 
 /**
@@ -157,7 +169,9 @@ async function handleContactEvent(event: XeroWebhookEvent): Promise<void> {
   // 2. Map to Practice Hub client format
   // 3. Upsert to Practice Hub database
 
-  console.log(`TODO: Handle CONTACT ${event.eventType} for ${event.resourceId}`);
+  console.log(
+    `TODO: Handle CONTACT ${event.eventType} for ${event.resourceId}`,
+  );
 }
 
 /**
@@ -173,7 +187,9 @@ async function handlePaymentEvent(event: XeroWebhookEvent): Promise<void> {
   // 2. Update related invoice status
   // 3. Record payment in Practice Hub
 
-  console.log(`TODO: Handle PAYMENT ${event.eventType} for ${event.resourceId}`);
+  console.log(
+    `TODO: Handle PAYMENT ${event.eventType} for ${event.resourceId}`,
+  );
 }
 
 /**
@@ -183,11 +199,15 @@ async function handlePaymentEvent(event: XeroWebhookEvent): Promise<void> {
  * - UPDATE: Transaction updated → update Practice Hub
  * - DELETE: Transaction deleted → mark as deleted
  */
-async function handleBankTransactionEvent(event: XeroWebhookEvent): Promise<void> {
+async function handleBankTransactionEvent(
+  event: XeroWebhookEvent,
+): Promise<void> {
   // TODO: Implement bank transaction sync logic
   // 1. Fetch transaction data from Xero API using resourceId
   // 2. Categorize transaction
   // 3. Record in Practice Hub
 
-  console.log(`TODO: Handle BANKTRANSACTION ${event.eventType} for ${event.resourceId}`);
+  console.log(
+    `TODO: Handle BANKTRANSACTION ${event.eventType} for ${event.resourceId}`,
+  );
 }

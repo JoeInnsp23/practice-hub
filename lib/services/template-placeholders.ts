@@ -84,7 +84,7 @@ export function validatePlaceholders(text: string): {
 
   for (const match of matches) {
     const placeholderName = match[1];
-    if (!SUPPORTED_PLACEHOLDERS.hasOwnProperty(placeholderName)) {
+    if (!Object.hasOwn(SUPPORTED_PLACEHOLDERS, placeholderName)) {
       errors.push(`Invalid placeholder: {${placeholderName}}`);
     }
   }
@@ -97,7 +97,7 @@ export function calculateDueDate(
   offsetDays: number,
   offsetMonths: number,
 ): Date {
-  let dueDate = new Date(activationDate);
+  const dueDate = new Date(activationDate);
 
   if (offsetMonths > 0) {
     dueDate.setMonth(dueDate.getMonth() + offsetMonths);
@@ -128,12 +128,13 @@ export function calculatePeriodEndDate(
       // Period ends same day
       return new Date(date);
 
-    case "weekly":
+    case "weekly": {
       // Period ends at end of week (Sunday)
       const dayOfWeek = date.getDay();
       const daysUntilSunday = 7 - dayOfWeek;
       date.setDate(date.getDate() + daysUntilSunday);
       return date;
+    }
 
     case "monthly":
       // Period ends on last day of month (or specific day if provided)
@@ -146,15 +147,16 @@ export function calculatePeriodEndDate(
       }
       return date;
 
-    case "quarterly":
+    case "quarterly": {
       // Period ends on last day of quarter (Mar 31, Jun 30, Sep 30, Dec 31)
       const quarter = Math.ceil((date.getMonth() + 1) / 3);
       const quarterEndMonth = quarter * 3 - 1; // 0-indexed: Q1=2(Mar), Q2=5(Jun), Q3=8(Sep), Q4=11(Dec)
       date.setMonth(quarterEndMonth + 1);
       date.setDate(0); // Last day of quarter month
       return date;
+    }
 
-    case "annually":
+    case "annually": {
       // Period ends on tax year end (April 5th in UK)
       const taxYearEnd = new Date(date.getFullYear(), 3, 5); // April 5th
       if (date > taxYearEnd) {
@@ -162,6 +164,7 @@ export function calculatePeriodEndDate(
         taxYearEnd.setFullYear(taxYearEnd.getFullYear() + 1);
       }
       return taxYearEnd;
+    }
 
     default:
       return date;

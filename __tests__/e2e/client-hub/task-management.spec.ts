@@ -1,11 +1,11 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
+  clickButton,
   fillInputField,
   fillTextarea,
   selectRadixOption,
-  clickButton,
-  waitForDialogOpen,
   waitForDialogClose,
+  waitForDialogOpen,
 } from "../helpers/radix-interactions";
 
 // Tests now use shared authenticated state from global-setup.ts
@@ -22,16 +22,19 @@ test.describe("Task Management", () => {
 
     // Navigate to tasks page
     await page.goto("/client-hub/tasks");
-    await page.waitForLoadState("networkidle");
 
-    // Click "New Task" button
-    await clickButton(page, 'button:has-text("New Task")');
+    // CRITICAL: Wait for Turbopack compilation and network to stabilize
+    // Turbopack can take 60-90 seconds on cold start
+    await page.waitForLoadState("networkidle", { timeout: 90000 });
 
-    // Small wait to ensure React state updates
-    await page.waitForTimeout(200);
+    // Click "New Task" button (use stable data-testid)
+    await clickButton(page, '[data-testid="task-create-button"]');
 
-    // Wait for task modal to open
-    await waitForDialogOpen(page);
+    // Wait for task modal to open - target the specific modal content
+    await waitForDialogOpen(page, {
+      selector: '[data-testid="task-form-modal"]',
+      timeout: 30000,
+    });
 
     // Fill in task title using data-testid
     await fillInputField(page, "task-form-title-input", testTaskTitle);
@@ -79,19 +82,33 @@ test.describe("Task Management", () => {
     await page.goto("/client-hub/clients");
     await page.waitForLoadState("networkidle");
 
-    const createClientButton = page.locator('button:has-text("New Client"), button:has-text("Add Client"), a:has-text("New Client")').first();
+    const createClientButton = page
+      .locator(
+        'button:has-text("New Client"), button:has-text("Add Client"), a:has-text("New Client")',
+      )
+      .first();
     let clientCreated = false;
 
-    if (await createClientButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+    if (
+      await createClientButton.isVisible({ timeout: 5000 }).catch(() => false)
+    ) {
       await createClientButton.click();
       await page.waitForLoadState("networkidle");
 
-      const nameInput = page.locator('input[name="name"], input[placeholder*="name" i]').first();
+      const nameInput = page
+        .locator('input[name="name"], input[placeholder*="name" i]')
+        .first();
       if (await nameInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         await nameInput.fill(testClientName);
 
-        const submitButton = page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first();
-        if (await submitButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        const submitButton = page
+          .locator(
+            'button[type="submit"], button:has-text("Save"), button:has-text("Create")',
+          )
+          .first();
+        if (
+          await submitButton.isVisible({ timeout: 5000 }).catch(() => false)
+        ) {
           await submitButton.click();
           await page.waitForLoadState("networkidle");
           await page.waitForTimeout(2000);
@@ -104,32 +121,52 @@ test.describe("Task Management", () => {
     await page.goto("/client-hub/tasks");
     await page.waitForLoadState("networkidle");
 
-    const createTaskButton = page.locator('button:has-text("New Task"), button:has-text("Add Task"), a:has-text("New Task")').first();
+    const createTaskButton = page
+      .locator(
+        'button:has-text("New Task"), button:has-text("Add Task"), a:has-text("New Task")',
+      )
+      .first();
 
-    if (await createTaskButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+    if (
+      await createTaskButton.isVisible({ timeout: 5000 }).catch(() => false)
+    ) {
       await createTaskButton.click();
       await page.waitForLoadState("networkidle");
 
       // Fill task title
-      const titleInput = page.locator('input[name="title"], input[placeholder*="title" i]').first();
+      const titleInput = page
+        .locator('input[name="title"], input[placeholder*="title" i]')
+        .first();
       if (await titleInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         await titleInput.fill(testTaskTitle);
       }
 
       // Try to assign to client if possible
       if (clientCreated) {
-        const clientSelect = page.locator('select[name*="client" i], button:has-text("Select client"), [role="combobox"]').first();
-        if (await clientSelect.isVisible({ timeout: 5000 }).catch(() => false)) {
+        const clientSelect = page
+          .locator(
+            'select[name*="client" i], button:has-text("Select client"), [role="combobox"]',
+          )
+          .first();
+        if (
+          await clientSelect.isVisible({ timeout: 5000 }).catch(() => false)
+        ) {
           await clientSelect.click();
           const clientOption = page.locator(`text="${testClientName}"`).first();
-          if (await clientOption.isVisible({ timeout: 5000 }).catch(() => false)) {
+          if (
+            await clientOption.isVisible({ timeout: 5000 }).catch(() => false)
+          ) {
             await clientOption.click();
           }
         }
       }
 
       // Submit task
-      const submitButton = page.locator('button[type="submit"], button:has-text("Save"), button:has-text("Create")').first();
+      const submitButton = page
+        .locator(
+          'button[type="submit"], button:has-text("Save"), button:has-text("Create")',
+        )
+        .first();
       if (await submitButton.isVisible({ timeout: 5000 }).catch(() => false)) {
         await submitButton.click();
         await page.waitForLoadState("networkidle");
@@ -141,18 +178,29 @@ test.describe("Task Management", () => {
           await page.waitForLoadState("networkidle");
 
           const clientLink = page.locator(`text="${testClientName}"`).first();
-          if (await clientLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+          if (
+            await clientLink.isVisible({ timeout: 5000 }).catch(() => false)
+          ) {
             await clientLink.click();
             await page.waitForLoadState("networkidle");
 
             // Look for tasks tab
-            const tasksTab = page.locator('button:has-text("Tasks"), a:has-text("Tasks"), [role="tab"]:has-text("Tasks")').first();
-            if (await tasksTab.isVisible({ timeout: 5000 }).catch(() => false)) {
+            const tasksTab = page
+              .locator(
+                'button:has-text("Tasks"), a:has-text("Tasks"), [role="tab"]:has-text("Tasks")',
+              )
+              .first();
+            if (
+              await tasksTab.isVisible({ timeout: 5000 }).catch(() => false)
+            ) {
               await tasksTab.click();
               await page.waitForTimeout(1000);
 
               // Check if task appears
-              const taskVisible = await page.locator(`text="${testTaskTitle}"`).isVisible({ timeout: 5000 }).catch(() => false);
+              const taskVisible = await page
+                .locator(`text="${testTaskTitle}"`)
+                .isVisible({ timeout: 5000 })
+                .catch(() => false);
               if (taskVisible) {
                 console.log(`Task "${testTaskTitle}" appears in client tasks`);
                 expect(true).toBeTruthy();

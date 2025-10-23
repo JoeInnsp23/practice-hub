@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { pricingConfigRouter } from "@/app/server/routers/pricingConfig";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -37,9 +37,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
     it("should have no required input", () => {
       const procedure = pricingConfigRouter._def.procedures.getConfig;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -420,9 +420,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
     it("should have no required input", () => {
       const procedure = pricingConfigRouter._def.procedures.resetToDefaults;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -430,9 +430,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
     it("should have no required input", () => {
       const procedure = pricingConfigRouter._def.procedures.exportConfig;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

@@ -1,10 +1,11 @@
+import { Cookie, FileText, Shield } from "lucide-react";
 import { LegalEditor } from "@/components/legal/legal-editor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Shield, Cookie } from "lucide-react";
 
 export const metadata = {
   title: "Legal Settings | Admin | Practice Hub",
-  description: "Manage legal page content - Privacy Policy, Terms of Service, and Cookie Policy",
+  description:
+    "Manage legal page content - Privacy Policy, Terms of Service, and Cookie Policy",
 };
 
 /**
@@ -19,7 +20,8 @@ export default function AdminLegalSettingsPage() {
       <div>
         <h1 className="text-3xl font-bold">Legal Settings</h1>
         <p className="text-muted-foreground mt-2">
-          Manage your organization's legal pages. Changes are versioned and tracked.
+          Manage your organization's legal pages. Changes are versioned and
+          tracked.
         </p>
       </div>
 
@@ -34,7 +36,10 @@ export default function AdminLegalSettingsPage() {
             <FileText className="h-4 w-4" />
             Terms of Service
           </TabsTrigger>
-          <TabsTrigger value="cookie_policy" className="flex items-center gap-2">
+          <TabsTrigger
+            value="cookie_policy"
+            className="flex items-center gap-2"
+          >
             <Cookie className="h-4 w-4" />
             Cookie Policy
           </TabsTrigger>
@@ -59,9 +64,17 @@ export default function AdminLegalSettingsPage() {
         <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
           <li>Use markdown formatting for better readability</li>
           <li>All changes are versioned and tracked in the activity log</li>
-          <li>Legal pages are visible to all users at /privacy, /terms, and /cookie-policy</li>
-          <li>Review changes carefully before saving - this content has legal implications</li>
-          <li>Consider having legal counsel review changes before publication</li>
+          <li>
+            Legal pages are visible to all users at /privacy, /terms, and
+            /cookie-policy
+          </li>
+          <li>
+            Review changes carefully before saving - this content has legal
+            implications
+          </li>
+          <li>
+            Consider having legal counsel review changes before publication
+          </li>
         </ul>
       </div>
     </div>

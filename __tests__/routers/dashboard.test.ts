@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { dashboardRouter } from "@/app/server/routers/dashboard";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock dashboard queries
 vi.mock("@/lib/db/queries/dashboard-queries", () => ({
@@ -56,9 +56,9 @@ describe("app/server/routers/dashboard.ts", () => {
     it("should have no required input", () => {
       const procedure = dashboardRouter._def.procedures.kpis;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
+import { ClientTemplateOverrides } from "@/components/client-hub/client-template-overrides";
 import type { TaskSummary } from "@/components/client-hub/tasks/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClientTemplateOverrides } from "@/components/client-hub/client-template-overrides";
 
 interface ClientDetailsProps {
   clientId: string;

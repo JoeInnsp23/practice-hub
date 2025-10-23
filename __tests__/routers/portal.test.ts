@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { portalRouter } from "@/app/server/routers/portal";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -41,9 +41,9 @@ describe("app/server/routers/portal.ts", () => {
     it("should have no required input", () => {
       const procedure = portalRouter._def.procedures.getCategoriesWithLinks;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -51,9 +51,9 @@ describe("app/server/routers/portal.ts", () => {
     it("should have no required input", () => {
       const procedure = portalRouter._def.procedures.getCategories;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -234,9 +234,7 @@ describe("app/server/routers/portal.ts", () => {
       };
 
       expect(() => {
-        portalRouter._def.procedures.getLinks._def.inputs[0]?.parse(
-          validInput,
-        );
+        portalRouter._def.procedures.getLinks._def.inputs[0]?.parse(validInput);
       }).not.toThrow();
     });
   });
@@ -518,9 +516,9 @@ describe("app/server/routers/portal.ts", () => {
     it("should have no required input", () => {
       const procedure = portalRouter._def.procedures.getUserFavorites;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

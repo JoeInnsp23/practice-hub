@@ -1,6 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ConnectionStatus } from "@/components/shared/connection-status";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSSE } from "@/lib/hooks/use-sse";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/utils/format";
 
@@ -22,13 +28,50 @@ interface ActivityFeedProps {
   activities?: Activity[];
   loading?: boolean;
   className?: string;
+  enableRealtime?: boolean; // Enable real-time updates via SSE
 }
 
 export function ActivityFeed({
-  activities = [],
+  activities: initialActivities = [],
   loading = false,
   className,
+  enableRealtime = true,
 }: ActivityFeedProps) {
+  const [activities, setActivities] = useState<Activity[]>(initialActivities);
+  const [newActivityCount, setNewActivityCount] = useState(0);
+
+  // Subscribe to real-time activity updates
+  const { connectionState, isPolling, subscribe } = useSSE(
+    "/api/activity/stream",
+    {
+      maxReconnectAttempts: 3,
+      enablePollingFallback: true,
+    },
+  );
+
+  useEffect(() => {
+    if (!enableRealtime) return;
+
+    const unsubscribe = subscribe("activity:new", (event) => {
+      const newActivity = event.data as Activity;
+
+      // Add new activity to the top of the list
+      setActivities((prev) => [newActivity, ...prev].slice(0, 50)); // Keep last 50
+      setNewActivityCount((prev) => prev + 1);
+
+      // Auto-reset badge after 3 seconds
+      setTimeout(() => {
+        setNewActivityCount(0);
+      }, 3000);
+    });
+
+    return unsubscribe;
+  }, [enableRealtime, subscribe]);
+
+  // Update activities when initial data changes
+  useEffect(() => {
+    setActivities(initialActivities);
+  }, [initialActivities]);
   const getActivityIcon = (entityType: string, action?: string) => {
     if (entityType === "task") {
       if (action === "completed") return "✅";
@@ -69,7 +112,22 @@ export function ActivityFeed({
   return (
     <Card className={cn("h-full", className)}>
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CardTitle>Recent Activity</CardTitle>
+            {newActivityCount > 0 && (
+              <Badge variant="secondary" className="animate-pulse">
+                {newActivityCount} new
+              </Badge>
+            )}
+          </div>
+          {enableRealtime && (
+            <ConnectionStatus
+              connectionState={connectionState}
+              isPolling={isPolling}
+            />
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">

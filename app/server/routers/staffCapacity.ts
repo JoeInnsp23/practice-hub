@@ -18,7 +18,7 @@ const capacitySchema = insertStaffCapacitySchema.omit({
 });
 
 // Utilization calculation types
-const utilizationSchema = z.object({
+const _utilizationSchema = z.object({
   userId: z.string(),
   userName: z.string(),
   weeklyHours: z.number(),
@@ -93,7 +93,7 @@ export const staffCapacityRouter = router({
   create: protectedProcedure
     .input(capacitySchema)
     .mutation(async ({ ctx, input }) => {
-      const { tenantId, userId } = ctx.authContext;
+      const { tenantId } = ctx.authContext;
 
       // Verify user exists and belongs to tenant
       const [user] = await db
@@ -106,6 +106,28 @@ export const staffCapacityRouter = router({
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "User not found",
+        });
+      }
+
+      // VALIDATION: Check for conflicting capacity records
+      // Business rule: No two capacity records for the same user can have
+      // the same effectiveFrom date to prevent ambiguity
+      const [existingCapacity] = await db
+        .select()
+        .from(staffCapacity)
+        .where(
+          and(
+            eq(staffCapacity.userId, input.userId),
+            eq(staffCapacity.tenantId, tenantId),
+            eq(staffCapacity.effectiveFrom, input.effectiveFrom),
+          ),
+        )
+        .limit(1);
+
+      if (existingCapacity) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `A capacity record already exists for this user with effective date ${input.effectiveFrom}. Please use a different date or update the existing record.`,
         });
       }
 
@@ -242,6 +264,23 @@ export const staffCapacityRouter = router({
         .from(users)
         .where(and(...userConditions));
 
+      // PERFORMANCE NOTE: N+1 Query Pattern
+      // This uses Promise.all with individual queries per user (2 queries per user):
+      // 1. Capacity record lookup
+      // 2. Time entries aggregation
+      //
+      // Scale Analysis:
+      // - 10 staff: 20 queries (~100-200ms)
+      // - 20 staff: 40 queries (~200-400ms)
+      // - 50 staff: 100 queries (~500ms-1s)
+      //
+      // This is ACCEPTABLE for expected practice sizes (<50 staff).
+      // For larger organizations (>50 staff), consider:
+      // - Batch query with window functions
+      // - Materialized views for common date ranges
+      // - Caching with TTL
+      //
+      // Current decision: Optimize when needed (YAGNI principle)
       // Get current capacity for each user (most recent effective_from)
       const utilizationData = await Promise.all(
         activeUsers.map(async (user) => {
@@ -357,6 +396,22 @@ export const staffCapacityRouter = router({
           .from(users)
           .where(and(...userConditions));
 
+        // PERFORMANCE NOTE: N+1 Query Pattern (nested in loop)
+        // Outer loop: weeks (default 12)
+        // Inner loop: users (2 queries per user per week)
+        //
+        // Total queries: weeks × users × 2
+        // Example: 12 weeks × 20 staff = 480 queries (~2-3s)
+        //
+        // This is ACCEPTABLE for:
+        // - Dashboard loading (not real-time)
+        // - Expected scale (<50 staff, <20 weeks)
+        // - Infrequent access (not on every page load)
+        //
+        // For optimization, consider:
+        // - Caching trend data with TTL
+        // - Batch query with date range
+        // - Materialized view updated nightly
         const weekData = await Promise.all(
           activeUsers.map(async (user) => {
             // Get capacity for this week

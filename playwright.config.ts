@@ -1,5 +1,5 @@
-import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Playwright E2E Test Configuration
@@ -24,10 +24,7 @@ export default defineConfig({
   workers: process.env.CI ? 2 : 3, // Multiple workers for parallel execution (3 local, 2 in CI)
 
   // Reporter configuration
-  reporter: [
-    ["html"],
-    ["list"],
-  ],
+  reporter: [["html"], ["list"]],
 
   // Shared test settings
   use: {

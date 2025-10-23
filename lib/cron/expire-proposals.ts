@@ -1,5 +1,5 @@
-import { and, eq, lt, ne, sql } from "drizzle-orm";
 import * as Sentry from "@sentry/nextjs";
+import { and, eq, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { activityLogs, clients, proposals } from "@/lib/db/schema";
 import { sendProposalExpiredTeamEmail } from "@/lib/email/send-proposal-email";
@@ -59,10 +59,7 @@ export async function expireProposals(): Promise<ExpireProposalsResult> {
       .from(proposals)
       .leftJoin(clients, eq(proposals.clientId, clients.id))
       .where(
-        and(
-          lt(proposals.validUntil, now),
-          ne(proposals.status, "expired"),
-        ),
+        and(lt(proposals.validUntil, now), ne(proposals.status, "expired")),
       );
 
     if (expiredProposals.length === 0) {

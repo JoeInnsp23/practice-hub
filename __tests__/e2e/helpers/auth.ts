@@ -17,12 +17,18 @@ export async function loginAsTestUser(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 
   // Wait for form to be fully loaded and visible (with generous timeout for Turbopack)
-  await page.waitForSelector('input#email', { state: 'visible', timeout: 60000 });
-  await page.waitForSelector('input#password', { state: 'visible', timeout: 60000 });
+  await page.waitForSelector("input#email", {
+    state: "visible",
+    timeout: 60000,
+  });
+  await page.waitForSelector("input#password", {
+    state: "visible",
+    timeout: 60000,
+  });
 
   // Fill in credentials using ID selectors
-  await page.fill('input#email', email);
-  await page.fill('input#password', password);
+  await page.fill("input#email", email);
+  await page.fill("input#password", password);
 
   // Submit form
   await page.click('button[type="submit"]');
@@ -35,31 +41,41 @@ export async function loginAsTestUser(page: Page): Promise<void> {
     // First, wait for any navigation to occur
     await Promise.race([
       page.waitForURL((url) => !url.pathname.includes("/sign-in"), {
-        timeout: 30000
+        timeout: 30000,
       }),
-      page.waitForResponse(response => response.url().includes('/api/auth'), {
-        timeout: 30000
-      }).catch(() => null),
-      page.waitForLoadState('domcontentloaded', { timeout: 30000 })
+      page
+        .waitForResponse((response) => response.url().includes("/api/auth"), {
+          timeout: 30000,
+        })
+        .catch(() => null),
+      page.waitForLoadState("domcontentloaded", { timeout: 30000 }),
     ]);
 
     // Check if we're still on sign-in page (possible error)
-    if (page.url().includes('/sign-in')) {
+    if (page.url().includes("/sign-in")) {
       // Check for error messages
-      const errorMessage = await page.locator('[role="alert"], .error, .text-red-500, .text-destructive').first().textContent().catch(() => null);
+      const errorMessage = await page
+        .locator('[role="alert"], .error, .text-red-500, .text-destructive')
+        .first()
+        .textContent()
+        .catch(() => null);
       if (errorMessage) {
         throw new Error(`Login failed with error: ${errorMessage}`);
       }
 
       // If no error but still on sign-in, wait longer for redirect
       await page.waitForURL((url) => !url.pathname.includes("/sign-in"), {
-        timeout: 90000
+        timeout: 90000,
       });
     }
   } catch (error) {
     // Log the current state for debugging
     console.error(`Navigation timeout. Current URL: ${page.url()}`);
-    const errorText = await page.locator('[role="alert"], .error').first().textContent().catch(() => 'No error message found');
+    const errorText = await page
+      .locator('[role="alert"], .error')
+      .first()
+      .textContent()
+      .catch(() => "No error message found");
     console.error(`Error on page: ${errorText}`);
     throw error;
   }
@@ -85,12 +101,18 @@ export async function loginAsTestAdmin(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 
   // Wait for form to be fully loaded and visible (with generous timeout for Turbopack)
-  await page.waitForSelector('input#email', { state: 'visible', timeout: 60000 });
-  await page.waitForSelector('input#password', { state: 'visible', timeout: 60000 });
+  await page.waitForSelector("input#email", {
+    state: "visible",
+    timeout: 60000,
+  });
+  await page.waitForSelector("input#password", {
+    state: "visible",
+    timeout: 60000,
+  });
 
   // Fill in credentials using ID selectors
-  await page.fill('input#email', email);
-  await page.fill('input#password', password);
+  await page.fill("input#email", email);
+  await page.fill("input#password", password);
 
   // Submit form
   await page.click('button[type="submit"]');
@@ -103,31 +125,41 @@ export async function loginAsTestAdmin(page: Page): Promise<void> {
     // First, wait for any navigation to occur
     await Promise.race([
       page.waitForURL((url) => !url.pathname.includes("/sign-in"), {
-        timeout: 30000
+        timeout: 30000,
       }),
-      page.waitForResponse(response => response.url().includes('/api/auth'), {
-        timeout: 30000
-      }).catch(() => null),
-      page.waitForLoadState('domcontentloaded', { timeout: 30000 })
+      page
+        .waitForResponse((response) => response.url().includes("/api/auth"), {
+          timeout: 30000,
+        })
+        .catch(() => null),
+      page.waitForLoadState("domcontentloaded", { timeout: 30000 }),
     ]);
 
     // Check if we're still on sign-in page (possible error)
-    if (page.url().includes('/sign-in')) {
+    if (page.url().includes("/sign-in")) {
       // Check for error messages
-      const errorMessage = await page.locator('[role="alert"], .error, .text-red-500, .text-destructive').first().textContent().catch(() => null);
+      const errorMessage = await page
+        .locator('[role="alert"], .error, .text-red-500, .text-destructive')
+        .first()
+        .textContent()
+        .catch(() => null);
       if (errorMessage) {
         throw new Error(`Login failed with error: ${errorMessage}`);
       }
 
       // If no error but still on sign-in, wait longer for redirect
       await page.waitForURL((url) => !url.pathname.includes("/sign-in"), {
-        timeout: 90000
+        timeout: 90000,
       });
     }
   } catch (error) {
     // Log the current state for debugging
     console.error(`Navigation timeout. Current URL: ${page.url()}`);
-    const errorText = await page.locator('[role="alert"], .error').first().textContent().catch(() => 'No error message found');
+    const errorText = await page
+      .locator('[role="alert"], .error')
+      .first()
+      .textContent()
+      .catch(() => "No error message found");
     console.error(`Error on page: ${errorText}`);
     throw error;
   }

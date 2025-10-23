@@ -1,10 +1,12 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // Tests now use shared authenticated state from global-setup.ts
 // No individual login needed - all tests start already authenticated
 
 test.describe("Module Navigation", () => {
-  test("should navigate between Practice Hub and Client Hub", async ({ page }) => {
+  test("should navigate between Practice Hub and Client Hub", async ({
+    page,
+  }) => {
     // No login needed - test starts with authenticated state from global-setup
 
     // Navigate to Practice Hub first
@@ -15,7 +17,11 @@ test.describe("Module Navigation", () => {
     await expect(page).toHaveURL(/.*practice-hub/);
 
     // Navigate to Client Hub (looking for navigation links)
-    const clientHubLink = page.locator('a[href*="/client-hub"], nav a:has-text("Client"), nav a:has-text("Clients")').first();
+    const clientHubLink = page
+      .locator(
+        'a[href*="/client-hub"], nav a:has-text("Client"), nav a:has-text("Clients")',
+      )
+      .first();
 
     if (await clientHubLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await clientHubLink.click();
@@ -26,9 +32,15 @@ test.describe("Module Navigation", () => {
       await expect(page).toHaveURL(/.*client-hub/);
 
       // Navigate back to Practice Hub
-      const practiceHubLink = page.locator('a[href*="/practice-hub"], nav a:has-text("Practice"), nav a:has-text("Dashboard")').first();
+      const practiceHubLink = page
+        .locator(
+          'a[href*="/practice-hub"], nav a:has-text("Practice"), nav a:has-text("Dashboard")',
+        )
+        .first();
 
-      if (await practiceHubLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+      if (
+        await practiceHubLink.isVisible({ timeout: 5000 }).catch(() => false)
+      ) {
         await practiceHubLink.click();
         await page.waitForURL(/.*practice-hub/, { timeout: 120000 });
         await page.waitForLoadState("networkidle");

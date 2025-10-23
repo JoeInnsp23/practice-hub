@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { settingsRouter } from "@/app/server/routers/settings";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -38,9 +38,9 @@ describe("app/server/routers/settings.ts", () => {
     it("should have no required input", () => {
       const procedure = settingsRouter._def.procedures.getTenant;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -81,9 +81,9 @@ describe("app/server/routers/settings.ts", () => {
     it("should have no required input", () => {
       const procedure = settingsRouter._def.procedures.getNotificationSettings;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -200,48 +200,56 @@ describe("app/server/routers/settings.ts", () => {
     it("should have no required input", () => {
       const procedure = settingsRouter._def.procedures.getUserSettings;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
   describe("updateUserSettings", () => {
     it("should accept valid user settings", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
-          emailNotifications: true,
-          inAppNotifications: false,
-          digestEmail: "weekly",
-          theme: "dark",
-          language: "en",
-          timezone: "Europe/London",
-        });
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
+          {
+            emailNotifications: true,
+            inAppNotifications: false,
+            digestEmail: "weekly",
+            theme: "dark",
+            language: "en",
+            timezone: "Europe/London",
+          },
+        );
       }).not.toThrow();
     });
 
     it("should accept partial settings", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
-          emailNotifications: false,
-          theme: "light",
-        });
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
+          {
+            emailNotifications: false,
+            theme: "light",
+          },
+        );
       }).not.toThrow();
     });
 
     it("should validate theme enum", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
-          theme: "invalid",
-        });
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
+          {
+            theme: "invalid",
+          },
+        );
       }).toThrow();
     });
 
     it("should validate digestEmail enum", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
-          digestEmail: "invalid",
-        });
+        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
+          {
+            digestEmail: "invalid",
+          },
+        );
       }).toThrow();
     });
 
@@ -250,9 +258,11 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const theme of validThemes) {
         expect(() => {
-          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
-            theme,
-          });
+          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
+            {
+              theme,
+            },
+          );
         }).not.toThrow();
       }
     });
@@ -262,9 +272,11 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const digestEmail of validDigests) {
         expect(() => {
-          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse({
-            digestEmail,
-          });
+          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
+            {
+              digestEmail,
+            },
+          );
         }).not.toThrow();
       }
     });

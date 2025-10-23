@@ -5,9 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { messagesRouter } from "@/app/server/routers/messages";
 import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -45,9 +45,9 @@ describe("app/server/routers/messages.ts", () => {
     it("should have no required input", () => {
       const procedure = messagesRouter._def.procedures.listThreads;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 
@@ -467,9 +467,9 @@ describe("app/server/routers/messages.ts", () => {
     it("should have no required input", () => {
       const procedure = messagesRouter._def.procedures.getUnreadCount;
 
-      expect(
-        !procedure._def.inputs || procedure._def.inputs.length === 0,
-      ).toBe(true);
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
     });
   });
 

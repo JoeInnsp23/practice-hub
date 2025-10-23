@@ -7,22 +7,22 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Context } from "@/app/server/context";
 import { documentsRouter } from "@/app/server/routers/documents";
-import { createCaller, createMockContext } from "../helpers/trpc";
-import {
-  createTestTenant,
-  createTestUser,
-  createTestClient,
-  createTestDocument,
-  cleanupTestData,
-  type TestDataTracker,
-} from "../helpers/factories";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import {
+  cleanupTestData,
+  createTestClient,
+  createTestDocument,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock S3 storage to prevent actual S3 operations
 vi.mock("@/lib/storage/s3", () => ({
@@ -114,7 +114,10 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should create folder with client association", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const input = {
@@ -182,20 +185,23 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         caller.createFolder({
           name: "Test Folder",
           parentId: nonExistentId,
-        })
+        }),
       ).rejects.toThrow("Parent folder not found");
     });
 
     it("should throw BAD_REQUEST when parent is not a folder", async () => {
       // Create a file (not a folder)
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const file = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(file.id);
 
@@ -203,27 +209,30 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         caller.createFolder({
           name: "Test Folder",
           parentId: file.id,
-        })
+        }),
       ).rejects.toThrow("Parent must be a folder");
     });
   });
 
   describe("list (Integration)", () => {
     it("should list documents with tenant isolation", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc1 = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { name: "Document 1.pdf" }
+        { name: "Document 1.pdf" },
       );
       const doc2 = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { name: "Document 2.pdf" }
+        { name: "Document 2.pdf" },
       );
       tracker.documents?.push(doc1.id, doc2.id);
 
@@ -238,27 +247,33 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       }
 
       // Verify our test documents are in the list
-      const docIds = result.documents.map(d => d.document.id);
+      const docIds = result.documents.map((d) => d.document.id);
       expect(docIds).toContain(doc1.id);
       expect(docIds).toContain(doc2.id);
     });
 
     it("should filter by client ID", async () => {
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const doc1 = await createTestDocument(
         ctx.authContext.tenantId,
         client1.id,
         ctx.authContext.userId,
-        { name: "Client 1 Doc.pdf" }
+        { name: "Client 1 Doc.pdf" },
       );
       const doc2 = await createTestDocument(
         ctx.authContext.tenantId,
         client2.id,
         ctx.authContext.userId,
-        { name: "Client 2 Doc.pdf" }
+        { name: "Client 2 Doc.pdf" },
       );
       tracker.documents?.push(doc1.id, doc2.id);
 
@@ -270,12 +285,15 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       }
 
       // Verify client1 doc is present
-      const docIds = result.documents.map(d => d.document.id);
+      const docIds = result.documents.map((d) => d.document.id);
       expect(docIds).toContain(doc1.id);
     });
 
     it("should filter by type (file vs folder)", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const folder = await caller.createFolder({
@@ -284,7 +302,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const file = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       tracker.documents?.push(folder.id, file.id);
 
@@ -302,29 +320,40 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should filter by search term", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { name: "Searchable Tax Document.pdf", description: "Tax filing for 2024" }
+        {
+          name: "Searchable Tax Document.pdf",
+          description: "Tax filing for 2024",
+        },
       );
       tracker.documents?.push(doc.id);
 
       // Search by name
       const result = await caller.list({ search: "Searchable" });
-      const docIds = result.documents.map(d => d.document.id);
+      const docIds = result.documents.map((d) => d.document.id);
       expect(docIds).toContain(doc.id);
     });
 
     it("should filter by parent folder", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create parent folder
-      const parent = await caller.createFolder({ name: `Parent ${Date.now()}` });
+      const parent = await caller.createFolder({
+        name: `Parent ${Date.now()}`,
+      });
       tracker.documents?.push(parent.id);
 
       // Create document in parent folder
@@ -332,7 +361,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { parentId: parent.id }
+        { parentId: parent.id },
       );
       tracker.documents?.push(doc.id);
 
@@ -340,12 +369,15 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const result = await caller.list({ parentId: parent.id });
 
       expect(result.documents.length).toBeGreaterThanOrEqual(1);
-      const docIds = result.documents.map(d => d.document.id);
+      const docIds = result.documents.map((d) => d.document.id);
       expect(docIds).toContain(doc.id);
     });
 
     it("should list root-level documents with null parentId", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create root-level document
@@ -353,7 +385,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { parentId: null }
+        { parentId: null },
       );
       tracker.documents?.push(doc.id);
 
@@ -375,14 +407,17 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
   describe("get (Integration)", () => {
     it("should retrieve document by ID", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { name: "Get Test Document.pdf" }
+        { name: "Get Test Document.pdf" },
       );
       tracker.documents?.push(doc.id);
 
@@ -399,7 +434,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(caller.get({ documentId: nonExistentId })).rejects.toThrow(
-        "Document not found"
+        "Document not found",
       );
     });
 
@@ -419,7 +454,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to access tenant A's document from tenant B (our test tenant)
       await expect(caller.get({ documentId: docA.id })).rejects.toThrow(
-        "Document not found"
+        "Document not found",
       );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
@@ -435,14 +470,17 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
   describe("update (Integration)", () => {
     it("should update document and persist changes", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { name: "Original Name.pdf", description: "Original description" }
+        { name: "Original Name.pdf", description: "Original description" },
       );
       tracker.documents?.push(doc.id);
 
@@ -466,14 +504,17 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should update document tags", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { tags: [] }
+        { tags: [] },
       );
       tracker.documents?.push(doc.id);
 
@@ -494,12 +535,19 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should move document to different parent folder", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create two folders
-      const folder1 = await caller.createFolder({ name: `Folder 1 ${Date.now()}` });
-      const folder2 = await caller.createFolder({ name: `Folder 2 ${Date.now()}` });
+      const folder1 = await caller.createFolder({
+        name: `Folder 1 ${Date.now()}`,
+      });
+      const folder2 = await caller.createFolder({
+        name: `Folder 2 ${Date.now()}`,
+      });
       tracker.documents?.push(folder1.id, folder2.id);
 
       // Create document in folder1
@@ -507,7 +555,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { parentId: folder1.id, name: "Movable.pdf" }
+        { parentId: folder1.id, name: "Movable.pdf" },
       );
       tracker.documents?.push(doc.id);
 
@@ -522,11 +570,16 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should move document to root level with null parentId", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create folder
-      const folder = await caller.createFolder({ name: `Folder ${Date.now()}` });
+      const folder = await caller.createFolder({
+        name: `Folder ${Date.now()}`,
+      });
       tracker.documents?.push(folder.id);
 
       // Create document in folder
@@ -534,7 +587,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { parentId: folder.id, name: "MoveToRoot.pdf" }
+        { parentId: folder.id, name: "MoveToRoot.pdf" },
       );
       tracker.documents?.push(doc.id);
 
@@ -555,18 +608,21 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         caller.update({
           documentId: nonExistentId,
           name: "Should Fail",
-        })
+        }),
       ).rejects.toThrow("Document not found");
     });
 
     it("should throw BAD_REQUEST for invalid parent folder", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       tracker.documents?.push(doc.id);
 
@@ -576,7 +632,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         caller.update({
           documentId: doc.id,
           parentId: nonExistentParentId,
-        })
+        }),
       ).rejects.toThrow("Invalid parent folder");
     });
 
@@ -597,21 +653,24 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         caller.update({
           documentId: docA.id,
           name: "Malicious Update",
-        })
+        }),
       ).rejects.toThrow("Document not found");
     });
   });
 
   describe("delete (Integration)", () => {
     it("should delete file document", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(doc.id);
 
@@ -629,7 +688,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should delete empty folder", async () => {
-      const folder = await caller.createFolder({ name: `Empty Folder ${Date.now()}` });
+      const folder = await caller.createFolder({
+        name: `Empty Folder ${Date.now()}`,
+      });
       tracker.documents?.push(folder.id);
 
       const result = await caller.delete({ documentId: folder.id });
@@ -646,11 +707,16 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should throw BAD_REQUEST when deleting non-empty folder", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create folder
-      const folder = await caller.createFolder({ name: `Non-Empty Folder ${Date.now()}` });
+      const folder = await caller.createFolder({
+        name: `Non-Empty Folder ${Date.now()}`,
+      });
       tracker.documents?.push(folder.id);
 
       // Create document in folder
@@ -658,13 +724,13 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { parentId: folder.id }
+        { parentId: folder.id },
       );
       tracker.documents?.push(doc.id);
 
       // Attempt to delete non-empty folder
       await expect(caller.delete({ documentId: folder.id })).rejects.toThrow(
-        "Cannot delete folder with contents"
+        "Cannot delete folder with contents",
       );
 
       // Verify folder still exists
@@ -679,9 +745,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent document", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.delete({ documentId: nonExistentId })).rejects.toThrow(
-        "Document not found"
-      );
+      await expect(
+        caller.delete({ documentId: nonExistentId }),
+      ).rejects.toThrow("Document not found");
     });
 
     it("should prevent cross-tenant deletion", async () => {
@@ -698,7 +764,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to delete from different tenant
       await expect(caller.delete({ documentId: docA.id })).rejects.toThrow(
-        "Document not found"
+        "Document not found",
       );
 
       // Verify document still exists
@@ -713,14 +779,17 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
   describe("getPresignedUrl (Integration)", () => {
     it("should generate presigned URL for file", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file", url: "https://s3.example.com/bucket/test.pdf" }
+        { type: "file", url: "https://s3.example.com/bucket/test.pdf" },
       );
       tracker.documents?.push(doc.id);
 
@@ -738,16 +807,18 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(
-        caller.getPresignedUrl({ documentId: nonExistentId })
+        caller.getPresignedUrl({ documentId: nonExistentId }),
       ).rejects.toThrow("Document not found");
     });
 
     it("should throw BAD_REQUEST for folder (not file)", async () => {
-      const folder = await caller.createFolder({ name: `Test Folder ${Date.now()}` });
+      const folder = await caller.createFolder({
+        name: `Test Folder ${Date.now()}`,
+      });
       tracker.documents?.push(folder.id);
 
       await expect(
-        caller.getPresignedUrl({ documentId: folder.id })
+        caller.getPresignedUrl({ documentId: folder.id }),
       ).rejects.toThrow("Document is not a file");
     });
 
@@ -768,21 +839,24 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to get presigned URL from different tenant
       await expect(
-        caller.getPresignedUrl({ documentId: docA.id })
+        caller.getPresignedUrl({ documentId: docA.id }),
       ).rejects.toThrow("Document not found");
     });
   });
 
   describe("createShareLink (Integration)", () => {
     it("should create shareable link for document", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(doc.id);
 
@@ -807,14 +881,17 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should create share link without expiration", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(doc.id);
 
@@ -838,16 +915,18 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(
-        caller.createShareLink({ documentId: nonExistentId })
+        caller.createShareLink({ documentId: nonExistentId }),
       ).rejects.toThrow("Document not found");
     });
 
     it("should throw BAD_REQUEST for folder", async () => {
-      const folder = await caller.createFolder({ name: `Test Folder ${Date.now()}` });
+      const folder = await caller.createFolder({
+        name: `Test Folder ${Date.now()}`,
+      });
       tracker.documents?.push(folder.id);
 
       await expect(
-        caller.createShareLink({ documentId: folder.id })
+        caller.createShareLink({ documentId: folder.id }),
       ).rejects.toThrow("Only files can be shared");
     });
 
@@ -867,21 +946,24 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to create share link from different tenant
       await expect(
-        caller.createShareLink({ documentId: docA.id })
+        caller.createShareLink({ documentId: docA.id }),
       ).rejects.toThrow("Document not found");
     });
   });
 
   describe("getSharedDocument (Integration)", () => {
     it("should retrieve document by share token", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file", name: "Shared Document.pdf" }
+        { type: "file", name: "Shared Document.pdf" },
       );
       tracker.documents?.push(doc.id);
 
@@ -900,19 +982,22 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
     it("should throw NOT_FOUND for invalid share token", async () => {
       await expect(
-        caller.getSharedDocument({ shareToken: "invalid-token-123" })
+        caller.getSharedDocument({ shareToken: "invalid-token-123" }),
       ).rejects.toThrow("Shared document not found");
     });
 
     it("should throw FORBIDDEN for expired share link", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(doc.id);
 
@@ -927,19 +1012,22 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to access expired link
       await expect(
-        caller.getSharedDocument({ shareToken: shareResult.shareToken })
+        caller.getSharedDocument({ shareToken: shareResult.shareToken }),
       ).rejects.toThrow("Share link has expired");
     });
 
     it("should throw NOT_FOUND for revoked share link", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(doc.id);
 
@@ -949,21 +1037,24 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to access revoked link (token is nulled, so it's NOT_FOUND)
       await expect(
-        caller.getSharedDocument({ shareToken: shareResult.shareToken })
+        caller.getSharedDocument({ shareToken: shareResult.shareToken }),
       ).rejects.toThrow("Shared document not found");
     });
   });
 
   describe("revokeShareLink (Integration)", () => {
     it("should revoke share link", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file" }
+        { type: "file" },
       );
       tracker.documents?.push(doc.id);
 
@@ -987,13 +1078,16 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should succeed even if document is not shared", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
-        ctx.authContext.userId
+        ctx.authContext.userId,
       );
       tracker.documents?.push(doc.id);
 
@@ -1035,7 +1129,10 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
   describe("getStorageStats (Integration)", () => {
     it("should calculate storage statistics for tenant", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       // Create multiple files
@@ -1043,13 +1140,13 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file", size: 1024, mimeType: "application/pdf" }
+        { type: "file", size: 1024, mimeType: "application/pdf" },
       );
       const doc2 = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { type: "file", size: 2048, mimeType: "image/png" }
+        { type: "file", size: 2048, mimeType: "image/png" },
       );
       tracker.documents?.push(doc1.id, doc2.id);
 
@@ -1088,7 +1185,10 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
   describe("search (Integration)", () => {
     it("should search documents by query", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
@@ -1098,7 +1198,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         {
           name: "Searchable Invoice 2024.pdf",
           description: "Annual invoice for tax purposes",
-        }
+        },
       );
       tracker.documents?.push(doc.id);
 
@@ -1106,31 +1206,40 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const result = await caller.search({ query: "Searchable" });
 
       expect(result.length).toBeGreaterThanOrEqual(1);
-      const docIds = result.map(r => r.document.id);
+      const docIds = result.map((r) => r.document.id);
       expect(docIds).toContain(doc.id);
     });
 
     it("should filter search by client", async () => {
-      const client1 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
-      const client2 = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      const client2 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client1.id, client2.id);
 
       const doc1 = await createTestDocument(
         ctx.authContext.tenantId,
         client1.id,
         ctx.authContext.userId,
-        { name: "Test Document.pdf" }
+        { name: "Test Document.pdf" },
       );
       const doc2 = await createTestDocument(
         ctx.authContext.tenantId,
         client2.id,
         ctx.authContext.userId,
-        { name: "Test Document.pdf" }
+        { name: "Test Document.pdf" },
       );
       tracker.documents?.push(doc1.id, doc2.id);
 
       // Search filtered by client1
-      const result = await caller.search({ query: "Test", clientId: client1.id });
+      const result = await caller.search({
+        query: "Test",
+        clientId: client1.id,
+      });
 
       // All results should belong to client1
       for (const r of result) {
@@ -1161,21 +1270,24 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       // Search from our test tenant should not find tenantA's document
       const result = await caller.search({ query: "UNIQUE-TENANT-A" });
 
-      const docIds = result.map(r => r.document.id);
+      const docIds = result.map((r) => r.document.id);
       expect(docIds).not.toContain(docA.id);
     });
   });
 
   describe("getSigningStatus (Integration)", () => {
     it("should return status for document not requiring signature", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
         ctx.authContext.tenantId,
         client.id,
         ctx.authContext.userId,
-        { requiresSignature: false }
+        { requiresSignature: false },
       );
       tracker.documents?.push(doc.id);
 
@@ -1186,7 +1298,10 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
 
     it("should return status for document requiring signature", async () => {
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
       const doc = await createTestDocument(
@@ -1196,7 +1311,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         {
           requiresSignature: true,
           signatureStatus: "pending",
-        }
+        },
       );
       tracker.documents?.push(doc.id);
 
@@ -1210,7 +1325,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const nonExistentId = crypto.randomUUID();
 
       await expect(
-        caller.getSigningStatus({ documentId: nonExistentId })
+        caller.getSigningStatus({ documentId: nonExistentId }),
       ).rejects.toThrow("Document not found");
     });
 
@@ -1230,7 +1345,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Attempt to get signing status from different tenant
       await expect(
-        caller.getSigningStatus({ documentId: docA.id })
+        caller.getSigningStatus({ documentId: docA.id }),
       ).rejects.toThrow("Document not found");
     });
   });

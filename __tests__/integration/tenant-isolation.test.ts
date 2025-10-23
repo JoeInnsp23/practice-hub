@@ -4,19 +4,19 @@
  * Tests to ensure multi-tenant data isolation across all routers
  */
 
-import { beforeAll, afterAll, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
 import { eq, sql } from "drizzle-orm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { db } from "@/lib/db";
 import {
-  tenants,
-  users,
+  activityLogs,
   clients,
+  documents,
+  invoices,
   leads,
   proposals,
   tasks,
-  invoices,
-  documents,
-  activityLogs,
+  tenants,
+  users,
 } from "@/lib/db/schema";
 
 // Test tenant IDs
@@ -28,33 +28,33 @@ const USER_B_ID = "user-b-test-isolation";
 describe("Tenant Isolation Integration Tests", () => {
   beforeAll(async () => {
     // Clean up any existing test data
-    await db.delete(activityLogs).where(
-      sql`${activityLogs.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(documents).where(
-      sql`${documents.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(invoices).where(
-      sql`${invoices.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(tasks).where(
-      sql`${tasks.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(proposals).where(
-      sql`${proposals.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(leads).where(
-      sql`${leads.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(clients).where(
-      sql`${clients.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(users).where(
-      sql`${users.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(tenants).where(
-      sql`${tenants.id} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
+    await db
+      .delete(activityLogs)
+      .where(sql`${activityLogs.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(documents)
+      .where(sql`${documents.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(invoices)
+      .where(sql`${invoices.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(tasks)
+      .where(sql`${tasks.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(proposals)
+      .where(sql`${proposals.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(leads)
+      .where(sql`${leads.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(clients)
+      .where(sql`${clients.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(users)
+      .where(sql`${users.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(tenants)
+      .where(sql`${tenants.id} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
 
     // Create test tenants
     await db.insert(tenants).values([
@@ -93,33 +93,33 @@ describe("Tenant Isolation Integration Tests", () => {
 
   afterAll(async () => {
     // Clean up test data
-    await db.delete(activityLogs).where(
-      sql`${activityLogs.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(documents).where(
-      sql`${documents.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(invoices).where(
-      sql`${invoices.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(tasks).where(
-      sql`${tasks.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(proposals).where(
-      sql`${proposals.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(leads).where(
-      sql`${leads.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(clients).where(
-      sql`${clients.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(users).where(
-      sql`${users.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
-    await db.delete(tenants).where(
-      sql`${tenants.id} IN (${TENANT_A_ID}, ${TENANT_B_ID})`
-    );
+    await db
+      .delete(activityLogs)
+      .where(sql`${activityLogs.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(documents)
+      .where(sql`${documents.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(invoices)
+      .where(sql`${invoices.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(tasks)
+      .where(sql`${tasks.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(proposals)
+      .where(sql`${proposals.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(leads)
+      .where(sql`${leads.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(clients)
+      .where(sql`${clients.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(users)
+      .where(sql`${users.tenantId} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
+    await db
+      .delete(tenants)
+      .where(sql`${tenants.id} IN (${TENANT_A_ID}, ${TENANT_B_ID})`);
   });
 
   describe("Clients Table Isolation", () => {
@@ -344,7 +344,7 @@ describe("Tenant Isolation Integration Tests", () => {
         .where(eq(activityLogs.tenantId, TENANT_A_ID));
 
       expect(tenantALogs.length).toBeGreaterThanOrEqual(1);
-      const foundLogA = tenantALogs.find(log => log.id === logA.id);
+      const foundLogA = tenantALogs.find((log) => log.id === logA.id);
       expect(foundLogA).toBeDefined();
       expect(foundLogA?.description).toBe("Activity for Tenant A");
 
@@ -355,13 +355,13 @@ describe("Tenant Isolation Integration Tests", () => {
         .where(eq(activityLogs.tenantId, TENANT_B_ID));
 
       expect(tenantBLogs.length).toBeGreaterThanOrEqual(1);
-      const foundLogB = tenantBLogs.find(log => log.id === logB.id);
+      const foundLogB = tenantBLogs.find((log) => log.id === logB.id);
       expect(foundLogB).toBeDefined();
       expect(foundLogB?.description).toBe("Activity for Tenant B");
 
       // Verify cross-tenant isolation
-      const tenantAHasLogB = tenantALogs.some(log => log.id === logB.id);
-      const tenantBHasLogA = tenantBLogs.some(log => log.id === logA.id);
+      const tenantAHasLogB = tenantALogs.some((log) => log.id === logB.id);
+      const tenantBHasLogA = tenantBLogs.some((log) => log.id === logA.id);
 
       expect(tenantAHasLogB).toBe(false);
       expect(tenantBHasLogA).toBe(false);

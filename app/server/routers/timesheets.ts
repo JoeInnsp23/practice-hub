@@ -3,9 +3,17 @@ import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, timeEntries, timesheetSubmissions, users } from "@/lib/db/schema";
+import {
+  activityLogs,
+  timeEntries,
+  timesheetSubmissions,
+  users,
+} from "@/lib/db/schema";
+import {
+  sendTimesheetApprovalEmail,
+  sendTimesheetRejectionEmail,
+} from "@/lib/email/timesheet-notifications";
 import { protectedProcedure, router } from "../trpc";
-import { sendTimesheetApprovalEmail, sendTimesheetRejectionEmail } from "@/lib/email/timesheet-notifications";
 
 // Generate schema from Drizzle table definition
 const insertTimeEntrySchema = createInsertSchema(timeEntries, {
@@ -270,10 +278,12 @@ export const timesheetsRouter = router({
 
   // Submit week for approval
   submit: protectedProcedure
-    .input(z.object({
-      weekStartDate: z.string(), // ISO date
-      weekEndDate: z.string(),
-    }))
+    .input(
+      z.object({
+        weekStartDate: z.string(), // ISO date
+        weekEndDate: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId } = ctx.authContext;
 
@@ -306,12 +316,15 @@ export const timesheetsRouter = router({
           and(
             eq(timesheetSubmissions.tenantId, tenantId),
             eq(timesheetSubmissions.userId, userId),
-            eq(timesheetSubmissions.weekStartDate, input.weekStartDate)
-          )
+            eq(timesheetSubmissions.weekStartDate, input.weekStartDate),
+          ),
         )
         .limit(1);
 
-      if (existingSubmission.length > 0 && existingSubmission[0].status === "pending") {
+      if (
+        existingSubmission.length > 0 &&
+        existingSubmission[0].status === "pending"
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "This week has already been submitted",
@@ -319,14 +332,17 @@ export const timesheetsRouter = router({
       }
 
       // Create submission
-      const [newSubmission] = await db.insert(timesheetSubmissions).values({
-        tenantId,
-        userId,
-        weekStartDate: input.weekStartDate,
-        weekEndDate: input.weekEndDate,
-        status: existingSubmission.length > 0 ? "resubmitted" : "pending",
-        totalHours: totalHours.toString(),
-      }).returning();
+      const [newSubmission] = await db
+        .insert(timesheetSubmissions)
+        .values({
+          tenantId,
+          userId,
+          weekStartDate: input.weekStartDate,
+          weekEndDate: input.weekEndDate,
+          status: existingSubmission.length > 0 ? "resubmitted" : "pending",
+          totalHours: totalHours.toString(),
+        })
+        .returning();
 
       // Link time entries to submission
       await db.execute(sql`
@@ -342,42 +358,41 @@ export const timesheetsRouter = router({
     }),
 
   // Get pending approvals (manager only)
-  getPendingApprovals: protectedProcedure
-    .query(async ({ ctx }) => {
-      const { tenantId, role } = ctx.authContext;
+  getPendingApprovals: protectedProcedure.query(async ({ ctx }) => {
+    const { tenantId, role } = ctx.authContext;
 
-      // Check if user is manager/admin
-      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
-        throw new TRPCError({ code: "FORBIDDEN" });
-      }
+    // Check if user is manager/admin
+    if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+      throw new TRPCError({ code: "FORBIDDEN" });
+    }
 
-      const submissions = await db
-        .select({
-          id: timesheetSubmissions.id,
-          weekStartDate: timesheetSubmissions.weekStartDate,
-          weekEndDate: timesheetSubmissions.weekEndDate,
-          totalHours: timesheetSubmissions.totalHours,
-          submittedAt: timesheetSubmissions.submittedAt,
-          status: timesheetSubmissions.status,
-          user: {
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-          },
-        })
-        .from(timesheetSubmissions)
-        .innerJoin(users, eq(timesheetSubmissions.userId, users.id))
-        .where(
-          and(
-            eq(timesheetSubmissions.tenantId, tenantId),
-            inArray(timesheetSubmissions.status, ["pending", "resubmitted"])
-          )
-        )
-        .orderBy(desc(timesheetSubmissions.submittedAt));
+    const submissions = await db
+      .select({
+        id: timesheetSubmissions.id,
+        weekStartDate: timesheetSubmissions.weekStartDate,
+        weekEndDate: timesheetSubmissions.weekEndDate,
+        totalHours: timesheetSubmissions.totalHours,
+        submittedAt: timesheetSubmissions.submittedAt,
+        status: timesheetSubmissions.status,
+        user: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        },
+      })
+      .from(timesheetSubmissions)
+      .innerJoin(users, eq(timesheetSubmissions.userId, users.id))
+      .where(
+        and(
+          eq(timesheetSubmissions.tenantId, tenantId),
+          inArray(timesheetSubmissions.status, ["pending", "resubmitted"]),
+        ),
+      )
+      .orderBy(desc(timesheetSubmissions.submittedAt));
 
-      return submissions;
-    }),
+    return submissions;
+  }),
 
   // Approve submission
   approve: protectedProcedure
@@ -401,8 +416,8 @@ export const timesheetsRouter = router({
         .where(
           and(
             eq(timesheetSubmissions.id, input.submissionId),
-            eq(timesheetSubmissions.tenantId, tenantId)
-          )
+            eq(timesheetSubmissions.tenantId, tenantId),
+          ),
         )
         .returning();
 
@@ -424,10 +439,12 @@ export const timesheetsRouter = router({
 
   // Reject submission
   reject: protectedProcedure
-    .input(z.object({
-      submissionId: z.string(),
-      comments: z.string().min(1).max(1000),
-    }))
+    .input(
+      z.object({
+        submissionId: z.string(),
+        comments: z.string().min(1).max(1000),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName, role } = ctx.authContext;
 
@@ -448,8 +465,8 @@ export const timesheetsRouter = router({
         .where(
           and(
             eq(timesheetSubmissions.id, input.submissionId),
-            eq(timesheetSubmissions.tenantId, tenantId)
-          )
+            eq(timesheetSubmissions.tenantId, tenantId),
+          ),
         )
         .returning();
 
@@ -494,8 +511,8 @@ export const timesheetsRouter = router({
         .where(
           and(
             inArray(timesheetSubmissions.id, input.submissionIds),
-            eq(timesheetSubmissions.tenantId, tenantId)
-          )
+            eq(timesheetSubmissions.tenantId, tenantId),
+          ),
         );
 
       // Bulk update
@@ -509,8 +526,8 @@ export const timesheetsRouter = router({
         .where(
           and(
             inArray(timesheetSubmissions.id, input.submissionIds),
-            eq(timesheetSubmissions.tenantId, tenantId)
-          )
+            eq(timesheetSubmissions.tenantId, tenantId),
+          ),
         );
 
       // Send emails for each approved submission
@@ -522,8 +539,8 @@ export const timesheetsRouter = router({
             weekEndDate: submission.weekEndDate,
             managerName: `${firstName} ${lastName}`,
             totalHours: Number(submission.totalHours),
-          })
-        )
+          }),
+        ),
       );
 
       return { success: true, count: input.submissionIds.length };
@@ -531,10 +548,12 @@ export const timesheetsRouter = router({
 
   // Bulk reject
   bulkReject: protectedProcedure
-    .input(z.object({
-      submissionIds: z.array(z.string()),
-      comments: z.string().min(1).max(1000),
-    }))
+    .input(
+      z.object({
+        submissionIds: z.array(z.string()),
+        comments: z.string().min(1).max(1000),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName, role } = ctx.authContext;
 
@@ -550,8 +569,8 @@ export const timesheetsRouter = router({
         .where(
           and(
             inArray(timesheetSubmissions.id, input.submissionIds),
-            eq(timesheetSubmissions.tenantId, tenantId)
-          )
+            eq(timesheetSubmissions.tenantId, tenantId),
+          ),
         );
 
       // Bulk update
@@ -566,8 +585,8 @@ export const timesheetsRouter = router({
         .where(
           and(
             inArray(timesheetSubmissions.id, input.submissionIds),
-            eq(timesheetSubmissions.tenantId, tenantId)
-          )
+            eq(timesheetSubmissions.tenantId, tenantId),
+          ),
         );
 
       // Unlink time entries from all rejected submissions
@@ -586,8 +605,8 @@ export const timesheetsRouter = router({
             weekEndDate: submission.weekEndDate,
             managerName: `${firstName} ${lastName}`,
             rejectionReason: input.comments,
-          })
-        )
+          }),
+        ),
       );
 
       return { success: true, count: input.submissionIds.length };
@@ -595,9 +614,11 @@ export const timesheetsRouter = router({
 
   // Get submission status for week
   getSubmissionStatus: protectedProcedure
-    .input(z.object({
-      weekStartDate: z.string(),
-    }))
+    .input(
+      z.object({
+        weekStartDate: z.string(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { tenantId, userId } = ctx.authContext;
 
@@ -608,8 +629,8 @@ export const timesheetsRouter = router({
           and(
             eq(timesheetSubmissions.tenantId, tenantId),
             eq(timesheetSubmissions.userId, userId),
-            eq(timesheetSubmissions.weekStartDate, input.weekStartDate)
-          )
+            eq(timesheetSubmissions.weekStartDate, input.weekStartDate),
+          ),
         )
         .limit(1);
 

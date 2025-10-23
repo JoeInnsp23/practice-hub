@@ -1,10 +1,18 @@
-import { eq } from "drizzle-orm";
 import * as Sentry from "@sentry/nextjs";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 
 // Simple email sending function (using existing sendEmail pattern)
-async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
+async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
   // Import Resend dynamically to avoid initialization errors
   const { Resend } = await import("resend");
 
@@ -61,9 +69,15 @@ export async function sendTimesheetApprovalEmail({
   totalHours?: number;
 }) {
   // Get user email
-  const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
   if (user.length === 0) {
-    const error = new Error(`User ${userId} not found for timesheet approval email`);
+    const error = new Error(
+      `User ${userId} not found for timesheet approval email`,
+    );
     Sentry.captureException(error, {
       tags: { operation: "email_approval", type: "user_not_found" },
       extra: { userId, weekStartDate, weekEndDate },
@@ -132,9 +146,15 @@ export async function sendTimesheetRejectionEmail({
   rejectionReason: string;
 }) {
   // Get user email
-  const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
   if (user.length === 0) {
-    const error = new Error(`User ${userId} not found for timesheet rejection email`);
+    const error = new Error(
+      `User ${userId} not found for timesheet rejection email`,
+    );
     Sentry.captureException(error, {
       tags: { operation: "email_rejection", type: "user_not_found" },
       extra: { userId, weekStartDate, weekEndDate, rejectionReason },

@@ -1,9 +1,14 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-hot-toast";
 import { z } from "zod";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +27,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -30,13 +34,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/lib/trpc/client";
-import { toast } from "react-hot-toast";
-import { Loader2, Info } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { SUPPORTED_PLACEHOLDERS } from "@/lib/services/template-placeholders";
+import { trpc } from "@/lib/trpc/client";
 
 const formSchema = z.object({
   serviceId: z.string().uuid("Please select a service"),
@@ -73,12 +73,10 @@ export function TaskTemplateFormDialog({
   const services = servicesData?.services || [];
 
   // Fetch template data if editing
-  const { data: template, isLoading: isLoadingTemplate } = trpc.taskTemplates.getById.useQuery(
-    templateId!,
-    {
+  const { data: template, isLoading: isLoadingTemplate } =
+    trpc.taskTemplates.getById.useQuery(templateId!, {
       enabled: !!templateId,
-    },
-  );
+    });
 
   // Create mutation
   const createMutation = trpc.taskTemplates.create.useMutation({
@@ -125,7 +123,12 @@ export function TaskTemplateFormDialog({
         namePattern: template.namePattern,
         descriptionPattern: template.descriptionPattern || "",
         estimatedHours: template.estimatedHours || undefined,
-        priority: template.priority as "low" | "medium" | "high" | "urgent" | "critical",
+        priority: template.priority as
+          | "low"
+          | "medium"
+          | "high"
+          | "urgent"
+          | "critical",
         taskType: template.taskType || "compliance",
         dueDateOffsetDays: template.dueDateOffsetDays,
         dueDateOffsetMonths: template.dueDateOffsetMonths,
@@ -158,7 +161,9 @@ export function TaskTemplateFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Template" : "Create Template"}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Template" : "Create Template"}
+          </DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update the task template settings below"
@@ -222,7 +227,8 @@ export function TaskTemplateFormDialog({
                         onClick={() => setShowPlaceholders(!showPlaceholders)}
                         className="text-primary hover:underline"
                       >
-                        {showPlaceholders ? "Hide" : "Show"} available placeholders
+                        {showPlaceholders ? "Hide" : "Show"} available
+                        placeholders
                       </button>
                     </FormDescription>
                     <FormMessage />
@@ -240,19 +246,25 @@ export function TaskTemplateFormDialog({
                         Available Placeholders:
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(SUPPORTED_PLACEHOLDERS).map(([key, description]) => (
-                          <Badge
-                            key={key}
-                            variant="outline"
-                            className="text-xs cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900"
-                            onClick={() => {
-                              const currentValue = form.getValues("namePattern");
-                              form.setValue("namePattern", `${currentValue}{${key}}`);
-                            }}
-                          >
-                            {`{${key}}`}
-                          </Badge>
-                        ))}
+                        {Object.entries(SUPPORTED_PLACEHOLDERS).map(
+                          ([key, description]) => (
+                            <Badge
+                              key={key}
+                              variant="outline"
+                              className="text-xs cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900"
+                              onClick={() => {
+                                const currentValue =
+                                  form.getValues("namePattern");
+                                form.setValue(
+                                  "namePattern",
+                                  `${currentValue}{${key}}`,
+                                );
+                              }}
+                            >
+                              {`{${key}}`}
+                            </Badge>
+                          ),
+                        )}
                       </div>
                       <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                         Click a placeholder to insert it into the name pattern
@@ -277,7 +289,8 @@ export function TaskTemplateFormDialog({
                       />
                     </FormControl>
                     <FormDescription>
-                      Task description template (optional, supports placeholders)
+                      Task description template (optional, supports
+                      placeholders)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -292,7 +305,10 @@ export function TaskTemplateFormDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Task Type *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select task type" />
@@ -300,7 +316,9 @@ export function TaskTemplateFormDialog({
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="compliance">Compliance</SelectItem>
-                          <SelectItem value="bookkeeping">Bookkeeping</SelectItem>
+                          <SelectItem value="bookkeeping">
+                            Bookkeeping
+                          </SelectItem>
                           <SelectItem value="advisory">Advisory</SelectItem>
                           <SelectItem value="review">Review</SelectItem>
                           <SelectItem value="client_communication">
@@ -319,7 +337,10 @@ export function TaskTemplateFormDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Priority *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select priority" />
@@ -347,7 +368,13 @@ export function TaskTemplateFormDialog({
                   <FormItem>
                     <FormLabel>Estimated Hours</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.5" min="0" placeholder="e.g., 8" {...field} />
+                      <Input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        placeholder="e.g., 8"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
                       Expected time to complete this task (optional)
@@ -366,9 +393,16 @@ export function TaskTemplateFormDialog({
                     <FormItem>
                       <FormLabel>Due Date Offset (Months)</FormLabel>
                       <FormControl>
-                        <Input type="number" min="0" placeholder="e.g., 3" {...field} />
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="e.g., 3"
+                          {...field}
+                        />
                       </FormControl>
-                      <FormDescription>Months after service activation</FormDescription>
+                      <FormDescription>
+                        Months after service activation
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -381,9 +415,16 @@ export function TaskTemplateFormDialog({
                     <FormItem>
                       <FormLabel>Due Date Offset (Days)</FormLabel>
                       <FormControl>
-                        <Input type="number" min="0" placeholder="e.g., 30" {...field} />
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="e.g., 30"
+                          {...field}
+                        />
                       </FormControl>
-                      <FormDescription>Days after service activation</FormDescription>
+                      <FormDescription>
+                        Days after service activation
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -397,13 +438,16 @@ export function TaskTemplateFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                     <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel>Recurring Task</FormLabel>
                       <FormDescription>
-                        Mark this template for recurring task generation (e.g., quarterly VAT
-                        returns)
+                        Mark this template for recurring task generation (e.g.,
+                        quarterly VAT returns)
                       </FormDescription>
                     </div>
                   </FormItem>
@@ -411,11 +455,17 @@ export function TaskTemplateFormDialog({
               />
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   {isEditing ? "Update Template" : "Create Template"}
                 </Button>
               </DialogFooter>

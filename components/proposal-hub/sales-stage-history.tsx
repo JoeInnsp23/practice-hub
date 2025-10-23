@@ -57,8 +57,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
 
   // Sort by date descending (most recent first)
   const sortedActivities = [...stageActivities].sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   // Calculate time in each stage
@@ -164,7 +163,8 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
                   {/* Duration Badge */}
                   {activity.duration > 0 && (
                     <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                      {activity.duration} {activity.duration === 1 ? "day" : "days"}
+                      {activity.duration}{" "}
+                      {activity.duration === 1 ? "day" : "days"}
                     </span>
                   )}
                 </div>

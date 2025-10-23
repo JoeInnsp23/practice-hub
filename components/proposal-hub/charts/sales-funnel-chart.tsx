@@ -69,7 +69,9 @@ export function SalesFunnelChart({
         </div>
         <div className="flex items-center justify-center h-[350px]">
           <div className="text-center">
-            <p className="text-muted-foreground">No sales funnel data available</p>
+            <p className="text-muted-foreground">
+              No sales funnel data available
+            </p>
             <p className="text-xs text-muted-foreground mt-1">
               Create proposals to see sales stage progression
             </p>
@@ -112,7 +114,8 @@ export function SalesFunnelChart({
       <div className="space-y-2 mb-4">
         <h3 className="text-lg font-semibold text-foreground">Sales Funnel</h3>
         <p className="text-sm text-muted-foreground">
-          {data.totalProposals} total proposals | {data.wonCount} won | {data.lostCount} lost | {data.winRate}% win rate
+          {data.totalProposals} total proposals | {data.wonCount} won |{" "}
+          {data.lostCount} lost | {data.winRate}% win rate
         </p>
       </div>
 
@@ -155,7 +158,11 @@ export function SalesFunnelChart({
             iconType="rect"
             formatter={(value) => (
               <span className="text-sm text-muted-foreground">
-                {value === "count" ? "Proposals" : value === "value" ? "Total Value (£)" : "Conversion Rate (%)"}
+                {value === "count"
+                  ? "Proposals"
+                  : value === "value"
+                    ? "Total Value (£)"
+                    : "Conversion Rate (%)"}
               </span>
             )}
           />

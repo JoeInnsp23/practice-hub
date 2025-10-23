@@ -7,24 +7,30 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Context } from "@/app/server/context";
 import { workflowsRouter } from "@/app/server/routers/workflows";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { db } from "@/lib/db";
 import {
+  tasks,
+  taskWorkflowInstances,
+  workflowStages,
+  workflows,
+  workflowVersions,
+} from "@/lib/db/schema";
+import {
+  cleanupTestData,
+  createTestClient,
+  createTestTask,
   createTestTenant,
   createTestUser,
   createTestWorkflow,
   createTestWorkflowStage,
-  createTestTask,
-  createTestClient,
-  cleanupTestData,
   type TestDataTracker,
 } from "../helpers/factories";
-import { db } from "@/lib/db";
-import { workflows, workflowStages, workflowVersions, taskWorkflowInstances, tasks } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/workflows.ts (Integration)", () => {
   let ctx: Context;
@@ -122,7 +128,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
             stageOrder: 1,
             isRequired: true,
             estimatedHours: "8.00",
-            checklistItems: ["Review tax documents", "Verify client information"],
+            checklistItems: [
+              "Review tax documents",
+              "Verify client information",
+            ],
             autoComplete: false,
             requiresApproval: true,
           },
@@ -196,12 +205,20 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
   describe("list (Integration)", () => {
     it("should list workflows with tenant isolation", async () => {
       // Create test workflows
-      const workflow1 = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Workflow Alpha",
-      });
-      const workflow2 = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Workflow Beta",
-      });
+      const workflow1 = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Workflow Alpha",
+        },
+      );
+      const workflow2 = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Workflow Beta",
+        },
+      );
       tracker.workflows?.push(workflow1.id, workflow2.id);
 
       const result = await caller.list({});
@@ -215,19 +232,27 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       }
 
       // Verify our test workflows are in the list
-      const workflowIds = result.map(w => w.id);
+      const workflowIds = result.map((w) => w.id);
       expect(workflowIds).toContain(workflow1.id);
       expect(workflowIds).toContain(workflow2.id);
     });
 
     it("should filter workflows by isActive status", async () => {
       // Create active and inactive workflows
-      const activeWorkflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        isActive: true,
-      });
-      const inactiveWorkflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        isActive: false,
-      });
+      const activeWorkflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          isActive: true,
+        },
+      );
+      const inactiveWorkflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          isActive: false,
+        },
+      );
       tracker.workflows?.push(activeWorkflow.id, inactiveWorkflow.id);
 
       const result = await caller.list({ isActive: true });
@@ -240,14 +265,17 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should return stage count for each workflow", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       await createTestWorkflowStage(workflow.id, { stageOrder: 1 });
       await createTestWorkflowStage(workflow.id, { stageOrder: 2 });
       tracker.workflows?.push(workflow.id);
 
       const result = await caller.list({});
 
-      const testWorkflow = result.find(w => w.id === workflow.id);
+      const testWorkflow = result.find((w) => w.id === workflow.id);
       expect(testWorkflow).toBeDefined();
       expect(testWorkflow!.stageCount).toBe(2);
     });
@@ -255,11 +283,21 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("getById (Integration)", () => {
     it("should retrieve workflow with stages", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "GetById Test Workflow",
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "GetById Test Workflow",
+        },
+      );
+      const stage1 = await createTestWorkflowStage(workflow.id, {
+        stageOrder: 1,
+        name: "Stage 1",
       });
-      const stage1 = await createTestWorkflowStage(workflow.id, { stageOrder: 1, name: "Stage 1" });
-      const stage2 = await createTestWorkflowStage(workflow.id, { stageOrder: 2, name: "Stage 2" });
+      const stage2 = await createTestWorkflowStage(workflow.id, {
+        stageOrder: 2,
+        name: "Stage 2",
+      });
       tracker.workflows?.push(workflow.id);
 
       const result = await caller.getById(workflow.id);
@@ -275,7 +313,9 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent ID", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.getById(nonExistentId)).rejects.toThrow("Workflow not found");
+      await expect(caller.getById(nonExistentId)).rejects.toThrow(
+        "Workflow not found",
+      );
     });
 
     it("should prevent cross-tenant access (CRITICAL)", async () => {
@@ -291,7 +331,9 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.workflows?.push(workflowA.id);
 
       // Attempt to access tenant A's workflow from tenant B (our test tenant)
-      await expect(caller.getById(workflowA.id)).rejects.toThrow("Workflow not found");
+      await expect(caller.getById(workflowA.id)).rejects.toThrow(
+        "Workflow not found",
+      );
 
       // The error should be NOT_FOUND, not FORBIDDEN (data should be invisible)
       try {
@@ -306,11 +348,15 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("update (Integration)", () => {
     it("should update workflow and increment version", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Original Name",
-        description: "Original description",
-        version: 1,
-      });
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Original Name",
+          description: "Original description",
+          version: 1,
+        },
+      );
       tracker.workflows?.push(workflow.id);
 
       const result = await caller.update({
@@ -365,8 +411,14 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should update stages when provided", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
-      await createTestWorkflowStage(workflow.id, { stageOrder: 1, name: "Old Stage" });
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      await createTestWorkflowStage(workflow.id, {
+        stageOrder: 1,
+        name: "Old Stage",
+      });
       tracker.workflows?.push(workflow.id);
 
       await caller.update({
@@ -412,7 +464,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         caller.update({
           id: nonExistentId,
           data: { name: "Should Fail" },
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
 
@@ -431,16 +483,20 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         caller.update({
           id: workflowA.id,
           data: { name: "Malicious Update" },
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
   });
 
   describe("delete (Integration)", () => {
     it("should delete workflow from database", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        name: "Delete Test Workflow",
-      });
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          name: "Delete Test Workflow",
+        },
+      );
       tracker.workflows?.push(workflow.id);
 
       const result = await caller.delete(workflow.id);
@@ -457,9 +513,19 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should prevent deletion if workflow is in use by tasks", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
 
       tracker.workflows?.push(workflow.id);
       tracker.clients?.push(client.id);
@@ -502,7 +568,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.taskWorkflowInstances?.push(instance.id);
 
       await expect(caller.delete(workflow.id)).rejects.toThrow(
-        "Cannot delete workflow that is in use by tasks"
+        "Cannot delete workflow that is in use by tasks",
       );
 
       // Verify workflow still exists
@@ -517,7 +583,9 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     it("should throw NOT_FOUND for non-existent workflow", async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(caller.delete(nonExistentId)).rejects.toThrow("Workflow not found");
+      await expect(caller.delete(nonExistentId)).rejects.toThrow(
+        "Workflow not found",
+      );
     });
 
     it("should prevent cross-tenant deletion", async () => {
@@ -531,7 +599,9 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.workflows?.push(workflowA.id);
 
       // Attempt to delete from different tenant
-      await expect(caller.delete(workflowA.id)).rejects.toThrow("Workflow not found");
+      await expect(caller.delete(workflowA.id)).rejects.toThrow(
+        "Workflow not found",
+      );
 
       // Verify workflow still exists
       const [dbWorkflow] = await db
@@ -545,9 +615,13 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("toggleActive (Integration)", () => {
     it("should toggle workflow active status", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId, {
-        isActive: true,
-      });
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        {
+          isActive: true,
+        },
+      );
       tracker.workflows?.push(workflow.id);
 
       const result = await caller.toggleActive({
@@ -574,7 +648,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         caller.toggleActive({
           id: nonExistentId,
           isActive: true,
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
 
@@ -584,21 +658,26 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.tenants?.push(tenantAId);
       tracker.users?.push(userAId);
 
-      const workflowA = await createTestWorkflow(tenantAId, userAId, { isActive: true });
+      const workflowA = await createTestWorkflow(tenantAId, userAId, {
+        isActive: true,
+      });
       tracker.workflows?.push(workflowA.id);
 
       await expect(
         caller.toggleActive({
           id: workflowA.id,
           isActive: false,
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
   });
 
   describe("listVersions (Integration)", () => {
     it("should list all versions for a workflow", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       // Create a version manually for testing
@@ -649,7 +728,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("publishVersion (Integration)", () => {
     it("should publish a version and make it active", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const [version1] = await db
@@ -692,7 +774,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should deactivate other versions when publishing", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const [version1] = await db
@@ -756,7 +841,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("compareVersions (Integration)", () => {
     it("should compare two versions and show differences", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const [version1] = await db
@@ -773,8 +861,15 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           config: {},
           stagesSnapshot: {
             stages: [
-              { id: "stage1", name: "Stage 1", stageOrder: 1, isRequired: true, estimatedHours: "8", checklistItems: [] }
-            ]
+              {
+                id: "stage1",
+                name: "Stage 1",
+                stageOrder: 1,
+                isRequired: true,
+                estimatedHours: "8",
+                checklistItems: [],
+              },
+            ],
           },
           changeDescription: "Version 1",
           changeType: "created",
@@ -797,8 +892,15 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           config: {},
           stagesSnapshot: {
             stages: [
-              { id: "stage1", name: "Stage 1 Updated", stageOrder: 1, isRequired: true, estimatedHours: "10", checklistItems: [] }
-            ]
+              {
+                id: "stage1",
+                name: "Stage 1 Updated",
+                stageOrder: 1,
+                isRequired: true,
+                estimatedHours: "10",
+                checklistItems: [],
+              },
+            ],
           },
           changeDescription: "Version 2",
           changeType: "updated",
@@ -823,7 +925,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should throw NOT_FOUND for non-existent versions", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const nonExistentId = crypto.randomUUID();
@@ -833,25 +938,41 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           workflowId: workflow.id,
           versionId1: nonExistentId,
           versionId2: nonExistentId,
-        })
+        }),
       ).rejects.toThrow("One or both versions not found");
     });
   });
 
   describe("getActiveInstances (Integration)", () => {
     it("should retrieve active workflow instances for a workflow", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Task 1 with Workflow",
-      });
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId, {
-        title: "Task 2 with Workflow",
-      });
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Task 1 with Workflow",
+        },
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+        {
+          title: "Task 2 with Workflow",
+        },
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       // Create workflow version
@@ -899,8 +1020,14 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.taskWorkflowInstances?.push(instance2.id);
 
       // Update tasks to link them to workflow
-      await db.update(tasks).set({ workflowId: workflow.id }).where(eq(tasks.id, task1.id));
-      await db.update(tasks).set({ workflowId: workflow.id }).where(eq(tasks.id, task2.id));
+      await db
+        .update(tasks)
+        .set({ workflowId: workflow.id })
+        .where(eq(tasks.id, task1.id));
+      await db
+        .update(tasks)
+        .set({ workflowId: workflow.id })
+        .where(eq(tasks.id, task2.id));
 
       const result = await caller.getActiveInstances(workflow.id);
 
@@ -914,7 +1041,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should return empty array if no active instances", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const result = await caller.getActiveInstances(workflow.id);
@@ -923,13 +1053,23 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should only return active instances, not completed", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       const [version] = await db
@@ -962,7 +1102,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         .returning();
       tracker.taskWorkflowInstances?.push(instance.id);
 
-      await db.update(tasks).set({ workflowId: workflow.id }).where(eq(tasks.id, task.id));
+      await db
+        .update(tasks)
+        .set({ workflowId: workflow.id })
+        .where(eq(tasks.id, task.id));
 
       const result = await caller.getActiveInstances(workflow.id);
 
@@ -989,13 +1132,23 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("migrateInstances (Integration)", () => {
     it("should migrate instances to new workflow version", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       // Create version 1
@@ -1068,13 +1221,23 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
     });
 
     it("should throw NOT_FOUND for non-existent version", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task.id);
 
       const [version] = await db
@@ -1112,19 +1275,33 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         caller.migrateInstances({
           instanceIds: [instance.id],
           newVersionId: nonExistentVersionId,
-        })
+        }),
       ).rejects.toThrow("Version not found");
     });
 
     it("should handle multiple instances", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
-      const client = await createTestClient(ctx.authContext.tenantId, ctx.authContext.userId);
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.clients?.push(client.id);
 
-      const task1 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
-      const task2 = await createTestTask(ctx.authContext.tenantId, client.id, ctx.authContext.userId);
+      const task1 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
+      const task2 = await createTestTask(
+        ctx.authContext.tenantId,
+        client.id,
+        ctx.authContext.userId,
+      );
       tracker.tasks?.push(task1.id, task2.id);
 
       const [version1] = await db
@@ -1197,7 +1374,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
   describe("rollbackToVersion (Integration)", () => {
     it("should create new version based on previous version", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       // Create version 1
@@ -1219,7 +1399,10 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.workflowVersions?.push(version1.id);
 
       // Update workflow version counter
-      await db.update(workflows).set({ version: 2 }).where(eq(workflows.id, workflow.id));
+      await db
+        .update(workflows)
+        .set({ version: 2 })
+        .where(eq(workflows.id, workflow.id));
 
       const result = await caller.rollbackToVersion({
         workflowId: workflow.id,
@@ -1246,12 +1429,15 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           workflowId: nonExistentWorkflowId,
           targetVersionId: nonExistentVersionId,
           publishImmediately: false,
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
 
     it("should throw NOT_FOUND for non-existent target version", async () => {
-      const workflow = await createTestWorkflow(ctx.authContext.tenantId, ctx.authContext.userId);
+      const workflow = await createTestWorkflow(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
       tracker.workflows?.push(workflow.id);
 
       const nonExistentVersionId = crypto.randomUUID();
@@ -1261,7 +1447,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           workflowId: workflow.id,
           targetVersionId: nonExistentVersionId,
           publishImmediately: false,
-        })
+        }),
       ).rejects.toThrow("Target version not found");
     });
 
@@ -1297,7 +1483,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           workflowId: workflowA.id,
           targetVersionId: versionA.id,
           publishImmediately: false,
-        })
+        }),
       ).rejects.toThrow("Workflow not found");
     });
   });
