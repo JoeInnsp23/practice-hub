@@ -28,8 +28,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GlobalHeader } from "@/components/global-header";
-import { GlobalSidebar } from "@/components/global-sidebar";
 import { trpc } from "@/app/providers/trpc-provider";
 import { toast } from "react-hot-toast";
 import {
@@ -244,67 +242,63 @@ export default function WorkTypesPage() {
   };
 
   return (
-    <div className="flex h-screen">
-      <GlobalSidebar headerColor="#f97316" />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <GlobalHeader showBackToHome={true} headerColor="#f97316" />
-        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Work Types
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1">
-                  Manage work type categories for time tracking
-                </p>
-              </div>
-              <Button onClick={() => setIsCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Work Type
-              </Button>
+    <>
+      <div className="container mx-auto py-8 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Work Types
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                Manage work type categories for time tracking
+              </p>
             </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Work Types</CardTitle>
-                <CardDescription>
-                  Configure work type categories with custom colors and billing
-                  status. Drag to reorder.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-8 text-gray-500">
-                    Loading work types...
-                  </div>
-                ) : (
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={workTypes.map((wt) => wt.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      <div className="space-y-2">
-                        {workTypes.map((workType) => (
-                          <SortableWorkTypeItem
-                            key={workType.id}
-                            workType={workType}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                          />
-                        ))}
-                      </div>
-                    </SortableContext>
-                  </DndContext>
-                )}
-              </CardContent>
-            </Card>
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Work Type
+            </Button>
           </div>
-        </main>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Work Types</CardTitle>
+              <CardDescription>
+                Configure work type categories with custom colors and billing
+                status. Drag to reorder.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="text-center py-8 text-gray-500">
+                  Loading work types...
+                </div>
+              ) : (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={workTypes.map((wt) => wt.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {workTypes.map((workType) => (
+                        <SortableWorkTypeItem
+                          key={workType.id}
+                          workType={workType}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Create Dialog */}
@@ -465,6 +459,6 @@ export default function WorkTypesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
