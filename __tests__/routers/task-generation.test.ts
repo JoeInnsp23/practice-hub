@@ -16,8 +16,8 @@ import { db } from "@/lib/db";
 import {
   clientServices,
   services,
-  taskTemplates,
   tasks,
+  taskTemplates,
 } from "@/lib/db/schema";
 import {
   cleanupTestData,
@@ -103,7 +103,6 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
     const [template] = await db
       .insert(taskTemplates)
       .values({
-        id: crypto.randomUUID(),
         tenantId: testTenantId,
         serviceId: testServiceId,
         namePattern: "VAT Q{period} - {client_name}",
@@ -115,7 +114,6 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
         dueDateOffsetDays: 0,
         isRecurring: true,
         recurringFrequency: "quarterly",
-        createdBy: testUserId,
       })
       .returning();
     testTemplateId = template.id;
@@ -143,11 +141,14 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
       expect(result.success).toBe(true);
       expect(result.taskId).toBeDefined();
 
+      // TypeScript guard: taskId is defined after toBeDefined() check
+      if (!result.taskId) throw new Error("taskId should be defined");
+
       // Verify task was created in database
       const [createdTask] = await db
         .select()
         .from(tasks)
-        .where(eq(tasks.id, result.taskId!))
+        .where(eq(tasks.id, result.taskId))
         .limit(1);
 
       expect(createdTask).toBeDefined();
@@ -182,18 +183,38 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
     });
 
     it("should enforce tenant isolation", async () => {
-      // Create another tenant
+      // Create another tenant with its own user
       const otherTenantId = await createTestTenant();
       tracker.tenants?.push(otherTenantId);
 
-      // Try to generate task using template from another tenant
+      const otherUserId = await createTestUser(otherTenantId, {
+        role: "admin",
+      });
+      tracker.users?.push(otherUserId);
+
+      // Create caller with OTHER tenant's context
+      const otherCtx = createMockContext({
+        authContext: {
+          userId: otherUserId,
+          tenantId: otherTenantId,
+          organizationName: "Other Org",
+          role: "admin",
+          email: "other@example.com",
+          firstName: "Other",
+          lastName: "User",
+        },
+      });
+
+      const otherCaller = createCaller(taskGenerationRouter, otherCtx);
+
+      // Try to generate task using template from FIRST tenant (should fail)
       await expect(
-        caller.generateFromTemplate({
+        otherCaller.generateFromTemplate({
           templateId: testTemplateId,
           clientId: testClientId,
           serviceId: testServiceId,
         }),
-      ).rejects.toThrow();
+      ).rejects.toThrow(TRPCError);
     });
 
     it("should throw error for non-existent template", async () => {
@@ -218,15 +239,20 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
 
       expect(result.success).toBe(true);
 
+      // TypeScript guard: taskId is defined
+      if (!result.taskId) throw new Error("taskId should be defined");
+
       // Verify due date is calculated from custom activation date
       const [createdTask] = await db
         .select()
         .from(tasks)
-        .where(eq(tasks.id, result.taskId!))
+        .where(eq(tasks.id, result.taskId))
         .limit(1);
 
       expect(createdTask.dueDate).toBeDefined();
-      const dueDate = new Date(createdTask.dueDate!);
+      // TypeScript guard: dueDate is defined
+      if (!createdTask.dueDate) throw new Error("dueDate should be defined");
+      const dueDate = new Date(createdTask.dueDate);
       expect(dueDate.getFullYear()).toBe(2025);
       expect(dueDate.getMonth()).toBeGreaterThanOrEqual(5); // June or later
     });
@@ -267,7 +293,9 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
       const otherTenantId = await createTestTenant();
       tracker.tenants?.push(otherTenantId);
 
-      const otherUserId = await createTestUser(otherTenantId, { role: "admin" });
+      const otherUserId = await createTestUser(otherTenantId, {
+        role: "admin",
+      });
       tracker.users?.push(otherUserId);
 
       const otherCtx = createMockContext({
@@ -387,7 +415,11 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
 
       expect(result.generated).toBe(1); // Only second client
       expect(result.skipped).toBe(1); // First client skipped
-      expect(result.details.filter((d) => d.status === "skipped")).toHaveLength(1);
+      expect(
+        result.details.filter(
+          (d: { status: string }) => d.status === "skipped",
+        ),
+      ).toHaveLength(1);
     });
 
     it("should enforce tenant isolation in bulk generation", async () => {
@@ -395,7 +427,9 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
       const otherTenantId = await createTestTenant();
       tracker.tenants?.push(otherTenantId);
 
-      const otherUserId = await createTestUser(otherTenantId, { role: "admin" });
+      const otherUserId = await createTestUser(otherTenantId, {
+        role: "admin",
+      });
       tracker.users?.push(otherUserId);
 
       const otherCtx = createMockContext({
@@ -449,9 +483,10 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
       expect(createdTasks).toHaveLength(3);
 
       // Verify they have different due dates
-      const dueDates = createdTasks.map((t) =>
-        new Date(t.dueDate!).getTime(),
-      );
+      const dueDates = createdTasks.map((t) => {
+        if (!t.dueDate) throw new Error("dueDate should be defined");
+        return new Date(t.dueDate).getTime();
+      });
       const uniqueDueDates = new Set(dueDates);
       expect(uniqueDueDates.size).toBe(3);
     });
@@ -481,7 +516,6 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
       const [nonRecurringTemplate] = await db
         .insert(taskTemplates)
         .values({
-          id: crypto.randomUUID(),
           tenantId: testTenantId,
           serviceId: testServiceId,
           namePattern: "One-time Task - {client_name}",
@@ -489,7 +523,6 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
           taskType: "consultation",
           isRecurring: false,
           recurringFrequency: null,
-          createdBy: testUserId,
         })
         .returning();
 

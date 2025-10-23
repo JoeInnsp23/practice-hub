@@ -9,7 +9,9 @@ import {
   Target,
   Users,
 } from "lucide-react";
+import Papa from "papaparse";
 import { useMemo, useState } from "react";
+import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { ClientBreakdown } from "@/components/client-hub/reports/client-breakdown";
 import { RevenueChart } from "@/components/client-hub/reports/revenue-chart";
@@ -192,22 +194,31 @@ export default function ReportsPage() {
           return;
       }
 
-      // Convert to CSV string
-      const csvContent = csvData.map((row) => row.join(",")).join("\n");
+      // Use Papa.unparse for proper CSV escaping
+      const csvContent = Papa.unparse(csvData, {
+        quotes: true, // Quote all fields to handle special characters
+        delimiter: ",",
+        newline: "\n",
+        escapeFormulae: true, // Prevent CSV injection attacks
+      });
 
       // Create blob and download
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", filename);
-      link.style.visibility = "hidden";
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
       toast.success(`Exported ${filename}`);
-    } catch (_error) {
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { operation: "export_report" },
+        extra: { reportType },
+      });
       toast.error("Failed to export report");
     }
   };
@@ -256,7 +267,7 @@ export default function ReportsPage() {
             <TabsTrigger value="productivity">Productivity</TabsTrigger>
           </TabsList>
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40" data-testid="date-range-selector">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -285,7 +296,7 @@ export default function ReportsPage() {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
+            <Card data-testid="kpi-total-revenue">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Revenue
@@ -321,7 +332,7 @@ export default function ReportsPage() {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card data-testid="kpi-active-clients">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Active Clients
@@ -378,6 +389,7 @@ export default function ReportsPage() {
                   })) || []
                 }
                 period="Last 12 Months"
+                data-testid="monthly-revenue-chart"
               />
             )}
 
@@ -412,12 +424,13 @@ export default function ReportsPage() {
                   }) || []
                 }
                 totalRevenue={kpis.totalRevenue}
+                data-testid="client-breakdown-chart"
               />
             )}
           </div>
 
           {/* Service Performance */}
-          <Card>
+          <Card data-testid="service-performance-table">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />

@@ -150,6 +150,8 @@ export async function getServicePerformance(
   options?: {
     startDate?: Date;
     endDate?: Date;
+    limit?: number;
+    offset?: number;
   },
 ) {
   // Build base query for service revenue from invoices
@@ -200,7 +202,9 @@ export async function getServicePerformance(
       services.code,
       services.category,
     )
-    .orderBy(desc(sql`total_revenue`));
+    .orderBy(desc(sql`total_revenue`))
+    .limit(options?.limit || 20)
+    .offset(options?.offset || 0);
 
   return await serviceRevenueQuery;
 }

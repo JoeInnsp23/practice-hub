@@ -40,6 +40,7 @@ import {
   proposalVersions,
   services,
   staffCapacity,
+  workingPatterns,
   taskAssignmentHistory,
   taskNotes,
   tasks,
@@ -109,6 +110,7 @@ async function clearDatabase() {
 
   await db.delete(invitations);
   await db.delete(staffCapacity);
+  await db.delete(workingPatterns);
   await db.delete(userSettings);
   await db.delete(users);
   await db.delete(departments);
@@ -332,6 +334,79 @@ async function seedDatabase() {
       effectiveFrom: threeMonthsAgo.toISOString().split("T")[0],
       weeklyHours: 20,
       notes: "Part-time junior accountant",
+    },
+  ]);
+
+  // 2.4. Create Working Patterns
+  console.log("Creating working patterns...");
+  await db.insert(workingPatterns).values([
+    // Joe (admin) - Standard Full-Time: Mon-Fri 7.5h (37.5h/week)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: adminUser.id,
+      patternType: "full_time",
+      contractedHours: 37.5,
+      mondayHours: 7.5,
+      tuesdayHours: 7.5,
+      wednesdayHours: 7.5,
+      thursdayHours: 7.5,
+      fridayHours: 7.5,
+      saturdayHours: 0,
+      sundayHours: 0,
+      effectiveFrom: threeMonthsAgo.toISOString().split("T")[0],
+      notes: "Standard full-time pattern",
+    },
+    // Sarah (accountant) - Standard Full-Time: Mon-Fri 7.5h (37.5h/week)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: sarahUser.id,
+      patternType: "full_time",
+      contractedHours: 37.5,
+      mondayHours: 7.5,
+      tuesdayHours: 7.5,
+      wednesdayHours: 7.5,
+      thursdayHours: 7.5,
+      fridayHours: 7.5,
+      saturdayHours: 0,
+      sundayHours: 0,
+      effectiveFrom: threeMonthsAgo.toISOString().split("T")[0],
+      notes: "Standard full-time pattern",
+    },
+    // Mike (accountant) - Compressed 4-day: Mon-Thu 9h, Fri off (36h/week)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: mikeUser.id,
+      patternType: "compressed_hours",
+      contractedHours: 36,
+      mondayHours: 9,
+      tuesdayHours: 9,
+      wednesdayHours: 9,
+      thursdayHours: 9,
+      fridayHours: 0,
+      saturdayHours: 0,
+      sundayHours: 0,
+      effectiveFrom: threeMonthsAgo.toISOString().split("T")[0],
+      notes: "Compressed 4-day week - Fridays off",
+    },
+    // Emily (member) - Part-Time: Mon-Wed 6h, Thu 2h (20h/week)
+    {
+      id: crypto.randomUUID(),
+      tenantId: tenant.id,
+      userId: emilyUser.id,
+      patternType: "part_time",
+      contractedHours: 20,
+      mondayHours: 6,
+      tuesdayHours: 6,
+      wednesdayHours: 6,
+      thursdayHours: 2,
+      fridayHours: 0,
+      saturdayHours: 0,
+      sundayHours: 0,
+      effectiveFrom: threeMonthsAgo.toISOString().split("T")[0],
+      notes: "Part-time pattern - afternoons off",
     },
   ]);
 

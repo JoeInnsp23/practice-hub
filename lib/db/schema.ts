@@ -43,6 +43,37 @@ export const departments = pgTable("departments", {
     .notNull(),
 });
 
+// Work Types table - Configurable work types per tenant
+export const workTypes = pgTable(
+  "work_types",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    code: text("code").notNull(), // "WORK", "ADMIN", "TRAINING", etc.
+    label: text("label").notNull(), // "Work", "Admin", "Training"
+    colorCode: text("color_code").notNull(), // "#3b82f6" for blue badges
+    isActive: boolean("is_active").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    isBillable: boolean("is_billable").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantCodeIdx: uniqueIndex("idx_work_type_tenant_code").on(
+      table.tenantId,
+      table.code,
+    ),
+    sortOrderIdx: index("idx_work_type_sort_order").on(table.sortOrder),
+  }),
+);
+
 // Users table - Better Auth compatible schema with tenant extension
 export const users = pgTable(
   "users",
@@ -173,6 +204,113 @@ export const staffCapacity = pgTable(
     userIdx: index("idx_staff_capacity_user").on(table.userId),
     effectiveFromIdx: index("idx_staff_capacity_effective_from").on(
       table.effectiveFrom,
+    ),
+  }),
+);
+
+// Working Patterns table - for flexible working arrangements with day-by-day hour tracking
+export const workingPatterns = pgTable(
+  "working_patterns",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    patternType: varchar("pattern_type", { length: 50 }).notNull(), // full_time, part_time, compressed_hours, job_share, custom
+    contractedHours: real("contracted_hours").notNull(),
+    mondayHours: real("monday_hours").default(0).notNull(),
+    tuesdayHours: real("tuesday_hours").default(0).notNull(),
+    wednesdayHours: real("wednesday_hours").default(0).notNull(),
+    thursdayHours: real("thursday_hours").default(0).notNull(),
+    fridayHours: real("friday_hours").default(0).notNull(),
+    saturdayHours: real("saturday_hours").default(0).notNull(),
+    sundayHours: real("sunday_hours").default(0).notNull(),
+    effectiveFrom: date("effective_from").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_working_patterns_tenant").on(table.tenantId),
+    userIdx: index("idx_working_patterns_user").on(table.userId),
+    effectiveFromIdx: index("idx_working_patterns_effective_from").on(
+      table.effectiveFrom,
+    ),
+  }),
+);
+
+// Leave Requests table - for holiday/leave request management
+export const leaveRequests = pgTable(
+  "leave_requests",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    leaveType: leaveTypeEnum("leave_type").notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    daysCount: real("days_count").notNull(),
+    status: leaveStatusEnum("status").default("pending").notNull(),
+    notes: text("notes"),
+    requestedAt: timestamp("requested_at").defaultNow().notNull(),
+    reviewedBy: text("reviewed_by").references(() => users.id),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewerComments: text("reviewer_comments"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_leave_requests_tenant").on(table.tenantId),
+    userIdx: index("idx_leave_requests_user").on(table.userId),
+    statusIdx: index("idx_leave_requests_status").on(table.status),
+    dateRangeIdx: index("idx_leave_requests_date_range").on(
+      table.startDate,
+      table.endDate,
+    ),
+  }),
+);
+
+// Leave Balances table - for tracking annual leave entitlements and usage
+export const leaveBalances = pgTable(
+  "leave_balances",
+  {
+    id: text("id").primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    year: integer("year").notNull(),
+    annualEntitlement: real("annual_entitlement").notNull().default(25), // UK standard
+    annualUsed: real("annual_used").default(0).notNull(),
+    sickUsed: real("sick_used").default(0).notNull(),
+    toilBalance: real("toil_balance").default(0).notNull(),
+    carriedOver: real("carried_over").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdx: index("idx_leave_balances_tenant").on(table.tenantId),
+    userYearIdx: uniqueIndex("idx_leave_balances_user_year").on(
+      table.userId,
+      table.year,
     ),
   }),
 );
@@ -380,6 +518,23 @@ export const timeEntryStatusEnum = pgEnum("time_entry_status", [
   "submitted",
   "approved",
   "rejected",
+]);
+
+// Leave Type enum
+export const leaveTypeEnum = pgEnum("leave_type", [
+  "annual_leave",
+  "sick_leave",
+  "toil",
+  "unpaid",
+  "other",
+]);
+
+// Leave Status enum
+export const leaveStatusEnum = pgEnum("leave_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "cancelled",
 ]);
 
 // Clients table
@@ -996,8 +1151,8 @@ export const timeEntries = pgTable(
     endTime: varchar("end_time", { length: 8 }), // HH:MM:SS
     hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
 
-    // Work type
-    workType: workTypeEnum("work_type").default("work").notNull(),
+    // Work type - References workTypes.code (validated at application level due to composite key)
+    workType: text("work_type").default("WORK").notNull(),
 
     // Billing
     billable: boolean("billable").default(true).notNull(),
@@ -1034,6 +1189,7 @@ export const timeEntries = pgTable(
       table.billed,
     ),
     statusIdx: index("idx_time_entry_status").on(table.status),
+    workTypeIdx: index("idx_time_entry_work_type").on(table.workType),
   }),
 );
 

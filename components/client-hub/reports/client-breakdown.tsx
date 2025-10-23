@@ -18,9 +18,10 @@ interface ClientData {
 interface ClientBreakdownProps {
   data: ClientData[];
   totalRevenue: number;
+  "data-testid"?: string;
 }
 
-export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
+export function ClientBreakdown({ data, totalRevenue, "data-testid": dataTestId }: ClientBreakdownProps) {
   const router = useRouter();
   const topClients = data.slice(0, 10);
 
@@ -47,7 +48,7 @@ export function ClientBreakdown({ data, totalRevenue }: ClientBreakdownProps) {
   };
 
   return (
-    <Card>
+    <Card data-testid={dataTestId}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>

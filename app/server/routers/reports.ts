@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { reportsDashboardKpiCache } from "@/lib/cache";
 import {
   calculateDateRange,
   getClientRevenue,
@@ -19,11 +20,19 @@ export const reportsRouter = router({
     try {
       const { tenantId } = ctx.authContext;
 
+      // Check cache first
+      const cacheKey = `reports:kpi:${tenantId}`;
+      const cachedData = reportsDashboardKpiCache.get(cacheKey);
+
+      if (cachedData) {
+        return cachedData;
+      }
+
       const kpiData = await getReportsDashboardKpis(tenantId);
 
       // If no data found (new tenant), return zeros
       if (!kpiData) {
-        return {
+        const emptyKpis = {
           totalRevenue: 0,
           collectedRevenue: 0,
           outstandingRevenue: 0,
@@ -36,6 +45,11 @@ export const reportsRouter = router({
           utilizationRate: 0,
           collectionRate: 0,
         };
+
+        // Cache empty result for 1 minute (new tenants may add data soon)
+        reportsDashboardKpiCache.set(cacheKey, emptyKpis, 60000);
+
+        return emptyKpis;
       }
 
       // Transform to camelCase and calculate derived metrics
@@ -44,7 +58,7 @@ export const reportsRouter = router({
       const totalHours = Number(kpiData.totalHours30d || 0);
       const billableHours = Number(kpiData.billableHours30d || 0);
 
-      return {
+      const transformedKpis = {
         totalRevenue,
         collectedRevenue,
         outstandingRevenue: Number(kpiData.outstandingRevenue || 0),
@@ -59,6 +73,11 @@ export const reportsRouter = router({
         collectionRate:
           totalRevenue > 0 ? (collectedRevenue / totalRevenue) * 100 : 0,
       };
+
+      // Cache for 5 minutes
+      reportsDashboardKpiCache.set(cacheKey, transformedKpis, 300000);
+
+      return transformedKpis;
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "reports_getDashboardKpis" },
@@ -248,6 +267,8 @@ export const reportsRouter = router({
             .optional(),
           startDate: z.string().datetime().optional(),
           endDate: z.string().datetime().optional(),
+          limit: z.number().min(1).max(100).default(20).optional(),
+          offset: z.number().min(0).default(0).optional(),
         })
         .optional(),
     )
@@ -269,7 +290,11 @@ export const reportsRouter = router({
           };
         }
 
-        const serviceData = await getServicePerformance(tenantId, dateRange);
+        const serviceData = await getServicePerformance(tenantId, {
+          ...dateRange,
+          limit: input?.limit,
+          offset: input?.offset,
+        });
 
         // Transform to frontend format
         return serviceData.map((item) => ({

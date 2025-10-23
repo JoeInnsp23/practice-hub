@@ -14,13 +14,14 @@ interface RevenueData {
 interface RevenueChartProps {
   data: RevenueData[];
   period: string;
+  "data-testid"?: string;
 }
 
-export function RevenueChart({ data, period }: RevenueChartProps) {
+export function RevenueChart({ data, period, "data-testid": dataTestId }: RevenueChartProps) {
   // Handle empty data
   if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card data-testid={dataTestId}>
         <CardHeader>
           <CardTitle>Revenue Overview</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">{period}</p>
@@ -48,7 +49,7 @@ export function RevenueChart({ data, period }: RevenueChartProps) {
       : 0;
 
   return (
-    <Card>
+    <Card data-testid={dataTestId}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>

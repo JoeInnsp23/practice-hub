@@ -97,7 +97,7 @@ describe("staffCapacityRouter", () => {
       const result = await caller.list({});
 
       // All records should belong to tenant-1
-      result.capacityRecords.forEach((record: unknown) => {
+      result.capacityRecords.forEach((record: typeof result.capacityRecords[number]) => {
         // Note: tenantId is not in the select, but it's enforced in the where clause
         expect(record).toBeDefined();
       });

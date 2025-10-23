@@ -9,6 +9,16 @@ import type { Context } from "@/app/server/context";
 import { reportsRouter } from "@/app/server/routers/reports";
 import { createCaller, createMockContext } from "../helpers/trpc";
 
+// Mock cache
+vi.mock("@/lib/cache", () => ({
+  reportsDashboardKpiCache: {
+    get: vi.fn().mockReturnValue(null),
+    set: vi.fn(),
+    delete: vi.fn(),
+    clear: vi.fn(),
+  },
+}));
+
 // Mock reports queries
 vi.mock("@/lib/db/queries/reports-queries", () => ({
   getReportsDashboardKpis: vi.fn().mockResolvedValue({

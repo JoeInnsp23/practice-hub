@@ -95,7 +95,7 @@ export function CapacityFormDialog({
     },
   });
 
-  const form = useForm<CapacityFormData>({
+  const form = useForm({
     resolver: zodResolver(capacityFormSchema),
     defaultValues: {
       userId: "",

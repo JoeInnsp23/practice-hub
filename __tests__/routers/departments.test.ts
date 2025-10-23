@@ -5,7 +5,25 @@ import { db } from "@/lib/db";
 import { departments, tenants, users } from "@/lib/db/schema";
 import { appRouter } from "../../app/server";
 import { cleanupTestData, type TestDataTracker } from "../helpers/factories";
-import { createTestContext } from "../helpers/trpc";
+import { createMockContext } from "../helpers/trpc";
+
+// Helper to create test context with auth parameters
+function createTestContext(params: {
+  userId: string;
+  tenantId: string;
+  role: string;
+}) {
+  return createMockContext({
+    authContext: {
+      userId: params.userId,
+      tenantId: params.tenantId,
+      role: params.role,
+      email: "test@example.com",
+      firstName: "Test",
+      lastName: "User",
+    },
+  });
+}
 
 describe("departments router", () => {
   let tenant1Id: string;
@@ -17,6 +35,10 @@ describe("departments router", () => {
   let taxDeptId: string;
   let auditDeptId: string;
   let tenant2DeptId: string;
+  let admin1: any;
+  let accountant1: any;
+  let member1: any;
+  let admin2: any;
 
   const tracker: TestDataTracker = {
     tenants: [],
@@ -30,18 +52,19 @@ describe("departments router", () => {
 
   beforeEach(async () => {
     // Create two tenants for multi-tenant isolation tests
+    const timestamp = Date.now();
     const [tenant1, tenant2] = await db
       .insert(tenants)
       .values([
         {
           id: crypto.randomUUID(),
           name: "Test Firm 1",
-          slug: "test-firm-1",
+          slug: `test-firm-1-${timestamp}`,
         },
         {
           id: crypto.randomUUID(),
           name: "Test Firm 2",
-          slug: "test-firm-2",
+          slug: `test-firm-2-${timestamp}`,
         },
       ])
       .returning();
@@ -92,13 +115,13 @@ describe("departments router", () => {
     tenant2DeptId = tenant2Dept.id;
 
     // Create users for tenant 1
-    const [admin1, accountant1, member1] = await db
+    [admin1, accountant1, member1] = await db
       .insert(users)
       .values([
         {
           id: crypto.randomUUID(),
           tenantId: tenant1Id,
-          email: "admin1@test.com",
+          email: `admin1-${timestamp}@test.com`,
           name: "Admin One",
           firstName: "Admin",
           lastName: "One",
@@ -110,7 +133,7 @@ describe("departments router", () => {
         {
           id: crypto.randomUUID(),
           tenantId: tenant1Id,
-          email: "accountant1@test.com",
+          email: `accountant1-${timestamp}@test.com`,
           name: "Accountant One",
           firstName: "Accountant",
           lastName: "One",
@@ -122,7 +145,7 @@ describe("departments router", () => {
         {
           id: crypto.randomUUID(),
           tenantId: tenant1Id,
-          email: "member1@test.com",
+          email: `member1-${timestamp}@test.com`,
           name: "Member One",
           firstName: "Member",
           lastName: "One",
@@ -151,12 +174,12 @@ describe("departments router", () => {
       .where(eq(departments.id, auditDeptId));
 
     // Create user for tenant 2
-    const [admin2] = await db
+    [admin2] = await db
       .insert(users)
       .values({
         id: crypto.randomUUID(),
         tenantId: tenant2Id,
-        email: "admin2@test.com",
+        email: `admin2-${timestamp}@test.com`,
         name: "Admin Two",
         firstName: "Admin",
         lastName: "Two",
@@ -323,8 +346,8 @@ describe("departments router", () => {
 
       expect(result.staff).toHaveLength(2);
       const emails = result.staff.map((s) => s.email);
-      expect(emails).toContain("admin1@test.com");
-      expect(emails).toContain("member1@test.com");
+      expect(emails).toContain(admin1.email);
+      expect(emails).toContain(member1.email);
     });
 
     it("should throw NOT_FOUND for non-existent department", async () => {

@@ -24,7 +24,7 @@
  * ```
  */
 
-import { eq, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   type Client,
@@ -33,8 +33,10 @@ import {
   documents,
   type Invoice,
   invoices,
+  services,
   type Task,
   tasks,
+  taskTemplates,
   taskWorkflowInstances,
   tenants,
   timeEntries,
@@ -59,6 +61,8 @@ export interface TestDataTracker {
   workflowStages?: string[];
   taskWorkflowInstances?: string[];
   timeEntries?: string[];
+  services?: string[];
+  taskTemplates?: string[];
 }
 
 /**
@@ -345,6 +349,16 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
 
     if (tracker.tasks && tracker.tasks.length > 0) {
       await db.delete(tasks).where(inArray(tasks.id, tracker.tasks));
+    }
+
+    if (tracker.taskTemplates && tracker.taskTemplates.length > 0) {
+      await db
+        .delete(taskTemplates)
+        .where(inArray(taskTemplates.id, tracker.taskTemplates));
+    }
+
+    if (tracker.services && tracker.services.length > 0) {
+      await db.delete(services).where(inArray(services.id, tracker.services));
     }
 
     if (tracker.clients && tracker.clients.length > 0) {

@@ -405,3 +405,168 @@ No files were modified during the QA review process.
 - All changes maintain multi-tenant isolation and type safety
 
 **Next Action:** QA re-review requested to verify all issues resolved
+
+---
+
+### Re-Review Date: 2025-01-23 (Post-Fix Verification)
+
+### Reviewed By: Quinn (Test Architect)
+
+### Verification Results
+
+**Status: ✅ ALL ISSUES RESOLVED**
+
+I have thoroughly verified all 4 issues from the previous CONCERNS gate have been properly addressed:
+
+#### Issue Resolution Verification
+
+**PERF-001 (Medium) - N+1 Query Pattern Documentation**
+- ✅ **Verified:** Comprehensive performance comments added at `staffCapacity.ts:267-283`
+- ✅ **Content Quality:** Excellent documentation including:
+  - Clear description of N+1 pattern (2 queries per user)
+  - Scale analysis with specific metrics (10 staff: 20 queries ~100-200ms, 50 staff: 100 queries ~500ms-1s)
+  - Acceptable use case defined (<50 staff)
+  - Future optimization paths documented (batch queries, materialized views, caching)
+  - YAGNI principle justification
+- ✅ **Impact:** Developers now have clear guidance on when optimization is needed
+
+**MONITOR-001 (Low) - Sentry Error Tracking**
+- ✅ **Verified:** Sentry properly integrated in `capacity-form-dialog.tsx`
+- ✅ **Implementation:**
+  - Line 4: `@sentry/nextjs` import added
+  - Lines 74-80: Create mutation error handler with `Sentry.captureException()`, operation tag, error message context
+  - Lines 89-95: Update mutation error handler with `Sentry.captureException()`, operation tag, capacityId context, error message
+- ✅ **Compliance:** Follows CLAUDE.md Error Tracking policy correctly
+- ✅ **Impact:** Production errors now captured with context for debugging
+
+**VALID-001 (Low) - Capacity Record Overlap Validation**
+- ✅ **Verified:** Business logic validation added at `staffCapacity.ts:112-132`
+- ✅ **Implementation:**
+  - Duplicate detection query checks userId, tenantId, and effectiveFrom
+  - Returns proper `CONFLICT` error (not generic error)
+  - Clear, actionable error message: "A capacity record already exists for this user with effective date {date}. Please use a different date or update the existing record."
+  - Business rule enforced: One capacity record per user per effectiveFrom date
+- ✅ **Impact:** Prevents data ambiguity and provides clear guidance to users
+
+**TEST-001 (Medium) - Comprehensive Integration Tests**
+- ✅ **Verified:** Test coverage expanded from 15 to 25 tests (67% increase)
+- ✅ **New Test Suites Added:**
+  - **Create and update operations** (5 tests):
+    - Duplicate effectiveFrom detection (tests VALID-001 fix)
+    - Valid capacity creation with different dates
+    - Boundary validation (weeklyHours < 1 and > 168)
+    - Non-existent user rejection
+  - **Delete operation** (1 test):
+    - Non-existent record error handling
+  - **Capacity history tracking** (1 test):
+    - History retrieval and descending date ordering
+  - **Edge cases** (3 tests):
+    - Users without capacity records (graceful handling)
+    - Division by zero protection (weeklyHours = 0)
+    - Negative actual hours (defensive behavior)
+- ✅ **Test Quality:**
+  - Tests handle both mock and integration environments gracefully
+  - Proper error assertions with meaningful expectations
+  - Clear documentation of test intent
+  - All 25 tests passing
+- ✅ **Impact:** Significantly improved confidence in error scenarios and edge cases
+
+#### Multi-Tenant Isolation Verification
+
+- ✅ **Status:** Preserved and enhanced
+- ✅ **References:** 27 tenantId references (increased from 26 due to overlap validation)
+- ✅ **Pattern:** All queries use proper `eq(table.tenantId, tenantId)` pattern with `and()` composition
+- ✅ **New Code:** Overlap validation (lines 118-123) properly includes tenantId in duplicate detection query
+
+#### Code Quality Assessment
+
+**Overall Grade: A (95/100)** - Excellent production-ready implementation with all acceptance criteria met and all CONCERNS issues thoroughly resolved.
+
+**Improvements Made:**
+- ✅ Performance characteristics documented with clear thresholds
+- ✅ Production error tracking with Sentry context
+- ✅ Business rule validation preventing data conflicts
+- ✅ Test coverage increased by 67% covering critical edge cases
+- ✅ Code quality maintained with no new linting issues
+- ✅ Multi-tenant isolation preserved across all changes
+- ✅ Type safety maintained throughout
+
+**Remaining Minor Opportunities (Non-Blocking):**
+- Consider full integration tests with real multi-tenant data in CI/CD pipeline (current tests handle mock environment gracefully)
+- Monitor N+1 query performance in production with team sizes >20 staff
+- Consider adding e2e tests for full capacity management workflow
+
+### Compliance Re-Check
+
+- **Coding Standards:** ✅ Passes - Clean TypeScript, proper documentation, no new linting violations
+- **Project Structure:** ✅ Passes - All changes in appropriate locations
+- **Testing Strategy:** ✅ Passes - Comprehensive test coverage with good edge case handling
+- **Error Tracking Policy:** ✅ Passes - Sentry integration follows CLAUDE.md guidelines
+- **All ACs Met:** ✅ Passes - All 12 acceptance criteria remain fully implemented
+
+### NFR Assessment - Updated
+
+**Security:** ✅ PASS (unchanged)
+- Multi-tenant isolation preserved (27 tenantId references)
+- Overlap validation adds data integrity protection
+- No new vulnerabilities introduced
+
+**Performance:** ✅ PASS (improved from CONCERNS)
+- N+1 pattern fully documented with acceptable scale (<50 staff)
+- Clear optimization path defined for future growth
+- No performance regressions introduced
+
+**Reliability:** ✅ PASS (enhanced)
+- Sentry error tracking improves production debugging
+- Overlap validation prevents data conflicts
+- Enhanced edge case test coverage
+
+**Maintainability:** ✅ PASS (enhanced)
+- Excellent inline documentation added
+- Clear business rule enforcement
+- Comprehensive test suite aids future maintenance
+
+### Files Modified During Re-Review
+
+No files modified by QA during re-review. All fixes were correctly implemented by development team.
+
+### Gate Status - UPDATED
+
+**Gate: PASS** ✅ → `docs/qa/gates/epic-4.story-2-capacity-utilization.yml`
+
+**Quality Score: 95/100** (improved from 80/100)
+
+**Gate Criteria Applied:**
+- ✅ All 12 ACs implemented correctly (unchanged)
+- ✅ No security issues (unchanged)
+- ✅ Multi-tenant isolation verified and enhanced
+- ✅ Test coverage significantly improved (15 → 25 tests)
+- ✅ Performance documented and acceptable for scale
+- ✅ Production error tracking implemented
+- ✅ Business rule validation added
+- ✅ Zero blocking issues for production
+
+**Quality Score Justification:**
+- Base: 100
+- Deduction (-5): Test suite primarily unit/structural tests; full integration tests with real multi-tenant data recommended for CI/CD
+- **Final: 95/100**
+
+### Recommended Status
+
+**✅ Ready for Done** - All CONCERNS issues fully resolved. Story exceeds production readiness standards.
+
+**Deployment Recommendation:** APPROVED for immediate production deployment.
+
+**Post-Deployment Monitoring:**
+1. Monitor N+1 query performance with team sizes approaching 50 staff
+2. Track Sentry error rates for capacity operations
+3. Validate overlap detection in production scenarios
+
+**Future Enhancements (Optional):**
+- Add full integration test suite with multi-tenant data for CI/CD
+- Consider query optimization if team size exceeds 50 staff
+- Add e2e tests for complete capacity management workflows
+
+---
+
+**Re-Review Complete** | Gate: PASS | Quality Score: 95/100 | Production-Ready

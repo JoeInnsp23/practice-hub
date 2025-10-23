@@ -115,3 +115,31 @@ export function invalidateQuestionnaireCache(
 ): void {
   questionnaireResponsesCache.delete(onboardingSessionId);
 }
+
+/**
+ * Cache for reports dashboard KPIs
+ *
+ * TTL: 5 minutes (300000ms) - KPIs don't change frequently enough to warrant real-time queries
+ */
+export const reportsDashboardKpiCache = new SimpleCache<{
+  totalRevenue: number;
+  collectedRevenue: number;
+  outstandingRevenue: number;
+  activeClients: number;
+  newClients30d: number;
+  activeTasks: number;
+  overdueTasks: number;
+  totalHours30d: number;
+  billableHours30d: number;
+  utilizationRate: number;
+  collectionRate: number;
+}>();
+
+/**
+ * Invalidate KPI cache for a specific tenant
+ *
+ * Call this when invoice/client/task data changes
+ */
+export function invalidateKpiCache(tenantId: string): void {
+  reportsDashboardKpiCache.delete(`reports:kpi:${tenantId}`);
+}
