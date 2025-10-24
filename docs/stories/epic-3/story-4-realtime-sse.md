@@ -5,7 +5,7 @@
 **Feature:** FR16 (Real-time Activity Feed) + FR17 (Real-time Notifications)
 **Priority:** High
 **Effort:** 3-4 days
-**Status:** Ready for Done
+**Status:** Done
 
 ---
 

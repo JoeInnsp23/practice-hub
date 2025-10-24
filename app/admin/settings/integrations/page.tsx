@@ -132,7 +132,7 @@ export default function IntegrationsPage() {
     }
   };
 
-  const handleTestConnection = async (integrationType: Integration["type"]) => {
+  const handleTestConnection = async (integrationType: "xero") => {
     setTestingConnection(integrationType);
 
     try {
@@ -280,10 +280,15 @@ export default function IntegrationsPage() {
                               variant="outline"
                               size="sm"
                               className="flex-1"
-                              onClick={() =>
-                                handleTestConnection(integration.type)
+                              onClick={() => {
+                                if (integration.type === "xero") {
+                                  handleTestConnection(integration.type);
+                                }
+                              }}
+                              disabled={
+                                integration.type !== "xero" ||
+                                testingConnection === integration.type
                               }
-                              disabled={testingConnection === integration.type}
                             >
                               {testingConnection === integration.type ? (
                                 <>

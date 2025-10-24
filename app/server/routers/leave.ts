@@ -8,6 +8,12 @@ import {
   calculateWorkingDays,
   hasWorkingDays,
 } from "@/lib/leave/working-days";
+import {
+  sendLeaveRequestSubmitted,
+  sendLeaveRequestApproved,
+  sendLeaveRequestRejected,
+} from "@/lib/email/leave-notifications";
+import { applyCarryover } from "@/lib/leave/carryover";
 
 export const leaveRouter = router({
   /**
@@ -200,6 +206,19 @@ export const leaveRouter = router({
         })
         .returning();
 
+      // Send email notification (non-blocking)
+      const userName = `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() || ctx.authContext.email;
+      sendLeaveRequestSubmitted({
+        to: ctx.authContext.email,
+        userName,
+        leaveType: input.leaveType,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        daysCount,
+      }).catch((error) => {
+        console.error("Failed to send leave request submitted email:", error);
+      });
+
       return { success: true, request };
     }),
 
@@ -306,6 +325,34 @@ export const leaveRouter = router({
           );
       }
 
+      // Get user details for email notification
+      const [user] = await db
+        .select({
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, request.userId));
+
+      if (user) {
+        // Send email notification (non-blocking)
+        const userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+        const approverName = `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() || ctx.authContext.email;
+
+        sendLeaveRequestApproved({
+          to: user.email,
+          userName,
+          leaveType: request.leaveType,
+          startDate: request.startDate,
+          endDate: request.endDate,
+          daysCount: request.daysCount,
+          approverName,
+        }).catch((error) => {
+          console.error("Failed to send leave request approved email:", error);
+        });
+      }
+
       return { success: true, request: updatedRequest };
     }),
 
@@ -358,6 +405,35 @@ export const leaveRouter = router({
         })
         .where(eq(leaveRequests.id, input.requestId))
         .returning();
+
+      // Get user details for email notification
+      const [user] = await db
+        .select({
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        })
+        .from(users)
+        .where(eq(users.id, request.userId));
+
+      if (user) {
+        // Send email notification (non-blocking)
+        const userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+        const approverName = `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() || ctx.authContext.email;
+
+        sendLeaveRequestRejected({
+          to: user.email,
+          userName,
+          leaveType: request.leaveType,
+          startDate: request.startDate,
+          endDate: request.endDate,
+          daysCount: request.daysCount,
+          approverName,
+          comments: input.reviewerComments,
+        }).catch((error) => {
+          console.error("Failed to send leave request rejected email:", error);
+        });
+      }
 
       return { success: true, request: updatedRequest };
     }),
@@ -720,6 +796,208 @@ export const leaveRouter = router({
       return {
         hasConflicts: conflicts.length > 0,
         conflicts,
+      };
+    }),
+
+  /**
+   * Update annual leave entitlement for a user (admin only)
+   * Allows setting custom entitlements (part-time staff, pro-rated amounts, etc.)
+   */
+  updateEntitlement: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        year: z.number().int().min(2020).max(2100),
+        annualEntitlement: z.number().min(0).max(50), // Flexible for various contract types
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify user belongs to this tenant
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, tenantId)));
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found in your organization",
+        });
+      }
+
+      // Get or create leave balance for the year
+      const [existingBalance] = await db
+        .select()
+        .from(leaveBalances)
+        .where(
+          and(
+            eq(leaveBalances.userId, input.userId),
+            eq(leaveBalances.tenantId, tenantId),
+            eq(leaveBalances.year, input.year),
+          ),
+        );
+
+      if (existingBalance) {
+        // Update existing balance
+        const [updated] = await db
+          .update(leaveBalances)
+          .set({
+            annualEntitlement: input.annualEntitlement,
+          })
+          .where(
+            and(
+              eq(leaveBalances.userId, input.userId),
+              eq(leaveBalances.tenantId, tenantId),
+              eq(leaveBalances.year, input.year),
+            ),
+          )
+          .returning();
+
+        return { success: true, balance: updated };
+      }
+
+      // Create new balance with custom entitlement
+      const [created] = await db
+        .insert(leaveBalances)
+        .values({
+          id: crypto.randomUUID(),
+          userId: input.userId,
+          tenantId,
+          year: input.year,
+          annualEntitlement: input.annualEntitlement,
+          annualUsed: 0,
+          sickUsed: 0,
+          toilBalance: 0,
+          carriedOver: 0,
+        })
+        .returning();
+
+      return { success: true, balance: created };
+    }),
+
+  /**
+   * Manually set carryover amount for a user (admin only)
+   * Allows manual override of automatic carryover calculation
+   */
+  setCarryover: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        year: z.number().int().min(2020).max(2100),
+        carriedOver: z.number().min(0).max(25), // Max 25 days carryover (flexible for edge cases)
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify user belongs to this tenant
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, tenantId)));
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found in your organization",
+        });
+      }
+
+      // Get or create leave balance for the year
+      const [existingBalance] = await db
+        .select()
+        .from(leaveBalances)
+        .where(
+          and(
+            eq(leaveBalances.userId, input.userId),
+            eq(leaveBalances.tenantId, tenantId),
+            eq(leaveBalances.year, input.year),
+          ),
+        );
+
+      if (existingBalance) {
+        // Update existing balance
+        const entitlementDiff = input.carriedOver - existingBalance.carriedOver;
+        const [updated] = await db
+          .update(leaveBalances)
+          .set({
+            carriedOver: input.carriedOver,
+            annualEntitlement: existingBalance.annualEntitlement + entitlementDiff,
+          })
+          .where(
+            and(
+              eq(leaveBalances.userId, input.userId),
+              eq(leaveBalances.tenantId, tenantId),
+              eq(leaveBalances.year, input.year),
+            ),
+          )
+          .returning();
+
+        return { success: true, balance: updated };
+      }
+
+      // Create new balance with carryover
+      const [created] = await db
+        .insert(leaveBalances)
+        .values({
+          id: crypto.randomUUID(),
+          userId: input.userId,
+          tenantId,
+          year: input.year,
+          annualEntitlement: 25 + input.carriedOver, // Default UK entitlement + carryover
+          annualUsed: 0,
+          sickUsed: 0,
+          toilBalance: 0,
+          carriedOver: input.carriedOver,
+        })
+        .returning();
+
+      return { success: true, balance: created };
+    }),
+
+  /**
+   * Run automatic carryover for a user (admin only)
+   * Applies standard carryover logic (max 5 days) from previous year
+   */
+  runCarryover: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().uuid(),
+        fromYear: z.number().int().min(2020).max(2100),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify user belongs to this tenant
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, tenantId)));
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found in your organization",
+        });
+      }
+
+      const result = await applyCarryover(input.userId, tenantId, input.fromYear);
+
+      if (!result.success) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.error || "Failed to apply carryover",
+        });
+      }
+
+      return {
+        success: true,
+        carriedDays: result.carriedDays,
+        fromYear: input.fromYear,
+        toYear: input.fromYear + 1,
       };
     }),
 });

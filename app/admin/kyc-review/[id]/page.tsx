@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import {
@@ -36,8 +36,9 @@ import { Textarea } from "@/components/ui/textarea";
 export default function AdminKYCDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
@@ -49,7 +50,7 @@ export default function AdminKYCDetailPage({
     isLoading,
     refetch,
   } = trpc.adminKyc.getVerificationDetail.useQuery({
-    verificationId: params.id,
+    verificationId: id,
   });
 
   // Mutations
@@ -59,7 +60,7 @@ export default function AdminKYCDetailPage({
   const handleApprove = async () => {
     try {
       await approveMutation.mutateAsync({
-        verificationId: params.id,
+        verificationId: id,
       });
 
       toast.success("Verification approved successfully");
@@ -81,7 +82,7 @@ export default function AdminKYCDetailPage({
 
     try {
       await rejectMutation.mutateAsync({
-        verificationId: params.id,
+        verificationId: id,
         reason: rejectionReason,
       });
 
@@ -278,7 +279,7 @@ export default function AdminKYCDetailPage({
                   })}
                 </p>
               </div>
-              {verification.completedAt && (
+              {!!verification.completedAt && (
                 <div>
                   <p className="text-sm text-muted-foreground">Completed</p>
                   <p className="text-sm">
@@ -308,7 +309,7 @@ export default function AdminKYCDetailPage({
                     {verification.approverLastName}
                   </p>
                 </div>
-                {verification.approvedAt && (
+                {!!verification.approvedAt && (
                   <div>
                     <p className="text-sm text-muted-foreground">Date</p>
                     <p className="text-sm">
@@ -318,7 +319,7 @@ export default function AdminKYCDetailPage({
                     </p>
                   </div>
                 )}
-                {verification.rejectionReason && (
+                {!!verification.rejectionReason && (
                   <div>
                     <p className="text-sm text-muted-foreground">Reason</p>
                     <p className="text-sm bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900">
@@ -363,7 +364,7 @@ export default function AdminKYCDetailPage({
                 )}
               </div>
 
-              {verification.documentData && (
+              {!!verification.documentData && (
                 <div className="mt-4 p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium mb-2">Extracted Data:</p>
                   <pre className="text-xs overflow-auto">
@@ -494,7 +495,7 @@ export default function AdminKYCDetailPage({
                 </div>
               </div>
 
-              {verification.amlResult && (
+              {!!verification.amlResult && (
                 <div className="mt-4 p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium mb-2">Full AML Report:</p>
                   <pre className="text-xs overflow-auto max-h-64">
@@ -506,7 +507,7 @@ export default function AdminKYCDetailPage({
           </Card>
 
           {/* Documents & Reports */}
-          {(verification.reportUrl || verification.documentsUrl) && (
+          {!!(verification.reportUrl || verification.documentsUrl) && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -515,7 +516,7 @@ export default function AdminKYCDetailPage({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {verification.reportUrl && (
+                {!!verification.reportUrl && (
                   <a
                     href={verification.reportUrl}
                     target="_blank"
@@ -528,7 +529,7 @@ export default function AdminKYCDetailPage({
                   </a>
                 )}
 
-                {verification.documentsUrl &&
+                {!!verification.documentsUrl &&
                   Array.isArray(verification.documentsUrl) && (
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Uploaded Documents:</p>

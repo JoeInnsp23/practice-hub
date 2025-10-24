@@ -65,11 +65,7 @@ export default function LeaveCalendarPage() {
         .filter((leave) => {
           const start = new Date(leave.startDate);
           const end = new Date(leave.endDate);
-          return (
-            leave.status === "approved" &&
-            today >= start &&
-            today <= end
-          );
+          return leave.status === "approved" && today >= start && today <= end;
         })
         .map((leave) => leave.userId),
     ).size;

@@ -12,10 +12,10 @@ export const runtime = "nodejs";
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { token: string } },
+  context: { params: Promise<{ token: string }> },
 ) {
   try {
-    const shareToken = params.token;
+    const { token: shareToken } = await context.params;
 
     // Get document by share token
     const [doc] = await db

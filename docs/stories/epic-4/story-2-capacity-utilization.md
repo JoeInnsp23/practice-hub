@@ -5,7 +5,7 @@
 **Feature:** FR20 - Staff Capacity Planning & Utilization
 **Priority:** Medium
 **Effort:** 3-5 days
-**Status:** Ready for Development
+**Status:** Done
 
 ---
 

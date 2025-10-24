@@ -301,7 +301,7 @@ export default function AdminKYCReviewPage() {
       </Card>
 
       {/* Pagination info */}
-      {data && data.total > 0 && (
+      {data && Number(data.total) > 0 && (
         <div className="text-sm text-muted-foreground text-center">
           Showing {data.verifications.length} of {data.total} verifications
         </div>

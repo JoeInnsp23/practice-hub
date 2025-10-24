@@ -71,14 +71,14 @@ export function LeaveBalanceWidget({
           {balance.toilBalance > 0 && (
             <Badge className="bg-blue-600/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400 w-full justify-center">
               <Clock className="h-3 w-3 mr-1" />
-              {balance.toilBalance} TOIL day{balance.toilBalance !== 1 ? "s" : ""}{" "}
-              available
+              {balance.toilBalance} TOIL day
+              {balance.toilBalance !== 1 ? "s" : ""} available
             </Badge>
           )}
           {balance.sickUsed > 0 && (
             <div className="text-sm text-muted-foreground text-center">
-              {balance.sickUsed} sick day{balance.sickUsed !== 1 ? "s" : ""} used
-              this year
+              {balance.sickUsed} sick day{balance.sickUsed !== 1 ? "s" : ""}{" "}
+              used this year
             </div>
           )}
         </div>

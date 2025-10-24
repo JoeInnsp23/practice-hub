@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
-import { calculateWorkingDays } from "@/lib/leave/working-days";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,10 +45,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { calculateWorkingDays } from "@/lib/leave/working-days";
 
 const leaveRequestSchema = z
   .object({
-    leaveType: z.enum(["annual_leave", "sick_leave", "toil", "unpaid", "other"]),
+    leaveType: z.enum([
+      "annual_leave",
+      "sick_leave",
+      "toil",
+      "unpaid",
+      "other",
+    ]),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     notes: z.string().optional(),
@@ -142,7 +148,9 @@ export function LeaveRequestModal({
   const form = useForm<LeaveRequestFormValues>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: {
-      leaveType: (request?.leaveType as LeaveRequestFormValues["leaveType"]) || "annual_leave",
+      leaveType:
+        (request?.leaveType as LeaveRequestFormValues["leaveType"]) ||
+        "annual_leave",
       startDate: request?.startDate || "",
       endDate: request?.endDate || "",
       notes: request?.notes || "",
@@ -165,7 +173,7 @@ export function LeaveRequestModal({
         } else {
           setCalculatedDays(0);
         }
-      } catch (error) {
+      } catch (_error) {
         setCalculatedDays(0);
       }
     } else {
@@ -314,7 +322,9 @@ export function LeaveRequestModal({
                     <FormControl>
                       <Input
                         type="date"
-                        min={startDate || new Date().toISOString().split("T")[0]}
+                        min={
+                          startDate || new Date().toISOString().split("T")[0]
+                        }
                         {...field}
                       />
                     </FormControl>
@@ -331,7 +341,10 @@ export function LeaveRequestModal({
                   <span className="text-sm text-muted-foreground">
                     Working days:
                   </span>
-                  <Badge variant="secondary" className="text-base font-semibold">
+                  <Badge
+                    variant="secondary"
+                    className="text-base font-semibold"
+                  >
                     {calculatedDays} {calculatedDays === 1 ? "day" : "days"}
                   </Badge>
                 </div>

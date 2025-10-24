@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import {
   AlertTriangle,
   Calendar,
@@ -11,7 +10,6 @@ import {
   Search,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeaveBalanceWidget } from "@/components/client-hub/leave/leave-balance-widget";
@@ -63,7 +61,9 @@ export default function LeavePage() {
       };
     }
 
-    const pendingCount = leaveHistory.filter((r) => r.status === "pending").length;
+    const pendingCount = leaveHistory.filter(
+      (r) => r.status === "pending",
+    ).length;
     const approvedThisYear = leaveHistory.filter(
       (r) =>
         r.status === "approved" &&
@@ -120,7 +120,9 @@ export default function LeavePage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Leave Management</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Leave Management
+          </h1>
           <p className="text-muted-foreground mt-2">
             Request and manage your leave
           </p>

@@ -61,17 +61,20 @@ const leaveTypeConfig = {
   annual_leave: {
     label: "Annual Leave",
     icon: Calendar,
-    className: "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
+    className:
+      "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
   },
   sick_leave: {
     label: "Sick Leave",
     icon: Heart,
-    className: "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
+    className:
+      "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
   },
   toil: {
     label: "TOIL",
     icon: Clock,
-    className: "bg-blue-600/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400",
+    className:
+      "bg-blue-600/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400",
   },
   unpaid: {
     label: "Unpaid",
@@ -81,7 +84,8 @@ const leaveTypeConfig = {
   other: {
     label: "Other",
     icon: Gift,
-    className: "bg-purple-600/10 text-purple-600 dark:bg-purple-400/10 dark:text-purple-400",
+    className:
+      "bg-purple-600/10 text-purple-600 dark:bg-purple-400/10 dark:text-purple-400",
   },
 };
 
@@ -89,17 +93,20 @@ const statusConfig = {
   pending: {
     label: "Pending",
     icon: Clock,
-    className: "bg-yellow-600/10 text-yellow-600 dark:bg-yellow-400/10 dark:text-yellow-400",
+    className:
+      "bg-yellow-600/10 text-yellow-600 dark:bg-yellow-400/10 dark:text-yellow-400",
   },
   approved: {
     label: "Approved",
     icon: CheckCircle,
-    className: "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
+    className:
+      "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
   },
   rejected: {
     label: "Rejected",
     icon: XCircle,
-    className: "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
+    className:
+      "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
   },
   cancelled: {
     label: "Cancelled",
@@ -196,7 +203,8 @@ export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
               <TableCell>{getTypeBadge(request.leaveType)}</TableCell>
               <TableCell>
                 <div className="text-sm">
-                  {formatDate(request.startDate)} - {formatDate(request.endDate)}
+                  {formatDate(request.startDate)} -{" "}
+                  {formatDate(request.endDate)}
                 </div>
               </TableCell>
               <TableCell>

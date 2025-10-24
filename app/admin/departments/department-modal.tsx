@@ -50,10 +50,7 @@ export default function DepartmentModal({
   const isEditing = !!department;
 
   // Fetch eligible managers (admin + accountant roles)
-  const { data: usersData } = trpc.users.list.useQuery({
-    limit: 999,
-    offset: 0,
-  });
+  const { data: usersData } = trpc.users.list.useQuery({});
 
   const eligibleManagers =
     usersData?.users?.filter(
@@ -119,8 +116,8 @@ export default function DepartmentModal({
       updateMutation.mutate({
         id: department.id,
         name: name.trim(),
-        description: description.trim() || null,
-        managerId: managerId || null,
+        description: description.trim() || undefined,
+        managerId: managerId || undefined,
         isActive,
       });
     } else {
@@ -190,7 +187,7 @@ export default function DepartmentModal({
                   <SelectItem value="">No Manager</SelectItem>
                   {eligibleManagers.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
-                      {user.name} ({user.role})
+                      {user.firstName} {user.lastName} ({user.role})
                     </SelectItem>
                   ))}
                 </SelectContent>

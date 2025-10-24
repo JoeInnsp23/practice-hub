@@ -1,4 +1,4 @@
-import { differenceInBusinessDays, isWeekend, parse } from "date-fns";
+import { differenceInBusinessDays, isWeekend } from "date-fns";
 
 /**
  * UK Bank Holidays 2025 (https://www.gov.uk/bank-holidays)
@@ -59,19 +59,19 @@ export function isWorkingDay(date: Date): boolean {
  * @returns Number of working days
  */
 export function calculateWorkingDays(startDate: Date, endDate: Date): number {
-  // Get business days (excludes weekends)
-  let workingDays = differenceInBusinessDays(endDate, startDate) + 1;
-
-  // Subtract bank holidays that fall on weekdays
+  let workingDays = 0;
   const current = new Date(startDate);
+
+  // Iterate through each day in the range
   while (current <= endDate) {
-    if (!isWeekend(current) && isUKBankHoliday(current)) {
-      workingDays--;
+    // Count only working days (not weekends or bank holidays)
+    if (!isWeekend(current) && !isUKBankHoliday(current)) {
+      workingDays++;
     }
     current.setDate(current.getDate() + 1);
   }
 
-  return Math.max(0, workingDays);
+  return workingDays;
 }
 
 /**

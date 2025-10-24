@@ -2,23 +2,17 @@
 
 import * as Sentry from "@sentry/nextjs";
 import {
-  AlertTriangle,
-  Ban,
   Calendar,
   CheckCircle,
-  ChevronDown,
-  ChevronUp,
   Clock,
   Gift,
   Heart,
-  User,
   X,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,24 +31,20 @@ import { formatDate, formatRelativeTime } from "@/lib/utils/format";
 interface LeaveRequest {
   id: string;
   userId: string;
-  userName: string;
+  userName?: string;
+  userFirstName?: string;
+  userLastName?: string;
   userEmail: string;
-  userInitials: string;
   leaveType: string;
   startDate: string;
   endDate: string;
   daysCount: number;
   status: string;
   notes: string | null;
-  requestedAt: Date;
-  balanceAfter: number;
-  conflicts: Array<{
-    id: string;
-    userName: string;
-    dates: string;
-    daysCount: number;
-    status: string;
-  }>;
+  requestedAt?: Date | string;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | string | null;
+  reviewerComments?: string | null;
 }
 
 interface ApprovalListProps {
@@ -74,7 +64,8 @@ const leaveTypeConfig = {
   sick_leave: {
     label: "Sick Leave",
     icon: Heart,
-    className: "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
+    className:
+      "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
   },
   toil: {
     label: "TOIL",
@@ -95,6 +86,24 @@ const leaveTypeConfig = {
   },
 };
 
+// Helper to compute user initials from first and last name
+function getUserInitials(
+  firstName?: string,
+  lastName?: string,
+  email?: string,
+): string {
+  if (firstName && lastName) {
+    return `${firstName[0]}${lastName[0]}`.toUpperCase();
+  }
+  if (firstName) {
+    return firstName.substring(0, 2).toUpperCase();
+  }
+  if (email) {
+    return email.substring(0, 2).toUpperCase();
+  }
+  return "??";
+}
+
 export function ApprovalList({
   requests,
   onApprove,
@@ -103,9 +112,6 @@ export function ApprovalList({
 }: ApprovalListProps) {
   const utils = trpc.useUtils();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [expandedConflicts, setExpandedConflicts] = useState<Set<string>>(
-    new Set(),
-  );
 
   const approveMutation = trpc.leave.approve.useMutation({
     onSuccess: () => {
@@ -147,18 +153,6 @@ export function ApprovalList({
     } else {
       setSelectedIds(requests.map((r) => r.id));
     }
-  };
-
-  const toggleConflictDetails = (id: string) => {
-    setExpandedConflicts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
   };
 
   const handleBulkApprove = () => {
@@ -279,8 +273,6 @@ export function ApprovalList({
               <TableHead>Type</TableHead>
               <TableHead>Dates</TableHead>
               <TableHead>Days</TableHead>
-              <TableHead>Balance After</TableHead>
-              <TableHead>Conflicts</TableHead>
               <TableHead>Requested</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -288,14 +280,7 @@ export function ApprovalList({
           <TableBody>
             {requests.map((request) => (
               <>
-                <TableRow
-                  key={request.id}
-                  className={
-                    request.conflicts.length > 0
-                      ? "bg-orange-50 dark:bg-orange-950/10"
-                      : ""
-                  }
-                >
+                <TableRow key={request.id}>
                   {showBulkActions && (
                     <TableCell>
                       <Checkbox
@@ -308,11 +293,19 @@ export function ApprovalList({
                     <div className="flex items-center gap-2">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="text-xs">
-                          {request.userInitials}
+                          {getUserInitials(
+                            request.userFirstName,
+                            request.userLastName,
+                            request.userEmail,
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium">{request.userName}</div>
+                        <div className="font-medium">
+                          {request.userName ||
+                            `${request.userFirstName || ""} ${request.userLastName || ""}`.trim() ||
+                            request.userEmail}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           {request.userEmail}
                         </div>
@@ -331,40 +324,10 @@ export function ApprovalList({
                     {request.daysCount === 1 ? "day" : "days"}
                   </TableCell>
                   <TableCell>
-                    {request.balanceAfter < 0 ? (
-                      <Badge variant="destructive" className="text-xs">
-                        Insufficient ({request.balanceAfter})
-                      </Badge>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        {request.balanceAfter} days
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {request.conflicts.length > 0 ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleConflictDetails(request.id)}
-                        className="h-8 px-2"
-                      >
-                        <AlertTriangle className="h-4 w-4 text-orange-600 mr-1" />
-                        {request.conflicts.length}{" "}
-                        {request.conflicts.length === 1 ? "conflict" : "conflicts"}
-                        {expandedConflicts.has(request.id) ? (
-                          <ChevronUp className="h-3 w-3 ml-1" />
-                        ) : (
-                          <ChevronDown className="h-3 w-3 ml-1" />
-                        )}
-                      </Button>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">None</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
                     <div className="text-sm text-muted-foreground">
-                      {formatRelativeTime(request.requestedAt)}
+                      {request.requestedAt
+                        ? formatRelativeTime(request.requestedAt)
+                        : "N/A"}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -390,54 +353,6 @@ export function ApprovalList({
                     </div>
                   </TableCell>
                 </TableRow>
-
-                {/* Expandable Conflict Details */}
-                {expandedConflicts.has(request.id) &&
-                  request.conflicts.length > 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={showBulkActions ? 9 : 8}
-                        className="bg-muted/50 p-4"
-                      >
-                        <Alert variant="default" className="border-orange-200">
-                          <AlertTriangle className="h-4 w-4 text-orange-600" />
-                          <AlertTitle>Overlapping Leave Requests</AlertTitle>
-                          <AlertDescription>
-                            <ul className="mt-2 space-y-2">
-                              {request.conflicts.map((conflict) => (
-                                <li
-                                  key={conflict.id}
-                                  className="flex items-center justify-between p-2 rounded-md bg-background"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <User className="h-4 w-4 text-muted-foreground" />
-                                    <strong>{conflict.userName}</strong>
-                                    <span className="text-muted-foreground">
-                                      {conflict.dates}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">
-                                      ({conflict.daysCount}{" "}
-                                      {conflict.daysCount === 1 ? "day" : "days"})
-                                    </span>
-                                  </div>
-                                  <Badge
-                                    variant="secondary"
-                                    className={
-                                      conflict.status === "approved"
-                                        ? "bg-green-600/10 text-green-600"
-                                        : "bg-yellow-600/10 text-yellow-600"
-                                    }
-                                  >
-                                    {conflict.status}
-                                  </Badge>
-                                </li>
-                              ))}
-                            </ul>
-                          </AlertDescription>
-                        </Alert>
-                      </TableCell>
-                    </TableRow>
-                  )}
               </>
             ))}
           </TableBody>

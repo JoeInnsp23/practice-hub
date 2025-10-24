@@ -2,7 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Sentry from "@sentry/nextjs";
-import { AlertTriangle, Calendar, CheckCircle, User, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Calendar,
+  CheckCircle,
+  User,
+  XCircle,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
@@ -51,7 +57,6 @@ interface ApprovalActionsModalProps {
     endDate: string;
     daysCount: number;
     notes: string | null;
-    balanceAfter: number;
   } | null;
   action: "approve" | "reject";
 }
@@ -73,7 +78,9 @@ export function ApprovalActionsModal({
   const utils = trpc.useUtils();
 
   const form = useForm({
-    resolver: zodResolver(action === "approve" ? approvalSchema : rejectionSchema),
+    resolver: zodResolver(
+      action === "approve" ? approvalSchema : rejectionSchema,
+    ),
     defaultValues: {
       comments: "",
     },
@@ -179,7 +186,9 @@ export function ApprovalActionsModal({
                 </Badge>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground mb-1">Duration</div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  Duration
+                </div>
                 <div className="font-medium">
                   {request.daysCount} {request.daysCount === 1 ? "day" : "days"}
                 </div>
@@ -188,7 +197,8 @@ export function ApprovalActionsModal({
                 <div className="text-xs text-muted-foreground mb-1">Dates</div>
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  {formatDate(request.startDate)} - {formatDate(request.endDate)}
+                  {formatDate(request.startDate)} -{" "}
+                  {formatDate(request.endDate)}
                 </div>
               </div>
             </div>
@@ -202,31 +212,6 @@ export function ApprovalActionsModal({
                 <p className="text-sm">{request.notes}</p>
               </div>
             )}
-
-            {/* Balance Warning */}
-            {isApprove && request.balanceAfter < 0 && (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Insufficient Balance</AlertTitle>
-                <AlertDescription>
-                  Approving this request will result in a negative balance of{" "}
-                  {request.balanceAfter} days. Consider rejecting or discussing
-                  with the employee.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Balance Info */}
-            {isApprove && request.balanceAfter >= 0 && (
-              <div className="pt-3 border-t">
-                <div className="text-xs text-muted-foreground mb-1">
-                  Balance After Approval
-                </div>
-                <div className="text-sm font-medium text-green-600">
-                  {request.balanceAfter} days remaining
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Comments Form */}
@@ -238,7 +223,9 @@ export function ApprovalActionsModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      {isApprove ? "Comments (Optional)" : "Rejection Reason (Required)"}
+                      {isApprove
+                        ? "Comments (Optional)"
+                        : "Rejection Reason (Required)"}
                     </FormLabel>
                     <FormControl>
                       <Textarea

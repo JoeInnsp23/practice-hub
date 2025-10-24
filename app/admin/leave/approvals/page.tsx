@@ -3,7 +3,6 @@
 import * as Sentry from "@sentry/nextjs";
 import {
   AlertTriangle,
-  Calendar,
   CheckCircle,
   Clock,
   Search,
@@ -12,9 +11,9 @@ import {
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { ApprovalActionsModal } from "@/components/admin/leave/approval-actions-modal";
 import { ApprovalList } from "@/components/admin/leave/approval-list";
+import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,14 +36,14 @@ interface SelectedRequest {
   endDate: string;
   daysCount: number;
   notes: string | null;
-  balanceAfter: number;
 }
 
 export default function LeaveApprovalsPage() {
-  const [selectedRequest, setSelectedRequest] = useState<SelectedRequest | null>(
-    null,
+  const [selectedRequest, setSelectedRequest] =
+    useState<SelectedRequest | null>(null);
+  const [modalAction, setModalAction] = useState<"approve" | "reject">(
+    "approve",
   );
-  const [modalAction, setModalAction] = useState<"approve" | "reject">("approve");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,11 +51,11 @@ export default function LeaveApprovalsPage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch team leave requests
-  const { data: teamLeave, isLoading } = trpc.leave.getTeamLeave.useQuery();
+  const { data: teamLeave, isLoading } = trpc.leave.getTeamLeave.useQuery({});
   const utils = trpc.useUtils();
 
   // Mutations for single approve/reject
-  const approveMutation = trpc.leave.approve.useMutation({
+  const _approveMutation = trpc.leave.approve.useMutation({
     onSuccess: () => {
       toast.success("Leave request approved");
       utils.leave.getTeamLeave.invalidate();
@@ -69,7 +68,7 @@ export default function LeaveApprovalsPage() {
     },
   });
 
-  const rejectMutation = trpc.leave.reject.useMutation({
+  const _rejectMutation = trpc.leave.reject.useMutation({
     onSuccess: () => {
       toast.success("Leave request rejected");
       utils.leave.getTeamLeave.invalidate();
@@ -97,9 +96,9 @@ export default function LeaveApprovalsPage() {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    const pending = teamLeave.filter((r) => r.status === "pending").length;
+    const pending = teamLeave.requests.filter((r) => r.status === "pending").length;
 
-    const approvedThisMonth = teamLeave.filter(
+    const approvedThisMonth = teamLeave.requests.filter(
       (r) =>
         r.status === "approved" &&
         r.reviewedAt &&
@@ -107,7 +106,7 @@ export default function LeaveApprovalsPage() {
         new Date(r.reviewedAt).getFullYear() === currentYear,
     ).length;
 
-    const rejectedThisMonth = teamLeave.filter(
+    const rejectedThisMonth = teamLeave.requests.filter(
       (r) =>
         r.status === "rejected" &&
         r.reviewedAt &&
@@ -115,9 +114,8 @@ export default function LeaveApprovalsPage() {
         new Date(r.reviewedAt).getFullYear() === currentYear,
     ).length;
 
-    const conflicts = teamLeave.filter(
-      (r) => r.status === "pending" && r.conflicts && r.conflicts.length > 0,
-    ).length;
+    // TODO: Conflicts feature not yet implemented in backend
+    const conflicts = 0;
 
     return {
       pending,
@@ -131,7 +129,7 @@ export default function LeaveApprovalsPage() {
   const filteredRequests = useMemo(() => {
     if (!teamLeave) return [];
 
-    return teamLeave.filter((request) => {
+    return teamLeave.requests.filter((request) => {
       // Type filter
       if (typeFilter !== "all" && request.leaveType !== typeFilter) {
         return false;
@@ -152,13 +150,15 @@ export default function LeaveApprovalsPage() {
   }, [teamLeave, typeFilter, debouncedSearchTerm]);
 
   // Separate pending and processed requests
-  const pendingRequests = filteredRequests.filter((r) => r.status === "pending");
+  const pendingRequests = filteredRequests.filter(
+    (r) => r.status === "pending",
+  );
   const processedRequests = filteredRequests.filter(
     (r) => r.status !== "pending",
   );
 
   const handleApprove = (requestId: string) => {
-    const request = teamLeave?.find((r) => r.id === requestId);
+    const request = teamLeave?.requests.find((r) => r.id === requestId);
     if (!request) return;
 
     setSelectedRequest({
@@ -171,14 +171,13 @@ export default function LeaveApprovalsPage() {
       endDate: request.endDate,
       daysCount: request.daysCount,
       notes: request.notes,
-      balanceAfter: request.balanceAfter,
     });
     setModalAction("approve");
     setIsModalOpen(true);
   };
 
   const handleReject = (requestId: string) => {
-    const request = teamLeave?.find((r) => r.id === requestId);
+    const request = teamLeave?.requests.find((r) => r.id === requestId);
     if (!request) return;
 
     setSelectedRequest({
@@ -191,7 +190,6 @@ export default function LeaveApprovalsPage() {
       endDate: request.endDate,
       daysCount: request.daysCount,
       notes: request.notes,
-      balanceAfter: request.balanceAfter,
     });
     setModalAction("reject");
     setIsModalOpen(true);

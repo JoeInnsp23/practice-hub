@@ -1,11 +1,5 @@
 "use client";
 
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import {
   addMonths,
   eachDayOfInterval,
@@ -20,6 +14,16 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface LeaveCalendarProps {
   leaveRequests: Array<{
@@ -50,7 +54,10 @@ const leaveTypeLabels: Record<string, string> = {
   other: "Other",
 };
 
-export function LeaveCalendar({ leaveRequests, className }: LeaveCalendarProps) {
+export function LeaveCalendar({
+  leaveRequests,
+  className,
+}: LeaveCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -179,7 +186,9 @@ export function LeaveCalendar({ leaveRequests, className }: LeaveCalendarProps) 
 
         {/* Legend */}
         <div className="flex flex-wrap gap-3 pt-4 border-t">
-          <div className="text-xs font-medium text-muted-foreground">Legend:</div>
+          <div className="text-xs font-medium text-muted-foreground">
+            Legend:
+          </div>
           {Object.entries(leaveTypeLabels).map(([type, label]) => (
             <div key={type} className="flex items-center gap-2">
               <div
@@ -209,7 +218,9 @@ export function LeaveCalendar({ leaveRequests, className }: LeaveCalendarProps) 
                         leaveTypeColors[leave.leaveType],
                       )}
                     />
-                    <span className="text-sm font-medium">{leave.userName}</span>
+                    <span className="text-sm font-medium">
+                      {leave.userName}
+                    </span>
                   </div>
                   <Badge variant="secondary" className="text-xs">
                     {leaveTypeLabels[leave.leaveType]}
