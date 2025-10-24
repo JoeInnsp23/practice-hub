@@ -257,7 +257,7 @@ async function calculateModelA(
   input: z.infer<typeof pricingInputSchema>,
   tenantId: string,
 ): Promise<PricingModel> {
-  const services: ServicePrice[] = [];
+  const servicePrices: ServicePrice[] = [];
   let subtotal = 0;
 
   for (const service of input.services) {
@@ -282,15 +282,15 @@ async function calculateModelA(
     }
 
     // Special handling for payroll
-    if (service.code.startsWith("PAYROLL")) {
+    if (component.code.startsWith("PAYROLL")) {
       const payrollPrice = calculatePayroll(
         service.config?.employees || 0,
         service.config?.payrollFrequency || "monthly",
       );
 
-      services.push({
+      servicePrices.push({
         serviceCode: service.serviceCode,
-        componentName: service.name,
+        componentName: component.name,
         calculation: `${service.config?.employees || 0} employees, ${service.config?.payrollFrequency || "monthly"}`,
         basePrice: payrollPrice,
         adjustments: [],
@@ -302,12 +302,12 @@ async function calculateModelA(
     }
 
     // Handle fixed-price services (no pricing rules needed)
-    if (service.pricingModel === "fixed") {
-      const fixedPrice = service.price ? Number(service.price) : 0;
+    if (component.pricingModel === "fixed") {
+      const fixedPrice = component.price ? Number(component.price) : 0;
 
-      services.push({
+      servicePrices.push({
         serviceCode: service.serviceCode,
-        componentName: service.name,
+        componentName: component.name,
         calculation: `Fixed price`,
         basePrice: fixedPrice,
         adjustments: [],
@@ -325,7 +325,7 @@ async function calculateModelA(
       .from(pricingRules)
       .where(
         and(
-          eq(pricingRules.componentId, service.id),
+          eq(pricingRules.componentId, component.id),
           eq(pricingRules.ruleType, "turnover_band"),
           eq(pricingRules.isActive, true),
           lte(pricingRules.minValue, turnoverBand.min.toString()),
@@ -346,7 +346,7 @@ async function calculateModelA(
     const adjustments: Adjustment[] = [];
 
     // Apply complexity multiplier
-    if (service.config?.complexity && service.supportsComplexity) {
+    if (service.config?.complexity && component.supportsComplexity) {
       const complexityMultiplier = getComplexityMultiplier(
         service.config.complexity,
       );
@@ -369,9 +369,9 @@ async function calculateModelA(
       basePrice *= industryMultiplier;
     }
 
-    services.push({
+    servicePrices.push({
       serviceCode: service.serviceCode,
-      componentName: service.name,
+      componentName: component.name,
       calculation: buildCalculationString(rule, adjustments),
       basePrice: Number(rule.price),
       adjustments,
@@ -387,7 +387,7 @@ async function calculateModelA(
 
   return {
     name: "Turnover-Based",
-    services,
+    services: servicePrices,
     subtotal,
     discounts,
     total,
@@ -402,7 +402,7 @@ async function calculateModelB(
 ): Promise<PricingModel | null> {
   if (!input.transactionData) return null;
 
-  const services: ServicePrice[] = [];
+  const servicePrices: ServicePrice[] = [];
   let subtotal = 0;
 
   for (const service of input.services) {
@@ -422,15 +422,15 @@ async function calculateModelB(
     if (!component) continue;
 
     // Special handling for payroll (same as Model A)
-    if (service.code.startsWith("PAYROLL")) {
+    if (component.code.startsWith("PAYROLL")) {
       const payrollPrice = calculatePayroll(
         service.config?.employees || 0,
         service.config?.payrollFrequency || "monthly",
       );
 
-      services.push({
+      servicePrices.push({
         serviceCode: service.serviceCode,
-        componentName: service.name,
+        componentName: component.name,
         calculation: `${service.config?.employees || 0} employees, ${service.config?.payrollFrequency || "monthly"}`,
         basePrice: payrollPrice,
         adjustments: [],
@@ -442,12 +442,12 @@ async function calculateModelB(
     }
 
     // Handle fixed-price services (same as Model A)
-    if (service.pricingModel === "fixed") {
-      const fixedPrice = service.price ? Number(service.price) : 0;
+    if (component.pricingModel === "fixed") {
+      const fixedPrice = component.price ? Number(component.price) : 0;
 
-      services.push({
+      servicePrices.push({
         serviceCode: service.serviceCode,
-        componentName: service.name,
+        componentName: component.name,
         calculation: `Fixed price`,
         basePrice: fixedPrice,
         adjustments: [],
@@ -460,8 +460,8 @@ async function calculateModelB(
 
     // Check if component supports transaction-based pricing
     if (
-      service.pricingModel !== "transaction" &&
-      service.pricingModel !== "both"
+      component.pricingModel !== "transaction" &&
+      component.pricingModel !== "both"
     ) {
       // Skip turnover-only services in Model B (not applicable)
       continue;
@@ -473,7 +473,7 @@ async function calculateModelB(
       .from(pricingRules)
       .where(
         and(
-          eq(pricingRules.componentId, service.id),
+          eq(pricingRules.componentId, component.id),
           or(
             eq(pricingRules.ruleType, "transaction_band"),
             eq(pricingRules.ruleType, "per_unit"),
@@ -486,7 +486,7 @@ async function calculateModelB(
     const rule = rules[0];
     if (!rule) continue;
 
-    const basePrice = service.basePrice ? Number(service.basePrice) : 0;
+    const basePrice = component.basePrice ? Number(component.basePrice) : 0;
     let transactionFee = 0;
     const adjustments: Adjustment[] = [];
 
@@ -505,7 +505,7 @@ async function calculateModelB(
     let finalPrice = basePrice + transactionFee;
 
     // Apply complexity multiplier (smaller for Model B)
-    if (service.config?.complexity && service.supportsComplexity) {
+    if (service.config?.complexity && component.supportsComplexity) {
       const complexityMultiplier = getComplexityMultiplier(
         service.config.complexity,
         "modelB",
@@ -518,9 +518,9 @@ async function calculateModelB(
       finalPrice *= complexityMultiplier;
     }
 
-    services.push({
+    servicePrices.push({
       serviceCode: service.serviceCode,
-      componentName: service.name,
+      componentName: component.name,
       calculation: buildTransactionCalculationString(basePrice, adjustments),
       basePrice,
       adjustments,
@@ -536,7 +536,7 @@ async function calculateModelB(
 
   return {
     name: "Transaction-Based",
-    services,
+    services: servicePrices,
     subtotal,
     discounts,
     total,
