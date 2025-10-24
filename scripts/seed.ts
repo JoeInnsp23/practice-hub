@@ -25,6 +25,8 @@ import {
   invoiceItems,
   invoices,
   leads,
+  leaveBalances,
+  leaveRequests,
   legalPages,
   messages,
   messageThreadParticipants,
@@ -37,13 +39,8 @@ import {
   pricingRules,
   proposalServices,
   proposals,
-  proposalVersions,
   services,
   staffCapacity,
-  workingPatterns,
-  leaveRequests,
-  leaveBalances,
-  toilAccrualHistory,
   taskAssignmentHistory,
   taskNotes,
   tasks,
@@ -52,12 +49,14 @@ import {
   tenants,
   timeEntries,
   timesheetSubmissions,
+  toilAccrualHistory,
   userSettings,
   users,
   workflowStages,
   workflows,
   workflowTemplates,
   workflowVersions,
+  workingPatterns,
   workTypes,
   xeroWebhookEvents,
 } from "../lib/db/schema";
@@ -190,7 +189,7 @@ async function seedDatabase() {
     },
   ];
 
-  const createdDepartments = await db
+  const createdDepartments = (await db
     .insert(departments)
     .values(
       departmentList.map((dept) => ({
@@ -199,7 +198,7 @@ async function seedDatabase() {
         isActive: true,
       })),
     )
-    .returning();
+    .returning()) as (typeof departments.$inferSelect)[];
 
   const [taxDept, auditDept, advisoryDept, adminDept] = createdDepartments;
 
@@ -307,7 +306,7 @@ async function seedDatabase() {
     },
   ];
 
-  const createdUsers = await db
+  const createdUsers = (await db
     .insert(users)
     .values(
       userList.map((user) => ({
@@ -317,7 +316,7 @@ async function seedDatabase() {
         isActive: true,
       })),
     )
-    .returning();
+    .returning()) as (typeof users.$inferSelect)[];
 
   const [adminUser, sarahUser, mikeUser, emilyUser] = createdUsers;
 
@@ -550,6 +549,8 @@ async function seedDatabase() {
       timesheetId: null, // No timesheet system yet (Epic 2)
       weekEnding: twoWeeksAgo.toISOString().split("T")[0],
       hoursAccrued: 2.0, // 2 hours overtime
+      loggedHours: 39.5, // 37.5 contracted + 2 overtime
+      contractedHours: 37.5, // Standard UK full-time work week
       accrualDate: twoWeeksAgo,
       expiryDate: sixMonthsFromNow.toISOString().split("T")[0],
       expired: false,
@@ -562,6 +563,8 @@ async function seedDatabase() {
       timesheetId: null,
       weekEnding: oneWeekAgoDate.toISOString().split("T")[0],
       hoursAccrued: 3.5, // 3.5 hours overtime (already used/redeemed)
+      loggedHours: 41.0, // 37.5 contracted + 3.5 overtime
+      contractedHours: 37.5, // Standard UK full-time work week
       accrualDate: oneWeekAgoDate,
       expiryDate: sixMonthsFromNow.toISOString().split("T")[0],
       expired: false,
@@ -2226,7 +2229,7 @@ For more information, visit the ICO website: https://ico.org.uk
     });
   }
 
-  const createdClients = await db
+  const createdClients = (await db
     .insert(clients)
     .values(
       clientList.map((client) => ({
@@ -2235,7 +2238,7 @@ For more information, visit the ICO website: https://ico.org.uk
         createdBy: adminUser.id,
       })),
     )
-    .returning();
+    .returning()) as (typeof clients.$inferSelect)[];
 
   // 5. Create Client Contacts
   console.log("Creating client contacts...");
@@ -2552,7 +2555,7 @@ For more information, visit the ICO website: https://ico.org.uk
           "1M+",
         ]),
         industry:
-          randomClient.industry ||
+          (randomClient as any).industry ||
           faker.helpers.arrayElement([
             "Technology",
             "Retail",
@@ -2988,7 +2991,7 @@ For more information, visit the ICO website: https://ico.org.uk
         clientId: assignedClient.id,
         serviceId: clientService.serviceId,
         assignedToId:
-          assignedClient.assignedToId ||
+          (assignedClient as any).assignedToId ||
           faker.helpers.arrayElement(createdUsers).id,
         createdById: faker.helpers.arrayElement(createdUsers).id,
         dueDate,
@@ -3000,8 +3003,8 @@ For more information, visit the ICO website: https://ico.org.uk
           status === "completed"
             ? String(
                 faker.number.float({
-                  min: template.estimatedHours - 2,
-                  max: template.estimatedHours + 5,
+                  min: (template.estimatedHours ?? 8) - 2,
+                  max: (template.estimatedHours ?? 8) + 5,
                 }),
               )
             : null,
@@ -3207,7 +3210,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   // 9.5 Create Timesheet Submissions
   console.log("Creating timesheet submissions...");
-  const submissionStatuses = [
+  const _submissionStatuses = [
     "pending",
     "approved",
     "rejected",
@@ -3961,7 +3964,7 @@ For more information, visit the ICO website: https://ico.org.uk
             isRequired: true,
           })),
           autoComplete: false,
-          requiresApproval: stage.requiresApproval || false,
+          requiresApproval: (stage as any).requiresApproval ?? false,
         })
         .returning();
       createdStages.push(createdStage);
