@@ -345,13 +345,18 @@ export const toilAccrualHistory = pgTable(
     userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    timesheetId: text("timesheet_id").references(() => timesheetSubmissions.id, {
-      onDelete: "set null",
-    }), // Reference to the timesheet submission that generated this TOIL
+    timesheetId: text("timesheet_id").references(
+      () => timesheetSubmissions.id,
+      {
+        onDelete: "set null",
+      },
+    ), // Reference to the timesheet submission that generated this TOIL
     weekEnding: date("week_ending").notNull(), // Week ending date for the accrual period
     hoursAccrued: real("hours_accrued").notNull(), // Overtime hours accrued as TOIL
+    loggedHours: real("logged_hours").notNull(), // Total hours worked in the week
+    contractedHours: real("contracted_hours").notNull(), // Contracted hours for the week
     accrualDate: timestamp("accrual_date").defaultNow().notNull(), // When TOIL was accrued (timesheet approval date)
-    expiryDate: date("expiry_date"), // Optional: when TOIL expires (6 months from accrual)
+    expiryDate: date("expiry_date").notNull(), // When TOIL expires (6 months from accrual)
     expired: boolean("expired").default(false).notNull(), // Whether TOIL has expired
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
