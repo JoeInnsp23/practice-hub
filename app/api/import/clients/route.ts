@@ -9,7 +9,6 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -48,7 +47,7 @@ export async function POST(request: NextRequest) {
     const parseResult = await parseCsvFile(file, clientImportSchema);
 
     // Create import log
-    const importLogId = nanoid();
+    const importLogId = crypto.randomUUID();
     await db.insert(importLogs).values({
       id: importLogId,
       tenantId: authContext.tenantId,
@@ -109,9 +108,10 @@ export async function POST(request: NextRequest) {
 
       // Prepare client data for insertion
       const clientsData = batch.map((row) => ({
-        id: nanoid(),
+        id: crypto.randomUUID(),
         tenantId: authContext.tenantId,
         name: row.name,
+        type: "company" as const,
         email: row.email || null,
         phone: row.phone || null,
         website: row.website || null,

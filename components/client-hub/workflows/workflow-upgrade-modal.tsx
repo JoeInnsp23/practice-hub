@@ -78,7 +78,7 @@ export function WorkflowUpgradeModal({
       );
       onUpgradeComplete();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to upgrade tasks");
     } finally {
       setIsUpgrading(false);

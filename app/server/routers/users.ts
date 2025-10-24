@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -334,7 +335,13 @@ export const usersRouter = router({
 
         return { success: true };
       } catch (error) {
-        console.error("Failed to send password reset email:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "sendPasswordResetEmail" },
+          extra: {
+            userId: input.userId,
+            email: targetUser[0].email,
+          },
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to send password reset email",

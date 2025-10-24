@@ -40,13 +40,13 @@ vi.mock("@/lib/db", () => ({
 
 describe("app/server/routers/proposalTemplates.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof proposalTemplatesRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof proposalTemplatesRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
     // Set admin role for admin procedures
     ctx.authContext = { ...ctx.authContext, role: "admin" };
-    caller = createCaller(proposalTemplatesRouter, ctx);
+    _caller = createCaller(proposalTemplatesRouter, ctx);
     vi.clearAllMocks();
   });
 

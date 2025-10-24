@@ -43,11 +43,15 @@ export function createMockContext(overrides: Partial<Context> = {}): Context {
   const authContext = overrides.authContext || createMockAuthContext();
 
   return {
-    session: overrides.session || {
+    session: overrides.session ?? {
       user: {
         id: authContext.userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         email: authContext.email,
+        emailVerified: true,
         name: `${authContext.firstName} ${authContext.lastName}`,
+        image: null,
       },
       session: {
         id: "test-session-id",
@@ -89,7 +93,7 @@ export function createAdminCaller<TRouter extends Record<string, any>>(
 ) {
   const adminContext = createMockContext({
     ...overrides,
-    authContext: createMockAdminContext(overrides.authContext),
+    authContext: createMockAdminContext(overrides.authContext ?? undefined),
   });
   return router.createCaller(adminContext);
 }

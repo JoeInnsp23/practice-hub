@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { workTypes, timeEntries } from "@/lib/db/schema";
+import { timeEntries, workTypes } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 export const workTypesRouter = router({
@@ -20,10 +20,7 @@ export const workTypesRouter = router({
 
       const where = input?.includeInactive
         ? eq(workTypes.tenantId, tenantId)
-        : and(
-            eq(workTypes.tenantId, tenantId),
-            eq(workTypes.isActive, true),
-          );
+        : and(eq(workTypes.tenantId, tenantId), eq(workTypes.isActive, true));
 
       const workTypesList = await db
         .select()
@@ -63,7 +60,10 @@ export const workTypesRouter = router({
           .string()
           .min(1, "Code is required")
           .max(50, "Code must be 50 characters or less")
-          .regex(/^[A-Z_]+$/, "Code must be uppercase letters and underscores only"),
+          .regex(
+            /^[A-Z_]+$/,
+            "Code must be uppercase letters and underscores only",
+          ),
         label: z.string().min(1, "Label is required").max(100),
         colorCode: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color code"),
         isBillable: z.boolean().default(true),
@@ -92,7 +92,9 @@ export const workTypesRouter = router({
       let sortOrder = input.sortOrder;
       if (sortOrder === undefined) {
         const [maxSortOrder] = await db
-          .select({ max: sql<number>`COALESCE(MAX(${workTypes.sortOrder}), 0)` })
+          .select({
+            max: sql<number>`COALESCE(MAX(${workTypes.sortOrder}), 0)`,
+          })
           .from(workTypes)
           .where(eq(workTypes.tenantId, tenantId));
 
@@ -193,7 +195,10 @@ export const workTypesRouter = router({
           .set({ isActive: false, updatedAt: new Date() })
           .where(and(eq(workTypes.id, id), eq(workTypes.tenantId, tenantId)));
 
-        return { success: true, message: "Work type deactivated (has time entries)" };
+        return {
+          success: true,
+          message: "Work type deactivated (has time entries)",
+        };
       }
 
       // Hard delete if no time entries

@@ -37,13 +37,13 @@ vi.mock("@/lib/db", () => ({
 
 describe("Workflow Versioning System", () => {
   let ctx: Context;
-  let workflowCaller: ReturnType<typeof createCaller<typeof workflowsRouter>>;
-  let taskCaller: ReturnType<typeof createCaller<typeof tasksRouter>>;
+  let _workflowCaller: ReturnType<typeof createCaller<typeof workflowsRouter>>;
+  let _taskCaller: ReturnType<typeof createCaller<typeof tasksRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    workflowCaller = createCaller(workflowsRouter, ctx);
-    taskCaller = createCaller(tasksRouter, ctx);
+    _workflowCaller = createCaller(workflowsRouter, ctx);
+    _taskCaller = createCaller(tasksRouter, ctx);
     vi.clearAllMocks();
   });
 

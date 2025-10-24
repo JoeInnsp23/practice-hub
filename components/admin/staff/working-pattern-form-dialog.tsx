@@ -240,7 +240,8 @@ export function WorkingPatternFormDialog({
 
   // Apply template
   const applyTemplate = (templateKey: string) => {
-    const template = PATTERN_TEMPLATES[templateKey as keyof typeof PATTERN_TEMPLATES];
+    const template =
+      PATTERN_TEMPLATES[templateKey as keyof typeof PATTERN_TEMPLATES];
     if (template) {
       form.setValue("patternType", template.patternType);
       form.setValue("contractedHours", template.contractedHours);
@@ -282,7 +283,8 @@ export function WorkingPatternFormDialog({
     (form.watch("saturdayHours") || 0) +
     (form.watch("sundayHours") || 0);
 
-  const isValid = Math.abs(totalHours - (form.watch("contractedHours") || 0)) < 0.01;
+  const isValid =
+    Math.abs(totalHours - (form.watch("contractedHours") || 0)) < 0.01;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -302,19 +304,24 @@ export function WorkingPatternFormDialog({
             {!editingPattern && (
               <div className="space-y-2">
                 <FormLabel>Quick Templates</FormLabel>
-                <Select value={selectedTemplate} onValueChange={(value) => {
-                  setSelectedTemplate(value);
-                  applyTemplate(value);
-                }}>
+                <Select
+                  value={selectedTemplate}
+                  onValueChange={(value) => {
+                    setSelectedTemplate(value);
+                    applyTemplate(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a template..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(PATTERN_TEMPLATES).map(([key, template]) => (
-                      <SelectItem key={key} value={key}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
+                    {Object.entries(PATTERN_TEMPLATES).map(
+                      ([key, template]) => (
+                        <SelectItem key={key} value={key}>
+                          {template.name}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
                 <FormDescription>
@@ -362,7 +369,10 @@ export function WorkingPatternFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pattern Type *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select pattern type" />
@@ -437,7 +447,8 @@ export function WorkingPatternFormDialog({
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  Total: {totalHours.toFixed(1)}h / {form.watch("contractedHours")}h
+                  Total: {totalHours.toFixed(1)}h /{" "}
+                  {form.watch("contractedHours")}h
                 </span>
                 {!isValid && (
                   <span className="text-destructive">

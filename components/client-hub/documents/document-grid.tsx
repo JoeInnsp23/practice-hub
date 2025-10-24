@@ -38,8 +38,8 @@ interface DocumentData {
     tags: unknown;
     clientId: string | null;
     url: string | null;
-    path: string;
-    isPublic: boolean;
+    path: string | null;
+    isPublic: boolean | null;
     requiresSignature?: boolean;
     signatureStatus?: string | null;
     signedAt?: Date | null;
@@ -51,12 +51,7 @@ interface DocumentData {
     lastName: string | null;
     email: string;
   } | null;
-  client: {
-    id: string;
-    name: string;
-    companyName: string | null;
-    email: string;
-  } | null;
+  client: Record<string, any> | null;
 }
 
 interface DocumentGridProps {
@@ -267,7 +262,7 @@ export function DocumentGrid({
                   </div>
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
-                  {doc.client?.companyName || doc.client?.name || "-"}
+                  {doc.client?.name || "-"}
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
                   {doc.uploader

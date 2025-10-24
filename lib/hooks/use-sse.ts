@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import type {
   ConnectionState,
-  RealtimeEvent,
   SubscriptionCallback,
 } from "@/lib/realtime/client";
 import { SSEClient } from "@/lib/realtime/sse-client";

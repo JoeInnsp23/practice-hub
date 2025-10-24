@@ -79,7 +79,6 @@ export async function GET(request: NextRequest) {
       expiresAt: expiresAt.toISOString(),
       selectedTenantId: xeroOrg.tenantId,
       tokenType: tokenResponse.token_type,
-      scope: tokenResponse.scope,
     };
 
     // Encrypt credentials
@@ -88,7 +87,7 @@ export async function GET(request: NextRequest) {
     // Prepare metadata
     const metadata = {
       xeroTenantName: xeroOrg.tenantName,
-      xeroOrganisationId: xeroOrg.id,
+      xeroOrganisationId: xeroOrg.organisationId,
       connectedBy: userId,
       connectedAt: new Date().toISOString(),
     };
@@ -114,8 +113,8 @@ export async function GET(request: NextRequest) {
           enabled: true,
           syncStatus: "connected",
           syncError: null,
-          lastSyncedAt: new Date(),
-          metadata,
+          lastSyncAt: new Date(),
+          config: metadata,
           updatedAt: new Date(),
         })
         .where(eq(integrationSettings.id, existingIntegration[0].id));
@@ -131,8 +130,8 @@ export async function GET(request: NextRequest) {
         credentials: encryptedCredentials,
         enabled: true,
         syncStatus: "connected",
-        lastSyncedAt: new Date(),
-        metadata,
+        lastSyncAt: new Date(),
+        config: metadata,
       });
 
       console.log(

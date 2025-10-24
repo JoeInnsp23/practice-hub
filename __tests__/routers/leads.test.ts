@@ -38,11 +38,11 @@ vi.mock("@/lib/client-portal/auto-convert-lead", () => ({
 
 describe("app/server/routers/leads.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof leadsRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof leadsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(leadsRouter, ctx);
+    _caller = createCaller(leadsRouter, ctx);
     vi.clearAllMocks();
   });
 

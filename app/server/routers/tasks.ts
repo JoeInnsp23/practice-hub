@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -681,7 +682,13 @@ export const tasksRouter = router({
           });
         } catch (error) {
           // Log error but don't fail the update
-          console.error("Failed to auto-generate next recurring task:", error);
+          Sentry.captureException(error, {
+            tags: { operation: "autoGenerateRecurringTask" },
+            extra: {
+              taskId: input.id,
+              recurringFrequency: updatedTask.recurringFrequency,
+            },
+          });
         }
       }
 

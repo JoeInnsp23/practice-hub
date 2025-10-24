@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -110,7 +111,14 @@ export const clientPortalAdminRouter = router({
           customMessage: input.message,
         });
       } catch (error) {
-        console.error("Failed to send invitation email:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "sendClientPortalInvitation" },
+          extra: {
+            email: input.email,
+            clientIds: input.clientIds,
+            role: input.role,
+          },
+        });
         // Don't throw - invitation is still created
       }
 
@@ -238,7 +246,13 @@ export const clientPortalAdminRouter = router({
           expiresAt: newExpiresAt,
         });
       } catch (error) {
-        console.error("Failed to resend invitation email:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "resendClientPortalInvitation" },
+          extra: {
+            invitationId: input.invitationId,
+            email: invitation.email,
+          },
+        });
       }
 
       // Log activity

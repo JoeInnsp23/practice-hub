@@ -5,7 +5,6 @@
  * Validates multi-tenant isolation, version tracking, and admin authorization
  */
 
-import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { legalRouter } from "@/app/server/routers/legal";
@@ -29,11 +28,11 @@ vi.mock("@/lib/db", () => ({
 
 describe("app/server/routers/legal.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof legalRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof legalRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(legalRouter, ctx);
+    _caller = createCaller(legalRouter, ctx);
     vi.clearAllMocks();
   });
 

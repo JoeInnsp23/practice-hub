@@ -247,7 +247,7 @@ export function TaskTemplateFormDialog({
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(SUPPORTED_PLACEHOLDERS).map(
-                          ([key, description]) => (
+                          ([key, _description]) => (
                             <Badge
                               key={key}
                               variant="outline"

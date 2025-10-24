@@ -45,11 +45,11 @@ vi.mock("@/lib/email/proposal-email", () => ({
 
 describe("app/server/routers/proposals.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof proposalsRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof proposalsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(proposalsRouter, ctx);
+    _caller = createCaller(proposalsRouter, ctx);
     vi.clearAllMocks();
   });
 

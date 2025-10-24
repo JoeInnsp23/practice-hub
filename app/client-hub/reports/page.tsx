@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   Activity,
   BarChart3,
@@ -11,7 +12,6 @@ import {
 } from "lucide-react";
 import Papa from "papaparse";
 import { useMemo, useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { ClientBreakdown } from "@/components/client-hub/reports/client-breakdown";
 import { RevenueChart } from "@/components/client-hub/reports/revenue-chart";

@@ -27,14 +27,10 @@
 import { inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
-  type Client,
   clients,
-  type Document,
   documents,
-  type Invoice,
   invoices,
   services,
-  type Task,
   tasks,
   taskTemplates,
   taskWorkflowInstances,
@@ -45,6 +41,12 @@ import {
   workflows,
   workflowVersions,
 } from "@/lib/db/schema";
+
+// Infer types from Drizzle schema
+type Client = typeof clients.$inferSelect;
+type Document = typeof documents.$inferSelect;
+type Invoice = typeof invoices.$inferSelect;
+type Task = typeof tasks.$inferSelect;
 
 /**
  * Tracking object for test data cleanup
@@ -479,7 +481,7 @@ export async function createTestWorkflow(
       isActive: overrides.isActive ?? true,
       version: overrides.version || 1,
       estimatedDays: overrides.estimatedDays || null,
-      serviceComponentId: overrides.serviceComponentId || null,
+      serviceId: overrides.serviceId || null, // workflows schema uses serviceId, not serviceComponentId
       config: overrides.config || {},
       createdAt: new Date(),
       updatedAt: new Date(),

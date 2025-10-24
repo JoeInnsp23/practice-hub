@@ -41,7 +41,9 @@ async function accrueToilFromTimesheet(
 
   if (capacity.length === 0) {
     // No capacity record - skip TOIL accrual
-    console.warn(`No staffCapacity record found for user ${userId} - skipping TOIL accrual`);
+    console.warn(
+      `No staffCapacity record found for user ${userId} - skipping TOIL accrual`,
+    );
     return;
   }
 

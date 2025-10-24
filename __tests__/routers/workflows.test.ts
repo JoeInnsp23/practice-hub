@@ -8,7 +8,7 @@
  */
 
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Context } from "@/app/server/context";
 import { workflowsRouter } from "@/app/server/routers/workflows";
@@ -277,7 +277,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
       const testWorkflow = result.find((w) => w.id === workflow.id);
       expect(testWorkflow).toBeDefined();
-      expect(testWorkflow!.stageCount).toBe(2);
+      expect(testWorkflow?.stageCount).toBe(2);
     });
   });
 
@@ -290,11 +290,11 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           name: "GetById Test Workflow",
         },
       );
-      const stage1 = await createTestWorkflowStage(workflow.id, {
+      const _stage1 = await createTestWorkflowStage(workflow.id, {
         stageOrder: 1,
         name: "Stage 1",
       });
-      const stage2 = await createTestWorkflowStage(workflow.id, {
+      const _stage2 = await createTestWorkflowStage(workflow.id, {
         stageOrder: 2,
         name: "Stage 2",
       });
@@ -681,7 +681,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       tracker.workflows?.push(workflow.id);
 
       // Create a version manually for testing
-      const [version] = await db
+      const [_version] = await db
         .insert(workflowVersions)
         .values({
           workflowId: workflow.id,

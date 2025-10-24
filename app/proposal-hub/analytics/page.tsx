@@ -53,8 +53,8 @@ export default function AnalyticsPage() {
     trpc.analytics.getSalesFunnelMetrics.useQuery(dateRangeParams);
 
   // Fetch users and clients for filters
-  const { data: usersData } = trpc.users.list.useQuery();
-  const { data: clientsData } = trpc.clients.list.useQuery();
+  const { data: usersData } = trpc.users.list.useQuery({});
+  const { data: clientsData } = trpc.clients.list.useQuery({});
 
   const users =
     usersData?.users.map((u) => ({

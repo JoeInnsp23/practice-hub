@@ -44,11 +44,11 @@ vi.mock("@/lib/db/queries/dashboard-queries", () => ({
 
 describe("app/server/routers/dashboard.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof dashboardRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof dashboardRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(dashboardRouter, ctx);
+    _caller = createCaller(dashboardRouter, ctx);
     vi.clearAllMocks();
   });
 

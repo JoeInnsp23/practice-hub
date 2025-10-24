@@ -33,12 +33,12 @@ vi.mock("@/lib/email", () => ({
 
 describe("app/server/routers/invitations.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof invitationsRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof invitationsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
     ctx.authContext.role = "admin"; // Most procedures require admin
-    caller = createCaller(invitationsRouter, ctx);
+    _caller = createCaller(invitationsRouter, ctx);
     vi.clearAllMocks();
   });
 

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, ilike, isNull, or } from "drizzle-orm";
 import { z } from "zod";
@@ -383,7 +384,13 @@ export const documentsRouter = router({
           const key = url.pathname.split("/").slice(2).join("/"); // Remove /bucket-name/
           await deleteFromS3(key);
         } catch (error) {
-          console.error("Failed to delete from S3:", error);
+          Sentry.captureException(error, {
+            tags: { operation: "deleteDocumentFromS3" },
+            extra: {
+              documentId: input.id,
+              s3Url: doc.url,
+            },
+          });
           // Continue with database deletion even if S3 deletion fails
         }
       }

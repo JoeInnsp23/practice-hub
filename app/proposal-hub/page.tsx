@@ -49,13 +49,13 @@ export default function ProposalHubPage() {
   const stats = statsData?.stats || [];
 
   // Fetch analytics data
-  const { data: leadStatsData } = trpc.analytics.getLeadStats.useQuery();
+  const { data: leadStatsData } = trpc.analytics.getLeadStats.useQuery({});
   const { data: proposalStatsData } =
-    trpc.analytics.getProposalStats.useQuery();
+    trpc.analytics.getProposalStats.useQuery({});
   const { data: conversionData } =
-    trpc.analytics.getConversionMetrics.useQuery();
+    trpc.analytics.getConversionMetrics.useQuery({});
   const { data: salesFunnelData } =
-    trpc.analytics.getSalesFunnelMetrics.useQuery();
+    trpc.analytics.getSalesFunnelMetrics.useQuery({});
 
   // Calculate metrics
   const draftCount = stats.find((s) => s.status === "draft")?.count || 0;

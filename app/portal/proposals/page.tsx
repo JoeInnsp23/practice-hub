@@ -201,7 +201,7 @@ export default function ProposalsPage() {
                                       } else {
                                         toast.error("Signed PDF not available");
                                       }
-                                    } catch (error) {
+                                    } catch (_error) {
                                       toast.error("Failed to load signed PDF");
                                     }
                                   }}

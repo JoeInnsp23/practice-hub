@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { calculateCarryover } from "@/lib/leave/carryover";
 
 describe("Leave Carryover Logic", () => {
@@ -8,7 +8,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 15; // 10 days unused
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(5); // Capped at max 5 days
     });
@@ -18,7 +22,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 22; // 3 days unused
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(3);
     });
@@ -28,7 +36,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 25; // All used
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(0);
     });
@@ -38,7 +50,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 30; // Over-used (negative balance)
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(0);
     });
@@ -51,7 +67,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 20; // 10 days unused total
       const carriedOver = 5; // Already carried over from previous year
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       // Current year entitlement: 30 - 5 (carried) = 25
       // Used: 20
@@ -67,7 +87,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 10; // 20 days unused total
       const carriedOver = 5;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       // Current year entitlement: 30 - 5 (carried) = 25
       // Used: 10
@@ -81,7 +105,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 20; // Exactly 5 unused
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(5);
     });
@@ -91,7 +119,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 0; // Didn't use any leave
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(5); // Still capped at 5
     });
@@ -102,7 +134,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 5; // 7.5 days unused
       const carriedOver = 0;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       expect(result).toBe(5); // Capped at max even though only 7.5 unused
     });
@@ -112,7 +148,11 @@ describe("Leave Carryover Logic", () => {
       const annualUsed = 25; // Used current year's allocation exactly
       const carriedOver = 5;
 
-      const result = calculateCarryover(annualEntitlement, annualUsed, carriedOver);
+      const result = calculateCarryover(
+        annualEntitlement,
+        annualUsed,
+        carriedOver,
+      );
 
       // Current year entitlement: 30 - 5 (carried) = 25
       // Used: 25

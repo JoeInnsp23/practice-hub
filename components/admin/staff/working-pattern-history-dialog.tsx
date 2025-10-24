@@ -130,7 +130,9 @@ export function WorkingPatternHistoryDialog({
                     <TableHead>Effective From</TableHead>
                     <TableHead>Pattern Type</TableHead>
                     <TableHead>Weekly Schedule</TableHead>
-                    <TableHead className="text-right">Contracted Hours</TableHead>
+                    <TableHead className="text-right">
+                      Contracted Hours
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -148,9 +150,7 @@ export function WorkingPatternHistoryDialog({
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              {format(patternDate, "MMM d, yyyy")}
-                            </span>
+                            <span>{format(patternDate, "MMM d, yyyy")}</span>
                             {isCurrentPattern && !isFuture && (
                               <Badge variant="default">Current</Badge>
                             )}

@@ -4,7 +4,6 @@
  * Tests for the transactionData tRPC router
  */
 
-import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { transactionDataRouter } from "@/app/server/routers/transactionData";
@@ -183,7 +182,7 @@ describe("app/server/routers/transactionData.ts", () => {
 
         // Mock insert for transaction data storage AND activity logs
         // The router calls insert twice: once for clientTransactionData, once for activityLogs
-        vi.mocked(db.insert).mockImplementation((table: any) => {
+        vi.mocked(db.insert).mockImplementation((_table: any) => {
           // Create a promise-like object that can handle both cases
           const valuesResult = {
             // For transaction data: has onConflictDoUpdate

@@ -7,13 +7,12 @@
  * Cleanup Strategy: Unique test IDs + afterEach cleanup (per Task 0 spike findings)
  */
 
-import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Context } from "@/app/server/context";
 import { toilRouter } from "@/app/server/routers/toil";
 import { db } from "@/lib/db";
-import { toilAccrualHistory, leaveBalances } from "@/lib/db/schema";
+import { leaveBalances, toilAccrualHistory } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,

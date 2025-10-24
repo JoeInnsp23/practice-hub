@@ -97,7 +97,7 @@ export function TemplateEditor({
       setIsDefault(false);
       setSelectedServices([]);
     }
-  }, [templateData, isOpen]);
+  }, [templateData]);
 
   const handleSave = () => {
     if (!name.trim()) {

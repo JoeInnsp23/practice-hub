@@ -2,8 +2,8 @@ import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   clientRevenueView,
-  clients,
   clientServices,
+  clients,
   dashboardKpiView,
   invoices,
   monthlyRevenueView,
@@ -97,9 +97,10 @@ export async function getClientRevenue(
       totalPaid: sql<number>`COALESCE(SUM(${invoices.amountPaid}), 0)`.as(
         "total_paid",
       ),
-      outstanding: sql<number>`COALESCE(SUM(${invoices.total} - ${invoices.amountPaid}), 0)`.as(
-        "outstanding",
-      ),
+      outstanding:
+        sql<number>`COALESCE(SUM(${invoices.total} - ${invoices.amountPaid}), 0)`.as(
+          "outstanding",
+        ),
       invoiceCount: sql<number>`COUNT(${invoices.id})`.as("invoice_count"),
       firstInvoiceDate: sql<Date | null>`MIN(${invoices.issueDate})`.as(
         "first_invoice_date",
@@ -156,7 +157,7 @@ export async function getServicePerformance(
 ) {
   // Build base query for service revenue from invoices
   // This aggregates invoice items by service
-  let query = db
+  const query = db
     .select({
       serviceId: clientServices.serviceId,
       serviceName: services.name,

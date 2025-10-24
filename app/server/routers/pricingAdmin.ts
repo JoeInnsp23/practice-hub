@@ -369,10 +369,7 @@ export const pricingAdminRouter = router({
           updatedAt: new Date(),
         })
         .where(
-          and(
-            inArray(services.id, input.ids),
-            eq(services.tenantId, tenantId),
-          ),
+          and(inArray(services.id, input.ids), eq(services.tenantId, tenantId)),
         );
 
       // Log activity

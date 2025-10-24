@@ -33,6 +33,7 @@ vi.mock("@/lib/services/csv-import", () => ({
 
 // Import mocked function to customize per test
 import { parseCsvFile } from "@/lib/services/csv-import";
+
 const mockParseCsvFile = vi.mocked(parseCsvFile);
 
 // Test IDs - Use valid UUIDs to match schema expectations
@@ -42,9 +43,7 @@ const TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440002";
 describe("Service Import API Integration Tests", () => {
   beforeAll(async () => {
     // Clean up any existing test data
-    await db
-      .delete(importLogs)
-      .where(eq(importLogs.tenantId, TEST_TENANT_ID));
+    await db.delete(importLogs).where(eq(importLogs.tenantId, TEST_TENANT_ID));
     await db.delete(services).where(eq(services.tenantId, TEST_TENANT_ID));
     await db.delete(users).where(eq(users.tenantId, TEST_TENANT_ID));
     await db.delete(tenants).where(eq(tenants.id, TEST_TENANT_ID));
@@ -69,9 +68,7 @@ describe("Service Import API Integration Tests", () => {
 
   afterAll(async () => {
     // Clean up test data
-    await db
-      .delete(importLogs)
-      .where(eq(importLogs.tenantId, TEST_TENANT_ID));
+    await db.delete(importLogs).where(eq(importLogs.tenantId, TEST_TENANT_ID));
     await db.delete(services).where(eq(services.tenantId, TEST_TENANT_ID));
     await db.delete(users).where(eq(users.tenantId, TEST_TENANT_ID));
     await db.delete(tenants).where(eq(tenants.id, TEST_TENANT_ID));
@@ -254,9 +251,7 @@ New Service,NEW_SVC,This should succeed,vat`;
     // Verify error was logged for duplicate
     expect(result.errors).toBeDefined();
     expect(result.errors.length).toBeGreaterThan(0);
-    expect(result.errors[0].message).toContain(
-      "Service name already exists",
-    );
+    expect(result.errors[0].message).toContain("Service name already exists");
 
     // Verify only 2 services exist (original + new one, not the duplicate)
     const allServices = await db
@@ -265,7 +260,9 @@ New Service,NEW_SVC,This should succeed,vat`;
       .where(eq(services.tenantId, TEST_TENANT_ID));
 
     expect(allServices.length).toBeGreaterThanOrEqual(2); // At least the original and the new one
-    expect(allServices.filter((s) => s.name === "Duplicate Service Test")).toHaveLength(1); // Only one with this name
+    expect(
+      allServices.filter((s) => s.name === "Duplicate Service Test"),
+    ).toHaveLength(1); // Only one with this name
   });
 
   it("should validate required fields and return errors (AC3)", async () => {

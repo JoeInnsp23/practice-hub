@@ -10,7 +10,6 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -183,7 +182,9 @@ export async function POST(request: NextRequest) {
               : null,
           };
         })
-        .filter((service): service is NonNullable<typeof service> => service !== null);
+        .filter(
+          (service): service is NonNullable<typeof service> => service !== null,
+        );
 
       // Insert batch
       if (servicesData.length > 0) {

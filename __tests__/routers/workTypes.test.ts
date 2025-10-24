@@ -5,13 +5,12 @@
  * Tests verify CRUD operations, tenant isolation, and business logic.
  */
 
-import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Context } from "@/app/server/context";
 import { workTypesRouter } from "@/app/server/routers/workTypes";
 import { db } from "@/lib/db";
-import { workTypes, timeEntries } from "@/lib/db/schema";
+import { timeEntries, workTypes } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,

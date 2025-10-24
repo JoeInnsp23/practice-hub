@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Edit, Eye, Filter, Plus, Search, Trash2 } from "lucide-react";
+import { Copy, Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { TaskTemplateFormDialog } from "@/components/client-hub/task-template-form-dialog";

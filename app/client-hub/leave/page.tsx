@@ -40,16 +40,33 @@ export default function LeavePage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch leave data
-  const { data: balance, isLoading: balanceLoading } =
-    trpc.leave.getBalance.useQuery();
-  const { data: leaveHistory, isLoading: historyLoading } =
-    trpc.leave.getHistory.useQuery();
-  const { data: teamLeave } = trpc.leave.getTeamLeave.useQuery();
+  const { data: balanceResponse, isLoading: balanceLoading } =
+    trpc.leave.getBalance.useQuery({});
+  const { data: historyResponse, isLoading: historyLoading } =
+    trpc.leave.getHistory.useQuery({});
+  const { data: teamLeaveResponse } = trpc.leave.getTeamLeave.useQuery({});
+
+  // Extract and transform data from responses
+  const balance = balanceResponse?.balance
+    ? {
+        entitlement: balanceResponse.balance.annualEntitlement,
+        used: balanceResponse.balance.annualUsed,
+        remaining: balanceResponse.annualRemaining,
+        carriedOver: balanceResponse.balance.carriedOver,
+        toilBalance: balanceResponse.balance.toilBalance,
+        sickUsed: balanceResponse.balance.sickUsed,
+      }
+    : undefined;
+  const leaveHistory = historyResponse?.requests ?? [];
+  const teamLeave = teamLeaveResponse?.requests ?? [];
 
   // Fetch TOIL data
-  const { data: toilBalance } = trpc.toil.getBalance.useQuery();
-  const { data: toilHistory } = trpc.toil.getHistory.useQuery();
-  const { data: expiringToil } = trpc.toil.getExpiringToil.useQuery();
+  const { data: toilBalance } = trpc.toil.getBalance.useQuery({});
+  const { data: toilHistoryResponse } = trpc.toil.getHistory.useQuery({});
+  const { data: expiringToil } = trpc.toil.getExpiringToil.useQuery({});
+
+  // Extract TOIL history
+  const toilHistory = toilHistoryResponse?.history ?? [];
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -73,7 +90,7 @@ export default function LeavePage() {
     return {
       pending: pendingCount,
       approved: approvedThisYear,
-      remaining: balance.remaining,
+      remaining: balance?.remaining ?? 0,
     };
   }, [leaveHistory, balance]);
 
@@ -260,8 +277,8 @@ export default function LeavePage() {
           {toilBalance && expiringToil && (
             <ToilBalanceWidget
               balance={{
-                totalHours: toilBalance.totalHours,
-                totalDays: toilBalance.totalDays,
+                totalHours: toilBalance.balance,
+                totalDays: Number.parseFloat(toilBalance.balanceInDays),
                 expiringHours: expiringToil.totalExpiringHours,
                 expiringDays: Number.parseFloat(expiringToil.totalExpiringDays),
                 expiryDate:

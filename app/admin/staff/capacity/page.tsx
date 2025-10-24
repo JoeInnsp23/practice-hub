@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { History, Plus, TrendingUp } from "lucide-react";
+import { History, Plus } from "lucide-react";
 import { useState } from "react";
 import { CapacityFormDialog } from "@/components/admin/staff/capacity-form-dialog";
 import { CapacityHistoryDialog } from "@/components/admin/staff/capacity-history-dialog";

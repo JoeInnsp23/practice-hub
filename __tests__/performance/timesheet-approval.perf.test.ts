@@ -9,7 +9,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
 import { db } from "@/lib/db";
-import { staffCapacity, timeEntries, timesheetSubmissions } from "@/lib/db/schema";
+import {
+  staffCapacity,
+  timeEntries,
+  timesheetSubmissions,
+} from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
@@ -25,9 +29,9 @@ vi.mock("@/lib/email/timesheet-notifications", () => ({
 }));
 
 describe("Timesheet Approval Performance Tests (AC17)", () => {
-  let ctx: Context;
+  let _ctx: Context;
   let managerCtx: Context;
-  let caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   let managerCaller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -70,7 +74,9 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
     managerCaller = createCaller(timesheetsRouter, managerCtx);
 
     // 4. Create 100 staff users
-    console.log("⏳ Creating 100 staff members with pending timesheet submissions...");
+    console.log(
+      "⏳ Creating 100 staff members with pending timesheet submissions...",
+    );
     for (let i = 0; i < 100; i++) {
       const userId = await createTestUser(testTenantId, {
         role: "staff",
@@ -201,10 +207,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
       where: (table, { inArray }) => inArray(table.id, submissionIdsToApprove),
     });
 
-    expect(approvedSubmissions.every((s) => s.status === "approved")).toBe(true);
-    expect(approvedSubmissions.every((s) => s.reviewedBy === testManagerId)).toBe(
+    expect(approvedSubmissions.every((s) => s.status === "approved")).toBe(
       true,
     );
+    expect(
+      approvedSubmissions.every((s) => s.reviewedBy === testManagerId),
+    ).toBe(true);
     expect(approvedSubmissions.every((s) => s.reviewedAt !== null)).toBe(true);
   }, 15000); // 15 second timeout
 
@@ -246,10 +254,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
       where: (table, { inArray }) => inArray(table.id, submissionIdsToReject),
     });
 
-    expect(rejectedSubmissions.every((s) => s.status === "rejected")).toBe(true);
-    expect(rejectedSubmissions.every((s) => s.reviewedBy === testManagerId)).toBe(
+    expect(rejectedSubmissions.every((s) => s.status === "rejected")).toBe(
       true,
     );
+    expect(
+      rejectedSubmissions.every((s) => s.reviewedBy === testManagerId),
+    ).toBe(true);
     expect(rejectedSubmissions.every((s) => s.reviewerComments !== null)).toBe(
       true,
     );

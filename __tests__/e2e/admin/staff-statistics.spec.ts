@@ -31,13 +31,13 @@ test.describe("Staff Statistics Page (E2E)", () => {
 
     // 5. Check color coding for overallocated/underutilized
     // Overallocated should have red styling
-    const overallocatedCard = page.locator('.border-red-200').first();
+    const overallocatedCard = page.locator(".border-red-200").first();
     if (await overallocatedCard.isVisible()) {
       await expect(overallocatedCard).toBeVisible();
     }
 
     // Underutilized should have yellow styling
-    const underutilizedCard = page.locator('.border-yellow-200').first();
+    const underutilizedCard = page.locator(".border-yellow-200").first();
     if (await underutilizedCard.isVisible()) {
       await expect(underutilizedCard).toBeVisible();
     }
@@ -47,14 +47,18 @@ test.describe("Staff Statistics Page (E2E)", () => {
     await page.goto("/admin/staff/statistics");
 
     // 1. Click "View Trend" on a staff card
-    const viewTrendButton = page.locator('button:has-text("View 12-Week Trend")').first();
+    const viewTrendButton = page
+      .locator('button:has-text("View 12-Week Trend")')
+      .first();
     await viewTrendButton.click();
 
     // 2. Verify dialog opens
-    await expect(page.locator('text="12-Week Utilization Trend"')).toBeVisible();
+    await expect(
+      page.locator('text="12-Week Utilization Trend"'),
+    ).toBeVisible();
 
     // 3. Verify LineChart renders (check for SVG element)
-    const chart = page.locator('svg').first();
+    const chart = page.locator("svg").first();
     await expect(chart).toBeVisible();
 
     // 4. Check data points match expected weeks (12 data points)
@@ -64,14 +68,18 @@ test.describe("Staff Statistics Page (E2E)", () => {
 
     // 5. Close dialog
     await page.keyboard.press("Escape");
-    await expect(page.locator('text="12-Week Utilization Trend"')).not.toBeVisible();
+    await expect(
+      page.locator('text="12-Week Utilization Trend"'),
+    ).not.toBeVisible();
   });
 
   test("should switch between view tabs", async ({ page }) => {
     await page.goto("/admin/staff/statistics");
 
     // 1. Verify Individual View tab is active by default
-    await expect(page.locator('button[data-state="active"]:has-text("Individual View")')).toBeVisible();
+    await expect(
+      page.locator('button[data-state="active"]:has-text("Individual View")'),
+    ).toBeVisible();
 
     // 2. Click Heatmap tab
     await page.click('button:has-text("Heatmap")');
@@ -96,28 +104,30 @@ test.describe("Staff Statistics Page (E2E)", () => {
     await page.click('button:has-text("Comparison Table")');
 
     // 2. Click "Utilization" column header to sort
-    const utilizationHeader = page.locator('button:has-text("Utilization")').first();
+    const utilizationHeader = page
+      .locator('button:has-text("Utilization")')
+      .first();
     await utilizationHeader.click();
 
     // Verify ascending sort icon appears
-    await expect(page.locator('svg.lucide-arrow-up')).toBeVisible();
+    await expect(page.locator("svg.lucide-arrow-up")).toBeVisible();
 
     // 3. Click again to sort descending
     await utilizationHeader.click();
 
     // Verify descending sort icon appears
-    await expect(page.locator('svg.lucide-arrow-down')).toBeVisible();
+    await expect(page.locator("svg.lucide-arrow-down")).toBeVisible();
 
     // 4. Verify rows are sorted (first row should have highest utilization)
-    const firstRow = page.locator('tbody tr').first();
-    const lastRow = page.locator('tbody tr').last();
+    const firstRow = page.locator("tbody tr").first();
+    const lastRow = page.locator("tbody tr").last();
 
-    const firstUtilization = await firstRow.locator('td').nth(5).textContent();
-    const lastUtilization = await lastRow.locator('td').nth(5).textContent();
+    const firstUtilization = await firstRow.locator("td").nth(5).textContent();
+    const lastUtilization = await lastRow.locator("td").nth(5).textContent();
 
     // Extract numbers
-    const firstValue = parseInt(firstUtilization?.replace("%", "") || "0");
-    const lastValue = parseInt(lastUtilization?.replace("%", "") || "0");
+    const firstValue = parseInt(firstUtilization?.replace("%", "") || "0", 10);
+    const lastValue = parseInt(lastUtilization?.replace("%", "") || "0", 10);
 
     expect(firstValue).toBeGreaterThanOrEqual(lastValue);
   });
@@ -129,7 +139,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
     await page.click('button:has-text("Comparison Table")');
 
     // Get initial row count
-    const initialRows = await page.locator('tbody tr').count();
+    const _initialRows = await page.locator("tbody tr").count();
 
     // 1. Click status filter dropdown
     await page.click('button:has-text("Filter by status")');
@@ -138,7 +148,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
     await page.click('text="Overallocated"');
 
     // 3. Verify only overallocated staff shown
-    const rows = page.locator('tbody tr');
+    const rows = page.locator("tbody tr");
     const count = await rows.count();
 
     if (count > 0) {
@@ -152,7 +162,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
     await page.click('text="All Statuses"');
 
     // Verify all rows are shown again
-    const allRows = await page.locator('tbody tr').count();
+    const allRows = await page.locator("tbody tr").count();
     expect(allRows).toBeGreaterThanOrEqual(count);
   });
 
@@ -206,7 +216,9 @@ test.describe("Staff Statistics Page (E2E)", () => {
     await page.goto("/admin/staff/statistics");
 
     // Scroll to department utilization section
-    await page.locator('text="Department Utilization"').scrollIntoViewIfNeeded();
+    await page
+      .locator('text="Department Utilization"')
+      .scrollIntoViewIfNeeded();
 
     // 1. Verify department utilization card is visible
     await expect(page.locator('text="Department Utilization"')).toBeVisible();
@@ -222,7 +234,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
       await expect(page.locator('text="%"')).toBeVisible();
 
       // Check progress bar is rendered
-      const progressBar = page.locator('.h-3.bg-muted').first();
+      const progressBar = page.locator(".h-3.bg-muted").first();
       await expect(progressBar).toBeVisible();
     }
   });

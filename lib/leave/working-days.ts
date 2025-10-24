@@ -1,4 +1,4 @@
-import { differenceInBusinessDays, isWeekend } from "date-fns";
+import { isWeekend } from "date-fns";
 
 /**
  * UK Bank Holidays 2025 (https://www.gov.uk/bank-holidays)

@@ -38,7 +38,7 @@ if (SENTRY_DSN) {
     ],
 
     // Filter out sensitive data
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Filter out authentication errors from being sent to Sentry
       if (event.exception?.values?.[0]?.value?.includes("UNAUTHORIZED")) {
         return null;

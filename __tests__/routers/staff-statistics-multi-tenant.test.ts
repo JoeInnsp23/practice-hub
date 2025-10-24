@@ -1,12 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import {
-  departments,
-  staffCapacity,
-  timeEntries,
-} from "@/lib/db/schema";
 import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
-import type { Context } from "@/app/server/context";
+import { db } from "@/lib/db";
+import { departments, staffCapacity, timeEntries } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
@@ -37,19 +32,25 @@ describe("Staff Statistics Multi-Tenant Isolation", () => {
     tracker.tenants?.push(tenantAId, tenantBId);
 
     // Create departments
-    const [deptA] = await db.insert(departments).values({
-      id: crypto.randomUUID(),
-      tenantId: tenantAId,
-      name: "Tenant A Dept",
-      isActive: true,
-    }).returning();
+    const [deptA] = await db
+      .insert(departments)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId: tenantAId,
+        name: "Tenant A Dept",
+        isActive: true,
+      })
+      .returning();
 
-    const [deptB] = await db.insert(departments).values({
-      id: crypto.randomUUID(),
-      tenantId: tenantBId,
-      name: "Tenant B Dept",
-      isActive: true,
-    }).returning();
+    const [deptB] = await db
+      .insert(departments)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId: tenantBId,
+        name: "Tenant B Dept",
+        isActive: true,
+      })
+      .returning();
 
     deptAId = deptA.id;
     deptBId = deptB.id;
@@ -160,9 +161,9 @@ describe("Staff Statistics Multi-Tenant Isolation", () => {
 
     // Should see 2 staff from Tenant A only
     expect(statsA.staff.length).toBe(2);
-    expect(statsA.staff.every((s) => s.departmentName === "Tenant A Dept")).toBe(
-      true,
-    );
+    expect(
+      statsA.staff.every((s) => s.departmentName === "Tenant A Dept"),
+    ).toBe(true);
 
     // Verify the correct names
     const names = statsA.staff.map((s) => s.firstName);

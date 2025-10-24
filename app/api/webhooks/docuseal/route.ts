@@ -122,7 +122,7 @@ export async function POST(request: Request) {
         new Error("Invalid DocuSeal webhook signature"),
         sentryCtx(
           { operation: "webhook_signature_invalid" },
-          { providedSignature: signature.substring(0, 10) + "..." },
+          { providedSignature: `${signature.substring(0, 10)}...` },
         ),
       );
       return new Response("Invalid signature", { status: 401 });
@@ -683,7 +683,7 @@ async function handleDocumentSigning(
       action: "Document Signed",
       entityType: "document",
       entityId: documentId,
-      details: `Document "${doc.name}" signed by ${auditTrail.signerName}`,
+      description: `Document "${doc.name}" signed by ${auditTrail.signerName}`,
       metadata: {
         documentId,
         submissionId,

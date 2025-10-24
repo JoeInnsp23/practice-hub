@@ -1,4 +1,6 @@
+import { eq } from "drizzle-orm";
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { appRouter } from "@/app/server";
 import { db } from "@/lib/db";
 import {
   leaveBalances,
@@ -8,8 +10,6 @@ import {
   toilAccrualHistory,
   users,
 } from "@/lib/db/schema";
-import { appRouter } from "@/app/server";
-import { eq } from "drizzle-orm";
 import { createMockContext } from "../helpers/trpc";
 
 // Mock email notifications to avoid API key errors in tests

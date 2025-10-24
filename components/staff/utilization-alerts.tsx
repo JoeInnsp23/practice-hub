@@ -39,8 +39,8 @@ export function UtilizationAlerts({ stats }: UtilizationAlertsProps) {
           </AlertTitle>
           <AlertDescription>
             <p className="mb-2">
-              The following staff members are working over their capacity. Consider
-              redistributing workload or reviewing their assignments:
+              The following staff members are working over their capacity.
+              Consider redistributing workload or reviewing their assignments:
             </p>
             <ul className="list-disc list-inside space-y-1">
               {overallocated.map((staff) => {
@@ -50,7 +50,7 @@ export function UtilizationAlerts({ stats }: UtilizationAlertsProps) {
                 return (
                   <li key={staff.userId} className="text-sm">
                     <span className="font-medium">
-                      {staff.firstName} {staff.lastName}
+                      {staff.firstName ?? ""} {staff.lastName ?? ""}
                     </span>{" "}
                     - {staff.utilization}% utilization ({overHours} hours over
                     capacity)
@@ -82,7 +82,7 @@ export function UtilizationAlerts({ stats }: UtilizationAlertsProps) {
                 return (
                   <li key={staff.userId} className="text-sm">
                     <span className="font-medium">
-                      {staff.firstName} {staff.lastName}
+                      {staff.firstName ?? ""} {staff.lastName ?? ""}
                     </span>{" "}
                     - {staff.utilization}% utilization ({availableHours} hours
                     available)

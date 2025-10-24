@@ -8,7 +8,7 @@
  */
 
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { documentsRouter } from "@/app/server/routers/documents";

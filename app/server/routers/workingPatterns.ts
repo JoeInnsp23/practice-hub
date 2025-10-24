@@ -282,16 +282,20 @@ export const workingPatternsRouter = router({
       }
 
       // If any day hours or contracted hours are being updated, validate the sum
-      const updatedMondayHours = updates.mondayHours ?? existingPattern.mondayHours;
-      const updatedTuesdayHours = updates.tuesdayHours ?? existingPattern.tuesdayHours;
+      const updatedMondayHours =
+        updates.mondayHours ?? existingPattern.mondayHours;
+      const updatedTuesdayHours =
+        updates.tuesdayHours ?? existingPattern.tuesdayHours;
       const updatedWednesdayHours =
         updates.wednesdayHours ?? existingPattern.wednesdayHours;
       const updatedThursdayHours =
         updates.thursdayHours ?? existingPattern.thursdayHours;
-      const updatedFridayHours = updates.fridayHours ?? existingPattern.fridayHours;
+      const updatedFridayHours =
+        updates.fridayHours ?? existingPattern.fridayHours;
       const updatedSaturdayHours =
         updates.saturdayHours ?? existingPattern.saturdayHours;
-      const updatedSundayHours = updates.sundayHours ?? existingPattern.sundayHours;
+      const updatedSundayHours =
+        updates.sundayHours ?? existingPattern.sundayHours;
       const updatedContractedHours =
         updates.contractedHours ?? existingPattern.contractedHours;
 

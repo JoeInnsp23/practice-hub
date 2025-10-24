@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -68,7 +69,10 @@ export const dashboardRouter = router({
 
       return { kpis };
     } catch (error) {
-      console.error("Dashboard KPIs query error:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "getDashboardKpis" },
+        extra: { tenantId: ctx.authContext.tenantId },
+      });
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to fetch dashboard KPIs",
@@ -113,7 +117,10 @@ export const dashboardRouter = router({
 
         return { activities };
       } catch (error) {
-        console.error("Dashboard activity query error:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "getDashboardActivity" },
+          extra: { tenantId: ctx.authContext.tenantId, limit: input.limit },
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to fetch dashboard activities",

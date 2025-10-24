@@ -95,7 +95,7 @@ export async function GET(request: Request) {
         cleanup();
         try {
           controller.close();
-        } catch (error) {
+        } catch (_error) {
           // Controller already closed
         }
       });

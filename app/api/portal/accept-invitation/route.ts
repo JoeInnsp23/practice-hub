@@ -94,8 +94,15 @@ export async function POST(request: Request) {
       .returning();
 
     // Create Better Auth account (email/password provider)
+    const clientIds = invitation.clientIds as string[];
+    if (!clientIds || clientIds.length === 0) {
+      throw new Error("Invitation must have at least one client");
+    }
+
     await db.insert(clientPortalAccounts).values({
       id: crypto.randomUUID(),
+      tenantId: invitation.tenantId,
+      clientId: clientIds[0],
       userId: userId,
       accountId: invitation.email,
       providerId: "credential",
@@ -103,7 +110,6 @@ export async function POST(request: Request) {
     });
 
     // Create client access records for all clients in invitation
-    const clientIds = invitation.clientIds as string[];
     const accessPromises = clientIds.map((clientId) =>
       db.insert(clientPortalAccess).values({
         tenantId: invitation.tenantId,

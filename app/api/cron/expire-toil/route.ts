@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
-import { db } from "@/lib/db";
-import { leaveBalances, tenants, toilAccrualHistory, users } from "@/lib/db/schema";
 import { and, eq, lte, sql } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { leaveBalances, tenants, toilAccrualHistory } from "@/lib/db/schema";
 
 /**
  * TOIL Expiry Cron Job

@@ -250,14 +250,7 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
                 {invoice.items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{item.description}</div>
-                        {item.details && (
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {item.details}
-                          </div>
-                        )}
-                      </div>
+                      <div className="font-medium">{item.description}</div>
                     </TableCell>
                     <TableCell className="text-right">
                       {item.quantity}
@@ -281,7 +274,7 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>{formatCurrency(invoice.subtotal)}</span>
               </div>
-              {Number.parseFloat(invoice.discount) > 0 && (
+              {invoice.discount && Number.parseFloat(invoice.discount) > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Discount</span>
                   <span className="text-red-600">
@@ -293,14 +286,14 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
                 <span className="text-muted-foreground">
                   VAT ({invoice.taxRate}%)
                 </span>
-                <span>{formatCurrency(invoice.taxAmount)}</span>
+                <span>{formatCurrency(invoice.taxAmount || "0")}</span>
               </div>
               <Separator />
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
                 <span>{formatCurrency(invoice.total)}</span>
               </div>
-              {Number.parseFloat(invoice.amountPaid) > 0 && (
+              {invoice.amountPaid && Number.parseFloat(invoice.amountPaid) > 0 && (
                 <>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Amount Paid</span>

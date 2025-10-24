@@ -39,7 +39,8 @@ export function LeaveRequestApprovedEmail({
           <Text style={text}>Hi {userName},</Text>
 
           <Text style={text}>
-            Good news! Your leave request has been approved{approverName ? ` by ${approverName}` : ""}.
+            Good news! Your leave request has been approved
+            {approverName ? ` by ${approverName}` : ""}.
           </Text>
 
           <Section style={detailsSection}>
@@ -53,7 +54,9 @@ export function LeaveRequestApprovedEmail({
             <Text style={detailValue}>{formatDate(endDate)}</Text>
 
             <Text style={detailLabel}>Days:</Text>
-            <Text style={detailValue}>{daysCount} {daysCount === 1 ? "day" : "days"}</Text>
+            <Text style={detailValue}>
+              {daysCount} {daysCount === 1 ? "day" : "days"}
+            </Text>
           </Section>
 
           <Section style={approvedBanner}>
@@ -62,13 +65,9 @@ export function LeaveRequestApprovedEmail({
             </Text>
           </Section>
 
-          <Text style={text}>
-            Enjoy your time off!
-          </Text>
+          <Text style={text}>Enjoy your time off!</Text>
 
-          <Text style={footer}>
-            Practice Hub Leave Management System
-          </Text>
+          <Text style={footer}>Practice Hub Leave Management System</Text>
         </Container>
       </Body>
     </Html>

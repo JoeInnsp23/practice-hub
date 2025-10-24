@@ -65,11 +65,11 @@ vi.mock("@/lib/kyc/lemverify-client", () => ({
 
 describe("app/server/routers/onboarding.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof onboardingRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof onboardingRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(onboardingRouter, ctx);
+    _caller = createCaller(onboardingRouter, ctx);
     vi.clearAllMocks();
   });
 

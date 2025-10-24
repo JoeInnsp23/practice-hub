@@ -7,7 +7,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  extractUserIds,
   getMentionQuery,
   insertMention,
   isInMentionContext,
@@ -129,7 +128,7 @@ export function MentionAutocomplete({
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [value]);
+  }, []);
 
   return (
     <div className="relative w-full">

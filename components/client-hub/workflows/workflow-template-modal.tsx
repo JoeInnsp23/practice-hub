@@ -1,9 +1,7 @@
 "use client";
 
 import { GripVertical, Plus, X } from "lucide-react";
-import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
-import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

@@ -4,11 +4,11 @@ import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useWorkTypes } from "@/lib/hooks/use-work-types";
 import {
   useCreateTimeEntry,
   useTimeEntries,
 } from "@/lib/hooks/use-time-entries";
+import { useWorkTypes } from "@/lib/hooks/use-work-types";
 import { cn } from "@/lib/utils";
 import { TimeEntryModal } from "./time-entry-modal";
 
@@ -326,9 +326,12 @@ export function HourlyTimesheet({
                           {entries.slice(0, 2).map((entry) => {
                             // Get work type from database
                             const workType = workTypes.find(
-                              (wt) => wt.code === (entry.workType || "WORK").toUpperCase(),
+                              (wt) =>
+                                wt.code ===
+                                (entry.workType || "WORK").toUpperCase(),
                             );
-                            const workTypeColor = workType?.colorCode || "#94a3b8";
+                            const workTypeColor =
+                              workType?.colorCode || "#94a3b8";
                             const workTypeLabel = workType?.label || "Unknown";
 
                             return (

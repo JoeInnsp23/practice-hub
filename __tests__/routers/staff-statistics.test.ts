@@ -1,12 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import {
-  departments,
-  staffCapacity,
-  timeEntries,
-} from "@/lib/db/schema";
-import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
 import type { Context } from "@/app/server/context";
+import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
+import { db } from "@/lib/db";
+import { departments, staffCapacity, timeEntries } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
@@ -233,7 +229,9 @@ describe("Staff Statistics Router", () => {
       });
 
       expect(result.staff.length).toBe(2);
-      expect(result.staff.every((s) => s.departmentId === testDeptId)).toBe(true);
+      expect(result.staff.every((s) => s.departmentId === testDeptId)).toBe(
+        true,
+      );
     });
 
     it("should calculate correct averages in summary", async () => {

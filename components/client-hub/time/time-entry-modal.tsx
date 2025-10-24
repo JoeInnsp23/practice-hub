@@ -40,11 +40,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useWorkTypes, useWorkTypeByCode } from "@/lib/hooks/use-work-types";
 import {
   useDeleteTimeEntry,
   useUpdateTimeEntry,
 } from "@/lib/hooks/use-time-entries";
+import { useWorkTypes } from "@/lib/hooks/use-work-types";
 import { cn } from "@/lib/utils";
 
 export interface TimeEntryFormData {
@@ -178,7 +178,9 @@ export function TimeEntryModal({
 
   // Auto-set billable based on work type and client
   useEffect(() => {
-    const workType = workTypes.find((wt) => wt.code === formData.workType.toUpperCase());
+    const workType = workTypes.find(
+      (wt) => wt.code === formData.workType.toUpperCase(),
+    );
     const hasClient = formData.clientId !== "none";
 
     // Only set billable if work type is typically billable AND there's a client
@@ -292,7 +294,9 @@ export function TimeEntryModal({
                           />
                           <span>{type.label}</span>
                           {type.isBillable && (
-                            <span className="text-xs text-muted-foreground">(Billable)</span>
+                            <span className="text-xs text-muted-foreground">
+                              (Billable)
+                            </span>
                           )}
                         </div>
                       </SelectItem>

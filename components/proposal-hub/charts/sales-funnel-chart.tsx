@@ -95,7 +95,7 @@ export function SalesFunnelChart({
 
   // Get colors for each stage
   const getStageColor = (stage: string) => {
-    const stageConfig = SALES_STAGES[stage as keyof typeof SALES_STAGES];
+    const _stageConfig = SALES_STAGES[stage as keyof typeof SALES_STAGES];
     // Extract hex color from Tailwind class (simplified mapping)
     const colorMap: Record<string, string> = {
       enquiry: "#64748b", // slate

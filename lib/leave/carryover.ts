@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { leaveBalances, users, tenants } from "@/lib/db/schema";
+import { leaveBalances, tenants, users } from "@/lib/db/schema";
 
 const MAX_CARRYOVER_DAYS = 5;
 
@@ -188,9 +188,7 @@ export async function runAnnualCarryover(
 /**
  * Run annual carryover for ALL tenants (use with caution!)
  */
-export async function runGlobalCarryover(
-  fromYear: number,
-): Promise<{
+export async function runGlobalCarryover(fromYear: number): Promise<{
   success: boolean;
   tenantsProcessed: number;
   totalUsersProcessed: number;

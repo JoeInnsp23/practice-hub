@@ -143,7 +143,7 @@ async function seedTestDatabase() {
       })
       .returning();
 
-    const [externalToolsCategory] = await db
+    const [_externalToolsCategory] = await db
       .insert(portalCategories)
       .values({
         tenantId: testTenant.id,
@@ -157,7 +157,7 @@ async function seedTestDatabase() {
       })
       .returning();
 
-    const [practiceResourcesCategory] = await db
+    const [_practiceResourcesCategory] = await db
       .insert(portalCategories)
       .values({
         tenantId: testTenant.id,

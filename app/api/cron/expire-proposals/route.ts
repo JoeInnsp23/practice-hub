@@ -90,7 +90,6 @@ export async function POST(request: NextRequest) {
 
     // 3. Return success response
     return NextResponse.json({
-      success: true,
       ...result,
       timestamp: new Date().toISOString(),
     });

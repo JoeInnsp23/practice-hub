@@ -26,7 +26,11 @@ const sections: {
   {
     title: "Time Management",
     items: [
-      { name: "Leave Approvals", href: "/admin/leave/approvals", icon: Calendar },
+      {
+        name: "Leave Approvals",
+        href: "/admin/leave/approvals",
+        icon: Calendar,
+      },
     ],
   },
 ];

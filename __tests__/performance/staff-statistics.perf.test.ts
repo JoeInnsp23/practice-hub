@@ -3,7 +3,6 @@
  * Validates performance requirements for staff utilization calculations
  */
 
-import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Context } from "@/app/server/context";
 import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
@@ -123,7 +122,9 @@ describe("Staff Statistics Performance Tests", () => {
     // Log results
     console.log(`\n📊 Staff Utilization Performance:`);
     console.log(`   Staff count: ${result.staff.length}`);
-    console.log(`   Average utilization: ${result.summary.averageUtilization}%`);
+    console.log(
+      `   Average utilization: ${result.summary.averageUtilization}%`,
+    );
     console.log(`   Overallocated: ${result.summary.overallocated}`);
     console.log(`   Underutilized: ${result.summary.underutilized}`);
     console.log(`   Execution time: ${executionTime.toFixed(3)}s`);

@@ -2,18 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Sentry from "@sentry/nextjs";
-import {
-  AlertTriangle,
-  Calendar,
-  CheckCircle,
-  User,
-  XCircle,
-} from "lucide-react";
+import { Calendar, CheckCircle, User, XCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

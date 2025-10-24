@@ -17,7 +17,11 @@ interface RevenueChartProps {
   "data-testid"?: string;
 }
 
-export function RevenueChart({ data, period, "data-testid": dataTestId }: RevenueChartProps) {
+export function RevenueChart({
+  data,
+  period,
+  "data-testid": dataTestId,
+}: RevenueChartProps) {
   // Handle empty data
   if (!data || data.length === 0) {
     return (

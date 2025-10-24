@@ -898,7 +898,7 @@ export const clientsRouter = router({
               });
 
               imported++;
-            } catch (error) {
+            } catch (_error) {
               // Skip duplicate or constraint errors
               skipped++;
             }

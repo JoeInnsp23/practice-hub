@@ -29,11 +29,11 @@ vi.mock("@/lib/db", () => ({
 
 describe("app/server/routers/portal.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof portalRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof portalRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(portalRouter, ctx);
+    _caller = createCaller(portalRouter, ctx);
     vi.clearAllMocks();
   });
 

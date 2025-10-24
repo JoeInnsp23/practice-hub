@@ -29,11 +29,11 @@ vi.mock("@/lib/db", () => ({
 
 describe("app/server/routers/notifications.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof notificationsRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof notificationsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(notificationsRouter, ctx);
+    _caller = createCaller(notificationsRouter, ctx);
     vi.clearAllMocks();
   });
 

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Clock,
-  DollarSign,
-  Target,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
+import { Clock, DollarSign, Target, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface AnalyticsKpiCardsProps {

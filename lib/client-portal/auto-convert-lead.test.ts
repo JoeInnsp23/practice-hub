@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
-import { clients } from "@/lib/db/schema";
 
 // Mock the database module
 vi.mock("@/lib/db", () => ({

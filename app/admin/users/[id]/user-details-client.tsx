@@ -46,6 +46,7 @@ interface User {
   role: string;
   status: string;
   isActive: boolean;
+  departmentId: string | null;
   hourlyRate: string | null;
   createdAt: Date;
   updatedAt: Date;

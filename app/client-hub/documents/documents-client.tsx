@@ -172,7 +172,7 @@ export default function DocumentsClient() {
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "upload_document" },
-        extra: { fileName: file.name, fileSize: file.size },
+        extra: { fileCount: files.length },
       });
       throw error;
     }

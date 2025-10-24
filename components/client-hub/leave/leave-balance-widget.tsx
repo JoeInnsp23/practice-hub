@@ -16,6 +16,10 @@ interface LeaveBalanceWidgetProps {
   className?: string;
 }
 
+// Note: This interface expects transformed data from the page
+// Database schema uses: annualEntitlement, annualUsed, etc.
+// Page transforms to: entitlement, used, remaining for consistency
+
 export function LeaveBalanceWidget({
   balance,
   className,

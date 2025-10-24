@@ -97,7 +97,7 @@ vi.mock("@/lib/db/queries/reports-queries", () => ({
       totalClients: 40,
     },
   ]),
-  calculateDateRange: vi.fn((period: string) => ({
+  calculateDateRange: vi.fn((_period: string) => ({
     startDate: new Date("2024-01-01"),
     endDate: new Date("2024-12-31"),
   })),

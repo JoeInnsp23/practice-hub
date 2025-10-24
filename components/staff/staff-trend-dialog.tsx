@@ -104,7 +104,9 @@ export function StaffTrendDialog({
                     if (active && payload && payload.length) {
                       return (
                         <div className="glass-card p-3 border shadow-lg">
-                          <p className="font-semibold">{payload[0].payload.week}</p>
+                          <p className="font-semibold">
+                            {payload[0].payload.week}
+                          </p>
                           <p className="text-sm text-blue-600 dark:text-blue-400">
                             Utilization: {payload[0].value}%
                           </p>

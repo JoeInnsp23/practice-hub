@@ -43,11 +43,11 @@ vi.mock("@/lib/docuseal/client", () => ({
 
 describe("app/server/routers/clientPortal.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof clientPortalRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof clientPortalRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(clientPortalRouter, ctx);
+    _caller = createCaller(clientPortalRouter, ctx);
     vi.clearAllMocks();
   });
 

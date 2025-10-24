@@ -14,7 +14,7 @@ import { adminProcedure, protectedProcedure, router } from "../trpc";
 const insertTenantSchema = createInsertSchema(tenants);
 
 // Schema for tenant settings (omit auto-generated fields)
-const tenantSettingsSchema = insertTenantSchema.omit({
+const _tenantSettingsSchema = insertTenantSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,

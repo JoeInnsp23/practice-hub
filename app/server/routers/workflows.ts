@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
-import { nanoid } from "nanoid";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {

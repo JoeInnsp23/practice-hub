@@ -50,13 +50,13 @@ vi.mock("@/lib/email/password-reset", () => ({
 
 describe("app/server/routers/users.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof usersRouter>>;
-  let adminCaller: ReturnType<typeof createAdminCaller<typeof usersRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof usersRouter>>;
+  let _adminCaller: ReturnType<typeof createAdminCaller<typeof usersRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(usersRouter, ctx);
-    adminCaller = createAdminCaller(usersRouter);
+    _caller = createCaller(usersRouter, ctx);
+    _adminCaller = createAdminCaller(usersRouter);
     vi.clearAllMocks();
   });
 

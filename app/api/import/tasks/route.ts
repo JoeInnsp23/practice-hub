@@ -10,7 +10,6 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
     const parseResult = await parseCsvFile(file, taskImportSchema);
 
     // Create import log
-    const importLogId = nanoid();
+    const importLogId = crypto.randomUUID();
     await db.insert(importLogs).values({
       id: importLogId,
       tenantId: authContext.tenantId,
@@ -177,15 +176,15 @@ export async function POST(request: NextRequest) {
           }
 
           return {
-            id: nanoid(),
+            id: crypto.randomUUID(),
             tenantId: authContext.tenantId,
             clientId,
             title: row.title,
             description: row.description || null,
             status: row.status || "pending",
             priority: row.priority || "medium",
-            dueDate: row.due_date || null,
-            startDate: row.start_date || null,
+            dueDate: row.due_date ? new Date(row.due_date) : null,
+            startDate: row.start_date ? new Date(row.start_date) : null,
             assignedToId: assignedToId || authContext.userId,
             reviewerId,
             estimatedHours: row.estimated_hours?.toString() || null,

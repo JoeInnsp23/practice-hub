@@ -76,7 +76,7 @@ test.describe("Reports Dashboard Performance", () => {
     const startTime = Date.now();
 
     await page.click('[data-testid="date-range-selector"]');
-    await page.click('text=Last 30 days');
+    await page.click("text=Last 30 days");
 
     // Wait for charts to update
     await page.waitForLoadState("networkidle");
@@ -85,8 +85,6 @@ test.describe("Reports Dashboard Performance", () => {
 
     expect(updateTime).toBeLessThan(500);
 
-    console.log(
-      `Date Filter Update Time: ${updateTime}ms (target: <500ms)`,
-    );
+    console.log(`Date Filter Update Time: ${updateTime}ms (target: <500ms)`);
   });
 });

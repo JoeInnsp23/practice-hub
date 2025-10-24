@@ -56,7 +56,7 @@ export default function WorkflowsPage() {
 
   // Fetch workflows from database
   const { data: workflowTemplates = [], refetch } =
-    trpc.workflows.list.useQuery();
+    trpc.workflows.list.useQuery({});
   const utils = trpc.useUtils();
   const toggleActiveMutation = trpc.workflows.toggleActive.useMutation();
   const deleteWorkflowMutation = trpc.workflows.delete.useMutation();

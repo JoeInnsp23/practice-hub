@@ -35,12 +35,12 @@ vi.mock("@/lib/email/send-client-portal-invitation", () => ({
 
 describe("app/server/routers/clientPortalAdmin.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof clientPortalAdminRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof clientPortalAdminRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
     ctx.authContext.role = "admin"; // Admin router requires admin role
-    caller = createCaller(clientPortalAdminRouter, ctx);
+    _caller = createCaller(clientPortalAdminRouter, ctx);
     vi.clearAllMocks();
   });
 

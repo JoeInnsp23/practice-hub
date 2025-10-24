@@ -29,12 +29,12 @@ vi.mock("@/lib/db", () => ({
 
 describe("app/server/routers/admin-kyc.ts", () => {
   let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof adminKycRouter>>;
+  let _caller: ReturnType<typeof createCaller<typeof adminKycRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
     ctx.authContext.role = "admin"; // Admin router requires admin role
-    caller = createCaller(adminKycRouter, ctx);
+    _caller = createCaller(adminKycRouter, ctx);
     vi.clearAllMocks();
   });
 

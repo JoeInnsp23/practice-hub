@@ -4,7 +4,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, proposalTemplates, users } from "@/lib/db/schema";
+import { activityLogs, proposalTemplates } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Validation schema

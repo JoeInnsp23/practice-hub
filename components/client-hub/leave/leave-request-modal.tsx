@@ -94,12 +94,22 @@ interface LeaveRequestModalProps {
     leaveType: string;
     startDate: string;
     endDate: string;
-    notes?: string | null;
+    daysCount: number;
+    status: string;
+    notes: string | null;
+    requestedAt: Date;
+    reviewedBy: string | null;
+    reviewedAt: Date | null;
+    reviewerComments: string | null;
+    reviewerName?: string | null;
   } | null;
   balance?: {
-    remaining: number;
     entitlement: number;
+    used: number;
+    remaining: number;
+    carriedOver: number;
     toilBalance: number;
+    sickUsed: number;
   };
 }
 
@@ -182,7 +192,7 @@ export function LeaveRequestModal({
   }, [startDate, endDate]);
 
   // Check for conflicts
-  const { data: conflicts } = trpc.leave.getConflicts.useQuery(
+  const { data: conflictsResponse } = trpc.leave.getConflicts.useQuery(
     {
       startDate: startDate || "",
       endDate: endDate || "",
@@ -191,6 +201,7 @@ export function LeaveRequestModal({
       enabled: !!(startDate && endDate),
     },
   );
+  const conflicts = conflictsResponse?.conflicts ?? [];
 
   // Balance validation
   const hasInsufficientBalance = useMemo(() => {
