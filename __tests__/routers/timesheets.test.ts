@@ -807,9 +807,9 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       expect(procedures).toContain("summary");
     });
 
-    it("should have 6 procedures total", () => {
+    it("should have 13 procedures total", () => {
       const procedures = Object.keys(timesheetsRouter._def.procedures);
-      expect(procedures).toHaveLength(6);
+      expect(procedures).toHaveLength(13);
     });
   });
 });

@@ -1685,9 +1685,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       expect(procedures).toContain("getMentionableUsers");
     });
 
-    it("should have 22 procedures total", () => {
+    it("should have 26 procedures total", () => {
       const procedures = Object.keys(tasksRouter._def.procedures);
-      expect(procedures).toHaveLength(22);
+      expect(procedures).toHaveLength(26);
     });
   });
 

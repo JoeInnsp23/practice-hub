@@ -138,7 +138,7 @@ export const workflowsRouter = router({
           )`,
         })
         .from(workflows)
-        .leftJoin(services, eq(workflows.serviceComponentId, services.id))
+        .leftJoin(services, eq(workflows.serviceId, services.id))
         .where(and(...conditions))
         .orderBy(desc(workflows.createdAt));
 

@@ -251,7 +251,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
       });
       const service2 = await createTestService(ctx.authContext.tenantId, {
         name: "Service Beta",
-        category: "tax",
+        category: "tax_planning",
       });
       tracker.services?.push(service1.id, service2.id);
 
@@ -311,7 +311,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         category: "bookkeeping",
       });
       const service2 = await createTestService(ctx.authContext.tenantId, {
-        category: "tax",
+        category: "tax_planning",
       });
       tracker.services?.push(service1.id, service2.id);
 
@@ -431,13 +431,13 @@ describe("app/server/routers/services.ts (Integration)", () => {
         data: {
           name: "Updated Service Name",
           price: "750.00",
-          category: "tax",
+          category: "tax_planning",
         },
       });
 
       expect(result.service.name).toBe("Updated Service Name");
       expect(result.service.price).toBe("750.00");
-      expect(result.service.category).toBe("tax");
+      expect(result.service.category).toBe("tax_planning");
 
       // Verify database persistence
       const [dbService] = await db
@@ -447,7 +447,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
 
       expect(dbService.name).toBe("Updated Service Name");
       expect(dbService.price).toBe("750.00");
-      expect(dbService.category).toBe("tax");
+      expect(dbService.category).toBe("tax_planning");
     });
 
     it("should create activity log for update", async () => {

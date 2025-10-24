@@ -49,7 +49,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "standard",
         services: [
           {
-            componentCode: "BOOKKEEPING_MONTHLY",
+            serviceCode: "BOOKKEEPING_MONTHLY",
           },
         ],
       };
@@ -67,7 +67,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "complex",
         services: [
           {
-            componentCode: "BOOKKEEPING_MONTHLY",
+            serviceCode: "BOOKKEEPING_MONTHLY",
             config: {
               complexity: "average",
               frequency: "monthly",
@@ -89,7 +89,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "regulated",
         services: [
           {
-            componentCode: "BOOKKEEPING_MONTHLY",
+            serviceCode: "BOOKKEEPING_MONTHLY",
           },
         ],
         transactionData: {
@@ -111,7 +111,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "standard",
         services: [
           {
-            componentCode: "VAT_QUARTERLY",
+            serviceCode: "VAT_QUARTERLY",
           },
         ],
         modifiers: {

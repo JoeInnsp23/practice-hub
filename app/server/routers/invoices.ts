@@ -125,6 +125,7 @@ export const invoicesRouter = router({
       const [invoice] = await db
         .select({
           id: invoices.id,
+          tenantId: invoices.tenantId,
           invoiceNumber: invoices.invoiceNumber,
           issueDate: invoices.issueDate,
           dueDate: invoices.dueDate,

@@ -13,7 +13,7 @@ export const runtime = "nodejs";
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // Authenticate user
@@ -23,7 +23,7 @@ export async function GET(
     }
 
     const tenantId = authContext.tenantId;
-    const documentId = params.id;
+    const { id: documentId } = await params;
 
     // Get document from database
     const [doc] = await db

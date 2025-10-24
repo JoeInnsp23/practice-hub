@@ -126,11 +126,11 @@ describe("TOIL Multi-Tenant Isolation", () => {
       }),
     );
 
-    const balanceB = await callerB.getBalance();
+    const balanceB = await callerB.getBalance({});
 
     // Tenant B should see 0 hours
-    expect(balanceB.totalHours).toBe(0);
-    expect(balanceB.totalDays).toBe(0);
+    expect(balanceB.balance).toBe(0);
+    expect(balanceB.balanceInDays).toBe("0.0");
   });
 
   it("should not allow cross-tenant TOIL redemption", async () => {
@@ -160,15 +160,15 @@ describe("TOIL Multi-Tenant Isolation", () => {
       }),
     );
 
-    const balanceB = await callerB.getBalance();
+    const balanceB = await callerB.getBalance({});
 
     // Tenant B should not see Tenant A's TOIL
-    expect(balanceB.totalHours).toBe(0);
+    expect(balanceB.balance).toBe(0);
 
-    const historyB = await callerB.getHistory();
+    const historyB = await callerB.getHistory({});
 
     // Tenant B should have no history
-    expect(historyB.length).toBe(0);
+    expect(historyB.history.length).toBe(0);
   });
 
   it("should isolate expiry across tenants", async () => {

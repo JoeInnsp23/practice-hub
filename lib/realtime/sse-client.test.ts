@@ -258,8 +258,8 @@ describe("SSEClient", () => {
 
       mockEventSource = (client as never).eventSource as MockEventSource;
 
-      // Fail 3 times
-      for (let i = 0; i < 3; i++) {
+      // Fail 4 times (initial + 3 reconnect attempts)
+      for (let i = 0; i < 4; i++) {
         mockEventSource.simulateError();
         vi.advanceTimersByTime(1000 * 2 ** i);
         mockEventSource = (client as never).eventSource as MockEventSource;
@@ -327,12 +327,15 @@ describe("SSEClient", () => {
 
       mockEventSource = (client as never).eventSource as MockEventSource;
 
-      // Fail twice
+      // Fail 3 times (initial + 2 reconnect attempts)
       mockEventSource.simulateError();
       vi.advanceTimersByTime(1000);
       mockEventSource = (client as never).eventSource as MockEventSource;
       mockEventSource.simulateError();
       vi.advanceTimersByTime(2000);
+      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource.simulateError();
+      vi.advanceTimersByTime(4000);
 
       expect(pollingEvents).toHaveLength(1);
       expect(client.getStats().isPolling).toBe(true);
@@ -345,8 +348,12 @@ describe("SSEClient", () => {
       });
 
       mockEventSource = (client as never).eventSource as MockEventSource;
+      // Fail 2 times (initial + 1 reconnect attempt)
       mockEventSource.simulateError();
       vi.advanceTimersByTime(1000);
+      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource.simulateError();
+      vi.advanceTimersByTime(2000);
 
       expect(client.getStats().isPolling).toBe(true);
 
