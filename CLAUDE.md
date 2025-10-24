@@ -95,6 +95,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      }
      ```
 
+16. **SQL Safety Policy** - All database queries must follow SQL safety best practices (see `/docs/guides/sql-safety-checklist.md` for complete checklist):
+   - **NEVER use `= ANY(${array})` pattern** - Causes PostgreSQL syntax errors due to parameter expansion
+   - **ALWAYS use `inArray(column, array)` for array operations** - Drizzle ORM helper prevents SQL bugs:
+     ```typescript
+     import { inArray } from "drizzle-orm";
+
+     // ✅ CORRECT
+     .where(inArray(table.id, ids))
+
+     // ❌ WRONG - Will fail at runtime
+     .where(sql`${table.id} = ANY(${ids})`)
+     ```
+   - **Exception: ARRAY[] syntax is acceptable** - If ANY() is required, use explicit PostgreSQL ARRAY[] constructor:
+     ```typescript
+     // ✅ ACCEPTABLE - Explicit ARRAY[] with type casting
+     sql`${column} = ANY(ARRAY[${sql.join(values.map(v => sql`${v}`), sql`, `)}]::text[])`
+     ```
+   - **Pre-commit verification**: Run `grep -rn "= ANY(" app/server/routers/` before committing router changes
+   - **Historical context**: 3 critical ANY() bugs discovered during Story 2.2 testing (2025-01-24) - see `/docs/audits/2025-01-24-router-sql-audit.md`
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
