@@ -6,6 +6,16 @@
 
 import type { Context } from "@/app/server/context";
 import type { AuthContext } from "@/lib/auth";
+import type { ClientPortalAuthContext } from "@/lib/client-portal-auth";
+import type { ZodTypeAny } from "zod";
+
+/**
+ * Type helper to properly type tRPC procedure input schemas
+ * Ensures TypeScript recognizes the .parse() method on Zod schemas
+ */
+declare module "@trpc/server" {
+  interface Parser extends ZodTypeAny {}
+}
 
 /**
  * Create a mock auth context for testing
@@ -37,6 +47,30 @@ export function createMockAdminContext(
 }
 
 /**
+ * Create a mock client portal auth context for testing
+ */
+export function createMockClientPortalAuthContext(
+  overrides: Partial<ClientPortalAuthContext> = {},
+): ClientPortalAuthContext {
+  return {
+    portalUserId: overrides.portalUserId || "test-portal-user-id",
+    tenantId: overrides.tenantId || "test-tenant-id",
+    email: overrides.email || "portal@example.com",
+    firstName: overrides.firstName || "Portal",
+    lastName: overrides.lastName || "User",
+    clientAccess: overrides.clientAccess || [
+      {
+        clientId: "test-client-id",
+        clientName: "Test Client",
+        role: "viewer",
+        isActive: true,
+      },
+    ],
+    currentClientId: overrides.currentClientId || "test-client-id",
+  };
+}
+
+/**
  * Create a mock tRPC context for testing
  */
 export function createMockContext(overrides: Partial<Context> = {}): Context {
@@ -65,6 +99,8 @@ export function createMockContext(overrides: Partial<Context> = {}): Context {
       },
     },
     authContext,
+    clientPortalSession: overrides.clientPortalSession ?? null,
+    clientPortalAuthContext: overrides.clientPortalAuthContext ?? null,
   };
 }
 

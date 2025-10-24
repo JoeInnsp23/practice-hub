@@ -64,22 +64,27 @@ const nextConfig: NextConfig = {
 // Sentry configuration
 // Only enable Sentry build plugin if DSN is configured
 const sentryConfig = process.env.NEXT_PUBLIC_SENTRY_DSN
-  ? withSentryConfig(nextConfig, {
-      // Sentry Webpack Plugin Options
-      silent: true, // Suppresses all logs
-      org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
-      authToken: process.env.SENTRY_AUTH_TOKEN,
+  ? withSentryConfig(
+      nextConfig,
+      {
+        // Sentry Build Options (second parameter)
+        silent: true, // Suppresses all logs
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
 
-      // Upload source maps for better error tracking
-      widenClientFileUpload: true,
+        // Upload source maps for better error tracking
+        widenClientFileUpload: true,
 
-      // Hides source maps from generated client bundles
-      hideSourceMaps: true,
-
-      // Automatically tree-shake Sentry logger statements
-      disableLogger: true,
-    })
+        // Automatically tree-shake Sentry logger statements
+        disableLogger: true,
+      },
+      {
+        // Sentry Bundler Plugin Options (third parameter)
+        // Hides source maps from generated client bundles
+        hideSourceMaps: true,
+      }
+    )
   : nextConfig;
 
 export default sentryConfig;

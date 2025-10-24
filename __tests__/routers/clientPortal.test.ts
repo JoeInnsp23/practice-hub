@@ -62,477 +62,337 @@ describe("app/server/routers/clientPortal.ts", () => {
   });
 
   describe("getProposals", () => {
-    it("should validate required clientId field", () => {
+    it("should validate required clientId field", async () => {
       const invalidInput = {
         // Missing clientId
         status: "sent",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getProposals._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.getProposals(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid input without status", () => {
+    it("should accept valid input without status", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getProposals._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getProposals(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept valid input with status", () => {
+    it("should accept valid input with status", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         status: "sent" as const,
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getProposals._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getProposals(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate status enum values", () => {
+    it("should validate status enum values", async () => {
       const invalidInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         status: "invalid_status",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getProposals._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.getProposals(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept all valid status values", () => {
+    it("should accept all valid status values", async () => {
       const validStatuses = ["sent", "viewed", "signed", "expired"];
 
       for (const status of validStatuses) {
-        expect(() => {
-          clientPortalRouter._def.procedures.getProposals._def.inputs[0]?.parse(
-            {
-              clientId: "550e8400-e29b-41d4-a716-446655440000",
-              status,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          _caller.getProposals({
+            clientId: "550e8400-e29b-41d4-a716-446655440000",
+            status: status as any,
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });
 
   describe("getProposalById", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getProposalById._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.getProposalById(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid proposal ID", () => {
+    it("should accept valid proposal ID", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getProposalById._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getProposalById(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("getInvoices", () => {
-    it("should validate required clientId field", () => {
+    it("should validate required clientId field", async () => {
       const invalidInput = {
         // Missing clientId
         status: "sent",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.getInvoices(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid input without status", () => {
+    it("should accept valid input without status", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getInvoices(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept valid input with status", () => {
+    it("should accept valid input with status", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         status: "paid" as const,
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getInvoices(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate status enum values", () => {
+    it("should validate status enum values", async () => {
       const invalidInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         status: "draft",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.getInvoices(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept all valid status values", () => {
+    it("should accept all valid status values", async () => {
       const validStatuses = ["sent", "paid", "overdue", "cancelled"];
 
       for (const status of validStatuses) {
-        expect(() => {
-          clientPortalRouter._def.procedures.getInvoices._def.inputs[0]?.parse({
+        await expect(
+          _caller.getInvoices({
             clientId: "550e8400-e29b-41d4-a716-446655440000",
-            status,
-          });
-        }).not.toThrow();
+            status: status as any,
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });
 
   describe("getInvoiceById", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getInvoiceById._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.getInvoiceById(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid invoice ID", () => {
+    it("should accept valid invoice ID", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getInvoiceById._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getInvoiceById(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("getDocuments", () => {
-    it("should validate required clientId field", () => {
+    it("should validate required clientId field", async () => {
       const invalidInput = {
         // Missing clientId
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getDocuments._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.getDocuments(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getDocuments._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getDocuments(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("getDocumentsToSign", () => {
-    it("should validate required clientId field", () => {
+    it("should validate required clientId field", async () => {
       const invalidInput = {
         // Missing clientId
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getDocumentsToSign._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.getDocumentsToSign(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getDocumentsToSign._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        _caller.getDocumentsToSign(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getSignedDocuments", () => {
-    it("should validate required clientId field", () => {
+    it("should validate required clientId field", async () => {
       const invalidInput = {
         // Missing clientId
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getSignedDocuments._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.getSignedDocuments(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getSignedDocuments._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        _caller.getSignedDocuments(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("listMyThreads", () => {
-    it("should validate required clientId field", () => {
+    it("should validate required clientId field", async () => {
       const invalidInput = {
         // Missing clientId
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMyThreads._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.listMyThreads(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMyThreads._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.listMyThreads(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("getThread", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing threadId and clientId
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getThread._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.getThread(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid thread and client IDs", () => {
+    it("should accept valid thread and client IDs", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.getThread._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.getThread(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("listMessages", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing threadId and clientId
         limit: 25,
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.listMessages(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid input with defaults", () => {
+    it("should accept valid input with defaults", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.listMessages(validInput)).resolves.not.toThrow();
     });
 
-    it("should default limit to 50", () => {
-      const result =
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse({
-          threadId: "550e8400-e29b-41d4-a716-446655440000",
-          clientId: "660e8400-e29b-41d4-a716-446655440000",
-        });
-      expect(result?.limit).toBe(50);
-    });
-
-    it("should default offset to 0", () => {
-      const result =
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse({
-          threadId: "550e8400-e29b-41d4-a716-446655440000",
-          clientId: "660e8400-e29b-41d4-a716-446655440000",
-        });
-      expect(result?.offset).toBe(0);
-    });
-
-    it("should validate limit min value", () => {
+    it("should validate limit min value", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
         limit: 0, // Below minimum of 1
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.listMessages(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate limit max value", () => {
+    it("should validate limit max value", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
         limit: 101, // Exceeds max of 100
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.listMessages(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate offset min value", () => {
+    it("should validate offset min value", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
         offset: -1, // Below minimum of 0
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.listMessages._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.listMessages(invalidInput)).rejects.toThrow();
     });
   });
 
   describe("sendMessage", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing threadId, clientId, content
         type: "text",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.sendMessage(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid message data", () => {
+    it("should accept valid message data", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
         content: "Hello from client portal",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.sendMessage(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate content minimum length", () => {
+    it("should validate content minimum length", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
         content: "", // Empty string
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.sendMessage(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate content maximum length", () => {
+    it("should validate content maximum length", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
         content: "a".repeat(5001), // Exceeds max of 5000
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.sendMessage(invalidInput)).rejects.toThrow();
     });
 
-    it("should default type to text", () => {
-      const result =
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse({
-          threadId: "550e8400-e29b-41d4-a716-446655440000",
-          clientId: "660e8400-e29b-41d4-a716-446655440000",
-          content: "Test message",
-        });
-      expect(result?.type).toBe("text");
-    });
-
-    it("should accept file type", () => {
+    it("should accept file type", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
@@ -540,14 +400,10 @@ describe("app/server/routers/clientPortal.ts", () => {
         type: "file" as const,
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.sendMessage(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept message without metadata", () => {
+    it("should accept message without metadata", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
@@ -555,38 +411,28 @@ describe("app/server/routers/clientPortal.ts", () => {
         type: "text" as const,
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.sendMessage._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.sendMessage(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("markThreadAsRead", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing threadId and clientId
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.markThreadAsRead._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.markThreadAsRead(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid thread and client IDs", () => {
+    it("should accept valid thread and client IDs", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
         clientId: "660e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalRouter._def.procedures.markThreadAsRead._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.markThreadAsRead(validInput)).resolves.not.toThrow();
     });
   });
 

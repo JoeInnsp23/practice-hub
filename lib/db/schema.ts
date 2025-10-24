@@ -1654,7 +1654,7 @@ export const pricingRules = pgTable(
     tenantId: text("tenant_id")
       .references(() => tenants.id, { onDelete: "cascade" })
       .notNull(),
-    serviceId: uuid("service_id")
+    componentId: uuid("component_id")
       .references(() => services.id, { onDelete: "cascade" })
       .notNull(),
 
@@ -1678,7 +1678,7 @@ export const pricingRules = pgTable(
       .notNull(),
   },
   (table) => ({
-    serviceIdx: index("idx_pricing_rule_service").on(table.serviceId),
+    serviceIdx: index("idx_pricing_rule_service").on(table.componentId),
     ruleTypeIdx: index("idx_pricing_rule_type").on(table.ruleType),
     activeIdx: index("idx_pricing_rule_active").on(table.isActive),
   }),

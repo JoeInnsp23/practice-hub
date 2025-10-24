@@ -232,7 +232,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
       }
 
       // Verify our test workflows are in the list
-      const workflowIds = result.map((w) => w.id);
+      const workflowIds = result.map((w: typeof result[0]) => w.id);
       expect(workflowIds).toContain(workflow1.id);
       expect(workflowIds).toContain(workflow2.id);
     });
@@ -275,7 +275,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
       const result = await caller.list({});
 
-      const testWorkflow = result.find((w) => w.id === workflow.id);
+      const testWorkflow = result.find((w: typeof result[0]) => w.id === workflow.id);
       expect(testWorkflow).toBeDefined();
       expect(testWorkflow?.stageCount).toBe(2);
     });
@@ -692,7 +692,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           type: workflow.type,
           trigger: workflow.trigger || "manual",
           estimatedDays: workflow.estimatedDays,
-          serviceComponentId: workflow.serviceComponentId,
+          serviceId: workflow.serviceId,
           config: workflow.config,
           stagesSnapshot: { stages: [] },
           changeDescription: "Initial version",
@@ -745,7 +745,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
           type: workflow.type,
           trigger: workflow.trigger || "manual",
           estimatedDays: workflow.estimatedDays,
-          serviceComponentId: workflow.serviceComponentId,
+          serviceId: workflow.serviceId,
           config: workflow.config,
           stagesSnapshot: { stages: [] },
           changeDescription: "Version 1",
@@ -1033,8 +1033,8 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
 
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThanOrEqual(2);
-      expect(result.some((i) => i.instanceId === instance1.id)).toBe(true);
-      expect(result.some((i) => i.instanceId === instance2.id)).toBe(true);
+      expect(result.some((i: typeof result[0]) => i.instanceId === instance1.id)).toBe(true);
+      expect(result.some((i: typeof result[0]) => i.instanceId === instance2.id)).toBe(true);
       expect(result[0]).toHaveProperty("taskId");
       expect(result[0]).toHaveProperty("taskTitle");
       expect(result[0]).toHaveProperty("currentVersion");

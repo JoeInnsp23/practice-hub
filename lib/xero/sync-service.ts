@@ -48,18 +48,17 @@ export async function syncClientToXero(
       ContactID: clientData.xeroContactId || undefined,
       Name: clientData.name,
       EmailAddress: clientData.email || undefined,
-      FirstName: clientData.firstName || undefined,
-      LastName: clientData.lastName || undefined,
       AccountNumber: clientData.clientCode || undefined, // Client code → Account number
       TaxNumber: clientData.vatNumber || undefined,
-      Addresses: clientData.address
+      Addresses: clientData.addressLine1
         ? [
             {
               AddressType: "STREET" as const,
-              AddressLine1: clientData.address,
+              AddressLine1: clientData.addressLine1,
+              AddressLine2: clientData.addressLine2 || undefined,
               City: clientData.city || undefined,
-              PostalCode: clientData.postcode || undefined,
-              Country: "GB", // Default to UK
+              PostalCode: clientData.postalCode || undefined,
+              Country: clientData.country || "GB",
             },
           ]
         : undefined,
@@ -185,14 +184,8 @@ export async function syncInvoiceToXero(
       Contact: {
         ContactID: clientData.xeroContactId,
       },
-      Date:
-        typeof invoiceData.issueDate === "string"
-          ? invoiceData.issueDate
-          : invoiceData.issueDate.toISOString().split("T")[0], // YYYY-MM-DD
-      DueDate:
-        typeof invoiceData.dueDate === "string"
-          ? invoiceData.dueDate
-          : invoiceData.dueDate.toISOString().split("T")[0],
+      Date: invoiceData.issueDate,
+      DueDate: invoiceData.dueDate,
       InvoiceNumber: invoiceData.invoiceNumber || undefined,
       Reference: undefined,
       Status:

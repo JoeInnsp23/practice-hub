@@ -38,43 +38,41 @@ describe("app/server/routers/notifications.ts", () => {
   });
 
   describe("list", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        notificationsRouter._def.procedures.list._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.list({})).resolves.not.toThrow();
     });
 
-    it("should accept pagination parameters", () => {
-      expect(() => {
-        notificationsRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept pagination parameters", async () => {
+      await expect(
+        _caller.list({
           limit: 25,
           offset: 50,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept unreadOnly filter", () => {
-      expect(() => {
-        notificationsRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept unreadOnly filter", async () => {
+      await expect(
+        _caller.list({
           unreadOnly: true,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate limit max value", () => {
-      expect(() => {
-        notificationsRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should validate limit max value", async () => {
+      await expect(
+        _caller.list({
           limit: 150, // Exceeds max of 100
-        });
-      }).toThrow();
+        } as any),
+      ).rejects.toThrow();
     });
 
-    it("should validate limit min value", () => {
-      expect(() => {
-        notificationsRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should validate limit min value", async () => {
+      await expect(
+        _caller.list({
           limit: 0, // Below minimum of 1
-        });
-      }).toThrow();
+        } as any),
+      ).rejects.toThrow();
     });
   });
 
@@ -89,40 +87,28 @@ describe("app/server/routers/notifications.ts", () => {
   });
 
   describe("markAsRead", () => {
-    it("should validate required notificationId field", () => {
+    it("should validate required notificationId field", async () => {
       const invalidInput = {
         // Missing notificationId
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.markAsRead._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.markAsRead(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid notification ID", () => {
+    it("should accept valid notification ID", async () => {
       const validInput = {
         notificationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.markAsRead._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.markAsRead(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate UUID format", () => {
+    it("should validate UUID format", async () => {
       const invalidInput = {
         notificationId: "not-a-uuid",
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.markAsRead._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.markAsRead(invalidInput as any)).rejects.toThrow();
     });
   });
 
@@ -137,46 +123,34 @@ describe("app/server/routers/notifications.ts", () => {
   });
 
   describe("delete", () => {
-    it("should validate required notificationId field", () => {
+    it("should validate required notificationId field", async () => {
       const invalidInput = {
         // Missing notificationId
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.delete._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.delete(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid notification ID", () => {
+    it("should accept valid notification ID", async () => {
       const validInput = {
         notificationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.delete._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.delete(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("create", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing userId, type, title, message
         actionUrl: "/notifications/1",
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.create(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid notification data", () => {
+    it("should accept valid notification data", async () => {
       const validInput = {
         userId: "550e8400-e29b-41d4-a716-446655440000",
         type: "task_assigned",
@@ -184,14 +158,10 @@ describe("app/server/routers/notifications.ts", () => {
         message: "You have been assigned a new task",
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.create(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept optional fields", () => {
+    it("should accept optional fields", async () => {
       const validInput = {
         userId: "550e8400-e29b-41d4-a716-446655440000",
         type: "client_message",
@@ -203,11 +173,7 @@ describe("app/server/routers/notifications.ts", () => {
         // metadata: { threadName: "Client Support" }, // Skip metadata - complex type
       };
 
-      expect(() => {
-        notificationsRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.create(validInput)).resolves.not.toThrow();
     });
   });
 

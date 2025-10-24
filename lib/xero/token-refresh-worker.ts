@@ -27,6 +27,7 @@ interface XeroCredentials {
   selectedTenantId: string;
   tokenType: string;
   scope: string;
+  [key: string]: unknown;
 }
 
 const xeroClient = new XeroApiClient();

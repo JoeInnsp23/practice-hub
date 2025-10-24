@@ -52,7 +52,6 @@ describe("Xero Sync Service", () => {
   // Use valid UUIDs for testing
   const testTenantId = "550e8400-e29b-41d4-a716-446655440000";
   const testClientId = "550e8400-e29b-41d4-a716-446655440001";
-  const testInvoiceId = "550e8400-e29b-41d4-a716-446655440002";
 
   beforeEach(async () => {
     // Clear test data (order matters due to foreign key constraints)
@@ -217,18 +216,22 @@ describe("Xero Sync Service", () => {
       });
 
       // Setup: Create test invoice
-      await db.insert(invoices).values({
-        id: testInvoiceId,
-        tenantId: testTenantId,
-        clientId: testClientId,
-        invoiceNumber: "INV-001",
-        issueDate: new Date("2025-01-01"),
-        dueDate: new Date("2025-01-31"),
-        subtotal: "1000.00",
-        taxAmount: "200.00",
-        total: "1200.00",
-        status: "draft",
-      });
+      const [createdInvoice] = await db
+        .insert(invoices)
+        .values({
+          tenantId: testTenantId,
+          clientId: testClientId,
+          invoiceNumber: "INV-001",
+          issueDate: "2025-01-01",
+          dueDate: "2025-01-31",
+          subtotal: "1000.00",
+          taxAmount: "200.00",
+          total: "1200.00",
+          status: "draft",
+        })
+        .returning();
+
+      const testInvoiceId = createdInvoice.id;
 
       // Setup: Create Xero integration settings
       const credentials = {
@@ -328,18 +331,22 @@ describe("Xero Sync Service", () => {
         email: "test@example.com",
       });
 
-      await db.insert(invoices).values({
-        id: testInvoiceId,
-        tenantId: testTenantId,
-        clientId: testClientId,
-        invoiceNumber: "INV-001",
-        issueDate: new Date("2025-01-01"),
-        dueDate: new Date("2025-01-31"),
-        subtotal: "1000.00",
-        total: "1000.00",
-        status: "draft",
-        xeroSyncStatus: "synced",
-      });
+      const [createdInvoice] = await db
+        .insert(invoices)
+        .values({
+          tenantId: testTenantId,
+          clientId: testClientId,
+          invoiceNumber: "INV-001",
+          issueDate: "2025-01-01",
+          dueDate: "2025-01-31",
+          subtotal: "1000.00",
+          total: "1000.00",
+          status: "draft",
+          xeroSyncStatus: "synced",
+        })
+        .returning();
+
+      const testInvoiceId = createdInvoice.id;
 
       // Execute: Mark as pending
       await markInvoiceAsPendingSync(testInvoiceId);

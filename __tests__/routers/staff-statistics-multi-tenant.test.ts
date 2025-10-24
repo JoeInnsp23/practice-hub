@@ -162,11 +162,13 @@ describe("Staff Statistics Multi-Tenant Isolation", () => {
     // Should see 2 staff from Tenant A only
     expect(statsA.staff.length).toBe(2);
     expect(
-      statsA.staff.every((s) => s.departmentName === "Tenant A Dept"),
+      statsA.staff.every(
+        (s: typeof statsA.staff[0]) => s.departmentName === "Tenant A Dept",
+      ),
     ).toBe(true);
 
     // Verify the correct names
-    const names = statsA.staff.map((s) => s.firstName);
+    const names = statsA.staff.map((s: typeof statsA.staff[0]) => s.firstName);
     expect(names).toContain("Alice");
     expect(names).toContain("Bob");
     expect(names).not.toContain("Charlie");
@@ -331,7 +333,9 @@ describe("Staff Statistics Multi-Tenant Isolation", () => {
     expect(comparisonA.staff.length).toBe(2);
     expect(comparisonA.total).toBe(2);
 
-    const namesA = comparisonA.staff.map((s) => s.firstName);
+    const namesA = comparisonA.staff.map(
+      (s: typeof comparisonA.staff[0]) => s.firstName,
+    );
     expect(namesA).toContain("Alice");
     expect(namesA).toContain("Bob");
 

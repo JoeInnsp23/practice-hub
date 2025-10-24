@@ -266,7 +266,9 @@ describe("app/server/routers/services.ts (Integration)", () => {
       }
 
       // Verify our test services are in the list
-      const serviceIds = result.services.map((s) => s.id);
+      const serviceIds = result.services.map(
+        (s: typeof result.services[0]) => s.id,
+      );
       expect(serviceIds).toContain(service1.id);
       expect(serviceIds).toContain(service2.id);
     });
@@ -283,8 +285,8 @@ describe("app/server/routers/services.ts (Integration)", () => {
       const result = await caller.list({ search: "Searchable" });
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableService = result.services.some((s) =>
-        s.name.includes("Searchable"),
+      const hasSearchableService = result.services.some(
+        (s: typeof result.services[0]) => s.name.includes("Searchable"),
       );
       expect(hasSearchableService).toBe(true);
     });
@@ -301,7 +303,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
       const hasSearchableService = result.services.some(
-        (s) => s.code === uniqueCode,
+        (s: typeof result.services[0]) => s.code === uniqueCode,
       );
       expect(hasSearchableService).toBe(true);
     });
@@ -359,7 +361,9 @@ describe("app/server/routers/services.ts (Integration)", () => {
       });
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
-      const foundService = result.services.find((s) => s.id === service1.id);
+      const foundService = result.services.find(
+        (s: typeof result.services[0]) => s.id === service1.id,
+      );
       expect(foundService).toBeDefined();
     });
   });

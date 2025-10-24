@@ -255,7 +255,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       }
 
       // Verify our test tasks are in the list
-      const taskIds = result.tasks.map((t) => t.id);
+      const taskIds = result.tasks.map((t: typeof result.tasks[0]) => t.id);
       expect(taskIds).toContain(task1.id);
       expect(taskIds).toContain(task2.id);
     });
@@ -290,7 +290,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       const result = await caller.list({ search: "Searchable Unique" });
 
       expect(result.tasks.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableTask = result.tasks.some((t) =>
+      const hasSearchableTask = result.tasks.some((t: typeof result.tasks[0]) =>
         t.title.includes("Searchable Unique"),
       );
       expect(hasSearchableTask).toBe(true);
@@ -1934,7 +1934,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         });
 
         const notes = await caller.getNotes({ taskId });
-        const updated = notes.find((n) => n.id === otherNote.noteId);
+        const updated = notes.find((n: typeof notes[0]) => n.id === otherNote.noteId);
         expect(updated?.note).toBe("Admin updated note");
       });
 
@@ -2086,13 +2086,13 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       it("should search by first name", async () => {
         const users = await caller.getMentionableUsers({ query: "john" });
         expect(users.length).toBeGreaterThan(0);
-        expect(users.some((u) => u.firstName === "John")).toBe(true);
+        expect(users.some((u: typeof users[0]) => u.firstName === "John")).toBe(true);
       });
 
       it("should search by last name", async () => {
         const users = await caller.getMentionableUsers({ query: "smith" });
         expect(users.length).toBeGreaterThan(0);
-        expect(users.some((u) => u.lastName === "Smith")).toBe(true);
+        expect(users.some((u: typeof users[0]) => u.lastName === "Smith")).toBe(true);
       });
 
       it("should search by email", async () => {
@@ -2100,7 +2100,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
           query: "bob.johnson",
         });
         expect(users.length).toBeGreaterThan(0);
-        expect(users.some((u) => u.email?.includes("bob.johnson"))).toBe(true);
+        expect(users.some((u: typeof users[0]) => u.email?.includes("bob.johnson"))).toBe(true);
       });
 
       it("should be case insensitive", async () => {
@@ -2273,7 +2273,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(and(eq(tasks.tenantId, ctx.authContext.tenantId)));
 
       const reassignedTasks = updatedTasks.filter(
-        (t) => t.assignedToId === newUserId,
+        (t: typeof updatedTasks[0]) => t.assignedToId === newUserId,
       );
       expect(reassignedTasks.length).toBeGreaterThanOrEqual(2);
     });

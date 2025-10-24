@@ -47,76 +47,60 @@ describe("app/server/routers/leads.ts", () => {
   });
 
   describe("list", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        leadsRouter._def.procedures.list._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.list({})).resolves.not.toThrow();
     });
 
-    it("should accept search parameter", () => {
-      expect(() => {
-        leadsRouter._def.procedures.list._def.inputs[0]?.parse({
-          search: "test lead",
-        });
-      }).not.toThrow();
+    it("should accept search parameter", async () => {
+      await expect(_caller.list({
+        search: "test lead",
+      })).resolves.not.toThrow();
     });
 
-    it("should accept status filter", () => {
-      expect(() => {
-        leadsRouter._def.procedures.list._def.inputs[0]?.parse({
-          status: "new",
-        });
-      }).not.toThrow();
+    it("should accept status filter", async () => {
+      await expect(_caller.list({
+        status: "new",
+      })).resolves.not.toThrow();
     });
 
-    it("should accept source filter", () => {
-      expect(() => {
-        leadsRouter._def.procedures.list._def.inputs[0]?.parse({
-          source: "website",
-        });
-      }).not.toThrow();
+    it("should accept source filter", async () => {
+      await expect(_caller.list({
+        source: "website",
+      })).resolves.not.toThrow();
     });
 
-    it("should accept multiple filters", () => {
-      expect(() => {
-        leadsRouter._def.procedures.list._def.inputs[0]?.parse({
-          search: "test",
-          status: "contacted",
-          source: "referral",
-        });
-      }).not.toThrow();
+    it("should accept multiple filters", async () => {
+      await expect(_caller.list({
+        search: "test",
+        status: "contacted",
+        source: "referral",
+      })).resolves.not.toThrow();
     });
   });
 
   describe("getById", () => {
-    it("should accept valid UUID", () => {
+    it("should accept valid UUID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        leadsRouter._def.procedures.getById._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      await expect(_caller.getById(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        leadsRouter._def.procedures.getById._def.inputs[0]?.parse(123);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(_caller.getById(123 as any)).rejects.toThrow();
     });
   });
 
   describe("create", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         firstName: "John",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.create._def.inputs[0]?.parse(invalidInput);
-      }).toThrow();
+      await expect(_caller.create(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid lead data", () => {
+    it("should accept valid lead data", async () => {
       const validInput = {
         firstName: "John",
         lastName: "Doe",
@@ -126,12 +110,10 @@ describe("app/server/routers/leads.ts", () => {
         source: "website" as const,
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.create(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept any string as email", () => {
+    it("should accept any string as email", async () => {
       // Note: email is z.string().optional() without .email() validation in leads
       const validInput = {
         firstName: "John",
@@ -140,12 +122,10 @@ describe("app/server/routers/leads.ts", () => {
         companyName: "Test Corp",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.create(validInput as any)).resolves.not.toThrow();
     });
 
-    it("should accept optional fields", () => {
+    it("should accept optional fields", async () => {
       const validInput = {
         firstName: "John",
         lastName: "Doe",
@@ -155,25 +135,21 @@ describe("app/server/routers/leads.ts", () => {
         notes: "Interested in accounting services",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.create(validInput as any)).resolves.not.toThrow();
     });
   });
 
   describe("update", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
         firstName: "Jane",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.update._def.inputs[0]?.parse(invalidInput);
-      }).toThrow();
+      await expect(_caller.update(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid update data", () => {
+    it("should accept valid update data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -182,111 +158,83 @@ describe("app/server/routers/leads.ts", () => {
         },
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.update._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.update(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate email format in updates", () => {
+    it("should validate email format in updates", async () => {
       const invalidInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         email: "not-valid",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.update._def.inputs[0]?.parse(invalidInput);
-      }).toThrow();
+      await expect(_caller.update(invalidInput as any)).rejects.toThrow();
     });
   });
 
   describe("delete", () => {
-    it("should accept valid lead ID", () => {
+    it("should accept valid lead ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        leadsRouter._def.procedures.delete._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      await expect(_caller.delete(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        leadsRouter._def.procedures.delete._def.inputs[0]?.parse(null);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(_caller.delete(null as any)).rejects.toThrow();
     });
   });
 
   describe("assignLead", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing assignedToId
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.assignLead._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.assignLead(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid assignment data", () => {
+    it("should accept valid assignment data", async () => {
       const validInput = {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
         assignedToId: "660e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.assignLead._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.assignLead(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("scheduleFollowUp", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing nextFollowUpAt
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.scheduleFollowUp._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.scheduleFollowUp(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid follow-up data", () => {
+    it("should accept valid follow-up data", async () => {
       const validInput = {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
         nextFollowUpAt: "2025-12-31T10:00:00Z",
         notes: "Call to discuss pricing",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.scheduleFollowUp._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.scheduleFollowUp(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate nextFollowUpAt is a string", () => {
+    it("should validate nextFollowUpAt is a string", async () => {
       const validInput = {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
         nextFollowUpAt: "2024-01-01", // String is valid
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.scheduleFollowUp._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.scheduleFollowUp(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("convertToClient", () => {
-    it("should accept valid conversion data", () => {
+    it("should accept valid conversion data", async () => {
       const validInput = {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
         clientData: {
@@ -295,24 +243,16 @@ describe("app/server/routers/leads.ts", () => {
         },
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.convertToClient._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.convertToClient(validInput as any)).resolves.not.toThrow();
     });
 
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing clientData
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        leadsRouter._def.procedures.convertToClient._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.convertToClient(invalidInput as any)).rejects.toThrow();
     });
   });
 

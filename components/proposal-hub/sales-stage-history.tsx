@@ -14,7 +14,7 @@ interface SalesStageHistoryProps {
 export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
   // Fetch activity logs for this proposal (sales stage changes only)
   const { data: activitiesData, isLoading } =
-    trpc.activityLogs.getByEntity.useQuery({
+    trpc.activities.list.useQuery({
       entityType: "proposal",
       entityId: proposalId,
     });
@@ -33,7 +33,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
   // Filter for sales stage related activities only
   const stageActivities =
     activitiesData?.activities?.filter(
-      (a) =>
+      (a: typeof activitiesData.activities[0]) =>
         a.action === "sales_stage_updated" ||
         a.action === "sales_stage_automated",
     ) || [];
@@ -61,7 +61,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
   );
 
   // Calculate time in each stage
-  const activitiesWithDuration = sortedActivities.map((activity, index) => {
+  const activitiesWithDuration = sortedActivities.map((activity: typeof sortedActivities[0], index: number) => {
     const nextActivity = sortedActivities[index + 1];
     const duration = nextActivity
       ? calculateTimeInStage(
@@ -204,7 +204,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
             <p className="text-xl font-semibold">
               {
                 stageActivities.filter(
-                  (a) => a.action === "sales_stage_automated",
+                  (a: typeof stageActivities[0]) => a.action === "sales_stage_automated",
                 ).length
               }
             </p>

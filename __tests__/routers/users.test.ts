@@ -61,67 +61,59 @@ describe("app/server/routers/users.ts", () => {
   });
 
   describe("list", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        usersRouter._def.procedures.list._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.list({})).resolves.not.toThrow();
     });
 
-    it("should accept search parameter", () => {
-      expect(() => {
-        usersRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept search parameter", async () => {
+      await expect(
+        _caller.list({
           search: "john doe",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept role filter", () => {
-      expect(() => {
-        usersRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept role filter", async () => {
+      await expect(
+        _caller.list({
           role: "admin",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept multiple filters", () => {
-      expect(() => {
-        usersRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept multiple filters", async () => {
+      await expect(
+        _caller.list({
           search: "test",
           role: "member", // Valid: member, admin, accountant, or "all"
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getById", () => {
-    it("should accept valid UUID", () => {
+    it("should accept valid UUID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        usersRouter._def.procedures.getById._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      await expect(_caller.getById(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        usersRouter._def.procedures.getById._def.inputs[0]?.parse(123);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(_caller.getById(123 as any)).rejects.toThrow();
     });
   });
 
   describe("create", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         firstName: "John",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.create._def.inputs[0]?.parse(invalidInput);
-      }).toThrow();
+      await expect(_adminCaller.create(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid user data", () => {
+    it("should accept valid user data", async () => {
       const validInput = {
         email: "john@example.com",
         firstName: "John",
@@ -130,12 +122,10 @@ describe("app/server/routers/users.ts", () => {
         password: "SecurePass123!",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_adminCaller.create(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept any string as email", () => {
+    it("should accept any string as email", async () => {
       // Note: email is auto-generated from schema without .email() validation
       const validInput = {
         email: "invalid-email", // Any string is valid
@@ -144,12 +134,10 @@ describe("app/server/routers/users.ts", () => {
         role: "member" as const,
       };
 
-      expect(() => {
-        usersRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_adminCaller.create(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept optional phone field", () => {
+    it("should accept optional phone field", async () => {
       const validInput = {
         email: "john@example.com",
         firstName: "John",
@@ -159,25 +147,21 @@ describe("app/server/routers/users.ts", () => {
         phone: "+1234567890",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.create._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_adminCaller.create(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("update", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
         firstName: "Jane",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.update._def.inputs[0]?.parse(invalidInput);
-      }).toThrow();
+      await expect(_caller.update(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid update data", () => {
+    it("should accept valid update data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -186,12 +170,10 @@ describe("app/server/routers/users.ts", () => {
         },
       };
 
-      expect(() => {
-        usersRouter._def.procedures.update._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.update(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept any string as email in updates", () => {
+    it("should accept any string as email in updates", async () => {
       // Email validation not enforced in schema
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
@@ -200,12 +182,10 @@ describe("app/server/routers/users.ts", () => {
         },
       };
 
-      expect(() => {
-        usersRouter._def.procedures.update._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.update(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept partial updates", () => {
+    it("should accept partial updates", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -213,102 +193,82 @@ describe("app/server/routers/users.ts", () => {
         },
       };
 
-      expect(() => {
-        usersRouter._def.procedures.update._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(_caller.update(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("delete", () => {
-    it("should accept valid user ID", () => {
+    it("should accept valid user ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        usersRouter._def.procedures.delete._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      await expect(_adminCaller.delete(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        usersRouter._def.procedures.delete._def.inputs[0]?.parse({});
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(_adminCaller.delete({} as any)).rejects.toThrow();
     });
   });
 
   describe("updateRole", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing role
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.updateRole._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _adminCaller.updateRole(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid role update", () => {
+    it("should accept valid role update", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         role: "admin" as const,
       };
 
-      expect(() => {
-        usersRouter._def.procedures.updateRole._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_adminCaller.updateRole(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate id is a string", () => {
+    it("should validate id is a string", async () => {
       const invalidInput = {
         id: 123,
         role: "admin",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.updateRole._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _adminCaller.updateRole(invalidInput as any),
+      ).rejects.toThrow();
     });
   });
 
   describe("sendPasswordReset", () => {
-    it("should validate required userId field", () => {
+    it("should validate required userId field", async () => {
       const invalidInput = {};
 
-      expect(() => {
-        usersRouter._def.procedures.sendPasswordReset._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _adminCaller.sendPasswordReset(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid userId", () => {
+    it("should accept valid userId", async () => {
       const validInput = {
         userId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        usersRouter._def.procedures.sendPasswordReset._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        _adminCaller.sendPasswordReset(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate userId is a string", () => {
+    it("should validate userId is a string", async () => {
       const invalidInput = {
         userId: 123, // Should be string
       };
 
-      expect(() => {
-        usersRouter._def.procedures.sendPasswordReset._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _adminCaller.sendPasswordReset(invalidInput as any),
+      ).rejects.toThrow();
     });
   });
 

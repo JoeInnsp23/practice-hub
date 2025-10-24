@@ -23,6 +23,7 @@ interface XeroCredentials {
   selectedTenantId: string;
   tokenType: string;
   scope: string;
+  [key: string]: unknown;
 }
 
 interface XeroContact {

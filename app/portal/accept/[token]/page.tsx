@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Loader2, User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -38,12 +38,10 @@ const passwordSchema = z
 
 type PasswordForm = z.infer<typeof passwordSchema>;
 
-export default function AcceptInvitationPage({
-  params,
-}: {
-  params: { token: string };
-}) {
+export default function AcceptInvitationPage() {
+  const params = useParams();
   const router = useRouter();
+  const token = params.token as string;
   const [loading, setLoading] = useState(true);
   const [invitation, setInvitation] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +60,7 @@ export default function AcceptInvitationPage({
     const verifyToken = async () => {
       try {
         const response = await fetch(
-          `/api/portal/verify-invitation?token=${params.token}`,
+          `/api/portal/verify-invitation?token=${token}`,
         );
         const data = await response.json();
 
@@ -81,7 +79,7 @@ export default function AcceptInvitationPage({
     };
 
     verifyToken();
-  }, [params.token]);
+  }, [token]);
 
   const onSubmit = async (data: PasswordForm) => {
     setSubmitting(true);
@@ -91,7 +89,7 @@ export default function AcceptInvitationPage({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: params.token,
+          token: token,
           password: data.password,
         }),
       });

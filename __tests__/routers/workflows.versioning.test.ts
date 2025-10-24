@@ -61,56 +61,48 @@ describe("Workflow Versioning System", () => {
   });
 
   describe("Input Validation", () => {
-    it("should validate listVersions input", () => {
-      expect(() => {
-        workflowsRouter._def.procedures.listVersions._def.inputs[0]?.parse(
-          "workflow-uuid-123",
-        );
-      }).not.toThrow();
+    it("should validate listVersions input", async () => {
+      await expect(
+        _workflowCaller.listVersions("workflow-uuid-123"),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate publishVersion input", () => {
+    it("should validate publishVersion input", async () => {
       const input = {
         versionId: "version-uuid-123",
         workflowId: "workflow-uuid-456",
       };
 
-      expect(() => {
-        workflowsRouter._def.procedures.publishVersion._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(
+        _workflowCaller.publishVersion(input),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate publishVersion input with publishNotes", () => {
+    it("should validate publishVersion input with publishNotes", async () => {
       const input = {
         versionId: "version-uuid-123",
         workflowId: "workflow-uuid-456",
         publishNotes: "Fixed stage ordering issue",
       };
 
-      expect(() => {
-        workflowsRouter._def.procedures.publishVersion._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(
+        _workflowCaller.publishVersion(input),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate compareVersions input", () => {
+    it("should validate compareVersions input", async () => {
       const input = {
         workflowId: "workflow-uuid-123",
         versionId1: "version-uuid-456",
         versionId2: "version-uuid-789",
       };
 
-      expect(() => {
-        workflowsRouter._def.procedures.compareVersions._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(
+        _workflowCaller.compareVersions(input),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate rollbackToVersion input", () => {
+    it("should validate rollbackToVersion input", async () => {
       const input = {
         workflowId: "workflow-uuid-123",
         targetVersionId: "version-uuid-456",
@@ -118,50 +110,42 @@ describe("Workflow Versioning System", () => {
         publishNotes: "Rollback to version 2 due to critical issue",
       };
 
-      expect(() => {
-        workflowsRouter._def.procedures.rollbackToVersion._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(
+        _workflowCaller.rollbackToVersion(input),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate rollbackToVersion input with minimal fields", () => {
+    it("should validate rollbackToVersion input with minimal fields", async () => {
       const input = {
         workflowId: "workflow-uuid-123",
         targetVersionId: "version-uuid-456",
       };
 
-      expect(() => {
-        workflowsRouter._def.procedures.rollbackToVersion._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(
+        _workflowCaller.rollbackToVersion(input),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate migrateInstances input", () => {
+    it("should validate migrateInstances input", async () => {
       const input = {
         instanceIds: ["inst-1", "inst-2", "inst-3"],
         newVersionId: "version-uuid-789",
       };
 
-      expect(() => {
-        workflowsRouter._def.procedures.migrateInstances._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(
+        _workflowCaller.migrateInstances(input),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("Task Assignment with Versioning", () => {
-    it("should validate assignWorkflow input", () => {
+    it("should validate assignWorkflow input", async () => {
       const input = {
         taskId: "task-uuid-123",
         workflowId: "workflow-uuid-456",
       };
 
-      expect(() => {
-        tasksRouter._def.procedures.assignWorkflow._def.inputs[0]?.parse(input);
-      }).not.toThrow();
+      await expect(_taskCaller.assignWorkflow(input)).resolves.not.toThrow();
     });
   });
 });

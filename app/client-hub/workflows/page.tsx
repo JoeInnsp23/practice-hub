@@ -107,7 +107,7 @@ export default function WorkflowsPage() {
           type: template.type,
           config: {},
           trigger: template.trigger,
-          serviceComponentId: template.serviceComponentId,
+          serviceId: template.serviceId,
           isActive: template.isActive,
           estimatedDays: template.estimatedDays,
         });

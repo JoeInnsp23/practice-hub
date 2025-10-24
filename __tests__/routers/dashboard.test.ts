@@ -63,53 +63,41 @@ describe("app/server/routers/dashboard.ts", () => {
   });
 
   describe("activity", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.activity({})).resolves.not.toThrow();
     });
 
-    it("should accept pagination parameters", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
-          limit: 50,
-          offset: 100,
-        });
-      }).not.toThrow();
+    it("should accept pagination parameters", async () => {
+      await expect(_caller.activity({
+        limit: 50,
+        offset: 100,
+      })).resolves.not.toThrow();
     });
 
-    it("should accept entityType filter", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
-          entityType: "client",
-        });
-      }).not.toThrow();
+    it("should accept entityType filter", async () => {
+      await expect(_caller.activity({
+        entityType: "client",
+      })).resolves.not.toThrow();
     });
 
-    it("should validate limit max value", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
-          limit: 150, // Exceeds max of 100
-        });
-      }).toThrow();
+    it("should validate limit max value", async () => {
+      await expect(_caller.activity({
+        limit: 150, // Exceeds max of 100
+      })).rejects.toThrow();
     });
 
-    it("should validate limit min value", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
-          limit: 0, // Below minimum of 1
-        });
-      }).toThrow();
+    it("should validate limit min value", async () => {
+      await expect(_caller.activity({
+        limit: 0, // Below minimum of 1
+      })).rejects.toThrow();
     });
 
-    it("should accept all filters combined", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
-          limit: 25,
-          offset: 50,
-          entityType: "task",
-        });
-      }).not.toThrow();
+    it("should accept all filters combined", async () => {
+      await expect(_caller.activity({
+        limit: 25,
+        offset: 50,
+        entityType: "task",
+      })).resolves.not.toThrow();
     });
   });
 

@@ -53,22 +53,14 @@ describe("app/server/routers/invitations.ts", () => {
   });
 
   describe("getActivityLogs", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        invitationsRouter._def.procedures.getActivityLogs._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.getActivityLogs({})).resolves.not.toThrow();
     });
 
-    it("should accept limit parameter", () => {
-      expect(() => {
-        invitationsRouter._def.procedures.getActivityLogs._def.inputs[0]?.parse(
-          {
-            limit: 10,
-          },
-        );
-      }).not.toThrow();
+    it("should accept limit parameter", async () => {
+      await expect(_caller.getActivityLogs({
+        limit: 10,
+      })).resolves.not.toThrow();
     });
 
     it("should default limit to 20", () => {
@@ -79,24 +71,16 @@ describe("app/server/routers/invitations.ts", () => {
       expect(result?.limit).toBe(20);
     });
 
-    it("should validate limit min value", () => {
-      expect(() => {
-        invitationsRouter._def.procedures.getActivityLogs._def.inputs[0]?.parse(
-          {
-            limit: 0,
-          },
-        );
-      }).toThrow();
+    it("should validate limit min value", async () => {
+      await expect(_caller.getActivityLogs({
+        limit: 0,
+      })).rejects.toThrow();
     });
 
-    it("should validate limit max value", () => {
-      expect(() => {
-        invitationsRouter._def.procedures.getActivityLogs._def.inputs[0]?.parse(
-          {
-            limit: 51,
-          },
-        );
-      }).toThrow();
+    it("should validate limit max value", async () => {
+      await expect(_caller.getActivityLogs({
+        limit: 51,
+      })).rejects.toThrow();
     });
   });
 
@@ -111,140 +95,102 @@ describe("app/server/routers/invitations.ts", () => {
   });
 
   describe("send", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing email and role
         customMessage: "Welcome",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.send._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.send(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid invitation data", () => {
+    it("should accept valid invitation data", async () => {
       const validInput = {
         email: "newuser@example.com",
-        role: "accountant",
+        role: "accountant" as const,
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.send._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.send(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept custom message", () => {
+    it("should accept custom message", async () => {
       const validInput = {
         email: "user@example.com",
-        role: "member",
+        role: "member" as const,
         customMessage: "Welcome to the team!",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.send._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.send(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate role enum values", () => {
+    it("should validate role enum values", async () => {
       const invalidInput = {
         email: "test@example.com",
         role: "invalid",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.send._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.send(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept all valid role values", () => {
-      const validRoles = ["admin", "accountant", "member"];
+    it("should accept all valid role values", async () => {
+      const validRoles = ["admin", "accountant", "member"] as const;
 
       for (const role of validRoles) {
-        expect(() => {
-          invitationsRouter._def.procedures.send._def.inputs[0]?.parse({
-            email: "test@example.com",
-            role,
-          });
-        }).not.toThrow();
+        await expect(_caller.send({
+          email: "test@example.com",
+          role,
+        })).resolves.not.toThrow();
       }
     });
 
-    it("should validate email format", () => {
+    it("should validate email format", async () => {
       const invalidInput = {
         email: "not-an-email",
-        role: "member",
+        role: "member" as const,
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.send._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.send(invalidInput)).rejects.toThrow();
     });
   });
 
   describe("verify", () => {
-    it("should validate required token field", () => {
+    it("should validate required token field", async () => {
       const invalidInput = {
         // Missing token
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.verify._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.verify(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid token", () => {
+    it("should accept valid token", async () => {
       const validInput = {
         token: "abc123def456",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.verify._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.verify(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("accept", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing token and password
         firstName: "John",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.accept._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.accept(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid acceptance data", () => {
+    it("should accept valid acceptance data", async () => {
       const validInput = {
         token: "abc123def456",
         password: "securePassword123!",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.accept._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.accept(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept optional name fields", () => {
+    it("should accept optional name fields", async () => {
       const validInput = {
         token: "xyz789",
         password: "strongPass123!",
@@ -252,88 +198,60 @@ describe("app/server/routers/invitations.ts", () => {
         lastName: "Doe",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.accept._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.accept(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate password minimum length", () => {
+    it("should validate password minimum length", async () => {
       const invalidInput = {
         token: "abc123",
         password: "short",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.accept._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.accept(invalidInput)).rejects.toThrow();
     });
   });
 
   describe("resend", () => {
-    it("should validate required invitationId field", () => {
+    it("should validate required invitationId field", async () => {
       const invalidInput = {
         // Missing invitationId
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.resend._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.resend(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid invitation ID", () => {
+    it("should accept valid invitation ID", async () => {
       const validInput = {
         invitationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.resend._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.resend(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate UUID format", () => {
+    it("should validate UUID format", async () => {
       const invalidInput = {
         invitationId: "not-a-uuid",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.resend._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.resend(invalidInput as any)).rejects.toThrow();
     });
   });
 
   describe("cancel", () => {
-    it("should validate required invitationId field", () => {
+    it("should validate required invitationId field", async () => {
       const invalidInput = {
         // Missing invitationId
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.cancel._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.cancel(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid invitation ID", () => {
+    it("should accept valid invitation ID", async () => {
       const validInput = {
         invitationId: "660e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        invitationsRouter._def.procedures.cancel._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.cancel(validInput)).resolves.not.toThrow();
     });
   });
 

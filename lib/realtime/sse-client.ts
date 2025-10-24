@@ -44,14 +44,13 @@ export class SSEClient implements RealtimeClient {
   private subscriptionManager = new EventSubscriptionManager();
   private state: ConnectionState = "disconnected";
   private reconnectAttempts = 0;
-  private options: Required<ConnectionOptions> = {
+  private options: ConnectionOptions = {
     maxReconnectAttempts: 3,
     reconnectDelay: 1000,
     maxReconnectDelay: 30000,
     heartbeatTimeout: 60000,
     enablePollingFallback: true,
     pollingInterval: 30000,
-    authToken: undefined,
   };
   private url = "";
   private reconnectTimeoutId: NodeJS.Timeout | null = null;

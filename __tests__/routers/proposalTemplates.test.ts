@@ -22,7 +22,7 @@ vi.mock("@/lib/db", () => ({
     delete: vi.fn().mockReturnThis(),
     set: vi.fn().mockReturnThis(),
     values: vi.fn().mockReturnThis(),
-    returning: vi.fn(),
+    returning: vi.fn().mockResolvedValue([]),
     transaction: vi.fn((cb) =>
       cb({
         select: vi.fn().mockReturnThis(),
@@ -32,7 +32,7 @@ vi.mock("@/lib/db", () => ({
         update: vi.fn().mockReturnThis(),
         set: vi.fn().mockReturnThis(),
         values: vi.fn().mockReturnThis(),
-        returning: vi.fn(),
+        returning: vi.fn().mockResolvedValue([]),
       }),
     ),
   },
@@ -40,100 +40,76 @@ vi.mock("@/lib/db", () => ({
 
 describe("app/server/routers/proposalTemplates.ts", () => {
   let ctx: Context;
-  let _caller: ReturnType<typeof createCaller<typeof proposalTemplatesRouter>>;
+  let caller: ReturnType<typeof createCaller<typeof proposalTemplatesRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
     // Set admin role for admin procedures
     ctx.authContext = { ...ctx.authContext, role: "admin" };
-    _caller = createCaller(proposalTemplatesRouter, ctx);
+    caller = createCaller(proposalTemplatesRouter, ctx);
     vi.clearAllMocks();
   });
 
   describe("list", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.list({})).resolves.not.toThrow();
     });
 
-    it("should accept category filter", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({
-          category: "startup",
-        });
-      }).not.toThrow();
+    it("should accept category filter", async () => {
+      await expect(
+        caller.list({ category: "startup" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept isActive filter", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({
-          isActive: true,
-        });
-      }).not.toThrow();
+    it("should accept isActive filter", async () => {
+      await expect(
+        caller.list({ isActive: true }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept search parameter", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({
-          search: "test",
-        });
-      }).not.toThrow();
+    it("should accept search parameter", async () => {
+      await expect(
+        caller.list({ search: "test" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept all filters combined", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept all filters combined", async () => {
+      await expect(
+        caller.list({
           category: "startup",
           isActive: true,
           search: "test template",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getById", () => {
-    it("should accept valid UUID", () => {
+    it("should accept valid UUID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.getById._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.getById(validId)).resolves.not.toThrow();
     });
 
-    it("should reject invalid UUID", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.getById._def.inputs[0]?.parse(
-          "invalid-id",
-        );
-      }).toThrow();
+    it("should reject invalid UUID", async () => {
+      await expect(caller.getById("invalid-id")).rejects.toThrow();
     });
 
-    it("should reject non-string input", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.getById._def.inputs[0]?.parse(
-          123,
-        );
-      }).toThrow();
+    it("should reject non-string input", async () => {
+      await expect(caller.getById(123 as any)).rejects.toThrow();
     });
   });
 
   describe("create", () => {
-    it("should accept valid template data with minimal fields", () => {
+    it("should accept valid template data with minimal fields", async () => {
       const validData = {
         name: "Test Template",
         defaultServices: [{ componentCode: "BOOK-001" }],
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.create(validData)).resolves.not.toThrow();
     });
 
-    it("should accept valid template data with all fields", () => {
+    it("should accept valid template data with all fields", async () => {
       const validData = {
         name: "Test Template",
         description: "Test description",
@@ -151,51 +127,35 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         isActive: true,
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.create(validData)).resolves.not.toThrow();
     });
 
-    it("should require name field", () => {
+    it("should require name field", async () => {
       const invalidData = {
         defaultServices: [],
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidData,
-        );
-      }).toThrow();
+      await expect(caller.create(invalidData as any)).rejects.toThrow();
     });
 
-    it("should require defaultServices array", () => {
+    it("should require defaultServices array", async () => {
       const invalidData = {
         name: "Test Template",
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidData,
-        );
-      }).toThrow();
+      await expect(caller.create(invalidData as any)).rejects.toThrow();
     });
 
-    it("should validate defaultServices structure", () => {
+    it("should validate defaultServices structure", async () => {
       const invalidData = {
         name: "Test Template",
         defaultServices: [{ invalid: "structure" }],
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidData,
-        );
-      }).toThrow();
+      await expect(caller.create(invalidData as any)).rejects.toThrow();
     });
 
-    it("should accept service config as optional", () => {
+    it("should accept service config as optional", async () => {
       const validData = {
         name: "Test Template",
         defaultServices: [
@@ -204,16 +164,12 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         ],
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.create._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.create(validData)).resolves.not.toThrow();
     });
   });
 
   describe("update", () => {
-    it("should accept partial update data", () => {
+    it("should accept partial update data", async () => {
       const validData = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -221,14 +177,10 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         },
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.update(validData)).resolves.not.toThrow();
     });
 
-    it("should accept updating multiple fields", () => {
+    it("should accept updating multiple fields", async () => {
       const validData = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -239,14 +191,10 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         },
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.update(validData)).resolves.not.toThrow();
     });
 
-    it("should accept updating services", () => {
+    it("should accept updating services", async () => {
       const validData = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -257,14 +205,10 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         },
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.update(validData)).resolves.not.toThrow();
     });
 
-    it("should require valid UUID for id", () => {
+    it("should require valid UUID for id", async () => {
       const invalidData = {
         id: "invalid-id",
         data: {
@@ -272,70 +216,42 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         },
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(
-          invalidData,
-        );
-      }).toThrow();
+      await expect(caller.update(invalidData)).rejects.toThrow();
     });
 
-    it("should accept empty data object", () => {
+    it("should accept empty data object", async () => {
       const validData = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {},
       };
 
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.update._def.inputs[0]?.parse(
-          validData,
-        );
-      }).not.toThrow();
+      await expect(caller.update(validData)).resolves.not.toThrow();
     });
   });
 
   describe("delete", () => {
-    it("should accept valid UUID", () => {
+    it("should accept valid UUID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.delete._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.delete(validId)).resolves.not.toThrow();
     });
 
-    it("should reject invalid UUID", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.delete._def.inputs[0]?.parse(
-          "invalid-id",
-        );
-      }).toThrow();
+    it("should reject invalid UUID", async () => {
+      await expect(caller.delete("invalid-id")).rejects.toThrow();
     });
   });
 
   describe("setDefault", () => {
-    it("should accept valid UUID", () => {
+    it("should accept valid UUID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.setDefault._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.setDefault(validId)).resolves.not.toThrow();
     });
 
-    it("should reject invalid UUID", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.setDefault._def.inputs[0]?.parse(
-          "invalid-id",
-        );
-      }).toThrow();
+    it("should reject invalid UUID", async () => {
+      await expect(caller.setDefault("invalid-id")).rejects.toThrow();
     });
 
-    it("should reject non-string input", () => {
-      expect(() => {
-        proposalTemplatesRouter._def.procedures.setDefault._def.inputs[0]?.parse(
-          123,
-        );
-      }).toThrow();
+    it("should reject non-string input", async () => {
+      await expect(caller.setDefault(123 as any)).rejects.toThrow();
     });
   });
 });

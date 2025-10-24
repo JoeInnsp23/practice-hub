@@ -229,9 +229,11 @@ describe("Staff Statistics Router", () => {
       });
 
       expect(result.staff.length).toBe(2);
-      expect(result.staff.every((s) => s.departmentId === testDeptId)).toBe(
-        true,
-      );
+      expect(
+        result.staff.every(
+          (s: typeof result.staff[0]) => s.departmentId === testDeptId,
+        ),
+      ).toBe(true);
     });
 
     it("should calculate correct averages in summary", async () => {
@@ -323,7 +325,7 @@ describe("Staff Statistics Router", () => {
       expect(result.weeks.length).toBe(12);
 
       // Verify structure of weeks
-      result.weeks.forEach((week) => {
+      result.weeks.forEach((week: typeof result.weeks[0]) => {
         expect(week).toHaveProperty("weekStartDate");
         expect(week).toHaveProperty("weekEndDate");
         expect(week).toHaveProperty("loggedHours");

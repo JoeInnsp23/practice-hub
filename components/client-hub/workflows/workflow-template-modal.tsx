@@ -146,15 +146,15 @@ export function WorkflowTemplateModal({
 
   const removeStage = (stageId: string) => {
     const updatedStages = formData.stages
-      .filter((s) => s.id !== stageId)
-      .map((stage, index) => ({ ...stage, order: index + 1 }));
+      .filter((s: typeof formData.stages[0]) => s.id !== stageId)
+      .map((stage: typeof formData.stages[0], index: number) => ({ ...stage, order: index + 1 }));
     setFormData({ ...formData, stages: updatedStages });
   };
 
   const addChecklistItem = (stageId: string, item: string) => {
     if (!item) return;
 
-    const updatedStages = formData.stages.map((stage) =>
+    const updatedStages = formData.stages.map((stage: typeof formData.stages[0]) =>
       stage.id === stageId
         ? { ...stage, checklist: [...(stage.checklist || []), item] }
         : stage,
@@ -163,12 +163,12 @@ export function WorkflowTemplateModal({
   };
 
   const removeChecklistItem = (stageId: string, itemIndex: number) => {
-    const updatedStages = formData.stages.map((stage) =>
+    const updatedStages = formData.stages.map((stage: typeof formData.stages[0]) =>
       stage.id === stageId
         ? {
             ...stage,
             checklist: (stage.checklist || []).filter(
-              (_, i) => i !== itemIndex,
+              (_: string, i: number) => i !== itemIndex,
             ),
           }
         : stage,
@@ -182,7 +182,7 @@ export function WorkflowTemplateModal({
     newStages.splice(toIndex, 0, movedStage);
 
     // Update order numbers
-    const updatedStages = newStages.map((stage, index) => ({
+    const updatedStages = newStages.map((stage: typeof newStages[0], index: number) => ({
       ...stage,
       order: index + 1,
     }));
@@ -351,7 +351,7 @@ export function WorkflowTemplateModal({
                   <CardContent>
                     <div className="space-y-2">
                       <Label className="text-xs">Checklist Items</Label>
-                      {(stage.checklist || []).map((item, itemIndex) => (
+                      {(stage.checklist || []).map((item: string, itemIndex: number) => (
                         <div
                           key={item}
                           className="flex items-center justify-between text-xs p-2 bg-muted rounded"

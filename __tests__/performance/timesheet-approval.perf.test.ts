@@ -115,13 +115,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
       const [submission] = await db
         .insert(timesheetSubmissions)
         .values({
-          id: crypto.randomUUID(),
           tenantId: testTenantId,
           userId,
           weekStartDate: "2025-01-06",
           weekEndDate: "2025-01-12",
           status: "pending",
-          totalHours: 37.5,
+          totalHours: "37.5",
           submittedAt: new Date(),
         })
         .returning();
@@ -166,8 +165,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
     expect(executionTime).toBeLessThan(2.0); // AC17 requirement
 
     // Verify data structure
-    expect(result.every((s) => s.status === "pending")).toBe(true);
-    expect(result.every((s) => Number(s.totalHours) === 37.5)).toBe(true); // Handle string or number
+    expect(
+      result.every((s: (typeof result)[0]) => s.status === "pending"),
+    ).toBe(true);
+    expect(
+      result.every((s: (typeof result)[0]) => Number(s.totalHours) === 37.5),
+    ).toBe(true); // Handle string or number
   }, 15000); // 15 second timeout
 
   it("AC17.2: Should bulk approve 50 submissions in < 5 seconds", async () => {

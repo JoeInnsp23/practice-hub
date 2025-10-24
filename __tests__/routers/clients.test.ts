@@ -228,7 +228,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
       }
 
       // Verify our test clients are in the list
-      const clientIds = result.clients.map((c) => c.id);
+      const clientIds = result.clients.map(
+        (c: typeof result.clients[0]) => c.id,
+      );
       expect(clientIds).toContain(client1.id);
       expect(clientIds).toContain(client2.id);
     });
@@ -254,8 +256,8 @@ describe("app/server/routers/clients.ts (Integration)", () => {
       const result = await caller.list({ search: "Searchable" });
 
       expect(result.clients.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableClient = result.clients.some((c) =>
-        c.name.includes("Searchable"),
+      const hasSearchableClient = result.clients.some(
+        (c: typeof result.clients[0]) => c.name.includes("Searchable"),
       );
       expect(hasSearchableClient).toBe(true);
     });

@@ -247,7 +247,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       }
 
       // Verify our test documents are in the list
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: typeof result.documents[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc1.id);
       expect(docIds).toContain(doc2.id);
     });
@@ -285,7 +287,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       }
 
       // Verify client1 doc is present
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: typeof result.documents[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc1.id);
     });
 
@@ -339,7 +343,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Search by name
       const result = await caller.list({ search: "Searchable" });
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: typeof result.documents[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc.id);
     });
 
@@ -369,7 +375,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const result = await caller.list({ parentId: parent.id });
 
       expect(result.documents.length).toBeGreaterThanOrEqual(1);
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: typeof result.documents[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc.id);
     });
 
@@ -1206,7 +1214,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const result = await caller.search({ query: "Searchable" });
 
       expect(result.length).toBeGreaterThanOrEqual(1);
-      const docIds = result.map((r) => r.document.id);
+      const docIds = result.map((r: typeof result[0]) => r.document.id);
       expect(docIds).toContain(doc.id);
     });
 
@@ -1270,7 +1278,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       // Search from our test tenant should not find tenantA's document
       const result = await caller.search({ query: "UNIQUE-TENANT-A" });
 
-      const docIds = result.map((r) => r.document.id);
+      const docIds = result.map((r: typeof result[0]) => r.document.id);
       expect(docIds).not.toContain(docA.id);
     });
   });

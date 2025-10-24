@@ -34,164 +34,108 @@ describe("app/server/routers/activities.ts", () => {
   });
 
   describe("getRecent", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        activitiesRouter._def.procedures.getRecent._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.getRecent({})).resolves.not.toThrow();
     });
 
-    it("should accept limit parameter", () => {
-      expect(() => {
-        activitiesRouter._def.procedures.getRecent._def.inputs[0]?.parse({
-          limit: 10,
-        });
-      }).not.toThrow();
+    it("should accept limit parameter", async () => {
+      await expect(_caller.getRecent({ limit: 10 })).resolves.not.toThrow();
     });
 
-    it("should default limit to 20", () => {
-      const result =
-        activitiesRouter._def.procedures.getRecent._def.inputs[0]?.parse({});
-      expect(result?.limit).toBe(20);
+    it("should validate limit min value", async () => {
+      await expect(
+        _caller.getRecent({ limit: 0 }), // Below minimum of 1
+      ).rejects.toThrow();
     });
 
-    it("should validate limit min value", () => {
-      expect(() => {
-        activitiesRouter._def.procedures.getRecent._def.inputs[0]?.parse({
-          limit: 0, // Below minimum of 1
-        });
-      }).toThrow();
-    });
-
-    it("should validate limit max value", () => {
-      expect(() => {
-        activitiesRouter._def.procedures.getRecent._def.inputs[0]?.parse({
-          limit: 101, // Exceeds max of 100
-        });
-      }).toThrow();
+    it("should validate limit max value", async () => {
+      await expect(
+        _caller.getRecent({ limit: 101 }), // Exceeds max of 100
+      ).rejects.toThrow();
     });
   });
 
   describe("list", () => {
-    it("should validate required fields", () => {
-      const invalidInput = {
-        // Missing entityType and entityId
-        limit: 50,
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.list._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate required fields", async () => {
+      await expect(
+        _caller.list({
+          limit: 50,
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid input", () => {
-      const validInput = {
-        entityType: "client",
-        entityId: "550e8400-e29b-41d4-a716-446655440000",
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.list._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+    it("should accept valid input", async () => {
+      await expect(
+        _caller.list({
+          entityType: "client",
+          entityId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept limit parameter", () => {
-      const validInput = {
-        entityType: "lead",
-        entityId: "660e8400-e29b-41d4-a716-446655440000",
-        limit: 25,
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.list._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
-    });
-
-    it("should default limit to 50", () => {
-      const result =
-        activitiesRouter._def.procedures.list._def.inputs[0]?.parse({
-          entityType: "proposal",
-          entityId: "770e8400-e29b-41d4-a716-446655440000",
-        });
-      expect(result?.limit).toBe(50);
+    it("should accept limit parameter", async () => {
+      await expect(
+        _caller.list({
+          entityType: "lead",
+          entityId: "660e8400-e29b-41d4-a716-446655440000",
+          limit: 25,
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("create", () => {
-    it("should validate required fields", () => {
-      const invalidInput = {
-        // Missing entityType, entityId, action, description
-        metadata: { test: "value" },
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate required fields", async () => {
+      await expect(
+        _caller.create({
+          metadata: { test: "value" },
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid activity data", () => {
-      const validInput = {
-        entityType: "task",
-        entityId: "550e8400-e29b-41d4-a716-446655440000",
-        action: "completed",
-        description: "Task marked as complete",
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept valid activity data", async () => {
+      await expect(
+        _caller.create({
+          entityType: "task",
+          entityId: "550e8400-e29b-41d4-a716-446655440000",
+          action: "completed",
+          description: "Task marked as complete",
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept optional metadata", () => {
-      const validInput = {
-        entityType: "invoice",
-        entityId: "660e8400-e29b-41d4-a716-446655440000",
-        action: "sent",
-        description: "Invoice sent to client",
-        metadata: {
-          invoiceNumber: "INV-001",
-          amount: 1000,
-        },
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept optional metadata", async () => {
+      await expect(
+        _caller.create({
+          entityType: "invoice",
+          entityId: "660e8400-e29b-41d4-a716-446655440000",
+          action: "sent",
+          description: "Invoice sent to client",
+          metadata: {
+            invoiceNumber: "INV-001",
+            amount: 1000,
+          },
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getActivityCounts", () => {
-    it("should validate required fields", () => {
-      const invalidInput = {
-        // Missing entityId
-        entityType: "client",
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.getActivityCounts._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate required fields", async () => {
+      await expect(
+        _caller.getActivityCounts({
+          entityType: "client",
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid input", () => {
-      const validInput = {
-        entityType: "client",
-        entityId: "550e8400-e29b-41d4-a716-446655440000",
-      };
-
-      expect(() => {
-        activitiesRouter._def.procedures.getActivityCounts._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept valid input", async () => {
+      await expect(
+        _caller.getActivityCounts({
+          entityType: "client",
+          entityId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 

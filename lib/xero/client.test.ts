@@ -566,7 +566,7 @@ describe("lib/xero/client.ts", () => {
           json: async () => {
             throw new Error("Unexpected token in JSON");
           },
-        } as Response);
+        } as Partial<Response>);
 
         await expect(getAccessToken("test-code")).rejects.toThrow(
           "Unexpected token in JSON",
@@ -579,7 +579,7 @@ describe("lib/xero/client.ts", () => {
           json: async () => {
             throw new Error("Invalid JSON response");
           },
-        } as Response);
+        } as Partial<Response>);
 
         await expect(
           fetchBankTransactions(

@@ -255,7 +255,9 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       }
 
       // Verify our test items are in the list
-      const itemIds = result.compliance.map((c) => c.id);
+      const itemIds = result.compliance.map(
+        (c: typeof result.compliance[0]) => c.id,
+      );
       expect(itemIds).toContain(item1Result.compliance.id);
       expect(itemIds).toContain(item2Result.compliance.id);
     });
@@ -285,8 +287,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.list({ search: searchTerm });
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
-      const hasSearchable = result.compliance.some((c) =>
-        c.title.includes(searchTerm),
+      const hasSearchable = result.compliance.some(
+        (c: typeof result.compliance[0]) => c.title.includes(searchTerm),
       );
       expect(hasSearchable).toBe(true);
     });
@@ -456,7 +458,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
       const hasOverdueItem = result.compliance.some(
-        (c) => c.id === overdueResult.compliance.id,
+        (c: typeof result.compliance[0]) => c.id === overdueResult.compliance.id,
       );
       expect(hasOverdueItem).toBe(true);
     });

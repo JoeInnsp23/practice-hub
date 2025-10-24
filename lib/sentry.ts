@@ -115,23 +115,6 @@ export function addBreadcrumb(
 }
 
 /**
- * Start a new transaction for performance monitoring
- *
- * @param name - Transaction name
- * @param op - Operation type
- */
-export function startTransaction(name: string, op: string) {
-  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
-    return null;
-  }
-
-  return Sentry.startTransaction({
-    name,
-    op,
-  });
-}
-
-/**
  * Capture tRPC error with procedure context
  *
  * @param error - The error that occurred

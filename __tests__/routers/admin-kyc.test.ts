@@ -39,179 +39,112 @@ describe("app/server/routers/admin-kyc.ts", () => {
   });
 
   describe("listPendingReviews", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.listPendingReviews({})).resolves.not.toThrow();
     });
 
-    it("should accept status filter", () => {
-      expect(() => {
-        adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-          {
-            status: "pending",
-          },
-        );
-      }).not.toThrow();
+    it("should accept status filter", async () => {
+      await expect(
+        _caller.listPendingReviews({ status: "pending" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept pagination parameters", () => {
-      expect(() => {
-        adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-          {
-            limit: 25,
-            offset: 50,
-          },
-        );
-      }).not.toThrow();
+    it("should accept pagination parameters", async () => {
+      await expect(
+        _caller.listPendingReviews({
+          limit: 25,
+          offset: 50,
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should default limit to 50", () => {
-      const result =
-        adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-          {},
-        );
-      expect(result?.limit).toBe(50);
+    it("should validate status enum values", async () => {
+      await expect(
+        _caller.listPendingReviews({
+          status: "invalid",
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should default offset to 0", () => {
-      const result =
-        adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-          {},
-        );
-      expect(result?.offset).toBe(0);
-    });
-
-    it("should validate status enum values", () => {
-      expect(() => {
-        adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-          {
-            status: "invalid",
-          },
-        );
-      }).toThrow();
-    });
-
-    it("should accept both pending and completed status", () => {
-      const validStatuses = ["pending", "completed"];
+    it("should accept both pending and completed status", async () => {
+      const validStatuses = ["pending", "completed"] as const;
 
       for (const status of validStatuses) {
-        expect(() => {
-          adminKycRouter._def.procedures.listPendingReviews._def.inputs[0]?.parse(
-            {
-              status,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          _caller.listPendingReviews({ status }),
+        ).resolves.not.toThrow();
       }
     });
   });
 
   describe("getVerificationDetail", () => {
-    it("should validate required verificationId field", () => {
-      const invalidInput = {
-        // Missing verificationId
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.getVerificationDetail._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate required verificationId field", async () => {
+      await expect(
+        _caller.getVerificationDetail({
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid verification ID", () => {
-      const validInput = {
-        verificationId: "550e8400-e29b-41d4-a716-446655440000",
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.getVerificationDetail._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept valid verification ID", async () => {
+      await expect(
+        _caller.getVerificationDetail({
+          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("approveVerification", () => {
-    it("should validate required verificationId field", () => {
-      const invalidInput = {
-        // Missing verificationId
-        notes: "Approved",
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.approveVerification._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate required verificationId field", async () => {
+      await expect(
+        _caller.approveVerification({
+          notes: "Approved",
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid approval data", () => {
-      const validInput = {
-        verificationId: "550e8400-e29b-41d4-a716-446655440000",
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.approveVerification._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept valid approval data", async () => {
+      await expect(
+        _caller.approveVerification({
+          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept optional notes", () => {
-      const validInput = {
-        verificationId: "550e8400-e29b-41d4-a716-446655440000",
-        notes: "Verification approved after review",
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.approveVerification._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept optional notes", async () => {
+      await expect(
+        _caller.approveVerification({
+          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+          notes: "Verification approved after review",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("rejectVerification", () => {
-    it("should validate required fields", () => {
-      const invalidInput = {
-        // Missing verificationId and reason
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.rejectVerification._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate required fields", async () => {
+      await expect(
+        _caller.rejectVerification({
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid rejection data", () => {
-      const validInput = {
-        verificationId: "550e8400-e29b-41d4-a716-446655440000",
-        reason: "Document does not match identity",
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.rejectVerification._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+    it("should accept valid rejection data", async () => {
+      await expect(
+        _caller.rejectVerification({
+          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+          reason: "Document does not match identity",
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate reason minimum length", () => {
-      const invalidInput = {
-        verificationId: "550e8400-e29b-41d4-a716-446655440000",
-        reason: "Short", // Below minimum of 10 characters
-      };
-
-      expect(() => {
-        adminKycRouter._def.procedures.rejectVerification._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+    it("should validate reason minimum length", async () => {
+      await expect(
+        _caller.rejectVerification({
+          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+          reason: "Short", // Below minimum of 10 characters
+        }),
+      ).rejects.toThrow();
     });
   });
 

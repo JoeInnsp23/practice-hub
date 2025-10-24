@@ -45,20 +45,18 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
   });
 
   describe("sendInvitation", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing email, firstName, lastName, clientIds, role
         message: "Welcome!",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.sendInvitation(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid invitation data", () => {
+    it("should accept valid invitation data", async () => {
       const validInput = {
         email: "client@example.com",
         firstName: "John",
@@ -67,14 +65,10 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "viewer" as const,
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.sendInvitation(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate email format", () => {
+    it("should validate email format", async () => {
       const invalidInput = {
         email: "invalid-email",
         firstName: "John",
@@ -83,14 +77,12 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "viewer",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.sendInvitation(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should validate firstName minimum length", () => {
+    it("should validate firstName minimum length", async () => {
       const invalidInput = {
         email: "client@example.com",
         firstName: "", // Empty string
@@ -99,14 +91,10 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "viewer",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.sendInvitation(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate lastName minimum length", () => {
+    it("should validate lastName minimum length", async () => {
       const invalidInput = {
         email: "client@example.com",
         firstName: "John",
@@ -115,14 +103,10 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "viewer",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.sendInvitation(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate clientIds array minimum length", () => {
+    it("should validate clientIds array minimum length", async () => {
       const invalidInput = {
         email: "client@example.com",
         firstName: "John",
@@ -131,14 +115,10 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "viewer",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.sendInvitation(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate role enum values", () => {
+    it("should validate role enum values", async () => {
       const invalidInput = {
         email: "client@example.com",
         firstName: "John",
@@ -147,32 +127,28 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "superadmin",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.sendInvitation(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept all valid role values", () => {
+    it("should accept all valid role values", async () => {
       const validRoles = ["viewer", "editor", "admin"];
 
       for (const role of validRoles) {
-        expect(() => {
-          clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-            {
-              email: "client@example.com",
-              firstName: "John",
-              lastName: "Doe",
-              clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
-              role,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          _caller.sendInvitation({
+            email: "client@example.com",
+            firstName: "John",
+            lastName: "Doe",
+            clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+            role: role as any,
+          }),
+        ).resolves.not.toThrow();
       }
     });
 
-    it("should accept optional message", () => {
+    it("should accept optional message", async () => {
       const validInput = {
         email: "client@example.com",
         firstName: "John",
@@ -182,111 +158,87 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         message: "Welcome to the client portal!",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.sendInvitation._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.sendInvitation(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("listInvitations", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.listInvitations._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.listInvitations({})).resolves.not.toThrow();
     });
 
-    it("should accept status filter", () => {
+    it("should accept status filter", async () => {
       const validInput = {
         status: "pending" as const,
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.listInvitations._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.listInvitations(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate status enum values", () => {
+    it("should validate status enum values", async () => {
       const invalidInput = {
         status: "invalid_status",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.listInvitations._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.listInvitations(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept all valid status values", () => {
+    it("should accept all valid status values", async () => {
       const validStatuses = ["pending", "accepted", "expired", "revoked"];
 
       for (const status of validStatuses) {
-        expect(() => {
-          clientPortalAdminRouter._def.procedures.listInvitations._def.inputs[0]?.parse(
-            {
-              status,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          _caller.listInvitations({
+            status: status as any,
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });
 
   describe("resendInvitation", () => {
-    it("should validate required invitationId field", () => {
+    it("should validate required invitationId field", async () => {
       const invalidInput = {
         // Missing invitationId
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.resendInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.resendInvitation(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid invitation ID", () => {
+    it("should accept valid invitation ID", async () => {
       const validInput = {
         invitationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.resendInvitation._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        _caller.resendInvitation(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("revokeInvitation", () => {
-    it("should validate required invitationId field", () => {
+    it("should validate required invitationId field", async () => {
       const invalidInput = {
         // Missing invitationId
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.revokeInvitation._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.revokeInvitation(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid invitation ID", () => {
+    it("should accept valid invitation ID", async () => {
       const validInput = {
         invitationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.revokeInvitation._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        _caller.revokeInvitation(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -301,34 +253,26 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
   });
 
   describe("grantAccess", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing portalUserId, clientId, role
         expiresAt: new Date(),
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.grantAccess._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.grantAccess(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid access grant data", () => {
+    it("should accept valid access grant data", async () => {
       const validInput = {
         portalUserId: "portal-user-123",
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         role: "viewer" as const,
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.grantAccess._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.grantAccess(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept optional expiresAt", () => {
+    it("should accept optional expiresAt", async () => {
       const validInput = {
         portalUserId: "portal-user-123",
         clientId: "550e8400-e29b-41d4-a716-446655440000",
@@ -336,159 +280,115 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         expiresAt: new Date("2025-12-31"),
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.grantAccess._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.grantAccess(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate role enum values", () => {
+    it("should validate role enum values", async () => {
       const invalidInput = {
         portalUserId: "portal-user-123",
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         role: "superuser",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.grantAccess._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.grantAccess(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept all valid role values", () => {
+    it("should accept all valid role values", async () => {
       const validRoles = ["viewer", "editor", "admin"];
 
       for (const role of validRoles) {
-        expect(() => {
-          clientPortalAdminRouter._def.procedures.grantAccess._def.inputs[0]?.parse(
-            {
-              portalUserId: "portal-user-123",
-              clientId: "550e8400-e29b-41d4-a716-446655440000",
-              role,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          _caller.grantAccess({
+            portalUserId: "portal-user-123",
+            clientId: "550e8400-e29b-41d4-a716-446655440000",
+            role: role as any,
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });
 
   describe("revokeAccess", () => {
-    it("should validate required accessId field", () => {
+    it("should validate required accessId field", async () => {
       const invalidInput = {
         // Missing accessId
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.revokeAccess._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.revokeAccess(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid access ID", () => {
+    it("should accept valid access ID", async () => {
       const validInput = {
         accessId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.revokeAccess._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.revokeAccess(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("updateRole", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing accessId and role
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.updateRole._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.updateRole(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid role update data", () => {
+    it("should accept valid role update data", async () => {
       const validInput = {
         accessId: "550e8400-e29b-41d4-a716-446655440000",
         role: "admin" as const,
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.updateRole._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.updateRole(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate role enum values", () => {
+    it("should validate role enum values", async () => {
       const invalidInput = {
         accessId: "550e8400-e29b-41d4-a716-446655440000",
         role: "manager",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.updateRole._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.updateRole(invalidInput as any)).rejects.toThrow();
     });
   });
 
   describe("suspendUser", () => {
-    it("should validate required portalUserId field", () => {
+    it("should validate required portalUserId field", async () => {
       const invalidInput = {
         // Missing portalUserId
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.suspendUser._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(_caller.suspendUser(invalidInput as any)).rejects.toThrow();
     });
 
-    it("should accept valid portal user ID", () => {
+    it("should accept valid portal user ID", async () => {
       const validInput = {
         portalUserId: "portal-user-123",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.suspendUser._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.suspendUser(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("reactivateUser", () => {
-    it("should validate required portalUserId field", () => {
+    it("should validate required portalUserId field", async () => {
       const invalidInput = {
         // Missing portalUserId
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.reactivateUser._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        _caller.reactivateUser(invalidInput as any),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid portal user ID", () => {
+    it("should accept valid portal user ID", async () => {
       const validInput = {
         portalUserId: "portal-user-123",
       };
 
-      expect(() => {
-        clientPortalAdminRouter._def.procedures.reactivateUser._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(_caller.reactivateUser(validInput)).resolves.not.toThrow();
     });
   });
 

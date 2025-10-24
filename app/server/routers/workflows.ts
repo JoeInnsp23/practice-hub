@@ -53,7 +53,7 @@ async function createVersionSnapshot(
     type: string;
     trigger: string;
     estimatedDays: number | null;
-    serviceComponentId: string | null;
+    serviceId: string | null;
     config: any;
   },
   changeDescription: string,
@@ -94,7 +94,7 @@ async function createVersionSnapshot(
       type: data.type,
       trigger: data.trigger,
       estimatedDays: data.estimatedDays,
-      serviceComponentId: data.serviceComponentId,
+      serviceId: data.serviceId,
       config: data.config,
       stagesSnapshot,
       changeDescription,
@@ -175,11 +175,11 @@ export const workflowsRouter = router({
 
       // Get service if exists
       let service = null;
-      if (workflow[0].serviceComponentId) {
+      if (workflow[0].serviceId) {
         const serviceResult = await db
           .select()
           .from(services)
-          .where(eq(services.id, workflow[0].serviceComponentId))
+          .where(eq(services.id, workflow[0].serviceId))
           .limit(1);
         service = serviceResult[0];
       }
@@ -207,7 +207,7 @@ export const workflowsRouter = router({
             description: input.description,
             type: input.type,
             trigger: input.trigger || "manual",
-            serviceComponentId: input.serviceComponentId,
+            serviceId: input.serviceId,
             isActive: input.isActive,
             estimatedDays: input.estimatedDays,
             config: input.config || {},
@@ -243,7 +243,7 @@ export const workflowsRouter = router({
             type: input.type,
             trigger: input.trigger || "manual",
             estimatedDays: input.estimatedDays,
-            serviceComponentId: input.serviceComponentId,
+            serviceId: input.serviceId,
             config: input.config || {},
           },
           "Initial version",
@@ -340,8 +340,8 @@ export const workflowsRouter = router({
             type: input.data.type || workflow.type,
             trigger: input.data.trigger || workflow.trigger || "manual",
             estimatedDays: input.data.estimatedDays ?? workflow.estimatedDays,
-            serviceComponentId:
-              input.data.serviceComponentId ?? workflow.serviceComponentId,
+            serviceId:
+              input.data.serviceId ?? workflow.serviceId,
             config: input.data.config || workflow.config,
           },
           input.changeDescription || "Updated workflow",
@@ -744,7 +744,7 @@ export const workflowsRouter = router({
         metadataChanges.push("estimatedDays");
       if (version1[0].trigger !== version2[0].trigger)
         metadataChanges.push("trigger");
-      if (version1[0].serviceComponentId !== version2[0].serviceComponentId)
+      if (version1[0].serviceId !== version2[0].serviceId)
         metadataChanges.push("service");
 
       return {
@@ -825,7 +825,7 @@ export const workflowsRouter = router({
             type: targetVersion[0].type,
             trigger: targetVersion[0].trigger,
             estimatedDays: targetVersion[0].estimatedDays,
-            serviceComponentId: targetVersion[0].serviceComponentId,
+            serviceId: targetVersion[0].serviceId,
             config: targetVersion[0].config,
             version: newVersion,
             updatedAt: new Date(),
@@ -866,7 +866,7 @@ export const workflowsRouter = router({
             type: targetVersion[0].type,
             trigger: targetVersion[0].trigger,
             estimatedDays: targetVersion[0].estimatedDays,
-            serviceComponentId: targetVersion[0].serviceComponentId,
+            serviceId: targetVersion[0].serviceId,
             config: targetVersion[0].config,
           },
           `Rolled back to version ${targetVersion[0].version}`,

@@ -281,7 +281,9 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       }
 
       // Verify our test invoices are in the list
-      const invoiceIds = result.invoices.map((i) => i.id);
+      const invoiceIds = result.invoices.map(
+        (i: typeof result.invoices[0]) => i.id,
+      );
       expect(invoiceIds).toContain(invoice1.id);
       expect(invoiceIds).toContain(invoice2.id);
     });
@@ -309,8 +311,8 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       const result = await caller.list({ search: "SEARCHABLE" });
 
       expect(result.invoices.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableInvoice = result.invoices.some((i) =>
-        i.invoiceNumber.includes("SEARCHABLE"),
+      const hasSearchableInvoice = result.invoices.some(
+        (i: typeof result.invoices[0]) => i.invoiceNumber.includes("SEARCHABLE"),
       );
       expect(hasSearchableInvoice).toBe(true);
     });
