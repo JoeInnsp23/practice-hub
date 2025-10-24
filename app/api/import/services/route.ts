@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const parseResult = await parseCsvFile(file, serviceImportSchema);
 
     // Create import log
-    const importLogId = nanoid();
+    const importLogId = crypto.randomUUID();
     await db.insert(importLogs).values({
       id: importLogId,
       tenantId: authContext.tenantId,
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
           existingNames.add(normalizedName);
 
           return {
-            id: nanoid(),
+            id: crypto.randomUUID(),
             tenantId: authContext.tenantId,
             name: row.name,
             code: row.code,
@@ -157,6 +157,7 @@ export async function POST(request: NextRequest) {
               | "tax_planning"
               | "addon",
             pricingModel: "turnover" as "turnover" | "transaction" | "both",
+            basePrice: row.price?.toString() || null, // Add basePrice to match schema
             price: row.price?.toString() || null,
             priceType: (row.price_type || "fixed") as
               | "fixed"
@@ -169,6 +170,7 @@ export async function POST(request: NextRequest) {
               ? Math.round(row.estimated_hours * 60)
               : null, // Convert hours to minutes
             supportsComplexity: false,
+            tags: null, // Add tags field to match schema
             isActive: row.is_active !== undefined ? row.is_active : true,
             metadata: row.notes
               ? {

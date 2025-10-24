@@ -143,8 +143,14 @@ describe("Leave-TOIL Redemption Integration", () => {
     });
     const userCaller = appRouter.createCaller(userContext);
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Use a guaranteed weekday (Monday) to avoid weekend validation errors
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 14); // 14 days from now
+    // Find next Monday
+    while (futureDate.getDay() !== 1) {
+      futureDate.setDate(futureDate.getDate() + 1);
+    }
+    const tomorrow = new Date(futureDate);
 
     await expect(
       userCaller.leave.request({

@@ -280,7 +280,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
 
     it("should accept valid rule data", () => {
       const validInput = {
-        componentId: "550e8400-e29b-41d4-a716-446655440000",
+        serviceId: "550e8400-e29b-41d4-a716-446655440000",
         ruleType: "turnover_band",
         minValue: "0",
         maxValue: "49999",
@@ -345,7 +345,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     it("should accept array of valid rules", () => {
       const validInput = [
         {
-          componentId: "550e8400-e29b-41d4-a716-446655440000",
+          serviceId: "550e8400-e29b-41d4-a716-446655440000",
           ruleType: "turnover_band",
           minValue: "0",
           maxValue: "49999",
@@ -353,7 +353,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
           isActive: true,
         },
         {
-          componentId: "550e8400-e29b-41d4-a716-446655440000",
+          serviceId: "550e8400-e29b-41d4-a716-446655440000",
           ruleType: "turnover_band",
           minValue: "50000",
           maxValue: "99999",
