@@ -21,7 +21,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/compliance.ts (Integration)", () => {
   let ctx: Context;
@@ -54,6 +54,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(complianceRouter, ctx);
   });
@@ -516,6 +517,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
+      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({
@@ -685,6 +687,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
+      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({
@@ -830,6 +833,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
+      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({
@@ -988,6 +992,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
+      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({

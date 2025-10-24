@@ -20,7 +20,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Helper function to create test service
 async function createTestService(
@@ -84,6 +84,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(servicesRouter, ctx);
   });

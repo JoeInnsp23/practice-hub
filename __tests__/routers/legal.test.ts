@@ -8,7 +8,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { legalRouter } from "@/app/server/routers/legal";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -32,6 +32,7 @@ describe("app/server/routers/legal.ts", () => {
 
   beforeEach(() => {
     ctx = createMockContext();
+    assertAuthContext(ctx);
     _caller = createCaller(legalRouter, ctx);
     vi.clearAllMocks();
   });

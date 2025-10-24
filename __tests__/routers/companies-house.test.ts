@@ -29,7 +29,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock the Companies House API client module
 vi.mock("@/lib/companies-house/client", () => ({
@@ -129,6 +129,7 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(clientsRouter, ctx);
 
@@ -492,6 +493,7 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
           lastName: "Two",
         },
       });
+      assertAuthContext(ctx2);
 
       const caller2 = createCaller(clientsRouter, ctx2);
 
@@ -552,6 +554,7 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
           lastName: "Two",
         },
       });
+      assertAuthContext(ctx2);
 
       const caller2 = createCaller(clientsRouter, ctx2);
 

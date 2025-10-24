@@ -7,7 +7,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { proposalTemplatesRouter } from "@/app/server/routers/proposalTemplates";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -44,6 +44,7 @@ describe("app/server/routers/proposalTemplates.ts", () => {
 
   beforeEach(() => {
     ctx = createMockContext();
+    assertAuthContext(ctx);
     // Set admin role for admin procedures
     ctx.authContext = { ...ctx.authContext, role: "admin" };
     caller = createCaller(proposalTemplatesRouter, ctx);

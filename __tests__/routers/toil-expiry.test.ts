@@ -10,7 +10,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  assertAuthContext,
+  createCaller,
+  createMockContext,
+} from "../helpers/trpc";
 
 describe("TOIL Expiry Policy", () => {
   let ctx: Context;
@@ -41,6 +45,7 @@ describe("TOIL Expiry Policy", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(toilRouter, ctx);
 

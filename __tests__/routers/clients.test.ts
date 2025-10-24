@@ -21,7 +21,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock HMRC client module for VAT validation tests
 const { mockValidateVAT } = vi.hoisted(() => ({
@@ -64,6 +64,7 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(clientsRouter, ctx);
   });

@@ -22,7 +22,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  assertAuthContext,
+  createCaller,
+  createMockContext,
+} from "../helpers/trpc";
 
 describe("app/server/routers/timesheets.ts (Integration)", () => {
   let ctx: Context;
@@ -54,6 +58,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(timesheetsRouter, ctx);
   });

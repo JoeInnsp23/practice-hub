@@ -7,7 +7,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { calendarRouter } from "@/app/server/routers/calendar";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -34,6 +34,7 @@ describe("app/server/routers/calendar.ts", () => {
 
   beforeEach(() => {
     ctx = createMockContext();
+    assertAuthContext(ctx);
     caller = createCaller(calendarRouter, ctx);
     vi.clearAllMocks();
   });

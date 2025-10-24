@@ -22,7 +22,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock S3 storage to prevent actual S3 operations
 vi.mock("@/lib/storage/s3", () => ({
@@ -70,6 +70,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(documentsRouter, ctx);
     vi.clearAllMocks();

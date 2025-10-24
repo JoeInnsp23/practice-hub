@@ -8,7 +8,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Staff Statistics Multi-Tenant Isolation", () => {
   const tracker: TestDataTracker = {

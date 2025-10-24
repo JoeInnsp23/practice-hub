@@ -30,7 +30,7 @@ import {
   createTestWorkflowStage,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/workflows.ts (Integration)", () => {
   let ctx: Context;
@@ -66,6 +66,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(workflowsRouter, ctx);
   });

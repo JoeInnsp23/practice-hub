@@ -29,7 +29,7 @@ import {
   createTestWorkflowStage,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/tasks.ts (Integration)", () => {
   let ctx: Context;
@@ -65,6 +65,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(tasksRouter, ctx);
   });
@@ -1918,6 +1919,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
             role: "member",
           },
         });
+        assertAuthContext(otherCtx);
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         const otherNote = await otherCaller.createNote({
@@ -1952,6 +1954,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
             role: "member",
           },
         });
+        assertAuthContext(otherCtx);
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         // Try to update note created by original user
@@ -2007,6 +2010,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
             role: "member",
           },
         });
+        assertAuthContext(otherCtx);
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         // Try to delete note created by original user

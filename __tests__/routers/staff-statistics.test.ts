@@ -9,7 +9,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Staff Statistics Router", () => {
   let ctx: Context;
@@ -86,6 +86,7 @@ describe("Staff Statistics Router", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     caller = createCaller(staffStatisticsRouter, ctx);
   });

@@ -17,7 +17,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  assertAuthContext,
+  createCaller,
+  createMockContext,
+} from "../helpers/trpc";
 
 // Mock email notifications
 vi.mock("@/lib/email/timesheet-notifications", () => ({
@@ -56,6 +60,7 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(ctx);
 
     // Create manager context
     managerCtx = createMockContext({
@@ -69,6 +74,7 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
         lastName: "User",
       },
     });
+    assertAuthContext(managerCtx);
 
     caller = createCaller(timesheetsRouter, ctx);
     managerCaller = createCaller(timesheetsRouter, managerCtx);
