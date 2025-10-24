@@ -716,7 +716,7 @@ export const clientPortalRouter = router({
         clientId: z.string().uuid(),
         content: z.string().min(1).max(5000),
         type: z.enum(["text", "file"]).default("text"),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

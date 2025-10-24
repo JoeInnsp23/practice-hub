@@ -1120,8 +1120,7 @@ export const onboardingRouter = router({
         Sentry.captureException(error, {
           tags: { operation: "requestKYCReVerification" },
           extra: {
-            sessionId: input.sessionId,
-            clientId: client.id,
+            clientId: input.clientId,
           },
         });
 

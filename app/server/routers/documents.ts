@@ -387,7 +387,7 @@ export const documentsRouter = router({
           Sentry.captureException(error, {
             tags: { operation: "deleteDocumentFromS3" },
             extra: {
-              documentId: input.id,
+              documentId: input.documentId,
               s3Url: doc.url,
             },
           });
@@ -743,6 +743,13 @@ export const documentsRouter = router({
 
       // Create DocuSeal submission
       try {
+        if (!client.email) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Client must have an email address for document signing",
+          });
+        }
+
         const submission = await docusealClient.createSubmission({
           template_id: process.env.DOCUSEAL_GENERIC_TEMPLATE_ID || "",
           send_email: true,

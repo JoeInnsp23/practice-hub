@@ -32,8 +32,8 @@ export const integrationsRouter = router({
       enabled: setting.enabled,
       syncStatus: setting.syncStatus,
       syncError: setting.syncError,
-      lastSyncedAt: setting.lastSyncedAt,
-      metadata: setting.metadata,
+      lastSyncAt: setting.lastSyncAt,
+      config: setting.config,
       createdAt: setting.createdAt,
       updatedAt: setting.updatedAt,
     }));
@@ -179,7 +179,7 @@ export const integrationsRouter = router({
     .input(
       z.object({
         integrationType: z.enum(["xero"]),
-        config: z.record(z.any()),
+        config: z.record(z.string(), z.any()),
       }),
     )
     .mutation(async ({ ctx, input }) => {

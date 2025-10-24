@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import type { Control } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -185,7 +186,7 @@ export function WorkingPatternFormDialog({
   const createMutation = trpc.workingPatterns.create.useMutation();
   const updateMutation = trpc.workingPatterns.update.useMutation();
 
-  const form = useForm<FormData>({
+  const form = useForm<FormData, any, FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       userId: "",

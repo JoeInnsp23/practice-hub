@@ -69,7 +69,10 @@ async function accrueToilFromTimesheet(
         user: {
           id: userId,
           email: "",
+          emailVerified: false,
           name: "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         session: {
           id: "internal-call",
@@ -82,6 +85,8 @@ async function accrueToilFromTimesheet(
           userAgent: "internal",
         },
       },
+      clientPortalSession: null,
+      clientPortalAuthContext: null,
     });
 
     await caller.accrueToil({
@@ -189,7 +194,7 @@ export const timesheetsRouter = router({
           userId,
           date: input.date,
           clientId: input.clientId,
-          serviceComponentId: input.serviceComponentId,
+          serviceId: input.serviceId,
           taskId: input.taskId,
           description: input.description,
           hours: input.hours,
@@ -199,7 +204,14 @@ export const timesheetsRouter = router({
           endTime: input.endTime,
           status: input.status,
           notes: input.notes,
-          metadata: input.metadata,
+          workType: input.workType,
+          billed: input.billed,
+          amount: input.amount,
+          invoiceId: input.invoiceId,
+          submissionId: input.submissionId,
+          submittedAt: input.submittedAt,
+          approvedById: input.approvedById,
+          approvedAt: input.approvedAt,
         })
         .returning();
 

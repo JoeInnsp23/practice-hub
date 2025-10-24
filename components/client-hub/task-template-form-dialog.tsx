@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { Control } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
@@ -100,7 +101,7 @@ export function TaskTemplateFormDialog({
     },
   });
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormValues, any, FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       serviceId: "",
@@ -155,7 +156,7 @@ export function TaskTemplateFormDialog({
     }
   };
 
-  const isLoading = createMutation.isLoading || updateMutation.isLoading;
+  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -158,9 +158,9 @@ async function generateTaskFromTemplateInternal(params: {
     : undefined;
 
   const placeholderData: PlaceholderData = {
-    clientName: client[0].companyName,
+    clientName: client[0].name,
     serviceName: service[0].name,
-    companyNumber: client[0].companiesHouseNumber || undefined,
+    companyNumber: client[0].registrationNumber || undefined,
     period,
     periodEndDate,
     taxYear,
@@ -210,7 +210,7 @@ async function generateTaskFromTemplateInternal(params: {
   }
 
   // Determine assignee (client manager or null)
-  const assignedTo = client[0].assignedToId || null;
+  const assignedTo = client[0].accountManagerId || null;
 
   // Create task
   const taskId = crypto.randomUUID();
@@ -249,8 +249,10 @@ async function generateTaskFromTemplateInternal(params: {
       type: "task_assigned",
       title: "New task generated",
       message: `Task "${taskName}" has been automatically assigned to you`,
-      link: `/client-hub/tasks/${taskId}`,
-      read: false,
+      actionUrl: `/client-hub/tasks/${taskId}`,
+      entityType: "task",
+      entityId: taskId,
+      isRead: false,
     });
   }
 
@@ -1823,9 +1825,9 @@ export const tasksRouter = router({
       const period = `Q${quarter} ${activationDate.getFullYear()}`;
 
       const placeholderData: PlaceholderData = {
-        clientName: client[0].companyName,
+        clientName: client[0].name,
         serviceName: service[0].name,
-        companyNumber: client[0].companiesHouseNumber || undefined,
+        companyNumber: client[0].registrationNumber || undefined,
         period,
         taxYear,
         activationDate,

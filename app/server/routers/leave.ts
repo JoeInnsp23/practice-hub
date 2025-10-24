@@ -750,14 +750,13 @@ export const leaveRouter = router({
 
       // Date range filter
       if (input.startDate && input.endDate) {
-        whereConditions.push(
-          or(
-            and(
-              lte(leaveRequests.startDate, input.endDate),
-              gte(leaveRequests.endDate, input.startDate),
-            ),
+        const dateRangeCondition = or(
+          and(
+            lte(leaveRequests.startDate, input.endDate),
+            gte(leaveRequests.endDate, input.startDate),
           ),
         );
+        if (dateRangeCondition) whereConditions.push(dateRangeCondition);
       }
 
       const requests = await db
@@ -818,7 +817,7 @@ export const leaveRouter = router({
 
       if (input.excludeUserId) {
         whereConditions.push(
-          db.sql`${leaveRequests.userId} != ${input.excludeUserId}`,
+          sql`${leaveRequests.userId} != ${input.excludeUserId}`,
         );
       }
 
