@@ -7,7 +7,6 @@
 
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
 import { db } from "@/lib/db";
 import { timeEntries, timesheetSubmissions } from "@/lib/db/schema";
@@ -18,9 +17,9 @@ import {
   type TestDataTracker,
 } from "../helpers/factories";
 import {
-  assertAuthContext,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock email notifications
@@ -30,8 +29,8 @@ vi.mock("@/lib/email/timesheet-notifications", () => ({
 }));
 
 describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
-  let ctx: Context;
-  let managerCtx: Context;
+  let ctx: TestContextWithAuth;
+  let managerCtx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   let managerCaller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   const tracker: TestDataTracker = {
@@ -60,7 +59,6 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     // Create manager context
     managerCtx = createMockContext({
@@ -74,7 +72,6 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(managerCtx);
 
     caller = createCaller(timesheetsRouter, ctx);
     managerCaller = createCaller(timesheetsRouter, managerCtx);

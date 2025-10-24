@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { toilRouter } from "@/app/server/routers/toil";
 import { db } from "@/lib/db";
 import { leaveBalances, toilAccrualHistory } from "@/lib/db/schema";
@@ -11,13 +10,13 @@ import {
   type TestDataTracker,
 } from "../helpers/factories";
 import {
-  assertAuthContext,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 describe("TOIL Expiry Policy", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof toilRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -45,7 +44,6 @@ describe("TOIL Expiry Policy", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(toilRouter, ctx);
 

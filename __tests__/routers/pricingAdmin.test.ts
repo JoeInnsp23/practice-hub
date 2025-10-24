@@ -5,9 +5,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { pricingAdminRouter } from "@/app/server/routers/pricingAdmin";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -30,7 +29,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/pricingAdmin.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof pricingAdminRouter>>;
 
   beforeEach(() => {
@@ -45,7 +44,6 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
     caller = createCaller(pricingAdminRouter, ctx);
     vi.clearAllMocks();
   });

@@ -5,10 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { onboardingRouter } from "@/app/server/routers/onboarding";
 import {
-  assertAuthContext,
+  type TestContextWithAuth,
   createCaller,
   createMockContext,
 } from "../helpers/trpc";
@@ -68,12 +67,11 @@ vi.mock("@/lib/kyc/lemverify-client", () => ({
 }));
 
 describe("app/server/routers/onboarding.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof onboardingRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _caller = createCaller(onboardingRouter, ctx);
     vi.clearAllMocks();
   });

@@ -5,9 +5,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { pipelineRouter } from "@/app/server/routers/pipeline";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -27,12 +26,11 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/pipeline.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof pipelineRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _caller = createCaller(pipelineRouter, ctx);
     vi.clearAllMocks();
   });

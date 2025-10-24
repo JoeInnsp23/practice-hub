@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { workflowsRouter } from "@/app/server/routers/workflows";
 import { db } from "@/lib/db";
 import {
@@ -30,10 +29,10 @@ import {
   createTestWorkflowStage,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 describe("app/server/routers/workflows.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof workflowsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -66,7 +65,6 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(workflowsRouter, ctx);
   });

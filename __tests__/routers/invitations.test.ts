@@ -5,9 +5,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { invitationsRouter } from "@/app/server/routers/invitations";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -32,12 +31,11 @@ vi.mock("@/lib/email", () => ({
 }));
 
 describe("app/server/routers/invitations.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof invitationsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     ctx.authContext.role = "admin"; // Most procedures require admin
     _caller = createCaller(invitationsRouter, ctx);
     vi.clearAllMocks();

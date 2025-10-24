@@ -5,12 +5,11 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { taskTemplatesRouter } from "@/app/server/routers/taskTemplates";
 import {
-  assertAuthContext,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database
@@ -32,12 +31,11 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/taskTemplates.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof taskTemplatesRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _caller = createCaller(taskTemplatesRouter, ctx);
     vi.clearAllMocks();
   });

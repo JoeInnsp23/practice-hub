@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { tasksRouter } from "@/app/server/routers/tasks";
 import { workflowsRouter } from "@/app/server/routers/workflows";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -36,13 +35,12 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("Workflow Versioning System", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _workflowCaller: ReturnType<typeof createCaller<typeof workflowsRouter>>;
   let _taskCaller: ReturnType<typeof createCaller<typeof tasksRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _workflowCaller = createCaller(workflowsRouter, ctx);
     _taskCaller = createCaller(tasksRouter, ctx);
     vi.clearAllMocks();

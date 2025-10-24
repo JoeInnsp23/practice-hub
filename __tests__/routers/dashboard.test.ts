@@ -5,9 +5,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { dashboardRouter } from "@/app/server/routers/dashboard";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
 
 // Mock dashboard queries
 vi.mock("@/lib/db/queries/dashboard-queries", () => ({
@@ -43,12 +42,11 @@ vi.mock("@/lib/db/queries/dashboard-queries", () => ({
 }));
 
 describe("app/server/routers/dashboard.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof dashboardRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _caller = createCaller(dashboardRouter, ctx);
     vi.clearAllMocks();
   });

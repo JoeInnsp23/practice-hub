@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { clientsRouter } from "@/app/server/routers/clients";
 import { db } from "@/lib/db";
 import { activityLogs, clientContacts, clients } from "@/lib/db/schema";
@@ -21,7 +20,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Mock HMRC client module for VAT validation tests
 const { mockValidateVAT } = vi.hoisted(() => ({
@@ -36,7 +35,7 @@ vi.mock("@/lib/hmrc/client", () => ({
 }));
 
 describe("app/server/routers/clients.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof clientsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -63,8 +62,7 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         firstName: "Test",
         lastName: "User",
       },
-    });
-    assertAuthContext(ctx);
+    }) as TestContextWithAuth;
 
     caller = createCaller(clientsRouter, ctx);
   });

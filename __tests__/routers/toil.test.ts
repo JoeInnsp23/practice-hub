@@ -9,7 +9,6 @@
 
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { toilRouter } from "@/app/server/routers/toil";
 import { db } from "@/lib/db";
 import { leaveBalances, toilAccrualHistory } from "@/lib/db/schema";
@@ -20,13 +19,13 @@ import {
   type TestDataTracker,
 } from "../helpers/factories";
 import {
-  assertAuthContext,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 describe("app/server/routers/toil.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof toilRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -55,7 +54,6 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(toilRouter, ctx);
   });

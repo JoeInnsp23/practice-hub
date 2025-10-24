@@ -10,7 +10,7 @@ import {
   toilAccrualHistory,
   users,
 } from "@/lib/db/schema";
-import { assertAuthContext, createMockContext } from "../helpers/trpc";
+import { createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Mock email notifications to avoid API key errors in tests
 vi.mock("@/lib/email/timesheet-notifications", () => ({
@@ -116,7 +116,6 @@ describe("Timesheet-TOIL Integration", () => {
         lastName: "Manager",
       },
     });
-    assertAuthContext(managerContext);
     const managerCaller = appRouter.createCaller(managerContext);
 
     // Approve timesheet (45 hours logged, 37.5 contracted = 7.5 TOIL)
@@ -168,7 +167,6 @@ describe("Timesheet-TOIL Integration", () => {
         lastName: "Manager",
       },
     });
-    assertAuthContext(managerContext);
     const managerCaller = appRouter.createCaller(managerContext);
 
     await managerCaller.timesheets.approve({ submissionId: submission.id });
@@ -207,7 +205,6 @@ describe("Timesheet-TOIL Integration", () => {
         lastName: "Manager",
       },
     });
-    assertAuthContext(managerContext);
     const managerCaller = appRouter.createCaller(managerContext);
 
     await managerCaller.timesheets.approve({ submissionId: submission.id });
@@ -296,7 +293,6 @@ describe("Timesheet-TOIL Integration", () => {
         lastName: "Manager",
       },
     });
-    assertAuthContext(managerContext);
     const managerCaller = appRouter.createCaller(managerContext);
 
     // Bulk approve both submissions

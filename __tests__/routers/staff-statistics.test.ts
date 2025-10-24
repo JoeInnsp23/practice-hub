@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
 import { db } from "@/lib/db";
 import { departments, staffCapacity, timeEntries } from "@/lib/db/schema";
@@ -9,10 +8,10 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 describe("Staff Statistics Router", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof staffStatisticsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -86,7 +85,6 @@ describe("Staff Statistics Router", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(staffStatisticsRouter, ctx);
   });

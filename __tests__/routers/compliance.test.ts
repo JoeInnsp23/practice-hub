@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { complianceRouter } from "@/app/server/routers/compliance";
 import { db } from "@/lib/db";
 import { activityLogs, compliance } from "@/lib/db/schema";
@@ -21,10 +20,10 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 describe("app/server/routers/compliance.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof complianceRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -54,7 +53,6 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(complianceRouter, ctx);
   });
@@ -517,7 +515,6 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
-      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({
@@ -687,7 +684,6 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
-      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({
@@ -833,7 +829,6 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
-      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({
@@ -992,7 +987,6 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
           lastName: "A",
         },
       });
-      assertAuthContext(ctxA);
       const callerA = createCaller(complianceRouter, ctxA);
 
       const complianceA = await callerA.create({

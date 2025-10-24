@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { documentsRouter } from "@/app/server/routers/documents";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/db/schema";
@@ -22,7 +21,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Mock S3 storage to prevent actual S3 operations
 vi.mock("@/lib/storage/s3", () => ({
@@ -41,7 +40,7 @@ vi.mock("@/lib/docuseal/client", () => ({
 }));
 
 describe("app/server/routers/documents.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof documentsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -70,7 +69,6 @@ describe("app/server/routers/documents.ts (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(documentsRouter, ctx);
     vi.clearAllMocks();

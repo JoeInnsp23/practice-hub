@@ -5,10 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
+import type { TestContextWithAuth } from "@/app/server/context";
 import { adminKycRouter } from "@/app/server/routers/admin-kyc";
 import {
-  assertAuthContext,
   createCaller,
   createMockContext,
 } from "../helpers/trpc";
@@ -32,12 +31,11 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/admin-kyc.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof adminKycRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     ctx.authContext.role = "admin"; // Admin router requires admin role
     _caller = createCaller(adminKycRouter, ctx);
     vi.clearAllMocks();

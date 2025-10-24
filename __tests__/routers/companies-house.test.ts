@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { clientsRouter } from "@/app/server/routers/clients";
 import type {
   CompanyDetails,
@@ -29,7 +28,7 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Mock the Companies House API client module
 vi.mock("@/lib/companies-house/client", () => ({
@@ -63,7 +62,7 @@ vi.mock("@/lib/companies-house/client", () => ({
 }));
 
 describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof clientsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -129,7 +128,6 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(clientsRouter, ctx);
 
@@ -482,7 +480,7 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       tracker.tenants?.push(tenant2Id);
       tracker.users?.push(user2Id);
 
-      const ctx2 = createMockContext({
+      const ctx2: TestContextWithAuth = createMockContext({
         authContext: {
           userId: user2Id,
           tenantId: tenant2Id,
@@ -493,7 +491,6 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
           lastName: "Two",
         },
       });
-      assertAuthContext(ctx2);
 
       const caller2 = createCaller(clientsRouter, ctx2);
 
@@ -543,7 +540,7 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
       tracker.tenants?.push(tenant2Id);
       tracker.users?.push(user2Id);
 
-      const ctx2 = createMockContext({
+      const ctx2: TestContextWithAuth = createMockContext({
         authContext: {
           userId: user2Id,
           tenantId: tenant2Id,
@@ -554,7 +551,6 @@ describe("app/server/routers/clients.ts - lookupCompaniesHouse (Integration)", (
           lastName: "Two",
         },
       });
-      assertAuthContext(ctx2);
 
       const caller2 = createCaller(clientsRouter, ctx2);
 

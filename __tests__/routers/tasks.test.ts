@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { tasksRouter } from "@/app/server/routers/tasks";
 import { db } from "@/lib/db";
 import {
@@ -29,10 +28,10 @@ import {
   createTestWorkflowStage,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 describe("app/server/routers/tasks.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof tasksRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -65,7 +64,6 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(tasksRouter, ctx);
   });
@@ -1919,7 +1917,6 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
             role: "member",
           },
         });
-        assertAuthContext(otherCtx);
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         const otherNote = await otherCaller.createNote({
@@ -1954,7 +1951,6 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
             role: "member",
           },
         });
-        assertAuthContext(otherCtx);
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         // Try to update note created by original user
@@ -2010,7 +2006,6 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
             role: "member",
           },
         });
-        assertAuthContext(otherCtx);
         const otherCaller = createCaller(tasksRouter, otherCtx);
 
         // Try to delete note created by original user

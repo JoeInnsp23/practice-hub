@@ -135,19 +135,19 @@ export function createAdminCaller<TRouter extends Record<string, any>>(
 }
 
 /**
- * Assert that authContext is not null
- * Use this helper to narrow TypeScript types and eliminate null checks
+ * Type helper for test contexts with guaranteed non-null authContext
+ * Use this type for test context variables to eliminate null checks
  *
  * @example
  * ```ts
- * const ctx = createMockContext();
- * assertAuthContext(ctx);
- * // Now ctx.authContext is guaranteed to be non-null
- * expect(ctx.authContext.tenantId).toBe("test-tenant-id");
+ * let ctx: TestContextWithAuth;
+ *
+ * beforeEach(() => {
+ *   ctx = createMockContext({ authContext: { ... } });
+ *   // TypeScript knows ctx.authContext is non-null
+ * });
  * ```
  */
-export function assertAuthContext(ctx: Context): asserts ctx is Context & { authContext: NonNullable<Context["authContext"]> } {
-  if (!ctx.authContext) {
-    throw new Error("Test error: authContext is null - should not happen in tests with createMockContext()");
-  }
-}
+export type TestContextWithAuth = Context & {
+  authContext: NonNullable<Context["authContext"]>;
+};

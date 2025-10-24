@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { tenants, users, workingPatterns } from "@/lib/db/schema";
 import { appRouter } from "../../app/server";
 import { cleanupTestData, type TestDataTracker } from "../helpers/factories";
-import { createMockContext } from "../helpers/trpc";
+import { createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 // Helper to create test context with auth parameters
 function createTestContext(params: {

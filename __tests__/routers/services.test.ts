@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { servicesRouter } from "@/app/server/routers/services";
 import { db } from "@/lib/db";
 import { activityLogs, services } from "@/lib/db/schema";
@@ -20,7 +19,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Helper function to create test service
 async function createTestService(
@@ -56,7 +59,7 @@ async function createTestService(
 }
 
 describe("app/server/routers/services.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof servicesRouter>>;
   const tracker: TestDataTracker & { services?: string[] } = {
     tenants: [],
@@ -84,7 +87,6 @@ describe("app/server/routers/services.ts (Integration)", () => {
         lastName: "User",
       },
     });
-    assertAuthContext(ctx);
 
     caller = createCaller(servicesRouter, ctx);
   });

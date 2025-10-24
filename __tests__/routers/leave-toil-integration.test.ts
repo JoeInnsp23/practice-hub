@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { appRouter } from "@/app/server";
 import { db } from "@/lib/db";
 import { leaveBalances, leaveRequests, tenants, users } from "@/lib/db/schema";
-import { createMockContext } from "../helpers/trpc";
+import { createMockContext, type TestContextWithAuth } from "../helpers/trpc";
 
 describe("Leave-TOIL Redemption Integration", () => {
   let testTenantId: string;

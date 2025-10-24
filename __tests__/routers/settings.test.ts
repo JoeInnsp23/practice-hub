@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { settingsRouter } from "@/app/server/routers/settings";
-import { assertAuthContext, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -25,12 +28,11 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/settings.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof settingsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _caller = createCaller(settingsRouter, ctx);
     vi.clearAllMocks();
   });

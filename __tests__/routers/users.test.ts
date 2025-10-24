@@ -5,10 +5,9 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { usersRouter } from "@/app/server/routers/users";
 import {
-  assertAuthContext,
+  type TestContextWithAuth,
   createAdminCaller,
   createCaller,
   createMockContext,
@@ -50,13 +49,12 @@ vi.mock("@/lib/email/password-reset", () => ({
 }));
 
 describe("app/server/routers/users.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof usersRouter>>;
   let _adminCaller: ReturnType<typeof createAdminCaller<typeof usersRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    assertAuthContext(ctx);
     _caller = createCaller(usersRouter, ctx);
     _adminCaller = createAdminCaller(usersRouter);
     vi.clearAllMocks();
