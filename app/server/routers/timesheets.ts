@@ -689,11 +689,10 @@ export const timesheetsRouter = router({
         );
 
       // Unlink time entries from all rejected submissions
-      await db.execute(sql`
-        UPDATE time_entries
-        SET submission_id = NULL
-        WHERE submission_id = ANY(${input.submissionIds})
-      `);
+      await db
+        .update(timeEntries)
+        .set({ submissionId: null })
+        .where(inArray(timeEntries.submissionId, input.submissionIds));
 
       // Send emails for each rejected submission
       await Promise.all(
