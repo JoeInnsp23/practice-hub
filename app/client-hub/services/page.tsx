@@ -419,7 +419,9 @@ export default function ServicesPage() {
       <ServiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        // biome-ignore lint/suspicious/noExplicitAny: Service form/schema mismatch - see docs/updates/2025-01-service-form-schema-mismatch.md
         onSave={handleSaveService as any}
+        // biome-ignore lint/suspicious/noExplicitAny: Service form/schema mismatch - see docs/updates/2025-01-service-form-schema-mismatch.md
         service={(editingService || undefined) as any}
       />
     </div>
