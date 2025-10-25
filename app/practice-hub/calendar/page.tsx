@@ -37,7 +37,7 @@ import type { CalendarEventListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
 type EventType = "meeting" | "deadline" | "event" | "out_of_office";
-type CalendarEvent = CalendarEventListOutput["events"][number];
+type CalendarEvent = CalendarEventListOutput[number];
 
 export default function CalendarPage() {
   const _utils = trpc.useUtils();

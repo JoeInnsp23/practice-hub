@@ -10,7 +10,12 @@ import type { AppRouter } from "@/app/server";
 
 export const trpc = createTRPCReact<AppRouter>();
 
-// Export router output types for type-safe component props
+/**
+ * Router output types have been centralized to @/lib/trpc/types
+ * Import from there instead of using this provider's types.
+ *
+ * @deprecated Use `import type { RouterOutputs } from "@/lib/trpc/types"` instead
+ */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 function getBaseUrl() {

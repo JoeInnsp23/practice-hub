@@ -17,7 +17,7 @@ import {
 import type { NotificationListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
-type Notification = NotificationListOutput["notifications"][number];
+type Notification = NotificationListOutput[number];
 
 export default function NotificationsPage() {
   const utils = trpc.useUtils();
