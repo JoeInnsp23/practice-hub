@@ -8,6 +8,7 @@ import { vi } from "vitest";
 
 // Mock S3 client
 export class MockS3Client {
+  // biome-ignore lint/suspicious/noExplicitAny: Mock implementation requires flexible parameter types for testing
   send = vi.fn(async (_command: any) => {
     // Mock successful S3 operations
     return {
@@ -20,15 +21,18 @@ export class MockS3Client {
 
 // Mock PutObjectCommand
 export class MockPutObjectCommand {
+  // biome-ignore lint/suspicious/noExplicitAny: Mock implementation requires flexible parameter types for testing
   constructor(public input: any) {}
 }
 
 // Mock GetObjectCommand
 export class MockGetObjectCommand {
+  // biome-ignore lint/suspicious/noExplicitAny: Mock implementation requires flexible parameter types for testing
   constructor(public input: any) {}
 }
 
 // Mock getSignedUrl
+// biome-ignore lint/suspicious/noExplicitAny: Mock implementation requires flexible parameter types for testing
 export const mockGetSignedUrl = vi.fn(
   async (_client: any, command: any, options?: any) => {
     const key = command.input?.Key || "test-key";

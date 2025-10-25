@@ -126,6 +126,7 @@ export class MockLemVerifyClient {
     };
   });
 
+  // biome-ignore lint/suspicious/noExplicitAny: Mock implementation requires flexible parameter types for testing
   listVerifications = vi.fn(async (_params?: any) => {
     return {
       verifications: [mockVerificationStatusPassed],
