@@ -5,12 +5,16 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { z } from "zod";
 import { taskTemplatesRouter } from "@/app/server/routers/taskTemplates";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
+
+// Type helper to extract Zod schema from tRPC procedure inputs
+type ZodSchema = z.ZodTypeAny;
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -43,58 +47,58 @@ describe("app/server/routers/taskTemplates.ts", () => {
   describe("list", () => {
     it("should accept empty input (all templates)", () => {
       expect(() => {
-        (taskTemplatesRouter._def.procedures.list._def.inputs[0] as any)?.parse(
-          {},
-        );
+        (
+          taskTemplatesRouter._def.procedures.list._def.inputs[0] as ZodSchema
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept serviceId filter", () => {
       expect(() => {
-        (taskTemplatesRouter._def.procedures.list._def.inputs[0] as any)?.parse(
-          {
-            serviceId: "service-123",
-          },
-        );
+        (
+          taskTemplatesRouter._def.procedures.list._def.inputs[0] as ZodSchema
+        )?.parse({
+          serviceId: "service-123",
+        });
       }).not.toThrow();
     });
 
     it("should accept taskType filter", () => {
       expect(() => {
-        (taskTemplatesRouter._def.procedures.list._def.inputs[0] as any)?.parse(
-          {
-            taskType: "compliance",
-          },
-        );
+        (
+          taskTemplatesRouter._def.procedures.list._def.inputs[0] as ZodSchema
+        )?.parse({
+          taskType: "compliance",
+        });
       }).not.toThrow();
     });
 
     it("should accept includeInactive flag", () => {
       expect(() => {
-        (taskTemplatesRouter._def.procedures.list._def.inputs[0] as any)?.parse(
-          {
-            includeInactive: true,
-          },
-        );
+        (
+          taskTemplatesRouter._def.procedures.list._def.inputs[0] as ZodSchema
+        )?.parse({
+          includeInactive: true,
+        });
       }).not.toThrow();
     });
 
     it("should default includeInactive to false", () => {
       const parsed = (
-        taskTemplatesRouter._def.procedures.list._def.inputs[0] as any
-      )?.parse({});
+        taskTemplatesRouter._def.procedures.list._def.inputs[0] as ZodSchema
+      )?.parse({}) as { includeInactive?: boolean };
       expect(parsed?.includeInactive).toBe(false);
     });
 
     it("should accept all filters combined", () => {
       expect(() => {
-        (taskTemplatesRouter._def.procedures.list._def.inputs[0] as any)?.parse(
-          {
-            serviceId: "service-123",
-            taskType: "bookkeeping",
-            includeInactive: true,
-          },
-        );
+        (
+          taskTemplatesRouter._def.procedures.list._def.inputs[0] as ZodSchema
+        )?.parse({
+          serviceId: "service-123",
+          taskType: "bookkeeping",
+          includeInactive: true,
+        });
       }).not.toThrow();
     });
   });
@@ -103,7 +107,8 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require string ID", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.getById._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.getById._def
+            .inputs[0] as ZodSchema
         )?.parse("template-123");
       }).not.toThrow();
     });
@@ -111,7 +116,8 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should reject non-string ID", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.getById._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.getById._def
+            .inputs[0] as ZodSchema
         )?.parse(123);
       }).toThrow();
     });
@@ -120,7 +126,8 @@ describe("app/server/routers/taskTemplates.ts", () => {
       // z.string() accepts empty strings, validation happens at database level
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.getById._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.getById._def
+            .inputs[0] as ZodSchema
         )?.parse("");
       }).not.toThrow();
     });
@@ -130,7 +137,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should accept valid template data", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Prepare {service_name} for {client_name}",
@@ -149,7 +156,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require serviceId as UUID", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "not-a-uuid",
           namePattern: "Test",
@@ -162,7 +169,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require namePattern", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           priority: "medium",
@@ -174,7 +181,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require priority", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Test",
@@ -188,7 +195,8 @@ describe("app/server/routers/taskTemplates.ts", () => {
       for (const priority of validPriorities) {
         expect(() => {
           (
-            taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+            taskTemplatesRouter._def.procedures.create._def
+              .inputs[0] as ZodSchema
           )?.parse({
             serviceId: "550e8400-e29b-41d4-a716-446655440000",
             namePattern: "Test",
@@ -202,7 +210,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should reject invalid priority", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Test",
@@ -216,7 +224,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       // taskType is optional in the schema
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Test",
@@ -228,7 +236,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should accept optional fields", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Test",
@@ -241,37 +249,37 @@ describe("app/server/routers/taskTemplates.ts", () => {
 
     it("should default dueDateOffsetDays to 0", () => {
       const parsed = (
-        taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+        taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
       )?.parse({
         serviceId: "550e8400-e29b-41d4-a716-446655440000",
         namePattern: "Test",
         priority: "medium",
         taskType: "compliance",
-      });
+      }) as { dueDateOffsetDays?: number };
       expect(parsed?.dueDateOffsetDays).toBe(0);
     });
 
     it("should default dueDateOffsetMonths to 0", () => {
       const parsed = (
-        taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+        taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
       )?.parse({
         serviceId: "550e8400-e29b-41d4-a716-446655440000",
         namePattern: "Test",
         priority: "medium",
         taskType: "compliance",
-      });
+      }) as { dueDateOffsetMonths?: number };
       expect(parsed?.dueDateOffsetMonths).toBe(0);
     });
 
     it("should default isRecurring to false", () => {
       const parsed = (
-        taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+        taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
       )?.parse({
         serviceId: "550e8400-e29b-41d4-a716-446655440000",
         namePattern: "Test",
         priority: "medium",
         taskType: "compliance",
-      });
+      }) as { isRecurring?: boolean };
       expect(parsed?.isRecurring).toBe(false);
     });
   });
@@ -280,7 +288,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should accept valid update data", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.update._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.update._def.inputs[0] as ZodSchema
         )?.parse({
           id: "template-123",
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
@@ -294,7 +302,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require template ID", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.update._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.update._def.inputs[0] as ZodSchema
         )?.parse({
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
           namePattern: "Test",
@@ -307,7 +315,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require all fields for update", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.update._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.update._def.inputs[0] as ZodSchema
         )?.parse({
           id: "template-123",
           namePattern: "Test",
@@ -322,7 +330,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should accept template ID", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.delete._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.delete._def.inputs[0] as ZodSchema
         )?.parse({
           id: "template-123",
         });
@@ -332,7 +340,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require id field", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.delete._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.delete._def.inputs[0] as ZodSchema
         )?.parse({});
       }).toThrow();
     });
@@ -342,7 +350,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should accept templateId", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.clone._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.clone._def.inputs[0] as ZodSchema
         )?.parse({
           templateId: "template-123",
         });
@@ -352,7 +360,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should require templateId field", () => {
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.clone._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.clone._def.inputs[0] as ZodSchema
         )?.parse({});
       }).toThrow();
     });
@@ -363,7 +371,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.getClientTemplates._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
         });
@@ -374,7 +382,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.getClientTemplates._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({});
       }).toThrow();
     });
@@ -385,7 +393,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.setClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
           templateId: "template-123",
@@ -398,7 +406,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.setClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
           templateId: "template-123",
@@ -413,7 +421,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
         expect(() => {
           (
             taskTemplatesRouter._def.procedures.setClientOverride._def
-              .inputs[0] as any
+              .inputs[0] as ZodSchema
           )?.parse({
             clientId: "client-123",
             templateId: "template-123",
@@ -427,7 +435,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.setClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
           templateId: "template-123",
@@ -440,7 +448,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.setClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
           templateId: "template-123",
@@ -452,11 +460,11 @@ describe("app/server/routers/taskTemplates.ts", () => {
     it("should default isDisabled to false", () => {
       const parsed = (
         taskTemplatesRouter._def.procedures.setClientOverride._def
-          .inputs[0] as any
+          .inputs[0] as ZodSchema
       )?.parse({
         clientId: "client-123",
         templateId: "template-123",
-      });
+      }) as { isDisabled?: boolean };
       expect(parsed?.isDisabled).toBe(false);
     });
 
@@ -464,7 +472,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.setClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           isDisabled: true,
         });
@@ -475,7 +483,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.setClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
           templateId: "template-123",
@@ -492,7 +500,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.removeClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
           templateId: "template-123",
@@ -504,7 +512,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.removeClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           clientId: "client-123",
         });
@@ -513,7 +521,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
       expect(() => {
         (
           taskTemplatesRouter._def.procedures.removeClientOverride._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           templateId: "template-123",
         });
@@ -563,7 +571,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
 
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.create._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.create._def.inputs[0] as ZodSchema
         )?.parse(validInput);
       }).not.toThrow();
     });
@@ -579,7 +587,7 @@ describe("app/server/routers/taskTemplates.ts", () => {
 
       expect(() => {
         (
-          taskTemplatesRouter._def.procedures.update._def.inputs[0] as any
+          taskTemplatesRouter._def.procedures.update._def.inputs[0] as ZodSchema
         )?.parse(validInput);
       }).not.toThrow();
     });

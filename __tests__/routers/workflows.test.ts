@@ -201,7 +201,7 @@ describe("app/server/routers/workflows.ts (Integration)", () => {
         config: {},
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(caller.create(invalidInput as unknown)).rejects.toThrow();
     });
   });
 

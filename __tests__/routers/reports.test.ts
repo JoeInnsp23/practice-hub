@@ -177,7 +177,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should accept default parameters", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({});
       }).not.toThrow();
     });
@@ -185,7 +186,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should accept months parameter", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           months: 6,
         });
@@ -195,7 +197,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should accept period parameter", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           period: "this_year",
         });
@@ -205,7 +208,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should accept custom date range", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           period: "custom",
           startDate: "2024-01-01T00:00:00Z",
@@ -217,7 +221,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should validate months min value", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           months: 0,
         });
@@ -227,7 +232,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should validate months max value", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           months: 30,
         });
@@ -251,7 +257,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should accept default parameters", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({});
       }).not.toThrow();
     });
@@ -259,7 +266,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should accept limit parameter", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           limit: 20,
         });
@@ -269,7 +277,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should validate limit min value", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           limit: 0,
         });
@@ -279,7 +288,8 @@ describe("app/server/routers/reports.ts", () => {
     it("should validate limit max value", () => {
       expect(() => {
         (
-          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           limit: 100,
         });
@@ -304,7 +314,7 @@ describe("app/server/routers/reports.ts", () => {
       expect(() => {
         (
           reportsRouter._def.procedures.getServicePerformance._def
-            .inputs[0] as any
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({});
       }).not.toThrow();
     });
@@ -313,7 +323,7 @@ describe("app/server/routers/reports.ts", () => {
       expect(() => {
         (
           reportsRouter._def.procedures.getServicePerformance._def
-            .inputs[0] as any
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
         )?.parse({
           period: "this_year",
         });

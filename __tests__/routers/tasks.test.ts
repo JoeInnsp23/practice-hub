@@ -218,7 +218,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         description: "Missing title",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(caller.create(invalidInput as unknown)).rejects.toThrow();
     });
   });
 
@@ -1544,7 +1544,12 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         .where(eq(taskWorkflowInstances.id, instance.id));
 
       expect(updatedInstance.stageProgress).toBeDefined();
-      const progress = updatedInstance.stageProgress as any;
+      const progress = updatedInstance.stageProgress as Record<
+        string,
+        {
+          checklistItems: Record<string, { completed: boolean }>;
+        }
+      >;
       expect(progress[stageId]).toBeDefined();
       expect(progress[stageId].checklistItems[itemId].completed).toBe(true);
     });

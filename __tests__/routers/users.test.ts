@@ -99,7 +99,7 @@ describe("app/server/routers/users.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(_caller.getById(123 as any)).rejects.toThrow();
+      await expect(_caller.getById(123 as unknown)).rejects.toThrow();
     });
   });
 
@@ -110,7 +110,9 @@ describe("app/server/routers/users.ts", () => {
         firstName: "John",
       };
 
-      await expect(_adminCaller.create(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _adminCaller.create(invalidInput as unknown),
+      ).rejects.toThrow();
     });
 
     it("should accept valid user data", async () => {
@@ -158,7 +160,7 @@ describe("app/server/routers/users.ts", () => {
         firstName: "Jane",
       };
 
-      await expect(_caller.update(invalidInput as any)).rejects.toThrow();
+      await expect(_caller.update(invalidInput as unknown)).rejects.toThrow();
     });
 
     it("should accept valid update data", async () => {
@@ -205,7 +207,7 @@ describe("app/server/routers/users.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(_adminCaller.delete({} as any)).rejects.toThrow();
+      await expect(_adminCaller.delete({} as unknown)).rejects.toThrow();
     });
   });
 
@@ -217,7 +219,7 @@ describe("app/server/routers/users.ts", () => {
       };
 
       await expect(
-        _adminCaller.updateRole(invalidInput as any),
+        _adminCaller.updateRole(invalidInput as unknown),
       ).rejects.toThrow();
     });
 
@@ -237,7 +239,7 @@ describe("app/server/routers/users.ts", () => {
       };
 
       await expect(
-        _adminCaller.updateRole(invalidInput as any),
+        _adminCaller.updateRole(invalidInput as unknown),
       ).rejects.toThrow();
     });
   });
@@ -247,7 +249,7 @@ describe("app/server/routers/users.ts", () => {
       const invalidInput = {};
 
       await expect(
-        _adminCaller.sendPasswordReset(invalidInput as any),
+        _adminCaller.sendPasswordReset(invalidInput as unknown),
       ).rejects.toThrow();
     });
 
@@ -267,7 +269,7 @@ describe("app/server/routers/users.ts", () => {
       };
 
       await expect(
-        _adminCaller.sendPasswordReset(invalidInput as any),
+        _adminCaller.sendPasswordReset(invalidInput as unknown),
       ).rejects.toThrow();
     });
   });

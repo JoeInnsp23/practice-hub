@@ -241,7 +241,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         name: "Incomplete Service",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(caller.create(invalidInput as unknown)).rejects.toThrow();
     });
   });
 

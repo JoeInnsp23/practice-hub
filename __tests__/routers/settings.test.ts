@@ -55,7 +55,8 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept empty input (partial schema)", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
         )?.parse({});
       }).not.toThrow();
     });
@@ -63,7 +64,8 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept name update", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
         )?.parse({
           name: "Updated Organization Name",
         });
@@ -73,7 +75,8 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept slug update", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
         )?.parse({
           slug: "updated-org-slug",
         });
@@ -83,7 +86,8 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept multiple fields", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
         )?.parse({
           name: "New Organization",
           slug: "new-org",

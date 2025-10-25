@@ -184,7 +184,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         description: "Test entry",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(caller.create(invalidInput as unknown)).rejects.toThrow();
     });
   });
 
@@ -798,7 +798,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         userId: ctx.authContext.userId,
       };
 
-      await expect(caller.summary(invalidInput as any)).rejects.toThrow();
+      await expect(caller.summary(invalidInput as unknown)).rejects.toThrow();
     });
   });
 

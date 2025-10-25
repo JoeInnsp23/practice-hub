@@ -56,7 +56,9 @@ describe("app/server/routers/transactionData.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.getByClient(123 as any)).rejects.toThrow();
+      await expect(
+        caller.getByClient(123 as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
@@ -67,7 +69,11 @@ describe("app/server/routers/transactionData.ts", () => {
         // Missing required fields
       };
 
-      await expect(caller.estimate(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
 
     it("should accept valid estimate input", async () => {
@@ -90,7 +96,11 @@ describe("app/server/routers/transactionData.ts", () => {
         vatRegistered: true,
       };
 
-      await expect(caller.estimate(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
 
     it("should validate industry is a string", async () => {
@@ -101,7 +111,11 @@ describe("app/server/routers/transactionData.ts", () => {
         vatRegistered: true,
       };
 
-      await expect(caller.estimate(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
 
     it("should validate vatRegistered is a boolean", async () => {
@@ -112,7 +126,11 @@ describe("app/server/routers/transactionData.ts", () => {
         vatRegistered: "yes", // Should be boolean
       };
 
-      await expect(caller.estimate(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -125,7 +143,7 @@ describe("app/server/routers/transactionData.ts", () => {
 
     it("should validate input is a string", async () => {
       await expect(
-        caller.fetchFromXero({ invalid: "object" } as any),
+        caller.fetchFromXero({ invalid: "object" } as unknown as string),
       ).rejects.toThrow();
     });
 
@@ -147,10 +165,12 @@ describe("app/server/routers/transactionData.ts", () => {
               ]),
             }),
           }),
+          // biome-ignore lint/suspicious/noExplicitAny: Mock return type needs any to match db query builder chain
         } as any);
 
         // Mock insert for transaction data storage AND activity logs
         // The router calls insert twice: once for clientTransactionData, once for activityLogs
+        // biome-ignore lint/suspicious/noExplicitAny: Table parameter must be any to accept different table schemas
         vi.mocked(db.insert).mockImplementation((_table: any) => {
           // Create a promise-like object that can handle both cases
           // Extend Promise to avoid noThenProperty violation
@@ -172,6 +192,7 @@ describe("app/server/routers/transactionData.ts", () => {
 
           return {
             values: vi.fn().mockReturnValue(valuesResult),
+            // biome-ignore lint/suspicious/noExplicitAny: Mock return type needs any to match db insert builder chain
           } as any;
         });
       });
@@ -400,7 +421,11 @@ describe("app/server/routers/transactionData.ts", () => {
         dataSource: "manual",
       };
 
-      await expect(caller.upsert(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.upsert(
+          invalidInput as unknown as Parameters<typeof caller.upsert>[0],
+        ),
+      ).rejects.toThrow();
     });
 
     it("should accept valid upsert input", async () => {
@@ -420,7 +445,11 @@ describe("app/server/routers/transactionData.ts", () => {
         dataSource: "manual",
       };
 
-      await expect(caller.upsert(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.upsert(
+          invalidInput as unknown as Parameters<typeof caller.upsert>[0],
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -432,7 +461,7 @@ describe("app/server/routers/transactionData.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.delete(123 as any)).rejects.toThrow();
+      await expect(caller.delete(123 as unknown as string)).rejects.toThrow();
     });
   });
 
@@ -456,7 +485,9 @@ describe("app/server/routers/transactionData.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.getHistory(null as any)).rejects.toThrow();
+      await expect(
+        caller.getHistory(null as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
