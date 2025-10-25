@@ -342,6 +342,7 @@ describe("DocuSeal Webhook Handler", () => {
     const event = createCompletedEvent();
     const request = createWebhookRequest(event);
 
+    const { db } = await import("@/lib/db");
     const { uploadToS3 } = await import("@/lib/s3/upload");
     const { sendSignedConfirmation } = await import(
       "@/lib/docuseal/email-handler"
@@ -425,6 +426,7 @@ describe("DocuSeal Webhook Handler", () => {
     const event = createDeclinedEvent();
     const request = createWebhookRequest(event);
 
+    const { db } = await import("@/lib/db");
     const { sendProposalDeclinedTeamEmail } = await import(
       "@/lib/email/send-proposal-email"
     );
@@ -470,6 +472,7 @@ describe("DocuSeal Webhook Handler", () => {
     const event = createExpiredEvent();
     const request = createWebhookRequest(event);
 
+    const { db } = await import("@/lib/db");
     const { sendProposalExpiredTeamEmail } = await import(
       "@/lib/email/send-proposal-email"
     );
