@@ -237,15 +237,17 @@ export const pipelineRouter = router({
 
       // Value range filter
       if (input.minValue !== undefined) {
+        const minValue = input.minValue;
         allDeals = allDeals.filter((deal) => {
           const value = Number.parseFloat(deal.value || "0");
-          return value >= input.minValue!;
+          return value >= minValue;
         });
       }
       if (input.maxValue !== undefined) {
+        const maxValue = input.maxValue;
         allDeals = allDeals.filter((deal) => {
           const value = Number.parseFloat(deal.value || "0");
-          return value <= input.maxValue!;
+          return value <= maxValue;
         });
       }
 

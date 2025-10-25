@@ -52,12 +52,13 @@ export const documentsRouter = router({
 
       // Search in name and description
       if (input.search) {
-        whereConditions.push(
-          or(
-            ilike(documents.name, `%${input.search}%`),
-            ilike(documents.description, `%${input.search}%`),
-          )!,
+        const searchCondition = or(
+          ilike(documents.name, `%${input.search}%`),
+          ilike(documents.description, `%${input.search}%`),
         );
+        if (searchCondition) {
+          whereConditions.push(searchCondition);
+        }
       }
 
       // Get documents with uploader and client info
@@ -655,13 +656,15 @@ export const documentsRouter = router({
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.authContext.tenantId;
 
-      const whereConditions = [
-        eq(documents.tenantId, tenantId),
-        or(
-          ilike(documents.name, `%${input.query}%`),
-          ilike(documents.description, `%${input.query}%`),
-        )!,
-      ];
+      const searchCondition = or(
+        ilike(documents.name, `%${input.query}%`),
+        ilike(documents.description, `%${input.query}%`),
+      );
+
+      const whereConditions = [eq(documents.tenantId, tenantId)];
+      if (searchCondition) {
+        whereConditions.push(searchCondition);
+      }
 
       if (input.clientId) {
         whereConditions.push(eq(documents.clientId, input.clientId));

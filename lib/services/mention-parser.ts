@@ -27,13 +27,15 @@ export function parseMentions(text: string): string[] {
   const mentionRegex = /@\[([^\]]+)\]|@(\w+)/g;
   const mentions: string[] = [];
 
-  let match;
-  while ((match = mentionRegex.exec(text)) !== null) {
+  let match: RegExpExecArray | null;
+  match = mentionRegex.exec(text);
+  while (match !== null) {
     // Get captured group (either [1] for bracketed or [2] for username)
     const mention = match[1] || match[2];
     if (mention) {
       mentions.push(mention);
     }
+    match = mentionRegex.exec(text);
   }
 
   return mentions;

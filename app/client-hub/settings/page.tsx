@@ -252,15 +252,20 @@ export default function SettingsPage() {
                   <Input
                     id="companyName"
                     value={companyForm.company?.name || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           name: e.target.value,
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -270,15 +275,20 @@ export default function SettingsPage() {
                     id="companyEmail"
                     type="email"
                     value={companyForm.company?.email || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           email: e.target.value,
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -287,15 +297,20 @@ export default function SettingsPage() {
                   <Input
                     id="companyPhone"
                     value={companyForm.company?.phone || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           phone: e.target.value,
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -307,69 +322,101 @@ export default function SettingsPage() {
                   <Input
                     placeholder="Street"
                     value={companyForm.company?.address?.street || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             street: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                   <Input
                     placeholder="City"
                     value={companyForm.company?.address?.city || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             city: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                   <Input
                     placeholder="Postcode"
                     value={companyForm.company?.address?.postcode || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             postcode: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                   <Input
                     placeholder="Country"
                     value={companyForm.company?.address?.country || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             country: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -382,15 +429,20 @@ export default function SettingsPage() {
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select
                       value={companyForm.regional?.timezone || "Europe/London"}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
+                        const currentRegional = companyForm.regional || {
+                          currency: "GBP",
+                          dateFormat: "DD/MM/YYYY",
+                          timezone: "Europe/London",
+                        };
                         setCompanyForm({
                           ...companyForm,
                           regional: {
-                            ...companyForm.regional!,
+                            ...currentRegional,
                             timezone: value,
                           },
-                        })
-                      }
+                        });
+                      }}
                       disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="timezone">
@@ -416,18 +468,23 @@ export default function SettingsPage() {
                     <Label htmlFor="dateFormat">Date Format</Label>
                     <Select
                       value={companyForm.regional?.dateFormat || "DD/MM/YYYY"}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
+                        const currentRegional = companyForm.regional || {
+                          currency: "GBP",
+                          dateFormat: "DD/MM/YYYY",
+                          timezone: "Europe/London",
+                        };
                         setCompanyForm({
                           ...companyForm,
                           regional: {
-                            ...companyForm.regional!,
+                            ...currentRegional,
                             dateFormat: value as
                               | "DD/MM/YYYY"
                               | "MM/DD/YYYY"
                               | "YYYY-MM-DD",
                           },
-                        })
-                      }
+                        });
+                      }}
                       disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="dateFormat">
@@ -465,15 +522,20 @@ export default function SettingsPage() {
                     <Label htmlFor="currency">Currency</Label>
                     <Select
                       value={companyForm.regional?.currency || "GBP"}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
+                        const currentRegional = companyForm.regional || {
+                          currency: "GBP",
+                          dateFormat: "DD/MM/YYYY",
+                          timezone: "Europe/London",
+                        };
                         setCompanyForm({
                           ...companyForm,
                           regional: {
-                            ...companyForm.regional!,
+                            ...currentRegional,
                             currency: value as "GBP" | "USD" | "EUR",
                           },
-                        })
-                      }
+                        });
+                      }}
                       disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="currency">
@@ -501,7 +563,7 @@ export default function SettingsPage() {
                       setCompanyForm({
                         ...companyForm,
                         fiscal: {
-                          ...companyForm.fiscal!,
+                          ...(companyForm.fiscal || {}),
                           fiscalYearStart: e.target.value,
                         },
                       })

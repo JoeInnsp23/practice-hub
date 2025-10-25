@@ -678,15 +678,17 @@ export const tasksRouter = router({
             updatedTask.recurringFrequency,
           );
 
-          // Generate next period's task
-          await generateTaskFromTemplateInternal({
-            templateId: updatedTask.templateId,
-            clientId: updatedTask.clientId!,
-            serviceId: updatedTask.serviceId || undefined,
-            activationDate: nextActivationDate,
-            tenantId,
-            userId,
-          });
+          // Generate next period's task (only if clientId exists)
+          if (updatedTask.clientId) {
+            await generateTaskFromTemplateInternal({
+              templateId: updatedTask.templateId,
+              clientId: updatedTask.clientId,
+              serviceId: updatedTask.serviceId || undefined,
+              activationDate: nextActivationDate,
+              tenantId,
+              userId,
+            });
+          }
 
           // Log auto-generation activity
           await db.insert(activityLogs).values({

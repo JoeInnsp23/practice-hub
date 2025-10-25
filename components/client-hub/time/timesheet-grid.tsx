@@ -44,7 +44,7 @@ interface TimesheetGridProps {
 
 export function TimesheetGrid({
   entries,
-  view,
+  view: _view,
   onEdit,
   onDelete,
   onDuplicate,

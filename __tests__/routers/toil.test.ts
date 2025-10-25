@@ -206,7 +206,10 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         .where(eq(toilAccrualHistory.id, result.accrualId))
         .limit(1);
 
-      const expiryDate = new Date(accrual.expiryDate!);
+      if (!accrual.expiryDate) {
+        throw new Error("Expected expiryDate to be defined");
+      }
+      const expiryDate = new Date(accrual.expiryDate);
       const weekEndingDate = new Date(weekEnding);
       const expectedExpiry = new Date(weekEndingDate);
       expectedExpiry.setMonth(expectedExpiry.getMonth() + 6);

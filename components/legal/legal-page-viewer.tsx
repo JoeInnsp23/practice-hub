@@ -18,7 +18,10 @@ interface LegalPageViewerProps {
  * Displays legal content (Privacy Policy, Terms of Service, Cookie Policy)
  * Fetches content from the database via tRPC
  */
-export function LegalPageViewer({ pageType, title }: LegalPageViewerProps) {
+export function LegalPageViewer({
+  pageType,
+  title: _title,
+}: LegalPageViewerProps) {
   const {
     data: legalPage,
     isLoading,

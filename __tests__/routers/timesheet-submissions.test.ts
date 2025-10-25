@@ -117,12 +117,15 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
 
       expect(result.success).toBe(true);
       expect(result.submissionId).toBeDefined();
+      if (!result.submissionId) {
+        throw new Error("Expected submissionId to be defined");
+      }
 
       // Verify submission was created
       const [submission] = await db
         .select()
         .from(timesheetSubmissions)
-        .where(eq(timesheetSubmissions.id, result.submissionId!))
+        .where(eq(timesheetSubmissions.id, result.submissionId))
         .limit(1);
 
       expect(submission).toBeDefined();

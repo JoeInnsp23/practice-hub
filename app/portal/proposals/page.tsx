@@ -35,7 +35,7 @@ export default function ProposalsPage() {
 
   const { data: proposals, isLoading } =
     trpc.clientPortal.getProposals.useQuery(
-      { clientId: currentClientId!, status: selectedStatus },
+      { clientId: currentClientId || "", status: selectedStatus },
       { enabled: !!currentClientId },
     );
 

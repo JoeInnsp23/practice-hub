@@ -32,7 +32,7 @@ export default function InvoicesPage() {
   >();
 
   const { data: invoices, isLoading } = trpc.clientPortal.getInvoices.useQuery(
-    { clientId: currentClientId!, status: selectedStatus },
+    { clientId: currentClientId || "", status: selectedStatus },
     { enabled: !!currentClientId },
   );
 

@@ -153,7 +153,9 @@ describe("app/server/routers/transactionData.ts", () => {
         // The router calls insert twice: once for clientTransactionData, once for activityLogs
         vi.mocked(db.insert).mockImplementation((_table: any) => {
           // Create a promise-like object that can handle both cases
-          const valuesResult = {
+          // Extend Promise to avoid noThenProperty violation
+          const basePromise = Promise.resolve(undefined);
+          const valuesResult = Object.assign(basePromise, {
             // For transaction data: has onConflictDoUpdate
             onConflictDoUpdate: vi.fn().mockReturnValue({
               returning: vi.fn().mockResolvedValue([
@@ -166,10 +168,7 @@ describe("app/server/routers/transactionData.ts", () => {
                 },
               ]),
             }),
-            // For activity logs: directly awaitable (no onConflictDoUpdate)
-            then: (resolve: any) => Promise.resolve(undefined).then(resolve),
-            catch: (reject: any) => Promise.resolve(undefined).catch(reject),
-          };
+          });
 
           return {
             values: vi.fn().mockReturnValue(valuesResult),

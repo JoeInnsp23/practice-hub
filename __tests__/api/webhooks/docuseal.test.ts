@@ -273,7 +273,10 @@ function createWebhookRequest(
     secret?: string;
   } = {},
 ): Request {
-  const secret = options.secret || process.env.DOCUSEAL_WEBHOOK_SECRET!;
+  const secret = options.secret || process.env.DOCUSEAL_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("DOCUSEAL_WEBHOOK_SECRET not set in test environment");
+  }
   const body = JSON.stringify(event);
   const signature = options.signature || generateWebhookSignature(body, secret);
   const timestamp = options.timestamp || Math.floor(Date.now() / 1000);
@@ -808,10 +811,13 @@ describe("DocuSeal Webhook Handler", () => {
         request: () => {
           const event = createCompletedEvent();
           const body = JSON.stringify(event);
-          const sig = generateWebhookSignature(
-            body,
-            process.env.DOCUSEAL_WEBHOOK_SECRET!,
-          );
+          const secret = process.env.DOCUSEAL_WEBHOOK_SECRET;
+          if (!secret) {
+            throw new Error(
+              "DOCUSEAL_WEBHOOK_SECRET not set in test environment",
+            );
+          }
+          const sig = generateWebhookSignature(body, secret);
           return new Request("http://localhost:3000/api/webhooks/docuseal", {
             method: "POST",
             body,

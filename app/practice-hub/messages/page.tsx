@@ -67,7 +67,7 @@ export default function MessagesPage() {
 
   // Fetch messages for selected thread
   const { data: messagesData } = trpc.messages.listMessages.useQuery(
-    { threadId: selectedThreadId!, limit: 100 },
+    { threadId: selectedThreadId || "", limit: 100 },
     {
       enabled: !!selectedThreadId,
       refetchInterval: selectedThreadId ? 3000 : false, // Poll every 3 seconds when thread is selected
@@ -76,7 +76,7 @@ export default function MessagesPage() {
 
   // Fetch thread details
   const { data: threadDetails } = trpc.messages.getThread.useQuery(
-    { threadId: selectedThreadId! },
+    { threadId: selectedThreadId || "" },
     { enabled: !!selectedThreadId },
   );
 
@@ -84,7 +84,9 @@ export default function MessagesPage() {
   const sendMessageMutation = trpc.messages.sendMessage.useMutation({
     onSuccess: () => {
       setNewMessage("");
-      utils.messages.listMessages.invalidate({ threadId: selectedThreadId! });
+      if (selectedThreadId) {
+        utils.messages.listMessages.invalidate({ threadId: selectedThreadId });
+      }
       utils.messages.listThreads.invalidate();
     },
     onError: (error) => {

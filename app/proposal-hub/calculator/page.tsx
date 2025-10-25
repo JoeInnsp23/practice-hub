@@ -58,7 +58,7 @@ export default function CalculatorPage() {
 
   // Fetch selected template
   const { data: templateData } = trpc.proposalTemplates.getById.useQuery(
-    selectedTemplateId!,
+    selectedTemplateId || "",
     { enabled: !!selectedTemplateId },
   );
 
