@@ -4,7 +4,6 @@ import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { NotificationListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
-type Notification = RouterOutputs["notifications"]["list"][number];
+type Notification = NotificationListOutput["notifications"][number];
 
 export default function NotificationsPage() {
   const utils = trpc.useUtils();

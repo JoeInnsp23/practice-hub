@@ -14,15 +14,15 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
 import { DocumentGrid } from "@/components/client-hub/documents/document-grid";
 import { FilePreviewModal } from "@/components/client-hub/documents/file-preview-modal";
 import { SignatureUploadModal } from "@/components/client-hub/documents/signature-upload-modal";
 import { UploadModal } from "@/components/client-hub/documents/upload-modal";
+import type { DocumentListOutput } from "@/lib/trpc/types";
 
 // Type for a single document item from the list query
-type DocumentItem = RouterOutputs["documents"]["list"]["documents"][number];
+type DocumentItem = DocumentListOutput["documents"][number];
 
 import {
   Breadcrumb,

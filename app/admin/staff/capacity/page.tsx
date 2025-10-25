@@ -23,14 +23,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { type RouterOutputs, trpc } from "@/lib/trpc/client";
+import { trpc } from "@/lib/trpc/client";
+import type {
+  StaffCapacityListOutput,
+  StaffUtilization,
+} from "@/lib/trpc/types";
 
 // Infer types from tRPC router outputs
-type CapacityRecord =
-  RouterOutputs["staffCapacity"]["list"]["capacityRecords"][number];
+type CapacityRecord = StaffCapacityListOutput["capacityRecords"][number];
 
-type UtilizationData =
-  RouterOutputs["staffCapacity"]["getUtilization"]["utilization"][number];
+type UtilizationData = StaffUtilization["utilization"][number];
 
 export default function StaffCapacityPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);

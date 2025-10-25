@@ -42,9 +42,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-
-// Infer work type from tRPC router output
-type WorkType = RouterOutputs["workTypes"]["list"]["workTypes"][number];
+import type { WorkType } from "@/lib/trpc/types";
 
 interface SortableWorkTypeItemProps {
   workType: WorkType;

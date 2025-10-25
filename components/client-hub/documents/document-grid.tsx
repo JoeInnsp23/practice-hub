@@ -13,7 +13,6 @@ import {
   Share2,
   Trash2,
 } from "lucide-react";
-import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,10 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { DocumentListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 
-type DocumentData = RouterOutputs["documents"]["list"]["documents"][number];
+type DocumentData = DocumentListOutput["documents"][number];
 
 interface DocumentGridProps {
   documents: DocumentData[];

@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -34,10 +33,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { CalendarEventListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
 type EventType = "meeting" | "deadline" | "event" | "out_of_office";
-type CalendarEvent = RouterOutputs["calendar"]["listEvents"][number];
+type CalendarEvent = CalendarEventListOutput["events"][number];
 
 export default function CalendarPage() {
   const _utils = trpc.useUtils();
