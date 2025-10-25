@@ -9,6 +9,15 @@ import type { AuthContext } from "@/lib/auth";
 import type { ClientPortalAuthContext } from "@/lib/client-portal-auth";
 
 /**
+ * Minimal interface for tRPC routers with createCaller method.
+ * Used for type-safe test helpers without depending on tRPC's complex internal types.
+ */
+interface RouterWithCaller {
+  // biome-ignore lint/suspicious/noExplicitAny: Return type varies by router definition - proper typing would require full tRPC generic inference
+  createCaller(context: Context): any;
+}
+
+/**
  * Create a mock auth context for testing
  */
 export function createMockAuthContext(
@@ -107,7 +116,7 @@ export function createMockContext(
  * const result = await caller.list({ search: "test" });
  * ```
  */
-export function createCaller<TRouter extends Record<string, any>>(
+export function createCaller<TRouter extends RouterWithCaller>(
   router: TRouter,
   context: TestContextWithAuth = createMockContext(),
 ) {
@@ -117,7 +126,7 @@ export function createCaller<TRouter extends Record<string, any>>(
 /**
  * Create a test caller with admin context
  */
-export function createAdminCaller<TRouter extends Record<string, any>>(
+export function createAdminCaller<TRouter extends RouterWithCaller>(
   router: TRouter,
   overrides: Partial<Context> = {},
 ) {
