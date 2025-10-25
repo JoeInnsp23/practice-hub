@@ -198,11 +198,9 @@ export default function InvoicesPage() {
     if (editingInvoice) {
       updateMutation.mutate({
         id: editingInvoice.id,
-        // biome-ignore lint/suspicious/noExplicitAny: Transforming null to undefined for API compatibility
         data: transformedData as any,
       });
     } else {
-      // biome-ignore lint/suspicious/noExplicitAny: Transforming null to undefined for API compatibility
       createMutation.mutate(transformedData as any);
     }
   };
@@ -391,9 +389,7 @@ export default function InvoicesPage() {
             </DialogTitle>
           </DialogHeader>
           <InvoiceForm
-            // biome-ignore lint/suspicious/noExplicitAny: Invoice form/schema mismatch - see docs/updates/2025-01-invoice-form-schema-mismatch.md
             invoice={(editingInvoice || undefined) as any}
-            // biome-ignore lint/suspicious/noExplicitAny: Invoice form/schema mismatch - see docs/updates/2025-01-invoice-form-schema-mismatch.md
             onSave={handleSaveInvoice as any}
             onCancel={() => setIsFormOpen(false)}
           />
