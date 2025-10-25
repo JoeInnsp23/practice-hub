@@ -68,7 +68,9 @@ describe("app/server/routers/messages.ts", () => {
         threadId: "not-a-uuid",
       };
 
-      await expect(_caller.getThread(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.getThread(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -79,7 +81,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.createDirectMessage(invalidInput as any),
+        _caller.createDirectMessage(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -99,7 +101,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.createDirectMessage(invalidInput as any),
+        _caller.createDirectMessage(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -109,7 +111,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.createDirectMessage(invalidInput as any),
+        _caller.createDirectMessage(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });
@@ -122,7 +124,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.createChannel(invalidInput as any),
+        _caller.createChannel(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -158,7 +160,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.createClientThread(invalidInput as any),
+        _caller.createClientThread(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -194,7 +196,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.addParticipant(invalidInput as any),
+        _caller.addParticipant(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -216,7 +218,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.removeParticipant(invalidInput as any),
+        _caller.removeParticipant(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -239,7 +241,9 @@ describe("app/server/routers/messages.ts", () => {
         limit: 50,
       };
 
-      await expect(_caller.listMessages(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.listMessages(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid thread ID", async () => {
@@ -266,7 +270,9 @@ describe("app/server/routers/messages.ts", () => {
         limit: 150, // Exceeds max of 100
       };
 
-      await expect(_caller.listMessages(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.listMessages(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -277,7 +283,9 @@ describe("app/server/routers/messages.ts", () => {
         type: "text",
       };
 
-      await expect(_caller.sendMessage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.sendMessage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid message data", async () => {
@@ -307,7 +315,9 @@ describe("app/server/routers/messages.ts", () => {
         content: "", // Empty string not allowed
       };
 
-      await expect(_caller.sendMessage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.sendMessage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should validate content maximum length", async () => {
@@ -316,7 +326,9 @@ describe("app/server/routers/messages.ts", () => {
         content: "x".repeat(5001), // Exceeds max of 5000
       };
 
-      await expect(_caller.sendMessage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.sendMessage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -327,7 +339,9 @@ describe("app/server/routers/messages.ts", () => {
         content: "Updated content",
       };
 
-      await expect(_caller.editMessage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.editMessage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid edit data", async () => {
@@ -355,7 +369,7 @@ describe("app/server/routers/messages.ts", () => {
       };
 
       await expect(
-        _caller.deleteMessage(invalidInput as any),
+        _caller.deleteMessage(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });

@@ -66,7 +66,7 @@ describe("app/server/routers/notifications.ts", () => {
       await expect(
         _caller.list({
           limit: 150, // Exceeds max of 100
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -74,7 +74,7 @@ describe("app/server/routers/notifications.ts", () => {
       await expect(
         _caller.list({
           limit: 0, // Below minimum of 1
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });
@@ -95,7 +95,9 @@ describe("app/server/routers/notifications.ts", () => {
         // Missing notificationId
       };
 
-      await expect(_caller.markAsRead(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.markAsRead(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid notification ID", async () => {
@@ -111,7 +113,9 @@ describe("app/server/routers/notifications.ts", () => {
         notificationId: "not-a-uuid",
       };
 
-      await expect(_caller.markAsRead(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.markAsRead(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -131,7 +135,9 @@ describe("app/server/routers/notifications.ts", () => {
         // Missing notificationId
       };
 
-      await expect(_caller.delete(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.delete(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid notification ID", async () => {
@@ -150,7 +156,9 @@ describe("app/server/routers/notifications.ts", () => {
         actionUrl: "/notifications/1",
       };
 
-      await expect(_caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid notification data", async () => {

@@ -246,7 +246,9 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
         clientId: testClientId,
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 

@@ -92,7 +92,7 @@ describe("app/server/routers/proposalTemplates.ts", () => {
     });
 
     it("should reject non-string input", async () => {
-      await expect(caller.getById(123 as any)).rejects.toThrow();
+      await expect(caller.getById(123 as unknown as string)).rejects.toThrow();
     });
   });
 
@@ -132,7 +132,9 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         defaultServices: [],
       };
 
-      await expect(caller.create(invalidData as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidData as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should require defaultServices array", async () => {
@@ -140,7 +142,9 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         name: "Test Template",
       };
 
-      await expect(caller.create(invalidData as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidData as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should validate defaultServices structure", async () => {
@@ -149,7 +153,9 @@ describe("app/server/routers/proposalTemplates.ts", () => {
         defaultServices: [{ invalid: "structure" }],
       };
 
-      await expect(caller.create(invalidData as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidData as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept service config as optional", async () => {
@@ -248,7 +254,9 @@ describe("app/server/routers/proposalTemplates.ts", () => {
     });
 
     it("should reject non-string input", async () => {
-      await expect(caller.setDefault(123 as any)).rejects.toThrow();
+      await expect(
+        caller.setDefault(123 as unknown as string),
+      ).rejects.toThrow();
     });
   });
 });

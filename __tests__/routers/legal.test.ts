@@ -41,7 +41,9 @@ describe("app/server/routers/legal.ts", () => {
 
   describe("getByType", () => {
     it("should require pageType input", async () => {
-      await expect(_caller.getByType({} as any)).rejects.toThrow();
+      await expect(
+        _caller.getByType({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid pageType: privacy", async () => {
@@ -64,19 +66,23 @@ describe("app/server/routers/legal.ts", () => {
 
     it("should reject invalid pageType", async () => {
       await expect(
-        _caller.getByType({ pageType: "invalid_type" } as any),
+        _caller.getByType({
+          pageType: "invalid_type" as unknown as "privacy",
+        }),
       ).rejects.toThrow();
     });
   });
 
   describe("update", () => {
     it("should require both pageType and content", async () => {
-      await expect(_caller.update({} as any)).rejects.toThrow();
       await expect(
-        _caller.update({ pageType: "privacy" } as any),
+        _caller.update({} as Record<string, unknown>),
       ).rejects.toThrow();
       await expect(
-        _caller.update({ content: "Test content" } as any),
+        _caller.update({ pageType: "privacy" } as Record<string, unknown>),
+      ).rejects.toThrow();
+      await expect(
+        _caller.update({ content: "Test content" } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -94,7 +100,7 @@ describe("app/server/routers/legal.ts", () => {
         _caller.update({
           pageType: "privacy",
           content: "",
-        } as any),
+        }),
       ).rejects.toThrow();
     });
 
@@ -116,7 +122,9 @@ describe("app/server/routers/legal.ts", () => {
 
   describe("getVersionHistory", () => {
     it("should require pageType input", async () => {
-      await expect(_caller.getVersionHistory({} as any)).rejects.toThrow();
+      await expect(
+        _caller.getVersionHistory({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid pageType", async () => {
@@ -127,7 +135,9 @@ describe("app/server/routers/legal.ts", () => {
 
     it("should reject invalid pageType", async () => {
       await expect(
-        _caller.getVersionHistory({ pageType: "invalid" } as any),
+        _caller.getVersionHistory({
+          pageType: "invalid" as unknown as "privacy",
+        }),
       ).rejects.toThrow();
     });
   });
@@ -179,13 +189,13 @@ describe("app/server/routers/legal.ts", () => {
   describe("input validation edge cases", () => {
     it("should reject null pageType", async () => {
       await expect(
-        _caller.getByType({ pageType: null } as any),
+        _caller.getByType({ pageType: null as unknown as "privacy" }),
       ).rejects.toThrow();
     });
 
     it("should reject undefined pageType", async () => {
       await expect(
-        _caller.getByType({ pageType: undefined } as any),
+        _caller.getByType({ pageType: undefined as unknown as "privacy" }),
       ).rejects.toThrow();
     });
 

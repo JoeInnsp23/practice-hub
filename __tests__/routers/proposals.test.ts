@@ -86,7 +86,7 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.getById(123 as any)).rejects.toThrow();
+      await expect(caller.getById(123 as unknown as string)).rejects.toThrow();
     });
   });
 
@@ -97,7 +97,9 @@ describe("app/server/routers/proposals.ts", () => {
         title: "Test Proposal",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid proposal data", async () => {
@@ -123,7 +125,9 @@ describe("app/server/routers/proposals.ts", () => {
         services: [],
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -140,7 +144,7 @@ describe("app/server/routers/proposals.ts", () => {
       const invalidInput = {};
 
       await expect(
-        caller.createFromLead(invalidInput as any),
+        caller.createFromLead(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });
@@ -152,7 +156,9 @@ describe("app/server/routers/proposals.ts", () => {
         title: "Updated Title",
       };
 
-      await expect(caller.update(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.update(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid update data", async () => {
@@ -187,7 +193,9 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.delete({} as any)).rejects.toThrow();
+      await expect(
+        caller.delete({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -198,7 +206,9 @@ describe("app/server/routers/proposals.ts", () => {
         recipientEmail: "test@example.com",
       };
 
-      await expect(caller.send(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.send(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid send data", async () => {
@@ -216,7 +226,9 @@ describe("app/server/routers/proposals.ts", () => {
         // Missing validUntil
       };
 
-      await expect(caller.send(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.send(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -228,7 +240,9 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.trackView(123 as any)).rejects.toThrow();
+      await expect(
+        caller.trackView(123 as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
@@ -239,7 +253,9 @@ describe("app/server/routers/proposals.ts", () => {
         proposalId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(caller.addSignature(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.addSignature(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid signature data", async () => {
@@ -284,7 +300,9 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should validate input is a string", async () => {
-      await expect(caller.generatePdf(null as any)).rejects.toThrow();
+      await expect(
+        caller.generatePdf(null as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
@@ -326,7 +344,7 @@ describe("app/server/routers/proposals.ts", () => {
       };
 
       await expect(
-        caller.updateSalesStage(invalidInput as any),
+        caller.updateSalesStage(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -339,9 +357,11 @@ describe("app/server/routers/proposals.ts", () => {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(caller.updateSalesStage(missingId as any)).rejects.toThrow();
       await expect(
-        caller.updateSalesStage(missingSalesStage as any),
+        caller.updateSalesStage(missingId as Record<string, unknown>),
+      ).rejects.toThrow();
+      await expect(
+        caller.updateSalesStage(missingSalesStage as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });
@@ -365,7 +385,7 @@ describe("app/server/routers/proposals.ts", () => {
 
     it("should reject invalid salesStage values", async () => {
       await expect(
-        caller.list({ salesStage: "invalid_value" } as any),
+        caller.list({ salesStage: "invalid_value" } as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });
@@ -418,12 +438,16 @@ describe("app/server/routers/proposals.ts", () => {
 
     it("should reject invalid stage values", async () => {
       const input = { stages: ["invalid_stage"] };
-      await expect(caller.listByStage(input as any)).rejects.toThrow();
+      await expect(
+        caller.listByStage(input as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should validate value range types", async () => {
       const invalidInput = { minValue: "not a number" };
-      await expect(caller.listByStage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.listByStage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -435,7 +459,7 @@ describe("app/server/routers/proposals.ts", () => {
       };
 
       await expect(
-        caller.updateSalesStage(missingStageInput as any),
+        caller.updateSalesStage(missingStageInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -446,7 +470,7 @@ describe("app/server/routers/proposals.ts", () => {
       };
 
       await expect(
-        caller.updateSalesStage(invalidStageInput as any),
+        caller.updateSalesStage(invalidStageInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
   });
