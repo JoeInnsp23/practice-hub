@@ -63,6 +63,22 @@ interface StageProgress {
   };
 }
 
+interface WorkflowStage {
+  id?: string;
+  name: string;
+  description: string | null;
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string | null;
+  autoComplete: boolean;
+  requiresApproval: boolean;
+  checklistItems: ChecklistItem[];
+}
+
+interface StagesSnapshot {
+  stages?: WorkflowStage[];
+}
+
 // Helper function for task generation from template (STORY-3.2)
 async function generateTaskFromTemplateInternal(params: {
   templateId: string;
@@ -865,7 +881,7 @@ export const tasksRouter = router({
           .where(eq(tasks.id, input.taskId));
 
         // Create instance with version snapshot
-        const stagesSnapshot = activeVersion.stagesSnapshot as any;
+        const stagesSnapshot = activeVersion.stagesSnapshot as StagesSnapshot;
         const firstStageId = stagesSnapshot?.stages?.[0]?.id || null;
 
         const [instance] = await tx

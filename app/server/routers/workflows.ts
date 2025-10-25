@@ -13,6 +13,33 @@ import {
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
+// Type definitions for workflow data structures
+type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+type WorkflowConfig = Record<string, unknown>;
+
+interface ChecklistItem {
+  id: string;
+  text: string;
+  isRequired?: boolean;
+}
+
+interface WorkflowStage {
+  id: string;
+  name: string;
+  description: string | null;
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string | null;
+  autoComplete: boolean | null;
+  requiresApproval: boolean | null;
+  checklistItems: ChecklistItem[];
+}
+
+interface StagesSnapshot {
+  stages?: WorkflowStage[];
+}
+
 // Generate schemas from Drizzle table definitions
 const insertWorkflowSchema = createInsertSchema(workflows);
 const insertWorkflowStageSchema = createInsertSchema(workflowStages);
@@ -44,7 +71,7 @@ const workflowSchema = insertWorkflowSchema
 
 // Helper: Create version snapshot
 async function createVersionSnapshot(
-  tx: any, // Transaction object
+  tx: DbTransaction,
   workflowId: string,
   version: number,
   data: {
@@ -54,7 +81,7 @@ async function createVersionSnapshot(
     trigger: string;
     estimatedDays: number | null;
     serviceId: string | null;
-    config: any;
+    config: WorkflowConfig;
   },
   changeDescription: string,
   changeType: string,
@@ -69,8 +96,8 @@ async function createVersionSnapshot(
     .orderBy(workflowStages.stageOrder);
 
   // Create snapshot with all stage data
-  const stagesSnapshot = {
-    stages: stages.map((stage: any) => ({
+  const stagesSnapshot: StagesSnapshot = {
+    stages: stages.map((stage) => ({
       id: stage.id,
       name: stage.name,
       description: stage.description,
@@ -79,7 +106,7 @@ async function createVersionSnapshot(
       estimatedHours: stage.estimatedHours || "0",
       autoComplete: stage.autoComplete,
       requiresApproval: stage.requiresApproval,
-      checklistItems: (stage.checklistItems as any[]) || [],
+      checklistItems: (stage.checklistItems as ChecklistItem[]) || [],
     })),
   };
 
@@ -655,18 +682,26 @@ export const workflowsRouter = router({
 
       // Helper to compare stages
       const compareStages = (
-        stages1: any[],
-        stages2: any[],
+        stages1: WorkflowStage[],
+        stages2: WorkflowStage[],
       ): {
-        added: any[];
-        removed: any[];
-        modified: Array<{ old: any; new: any; changes: string[] }>;
-        unchanged: any[];
+        added: WorkflowStage[];
+        removed: WorkflowStage[];
+        modified: Array<{
+          old: WorkflowStage;
+          new: WorkflowStage;
+          changes: string[];
+        }>;
+        unchanged: WorkflowStage[];
       } => {
-        const added: any[] = [];
-        const removed: any[] = [];
-        const modified: Array<{ old: any; new: any; changes: string[] }> = [];
-        const unchanged: any[] = [];
+        const added: WorkflowStage[] = [];
+        const removed: WorkflowStage[] = [];
+        const modified: Array<{
+          old: WorkflowStage;
+          new: WorkflowStage;
+          changes: string[];
+        }> = [];
+        const unchanged: WorkflowStage[] = [];
 
         const stages1Map = new Map(stages1.map((s) => [s.id, s]));
         const stages2Map = new Map(stages2.map((s) => [s.id, s]));
@@ -729,8 +764,10 @@ export const workflowsRouter = router({
         return { added, removed, modified, unchanged };
       };
 
-      const v1Stages = (version1[0].stagesSnapshot as any)?.stages || [];
-      const v2Stages = (version2[0].stagesSnapshot as any)?.stages || [];
+      const v1Stages =
+        (version1[0].stagesSnapshot as StagesSnapshot)?.stages || [];
+      const v2Stages =
+        (version2[0].stagesSnapshot as StagesSnapshot)?.stages || [];
 
       const stageDiff = compareStages(v1Stages, v2Stages);
 
@@ -838,7 +875,7 @@ export const workflowsRouter = router({
           .where(eq(workflowStages.workflowId, input.workflowId));
 
         const targetStages =
-          (targetVersion[0].stagesSnapshot as any)?.stages || [];
+          (targetVersion[0].stagesSnapshot as StagesSnapshot)?.stages || [];
         for (const stage of targetStages) {
           await tx.insert(workflowStages).values({
             id: stage.id, // Keep original IDs for consistency

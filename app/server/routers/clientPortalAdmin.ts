@@ -14,6 +14,18 @@ import {
 import { sendClientPortalInvitationEmail } from "@/lib/email/send-client-portal-invitation";
 import { adminProcedure, router } from "../trpc";
 
+// Type definition for client access JSON structure
+interface ClientAccessJson {
+  id: string;
+  clientId: string;
+  clientName: string;
+  role: string;
+  isActive: boolean;
+  expiresAt: Date | null;
+  grantedAt: Date;
+  grantedBy: string | null;
+}
+
 export const clientPortalAdminRouter = router({
   // ==================== INVITATIONS ====================
 
@@ -346,7 +358,7 @@ export const clientPortalAdminRouter = router({
         acceptedAt: clientPortalUsers.acceptedAt,
         createdAt: clientPortalUsers.createdAt,
         // Aggregate all client access into JSON array
-        clientAccess: sql<any>`
+        clientAccess: sql<ClientAccessJson[]>`
           COALESCE(
             json_agg(
               json_build_object(
