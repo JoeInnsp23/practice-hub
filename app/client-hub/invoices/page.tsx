@@ -391,7 +391,9 @@ export default function InvoicesPage() {
             </DialogTitle>
           </DialogHeader>
           <InvoiceForm
+            // biome-ignore lint/suspicious/noExplicitAny: Invoice form/schema mismatch - see docs/updates/2025-01-invoice-form-schema-mismatch.md
             invoice={(editingInvoice || undefined) as any}
+            // biome-ignore lint/suspicious/noExplicitAny: Invoice form/schema mismatch - see docs/updates/2025-01-invoice-form-schema-mismatch.md
             onSave={handleSaveInvoice as any}
             onCancel={() => setIsFormOpen(false)}
           />

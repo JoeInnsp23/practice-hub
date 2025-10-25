@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import {
   type DocumentExtractionResult,
-  type QuestionnaireResponses,
   extractClientDataFromDocument,
   mapExtractedDataToQuestionnaire,
+  type QuestionnaireResponses,
 } from "@/lib/ai/extract-client-data";
 import { saveExtractedDataToOnboarding } from "@/lib/ai/save-extracted-data";
 import { db } from "@/lib/db";
