@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 
 type ThreadType = "direct" | "team_channel" | "client";
 
-interface Thread {
+interface _Thread {
   id: string;
   type: ThreadType;
   name: string | null;
@@ -38,7 +38,7 @@ interface Thread {
   unreadCount: number;
 }
 
-interface Message {
+interface _Message {
   id: string;
   content: string;
   createdAt: Date;

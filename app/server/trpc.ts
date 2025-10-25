@@ -35,8 +35,7 @@ const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
   const headers = await import("next/headers").then((mod) => mod.headers());
   const clientId = getClientId(headers);
 
-  const { success, limit, reset, remaining } =
-    await trpcRateLimit.limit(clientId);
+  const { success, reset } = await trpcRateLimit.limit(clientId);
 
   if (!success) {
     throw new TRPCError({

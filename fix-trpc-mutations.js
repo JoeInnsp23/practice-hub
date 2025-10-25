@@ -35,7 +35,6 @@ filesWithPattern.forEach((relPath) => {
 
   try {
     const content = fs.readFileSync(filePath, "utf-8");
-    const originalContent = content;
 
     // Pattern to match useMutation with onSuccess/onError callbacks
     // This is a simplified regex - may need manual review for complex cases

@@ -58,7 +58,6 @@ export function useSSE(
 ) {
   const {
     onMessage,
-    onError,
     onConnect,
     onDisconnect,
     reconnectDelay = 1000,

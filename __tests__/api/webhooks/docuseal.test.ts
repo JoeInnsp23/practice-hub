@@ -52,7 +52,7 @@ interface MockDbChain {
 }
 
 /** Database transaction callback type */
-type TransactionCallback<T> = (tx: MockDbChain) => Promise<T>;
+type _TransactionCallback<T> = (tx: MockDbChain) => Promise<T>;
 
 /** DocuSeal webhook event structure */
 interface WebhookEvent {

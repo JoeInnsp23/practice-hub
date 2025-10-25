@@ -10,7 +10,7 @@ import {
   toilAccrualHistory,
   users,
 } from "@/lib/db/schema";
-import { createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import { createMockContext } from "../helpers/trpc";
 
 // Mock email notifications to avoid API key errors in tests
 vi.mock("@/lib/email/timesheet-notifications", () => ({

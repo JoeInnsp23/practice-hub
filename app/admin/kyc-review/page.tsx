@@ -30,12 +30,11 @@ export default function AdminKYCReviewPage() {
   >(undefined);
 
   // Get verification list
-  const { data, isLoading, refetch } =
-    trpc.adminKyc.listPendingReviews.useQuery({
-      status: statusFilter,
-      limit: 50,
-      offset: 0,
-    });
+  const { data, isLoading } = trpc.adminKyc.listPendingReviews.useQuery({
+    status: statusFilter,
+    limit: 50,
+    offset: 0,
+  });
 
   // Get statistics
   const { data: stats } = trpc.adminKyc.getReviewStats.useQuery();
