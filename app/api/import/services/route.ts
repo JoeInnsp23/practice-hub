@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
               : null, // Convert hours to minutes
             supportsComplexity: false,
             tags: null, // Add tags field to match schema
-            isActive: row.is_active === false ? false : true,
+            isActive: row.is_active !== false,
             metadata: row.notes
               ? {
                   notes: row.notes,
