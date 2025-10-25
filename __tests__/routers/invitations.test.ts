@@ -69,8 +69,8 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should default limit to 20", () => {
-      const inputSchema = invitationsRouter._def.procedures.getActivityLogs
-        ._def.inputs[0] as { parse: (v: unknown) => { limit?: number } };
+      const inputSchema = invitationsRouter._def.procedures.getActivityLogs._def
+        .inputs[0] as { parse: (v: unknown) => { limit?: number } };
       const result = inputSchema.parse({});
       expect(result.limit).toBe(20);
     });
@@ -109,7 +109,9 @@ describe("app/server/routers/invitations.ts", () => {
         customMessage: "Welcome",
       };
 
-      await expect(_caller.send(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.send(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid invitation data", async () => {
@@ -137,7 +139,9 @@ describe("app/server/routers/invitations.ts", () => {
         role: "invalid",
       };
 
-      await expect(_caller.send(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.send(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept all valid role values", async () => {
@@ -169,7 +173,9 @@ describe("app/server/routers/invitations.ts", () => {
         // Missing token
       };
 
-      await expect(_caller.verify(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.verify(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid token", async () => {
@@ -188,7 +194,9 @@ describe("app/server/routers/invitations.ts", () => {
         firstName: "John",
       };
 
-      await expect(_caller.accept(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.accept(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid acceptance data", async () => {
@@ -227,7 +235,9 @@ describe("app/server/routers/invitations.ts", () => {
         // Missing invitationId
       };
 
-      await expect(_caller.resend(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.resend(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid invitation ID", async () => {
@@ -243,7 +253,9 @@ describe("app/server/routers/invitations.ts", () => {
         invitationId: "not-a-uuid",
       };
 
-      await expect(_caller.resend(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.resend(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -253,7 +265,9 @@ describe("app/server/routers/invitations.ts", () => {
         // Missing invitationId
       };
 
-      await expect(_caller.cancel(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.cancel(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid invitation ID", async () => {

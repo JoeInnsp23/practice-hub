@@ -258,7 +258,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         expiresAt: new Date(),
       };
 
-      await expect(_caller.grantAccess(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.grantAccess(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid access grant data", async () => {
@@ -289,7 +291,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "superuser",
       };
 
-      await expect(_caller.grantAccess(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.grantAccess(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept all valid role values", async () => {
@@ -313,7 +317,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         // Missing accessId
       };
 
-      await expect(_caller.revokeAccess(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.revokeAccess(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid access ID", async () => {
@@ -331,7 +337,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         // Missing accessId and role
       };
 
-      await expect(_caller.updateRole(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.updateRole(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid role update data", async () => {
@@ -349,7 +357,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         role: "manager",
       };
 
-      await expect(_caller.updateRole(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.updateRole(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -359,7 +369,9 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         // Missing portalUserId
       };
 
-      await expect(_caller.suspendUser(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.suspendUser(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid portal user ID", async () => {

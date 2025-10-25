@@ -71,7 +71,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         status: "sent",
       };
 
-      await expect(_caller.getProposals(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.getProposals(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid input without status", async () => {
@@ -97,7 +99,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         status: "invalid_status",
       };
 
-      await expect(_caller.getProposals(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.getProposals(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept all valid status values", async () => {
@@ -141,7 +145,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         status: "sent",
       };
 
-      await expect(_caller.getInvoices(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.getInvoices(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid input without status", async () => {
@@ -167,7 +173,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         status: "draft",
       };
 
-      await expect(_caller.getInvoices(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.getInvoices(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept all valid status values", async () => {
@@ -210,7 +218,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         // Missing clientId
       };
 
-      await expect(_caller.getDocuments(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.getDocuments(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid client ID", async () => {
@@ -292,7 +302,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         // Missing threadId and clientId
       };
 
-      await expect(_caller.getThread(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.getThread(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid thread and client IDs", async () => {
@@ -312,7 +324,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         limit: 25,
       };
 
-      await expect(_caller.listMessages(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.listMessages(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid input with defaults", async () => {
@@ -362,7 +376,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         type: "text",
       };
 
-      await expect(_caller.sendMessage(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.sendMessage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid message data", async () => {

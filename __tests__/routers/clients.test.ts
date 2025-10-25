@@ -182,7 +182,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         type: "limited_company" as const,
       };
 
-      await expect(caller.create(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should validate primary contact email format", async () => {
@@ -197,7 +199,9 @@ describe("app/server/routers/clients.ts (Integration)", () => {
         },
       };
 
-      await expect(caller.create(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 

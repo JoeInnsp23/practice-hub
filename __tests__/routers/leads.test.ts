@@ -108,7 +108,9 @@ describe("app/server/routers/leads.ts", () => {
         firstName: "John",
       };
 
-      await expect(_caller.create(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid lead data", async () => {
@@ -133,7 +135,9 @@ describe("app/server/routers/leads.ts", () => {
         companyName: "Test Corp",
       };
 
-      await expect(_caller.create(validInput as Record<string, unknown>)).resolves.not.toThrow();
+      await expect(
+        _caller.create(validInput as Record<string, unknown>),
+      ).resolves.not.toThrow();
     });
 
     it("should accept optional fields", async () => {
@@ -146,7 +150,9 @@ describe("app/server/routers/leads.ts", () => {
         notes: "Interested in accounting services",
       };
 
-      await expect(_caller.create(validInput as Record<string, unknown>)).resolves.not.toThrow();
+      await expect(
+        _caller.create(validInput as Record<string, unknown>),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -157,7 +163,9 @@ describe("app/server/routers/leads.ts", () => {
         firstName: "Jane",
       };
 
-      await expect(_caller.update(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.update(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid update data", async () => {
@@ -178,7 +186,9 @@ describe("app/server/routers/leads.ts", () => {
         email: "not-valid",
       };
 
-      await expect(_caller.update(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.update(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -201,7 +211,9 @@ describe("app/server/routers/leads.ts", () => {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.assignLead(invalidInput as Record<string, unknown>)).rejects.toThrow();
+      await expect(
+        _caller.assignLead(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid assignment data", async () => {
