@@ -158,7 +158,12 @@ export async function POST(request: NextRequest) {
             pricingModel: "turnover" as "turnover" | "transaction" | "both",
             basePrice: row.price?.toString() || null, // Add basePrice to match schema
             price: row.price?.toString() || null,
-            priceType: (row.price_type || "fixed") as any,
+            priceType: (row.price_type || "fixed") as
+              | "hourly"
+              | "fixed"
+              | "retainer"
+              | "project"
+              | "percentage",
             defaultRate: row.price?.toString() || null, // Use price as default rate
             duration: row.estimated_hours
               ? Math.round(row.estimated_hours * 60)
