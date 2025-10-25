@@ -2511,7 +2511,7 @@ For more information, visit the ICO website: https://ico.org.uk
     "rejected",
   ] as const;
 
-  const proposalsList: any[] = [];
+  const proposalsList: Array<typeof proposals.$inferSelect> = [];
 
   // Create 20 proposals across different stages
   for (let i = 0; i < 20; i++) {
@@ -2555,7 +2555,8 @@ For more information, visit the ICO website: https://ico.org.uk
           "1M+",
         ]),
         industry:
-          (randomClient as any).industry ||
+          (randomClient as typeof randomClient & { industry?: string })
+            .industry ||
           faker.helpers.arrayElement([
             "Technology",
             "Retail",
@@ -2991,8 +2992,8 @@ For more information, visit the ICO website: https://ico.org.uk
         clientId: assignedClient.id,
         serviceId: clientService.serviceId,
         assignedToId:
-          (assignedClient as any).assignedToId ||
-          faker.helpers.arrayElement(createdUsers).id,
+          (assignedClient as typeof assignedClient & { assignedToId?: string })
+            .assignedToId || faker.helpers.arrayElement(createdUsers).id,
         createdById: faker.helpers.arrayElement(createdUsers).id,
         dueDate,
         targetDate: new Date(dueDate.getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days before due
@@ -3246,7 +3247,9 @@ For more information, visit the ICO website: https://ico.org.uk
            AND date <= '${weekEndStr}'`,
       );
 
-      const totalHours = Number((result.rows[0] as any).total_hours || 0);
+      const totalHours = Number(
+        (result.rows[0] as { total_hours?: number }).total_hours || 0,
+      );
 
       if (totalHours < 37.5) continue; // Skip if not enough hours
 
@@ -3964,7 +3967,8 @@ For more information, visit the ICO website: https://ico.org.uk
             isRequired: true,
           })),
           autoComplete: false,
-          requiresApproval: (stage as any).requiresApproval ?? false,
+          requiresApproval:
+            (stage as { requiresApproval?: boolean }).requiresApproval ?? false,
         })
         .returning();
       createdStages.push(createdStage);
@@ -3981,7 +3985,12 @@ For more information, visit the ICO website: https://ico.org.uk
         estimatedHours: stage.estimatedHours || "0",
         autoComplete: stage.autoComplete,
         requiresApproval: stage.requiresApproval,
-        checklistItems: (stage.checklistItems as any) || [],
+        checklistItems:
+          (stage.checklistItems as Array<{
+            id: string;
+            text: string;
+            isRequired: boolean;
+          }>) || [],
       })),
     };
 
@@ -4130,7 +4139,9 @@ For more information, visit the ICO website: https://ico.org.uk
 
       if (activeVersion) {
         // Extract first stage ID from snapshot
-        const stagesSnapshot = activeVersion.stagesSnapshot as any;
+        const stagesSnapshot = activeVersion.stagesSnapshot as {
+          stages?: Array<{ id?: string }>;
+        };
         const firstStageId = stagesSnapshot?.stages?.[0]?.id || null;
 
         // Create workflow instance with version snapshot
