@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import {
   type DocumentExtractionResult,
+  type QuestionnaireResponses,
   extractClientDataFromDocument,
   mapExtractedDataToQuestionnaire,
 } from "@/lib/ai/extract-client-data";
@@ -173,7 +174,7 @@ export async function POST(request: Request) {
     // Upload files to S3 and extract data
     const uploadedFiles = [];
     const allExtractions = [];
-    let mergedData: Record<string, unknown> = {};
+    let mergedData: QuestionnaireResponses = {};
 
     for (const file of files) {
       // Upload to S3
@@ -224,7 +225,7 @@ export async function POST(request: Request) {
       await saveExtractedDataToOnboarding(
         tenantId,
         onboardingSessionId,
-        mergedData as any,
+        mergedData,
         "batch_upload",
       );
     }
