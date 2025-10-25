@@ -17,7 +17,6 @@ export const mockEmailResponse = {
 // Mock Resend class
 export class MockResend {
   emails = {
-    // biome-ignore lint/suspicious/noExplicitAny: Mock implementation requires flexible parameter types for testing
     send: vi.fn(async (_params: any) => {
       // Simulate successful email send
       return {
