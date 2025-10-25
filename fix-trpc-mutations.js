@@ -9,9 +9,9 @@
  * 3. Updates the mutation invocation to use try/catch with success/error logic
  */
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+const fs = require("node:fs");
+const path = require("node:path");
+const { execSync } = require("node:child_process");
 
 // Get all files with useMutation and onSuccess
 const filesWithPattern = execSync(

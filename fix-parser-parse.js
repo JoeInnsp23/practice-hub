@@ -8,8 +8,8 @@
  * Solution: Cast inputs[0] as any in test files since we're testing schema behavior
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const files = [
   "__tests__/routers/invitations.test.ts",
