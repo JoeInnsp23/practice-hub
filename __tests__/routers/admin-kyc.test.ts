@@ -5,11 +5,11 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { TestContextWithAuth } from "@/app/server/context";
 import { adminKycRouter } from "@/app/server/routers/admin-kyc";
 import {
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database

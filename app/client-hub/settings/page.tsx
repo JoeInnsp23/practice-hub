@@ -102,7 +102,7 @@ export default function SettingsPage() {
       const previousTenant = utils.settings.getTenant.getData();
 
       // Optimistically update to new value
-      if (previousTenant) {
+      if (previousTenant && newData?.metadata) {
         utils.settings.getTenant.setData(undefined, {
           ...previousTenant,
           metadata: newData.metadata,
@@ -174,7 +174,7 @@ export default function SettingsPage() {
       });
     } catch (error) {
       if (error instanceof ZodError) {
-        const firstError = error.errors[0];
+        const firstError = error.issues[0];
         toast.error(
           `Validation error: ${firstError.message} (${firstError.path.join(".")})`,
         );
@@ -191,7 +191,7 @@ export default function SettingsPage() {
       updateUserSettings.mutate(userForm as UserSettings);
     } catch (error) {
       if (error instanceof ZodError) {
-        const firstError = error.errors[0];
+        const firstError = error.issues[0];
         toast.error(
           `Validation error: ${firstError.message} (${firstError.path.join(".")})`,
         );

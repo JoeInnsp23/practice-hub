@@ -35,6 +35,11 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
   );
   const [clientAccess, setClientAccess] = useState<ClientAccess[]>([]);
 
+  const setCurrentClientId = (clientId: string) => {
+    setCurrentClientIdState(clientId);
+    Cookies.set(CURRENT_CLIENT_COOKIE, clientId, { expires: 365 }); // 1 year
+  };
+
   // Load current client from cookie on mount
   useEffect(() => {
     const savedClientId = Cookies.get(CURRENT_CLIENT_COOKIE);
@@ -49,11 +54,6 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
       setCurrentClientId(clientAccess[0].clientId);
     }
   }, [currentClientId, clientAccess, setCurrentClientId]);
-
-  const setCurrentClientId = (clientId: string) => {
-    setCurrentClientIdState(clientId);
-    Cookies.set(CURRENT_CLIENT_COOKIE, clientId, { expires: 365 }); // 1 year
-  };
 
   return (
     <ClientPortalContext.Provider

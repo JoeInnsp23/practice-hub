@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import type { Control } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -109,35 +108,35 @@ const formSchema = z
       "job_share",
       "custom",
     ]),
-    contractedHours: z.coerce
+    contractedHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(168, "Cannot exceed 168 hours per week"),
-    mondayHours: z.coerce
+    mondayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    tuesdayHours: z.coerce
+    tuesdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    wednesdayHours: z.coerce
+    wednesdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    thursdayHours: z.coerce
+    thursdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    fridayHours: z.coerce
+    fridayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    saturdayHours: z.coerce
+    saturdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    sundayHours: z.coerce
+    sundayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
@@ -186,7 +185,7 @@ export function WorkingPatternFormDialog({
   const createMutation = trpc.workingPatterns.create.useMutation();
   const updateMutation = trpc.workingPatterns.update.useMutation();
 
-  const form = useForm<FormData, any, FormData>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       userId: "",
@@ -402,7 +401,13 @@ export function WorkingPatternFormDialog({
                 <FormItem>
                   <FormLabel>Contracted Hours (per week) *</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.5" {...field} />
+                    <Input
+                      type="number"
+                      step="0.5"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormDescription>
                     Total contracted hours per week
@@ -438,6 +443,10 @@ export function WorkingPatternFormDialog({
                             step="0.5"
                             placeholder="0"
                             {...field}
+                            value={field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />

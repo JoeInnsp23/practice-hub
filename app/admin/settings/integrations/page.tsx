@@ -189,9 +189,9 @@ export default function IntegrationsPage() {
 
   const getLastSyncText = (integrationType: string) => {
     const status = getIntegrationStatus(integrationType);
-    if (!status?.lastSyncedAt) return null;
+    if (!status?.lastSyncAt) return null;
 
-    return `Last synced ${formatDistanceToNow(new Date(status.lastSyncedAt), { addSuffix: true })}`;
+    return `Last synced ${formatDistanceToNow(new Date(status.lastSyncAt), { addSuffix: true })}`;
   };
 
   if (isLoading) {

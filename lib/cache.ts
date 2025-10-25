@@ -101,7 +101,7 @@ class SimpleCache<T> {
 export const questionnaireResponsesCache = new SimpleCache<
   Record<
     string,
-    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
+    { value: unknown; extractedFromAi: boolean; verifiedByUser: boolean }
   >
 >();
 

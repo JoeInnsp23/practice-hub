@@ -39,7 +39,7 @@ describe("Staff Statistics Performance Tests", () => {
     tracker.users?.push(testAdminId);
 
     // 3. Create mock context
-    ctx = createMockContext({
+    const mockCtx = createMockContext({
       authContext: {
         userId: testAdminId,
         tenantId: testTenantId,
@@ -50,8 +50,9 @@ describe("Staff Statistics Performance Tests", () => {
         lastName: "Admin",
       },
     });
+    ctx = mockCtx;
 
-    caller = createCaller(staffStatisticsRouter, ctx);
+    caller = createCaller(staffStatisticsRouter, mockCtx);
 
     // 4. Create test department
     const [dept] = await db

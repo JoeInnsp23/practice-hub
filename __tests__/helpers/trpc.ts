@@ -7,15 +7,6 @@
 import type { Context } from "@/app/server/context";
 import type { AuthContext } from "@/lib/auth";
 import type { ClientPortalAuthContext } from "@/lib/client-portal-auth";
-import type { ZodTypeAny } from "zod";
-
-/**
- * Type helper to properly type tRPC procedure input schemas
- * Ensures TypeScript recognizes the .parse() method on Zod schemas
- */
-declare module "@trpc/server" {
-  interface Parser extends ZodTypeAny {}
-}
 
 /**
  * Create a mock auth context for testing
@@ -72,9 +63,10 @@ export function createMockClientPortalAuthContext(
 
 /**
  * Create a mock tRPC context for testing
+ * Always returns a context with non-null authContext
  */
-export function createMockContext(overrides: Partial<Context> = {}): Context {
-  const authContext = overrides.authContext || createMockAuthContext();
+export function createMockContext(overrides: Partial<Context> = {}): TestContextWithAuth {
+  const authContext = overrides.authContext ?? createMockAuthContext();
 
   return {
     session: overrides.session ?? {
@@ -115,7 +107,7 @@ export function createMockContext(overrides: Partial<Context> = {}): Context {
  */
 export function createCaller<TRouter extends Record<string, any>>(
   router: TRouter,
-  context: Context = createMockContext(),
+  context: TestContextWithAuth = createMockContext(),
 ) {
   return router.createCaller(context);
 }
@@ -127,7 +119,7 @@ export function createAdminCaller<TRouter extends Record<string, any>>(
   router: TRouter,
   overrides: Partial<Context> = {},
 ) {
-  const adminContext = createMockContext({
+  const adminContext: TestContextWithAuth = createMockContext({
     ...overrides,
     authContext: createMockAdminContext(overrides.authContext ?? undefined),
   });

@@ -18,7 +18,6 @@ describe("Leave-TOIL Redemption Integration", () => {
         id: crypto.randomUUID(),
         name: "Test Tenant - Leave TOIL",
         slug: `test-leave-toil-${Date.now()}`,
-        industry: "Accounting",
       })
       .returning();
     testTenantId = tenant.id;

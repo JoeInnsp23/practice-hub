@@ -35,14 +35,14 @@ interface PreviewResult {
   totalRows: number;
   validRows: number;
   errorRows: number;
-  errors: string[];
-  previewRows: Array<Record<string, string>>;
+  errors: Array<{ row: number; errors: string[] }>;
+  previewRows: Array<{ row: number; data: Record<string, unknown> }>;
 }
 
 interface ImportSummary {
   imported: number;
   skipped: number;
-  errors: string[];
+  errors: Array<{ row: number; errors: string[] }>;
 }
 
 export function ClientImportModal({
@@ -249,7 +249,9 @@ export function ClientImportModal({
                     <p className="font-medium mb-2">Validation Errors:</p>
                     <ul className="list-disc list-inside space-y-1 text-sm">
                       {previewResult.errors.slice(0, 10).map((error, index) => (
-                        <li key={index}>{error}</li>
+                        <li key={index}>
+                          Row {error.row}: {error.errors.join(", ")}
+                        </li>
                       ))}
                       {previewResult.errors.length > 10 && (
                         <li className="text-muted-foreground">
@@ -283,11 +285,11 @@ export function ClientImportModal({
                         <tbody>
                           {previewResult.previewRows.map((row, index) => (
                             <tr key={index} className="border-b">
-                              <td className="p-2">{row.company_name}</td>
-                              <td className="p-2">{row.email}</td>
-                              <td className="p-2">{row.client_type}</td>
+                              <td className="p-2">{row.data.company_name as string}</td>
+                              <td className="p-2">{row.data.email as string}</td>
+                              <td className="p-2">{row.data.client_type as string}</td>
                               <td className="p-2">
-                                <Badge variant="outline">{row.status}</Badge>
+                                <Badge variant="outline">{row.data.status as string}</Badge>
                               </td>
                             </tr>
                           ))}
@@ -373,7 +375,9 @@ export function ClientImportModal({
                     <p className="font-medium mb-2">Import Errors:</p>
                     <ul className="list-disc list-inside space-y-1 text-sm">
                       {importSummary.errors.map((error, index) => (
-                        <li key={index}>{error}</li>
+                        <li key={index}>
+                          Row {error.row}: {error.errors.join(", ")}
+                        </li>
                       ))}
                     </ul>
                   </AlertDescription>

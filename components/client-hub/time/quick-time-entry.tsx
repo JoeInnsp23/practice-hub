@@ -48,7 +48,7 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [_elapsedTime, setElapsedTime] = useState(0);
 
-  const form = useForm<TimeEntryFormValues>({
+  const form = useForm<TimeEntryFormValues, any, TimeEntryFormValues>({
     resolver: zodResolver(timeEntrySchema),
     defaultValues: {
       client: "",

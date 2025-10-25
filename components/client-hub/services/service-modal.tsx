@@ -65,7 +65,7 @@ export function ServiceModal({
   const [newFeature, setNewFeature] = useState("");
   const [newTag, setNewTag] = useState("");
 
-  const form = useForm<ServiceFormValues>({
+  const form = useForm<ServiceFormValues, any, ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       name: service?.name || "",

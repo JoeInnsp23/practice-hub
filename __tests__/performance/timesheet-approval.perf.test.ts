@@ -59,7 +59,7 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
     tracker.users?.push(testManagerId);
 
     // 3. Create manager context
-    managerCtx = createMockContext({
+    const mockManagerCtx = createMockContext({
       authContext: {
         userId: testManagerId,
         tenantId: testTenantId,
@@ -70,8 +70,9 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
         lastName: "Perf",
       },
     });
+    managerCtx = mockManagerCtx;
 
-    managerCaller = createCaller(timesheetsRouter, managerCtx);
+    managerCaller = createCaller(timesheetsRouter, mockManagerCtx);
 
     // 4. Create 100 staff users
     console.log(

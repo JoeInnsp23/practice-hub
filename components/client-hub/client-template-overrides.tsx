@@ -212,13 +212,13 @@ export function ClientTemplateOverrides({
                     )}
                     {hasOverride && !isDisabled && (
                       <Badge variant="secondary">
-                        {template.override.customPriority && (
+                        {template.override?.customPriority && (
                           <span className="mr-2">
                             <Flag className="h-3 w-3 inline mr-1" />
                             Priority Override
                           </span>
                         )}
-                        {template.override.customDueDate && (
+                        {template.override?.customDueDate && (
                           <span>
                             <Calendar className="h-3 w-3 inline mr-1" />
                             Date Override
@@ -248,7 +248,7 @@ export function ClientTemplateOverrides({
                           size="sm"
                           onClick={() => handleRemoveOverride(template.id)}
                           title="Reset to Default"
-                          disabled={removeOverrideMutation.isLoading}
+                          disabled={removeOverrideMutation.isPending}
                         >
                           <RotateCcw className="h-4 w-4" />
                         </Button>
@@ -369,7 +369,7 @@ export function ClientTemplateOverrides({
             </Button>
             <Button
               onClick={handleSaveOverride}
-              disabled={setOverrideMutation.isLoading}
+              disabled={setOverrideMutation.isPending}
             >
               Save Override
             </Button>

@@ -12,14 +12,25 @@ interface Service {
   code: string;
   name: string;
   description: string | null;
-  category: string | null;
+  category:
+    | "compliance"
+    | "vat"
+    | "bookkeeping"
+    | "payroll"
+    | "management"
+    | "secretarial"
+    | "tax_planning"
+    | "addon";
+  pricingModel: "turnover" | "transaction" | "both" | "fixed";
   defaultRate: string | null;
+  basePrice: string | null;
   price: string | null;
   priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
   duration: number | null;
-  tags: any;
+  supportsComplexity: boolean;
+  tags: string[] | null;
   isActive: boolean;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }

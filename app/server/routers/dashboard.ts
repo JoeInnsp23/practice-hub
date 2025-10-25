@@ -104,14 +104,14 @@ export const dashboardRouter = router({
         // Format activities to camelCase
         const activities = result.map((activity) => ({
           id: activity.id,
-          entityType: activity.entityType,
-          entityId: activity.entityId,
-          entityName: activity.entityName,
-          action: activity.action,
-          description: activity.description,
-          userName: activity.userName,
-          userDisplayName: activity.userDisplayName,
-          userEmail: activity.userEmail,
+          entityType: activity.entityType ?? null,
+          entityId: activity.entityId ?? null,
+          entityName: activity.entityName ?? null,
+          action: activity.action ?? null,
+          description: activity.description ?? null,
+          userName: activity.userName ?? null,
+          userDisplayName: activity.userDisplayName ?? null,
+          userEmail: activity.userEmail ?? null,
           createdAt: activity.createdAt,
         }));
 

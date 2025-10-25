@@ -118,27 +118,25 @@ const statusConfig = {
 export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
   const utils = trpc.useUtils();
 
-  const cancelMutation = trpc.leave.cancel.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request cancelled");
-      utils.leave.getHistory.invalidate();
-      utils.leave.getBalance.invalidate();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "cancel_leave" },
-      });
-      toast.error(error.message || "Failed to cancel leave request");
-    },
-  });
+  const cancelMutation = trpc.leave.cancel.useMutation();
 
-  const handleCancel = (request: LeaveRequest) => {
+  const handleCancel = async (request: LeaveRequest) => {
     if (
       window.confirm(
         "Are you sure you want to cancel this leave request? This action cannot be undone.",
       )
     ) {
-      cancelMutation.mutate({ requestId: request.id });
+      try {
+        await cancelMutation.mutateAsync({ requestId: request.id });
+        toast.success("Leave request cancelled");
+        utils.leave.getHistory.invalidate();
+        utils.leave.getBalance.invalidate();
+      } catch (error: any) {
+        Sentry.captureException(error, {
+          tags: { operation: "cancel_leave" },
+        });
+        toast.error(error.message || "Failed to cancel leave request");
+      }
     }
   };
 

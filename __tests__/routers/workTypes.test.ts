@@ -58,7 +58,7 @@ describe("app/server/routers/workTypes.ts (Integration)", () => {
     tracker.tenants?.push(tenantId);
     tracker.users?.push(userId);
 
-    ctx = createMockContext({
+    const mockCtx = createMockContext({
       authContext: {
         userId,
         tenantId,
@@ -69,8 +69,9 @@ describe("app/server/routers/workTypes.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    ctx = mockCtx;
 
-    caller = createCaller(workTypesRouter, ctx);
+    caller = createCaller(workTypesRouter, mockCtx);
   });
 
   afterEach(async () => {

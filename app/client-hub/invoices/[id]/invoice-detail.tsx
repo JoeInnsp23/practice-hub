@@ -29,15 +29,7 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
   const { data: invoice, isLoading } =
     trpc.invoices.getById.useQuery(invoiceId);
 
-  const updateStatusMutation = trpc.invoices.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Invoice status updated");
-      router.refresh();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update invoice status");
-    },
-  });
+  const updateStatusMutation = trpc.invoices.updateStatus.useMutation();
 
   if (isLoading) {
     return (
@@ -75,11 +67,17 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
     );
   }
 
-  const handleStatusChange = (newStatus: string) => {
-    updateStatusMutation.mutate({
-      id: invoiceId,
-      status: newStatus as "draft" | "sent" | "paid" | "overdue" | "cancelled",
-    });
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: invoiceId,
+        status: newStatus as "draft" | "sent" | "paid" | "overdue" | "cancelled",
+      });
+      toast.success("Invoice status updated");
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update invoice status");
+    }
   };
 
   const formatCurrency = (amount: string | number) => {

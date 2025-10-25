@@ -431,7 +431,7 @@ export default function ReportsPage() {
                       0,
                     );
                     return {
-                      clientId: client.clientId,
+                      clientId: client.clientId ?? undefined,
                       name: client.clientName,
                       revenue: client.totalPaid,
                       percentage:
@@ -601,7 +601,7 @@ export default function ReportsPage() {
                     0,
                   );
                   return {
-                    clientId: client.clientId,
+                    clientId: client.clientId ?? undefined,
                     name: client.clientName,
                     revenue: client.totalPaid,
                     percentage:

@@ -217,7 +217,7 @@ test.describe("Proposals Pipeline", () => {
     const focusedElement = await page.evaluateHandle(
       () => document.activeElement,
     );
-    const role = await focusedElement.evaluate((el) => el.getAttribute("role"));
+    const role = await focusedElement.evaluate((el) => el?.getAttribute("role"));
     expect(role).toBe("listitem");
   });
 });

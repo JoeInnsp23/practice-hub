@@ -68,7 +68,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
     ],
   );
 
-  const form = useForm<InvoiceFormValues>({
+  const form = useForm<InvoiceFormValues, any, InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       client: invoice?.client || "",

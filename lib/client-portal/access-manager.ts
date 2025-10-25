@@ -58,6 +58,7 @@ export async function getOrCreatePortalUser(
   const [newUser] = await db
     .insert(clientPortalUsers)
     .values({
+      id: crypto.randomUUID(),
       tenantId,
       email,
       firstName,
@@ -169,19 +170,18 @@ export async function sendPortalInvitation(
   const token = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-  // Store invitation
+  // Store invitation (clientIds is JSONB array, not individual clientId)
   await db.insert(clientPortalInvitations).values({
     tenantId: client.tenantId,
     email: portalUser.email,
     firstName: portalUser.firstName || "",
     lastName: portalUser.lastName || "",
-    clientId,
-    portalUserId,
+    clientIds: [clientId], // Store as array in JSONB field
     token,
     expiresAt,
     invitedBy: `${invitedBy.firstName} ${invitedBy.lastName}`,
-    customMessage,
-    status: "sent",
+    metadata: customMessage ? { customMessage } : undefined, // Store in metadata JSONB field
+    status: "pending", // Default status is "pending", not "sent"
   });
 
   // Send invitation email
@@ -189,9 +189,10 @@ export async function sendPortalInvitation(
     email: portalUser.email,
     firstName: portalUser.firstName || "",
     lastName: portalUser.lastName || "",
-    clientName: client.name,
+    clientNames: [client.name], // Multiple clients supported, pass as array
     invitedBy: `${invitedBy.firstName} ${invitedBy.lastName}`,
-    invitationToken: token,
+    invitationLink: `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/portal/accept/${token}`,
+    expiresAt,
     customMessage,
   });
 }
@@ -228,9 +229,13 @@ export async function hasClientAccess(
  * @param portalUserId - Portal user ID
  * @returns Array of client IDs and roles
  */
-export async function getUserClientAccess(
-  portalUserId: string,
-): Promise<Array<{ clientId: string; clientName: string; role: string }>> {
+export async function getUserClientAccess(portalUserId: string): Promise<
+  Array<{
+    clientId: string;
+    clientName: string | null;
+    role: string | null;
+  }>
+> {
   const access = await db
     .select({
       clientId: clientPortalAccess.clientId,

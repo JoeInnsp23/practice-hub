@@ -130,8 +130,9 @@ export async function getFromS3(fileName: string): Promise<Buffer> {
     }
 
     // Convert stream to buffer
+    // response.Body is an SDK stream that's async iterable
     const chunks: Uint8Array[] = [];
-    for await (const chunk of response.Body as any) {
+    for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
       chunks.push(chunk);
     }
 

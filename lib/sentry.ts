@@ -14,7 +14,7 @@ import * as Sentry from "@sentry/nextjs";
  */
 export function captureError(
   error: Error,
-  context?: Record<string, any>,
+  context?: Record<string, unknown>,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     console.error("Error (Sentry not configured):", error, context);
@@ -22,9 +22,7 @@ export function captureError(
   }
 
   Sentry.captureException(error, {
-    contexts: {
-      custom: context,
-    },
+    extra: context,
   });
 }
 
@@ -38,7 +36,7 @@ export function captureError(
 export function captureMessage(
   message: string,
   level: "info" | "warning" | "error" = "info",
-  context?: Record<string, any>,
+  context?: Record<string, unknown>,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     console.log(`[${level.toUpperCase()}]`, message, context);
@@ -47,9 +45,7 @@ export function captureMessage(
 
   Sentry.captureMessage(message, {
     level,
-    contexts: {
-      custom: context,
-    },
+    extra: context,
   });
 }
 
@@ -100,7 +96,7 @@ export function clearUserContext(): void {
 export function addBreadcrumb(
   message: string,
   category: string,
-  data?: Record<string, any>,
+  data?: Record<string, unknown>,
 ): void {
   if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
     return;
@@ -132,11 +128,9 @@ export function captureTRPCError(
   }
 
   Sentry.captureException(error, {
-    contexts: {
-      trpc: {
-        path,
-        input: input ? JSON.stringify(input) : undefined,
-      },
+    extra: {
+      trpc_path: path,
+      trpc_input: input ? JSON.stringify(input) : undefined,
     },
     tags: {
       trpc_path: path,

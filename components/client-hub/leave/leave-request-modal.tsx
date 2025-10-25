@@ -155,7 +155,7 @@ export function LeaveRequestModal({
   const utils = trpc.useUtils();
   const [calculatedDays, setCalculatedDays] = useState<number>(0);
 
-  const form = useForm<LeaveRequestFormValues>({
+  const form = useForm<LeaveRequestFormValues, any, LeaveRequestFormValues>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: {
       leaveType:
@@ -214,23 +214,7 @@ export function LeaveRequestModal({
     return false;
   }, [leaveType, calculatedDays, balance]);
 
-  const requestMutation = trpc.leave.request.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request submitted successfully");
-      utils.leave.getHistory.invalidate();
-      utils.leave.getBalance.invalidate();
-      utils.leave.getCalendar.invalidate();
-      onClose();
-      form.reset();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "leave_request" },
-        extra: { leaveType, startDate, endDate },
-      });
-      toast.error(error.message || "Failed to submit leave request");
-    },
-  });
+  const requestMutation = trpc.leave.request.useMutation();
 
   const onSubmit = async (data: LeaveRequestFormValues) => {
     if (hasInsufficientBalance) {
@@ -238,12 +222,26 @@ export function LeaveRequestModal({
       return;
     }
 
-    requestMutation.mutate({
-      leaveType: data.leaveType,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      notes: data.notes,
-    });
+    try {
+      await requestMutation.mutateAsync({
+        leaveType: data.leaveType,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        notes: data.notes,
+      });
+      toast.success("Leave request submitted successfully");
+      utils.leave.getHistory.invalidate();
+      utils.leave.getBalance.invalidate();
+      utils.leave.getCalendar.invalidate();
+      onClose();
+      form.reset();
+    } catch (error: any) {
+      Sentry.captureException(error, {
+        tags: { operation: "leave_request" },
+        extra: { leaveType: data.leaveType, startDate: data.startDate, endDate: data.endDate },
+      });
+      toast.error(error.message || "Failed to submit leave request");
+    }
   };
 
   useEffect(() => {

@@ -15,7 +15,7 @@ interface PricingCalculatorProps {
   turnover: string;
   industry: "simple" | "standard" | "complex" | "regulated";
   services: Array<{
-    componentCode: string;
+    serviceCode: string;
     quantity?: number;
     config?: Record<string, unknown>;
   }>;
@@ -139,7 +139,7 @@ interface PricingModelCardProps {
   model: {
     name: string;
     services: Array<{
-      componentCode: string;
+      serviceCode: string;
       componentName: string;
       calculation: string;
       basePrice: number;
@@ -194,7 +194,7 @@ function PricingModelCard({
       <div className="space-y-3 mb-6">
         {model.services.map((service, _index) => (
           <div
-            key={service.componentCode}
+            key={service.serviceCode}
             className="flex justify-between items-start text-sm"
           >
             <div className="flex-1">

@@ -87,7 +87,7 @@ export default function OnboardingQuestionnairePage() {
   );
 
   // Get onboarding session with pre-filled data
-  const { data: sessionData, isLoading } =
+  const { data: sessionData, isPending } =
     trpc.onboarding.getQuestionnaireSession.useQuery(
       { sessionId: sessionId || "" },
       { enabled: !!sessionId },
@@ -248,7 +248,7 @@ export default function OnboardingQuestionnairePage() {
     );
   }
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8 flex items-center justify-center">
         <div className="text-center">

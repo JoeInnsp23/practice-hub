@@ -31,20 +31,25 @@ import { formatDate, formatRelativeTime } from "@/lib/utils/format";
 interface LeaveRequest {
   id: string;
   userId: string;
-  userName?: string;
-  userFirstName?: string;
-  userLastName?: string;
+  userName: string | null;
+  userFirstName: string | null;
+  userLastName: string | null;
   userEmail: string;
-  leaveType: string;
+  leaveType:
+    | "annual_leave"
+    | "sick_leave"
+    | "toil"
+    | "unpaid"
+    | "other";
   startDate: string;
   endDate: string;
   daysCount: number;
   status: string;
   notes: string | null;
   requestedAt?: Date | string;
-  reviewedBy?: string | null;
-  reviewedAt?: Date | string | null;
-  reviewerComments?: string | null;
+  reviewedBy: string | null;
+  reviewedAt: Date | string | null;
+  reviewerComments: string | null;
 }
 
 interface ApprovalListProps {
@@ -113,33 +118,9 @@ export function ApprovalList({
   const utils = trpc.useUtils();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const approveMutation = trpc.leave.approve.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request approved");
-      utils.leave.getTeamLeave.invalidate();
-      setSelectedIds([]);
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "approve_leave" },
-      });
-      toast.error(error.message || "Failed to approve leave request");
-    },
-  });
+  const approveMutation = trpc.leave.approve.useMutation();
 
-  const rejectMutation = trpc.leave.reject.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request rejected");
-      utils.leave.getTeamLeave.invalidate();
-      setSelectedIds([]);
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "reject_leave" },
-      });
-      toast.error(error.message || "Failed to reject leave request");
-    },
-  });
+  const rejectMutation = trpc.leave.reject.useMutation();
 
   const toggleSelection = (id: string) => {
     setSelectedIds((prev) =>
@@ -155,7 +136,7 @@ export function ApprovalList({
     }
   };
 
-  const handleBulkApprove = () => {
+  const handleBulkApprove = async () => {
     if (selectedIds.length === 0) return;
 
     if (
@@ -163,13 +144,25 @@ export function ApprovalList({
         `Are you sure you want to approve ${selectedIds.length} leave request(s)?`,
       )
     ) {
-      selectedIds.forEach((id) => {
-        approveMutation.mutate({ requestId: id });
-      });
+      try {
+        await Promise.all(
+          selectedIds.map((id) =>
+            approveMutation.mutateAsync({ requestId: id }),
+          ),
+        );
+        toast.success("Leave requests approved");
+        utils.leave.getTeamLeave.invalidate();
+        setSelectedIds([]);
+      } catch (error: any) {
+        Sentry.captureException(error, {
+          tags: { operation: "approve_leave" },
+        });
+        toast.error(error.message || "Failed to approve leave requests");
+      }
     }
   };
 
-  const handleBulkReject = () => {
+  const handleBulkReject = async () => {
     if (selectedIds.length === 0) return;
 
     if (
@@ -181,9 +174,24 @@ export function ApprovalList({
         "Please provide a reason for rejection (required):",
       );
       if (reason) {
-        selectedIds.forEach((id) => {
-          rejectMutation.mutate({ requestId: id, reviewerComments: reason });
-        });
+        try {
+          await Promise.all(
+            selectedIds.map((id) =>
+              rejectMutation.mutateAsync({
+                requestId: id,
+                reviewerComments: reason,
+              }),
+            ),
+          );
+          toast.success("Leave requests rejected");
+          utils.leave.getTeamLeave.invalidate();
+          setSelectedIds([]);
+        } catch (error: any) {
+          Sentry.captureException(error, {
+            tags: { operation: "reject_leave" },
+          });
+          toast.error(error.message || "Failed to reject leave requests");
+        }
       }
     }
   };
@@ -294,8 +302,8 @@ export function ApprovalList({
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="text-xs">
                           {getUserInitials(
-                            request.userFirstName,
-                            request.userLastName,
+                            request.userFirstName ?? undefined,
+                            request.userLastName ?? undefined,
                             request.userEmail,
                           )}
                         </AvatarFallback>

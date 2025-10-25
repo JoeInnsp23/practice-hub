@@ -3,8 +3,9 @@
  * Ensures TypeScript recognizes Zod's .parse() method on tRPC procedure input schemas
  */
 
-import type { ZodTypeAny } from "zod";
-
 declare module "@trpc/server" {
-  interface Parser extends ZodTypeAny {}
+  interface Parser {
+    parse(data: unknown): unknown;
+    safeParse(data: unknown): { success: boolean; data?: unknown; error?: unknown };
+  }
 }

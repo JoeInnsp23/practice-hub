@@ -17,7 +17,6 @@
 
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { clientsRouter } from "@/app/server/routers/clients";
 import { db } from "@/lib/db";
 import { clients, tenants, users } from "@/lib/db/schema";
@@ -189,7 +188,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
         db.transaction(async (_tx) => {
           // Create tRPC context with transaction-aware database
           // Note: This is a limitation test - tRPC routers use global db import
-          const ctx: Context = createMockContext({
+          const mockCtx = createMockContext({
             authContext: {
               userId: testUserId,
               tenantId: testTenantId,
@@ -202,7 +201,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
           });
 
           // Create caller
-          const caller = createCaller(clientsRouter, ctx);
+          const caller = createCaller(clientsRouter, mockCtx);
 
           // Call create procedure
           const result = await caller.create({

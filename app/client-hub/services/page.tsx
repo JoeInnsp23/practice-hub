@@ -37,11 +37,22 @@ type Service = {
   code: string;
   name: string;
   description: string | null;
-  category: string | null;
+  category:
+    | "compliance"
+    | "vat"
+    | "bookkeeping"
+    | "payroll"
+    | "management"
+    | "secretarial"
+    | "tax_planning"
+    | "addon";
+  pricingModel: "turnover" | "transaction" | "both" | "fixed";
   defaultRate: string | null;
+  basePrice: string | null;
   price: string | null;
   priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
   duration: number | null;
+  supportsComplexity: boolean;
   tags: string[] | null;
   isActive: boolean;
   metadata: Record<string, unknown> | null;
@@ -110,7 +121,7 @@ export default function ServicesPage() {
   const categories = useMemo(() => {
     const cats = [
       ...new Set(
-        services.map((s) => s.category).filter((c): c is string => c !== null),
+        services.map((s) => s.category),
       ),
     ];
     return cats.sort();
@@ -196,10 +207,13 @@ export default function ServicesPage() {
         data,
       });
     } else {
-      // Ensure required fields are present for creation
-      if (data.name && data.code) {
+      // Ensure required fields are present for creation (name, code, category, pricingModel)
+      if (data.name && data.code && data.category && data.pricingModel) {
         createMutation.mutate(
-          data as Required<Pick<Service, "name" | "code">> & Partial<Service>,
+          data as Required<
+            Pick<Service, "name" | "code" | "category" | "pricingModel">
+          > &
+            Partial<Service>,
         );
       }
     }
@@ -328,9 +342,9 @@ export default function ServicesPage() {
               {filteredServices.map((service) => (
                 <ServiceCard
                   key={service.id}
-                  service={service}
-                  onEdit={handleEditService}
-                  onDelete={handleDeleteService}
+                  service={service as any}
+                  onEdit={handleEditService as any}
+                  onDelete={handleDeleteService as any}
                 />
               ))}
             </div>

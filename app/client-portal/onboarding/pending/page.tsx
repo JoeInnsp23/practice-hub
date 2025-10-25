@@ -38,12 +38,6 @@ export default function OnboardingPendingPage() {
       {
         enabled: !!clientId,
         refetchInterval: getPollingInterval(),
-        onSuccess: () => {
-          // Increment poll count on each successful poll
-          if (pollingEnabled) {
-            setPollCount((prev) => prev + 1);
-          }
-        },
       },
     );
 
@@ -60,6 +54,13 @@ export default function OnboardingPendingPage() {
       setPollingEnabled(false);
     }
   }, [statusData?.canAccessPortal, statusData?.session?.status, router]);
+
+  // Increment poll count when data changes (replaces onSuccess callback)
+  useEffect(() => {
+    if (statusData && pollingEnabled) {
+      setPollCount((prev) => prev + 1);
+    }
+  }, [statusData, pollingEnabled]);
 
   const handleManualRefresh = () => {
     // Reset poll count on manual refresh for immediate updates
@@ -119,13 +120,13 @@ export default function OnboardingPendingPage() {
 
   // Get verification URL from session metadata
   const verificationUrl =
-    onboardingSession.status === "pending_approval" && kycVerification
+    onboardingSession?.status === "pending_approval" && kycVerification
       ? (kycVerification.metadata as any)?.verificationUrl
       : null;
 
   const isApproved = canAccessPortal;
-  const isPending = onboardingSession.status === "pending_approval";
-  const isRejected = onboardingSession.status === "rejected";
+  const isPending = onboardingSession?.status === "pending_approval";
+  const isRejected = onboardingSession?.status === "rejected";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">

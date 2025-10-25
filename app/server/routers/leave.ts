@@ -38,6 +38,8 @@ export const leaveRouter = router({
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
       const now = new Date();
+      // Reset time portion for fair date comparison
+      now.setHours(0, 0, 0, 0);
 
       // Validation 1: Prevent past dates
       if (startDate < now) {
@@ -123,9 +125,9 @@ export const leaveRouter = router({
 
         if (balance) {
           const available =
-            balance.annualEntitlement +
-            balance.carriedOver -
-            balance.annualUsed;
+            (balance.annualEntitlement ?? 0) +
+            (balance.carriedOver ?? 0) -
+            (balance.annualUsed ?? 0);
           if (daysCount > available) {
             throw new TRPCError({
               code: "PRECONDITION_FAILED",
@@ -170,7 +172,9 @@ export const leaveRouter = router({
             ),
           );
 
-        if (!balance || balance.toilBalance === 0) {
+        const toilBalance = balance?.toilBalance ?? 0;
+
+        if (!balance || toilBalance === 0) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
             message:
@@ -181,10 +185,10 @@ export const leaveRouter = router({
         // Convert days to hours (assuming 7.5 hour workdays)
         const hoursRequired = daysCount * 7.5;
 
-        if (hoursRequired > balance.toilBalance) {
+        if (hoursRequired > toilBalance) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
-            message: `Insufficient TOIL balance. You have ${balance.toilBalance} hours (${(balance.toilBalance / 7.5).toFixed(1)} days) available, but are requesting ${hoursRequired} hours (${daysCount} days).`,
+            message: `Insufficient TOIL balance. You have ${toilBalance} hours (${(toilBalance / 7.5).toFixed(1)} days) available, but are requesting ${hoursRequired} hours (${daysCount} days).`,
           });
         }
       }
@@ -611,7 +615,9 @@ export const leaveRouter = router({
       }
 
       const annualRemaining =
-        balance.annualEntitlement + balance.carriedOver - balance.annualUsed;
+        (balance.annualEntitlement ?? 0) +
+        (balance.carriedOver ?? 0) -
+        (balance.annualUsed ?? 0);
 
       return {
         balance,
@@ -962,13 +968,13 @@ export const leaveRouter = router({
 
       if (existingBalance) {
         // Update existing balance
-        const entitlementDiff = input.carriedOver - existingBalance.carriedOver;
+        const entitlementDiff = input.carriedOver - (existingBalance.carriedOver ?? 0);
         const [updated] = await db
           .update(leaveBalances)
           .set({
             carriedOver: input.carriedOver,
             annualEntitlement:
-              existingBalance.annualEntitlement + entitlementDiff,
+              (existingBalance.annualEntitlement ?? 0) + entitlementDiff,
           })
           .where(
             and(

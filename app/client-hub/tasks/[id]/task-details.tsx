@@ -584,7 +584,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
         taskId={taskId}
         taskTitle={task.title}
         currentAssignee={
-          task.assignee.id
+          task.assignee?.id
             ? { id: task.assignee.id, name: task.assignee.name }
             : undefined
         }
@@ -900,7 +900,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-4">
-          <TaskNotesSection taskId={params.id} />
+          <TaskNotesSection taskId={taskId} />
           <TaskAssignmentHistory taskId={taskId} />
         </TabsContent>
       </Tabs>

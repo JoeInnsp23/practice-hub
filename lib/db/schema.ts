@@ -1,4 +1,5 @@
 import {
+  type AnyPgColumn,
   boolean,
   date,
   decimal,
@@ -34,7 +35,7 @@ export const departments = pgTable("departments", {
     .notNull(),
   name: text("name").notNull(),
   description: text("description"),
-  managerId: text("manager_id").references(() => users.id), // Can be null if no manager assigned
+  managerId: text("manager_id").references((): AnyPgColumn => users.id), // Can be null if no manager assigned
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -91,7 +92,7 @@ export const users = pgTable(
     role: varchar("role", { length: 50 }).default("member").notNull(), // admin, accountant, member
     status: varchar("status", { length: 20 }).default("active").notNull(), // pending, active, inactive
     isActive: boolean("is_active").default(true).notNull(),
-    departmentId: text("department_id").references(() => departments.id), // Optional department assignment
+    departmentId: text("department_id").references((): AnyPgColumn => departments.id), // Optional department assignment
     hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -2820,7 +2821,10 @@ export const clientDetailsView = pgView("client_details_view", {
   email: varchar("email", { length: 255 }),
   phone: varchar("phone", { length: 50 }),
   website: varchar("website", { length: 255 }),
+  vatRegistered: boolean("vat_registered"),
   vatNumber: varchar("vat_number", { length: 50 }),
+  vatValidationStatus: text("vat_validation_status"),
+  vatValidatedAt: timestamp("vat_validated_at"),
   registrationNumber: varchar("registration_number", { length: 50 }),
   addressLine1: varchar("address_line1", { length: 255 }),
   addressLine2: varchar("address_line2", { length: 255 }),
@@ -2833,6 +2837,11 @@ export const clientDetailsView = pgView("client_details_view", {
   incorporationDate: date("incorporation_date"),
   yearEnd: varchar("year_end", { length: 10 }),
   notes: text("notes"),
+  healthScore: integer("health_score"),
+  xeroContactId: text("xero_contact_id"),
+  xeroSyncStatus: text("xero_sync_status"),
+  xeroLastSyncedAt: timestamp("xero_last_synced_at"),
+  xeroSyncError: text("xero_sync_error"),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),

@@ -34,11 +34,12 @@ interface WorkflowStage {
   name: string;
   description: string;
   stageOrder: number;
-  isRequired: boolean;
-  estimatedHours: string;
-  checklistItems: ChecklistItem[];
-  autoComplete: boolean;
-  requiresApproval: boolean;
+  isRequired?: boolean;
+  estimatedHours?: string;
+  checklistItems?: ChecklistItem[];
+  checklist?: string[];
+  autoComplete?: boolean;
+  requiresApproval?: boolean;
 }
 
 interface WorkflowTemplateModalProps {
@@ -132,7 +133,7 @@ export function WorkflowTemplateModal({
       id: Date.now().toString(),
       name: newStageName,
       description: newStageDescription,
-      order: formData.stages.length + 1,
+      stageOrder: formData.stages.length + 1,
       checklist: [],
     };
 
@@ -144,17 +145,17 @@ export function WorkflowTemplateModal({
     setNewStageDescription("");
   };
 
-  const removeStage = (stageId: string) => {
+  const removeStage = (stageId: string | undefined) => {
     const updatedStages = formData.stages
-      .filter((s: typeof formData.stages[0]) => s.id !== stageId)
-      .map((stage: typeof formData.stages[0], index: number) => ({ ...stage, order: index + 1 }));
+      .filter((s) => s.id !== stageId)
+      .map((stage, index) => ({ ...stage, stageOrder: index + 1 }));
     setFormData({ ...formData, stages: updatedStages });
   };
 
-  const addChecklistItem = (stageId: string, item: string) => {
+  const addChecklistItem = (stageId: string | undefined, item: string) => {
     if (!item) return;
 
-    const updatedStages = formData.stages.map((stage: typeof formData.stages[0]) =>
+    const updatedStages = formData.stages.map((stage) =>
       stage.id === stageId
         ? { ...stage, checklist: [...(stage.checklist || []), item] }
         : stage,
@@ -162,13 +163,13 @@ export function WorkflowTemplateModal({
     setFormData({ ...formData, stages: updatedStages });
   };
 
-  const removeChecklistItem = (stageId: string, itemIndex: number) => {
-    const updatedStages = formData.stages.map((stage: typeof formData.stages[0]) =>
+  const removeChecklistItem = (stageId: string | undefined, itemIndex: number) => {
+    const updatedStages = formData.stages.map((stage) =>
       stage.id === stageId
         ? {
             ...stage,
             checklist: (stage.checklist || []).filter(
-              (_: string, i: number) => i !== itemIndex,
+              (_, i) => i !== itemIndex,
             ),
           }
         : stage,
@@ -179,12 +180,14 @@ export function WorkflowTemplateModal({
   const _moveStage = (fromIndex: number, toIndex: number) => {
     const newStages = [...formData.stages];
     const [movedStage] = newStages.splice(fromIndex, 1);
-    newStages.splice(toIndex, 0, movedStage);
+    if (movedStage) {
+      newStages.splice(toIndex, 0, movedStage);
+    }
 
     // Update order numbers
-    const updatedStages = newStages.map((stage: typeof newStages[0], index: number) => ({
+    const updatedStages = newStages.map((stage, index) => ({
       ...stage,
-      order: index + 1,
+      stageOrder: index + 1,
     }));
 
     setFormData({ ...formData, stages: updatedStages });
@@ -330,7 +333,7 @@ export function WorkflowTemplateModal({
                       <div className="flex items-center gap-2">
                         <GripVertical className="h-4 w-4 text-muted-foreground" />
                         <CardTitle className="text-sm">
-                          {stage.order}. {stage.name}
+                          {stage.stageOrder}. {stage.name}
                         </CardTitle>
                       </div>
                       <Button
@@ -351,7 +354,7 @@ export function WorkflowTemplateModal({
                   <CardContent>
                     <div className="space-y-2">
                       <Label className="text-xs">Checklist Items</Label>
-                      {(stage.checklist || []).map((item: string, itemIndex: number) => (
+                      {(stage.checklist || []).map((item, itemIndex) => (
                         <div
                           key={item}
                           className="flex items-center justify-between text-xs p-2 bg-muted rounded"

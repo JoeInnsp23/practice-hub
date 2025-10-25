@@ -66,36 +66,12 @@ export function CapacityFormDialog({
   const { data: usersData } = trpc.users.list.useQuery({});
 
   // Create mutation
-  const createMutation = trpc.staffCapacity.create.useMutation({
-    onSuccess: () => {
-      toast.success("Capacity record created successfully");
-      onSuccess();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "create_capacity" },
-        extra: { errorMessage: error.message },
-      });
-      toast.error(error.message || "Failed to create capacity record");
-    },
-  });
+  const createMutation = trpc.staffCapacity.create.useMutation();
 
   // Update mutation
-  const updateMutation = trpc.staffCapacity.update.useMutation({
-    onSuccess: () => {
-      toast.success("Capacity record updated successfully");
-      onSuccess();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "update_capacity" },
-        extra: { errorMessage: error.message, capacityId: capacity?.id },
-      });
-      toast.error(error.message || "Failed to update capacity record");
-    },
-  });
+  const updateMutation = trpc.staffCapacity.update.useMutation();
 
-  const form = useForm({
+  const form = useForm<CapacityFormData, any, CapacityFormData>({
     resolver: zodResolver(capacityFormSchema),
     defaultValues: {
       userId: "",
@@ -124,14 +100,28 @@ export function CapacityFormDialog({
     }
   }, [capacity, form]);
 
-  const onSubmit = (data: CapacityFormData) => {
-    if (isEditing) {
-      updateMutation.mutate({
-        id: capacity.id,
-        data,
+  const onSubmit = async (data: CapacityFormData) => {
+    try {
+      if (isEditing) {
+        await updateMutation.mutateAsync({
+          id: capacity.id,
+          data,
+        });
+        toast.success("Capacity record updated successfully");
+      } else {
+        await createMutation.mutateAsync(data);
+        toast.success("Capacity record created successfully");
+      }
+      onSuccess();
+    } catch (error: any) {
+      Sentry.captureException(error, {
+        tags: { operation: isEditing ? "update_capacity" : "create_capacity" },
+        extra: { errorMessage: error.message, capacityId: capacity?.id },
       });
-    } else {
-      createMutation.mutate(data);
+      toast.error(
+        error.message ||
+          `Failed to ${isEditing ? "update" : "create"} capacity record`,
+      );
     }
   };
 

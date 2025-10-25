@@ -83,7 +83,6 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      role="listitem"
       aria-label={`Proposal ${proposal.proposalNumber}: ${proposal.title}`}
       onKeyDown={handleKeyDown}
       {...attributes}

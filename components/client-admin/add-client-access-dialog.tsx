@@ -57,7 +57,7 @@ export function AddClientAccessDialog({
   const { data: allClientsData, isLoading: isLoadingClients } =
     trpc.clients.list.useQuery({});
 
-  const form = useForm<AddClientAccessForm>({
+  const form = useForm<AddClientAccessForm, any, AddClientAccessForm>({
     resolver: zodResolver(addClientAccessSchema),
     defaultValues: {
       clientId: "",
@@ -65,24 +65,22 @@ export function AddClientAccessDialog({
     },
   });
 
-  const grantAccessMutation = trpc.clientPortalAdmin.grantAccess.useMutation({
-    onSuccess: () => {
+  const grantAccessMutation = trpc.clientPortalAdmin.grantAccess.useMutation();
+
+  const onSubmit = async (data: AddClientAccessForm) => {
+    try {
+      await grantAccessMutation.mutateAsync({
+        portalUserId: userId,
+        clientId: data.clientId,
+        role: data.role as "viewer" | "editor" | "admin",
+      });
       toast.success("Client access granted");
       form.reset();
       utils.clientPortalAdmin.listPortalUsers.invalidate();
       onSuccess?.();
-    },
-    onError: (error) => {
+    } catch (error: any) {
       toast.error(error.message || "Failed to grant access");
-    },
-  });
-
-  const onSubmit = (data: AddClientAccessForm) => {
-    grantAccessMutation.mutate({
-      portalUserId: userId,
-      clientId: data.clientId,
-      role: data.role as "viewer" | "editor" | "admin",
-    });
+    }
   };
 
   // Filter out clients the user already has access to

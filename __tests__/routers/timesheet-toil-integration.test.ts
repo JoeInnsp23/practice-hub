@@ -32,7 +32,6 @@ describe("Timesheet-TOIL Integration", () => {
         id: crypto.randomUUID(),
         name: "Test Tenant - Timesheet TOIL",
         slug: `test-timesheet-toil-${Date.now()}`,
-        industry: "Accounting",
       })
       .returning();
     testTenantId = tenant.id;
@@ -71,9 +70,7 @@ describe("Timesheet-TOIL Integration", () => {
       tenantId: testTenantId,
       userId: testUserId,
       weeklyHours: 37.5,
-      utilizationTarget: 80,
-      nonBillableAllowance: 20,
-      effectiveFrom: new Date("2025-01-01"),
+      effectiveFrom: "2025-01-01",
     });
 
     // Create leave balance record for TOIL tracking
@@ -82,11 +79,11 @@ describe("Timesheet-TOIL Integration", () => {
       tenantId: testTenantId,
       userId: testUserId,
       year: new Date().getFullYear(),
-      annualAllowance: 25,
+      annualEntitlement: 25,
       annualUsed: 0,
-      annualRemaining: 25,
       toilBalance: 0, // Start with 0 TOIL
       sickUsed: 0,
+      carriedOver: 0,
     });
 
     // Create timesheet submission with overtime (45 hours logged)
@@ -238,9 +235,7 @@ describe("Timesheet-TOIL Integration", () => {
       tenantId: testTenantId,
       userId: user2.id,
       weeklyHours: 40, // Different contracted hours
-      utilizationTarget: 80,
-      nonBillableAllowance: 20,
-      effectiveFrom: new Date("2025-01-01"),
+      effectiveFrom: "2025-01-01",
     });
 
     // Create leave balance for user 2
@@ -249,11 +244,11 @@ describe("Timesheet-TOIL Integration", () => {
       tenantId: testTenantId,
       userId: user2.id,
       year: new Date().getFullYear(),
-      annualAllowance: 25,
+      annualEntitlement: 25,
       annualUsed: 0,
-      annualRemaining: 25,
       toilBalance: 0,
       sickUsed: 0,
+      carriedOver: 0,
     });
 
     // Create two submissions with overtime

@@ -28,6 +28,7 @@ import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export default function ProposalsPage() {
   const { currentClientId } = useClientPortalContext();
+  const utils = trpc.useUtils();
   const [selectedStatus, setSelectedStatus] = useState<
     "sent" | "viewed" | "signed" | "expired" | undefined
   >();
@@ -191,7 +192,7 @@ export default function ProposalsPage() {
                                   onClick={async () => {
                                     try {
                                       const result =
-                                        await trpc.clientPortal.getSignedProposalPdf.query(
+                                        await utils.clientPortal.getSignedProposalPdf.fetch(
                                           {
                                             proposalId: proposal.id,
                                           },

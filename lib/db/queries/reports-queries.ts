@@ -119,13 +119,17 @@ export async function getClientRevenue(
     )
     .$dynamic();
 
-  // Apply date range filters
+  // Apply date range filters (convert Date to ISO date string for PgDateString comparison)
   if (options.startDate) {
-    query = query.where(gte(invoices.issueDate, options.startDate));
+    query = query.where(
+      gte(invoices.issueDate, options.startDate.toISOString().split("T")[0]),
+    );
   }
 
   if (options.endDate) {
-    query = query.where(lte(invoices.issueDate, options.endDate));
+    query = query.where(
+      lte(invoices.issueDate, options.endDate.toISOString().split("T")[0]),
+    );
   }
 
   // Group by client and order by revenue
@@ -165,7 +169,7 @@ export async function getServicePerformance(
       serviceCategory: services.category,
       totalRevenue: sql<number>`COALESCE(SUM(CASE
         WHEN ${invoices.status} = 'paid'
-        THEN ${clientServices.customRate} * ${clientServices.quantity}
+        THEN ${clientServices.customRate}
         ELSE 0
       END), 0)`.as("total_revenue"),
       activeClients: sql<number>`COUNT(DISTINCT ${clientServices.clientId})`.as(
@@ -183,16 +187,20 @@ export async function getServicePerformance(
   // Build where conditions
   const whereConditions = [
     eq(clientServices.tenantId, tenantId),
-    eq(clientServices.status, "active"),
+    eq(clientServices.isActive, true),
   ];
 
-  // Add date range filters if specified
+  // Add date range filters if specified (convert Date to ISO date string for PgDateString comparison)
   if (options?.startDate) {
-    whereConditions.push(gte(invoices.issueDate, options.startDate));
+    whereConditions.push(
+      gte(invoices.issueDate, options.startDate.toISOString().split("T")[0]),
+    );
   }
 
   if (options?.endDate) {
-    whereConditions.push(lte(invoices.issueDate, options.endDate));
+    whereConditions.push(
+      lte(invoices.issueDate, options.endDate.toISOString().split("T")[0]),
+    );
   }
 
   const serviceRevenueQuery = query

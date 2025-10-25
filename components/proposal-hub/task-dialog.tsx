@@ -74,7 +74,7 @@ export function TaskDialog({
   const { data: usersData } = trpc.users.list.useQuery({});
   const users = usersData?.users || [];
 
-  const form = useForm<TaskFormValues>({
+  const form = useForm<TaskFormValues, any, TaskFormValues>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
@@ -87,28 +87,26 @@ export function TaskDialog({
     },
   });
 
-  const createTask = trpc.tasks.create.useMutation({
-    onSuccess: () => {
+  const createTask = trpc.tasks.create.useMutation();
+
+  const onSubmit = async (data: TaskFormValues) => {
+    try {
+      await createTask.mutateAsync({
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        status: data.status,
+        dueDate: data.dueDate || undefined,
+        assignedToId: data.assignedToId || undefined,
+        clientId: data.clientId || undefined,
+      });
       toast.success("Task created successfully");
       utils.tasks.list.invalidate();
       onOpenChange(false);
       form.reset();
-    },
-    onError: (error) => {
+    } catch (error: any) {
       toast.error(error.message || "Failed to create task");
-    },
-  });
-
-  const onSubmit = (data: TaskFormValues) => {
-    createTask.mutate({
-      title: data.title,
-      description: data.description,
-      priority: data.priority,
-      status: data.status,
-      dueDate: data.dueDate || undefined,
-      assignedToId: data.assignedToId || undefined,
-      clientId: data.clientId || undefined,
-    });
+    }
   };
 
   return (

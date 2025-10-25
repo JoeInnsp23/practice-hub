@@ -70,7 +70,7 @@ export function ApprovalActionsModal({
 }: ApprovalActionsModalProps) {
   const utils = trpc.useUtils();
 
-  const form = useForm({
+  const form = useForm<{ comments?: string }, any, { comments?: string }>({
     resolver: zodResolver(
       action === "approve" ? approvalSchema : rejectionSchema,
     ),
@@ -79,51 +79,39 @@ export function ApprovalActionsModal({
     },
   });
 
-  const approveMutation = trpc.leave.approve.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request approved successfully");
-      utils.leave.getTeamLeave.invalidate();
-      onClose();
-      form.reset();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "approve_leave" },
-        extra: { requestId: request?.id },
-      });
-      toast.error(error.message || "Failed to approve leave request");
-    },
-  });
+  const approveMutation = trpc.leave.approve.useMutation();
 
-  const rejectMutation = trpc.leave.reject.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request rejected");
-      utils.leave.getTeamLeave.invalidate();
-      onClose();
-      form.reset();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "reject_leave" },
-        extra: { requestId: request?.id },
-      });
-      toast.error(error.message || "Failed to reject leave request");
-    },
-  });
+  const rejectMutation = trpc.leave.reject.useMutation();
 
-  const onSubmit = (data: { comments?: string }) => {
+  const onSubmit = async (data: { comments?: string }) => {
     if (!request) return;
 
-    if (action === "approve") {
-      approveMutation.mutate({
-        requestId: request.id,
-        reviewerComments: data.comments,
+    try {
+      if (action === "approve") {
+        await approveMutation.mutateAsync({
+          requestId: request.id,
+          reviewerComments: data.comments,
+        });
+        toast.success("Leave request approved successfully");
+      } else {
+        await rejectMutation.mutateAsync({
+          requestId: request.id,
+          reviewerComments: data.comments || "",
+        });
+        toast.success("Leave request rejected");
+      }
+      utils.leave.getTeamLeave.invalidate();
+      onClose();
+      form.reset();
+    } catch (error: any) {
+      Sentry.captureException(error, {
+        tags: { operation: action === "approve" ? "approve_leave" : "reject_leave" },
+        extra: { requestId: request?.id },
       });
-    } else {
-      rejectMutation.mutate({
-        requestId: request.id,
-        reviewerComments: data.comments || "",
-      });
+      toast.error(
+        error.message ||
+          `Failed to ${action === "approve" ? "approve" : "reject"} leave request`,
+      );
     }
   };
 

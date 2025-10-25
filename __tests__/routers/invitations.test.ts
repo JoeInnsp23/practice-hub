@@ -64,7 +64,7 @@ describe("app/server/routers/invitations.ts", () => {
 
     it("should default limit to 20", () => {
       const result =
-        invitationsRouter._def.procedures.getActivityLogs._def.inputs[0]?.parse(
+        (invitationsRouter._def.procedures.getActivityLogs._def.inputs[0] as any)?.parse(
           {},
         );
       expect(result?.limit).toBe(20);

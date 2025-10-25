@@ -171,10 +171,10 @@ export class EventSubscriptionManager {
       this.subscriptions.set(eventType, new Set());
     }
 
-    this.subscriptions.get(eventType)?.add(callback as SubscriptionCallback);
+    this.subscriptions.get(eventType)?.add(callback as SubscriptionCallback<unknown>);
 
     // Return unsubscribe function
-    return () => this.unsubscribe(eventType, callback);
+    return () => this.unsubscribe(eventType, callback as SubscriptionCallback<unknown>);
   }
 
   /**

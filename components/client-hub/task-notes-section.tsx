@@ -133,13 +133,10 @@ export function TaskNotesSection({ taskId }: TaskNotesSectionProps) {
   };
 
   // Check if current user can edit/delete a note
+  // Only check if user is the author (role checks are server-side)
   const canModifyNote = (authorId: string) => {
     if (!session?.user) return false;
-    return (
-      session.user.id === authorId ||
-      session.user.role === "admin" ||
-      session.user.role === "org:admin"
-    );
+    return session.user.id === authorId;
   };
 
   // Format timestamp

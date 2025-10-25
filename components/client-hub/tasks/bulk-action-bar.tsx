@@ -54,7 +54,7 @@ export function BulkActionBar({
   const utils = trpc.useUtils();
 
   // Fetch users for assignment
-  const { data: usersData } = trpc.users.list.useQuery();
+  const { data: usersData } = trpc.users.list.useQuery({});
   const users = usersData?.users || [];
 
   // Bulk update status mutation

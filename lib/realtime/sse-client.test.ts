@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionState } from "./client";
 import { SSEClient } from "./sse-client";
 
@@ -8,20 +8,20 @@ class MockEventSource {
   onopen: ((event: Event) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
-  private eventListeners = new Map<string, ((event: MessageEvent) => void)[]>();
+  private eventListeners = new Map<string, EventListener[]>();
 
   constructor(url: string) {
     this.url = url;
   }
 
-  addEventListener(type: string, listener: (event: MessageEvent) => void) {
+  addEventListener(type: string, listener: EventListener) {
     if (!this.eventListeners.has(type)) {
       this.eventListeners.set(type, []);
     }
     this.eventListeners.get(type)?.push(listener);
   }
 
-  removeEventListener(type: string, listener: (event: MessageEvent) => void) {
+  removeEventListener(type: string, listener: EventListener) {
     const listeners = this.eventListeners.get(type);
     if (listeners) {
       const index = listeners.indexOf(listener);
@@ -45,7 +45,13 @@ class MockEventSource {
       data: JSON.stringify(data),
     });
     const listeners = this.eventListeners.get(type);
-    listeners?.forEach((listener) => listener(event));
+    listeners?.forEach((listener) => {
+      if (typeof listener === 'function') {
+        listener(event);
+      } else if (typeof listener === 'object' && listener !== null && 'handleEvent' in listener) {
+        (listener as { handleEvent: (event: Event) => void }).handleEvent(event);
+      }
+    });
   }
 
   simulateError() {

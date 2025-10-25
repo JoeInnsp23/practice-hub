@@ -289,8 +289,14 @@ describe("app/server/routers/toil.ts (Integration)", () => {
           timesheetId: null,
           weekEnding: weekEnding1.toISOString().split("T")[0],
           hoursAccrued: 2.0,
+          contractedHours: 37.5,
+          loggedHours: 39.5,
           accrualDate: weekEnding1,
-          expiryDate: null,
+          expiryDate: new Date(
+            weekEnding1.getTime() + 6 * 30 * 24 * 60 * 60 * 1000,
+          )
+            .toISOString()
+            .split("T")[0],
           expired: false,
         },
         {
@@ -300,8 +306,14 @@ describe("app/server/routers/toil.ts (Integration)", () => {
           timesheetId: null,
           weekEnding: weekEnding2.toISOString().split("T")[0],
           hoursAccrued: 3.5,
+          contractedHours: 37.5,
+          loggedHours: 41.0,
           accrualDate: weekEnding2,
-          expiryDate: null,
+          expiryDate: new Date(
+            weekEnding2.getTime() + 6 * 30 * 24 * 60 * 60 * 1000,
+          )
+            .toISOString()
+            .split("T")[0],
           expired: false,
         },
       ]);
@@ -326,6 +338,9 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         const date = new Date(weekEnding);
         date.setDate(date.getDate() - i * 7);
 
+        const expiryDate = new Date(date);
+        expiryDate.setMonth(expiryDate.getMonth() + 6);
+
         await db.insert(toilAccrualHistory).values({
           id: crypto.randomUUID(),
           tenantId: testTenantId,
@@ -333,8 +348,10 @@ describe("app/server/routers/toil.ts (Integration)", () => {
           timesheetId: null,
           weekEnding: date.toISOString().split("T")[0],
           hoursAccrued: 2.0 + i,
+          contractedHours: 37.5,
+          loggedHours: 39.5 + i,
           accrualDate: date,
-          expiryDate: null,
+          expiryDate: expiryDate.toISOString().split("T")[0],
           expired: false,
         });
       }
@@ -362,6 +379,8 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         timesheetId: null,
         weekEnding: today.toISOString().split("T")[0],
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         accrualDate: today,
         expiryDate: expiringDate.toISOString().split("T")[0],
         expired: false,
@@ -389,6 +408,8 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         timesheetId: null,
         weekEnding: today.toISOString().split("T")[0],
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         accrualDate: today,
         expiryDate: pastDate.toISOString().split("T")[0],
         expired: false,
@@ -415,6 +436,8 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         timesheetId: null,
         weekEnding: today.toISOString().split("T")[0],
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         accrualDate: today,
         expiryDate: farFutureDate.toISOString().split("T")[0],
         expired: false,
@@ -444,6 +467,8 @@ describe("app/server/routers/toil.ts (Integration)", () => {
           timesheetId: null,
           weekEnding: today.toISOString().split("T")[0],
           hoursAccrued: 7.5,
+          contractedHours: 37.5,
+          loggedHours: 45.0,
           accrualDate: today,
           expiryDate: pastDate.toISOString().split("T")[0],
           expired: false,
@@ -477,6 +502,8 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         timesheetId: null,
         weekEnding: today.toISOString().split("T")[0],
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         accrualDate: today,
         expiryDate: futureDate.toISOString().split("T")[0],
         expired: false,
@@ -508,6 +535,8 @@ describe("app/server/routers/toil.ts (Integration)", () => {
         timesheetId: null,
         weekEnding: today.toISOString().split("T")[0],
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         accrualDate: today,
         expiryDate: pastDate.toISOString().split("T")[0],
         expired: false,
@@ -577,6 +606,9 @@ describe("app/server/routers/toil.ts (Integration)", () => {
       const today = new Date();
 
       // Create history for both tenants
+      const expiryDate = new Date(today);
+      expiryDate.setMonth(expiryDate.getMonth() + 6);
+
       await db.insert(toilAccrualHistory).values([
         {
           id: crypto.randomUUID(),
@@ -585,8 +617,10 @@ describe("app/server/routers/toil.ts (Integration)", () => {
           timesheetId: null,
           weekEnding: today.toISOString().split("T")[0],
           hoursAccrued: 2.0,
+          contractedHours: 37.5,
+          loggedHours: 39.5,
           accrualDate: today,
-          expiryDate: null,
+          expiryDate: expiryDate.toISOString().split("T")[0],
           expired: false,
         },
         {
@@ -596,8 +630,10 @@ describe("app/server/routers/toil.ts (Integration)", () => {
           timesheetId: null,
           weekEnding: today.toISOString().split("T")[0],
           hoursAccrued: 5.0,
+          contractedHours: 37.5,
+          loggedHours: 42.5,
           accrualDate: today,
-          expiryDate: null,
+          expiryDate: expiryDate.toISOString().split("T")[0],
           expired: false,
         },
       ]);

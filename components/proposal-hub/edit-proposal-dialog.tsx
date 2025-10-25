@@ -123,12 +123,14 @@ export function EditProposalDialog({
 
   const handleUpdateService = (
     index: number,
-    field: keyof (typeof services)[0],
+    field: "componentCode" | "componentName" | "calculation" | "price" | "config",
     value: any,
   ) => {
     const updated = [...services];
-    updated[index] = { ...updated[index], [field]: value };
-    setServices(updated);
+    if (updated[index]) {
+      updated[index] = { ...updated[index], [field]: value };
+      setServices(updated);
+    }
   };
 
   return (

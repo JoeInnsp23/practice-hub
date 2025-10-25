@@ -28,8 +28,9 @@ describe("app/server/routers/activities.ts", () => {
   let _caller: ReturnType<typeof createCaller<typeof activitiesRouter>>;
 
   beforeEach(() => {
-    ctx = createMockContext();
-    _caller = createCaller(activitiesRouter, ctx);
+    const mockCtx = createMockContext();
+    ctx = mockCtx;
+    _caller = createCaller(activitiesRouter, mockCtx);
     vi.clearAllMocks();
   });
 

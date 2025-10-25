@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Control } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
@@ -43,12 +42,12 @@ const formSchema = z.object({
   serviceId: z.string().uuid("Please select a service"),
   namePattern: z.string().min(1, "Name pattern is required"),
   descriptionPattern: z.string().optional(),
-  estimatedHours: z.coerce.number().min(0).optional(),
+  estimatedHours: z.number().min(0).optional(),
   priority: z.enum(["low", "medium", "high", "urgent", "critical"]),
   taskType: z.string().min(1, "Task type is required"),
-  dueDateOffsetDays: z.coerce.number().int().min(0).default(0),
-  dueDateOffsetMonths: z.coerce.number().int().min(0).default(0),
-  isRecurring: z.boolean().default(false),
+  dueDateOffsetDays: z.number().int().min(0),
+  dueDateOffsetMonths: z.number().int().min(0),
+  isRecurring: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -80,28 +79,12 @@ export function TaskTemplateFormDialog({
     });
 
   // Create mutation
-  const createMutation = trpc.taskTemplates.create.useMutation({
-    onSuccess: () => {
-      toast.success("Template created successfully");
-      onSuccess();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to create template");
-    },
-  });
+  const createMutation = trpc.taskTemplates.create.useMutation();
 
   // Update mutation
-  const updateMutation = trpc.taskTemplates.update.useMutation({
-    onSuccess: () => {
-      toast.success("Template updated successfully");
-      onSuccess();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update template");
-    },
-  });
+  const updateMutation = trpc.taskTemplates.update.useMutation();
 
-  const form = useForm<FormValues, any, FormValues>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       serviceId: "",
@@ -145,14 +128,21 @@ export function TaskTemplateFormDialog({
     }
   }, [open, form]);
 
-  const onSubmit = (data: FormValues) => {
-    if (isEditing) {
-      updateMutation.mutate({
-        id: templateId,
-        ...data,
-      });
-    } else {
-      createMutation.mutate(data);
+  const onSubmit = async (data: FormValues) => {
+    try {
+      if (isEditing) {
+        await updateMutation.mutateAsync({
+          id: templateId,
+          ...data,
+        });
+        toast.success("Template updated successfully");
+      } else {
+        await createMutation.mutateAsync(data);
+        toast.success("Template created successfully");
+      }
+      onSuccess();
+    } catch (error: any) {
+      toast.error(error.message || `Failed to ${isEditing ? "update" : "create"} template`);
     }
   };
 
@@ -375,6 +365,14 @@ export function TaskTemplateFormDialog({
                         min="0"
                         placeholder="e.g., 8"
                         {...field}
+                        value={field.value || ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === ""
+                              ? undefined
+                              : Number(e.target.value),
+                          )
+                        }
                       />
                     </FormControl>
                     <FormDescription>
@@ -399,6 +397,10 @@ export function TaskTemplateFormDialog({
                           min="0"
                           placeholder="e.g., 3"
                           {...field}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormDescription>
@@ -421,6 +423,10 @@ export function TaskTemplateFormDialog({
                           min="0"
                           placeholder="e.g., 30"
                           {...field}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormDescription>

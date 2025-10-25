@@ -46,7 +46,7 @@ export default function LeaveCalendarPage() {
       if (!uniqueUsers.has(leave.userId)) {
         uniqueUsers.set(leave.userId, {
           id: leave.userId,
-          name: leave.userName,
+          name: leave.userName || "Unknown",
         });
       }
     });
@@ -151,7 +151,17 @@ export default function LeaveCalendarPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Calendar - Takes 3 columns */}
         <div className="lg:col-span-3">
-          <LeaveCalendar leaveRequests={filteredCalendarData} />
+          <LeaveCalendar
+            leaveRequests={filteredCalendarData.map((leave) => ({
+              id: leave.id,
+              userId: leave.userId,
+              userName: leave.userName || "Unknown",
+              leaveType: leave.leaveType,
+              startDate: leave.startDate,
+              endDate: leave.endDate,
+              status: leave.status,
+            }))}
+          />
         </div>
 
         {/* Sidebar - Filters */}

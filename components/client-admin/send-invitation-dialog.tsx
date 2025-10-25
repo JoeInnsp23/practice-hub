@@ -53,7 +53,7 @@ interface SendInvitationDialogProps {
 export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const form = useForm<InvitationForm>({
+  const form = useForm<InvitationForm, any, InvitationForm>({
     resolver: zodResolver(invitationSchema),
     defaultValues: {
       email: "",
@@ -72,20 +72,18 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
 
   // Send invitation mutation
   const sendInvitationMutation =
-    trpc.clientPortalAdmin.sendInvitation.useMutation({
-      onSuccess: () => {
-        toast.success("Invitation sent successfully!");
-        form.reset();
-        setOpen(false);
-        onSuccess?.();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to send invitation");
-      },
-    });
+    trpc.clientPortalAdmin.sendInvitation.useMutation();
 
-  const onSubmit = (data: InvitationForm) => {
-    sendInvitationMutation.mutate(data);
+  const onSubmit = async (data: InvitationForm) => {
+    try {
+      await sendInvitationMutation.mutateAsync(data);
+      toast.success("Invitation sent successfully!");
+      form.reset();
+      setOpen(false);
+      onSuccess?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send invitation");
+    }
   };
 
   return (

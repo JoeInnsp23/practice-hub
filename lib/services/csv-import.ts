@@ -74,23 +74,27 @@ export async function parseCsvFile<T>(
       },
       complete: (results) => {
         // Process all rows and manually handle empty row skipping
-        const rowsToProcess: Array<{ row: any; rowNumber: number }> = [];
+        const rowsToProcess: Array<{
+          row: Record<string, unknown>;
+          rowNumber: number;
+        }> = [];
         let currentRowNumber = 1; // Start after header
         const headers = results.meta.fields || [];
 
-        results.data.forEach((row: any) => {
+        results.data.forEach((row: unknown) => {
+          const rowRecord = row as Record<string, unknown>;
           currentRowNumber++;
 
           // Check if this is a blank line vs a row with empty values
           // Blank lines have MISSING fields (undefined), rows with commas have empty string values
-          const isTrulyBlankLine = headers.some((field) => !(field in row));
+          const isTrulyBlankLine = headers.some((field) => !(field in rowRecord));
 
           if (isTrulyBlankLine && skipEmptyLines) {
             // Skip truly blank lines (missing fields) if option is enabled
             skippedRows++;
           } else {
             // Keep all other rows (including rows with empty values to be validated)
-            rowsToProcess.push({ row, rowNumber: currentRowNumber });
+            rowsToProcess.push({ row: rowRecord, rowNumber: currentRowNumber });
           }
         });
 

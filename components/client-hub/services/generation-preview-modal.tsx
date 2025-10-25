@@ -83,7 +83,7 @@ export function GenerationPreviewModal({
         }
 
         // Invalidate tasks list to refresh
-        utils.tasks.getAll.invalidate();
+        utils.tasks.list.invalidate();
 
         // Close modal on success
         if (result.generated > 0 || result.skipped > 0) {

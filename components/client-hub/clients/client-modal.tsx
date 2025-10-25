@@ -72,7 +72,7 @@ export function ClientModal({
 }: ClientModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<ClientFormValues>({
+  const form = useForm<ClientFormValues, any, ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
       clientCode: client?.clientCode || "",
@@ -399,11 +399,11 @@ export function ClientModal({
                       )}
                     />
                     {form.watch("vatNumber") &&
-                      form.watch("vatNumber").length >= 9 && (
+                      (form.watch("vatNumber")?.length ?? 0) >= 9 && (
                         <div className="mt-2">
                           <VATValidationIndicator
-                            vatNumber={form.watch("vatNumber")}
-                            clientId={client?.id}
+                            vatNumber={form.watch("vatNumber") ?? ""}
+                            clientId={client && "id" in client ? (client.id as string) : undefined}
                             onValidationComplete={(result) => {
                               if (result.isValid && result.businessName) {
                                 toast.success(

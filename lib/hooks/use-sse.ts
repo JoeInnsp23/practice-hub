@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import type {
   ConnectionState,
+  RealtimeEvent,
   SubscriptionCallback,
 } from "@/lib/realtime/client";
 import { SSEClient } from "@/lib/realtime/sse-client";
@@ -145,7 +146,7 @@ export function useSSE(
         return () => {};
       }
 
-      return clientRef.current.subscribe(eventType, (event) => {
+      return clientRef.current.subscribe<T>(eventType, (event) => {
         // Update last message state
         setLastMessage({
           type: event.type,
@@ -153,8 +154,8 @@ export function useSSE(
           timestamp: event.timestamp,
         });
 
-        // Call callback
-        callback(event);
+        // Call callback with proper typing
+        callback(event as RealtimeEvent<T>);
 
         // Call legacy onMessage handler
         onMessage?.({

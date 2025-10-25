@@ -11,27 +11,16 @@ export function PendingApprovalsWidget() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Check if user is manager/admin from session
-  const isManagerOrAdmin =
-    session?.user?.role === "manager" ||
-    session?.user?.role === "admin" ||
-    session?.user?.role === "org:admin";
-
-  // Conditionally enable query - only run if manager/admin
+  // Query pending approvals - server-side authorization handles role checks
   const { data: submissions, isLoading } =
     trpc.timesheets.getPendingApprovals.useQuery(undefined, {
-      enabled: isManagerOrAdmin,
+      enabled: !!session?.user,
       retry: false,
       refetchOnWindowFocus: false,
     });
 
-  // Don't show widget if not manager/admin or no pending approvals
-  if (
-    !isManagerOrAdmin ||
-    isLoading ||
-    !submissions ||
-    submissions.length === 0
-  ) {
+  // Don't show widget if no session or no pending approvals
+  if (!session?.user || isLoading || !submissions || submissions.length === 0) {
     return null;
   }
 

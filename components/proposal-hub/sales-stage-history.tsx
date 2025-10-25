@@ -33,7 +33,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
   // Filter for sales stage related activities only
   const stageActivities =
     activitiesData?.activities?.filter(
-      (a: typeof activitiesData.activities[0]) =>
+      (a) =>
         a.action === "sales_stage_updated" ||
         a.action === "sales_stage_automated",
     ) || [];
@@ -61,7 +61,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
   );
 
   // Calculate time in each stage
-  const activitiesWithDuration = sortedActivities.map((activity: typeof sortedActivities[0], index: number) => {
+  const activitiesWithDuration = sortedActivities.map((activity, index) => {
     const nextActivity = sortedActivities[index + 1];
     const duration = nextActivity
       ? calculateTimeInStage(
@@ -84,8 +84,8 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
       {/* Timeline */}
       <div className="space-y-4">
         {activitiesWithDuration.map((activity) => {
-          const oldStage = activity.oldValues?.salesStage as string | undefined;
-          const newStage = activity.newValues?.salesStage as string | undefined;
+          const oldStage = (activity.oldValues as { salesStage?: string } | null)?.salesStage;
+          const newStage = (activity.newValues as { salesStage?: string } | null)?.salesStage;
           const isAutomated = activity.action === "sales_stage_automated";
 
           const oldStageConfig = oldStage
@@ -204,7 +204,7 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
             <p className="text-xl font-semibold">
               {
                 stageActivities.filter(
-                  (a: typeof stageActivities[0]) => a.action === "sales_stage_automated",
+                  (a) => a.action === "sales_stage_automated",
                 ).length
               }
             </p>
