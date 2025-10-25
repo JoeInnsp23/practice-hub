@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,12 @@ interface _Message {
     image: string | null;
   };
 }
+
+// Types based on tRPC router return types
+type ThreadData = RouterOutputs["messages"]["listThreads"][number];
+type MessageData = RouterOutputs["messages"]["listMessages"][number];
+type ThreadDetailsData = RouterOutputs["messages"]["getThread"];
+type UserData = RouterOutputs["users"]["list"]["users"][number];
 
 export default function MessagesPage() {
   const utils = trpc.useUtils();
@@ -136,7 +143,7 @@ export default function MessagesPage() {
   const messages = messagesData || [];
 
   // Filter threads by search
-  const filteredThreads = threads.filter((thread: any) => {
+  const filteredThreads = threads.filter((thread: ThreadData) => {
     const threadName = getThreadDisplayName(thread);
     return threadName.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -174,7 +181,7 @@ export default function MessagesPage() {
           {/* Thread List */}
           <ScrollArea className="flex-1">
             <div className="p-2 space-y-1">
-              {filteredThreads.map((thread: any) => (
+              {filteredThreads.map((thread: ThreadData) => (
                 <ThreadItem
                   key={thread.thread.id}
                   thread={thread}
@@ -254,7 +261,7 @@ export default function MessagesPage() {
               {/* Messages */}
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
-                  {messages.map((msg: any) => (
+                  {messages.map((msg: MessageData) => (
                     <MessageBubble key={msg.message.id} message={msg} />
                   ))}
                   <div ref={messagesEndRef} />
@@ -320,7 +327,7 @@ function ThreadItem({
   isSelected,
   onClick,
 }: {
-  thread: any;
+  thread: ThreadData;
   isSelected: boolean;
   onClick: () => void;
 }) {
@@ -372,7 +379,7 @@ function ThreadItem({
 }
 
 // Message Bubble Component
-function MessageBubble({ message }: { message: any }) {
+function MessageBubble({ message }: { message: MessageData }) {
   const msg = message.message;
   const sender = message.sender;
   const portalSender = message.portalSender;
@@ -580,7 +587,7 @@ function NewDMDialog({
             </label>
             <ScrollArea className="h-64 border rounded-lg p-2">
               <div className="space-y-1">
-                {users.map((user: any) => (
+                {users.map((user: UserData) => (
                   <button
                     key={user.id}
                     type="button"
@@ -592,7 +599,6 @@ function NewDMDialog({
                   >
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarImage src={user.image} />
                         <AvatarFallback>
                           {user.firstName?.[0]}
                           {user.lastName?.[0]}
@@ -635,26 +641,50 @@ function NewDMDialog({
 }
 
 // Helper function to get thread display name
-function getThreadDisplayName(thread: any): string {
+function getThreadDisplayName(
+  thread: ThreadData | ThreadDetailsData | null | undefined,
+): string {
   if (!thread) return "Unknown";
 
-  const threadData = thread.thread || thread;
+  // Handle ThreadData (from listThreads)
+  if ("thread" in thread) {
+    const threadData = thread.thread;
 
-  if (threadData.type === "team_channel") {
-    return `#${threadData.name || "channel"}`;
+    if (threadData.type === "team_channel") {
+      return `#${threadData.name || "channel"}`;
+    }
+
+    if (threadData.type === "client" && thread.client?.name) {
+      return thread.client.name;
+    }
+
+    return threadData.name || "Direct Message";
   }
 
-  if (threadData.type === "client" && thread.client) {
-    return thread.client.companyName || "Client";
+  // Handle ThreadDetailsData (from getThread)
+  if (thread.type === "team_channel") {
+    return `#${thread.name || "channel"}`;
+  }
+
+  if (thread.type === "client" && thread.client) {
+    return thread.client.name;
   }
 
   // For direct messages, show other participants
-  if (thread.participants) {
+  if ("participants" in thread && thread.participants) {
     const names = thread.participants
-      .map((p: any) => `${p.user.firstName} ${p.user.lastName}`)
+      .map(
+        (p: {
+          user: {
+            firstName: string | null;
+            lastName: string | null;
+          };
+        }) => `${p.user.firstName || ""} ${p.user.lastName || ""}`.trim(),
+      )
+      .filter((name) => name.length > 0)
       .join(", ");
     return names || "Direct Message";
   }
 
-  return threadData.name || "Conversation";
+  return thread.name || "Conversation";
 }

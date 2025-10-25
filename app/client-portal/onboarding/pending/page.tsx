@@ -89,8 +89,12 @@ export default function OnboardingPendingPage() {
       setPollCount(0);
       setPollingEnabled(true);
       refetch();
-    } catch (error: any) {
-      alert(error.message || "Failed to restart verification");
+    } catch (error) {
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to restart verification",
+      );
     }
   };
 

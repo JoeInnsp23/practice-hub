@@ -155,7 +155,7 @@ export function LeaveRequestModal({
   const utils = trpc.useUtils();
   const [calculatedDays, setCalculatedDays] = useState<number>(0);
 
-  const form = useForm<LeaveRequestFormValues, any, LeaveRequestFormValues>({
+  const form = useForm<LeaveRequestFormValues>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: {
       leaveType:
@@ -235,7 +235,7 @@ export function LeaveRequestModal({
       utils.leave.getCalendar.invalidate();
       onClose();
       form.reset();
-    } catch (error: any) {
+    } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "leave_request" },
         extra: {
@@ -244,7 +244,11 @@ export function LeaveRequestModal({
           endDate: data.endDate,
         },
       });
-      toast.error(error.message || "Failed to submit leave request");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit leave request",
+      );
     }
   };
 

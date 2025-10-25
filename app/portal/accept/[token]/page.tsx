@@ -38,12 +38,19 @@ const passwordSchema = z
 
 type PasswordForm = z.infer<typeof passwordSchema>;
 
+interface Invitation {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
+
 export default function AcceptInvitationPage() {
   const params = useParams();
   const router = useRouter();
   const token = params.token as string;
   const [loading, setLoading] = useState(true);
-  const [invitation, setInvitation] = useState<any>(null);
+  const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -106,8 +113,10 @@ export default function AcceptInvitationPage() {
       setTimeout(() => {
         router.push("/portal/sign-in?from=invitation");
       }, 1500);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to create account");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to create account",
+      );
       setSubmitting(false);
     }
   };
@@ -152,6 +161,10 @@ export default function AcceptInvitationPage() {
         </Card>
       </div>
     );
+  }
+
+  if (!invitation) {
+    return null; // Should not happen - handled by loading/error states
   }
 
   return (

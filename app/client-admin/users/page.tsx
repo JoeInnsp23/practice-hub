@@ -146,7 +146,7 @@ export default function UsersPage() {
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {user.clientAccess.map((access: any) => (
+                          {user.clientAccess.map((access) => (
                             <Badge
                               key={access.id}
                               variant="secondary"

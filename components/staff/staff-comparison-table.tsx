@@ -22,10 +22,23 @@ import {
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc/client";
 
+interface StaffMember {
+  userId: string;
+  firstName: string | null;
+  lastName: string | null;
+  role: string;
+  departmentName?: string | null;
+  totalLoggedHours: number;
+  capacityHours: number;
+  utilization: number;
+  billablePercentage: number;
+  status: "overallocated" | "underutilized" | "optimal";
+}
+
 interface StaffComparisonTableProps {
   startDate: string;
   endDate: string;
-  onExport?: (data: any[]) => void;
+  onExport?: (data: StaffMember[]) => void;
 }
 
 export function StaffComparisonTable({
@@ -130,7 +143,9 @@ export function StaffComparisonTable({
       <div className="flex justify-between items-center">
         <Select
           value={statusFilter}
-          onValueChange={(value: any) => setStatusFilter(value)}
+          onValueChange={(
+            value: "all" | "overallocated" | "underutilized" | "optimal",
+          ) => setStatusFilter(value)}
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by status" />

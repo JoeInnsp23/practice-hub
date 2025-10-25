@@ -391,8 +391,8 @@ export default function InvoicesPage() {
             </DialogTitle>
           </DialogHeader>
           <InvoiceForm
-            invoice={editingInvoice}
-            onSave={handleSaveInvoice}
+            invoice={(editingInvoice || undefined) as any}
+            onSave={handleSaveInvoice as any}
             onCancel={() => setIsFormOpen(false)}
           />
         </DialogContent>

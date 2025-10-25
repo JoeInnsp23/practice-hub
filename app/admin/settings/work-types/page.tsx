@@ -20,6 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,9 +43,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
+// Infer work type from tRPC router output
+type WorkType = RouterOutputs["workTypes"]["list"]["workTypes"][number];
+
 interface SortableWorkTypeItemProps {
-  workType: any;
-  onEdit: (workType: any) => void;
+  workType: WorkType;
+  onEdit: (workType: WorkType) => void;
   onDelete: (id: string) => void;
 }
 
@@ -119,7 +123,7 @@ function SortableWorkTypeItem({
 
 export default function WorkTypesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingWorkType, setEditingWorkType] = useState<any>(null);
+  const [editingWorkType, setEditingWorkType] = useState<WorkType | null>(null);
   const [formData, setFormData] = useState({
     code: "",
     label: "",
@@ -209,7 +213,7 @@ export default function WorkTypesPage() {
     });
   };
 
-  const handleEdit = (workType: any) => {
+  const handleEdit = (workType: WorkType) => {
     setEditingWorkType(workType);
     setFormData({
       code: workType.code,

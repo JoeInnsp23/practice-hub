@@ -158,19 +158,14 @@ export async function POST(request: NextRequest) {
             pricingModel: "turnover" as "turnover" | "transaction" | "both",
             basePrice: row.price?.toString() || null, // Add basePrice to match schema
             price: row.price?.toString() || null,
-            priceType: (row.price_type || "fixed") as
-              | "fixed"
-              | "hourly"
-              | "monthly"
-              | "annual"
-              | "custom",
+            priceType: (row.price_type || "fixed") as any,
             defaultRate: row.price?.toString() || null, // Use price as default rate
             duration: row.estimated_hours
               ? Math.round(row.estimated_hours * 60)
               : null, // Convert hours to minutes
             supportsComplexity: false,
             tags: null, // Add tags field to match schema
-            isActive: row.is_active !== undefined ? row.is_active : true,
+            isActive: row.is_active === false ? false : true,
             metadata: row.notes
               ? {
                   notes: row.notes,
@@ -188,7 +183,7 @@ export async function POST(request: NextRequest) {
 
       // Insert batch
       if (servicesData.length > 0) {
-        await db.insert(services).values(servicesData as any);
+        await db.insert(services).values(servicesData);
         processedCount += servicesData.length;
       }
 

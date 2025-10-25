@@ -66,8 +66,15 @@ export default function CalculatorPage() {
   useEffect(() => {
     if (templateData?.template) {
       const services = Array.isArray(templateData.template.defaultServices)
-        ? templateData.template.defaultServices.map((s: any) => ({
-            serviceCode: s.componentCode || s.serviceCode,
+        ? (
+            templateData.template.defaultServices as Array<{
+              componentCode?: string;
+              serviceCode?: string;
+              quantity?: number;
+              config?: Record<string, unknown>;
+            }>
+          ).map((s) => ({
+            serviceCode: s.componentCode || s.serviceCode || "",
             quantity: s.quantity,
             config: s.config,
           }))

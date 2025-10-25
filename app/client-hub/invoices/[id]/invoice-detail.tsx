@@ -80,8 +80,12 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
       });
       toast.success("Invoice status updated");
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update invoice status");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to update invoice status";
+      toast.error(message);
     }
   };
 

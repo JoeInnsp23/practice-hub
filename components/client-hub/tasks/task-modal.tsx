@@ -116,7 +116,7 @@ const getDefaultValues = (
 });
 
 export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
-  const form = useForm<TaskFormValues, any, TaskFormValues>({
+  const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
     defaultValues: getDefaultValues(task),
   });

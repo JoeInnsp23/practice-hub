@@ -47,10 +47,18 @@ const capacityFormSchema = z.object({
 
 type CapacityFormData = z.infer<typeof capacityFormSchema>;
 
+interface StaffCapacity {
+  id: string;
+  userId: string;
+  effectiveFrom: string;
+  weeklyHours: number;
+  notes?: string | null;
+}
+
 interface CapacityFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  capacity?: any;
+  capacity?: StaffCapacity;
   onSuccess: () => void;
 }
 
@@ -71,7 +79,7 @@ export function CapacityFormDialog({
   // Update mutation
   const updateMutation = trpc.staffCapacity.update.useMutation();
 
-  const form = useForm<CapacityFormData, any, CapacityFormData>({
+  const form = useForm<CapacityFormData>({
     resolver: zodResolver(capacityFormSchema),
     defaultValues: {
       userId: "",
@@ -113,14 +121,18 @@ export function CapacityFormDialog({
         toast.success("Capacity record created successfully");
       }
       onSuccess();
-    } catch (error: any) {
+    } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: isEditing ? "update_capacity" : "create_capacity" },
-        extra: { errorMessage: error.message, capacityId: capacity?.id },
+        extra: {
+          errorMessage: error instanceof Error ? error.message : String(error),
+          capacityId: capacity?.id,
+        },
       });
       toast.error(
-        error.message ||
-          `Failed to ${isEditing ? "update" : "create"} capacity record`,
+        error instanceof Error
+          ? error.message
+          : `Failed to ${isEditing ? "update" : "create"} capacity record`,
       );
     }
   };

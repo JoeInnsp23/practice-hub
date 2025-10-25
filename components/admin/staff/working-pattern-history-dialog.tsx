@@ -30,6 +30,21 @@ const PATTERN_TYPE_LABELS: Record<string, string> = {
   custom: "Custom",
 };
 
+interface WorkingPattern {
+  id: string;
+  patternType: string;
+  contractedHours: number;
+  mondayHours: number;
+  tuesdayHours: number;
+  wednesdayHours: number;
+  thursdayHours: number;
+  fridayHours: number;
+  saturdayHours: number;
+  sundayHours: number;
+  effectiveFrom: string;
+  notes?: string | null;
+}
+
 interface WorkingPatternHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,7 +62,7 @@ export function WorkingPatternHistoryDialog({
   });
 
   // Format working pattern summary
-  const formatPatternSummary = (pattern: any): string => {
+  const formatPatternSummary = (pattern: WorkingPattern): string => {
     const days = [
       { name: "Mon", hours: pattern.mondayHours },
       { name: "Tue", hours: pattern.tuesdayHours },

@@ -53,7 +53,7 @@ interface SendInvitationDialogProps {
 export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const form = useForm<InvitationForm, any, InvitationForm>({
+  const form = useForm<InvitationForm>({
     resolver: zodResolver(invitationSchema),
     defaultValues: {
       email: "",
@@ -81,8 +81,10 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
       form.reset();
       setOpen(false);
       onSuccess?.();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send invitation");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send invitation",
+      );
     }
   };
 

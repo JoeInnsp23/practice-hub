@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  type TimeEntry,
+  type TimeEntryInput,
   useCreateTimeEntry,
   useTimeEntries,
 } from "@/lib/hooks/use-time-entries";
@@ -27,7 +29,7 @@ export function HourlyTimesheet({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
-  const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ export function HourlyTimesheet({
     setIsModalOpen(true);
   };
 
-  const handleSaveEntry = async (entry: any) => {
+  const handleSaveEntry = async (entry: TimeEntryInput) => {
     try {
       await createTimeEntry.mutateAsync(entry);
       setRefreshKey((prev) => prev + 1); // Trigger data refresh
@@ -444,7 +446,7 @@ export function HourlyTimesheet({
         onUpdate={() => setRefreshKey((prev) => prev + 1)}
         onDelete={() => setRefreshKey((prev) => prev + 1)}
         selectedDate={selectedDate || undefined}
-        selectedEntry={selectedEntry}
+        selectedEntry={selectedEntry || undefined}
         selectedHour={selectedHour}
         clients={clients}
         tasks={tasks}

@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 interface OnboardingReviewProps {
-  formData: Record<string, any>;
-  questionnaire?: any;
+  formData: Record<string, unknown>;
+  questionnaire?: Record<string, unknown>;
   onSubmit: () => void;
   isSubmitting: boolean;
 }
@@ -67,7 +67,7 @@ export function OnboardingReview({
                 <div key={field.key} className="space-y-1">
                   <p className="text-sm font-medium">{field.label}</p>
                   <p className="text-sm text-muted-foreground">
-                    {formData[field.key] || (
+                    {String(formData[field.key] || "") || (
                       <span className="text-red-500">Not provided</span>
                     )}
                   </p>
@@ -94,7 +94,7 @@ export function OnboardingReview({
                   : "Questionnaire Incomplete"}
               </p>
               <p className="text-sm text-muted-foreground">
-                {completionPercentage}% complete
+                {Number(completionPercentage)}% complete
               </p>
             </div>
           </div>

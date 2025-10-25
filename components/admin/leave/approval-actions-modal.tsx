@@ -70,7 +70,7 @@ export function ApprovalActionsModal({
 }: ApprovalActionsModalProps) {
   const utils = trpc.useUtils();
 
-  const form = useForm<{ comments?: string }, any, { comments?: string }>({
+  const form = useForm<{ comments?: string }>({
     resolver: zodResolver(
       action === "approve" ? approvalSchema : rejectionSchema,
     ),
@@ -103,7 +103,7 @@ export function ApprovalActionsModal({
       utils.leave.getTeamLeave.invalidate();
       onClose();
       form.reset();
-    } catch (error: any) {
+    } catch (error) {
       Sentry.captureException(error, {
         tags: {
           operation: action === "approve" ? "approve_leave" : "reject_leave",
@@ -111,8 +111,9 @@ export function ApprovalActionsModal({
         extra: { requestId: request?.id },
       });
       toast.error(
-        error.message ||
-          `Failed to ${action === "approve" ? "approve" : "reject"} leave request`,
+        error instanceof Error
+          ? error.message
+          : `Failed to ${action === "approve" ? "approve" : "reject"} leave request`,
       );
     }
   };

@@ -131,11 +131,15 @@ export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
         toast.success("Leave request cancelled");
         utils.leave.getHistory.invalidate();
         utils.leave.getBalance.invalidate();
-      } catch (error: any) {
+      } catch (error) {
         Sentry.captureException(error, {
           tags: { operation: "cancel_leave" },
         });
-        toast.error(error.message || "Failed to cancel leave request");
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to cancel leave request",
+        );
       }
     }
   };

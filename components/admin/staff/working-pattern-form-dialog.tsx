@@ -163,11 +163,32 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>;
 
+interface WorkingPattern {
+  id: string;
+  userId: string;
+  patternType:
+    | "full_time"
+    | "part_time"
+    | "compressed_hours"
+    | "job_share"
+    | "custom";
+  contractedHours: number;
+  mondayHours: number;
+  tuesdayHours: number;
+  wednesdayHours: number;
+  thursdayHours: number;
+  fridayHours: number;
+  saturdayHours: number;
+  sundayHours: number;
+  effectiveFrom: string;
+  notes?: string | null;
+}
+
 interface WorkingPatternFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  editingPattern?: any | null;
+  editingPattern?: WorkingPattern | null;
 }
 
 export function WorkingPatternFormDialog({
@@ -268,8 +289,12 @@ export function WorkingPatternFormDialog({
         toast.success("Working pattern created successfully");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save working pattern");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to save working pattern",
+      );
     }
   };
 
@@ -433,7 +458,7 @@ export function WorkingPatternFormDialog({
                   <FormField
                     key={name}
                     control={form.control}
-                    name={name as any}
+                    name={name as keyof FormData}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{label}</FormLabel>

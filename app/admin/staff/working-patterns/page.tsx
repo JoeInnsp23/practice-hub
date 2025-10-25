@@ -46,11 +46,22 @@ const PATTERN_TYPE_COLORS: Record<
   custom: "outline",
 };
 
+// Infer working pattern type from tRPC router output
+type WorkingPattern = NonNullable<
+  ReturnType<typeof trpc.workingPatterns.list.useQuery>["data"] extends infer T
+    ? T extends { workingPatterns: Array<infer P> }
+      ? P
+      : any
+    : any
+>;
+
 export default function WorkingPatternsPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
-  const [editingPattern, setEditingPattern] = useState<any | null>(null);
+  const [editingPattern, setEditingPattern] = useState<WorkingPattern | null>(
+    null,
+  );
 
   // Fetch all working patterns
   const { data, isLoading, refetch } = trpc.workingPatterns.list.useQuery({});
@@ -61,7 +72,7 @@ export default function WorkingPatternsPage() {
     refetch();
   };
 
-  const handleEdit = (pattern: any) => {
+  const handleEdit = (pattern: WorkingPattern) => {
     setEditingPattern(pattern);
     setShowCreateDialog(true);
   };
@@ -72,7 +83,7 @@ export default function WorkingPatternsPage() {
   };
 
   // Format working pattern summary (e.g., "Mon-Thu 9h, Fri off (36h/week)")
-  const formatPatternSummary = (pattern: any): string => {
+  const formatPatternSummary = (pattern: WorkingPattern): string => {
     const days = [
       { name: "Mon", hours: pattern.mondayHours },
       { name: "Tue", hours: pattern.tuesdayHours },

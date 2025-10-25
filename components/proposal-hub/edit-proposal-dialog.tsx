@@ -29,7 +29,7 @@ interface EditProposalDialogProps {
     componentName: string;
     calculation?: string | null;
     price: string;
-    config?: any;
+    config?: Record<string, unknown>;
   }>;
   onSuccess?: () => void;
 }
@@ -52,7 +52,7 @@ export function EditProposalDialog({
       componentName: string;
       calculation?: string;
       price: number;
-      config?: any;
+      config?: Record<string, unknown>;
     }>
   >(
     currentServices.map((s) => ({
@@ -129,7 +129,7 @@ export function EditProposalDialog({
       | "calculation"
       | "price"
       | "config",
-    value: any,
+    value: string | number | Record<string, unknown>,
   ) => {
     const updated = [...services];
     if (updated[index]) {

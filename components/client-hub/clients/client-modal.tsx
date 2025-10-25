@@ -72,7 +72,7 @@ export function ClientModal({
 }: ClientModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<ClientFormValues, any, ClientFormValues>({
+  const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
       clientCode: client?.clientCode || "",

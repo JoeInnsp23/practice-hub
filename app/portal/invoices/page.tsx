@@ -109,11 +109,15 @@ export default function InvoicesPage() {
         <CardContent>
           <Tabs
             value={selectedStatus}
-            onValueChange={(v) => setSelectedStatus(v as any)}
+            onValueChange={(v) =>
+              setSelectedStatus(
+                v as "sent" | "paid" | "overdue" | "cancelled" | undefined,
+              )
+            }
           >
             <TabsList>
               <TabsTrigger
-                value={undefined as any}
+                value="all"
                 onClick={() => setSelectedStatus(undefined)}
               >
                 All

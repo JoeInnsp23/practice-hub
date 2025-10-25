@@ -112,11 +112,15 @@ export default function ProposalsPage() {
         <CardContent>
           <Tabs
             value={selectedStatus}
-            onValueChange={(v) => setSelectedStatus(v as any)}
+            onValueChange={(v) =>
+              setSelectedStatus(
+                v as "sent" | "expired" | "viewed" | "signed" | undefined,
+              )
+            }
           >
             <TabsList>
               <TabsTrigger
-                value={undefined as any}
+                value="all"
                 onClick={() => setSelectedStatus(undefined)}
               >
                 All

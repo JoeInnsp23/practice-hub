@@ -13,6 +13,7 @@ import {
   Share2,
   Trash2,
 } from "lucide-react";
+import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,34 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 
-interface DocumentData {
-  document: {
-    id: string;
-    name: string;
-    type: "folder" | "file";
-    mimeType: string | null;
-    size: number | null;
-    parentId: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    tags: unknown;
-    clientId: string | null;
-    url: string | null;
-    path: string | null;
-    isPublic: boolean | null;
-    requiresSignature?: boolean;
-    signatureStatus?: string | null;
-    signedAt?: Date | null;
-    signedBy?: string | null;
-  };
-  uploader: {
-    id: string;
-    firstName: string | null;
-    lastName: string | null;
-    email: string;
-  } | null;
-  client: Record<string, any> | null;
-}
+type DocumentData = RouterOutputs["documents"]["list"]["documents"][number];
 
 interface DocumentGridProps {
   documents: DocumentData[];

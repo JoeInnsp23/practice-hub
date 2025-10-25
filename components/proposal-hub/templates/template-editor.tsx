@@ -118,19 +118,22 @@ export function TemplateEditor({
       name,
       description: description || null,
       category: category || null,
-      defaultServices: selectedServices as Array<{
-        serviceCode: string;
-        config?: any;
-      }>,
+      defaultServices: selectedServices.map((s) => ({
+        componentCode: s.serviceCode,
+        config: s.config,
+      })),
       termsAndConditions: termsAndConditions || null,
       notes: notes || null,
       isDefault,
     };
 
     if (templateId) {
-      updateTemplate({ id: templateId, data: data as any });
+      updateTemplate({
+        id: templateId,
+        data,
+      });
     } else {
-      createTemplate(data as any);
+      createTemplate(data);
     }
   };
 

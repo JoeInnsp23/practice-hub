@@ -48,7 +48,7 @@ export interface VerificationRequest {
   dateOfBirth?: string; // YYYY-MM-DD
   phoneNumber?: string;
   callbackUrl?: string; // Webhook URL for status updates
-  metadata?: Record<string, any>; // Custom data
+  metadata?: Record<string, unknown>; // Custom data
 }
 
 /**
@@ -137,7 +137,7 @@ class LemVerifyAPIClient {
   private async request<T>(
     endpoint: string,
     method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
-    data?: any,
+    data?: Record<string, unknown>,
   ): Promise<T> {
     if (!this.apiKey) {
       throw new Error("LEM Verify API key not configured");

@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface OnboardingIndividualFormProps {
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   aiExtractedFields: Set<string>;
-  onFieldChange: (key: string, value: any) => void;
+  onFieldChange: (key: string, value: unknown) => void;
   onVerifyAiField: (key: string) => void;
 }
 
@@ -46,7 +46,7 @@ export function OnboardingIndividualForm({
           <Input
             id={key}
             type={type}
-            value={formData[key] || ""}
+            value={String(formData[key] || "")}
             onChange={(e) => onFieldChange(key, e.target.value)}
             placeholder={placeholder}
             className={

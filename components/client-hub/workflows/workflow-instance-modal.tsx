@@ -40,10 +40,37 @@ interface WorkflowTemplate {
   estimatedDays: number;
 }
 
+interface Client {
+  id: string;
+  name: string;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  client: string;
+}
+
+type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+interface WorkflowInstanceData {
+  name: string;
+  client: Client | null;
+  template: WorkflowTemplate | null;
+  dueDate: Date | null;
+  assignee: string;
+  notes: string;
+  existingTask: Task | null;
+  taskTitle: string;
+  taskDescription: string;
+  taskPriority: TaskPriority;
+  taskMode: "existing" | "new";
+}
+
 interface WorkflowInstanceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: WorkflowInstanceData) => void;
   templates: WorkflowTemplate[];
 }
 
@@ -81,17 +108,17 @@ export function WorkflowInstanceModal({
   const [taskMode, setTaskMode] = useState<"existing" | "new">("existing");
   const [formData, setFormData] = useState({
     name: "",
-    client: null as any,
-    template: null as any,
+    client: null as Client | null,
+    template: null as WorkflowTemplate | null,
     dueDate: null as Date | null,
     assignee: "",
     notes: "",
     // For existing task
-    existingTask: null as any,
+    existingTask: null as Task | null,
     // For new task
     taskTitle: "",
     taskDescription: "",
-    taskPriority: "medium" as "low" | "medium" | "high" | "urgent",
+    taskPriority: "medium" as TaskPriority,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -209,7 +236,7 @@ export function WorkflowInstanceModal({
                   const task = mockTasksWithoutWorkflow.find(
                     (t) => t.id === value,
                   );
-                  setFormData({ ...formData, existingTask: task });
+                  setFormData({ ...formData, existingTask: task || null });
                 }}
               >
                 <SelectTrigger>
@@ -263,7 +290,10 @@ export function WorkflowInstanceModal({
                 <Select
                   value={formData.taskPriority}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, taskPriority: value as any })
+                    setFormData({
+                      ...formData,
+                      taskPriority: value as TaskPriority,
+                    })
                   }
                 >
                   <SelectTrigger>

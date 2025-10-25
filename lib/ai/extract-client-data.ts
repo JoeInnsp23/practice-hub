@@ -106,6 +106,31 @@ export interface DocumentExtractionResult {
 }
 
 /**
+ * Questionnaire response value type
+ * Represents all possible response types stored in the onboarding questionnaire
+ */
+export type QuestionnaireValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | {
+      line1?: string;
+      line2?: string;
+      city?: string;
+      postalCode?: string;
+      country?: string;
+    }
+  | Array<{ name: string; appointedDate?: string }>
+  | Array<{ name: string; notifiedDate?: string; natureOfControl?: string[] }>
+  | string[];
+
+/**
+ * Mapped questionnaire responses from extracted document data
+ */
+export type QuestionnaireResponses = Record<string, QuestionnaireValue>;
+
+/**
  * Extract data from a document using Gemini Vision
  */
 export async function extractClientDataFromDocument(
@@ -224,8 +249,8 @@ IMPORTANT: UK has NO national ID cards - only passport and driving license are v
  */
 export function mapExtractedDataToQuestionnaire(
   extraction: DocumentExtractionResult,
-): Record<string, any> {
-  const responses: Record<string, any> = {};
+): QuestionnaireResponses {
+  const responses: QuestionnaireResponses = {};
 
   // Individual data mapping
   if (extraction.individualData) {
@@ -303,7 +328,7 @@ export async function extractFromMultipleDocuments(
   }>,
 ): Promise<{
   extractions: DocumentExtractionResult[];
-  mergedData: Record<string, any>;
+  mergedData: QuestionnaireResponses;
   confidence: "high" | "medium" | "low";
 }> {
   console.log(`Extracting data from ${documents.length} documents...`);
@@ -316,7 +341,7 @@ export async function extractFromMultipleDocuments(
   );
 
   // Merge all extracted data (later documents override earlier ones for conflicts)
-  let mergedData: Record<string, any> = {};
+  let mergedData: QuestionnaireResponses = {};
   for (const extraction of extractions) {
     const mapped = mapExtractedDataToQuestionnaire(extraction);
     mergedData = { ...mergedData, ...mapped };

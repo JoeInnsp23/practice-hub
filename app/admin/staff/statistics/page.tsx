@@ -207,7 +207,7 @@ export default function StaffStatisticsPage() {
                 <StaffComparisonTable
                   startDate={dateRange.startDate}
                   endDate={dateRange.endDate}
-                  onExport={exportStaffUtilizationToCSV}
+                  onExport={exportStaffUtilizationToCSV as any}
                 />
               </TabsContent>
             </Tabs>

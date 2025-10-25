@@ -23,13 +23,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
+import { type RouterOutputs, trpc } from "@/lib/trpc/client";
+
+// Infer types from tRPC router outputs
+type CapacityRecord =
+  RouterOutputs["staffCapacity"]["list"]["capacityRecords"][number];
+
+type UtilizationData =
+  RouterOutputs["staffCapacity"]["getUtilization"]["utilization"][number];
 
 export default function StaffCapacityPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
-  const [editingCapacity, setEditingCapacity] = useState<any | null>(null);
+  const [editingCapacity, setEditingCapacity] = useState<CapacityRecord | null>(
+    null,
+  );
 
   // Fetch all capacity records
   const { data, isLoading, refetch } = trpc.staffCapacity.list.useQuery({});
@@ -45,7 +54,7 @@ export default function StaffCapacityPage() {
     refetch();
   };
 
-  const handleEdit = (capacity: any) => {
+  const handleEdit = (capacity: CapacityRecord) => {
     setEditingCapacity(capacity);
     setShowCreateDialog(true);
   };
@@ -66,7 +75,7 @@ export default function StaffCapacityPage() {
       }
       return acc;
     },
-    {} as Record<string, any>,
+    {} as Record<string, CapacityRecord>,
   );
 
   const latestCapacities = latestCapacityPerUser
@@ -79,7 +88,7 @@ export default function StaffCapacityPage() {
       acc[util.userId] = util;
       return acc;
     },
-    {} as Record<string, any>,
+    {} as Record<string, UtilizationData>,
   );
 
   return (
@@ -303,7 +312,7 @@ export default function StaffCapacityPage() {
           setShowCreateDialog(open);
           if (!open) setEditingCapacity(null);
         }}
-        capacity={editingCapacity}
+        capacity={editingCapacity ?? undefined}
         onSuccess={handleCreateSuccess}
       />
 

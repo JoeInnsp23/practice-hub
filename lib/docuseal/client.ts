@@ -24,7 +24,7 @@ export interface CreateSubmissionParams {
   template_id: string;
   send_email: boolean;
   submitters: Submitter[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DocuSealSubmission {
@@ -38,10 +38,10 @@ export interface DocuSealSubmission {
     user_agent?: string;
     opened_at?: string;
     completed_at?: string;
-    values?: Record<string, any>;
+    values?: Record<string, unknown>;
   }>;
   completed_at?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class DocuSealClient {

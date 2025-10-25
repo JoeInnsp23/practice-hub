@@ -95,8 +95,10 @@ export function TaskReassignmentModal({
       form.reset();
       onOpenChange(false);
       onSuccess?.();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to reassign task");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reassign task",
+      );
     }
   };
 

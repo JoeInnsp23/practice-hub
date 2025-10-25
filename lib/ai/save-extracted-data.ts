@@ -9,6 +9,20 @@ import { and, eq } from "drizzle-orm";
 import { invalidateQuestionnaireCache } from "@/lib/cache";
 import { db } from "@/lib/db";
 import { onboardingResponses } from "@/lib/db/schema";
+import type {
+  QuestionnaireResponses,
+  QuestionnaireValue,
+} from "./extract-client-data";
+
+/**
+ * Response metadata type for onboarding questionnaire
+ * Includes the answer value and metadata about extraction/verification
+ */
+export interface OnboardingResponseMetadata {
+  value: QuestionnaireValue;
+  extractedFromAi: boolean;
+  verifiedByUser: boolean;
+}
 
 /**
  * Save extracted data to onboarding_responses table
@@ -21,7 +35,7 @@ import { onboardingResponses } from "@/lib/db/schema";
 export async function saveExtractedDataToOnboarding(
   tenantId: string,
   onboardingSessionId: string,
-  extractedData: Record<string, any>,
+  extractedData: QuestionnaireResponses,
   documentType: string,
 ): Promise<void> {
   console.log(
@@ -109,7 +123,7 @@ export async function markResponseAsVerified(
 export async function updateExtractedResponse(
   onboardingSessionId: string,
   questionKey: string,
-  newValue: any,
+  newValue: QuestionnaireValue,
   tenantId?: string,
 ): Promise<void> {
   const [existingResponse] = await db
@@ -174,25 +188,17 @@ export async function updateExtractedResponse(
  */
 export async function getOnboardingResponses(
   onboardingSessionId: string,
-): Promise<
-  Record<
-    string,
-    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
-  >
-> {
+): Promise<Record<string, OnboardingResponseMetadata>> {
   const responses = await db
     .select()
     .from(onboardingResponses)
     .where(eq(onboardingResponses.onboardingSessionId, onboardingSessionId));
 
-  const responsesMap: Record<
-    string,
-    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
-  > = {};
+  const responsesMap: Record<string, OnboardingResponseMetadata> = {};
 
   for (const response of responses) {
     responsesMap[response.questionKey] = {
-      value: response.answerValue,
+      value: response.answerValue as any,
       extractedFromAi: response.extractedFromAi || false,
       verifiedByUser: response.verifiedByUser || false,
     };
@@ -207,10 +213,7 @@ export async function getOnboardingResponses(
  * Based on required fields being verified
  */
 export function calculateCompletionPercentage(
-  responses: Record<
-    string,
-    { value: any; extractedFromAi: boolean; verifiedByUser: boolean }
-  >,
+  responses: Record<string, OnboardingResponseMetadata>,
   requiredFields: string[],
 ): number {
   const verifiedRequiredFields = requiredFields.filter(

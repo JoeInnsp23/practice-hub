@@ -40,7 +40,15 @@ const timeEntrySchema = z.object({
 type TimeEntryFormValues = z.infer<typeof timeEntrySchema>;
 
 interface QuickTimeEntryProps {
-  onSave?: (data: any) => void;
+  onSave?: (data: {
+    client: string;
+    task?: string;
+    description: string;
+    hours: number;
+    date: Date;
+    billable: boolean;
+    createdAt: Date;
+  }) => void;
 }
 
 export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
@@ -48,7 +56,7 @@ export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [_elapsedTime, setElapsedTime] = useState(0);
 
-  const form = useForm<TimeEntryFormValues, any, TimeEntryFormValues>({
+  const form = useForm<TimeEntryFormValues>({
     resolver: zodResolver(timeEntrySchema),
     defaultValues: {
       client: "",

@@ -126,7 +126,7 @@ export default function PricingAnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <ModelComparisonChart
-            data={modelStats as any}
+            data={modelStats}
             avgSavingsB={avgSavingsB}
             isLoading={modelLoading}
           />

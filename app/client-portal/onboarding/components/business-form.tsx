@@ -11,9 +11,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 interface OnboardingBusinessFormProps {
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   aiExtractedFields: Set<string>;
-  onFieldChange: (key: string, value: any) => void;
+  onFieldChange: (key: string, value: unknown) => void;
   onVerifyAiField: (key: string) => void;
 }
 
@@ -32,7 +32,7 @@ export function OnboardingBusinessForm({
           </Label>
           <Textarea
             id="nature_of_business"
-            value={formData.nature_of_business || ""}
+            value={String(formData.nature_of_business || "")}
             onChange={(e) =>
               onFieldChange("nature_of_business", e.target.value)
             }
@@ -46,7 +46,7 @@ export function OnboardingBusinessForm({
             Annual Turnover <span className="text-destructive">*</span>
           </Label>
           <Select
-            value={formData.annual_turnover || ""}
+            value={String(formData.annual_turnover || "")}
             onValueChange={(value) => onFieldChange("annual_turnover", value)}
           >
             <SelectTrigger>

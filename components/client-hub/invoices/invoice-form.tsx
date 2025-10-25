@@ -48,9 +48,22 @@ interface LineItem {
   total: number;
 }
 
+interface Invoice {
+  client: string;
+  invoiceNumber: string;
+  issueDate: string;
+  dueDate: string;
+  status: "draft" | "sent" | "paid" | "overdue";
+  paymentTerms: string;
+  notes?: string;
+  lineItems?: LineItem[];
+}
+
 interface InvoiceFormProps {
-  invoice?: any;
-  onSave: (data: any) => void;
+  invoice?: Invoice;
+  onSave: (
+    data: Invoice & { subtotal: number; taxTotal: number; total: number },
+  ) => void;
   onCancel: () => void;
 }
 
@@ -68,7 +81,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
     ],
   );
 
-  const form = useForm<InvoiceFormValues, any, InvoiceFormValues>({
+  const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       client: invoice?.client || "",
@@ -99,7 +112,11 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
     setLineItems(lineItems.filter((item) => item.id !== id));
   };
 
-  const updateLineItem = (id: string, field: keyof LineItem, value: any) => {
+  const updateLineItem = (
+    id: string,
+    field: keyof LineItem,
+    value: string | number,
+  ) => {
     setLineItems(
       lineItems.map((item) => {
         if (item.id === id) {

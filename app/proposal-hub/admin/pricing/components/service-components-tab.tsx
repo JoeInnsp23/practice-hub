@@ -464,7 +464,18 @@ function ServiceComponentForm({
               <Select
                 value={formData.category}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, category: value as any })
+                  setFormData({
+                    ...formData,
+                    category: value as
+                      | "compliance"
+                      | "vat"
+                      | "bookkeeping"
+                      | "payroll"
+                      | "management"
+                      | "secretarial"
+                      | "tax_planning"
+                      | "addon",
+                  })
                 }
               >
                 <SelectTrigger id="category">

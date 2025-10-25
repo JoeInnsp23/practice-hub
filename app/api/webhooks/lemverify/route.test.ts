@@ -44,7 +44,7 @@ describe("app/api/webhooks/lemverify/route.ts", () => {
     vi.clearAllMocks();
   });
 
-  function createWebhookRequest(body: any, signature?: string): Request {
+  function createWebhookRequest(body: unknown, signature?: string): Request {
     const bodyString = JSON.stringify(body);
 
     // Generate valid signature if not provided

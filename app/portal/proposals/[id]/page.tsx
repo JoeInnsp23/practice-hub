@@ -237,7 +237,7 @@ export default function ProposalDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {proposal.services.map((service: any) => (
+                  {proposal.services.map((service) => (
                     <TableRow key={service.id}>
                       <TableCell className="font-medium">
                         {service.name}

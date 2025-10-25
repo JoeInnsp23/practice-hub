@@ -16,6 +16,8 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  type TimeEntry,
+  type TimeEntryInput,
   useCreateTimeEntry,
   useTimeEntries,
 } from "@/lib/hooks/use-time-entries";
@@ -35,7 +37,7 @@ export function MonthlyTimesheet({
   const [currentDate, setCurrentDate] = useState(initialDate);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const createTimeEntry = useCreateTimeEntry();
 
@@ -86,13 +88,13 @@ export function MonthlyTimesheet({
     setCurrentDate(newDate);
   };
 
-  const openModal = (date: Date, entry?: any) => {
+  const openModal = (date: Date, entry?: TimeEntry) => {
     setSelectedDate(date);
     setSelectedEntry(entry || null);
     setIsModalOpen(true);
   };
 
-  const handleSaveEntry = async (entry: any) => {
+  const handleSaveEntry = async (entry: TimeEntryInput) => {
     try {
       await createTimeEntry.mutateAsync(entry);
       setRefreshKey((prev) => prev + 1); // Trigger data refresh
@@ -343,7 +345,7 @@ export function MonthlyTimesheet({
         onUpdate={() => setRefreshKey((prev) => prev + 1)}
         onDelete={() => setRefreshKey((prev) => prev + 1)}
         selectedDate={selectedDate || undefined}
-        selectedEntry={selectedEntry}
+        selectedEntry={selectedEntry || undefined}
         selectedHour={null}
         clients={clients}
         tasks={tasks}

@@ -130,14 +130,24 @@ export function NotificationsDropdown() {
             </div>
           ) : (
             <div className="py-1">
-              {notifications.map((notification: any) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={handleMarkAsRead}
-                  onDelete={handleDelete}
-                />
-              ))}
+              {notifications.map(
+                (notification: {
+                  id: string;
+                  title: string;
+                  message: string;
+                  isRead: boolean;
+                  createdAt: Date | string;
+                  entityType?: string | null;
+                  actionUrl?: string | null;
+                }) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                    onMarkAsRead={handleMarkAsRead}
+                    onDelete={handleDelete}
+                  />
+                ),
+              )}
             </div>
           )}
         </ScrollArea>
@@ -166,7 +176,15 @@ function NotificationItem({
   onMarkAsRead,
   onDelete,
 }: {
-  notification: any;
+  notification: {
+    id: string;
+    title: string;
+    message: string;
+    isRead: boolean;
+    createdAt: Date | string;
+    entityType?: string | null;
+    actionUrl?: string | null;
+  };
   onMarkAsRead: (id: string, e: React.MouseEvent) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
 }) {

@@ -30,9 +30,20 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 
+// Type for leave request from tRPC router
+type LeaveRequest = NonNullable<
+  ReturnType<typeof trpc.leave.getHistory.useQuery>["data"] extends infer T
+    ? T extends { requests: Array<infer P> }
+      ? P
+      : any
+    : any
+>;
+
 export default function LeavePage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<any | null>(null);
+  const [editingRequest, setEditingRequest] = useState<LeaveRequest | null>(
+    null,
+  );
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -122,7 +133,7 @@ export default function LeavePage() {
     });
   }, [leaveHistory, statusFilter, typeFilter, debouncedSearchTerm]);
 
-  const handleEditRequest = (request: any) => {
+  const handleEditRequest = (request: LeaveRequest) => {
     setEditingRequest(request);
     setIsRequestModalOpen(true);
   };

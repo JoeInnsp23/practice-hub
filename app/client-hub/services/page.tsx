@@ -338,9 +338,9 @@ export default function ServicesPage() {
               {filteredServices.map((service) => (
                 <ServiceCard
                   key={service.id}
-                  service={service as any}
-                  onEdit={handleEditService as any}
-                  onDelete={handleDeleteService as any}
+                  service={service as Service}
+                  onEdit={handleEditService}
+                  onDelete={handleDeleteService}
                 />
               ))}
             </div>
@@ -419,8 +419,8 @@ export default function ServicesPage() {
       <ServiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveService}
-        service={editingService}
+        onSave={handleSaveService as any}
+        service={(editingService || undefined) as any}
       />
     </div>
   );

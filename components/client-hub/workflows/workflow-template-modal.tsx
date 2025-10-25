@@ -42,11 +42,27 @@ interface WorkflowStage {
   requiresApproval?: boolean;
 }
 
+interface Service {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface WorkflowTemplateData {
+  name: string;
+  description: string;
+  service: Service | null;
+  estimatedDays: number;
+  is_active: boolean;
+  stages: WorkflowStage[];
+}
+
 interface WorkflowTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
-  template?: any;
+  onSave: (data: WorkflowTemplateData) => void;
+  // Accept any template-like object (from router output or input) - we'll extract what we need
+  template?: Record<string, unknown> | null;
 }
 
 // Mock services data
@@ -67,7 +83,7 @@ export function WorkflowTemplateModal({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    service: null as any,
+    service: null as Service | null,
     estimatedDays: 1,
     is_active: true,
     stages: [] as WorkflowStage[],
@@ -91,18 +107,39 @@ export function WorkflowTemplateModal({
 
   useEffect(() => {
     if (template) {
-      // Ensure all stages have a checklist array
-      const stagesWithChecklist = (template.stages || []).map((stage: any) => ({
+      // Type-safe extraction of template properties
+      const stages = Array.isArray(template.stages)
+        ? (template.stages as WorkflowStage[])
+        : [];
+      const stagesWithChecklist = stages.map((stage) => ({
         ...stage,
         checklist: stage.checklist || [],
       }));
 
+      // Extract only the core service fields (id, name, code) from the potentially extended service object
+      const templateService = template.service as
+        | { id: string; name: string; code: string; [key: string]: unknown }
+        | null
+        | undefined;
+      const serviceData = templateService
+        ? {
+            id: templateService.id,
+            name: templateService.name,
+            code: templateService.code,
+          }
+        : null;
+
       setFormData({
-        name: template.name || "",
-        description: template.description || "",
-        service: template.service || null,
-        estimatedDays: template.estimatedDays || 1,
-        is_active: template.is_active !== undefined ? template.is_active : true,
+        name: typeof template.name === "string" ? template.name : "",
+        description:
+          typeof template.description === "string" ? template.description : "",
+        service: serviceData,
+        estimatedDays:
+          typeof template.estimatedDays === "number"
+            ? template.estimatedDays
+            : 1,
+        is_active:
+          typeof template.is_active === "boolean" ? template.is_active : true,
         stages: stagesWithChecklist,
       });
     } else {

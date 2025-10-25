@@ -57,7 +57,7 @@ export function AddClientAccessDialog({
   const { data: allClientsData, isLoading: isLoadingClients } =
     trpc.clients.list.useQuery({});
 
-  const form = useForm<AddClientAccessForm, any, AddClientAccessForm>({
+  const form = useForm<AddClientAccessForm>({
     resolver: zodResolver(addClientAccessSchema),
     defaultValues: {
       clientId: "",
@@ -78,15 +78,17 @@ export function AddClientAccessDialog({
       form.reset();
       utils.clientPortalAdmin.listPortalUsers.invalidate();
       onSuccess?.();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to grant access");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to grant access",
+      );
     }
   };
 
   // Filter out clients the user already has access to
   const allClients = allClientsData?.clients || [];
   const availableClients = allClients.filter(
-    (client: any) => !existingClientIds.includes(client.id),
+    (client) => !existingClientIds.includes(client.id),
   );
 
   return (

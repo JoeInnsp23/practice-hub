@@ -148,11 +148,15 @@ export function ApprovalList({
         toast.success("Leave requests approved");
         utils.leave.getTeamLeave.invalidate();
         setSelectedIds([]);
-      } catch (error: any) {
+      } catch (error) {
         Sentry.captureException(error, {
           tags: { operation: "approve_leave" },
         });
-        toast.error(error.message || "Failed to approve leave requests");
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to approve leave requests",
+        );
       }
     }
   };
@@ -181,11 +185,15 @@ export function ApprovalList({
           toast.success("Leave requests rejected");
           utils.leave.getTeamLeave.invalidate();
           setSelectedIds([]);
-        } catch (error: any) {
+        } catch (error) {
           Sentry.captureException(error, {
             tags: { operation: "reject_leave" },
           });
-          toast.error(error.message || "Failed to reject leave requests");
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Failed to reject leave requests",
+          );
         }
       }
     }

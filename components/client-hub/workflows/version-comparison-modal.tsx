@@ -19,6 +19,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+interface ChecklistItem {
+  id: string;
+  text: string;
+  isRequired?: boolean;
+}
+
+interface WorkflowStage {
+  id: string;
+  name: string;
+  description: string | null;
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string | null;
+  autoComplete: boolean | null;
+  requiresApproval: boolean | null;
+  checklistItems: ChecklistItem[];
+}
+
 interface VersionComparisonModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -184,7 +202,7 @@ export function VersionComparisonModal({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {comparison.stageDiff.removed.map((stage: any) => (
+                  {comparison.stageDiff.removed.map((stage: WorkflowStage) => (
                     <div
                       key={stage.id}
                       className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded"
@@ -209,7 +227,7 @@ export function VersionComparisonModal({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {comparison.stageDiff.added.map((stage: any) => (
+                  {comparison.stageDiff.added.map((stage: WorkflowStage) => (
                     <div
                       key={stage.id}
                       className="p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-900 rounded"
@@ -234,34 +252,40 @@ export function VersionComparisonModal({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {comparison.stageDiff.modified.map((item: any) => (
-                    <div
-                      key={item.new.id}
-                      className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-900 rounded"
-                    >
-                      <div className="font-medium text-sm mb-2">
-                        {item.new.name}
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {item.changes.map((change: string) => (
-                          <Badge
-                            key={change}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {change}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      {item.changes.includes("checklistItems") && (
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Checklist: {item.old.checklistItems?.length || 0} →{" "}
-                          {item.new.checklistItems?.length || 0} items
+                  {comparison.stageDiff.modified.map(
+                    (item: {
+                      old: WorkflowStage;
+                      new: WorkflowStage;
+                      changes: string[];
+                    }) => (
+                      <div
+                        key={item.new.id}
+                        className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-900 rounded"
+                      >
+                        <div className="font-medium text-sm mb-2">
+                          {item.new.name}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        <div className="flex flex-wrap gap-1">
+                          {item.changes.map((change: string) => (
+                            <Badge
+                              key={change}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {change}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        {item.changes.includes("checklistItems") && (
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            Checklist: {item.old.checklistItems?.length || 0} →{" "}
+                            {item.new.checklistItems?.length || 0} items
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  )}
                 </CardContent>
               </Card>
             )}

@@ -47,11 +47,23 @@ const serviceSchema = z.object({
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;
 
+interface Service {
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  priceType: "fixed" | "hourly" | "monthly" | "project";
+  duration?: string;
+  isActive: boolean;
+  features?: string[];
+  tags?: string[];
+}
+
 interface ServiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
-  service?: any;
+  onSave: (data: Service) => void;
+  service?: Partial<Service & { price: number | string }>;
 }
 
 export function ServiceModal({
@@ -65,7 +77,7 @@ export function ServiceModal({
   const [newFeature, setNewFeature] = useState("");
   const [newTag, setNewTag] = useState("");
 
-  const form = useForm<ServiceFormValues, any, ServiceFormValues>({
+  const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       name: service?.name || "",

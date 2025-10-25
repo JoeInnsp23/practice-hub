@@ -68,7 +68,12 @@ export default function AdminKYCReviewPage() {
     return <Badge variant="secondary">Pending</Badge>;
   };
 
-  const getRiskIndicators = (verification: any) => {
+  const getRiskIndicators = (verification: {
+    pepMatch: boolean | null;
+    sanctionsMatch: boolean | null;
+    watchlistMatch: boolean | null;
+    adverseMediaMatch: boolean | null;
+  }) => {
     const indicators = [];
 
     if (verification.pepMatch) {

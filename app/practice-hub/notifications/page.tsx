@@ -4,6 +4,7 @@ import { Bell, Check, CheckCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+
+type Notification = RouterOutputs["notifications"]["list"][number];
 
 export default function NotificationsPage() {
   const utils = trpc.useUtils();
@@ -91,7 +94,10 @@ export default function NotificationsPage() {
 
         <div className="flex items-center gap-3">
           {/* Filter */}
-          <Select value={filter} onValueChange={(v) => setFilter(v as any)}>
+          <Select
+            value={filter}
+            onValueChange={(v) => setFilter(v as "all" | "unread")}
+          >
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -131,7 +137,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <div>
-            {notifications.map((notification: any) => (
+            {notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
@@ -152,7 +158,7 @@ function NotificationItem({
   onMarkAsRead,
   onDelete,
 }: {
-  notification: any;
+  notification: Notification;
   onMarkAsRead: (id: string) => void;
   onDelete: (id: string) => void;
 }) {

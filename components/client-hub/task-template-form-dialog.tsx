@@ -141,10 +141,11 @@ export function TaskTemplateFormDialog({
         toast.success("Template created successfully");
       }
       onSuccess();
-    } catch (error: any) {
+    } catch (error) {
       toast.error(
-        error.message ||
-          `Failed to ${isEditing ? "update" : "create"} template`,
+        error instanceof Error
+          ? error.message
+          : `Failed to ${isEditing ? "update" : "create"} template`,
       );
     }
   };

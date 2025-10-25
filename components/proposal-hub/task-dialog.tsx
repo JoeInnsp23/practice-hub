@@ -74,7 +74,7 @@ export function TaskDialog({
   const { data: usersData } = trpc.users.list.useQuery({});
   const users = usersData?.users || [];
 
-  const form = useForm<TaskFormValues, any, TaskFormValues>({
+  const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
@@ -104,8 +104,10 @@ export function TaskDialog({
       utils.tasks.list.invalidate();
       onOpenChange(false);
       form.reset();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create task");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create task",
+      );
     }
   };
 
