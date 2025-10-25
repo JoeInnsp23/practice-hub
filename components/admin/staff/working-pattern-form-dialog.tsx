@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc/client";
+import type { WorkingPattern } from "@/lib/trpc/types";
 
 // Pattern templates
 const PATTERN_TEMPLATES = {
@@ -163,27 +164,6 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>;
 
-interface WorkingPattern {
-  id: string;
-  userId: string;
-  patternType:
-    | "full_time"
-    | "part_time"
-    | "compressed_hours"
-    | "job_share"
-    | "custom";
-  contractedHours: number;
-  mondayHours: number;
-  tuesdayHours: number;
-  wednesdayHours: number;
-  thursdayHours: number;
-  fridayHours: number;
-  saturdayHours: number;
-  sundayHours: number;
-  effectiveFrom: string;
-  notes?: string | null;
-}
-
 interface WorkingPatternFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -229,7 +209,12 @@ export function WorkingPatternFormDialog({
     if (editingPattern) {
       form.reset({
         userId: editingPattern.userId,
-        patternType: editingPattern.patternType,
+        patternType: editingPattern.patternType as
+          | "full_time"
+          | "part_time"
+          | "compressed_hours"
+          | "job_share"
+          | "custom",
         contractedHours: editingPattern.contractedHours,
         mondayHours: editingPattern.mondayHours,
         tuesdayHours: editingPattern.tuesdayHours,

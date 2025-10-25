@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc/client";
+import type { WorkingPattern } from "@/lib/trpc/types";
 
 // Pattern type labels
 const PATTERN_TYPE_LABELS: Record<string, string> = {
@@ -45,15 +46,6 @@ const PATTERN_TYPE_COLORS: Record<
   job_share: "outline",
   custom: "outline",
 };
-
-// Infer working pattern type from tRPC router output
-type WorkingPattern = NonNullable<
-  ReturnType<typeof trpc.workingPatterns.list.useQuery>["data"] extends infer T
-    ? T extends { workingPatterns: Array<infer P> }
-      ? P
-      : any
-    : any
->;
 
 export default function WorkingPatternsPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
