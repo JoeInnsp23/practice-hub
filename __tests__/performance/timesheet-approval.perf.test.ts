@@ -30,7 +30,7 @@ vi.mock("@/lib/email/timesheet-notifications", () => ({
 
 describe("Timesheet Approval Performance Tests (AC17)", () => {
   let _ctx: Context;
-  let managerCtx: Context;
+  let _managerCtx: Context;
   let _caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   let managerCaller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   const tracker: TestDataTracker = {
@@ -70,7 +70,7 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
         lastName: "Perf",
       },
     });
-    managerCtx = mockManagerCtx;
+    _managerCtx = mockManagerCtx;
 
     managerCaller = createCaller(timesheetsRouter, mockManagerCtx);
 

@@ -24,7 +24,7 @@ import {
 import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Task Generation Performance Tests", () => {
-  let ctx: Context;
+  let _ctx: Context;
   let caller: ReturnType<typeof createCaller<typeof taskGenerationRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -62,7 +62,7 @@ describe("Task Generation Performance Tests", () => {
         lastName: "Test",
       },
     });
-    ctx = mockCtx;
+    _ctx = mockCtx;
 
     caller = createCaller(taskGenerationRouter, mockCtx);
 

@@ -17,7 +17,7 @@ import {
 import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Staff Statistics Performance Tests", () => {
-  let ctx: Context;
+  let _ctx: Context;
   let caller: ReturnType<typeof createCaller<typeof staffStatisticsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -50,7 +50,7 @@ describe("Staff Statistics Performance Tests", () => {
         lastName: "Admin",
       },
     });
-    ctx = mockCtx;
+    _ctx = mockCtx;
 
     caller = createCaller(staffStatisticsRouter, mockCtx);
 
