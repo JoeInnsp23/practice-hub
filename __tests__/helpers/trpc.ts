@@ -65,7 +65,9 @@ export function createMockClientPortalAuthContext(
  * Create a mock tRPC context for testing
  * Always returns a context with non-null authContext
  */
-export function createMockContext(overrides: Partial<Context> = {}): TestContextWithAuth {
+export function createMockContext(
+  overrides: Partial<Context> = {},
+): TestContextWithAuth {
   const authContext = overrides.authContext ?? createMockAuthContext();
 
   return {

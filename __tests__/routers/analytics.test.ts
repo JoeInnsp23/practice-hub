@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { analyticsRouter } from "@/app/server/routers/analytics";
-import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -199,9 +203,7 @@ describe("app/server/routers/analytics.ts", () => {
 
   describe("getComplexityDistribution", () => {
     it("should accept empty input", async () => {
-      await expect(
-        caller.getComplexityDistribution({}),
-      ).resolves.not.toThrow();
+      await expect(caller.getComplexityDistribution({})).resolves.not.toThrow();
     });
 
     it("should accept date range", async () => {

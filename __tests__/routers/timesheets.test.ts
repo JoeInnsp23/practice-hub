@@ -223,7 +223,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
 
       // Verify our test entries are in the list
       const entryIds = result.timeEntries.map(
-        (e: typeof result.timeEntries[0]) => e.id,
+        (e: (typeof result.timeEntries)[0]) => e.id,
       );
       expect(entryIds).toContain(entry1.id);
       expect(entryIds).toContain(entry2.id);
@@ -257,7 +257,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       expect(result.timeEntries.length).toBeGreaterThanOrEqual(1);
       // Should include entry2, might not include entry1
       const hasEntry2 = result.timeEntries.some(
-        (e: typeof result.timeEntries[0]) => e.id === entry2.id,
+        (e: (typeof result.timeEntries)[0]) => e.id === entry2.id,
       );
       expect(hasEntry2).toBe(true);
     });

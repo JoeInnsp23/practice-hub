@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { reportsRouter } from "@/app/server/routers/reports";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock cache
 vi.mock("@/lib/cache", () => ({
@@ -172,15 +176,17 @@ describe("app/server/routers/reports.ts", () => {
   describe("getMonthlyRevenue", () => {
     it("should accept default parameters", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any)?.parse(
-          {},
-        );
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept months parameter", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+        )?.parse({
           months: 6,
         });
       }).not.toThrow();
@@ -188,7 +194,9 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should accept period parameter", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+        )?.parse({
           period: "this_year",
         });
       }).not.toThrow();
@@ -196,7 +204,9 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should accept custom date range", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+        )?.parse({
           period: "custom",
           startDate: "2024-01-01T00:00:00Z",
           endDate: "2024-12-31T23:59:59Z",
@@ -206,7 +216,9 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate months min value", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+        )?.parse({
           months: 0,
         });
       }).toThrow();
@@ -214,7 +226,9 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate months max value", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0] as any
+        )?.parse({
           months: 30,
         });
       }).toThrow();
@@ -236,15 +250,17 @@ describe("app/server/routers/reports.ts", () => {
   describe("getClientRevenue", () => {
     it("should accept default parameters", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any)?.parse(
-          {},
-        );
+        (
+          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept limit parameter", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+        )?.parse({
           limit: 20,
         });
       }).not.toThrow();
@@ -252,7 +268,9 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate limit min value", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+        )?.parse({
           limit: 0,
         });
       }).toThrow();
@@ -260,7 +278,9 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate limit max value", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any)?.parse({
+        (
+          reportsRouter._def.procedures.getClientRevenue._def.inputs[0] as any
+        )?.parse({
           limit: 100,
         });
       }).toThrow();
@@ -282,19 +302,21 @@ describe("app/server/routers/reports.ts", () => {
   describe("getServicePerformance", () => {
     it("should accept empty input", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getServicePerformance._def.inputs[0] as any)?.parse(
-          {},
-        );
+        (
+          reportsRouter._def.procedures.getServicePerformance._def
+            .inputs[0] as any
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept period parameter", () => {
       expect(() => {
-        (reportsRouter._def.procedures.getServicePerformance._def.inputs[0] as any)?.parse(
-          {
-            period: "this_year",
-          },
-        );
+        (
+          reportsRouter._def.procedures.getServicePerformance._def
+            .inputs[0] as any
+        )?.parse({
+          period: "this_year",
+        });
       }).not.toThrow();
     });
 

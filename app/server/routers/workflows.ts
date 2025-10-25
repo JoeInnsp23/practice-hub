@@ -340,8 +340,7 @@ export const workflowsRouter = router({
             type: input.data.type || workflow.type,
             trigger: input.data.trigger || workflow.trigger || "manual",
             estimatedDays: input.data.estimatedDays ?? workflow.estimatedDays,
-            serviceId:
-              input.data.serviceId ?? workflow.serviceId,
+            serviceId: input.data.serviceId ?? workflow.serviceId,
             config: input.data.config || workflow.config,
           },
           input.changeDescription || "Updated workflow",

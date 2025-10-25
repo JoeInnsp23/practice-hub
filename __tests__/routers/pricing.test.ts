@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pricingRouter } from "@/app/server/routers/pricing";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -35,9 +39,7 @@ describe("app/server/routers/pricing.ts", () => {
         // Missing turnover, industry, services
       };
 
-      await expect(
-        caller.calculate(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.calculate(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid calculation input", async () => {
@@ -51,9 +53,7 @@ describe("app/server/routers/pricing.ts", () => {
         ],
       };
 
-      await expect(
-        caller.calculate(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
     it("should accept service with configuration", async () => {
@@ -71,9 +71,7 @@ describe("app/server/routers/pricing.ts", () => {
         ],
       };
 
-      await expect(
-        caller.calculate(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
     it("should accept transaction data", async () => {
@@ -91,9 +89,7 @@ describe("app/server/routers/pricing.ts", () => {
         },
       };
 
-      await expect(
-        caller.calculate(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
     it("should accept modifiers", async () => {
@@ -112,9 +108,7 @@ describe("app/server/routers/pricing.ts", () => {
         },
       };
 
-      await expect(
-        caller.calculate(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
     it("should validate industry enum values", async () => {
@@ -124,9 +118,7 @@ describe("app/server/routers/pricing.ts", () => {
         services: [],
       };
 
-      await expect(
-        caller.calculate(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.calculate(invalidInput)).rejects.toThrow();
     });
 
     it("should accept all valid industry values", async () => {
@@ -160,9 +152,7 @@ describe("app/server/routers/pricing.ts", () => {
         // Missing componentId
       };
 
-      await expect(
-        caller.getRules(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.getRules(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid component ID", async () => {
@@ -170,9 +160,7 @@ describe("app/server/routers/pricing.ts", () => {
         componentId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(
-        caller.getRules(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.getRules(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -182,9 +170,7 @@ describe("app/server/routers/pricing.ts", () => {
         // Missing turnover, industry, vatRegistered
       };
 
-      await expect(
-        caller.estimateTransactions(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.estimateTransactions(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid estimation input", async () => {

@@ -8,7 +8,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("Staff Statistics Router", () => {
   let ctx: TestContextWithAuth;
@@ -230,7 +234,7 @@ describe("Staff Statistics Router", () => {
       expect(result.staff.length).toBe(2);
       expect(
         result.staff.every(
-          (s: typeof result.staff[0]) => s.departmentId === testDeptId,
+          (s: (typeof result.staff)[0]) => s.departmentId === testDeptId,
         ),
       ).toBe(true);
     });
@@ -324,7 +328,7 @@ describe("Staff Statistics Router", () => {
       expect(result.weeks.length).toBe(12);
 
       // Verify structure of weeks
-      result.weeks.forEach((week: typeof result.weeks[0]) => {
+      result.weeks.forEach((week: (typeof result.weeks)[0]) => {
         expect(week).toHaveProperty("weekStartDate");
         expect(week).toHaveProperty("weekEndDate");
         expect(week).toHaveProperty("loggedHours");

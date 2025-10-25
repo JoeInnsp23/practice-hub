@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { calendarRouter } from "@/app/server/routers/calendar";
-import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -70,9 +74,7 @@ describe("app/server/routers/calendar.ts", () => {
 
   describe("getEvent", () => {
     it("should reject missing eventId field", async () => {
-      await expect(
-        caller.getEvent({} as any),
-      ).rejects.toThrow();
+      await expect(caller.getEvent({} as any)).rejects.toThrow();
     });
 
     it("should accept valid event ID", async () => {
@@ -175,9 +177,7 @@ describe("app/server/routers/calendar.ts", () => {
 
   describe("deleteEvent", () => {
     it("should reject missing eventId field", async () => {
-      await expect(
-        caller.deleteEvent({} as any),
-      ).rejects.toThrow();
+      await expect(caller.deleteEvent({} as any)).rejects.toThrow();
     });
 
     it("should accept valid event ID", async () => {

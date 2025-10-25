@@ -403,7 +403,11 @@ export function ClientModal({
                         <div className="mt-2">
                           <VATValidationIndicator
                             vatNumber={form.watch("vatNumber") ?? ""}
-                            clientId={client && "id" in client ? (client.id as string) : undefined}
+                            clientId={
+                              client && "id" in client
+                                ? (client.id as string)
+                                : undefined
+                            }
                             onValidationComplete={(result) => {
                               if (result.isValid && result.businessName) {
                                 toast.success(

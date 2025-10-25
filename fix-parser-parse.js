@@ -8,32 +8,33 @@
  * Solution: Cast inputs[0] as any in test files since we're testing schema behavior
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const files = [
-  '__tests__/routers/invitations.test.ts',
-  '__tests__/routers/reports.test.ts',
-  '__tests__/routers/settings.test.ts',
-  '__tests__/routers/taskTemplates.test.ts',
+  "__tests__/routers/invitations.test.ts",
+  "__tests__/routers/reports.test.ts",
+  "__tests__/routers/settings.test.ts",
+  "__tests__/routers/taskTemplates.test.ts",
 ];
 
 let totalFixed = 0;
 
 for (const file of files) {
   const filePath = path.join(process.cwd(), file);
-  let content = fs.readFileSync(filePath, 'utf8');
+  let content = fs.readFileSync(filePath, "utf8");
 
   // Pattern: somethingRouter._def.procedures.procedureName._def.inputs[0]?.parse(
   // Replace with: (somethingRouter._def.procedures.procedureName._def.inputs[0] as any)?.parse(
   // Match from Router. onwards to capture full expression
-  const regex = /([\w]+Router\._def\.procedures\.[\w]+\._def\.inputs\[0\])\?\.parse\(/g;
+  const regex =
+    /([\w]+Router\._def\.procedures\.[\w]+\._def\.inputs\[0\])\?\.parse\(/g;
   const matches = content.match(regex) || [];
   const fixCount = matches.length;
 
   if (fixCount > 0) {
-    content = content.replace(regex, '($1 as any)?.parse(');
-    fs.writeFileSync(filePath, content, 'utf8');
+    content = content.replace(regex, "($1 as any)?.parse(");
+    fs.writeFileSync(filePath, content, "utf8");
     console.log(`✅ ${file}: Fixed ${fixCount} Parser.parse calls`);
     totalFixed += fixCount;
   } else {

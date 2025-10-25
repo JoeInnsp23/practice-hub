@@ -263,7 +263,11 @@ export const calendarRouter = router({
       }
 
       // Validate date range if both dates provided
-      if (input.startTime && input.endTime && input.endTime <= input.startTime) {
+      if (
+        input.startTime &&
+        input.endTime &&
+        input.endTime <= input.startTime
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "End time must be after start time",

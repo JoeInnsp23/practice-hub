@@ -217,9 +217,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         invitationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(
-        _caller.resendInvitation(validInput),
-      ).resolves.not.toThrow();
+      await expect(_caller.resendInvitation(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -239,9 +237,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         invitationId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(
-        _caller.revokeInvitation(validInput),
-      ).resolves.not.toThrow();
+      await expect(_caller.revokeInvitation(validInput)).resolves.not.toThrow();
     });
   });
 

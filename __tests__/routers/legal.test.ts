@@ -7,7 +7,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { legalRouter } from "@/app/server/routers/legal";
-import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -71,7 +75,9 @@ describe("app/server/routers/legal.ts", () => {
       await expect(
         _caller.update({ pageType: "privacy" } as any),
       ).rejects.toThrow();
-      await expect(_caller.update({ content: "Test content" } as any)).rejects.toThrow();
+      await expect(
+        _caller.update({ content: "Test content" } as any),
+      ).rejects.toThrow();
     });
 
     it("should accept valid input with pageType and content", async () => {

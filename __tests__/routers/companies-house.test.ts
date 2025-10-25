@@ -28,7 +28,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the Companies House API client module
 vi.mock("@/lib/companies-house/client", () => ({

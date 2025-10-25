@@ -35,12 +35,7 @@ interface LeaveRequest {
   userFirstName: string | null;
   userLastName: string | null;
   userEmail: string;
-  leaveType:
-    | "annual_leave"
-    | "sick_leave"
-    | "toil"
-    | "unpaid"
-    | "other";
+  leaveType: "annual_leave" | "sick_leave" | "toil" | "unpaid" | "other";
   startDate: string;
   endDate: string;
   daysCount: number;

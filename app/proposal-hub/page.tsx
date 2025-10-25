@@ -50,10 +50,12 @@ export default function ProposalHubPage() {
 
   // Fetch analytics data
   const { data: leadStatsData } = trpc.analytics.getLeadStats.useQuery({});
-  const { data: proposalStatsData } =
-    trpc.analytics.getProposalStats.useQuery({});
-  const { data: conversionData } =
-    trpc.analytics.getConversionMetrics.useQuery({});
+  const { data: proposalStatsData } = trpc.analytics.getProposalStats.useQuery(
+    {},
+  );
+  const { data: conversionData } = trpc.analytics.getConversionMetrics.useQuery(
+    {},
+  );
   const { data: salesFunnelData } =
     trpc.analytics.getSalesFunnelMetrics.useQuery({});
 

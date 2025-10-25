@@ -92,7 +92,9 @@ export const users = pgTable(
     role: varchar("role", { length: 50 }).default("member").notNull(), // admin, accountant, member
     status: varchar("status", { length: 20 }).default("active").notNull(), // pending, active, inactive
     isActive: boolean("is_active").default(true).notNull(),
-    departmentId: text("department_id").references((): AnyPgColumn => departments.id), // Optional department assignment
+    departmentId: text("department_id").references(
+      (): AnyPgColumn => departments.id,
+    ), // Optional department assignment
     hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

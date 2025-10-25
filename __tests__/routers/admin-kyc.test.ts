@@ -82,10 +82,7 @@ describe("app/server/routers/admin-kyc.ts", () => {
 
   describe("getVerificationDetail", () => {
     it("should validate required verificationId field", async () => {
-      await expect(
-        _caller.getVerificationDetail({
-        }),
-      ).rejects.toThrow();
+      await expect(_caller.getVerificationDetail({})).rejects.toThrow();
     });
 
     it("should accept valid verification ID", async () => {
@@ -126,10 +123,7 @@ describe("app/server/routers/admin-kyc.ts", () => {
 
   describe("rejectVerification", () => {
     it("should validate required fields", async () => {
-      await expect(
-        _caller.rejectVerification({
-        }),
-      ).rejects.toThrow();
+      await expect(_caller.rejectVerification({})).rejects.toThrow();
     });
 
     it("should accept valid rejection data", async () => {

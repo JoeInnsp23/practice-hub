@@ -163,12 +163,14 @@ describe("Staff Statistics Multi-Tenant Isolation", () => {
     expect(statsA.staff.length).toBe(2);
     expect(
       statsA.staff.every(
-        (s: typeof statsA.staff[0]) => s.departmentName === "Tenant A Dept",
+        (s: (typeof statsA.staff)[0]) => s.departmentName === "Tenant A Dept",
       ),
     ).toBe(true);
 
     // Verify the correct names
-    const names = statsA.staff.map((s: typeof statsA.staff[0]) => s.firstName);
+    const names = statsA.staff.map(
+      (s: (typeof statsA.staff)[0]) => s.firstName,
+    );
     expect(names).toContain("Alice");
     expect(names).toContain("Bob");
     expect(names).not.toContain("Charlie");
@@ -334,7 +336,7 @@ describe("Staff Statistics Multi-Tenant Isolation", () => {
     expect(comparisonA.total).toBe(2);
 
     const namesA = comparisonA.staff.map(
-      (s: typeof comparisonA.staff[0]) => s.firstName,
+      (s: (typeof comparisonA.staff)[0]) => s.firstName,
     );
     expect(namesA).toContain("Alice");
     expect(namesA).toContain("Bob");

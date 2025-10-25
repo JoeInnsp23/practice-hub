@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { proposalsRouter } from "@/app/server/routers/proposals";
-import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -58,9 +62,7 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept status filter", async () => {
-      await expect(
-        caller.list({ status: "draft" }),
-      ).resolves.not.toThrow();
+      await expect(caller.list({ status: "draft" })).resolves.not.toThrow();
     });
 
     it("should accept clientId filter", async () => {
@@ -137,7 +139,9 @@ describe("app/server/routers/proposals.ts", () => {
     it("should validate required leadId field", async () => {
       const invalidInput = {};
 
-      await expect(caller.createFromLead(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.createFromLead(invalidInput as any),
+      ).rejects.toThrow();
     });
   });
 
@@ -321,7 +325,9 @@ describe("app/server/routers/proposals.ts", () => {
         salesStage: "invalid_stage",
       };
 
-      await expect(caller.updateSalesStage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.updateSalesStage(invalidInput as any),
+      ).rejects.toThrow();
     });
 
     it("should require both id and salesStage", async () => {
@@ -334,7 +340,9 @@ describe("app/server/routers/proposals.ts", () => {
       };
 
       await expect(caller.updateSalesStage(missingId as any)).rejects.toThrow();
-      await expect(caller.updateSalesStage(missingSalesStage as any)).rejects.toThrow();
+      await expect(
+        caller.updateSalesStage(missingSalesStage as any),
+      ).rejects.toThrow();
     });
   });
 
@@ -426,7 +434,9 @@ describe("app/server/routers/proposals.ts", () => {
         // Missing salesStage
       };
 
-      await expect(caller.updateSalesStage(missingStageInput as any)).rejects.toThrow();
+      await expect(
+        caller.updateSalesStage(missingStageInput as any),
+      ).rejects.toThrow();
     });
 
     it("should validate salesStage is a valid enum value", async () => {
@@ -435,7 +445,9 @@ describe("app/server/routers/proposals.ts", () => {
         salesStage: "invalid_stage_value",
       };
 
-      await expect(caller.updateSalesStage(invalidStageInput as any)).rejects.toThrow();
+      await expect(
+        caller.updateSalesStage(invalidStageInput as any),
+      ).rejects.toThrow();
     });
   });
 

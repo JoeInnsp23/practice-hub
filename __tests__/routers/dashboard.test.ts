@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { dashboardRouter } from "@/app/server/routers/dashboard";
-import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock dashboard queries
 vi.mock("@/lib/db/queries/dashboard-queries", () => ({
@@ -67,36 +71,46 @@ describe("app/server/routers/dashboard.ts", () => {
     });
 
     it("should accept pagination parameters", async () => {
-      await expect(_caller.activity({
-        limit: 50,
-        offset: 100,
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.activity({
+          limit: 50,
+          offset: 100,
+        }),
+      ).resolves.not.toThrow();
     });
 
     it("should accept entityType filter", async () => {
-      await expect(_caller.activity({
-        entityType: "client",
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.activity({
+          entityType: "client",
+        }),
+      ).resolves.not.toThrow();
     });
 
     it("should validate limit max value", async () => {
-      await expect(_caller.activity({
-        limit: 150, // Exceeds max of 100
-      })).rejects.toThrow();
+      await expect(
+        _caller.activity({
+          limit: 150, // Exceeds max of 100
+        }),
+      ).rejects.toThrow();
     });
 
     it("should validate limit min value", async () => {
-      await expect(_caller.activity({
-        limit: 0, // Below minimum of 1
-      })).rejects.toThrow();
+      await expect(
+        _caller.activity({
+          limit: 0, // Below minimum of 1
+        }),
+      ).rejects.toThrow();
     });
 
     it("should accept all filters combined", async () => {
-      await expect(_caller.activity({
-        limit: 25,
-        offset: 50,
-        entityType: "task",
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.activity({
+          limit: 25,
+          offset: 50,
+          entityType: "task",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 

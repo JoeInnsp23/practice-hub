@@ -968,7 +968,8 @@ export const leaveRouter = router({
 
       if (existingBalance) {
         // Update existing balance
-        const entitlementDiff = input.carriedOver - (existingBalance.carriedOver ?? 0);
+        const entitlementDiff =
+          input.carriedOver - (existingBalance.carriedOver ?? 0);
         const [updated] = await db
           .update(leaveBalances)
           .set({

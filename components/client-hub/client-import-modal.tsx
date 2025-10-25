@@ -285,11 +285,19 @@ export function ClientImportModal({
                         <tbody>
                           {previewResult.previewRows.map((row, index) => (
                             <tr key={index} className="border-b">
-                              <td className="p-2">{row.data.company_name as string}</td>
-                              <td className="p-2">{row.data.email as string}</td>
-                              <td className="p-2">{row.data.client_type as string}</td>
                               <td className="p-2">
-                                <Badge variant="outline">{row.data.status as string}</Badge>
+                                {row.data.company_name as string}
+                              </td>
+                              <td className="p-2">
+                                {row.data.email as string}
+                              </td>
+                              <td className="p-2">
+                                {row.data.client_type as string}
+                              </td>
+                              <td className="p-2">
+                                <Badge variant="outline">
+                                  {row.data.status as string}
+                                </Badge>
                               </td>
                             </tr>
                           ))}

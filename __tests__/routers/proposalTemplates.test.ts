@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { proposalTemplatesRouter } from "@/app/server/routers/proposalTemplates";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -55,21 +59,15 @@ describe("app/server/routers/proposalTemplates.ts", () => {
     });
 
     it("should accept category filter", async () => {
-      await expect(
-        caller.list({ category: "startup" }),
-      ).resolves.not.toThrow();
+      await expect(caller.list({ category: "startup" })).resolves.not.toThrow();
     });
 
     it("should accept isActive filter", async () => {
-      await expect(
-        caller.list({ isActive: true }),
-      ).resolves.not.toThrow();
+      await expect(caller.list({ isActive: true })).resolves.not.toThrow();
     });
 
     it("should accept search parameter", async () => {
-      await expect(
-        caller.list({ search: "test" }),
-      ).resolves.not.toThrow();
+      await expect(caller.list({ search: "test" })).resolves.not.toThrow();
     });
 
     it("should accept all filters combined", async () => {

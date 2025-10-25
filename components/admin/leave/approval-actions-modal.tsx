@@ -105,7 +105,9 @@ export function ApprovalActionsModal({
       form.reset();
     } catch (error: any) {
       Sentry.captureException(error, {
-        tags: { operation: action === "approve" ? "approve_leave" : "reject_leave" },
+        tags: {
+          operation: action === "approve" ? "approve_leave" : "reject_leave",
+        },
         extra: { requestId: request?.id },
       });
       toast.error(

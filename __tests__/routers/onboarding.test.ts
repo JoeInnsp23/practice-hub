@@ -7,9 +7,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { onboardingRouter } from "@/app/server/routers/onboarding";
 import {
-  type TestContextWithAuth,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database

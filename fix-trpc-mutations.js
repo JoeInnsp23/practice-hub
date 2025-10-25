@@ -9,27 +9,32 @@
  * 3. Updates the mutation invocation to use try/catch with success/error logic
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 // Get all files with useMutation and onSuccess
 const filesWithPattern = execSync(
   'git ls-files "*.tsx" "*.ts" | xargs grep -l "useMutation" | xargs grep -l "onSuccess:"',
-  { encoding: 'utf-8', cwd: '/root/projects/practice-hub' }
-).trim().split('\n').filter(Boolean);
+  { encoding: "utf-8", cwd: "/root/projects/practice-hub" },
+)
+  .trim()
+  .split("\n")
+  .filter(Boolean);
 
-console.log(`Found ${filesWithPattern.length} files with useMutation + onSuccess pattern`);
+console.log(
+  `Found ${filesWithPattern.length} files with useMutation + onSuccess pattern`,
+);
 
 let fixedCount = 0;
 let skippedCount = 0;
 const errors = [];
 
 filesWithPattern.forEach((relPath) => {
-  const filePath = path.join('/root/projects/practice-hub', relPath);
+  const filePath = path.join("/root/projects/practice-hub", relPath);
 
   try {
-    let content = fs.readFileSync(filePath, 'utf-8');
+    const content = fs.readFileSync(filePath, "utf-8");
     const originalContent = content;
 
     // Pattern to match useMutation with onSuccess/onError callbacks
@@ -45,7 +50,6 @@ filesWithPattern.forEach((relPath) => {
     // For now, just report - don't auto-fix due to complexity
     console.log(`  - ${relPath}`);
     fixedCount++;
-
   } catch (error) {
     errors.push({ file: relPath, error: error.message });
   }

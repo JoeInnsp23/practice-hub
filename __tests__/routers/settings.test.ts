@@ -50,13 +50,17 @@ describe("app/server/routers/settings.ts", () => {
   describe("updateTenant", () => {
     it("should accept empty input (partial schema)", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateTenant._def.inputs[0] as any)?.parse({});
+        (
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept name update", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateTenant._def.inputs[0] as any)?.parse({
+        (
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+        )?.parse({
           name: "Updated Organization Name",
         });
       }).not.toThrow();
@@ -64,7 +68,9 @@ describe("app/server/routers/settings.ts", () => {
 
     it("should accept slug update", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateTenant._def.inputs[0] as any)?.parse({
+        (
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+        )?.parse({
           slug: "updated-org-slug",
         });
       }).not.toThrow();
@@ -72,7 +78,9 @@ describe("app/server/routers/settings.ts", () => {
 
     it("should accept multiple fields", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateTenant._def.inputs[0] as any)?.parse({
+        (
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+        )?.parse({
           name: "New Organization",
           slug: "new-org",
         });
@@ -93,92 +101,98 @@ describe("app/server/routers/settings.ts", () => {
   describe("updateNotificationSettings", () => {
     it("should accept empty input", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-          {},
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as any
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept email notifications update", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-          {
-            emailNotifications: {
-              taskAssigned: true,
-              taskCompleted: false,
-              invoiceCreated: true,
-            },
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as any
+        )?.parse({
+          emailNotifications: {
+            taskAssigned: true,
+            taskCompleted: false,
+            invoiceCreated: true,
           },
-        );
+        });
       }).not.toThrow();
     });
 
     it("should accept in-app notifications update", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-          {
-            inAppNotifications: {
-              taskOverdue: true,
-              clientAdded: false,
-            },
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as any
+        )?.parse({
+          inAppNotifications: {
+            taskOverdue: true,
+            clientAdded: false,
           },
-        );
+        });
       }).not.toThrow();
     });
 
     it("should accept digest email settings", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-          {
-            digestEmail: {
-              enabled: true,
-              frequency: "weekly",
-            },
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as any
+        )?.parse({
+          digestEmail: {
+            enabled: true,
+            frequency: "weekly",
           },
-        );
+        });
       }).not.toThrow();
     });
 
     it("should accept all settings combined", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-          {
-            emailNotifications: {
-              taskAssigned: true,
-              taskCompleted: true,
-              taskOverdue: true,
-              invoiceCreated: true,
-              invoicePaid: true,
-              clientAdded: true,
-              reportGenerated: true,
-            },
-            inAppNotifications: {
-              taskAssigned: false,
-              taskCompleted: false,
-              taskOverdue: true,
-              invoiceCreated: false,
-              invoicePaid: true,
-              clientAdded: false,
-              reportGenerated: false,
-            },
-            digestEmail: {
-              enabled: true,
-              frequency: "daily",
-            },
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as any
+        )?.parse({
+          emailNotifications: {
+            taskAssigned: true,
+            taskCompleted: true,
+            taskOverdue: true,
+            invoiceCreated: true,
+            invoicePaid: true,
+            clientAdded: true,
+            reportGenerated: true,
           },
-        );
+          inAppNotifications: {
+            taskAssigned: false,
+            taskCompleted: false,
+            taskOverdue: true,
+            invoiceCreated: false,
+            invoicePaid: true,
+            clientAdded: false,
+            reportGenerated: false,
+          },
+          digestEmail: {
+            enabled: true,
+            frequency: "daily",
+          },
+        });
       }).not.toThrow();
     });
 
     it("should validate digest frequency enum values", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-          {
-            digestEmail: {
-              frequency: "invalid",
-            },
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as any
+        )?.parse({
+          digestEmail: {
+            frequency: "invalid",
           },
-        );
+        });
       }).toThrow();
     });
 
@@ -187,13 +201,14 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const frequency of validFrequencies) {
         expect(() => {
-          (settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0] as any)?.parse(
-            {
-              digestEmail: {
-                frequency,
-              },
+          (
+            settingsRouter._def.procedures.updateNotificationSettings._def
+              .inputs[0] as any
+          )?.parse({
+            digestEmail: {
+              frequency,
             },
-          );
+          });
         }).not.toThrow();
       }
     });
@@ -212,47 +227,51 @@ describe("app/server/routers/settings.ts", () => {
   describe("updateUserSettings", () => {
     it("should accept valid user settings", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateUserSettings._def.inputs[0] as any)?.parse(
-          {
-            emailNotifications: true,
-            inAppNotifications: false,
-            digestEmail: "weekly",
-            theme: "dark",
-            language: "en",
-            timezone: "Europe/London",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as any
+        )?.parse({
+          emailNotifications: true,
+          inAppNotifications: false,
+          digestEmail: "weekly",
+          theme: "dark",
+          language: "en",
+          timezone: "Europe/London",
+        });
       }).not.toThrow();
     });
 
     it("should accept partial settings", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateUserSettings._def.inputs[0] as any)?.parse(
-          {
-            emailNotifications: false,
-            theme: "light",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as any
+        )?.parse({
+          emailNotifications: false,
+          theme: "light",
+        });
       }).not.toThrow();
     });
 
     it("should validate theme enum", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateUserSettings._def.inputs[0] as any)?.parse(
-          {
-            theme: "invalid",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as any
+        )?.parse({
+          theme: "invalid",
+        });
       }).toThrow();
     });
 
     it("should validate digestEmail enum", () => {
       expect(() => {
-        (settingsRouter._def.procedures.updateUserSettings._def.inputs[0] as any)?.parse(
-          {
-            digestEmail: "invalid",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as any
+        )?.parse({
+          digestEmail: "invalid",
+        });
       }).toThrow();
     });
 
@@ -261,11 +280,12 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const theme of validThemes) {
         expect(() => {
-          (settingsRouter._def.procedures.updateUserSettings._def.inputs[0] as any)?.parse(
-            {
-              theme,
-            },
-          );
+          (
+            settingsRouter._def.procedures.updateUserSettings._def
+              .inputs[0] as any
+          )?.parse({
+            theme,
+          });
         }).not.toThrow();
       }
     });
@@ -275,11 +295,12 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const digestEmail of validDigests) {
         expect(() => {
-          (settingsRouter._def.procedures.updateUserSettings._def.inputs[0] as any)?.parse(
-            {
-              digestEmail,
-            },
-          );
+          (
+            settingsRouter._def.procedures.updateUserSettings._def
+              .inputs[0] as any
+          )?.parse({
+            digestEmail,
+          });
         }).not.toThrow();
       }
     });

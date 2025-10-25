@@ -42,7 +42,11 @@ export function TemplateEditor({
   const [notes, setNotes] = useState("");
   const [isDefault, setIsDefault] = useState(false);
   const [selectedServices, setSelectedServices] = useState<
-    Array<{ serviceCode: string; quantity?: number; config?: Record<string, unknown> }>
+    Array<{
+      serviceCode: string;
+      quantity?: number;
+      config?: Record<string, unknown>;
+    }>
   >([]);
 
   // Fetch template if editing
@@ -114,7 +118,10 @@ export function TemplateEditor({
       name,
       description: description || null,
       category: category || null,
-      defaultServices: selectedServices as Array<{ serviceCode: string; config?: any }>,
+      defaultServices: selectedServices as Array<{
+        serviceCode: string;
+        config?: any;
+      }>,
       termsAndConditions: termsAndConditions || null,
       notes: notes || null,
       isDefault,

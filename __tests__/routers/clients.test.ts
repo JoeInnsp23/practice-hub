@@ -20,7 +20,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock HMRC client module for VAT validation tests
 const { mockValidateVAT } = vi.hoisted(() => ({
@@ -228,7 +232,7 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
       // Verify our test clients are in the list
       const clientIds = result.clients.map(
-        (c: typeof result.clients[0]) => c.id,
+        (c: (typeof result.clients)[0]) => c.id,
       );
       expect(clientIds).toContain(client1.id);
       expect(clientIds).toContain(client2.id);
@@ -256,7 +260,7 @@ describe("app/server/routers/clients.ts (Integration)", () => {
 
       expect(result.clients.length).toBeGreaterThanOrEqual(1);
       const hasSearchableClient = result.clients.some(
-        (c: typeof result.clients[0]) => c.name.includes("Searchable"),
+        (c: (typeof result.clients)[0]) => c.name.includes("Searchable"),
       );
       expect(hasSearchableClient).toBe(true);
     });

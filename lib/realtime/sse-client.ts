@@ -182,12 +182,16 @@ export class SSEClient implements RealtimeClient {
       }) as EventListener);
 
       // Listen for activity events
-      this.eventSource.addEventListener("activity:new", ((event: MessageEvent) => {
+      this.eventSource.addEventListener("activity:new", ((
+        event: MessageEvent,
+      ) => {
         this.handleMessage(event);
       }) as EventListener);
 
       // Listen for notification events
-      this.eventSource.addEventListener("notification:new", ((event: MessageEvent) => {
+      this.eventSource.addEventListener("notification:new", ((
+        event: MessageEvent,
+      ) => {
         this.handleMessage(event);
       }) as EventListener);
     } catch (error) {
@@ -259,7 +263,8 @@ export class SSEClient implements RealtimeClient {
 
       // Exponential backoff: 1s, 2s, 4s, 8s...
       const delay = Math.min(
-        (this.options.reconnectDelay ?? 1000) * 2 ** (this.reconnectAttempts - 1),
+        (this.options.reconnectDelay ?? 1000) *
+          2 ** (this.reconnectAttempts - 1),
         this.options.maxReconnectDelay ?? 30000,
       );
 
@@ -291,9 +296,7 @@ export class SSEClient implements RealtimeClient {
 
     this.isPolling = true;
     const pollingInterval = this.options.pollingInterval ?? 30000;
-    console.log(
-      `[SSE] Starting polling (interval: ${pollingInterval}ms)`,
-    );
+    console.log(`[SSE] Starting polling (interval: ${pollingInterval}ms)`);
 
     // Emit polling started event
     this.subscriptionManager.emit({

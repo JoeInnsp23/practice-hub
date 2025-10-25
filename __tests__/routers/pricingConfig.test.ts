@@ -7,9 +7,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pricingConfigRouter } from "@/app/server/routers/pricingConfig";
 import {
-  type TestContextWithAuth,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database
@@ -189,9 +189,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateDiscountRules(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid discount rules", async () => {
@@ -255,9 +253,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateDiscountRules(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
     });
 
     it("should validate duration ranges", async () => {
@@ -288,9 +284,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateDiscountRules(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
     });
   });
 
@@ -301,9 +295,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         defaultTurnoverBand: "90k-149k",
       };
 
-      await expect(
-        caller.updateGlobalSettings(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid global settings", async () => {
@@ -329,9 +321,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 0,
       };
 
-      await expect(
-        caller.updateGlobalSettings(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
     });
 
     it("should validate rounding rule enum values", async () => {
@@ -343,9 +333,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 0,
       };
 
-      await expect(
-        caller.updateGlobalSettings(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
     });
 
     it("should accept all valid industry values", async () => {
@@ -407,9 +395,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         // Missing config
       };
 
-      await expect(
-        caller.importConfig(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.importConfig(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid configuration import", async () => {
@@ -471,9 +457,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(
-        caller.importConfig(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.importConfig(validInput)).resolves.not.toThrow();
     });
   });
 

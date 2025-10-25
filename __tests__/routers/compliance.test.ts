@@ -20,7 +20,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("app/server/routers/compliance.ts (Integration)", () => {
   let ctx: TestContextWithAuth;
@@ -255,7 +259,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       // Verify our test items are in the list
       const itemIds = result.compliance.map(
-        (c: typeof result.compliance[0]) => c.id,
+        (c: (typeof result.compliance)[0]) => c.id,
       );
       expect(itemIds).toContain(item1Result.compliance.id);
       expect(itemIds).toContain(item2Result.compliance.id);
@@ -287,7 +291,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
       const hasSearchable = result.compliance.some(
-        (c: typeof result.compliance[0]) => c.title.includes(searchTerm),
+        (c: (typeof result.compliance)[0]) => c.title.includes(searchTerm),
       );
       expect(hasSearchable).toBe(true);
     });
@@ -457,7 +461,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
       const hasOverdueItem = result.compliance.some(
-        (c: typeof result.compliance[0]) => c.id === overdueResult.compliance.id,
+        (c: (typeof result.compliance)[0]) =>
+          c.id === overdueResult.compliance.id,
       );
       expect(hasOverdueItem).toBe(true);
     });

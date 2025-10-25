@@ -119,11 +119,7 @@ export default function ServicesPage() {
 
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = [
-      ...new Set(
-        services.map((s) => s.category),
-      ),
-    ];
+    const cats = [...new Set(services.map((s) => s.category))];
     return cats.sort();
   }, [services]);
 

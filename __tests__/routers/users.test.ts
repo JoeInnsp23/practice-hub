@@ -7,10 +7,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { usersRouter } from "@/app/server/routers/users";
 import {
-  type TestContextWithAuth,
   createAdminCaller,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database

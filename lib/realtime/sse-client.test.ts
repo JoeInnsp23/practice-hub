@@ -46,10 +46,16 @@ class MockEventSource {
     });
     const listeners = this.eventListeners.get(type);
     listeners?.forEach((listener) => {
-      if (typeof listener === 'function') {
+      if (typeof listener === "function") {
         listener(event);
-      } else if (typeof listener === 'object' && listener !== null && 'handleEvent' in listener) {
-        (listener as { handleEvent: (event: Event) => void }).handleEvent(event);
+      } else if (
+        typeof listener === "object" &&
+        listener !== null &&
+        "handleEvent" in listener
+      ) {
+        (listener as { handleEvent: (event: Event) => void }).handleEvent(
+          event,
+        );
       }
     });
   }

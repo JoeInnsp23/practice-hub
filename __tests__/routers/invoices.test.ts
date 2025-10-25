@@ -21,7 +21,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("app/server/routers/invoices.ts (Integration)", () => {
   let ctx: TestContextWithAuth;
@@ -281,7 +285,7 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
 
       // Verify our test invoices are in the list
       const invoiceIds = result.invoices.map(
-        (i: typeof result.invoices[0]) => i.id,
+        (i: (typeof result.invoices)[0]) => i.id,
       );
       expect(invoiceIds).toContain(invoice1.id);
       expect(invoiceIds).toContain(invoice2.id);
@@ -311,7 +315,8 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
 
       expect(result.invoices.length).toBeGreaterThanOrEqual(1);
       const hasSearchableInvoice = result.invoices.some(
-        (i: typeof result.invoices[0]) => i.invoiceNumber.includes("SEARCHABLE"),
+        (i: (typeof result.invoices)[0]) =>
+          i.invoiceNumber.includes("SEARCHABLE"),
       );
       expect(hasSearchableInvoice).toBe(true);
     });

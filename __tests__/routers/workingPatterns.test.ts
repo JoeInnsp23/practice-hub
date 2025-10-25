@@ -35,7 +35,10 @@ describe("workingPatterns router", () => {
   let pattern1Id: string;
   let _pattern2Id: string;
 
-  const tracker: Required<Pick<TestDataTracker, 'tenants' | 'users' | 'clients'>> & TestDataTracker = {
+  const tracker: Required<
+    Pick<TestDataTracker, "tenants" | "users" | "clients">
+  > &
+    TestDataTracker = {
     tenants: [],
     users: [],
     clients: [],

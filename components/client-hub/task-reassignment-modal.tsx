@@ -76,10 +76,7 @@ export function TaskReassignmentModal({
   });
 
   // Fetch tenant users for selection
-  const { data: usersData } = trpc.users.list.useQuery(
-    {},
-    { enabled: open },
-  );
+  const { data: usersData } = trpc.users.list.useQuery({}, { enabled: open });
 
   const users = usersData?.users || [];
 

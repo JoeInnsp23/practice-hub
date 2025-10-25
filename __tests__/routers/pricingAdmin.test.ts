@@ -7,9 +7,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pricingAdminRouter } from "@/app/server/routers/pricingAdmin";
 import {
-  type TestContextWithAuth,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database
@@ -66,15 +66,11 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     it("should accept valid component ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      await expect(
-        caller.getComponent(validId),
-      ).resolves.not.toThrow();
+      await expect(caller.getComponent(validId)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
-      await expect(
-        caller.getComponent(123),
-      ).rejects.toThrow();
+      await expect(caller.getComponent(123)).rejects.toThrow();
     });
   });
 
@@ -85,9 +81,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         category: "tax_compliance",
       };
 
-      await expect(
-        caller.createComponent(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.createComponent(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid component data", async () => {
@@ -100,9 +94,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         isActive: true,
       };
 
-      await expect(
-        caller.createComponent(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.createComponent(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -115,9 +107,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateComponent(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateComponent(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid update data", async () => {
@@ -129,9 +119,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateComponent(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.updateComponent(validInput)).resolves.not.toThrow();
     });
 
     it("should accept partial updates", async () => {
@@ -142,9 +130,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateComponent(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.updateComponent(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -152,15 +138,11 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     it("should accept valid component ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      await expect(
-        caller.deleteComponent(validId),
-      ).resolves.not.toThrow();
+      await expect(caller.deleteComponent(validId)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
-      await expect(
-        caller.deleteComponent(null),
-      ).rejects.toThrow();
+      await expect(caller.deleteComponent(null)).rejects.toThrow();
     });
   });
 
@@ -171,9 +153,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(
-        caller.cloneComponent(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.cloneComponent(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid clone data", async () => {
@@ -183,9 +163,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         newName: "Corporation Tax Return V2",
       };
 
-      await expect(
-        caller.cloneComponent(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.cloneComponent(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -196,9 +174,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         ids: ["550e8400-e29b-41d4-a716-446655440000"],
       };
 
-      await expect(
-        caller.bulkUpdateComponents(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.bulkUpdateComponents(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid bulk update data", async () => {
@@ -221,9 +197,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         isActive: true,
       };
 
-      await expect(
-        caller.bulkUpdateComponents(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.bulkUpdateComponents(invalidInput)).rejects.toThrow();
     });
   });
 
@@ -241,9 +215,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     it("should accept valid component ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      await expect(
-        caller.getRulesByComponent(validId),
-      ).resolves.not.toThrow();
+      await expect(caller.getRulesByComponent(validId)).resolves.not.toThrow();
     });
   });
 
@@ -254,9 +226,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         ruleType: "base_price",
       };
 
-      await expect(
-        caller.createRule(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.createRule(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid rule data", async () => {
@@ -269,9 +239,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         isActive: true,
       };
 
-      await expect(
-        caller.createRule(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.createRule(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -284,9 +252,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateRule(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.updateRule(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid update data", async () => {
@@ -298,9 +264,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      await expect(
-        caller.updateRule(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.updateRule(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -308,9 +272,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     it("should accept valid rule ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      await expect(
-        caller.deleteRule(validId),
-      ).resolves.not.toThrow();
+      await expect(caller.deleteRule(validId)).resolves.not.toThrow();
     });
   });
 
@@ -335,9 +297,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       ];
 
-      await expect(
-        caller.bulkCreateRules(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.bulkCreateRules(validInput)).resolves.not.toThrow();
     });
 
     it("should validate input is an array", async () => {
@@ -346,9 +306,7 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         ruleType: "base_price",
       };
 
-      await expect(
-        caller.bulkCreateRules(invalidInput),
-      ).rejects.toThrow();
+      await expect(caller.bulkCreateRules(invalidInput)).rejects.toThrow();
     });
   });
 

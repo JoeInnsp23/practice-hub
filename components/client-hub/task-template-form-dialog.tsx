@@ -142,7 +142,10 @@ export function TaskTemplateFormDialog({
       }
       onSuccess();
     } catch (error: any) {
-      toast.error(error.message || `Failed to ${isEditing ? "update" : "create"} template`);
+      toast.error(
+        error.message ||
+          `Failed to ${isEditing ? "update" : "create"} template`,
+      );
     }
   };
 

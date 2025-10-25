@@ -40,7 +40,10 @@ describe("departments router", () => {
   let member1: any;
   let admin2: any;
 
-  const tracker: Required<Pick<TestDataTracker, 'tenants' | 'users' | 'clients'>> & TestDataTracker = {
+  const tracker: Required<
+    Pick<TestDataTracker, "tenants" | "users" | "clients">
+  > &
+    TestDataTracker = {
     tenants: [],
     users: [],
     clients: [],

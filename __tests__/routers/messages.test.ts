@@ -7,9 +7,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { messagesRouter } from "@/app/server/routers/messages";
 import {
-  type TestContextWithAuth,
   createCaller,
   createMockContext,
+  type TestContextWithAuth,
 } from "../helpers/trpc";
 
 // Mock the database
@@ -121,7 +121,9 @@ describe("app/server/routers/messages.ts", () => {
         description: "Test channel",
       };
 
-      await expect(_caller.createChannel(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.createChannel(invalidInput as any),
+      ).rejects.toThrow();
     });
 
     it("should accept valid channel data", async () => {
@@ -191,7 +193,9 @@ describe("app/server/routers/messages.ts", () => {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.addParticipant(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.addParticipant(invalidInput as any),
+      ).rejects.toThrow();
     });
 
     it("should accept valid participant data", async () => {
@@ -222,7 +226,9 @@ describe("app/server/routers/messages.ts", () => {
         userId: "660e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.removeParticipant(validInput)).resolves.not.toThrow();
+      await expect(
+        _caller.removeParticipant(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -348,7 +354,9 @@ describe("app/server/routers/messages.ts", () => {
         messageId: "invalid-id",
       };
 
-      await expect(_caller.deleteMessage(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.deleteMessage(invalidInput as any),
+      ).rejects.toThrow();
     });
   });
 

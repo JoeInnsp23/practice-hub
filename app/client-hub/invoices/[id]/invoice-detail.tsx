@@ -71,7 +71,12 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
     try {
       await updateStatusMutation.mutateAsync({
         id: invoiceId,
-        status: newStatus as "draft" | "sent" | "paid" | "overdue" | "cancelled",
+        status: newStatus as
+          | "draft"
+          | "sent"
+          | "paid"
+          | "overdue"
+          | "cancelled",
       });
       toast.success("Invoice status updated");
       router.refresh();
@@ -291,25 +296,26 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
                 <span>Total</span>
                 <span>{formatCurrency(invoice.total)}</span>
               </div>
-              {invoice.amountPaid && Number.parseFloat(invoice.amountPaid) > 0 && (
-                <>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Amount Paid</span>
-                    <span className="text-green-600">
-                      {formatCurrency(invoice.amountPaid)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm font-semibold">
-                    <span className="text-muted-foreground">Balance Due</span>
-                    <span>
-                      {formatCurrency(
-                        Number.parseFloat(invoice.total) -
-                          Number.parseFloat(invoice.amountPaid),
-                      )}
-                    </span>
-                  </div>
-                </>
-              )}
+              {invoice.amountPaid &&
+                Number.parseFloat(invoice.amountPaid) > 0 && (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Amount Paid</span>
+                      <span className="text-green-600">
+                        {formatCurrency(invoice.amountPaid)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm font-semibold">
+                      <span className="text-muted-foreground">Balance Due</span>
+                      <span>
+                        {formatCurrency(
+                          Number.parseFloat(invoice.total) -
+                            Number.parseFloat(invoice.amountPaid),
+                        )}
+                      </span>
+                    </div>
+                  </>
+                )}
             </div>
           </div>
 

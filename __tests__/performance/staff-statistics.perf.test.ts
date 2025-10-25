@@ -144,7 +144,7 @@ describe("Staff Statistics Performance Tests", () => {
 
     // Verify calculations are correct
     expect(
-      result.staff.every((s: typeof result.staff[0]) => s.utilization >= 0),
+      result.staff.every((s: (typeof result.staff)[0]) => s.utilization >= 0),
     ).toBe(true);
     expect(result.summary.averageUtilization).toBeGreaterThan(0);
   }, 10000); // 10 second timeout
@@ -188,7 +188,7 @@ describe("Staff Statistics Performance Tests", () => {
 
     // Log results
     const totalHours = result.weeks.reduce(
-      (sum: number, w: typeof result.weeks[0]) => sum + w.loggedHours,
+      (sum: number, w: (typeof result.weeks)[0]) => sum + w.loggedHours,
       0,
     );
     console.log(`\n📈 52-Week Trend Performance:`);
@@ -210,7 +210,7 @@ describe("Staff Statistics Performance Tests", () => {
 
     // Verify data integrity
     expect(
-      result.weeks.every((w: typeof result.weeks[0]) => w.utilization >= 0),
+      result.weeks.every((w: (typeof result.weeks)[0]) => w.utilization >= 0),
     ).toBe(true);
     expect(totalHours).toBeGreaterThan(0);
   }, 15000); // 15 second timeout (includes data setup)
@@ -275,7 +275,7 @@ describe("Staff Statistics Performance Tests", () => {
 
     // Log results
     const totalStaff = result.departments.reduce(
-      (sum: number, d: typeof result.departments[0]) => sum + d.staffCount,
+      (sum: number, d: (typeof result.departments)[0]) => sum + d.staffCount,
       0,
     );
     console.log(`\n🏢 Department Aggregation Performance:`);
@@ -297,12 +297,12 @@ describe("Staff Statistics Performance Tests", () => {
     // Verify aggregation integrity
     expect(
       result.departments.every(
-        (d: typeof result.departments[0]) => d.staffCount > 0,
+        (d: (typeof result.departments)[0]) => d.staffCount > 0,
       ),
     ).toBe(true);
     expect(
       result.departments.every(
-        (d: typeof result.departments[0]) => d.utilization >= 0,
+        (d: (typeof result.departments)[0]) => d.utilization >= 0,
       ),
     ).toBe(true);
   }, 15000); // 15 second timeout

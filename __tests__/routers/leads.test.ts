@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { leadsRouter } from "@/app/server/routers/leads";
-import { type TestContextWithAuth, createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -51,29 +55,37 @@ describe("app/server/routers/leads.ts", () => {
     });
 
     it("should accept search parameter", async () => {
-      await expect(_caller.list({
-        search: "test lead",
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.list({
+          search: "test lead",
+        }),
+      ).resolves.not.toThrow();
     });
 
     it("should accept status filter", async () => {
-      await expect(_caller.list({
-        status: "new",
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.list({
+          status: "new",
+        }),
+      ).resolves.not.toThrow();
     });
 
     it("should accept source filter", async () => {
-      await expect(_caller.list({
-        source: "website",
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.list({
+          source: "website",
+        }),
+      ).resolves.not.toThrow();
     });
 
     it("should accept multiple filters", async () => {
-      await expect(_caller.list({
-        search: "test",
-        status: "contacted",
-        source: "referral",
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.list({
+          search: "test",
+          status: "contacted",
+          source: "referral",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -209,7 +221,9 @@ describe("app/server/routers/leads.ts", () => {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.scheduleFollowUp(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.scheduleFollowUp(invalidInput as any),
+      ).rejects.toThrow();
     });
 
     it("should accept valid follow-up data", async () => {
@@ -242,7 +256,9 @@ describe("app/server/routers/leads.ts", () => {
         },
       };
 
-      await expect(_caller.convertToClient(validInput as any)).resolves.not.toThrow();
+      await expect(
+        _caller.convertToClient(validInput as any),
+      ).resolves.not.toThrow();
     });
 
     it("should validate required fields", async () => {
@@ -251,7 +267,9 @@ describe("app/server/routers/leads.ts", () => {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.convertToClient(invalidInput as any)).rejects.toThrow();
+      await expect(
+        _caller.convertToClient(invalidInput as any),
+      ).rejects.toThrow();
     });
   });
 

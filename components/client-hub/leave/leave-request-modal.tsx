@@ -238,7 +238,11 @@ export function LeaveRequestModal({
     } catch (error: any) {
       Sentry.captureException(error, {
         tags: { operation: "leave_request" },
-        extra: { leaveType: data.leaveType, startDate: data.startDate, endDate: data.endDate },
+        extra: {
+          leaveType: data.leaveType,
+          startDate: data.startDate,
+          endDate: data.endDate,
+        },
       });
       toast.error(error.message || "Failed to submit leave request");
     }

@@ -87,7 +87,9 @@ export async function parseCsvFile<T>(
 
           // Check if this is a blank line vs a row with empty values
           // Blank lines have MISSING fields (undefined), rows with commas have empty string values
-          const isTrulyBlankLine = headers.some((field) => !(field in rowRecord));
+          const isTrulyBlankLine = headers.some(
+            (field) => !(field in rowRecord),
+          );
 
           if (isTrulyBlankLine && skipEmptyLines) {
             // Skip truly blank lines (missing fields) if option is enabled

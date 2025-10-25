@@ -163,7 +163,10 @@ export function WorkflowTemplateModal({
     setFormData({ ...formData, stages: updatedStages });
   };
 
-  const removeChecklistItem = (stageId: string | undefined, itemIndex: number) => {
+  const removeChecklistItem = (
+    stageId: string | undefined,
+    itemIndex: number,
+  ) => {
     const updatedStages = formData.stages.map((stage) =>
       stage.id === stageId
         ? {

@@ -6,7 +6,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { invitationsRouter } from "@/app/server/routers/invitations";
-import { createCaller, createMockContext, type TestContextWithAuth } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -57,29 +61,34 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should accept limit parameter", async () => {
-      await expect(_caller.getActivityLogs({
-        limit: 10,
-      })).resolves.not.toThrow();
+      await expect(
+        _caller.getActivityLogs({
+          limit: 10,
+        }),
+      ).resolves.not.toThrow();
     });
 
     it("should default limit to 20", () => {
-      const result =
-        (invitationsRouter._def.procedures.getActivityLogs._def.inputs[0] as any)?.parse(
-          {},
-        );
+      const result = (
+        invitationsRouter._def.procedures.getActivityLogs._def.inputs[0] as any
+      )?.parse({});
       expect(result?.limit).toBe(20);
     });
 
     it("should validate limit min value", async () => {
-      await expect(_caller.getActivityLogs({
-        limit: 0,
-      })).rejects.toThrow();
+      await expect(
+        _caller.getActivityLogs({
+          limit: 0,
+        }),
+      ).rejects.toThrow();
     });
 
     it("should validate limit max value", async () => {
-      await expect(_caller.getActivityLogs({
-        limit: 51,
-      })).rejects.toThrow();
+      await expect(
+        _caller.getActivityLogs({
+          limit: 51,
+        }),
+      ).rejects.toThrow();
     });
   });
 
@@ -135,10 +144,12 @@ describe("app/server/routers/invitations.ts", () => {
       const validRoles = ["admin", "accountant", "member"] as const;
 
       for (const role of validRoles) {
-        await expect(_caller.send({
-          email: "test@example.com",
-          role,
-        })).resolves.not.toThrow();
+        await expect(
+          _caller.send({
+            email: "test@example.com",
+            role,
+          }),
+        ).resolves.not.toThrow();
       }
     });
 
