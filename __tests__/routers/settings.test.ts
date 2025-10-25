@@ -5,12 +5,16 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { z } from "zod";
 import { settingsRouter } from "@/app/server/routers/settings";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
+
+// Type helper to extract Zod schema from tRPC procedure inputs
+type ZodSchema = z.ZodTypeAny;
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -51,7 +55,7 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept empty input (partial schema)", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
         )?.parse({});
       }).not.toThrow();
     });
@@ -59,7 +63,7 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept name update", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
         )?.parse({
           name: "Updated Organization Name",
         });
@@ -69,7 +73,7 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept slug update", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
         )?.parse({
           slug: "updated-org-slug",
         });
@@ -79,7 +83,7 @@ describe("app/server/routers/settings.ts", () => {
     it("should accept multiple fields", () => {
       expect(() => {
         (
-          settingsRouter._def.procedures.updateTenant._def.inputs[0] as any
+          settingsRouter._def.procedures.updateTenant._def.inputs[0] as ZodSchema
         )?.parse({
           name: "New Organization",
           slug: "new-org",
@@ -103,7 +107,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({});
       }).not.toThrow();
     });
@@ -112,7 +116,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           emailNotifications: {
             taskAssigned: true,
@@ -127,7 +131,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           inAppNotifications: {
             taskOverdue: true,
@@ -141,7 +145,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           digestEmail: {
             enabled: true,
@@ -155,7 +159,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           emailNotifications: {
             taskAssigned: true,
@@ -187,7 +191,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           digestEmail: {
             frequency: "invalid",
@@ -203,7 +207,7 @@ describe("app/server/routers/settings.ts", () => {
         expect(() => {
           (
             settingsRouter._def.procedures.updateNotificationSettings._def
-              .inputs[0] as any
+              .inputs[0] as ZodSchema
           )?.parse({
             digestEmail: {
               frequency,
@@ -229,7 +233,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateUserSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           emailNotifications: true,
           inAppNotifications: false,
@@ -245,7 +249,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateUserSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           emailNotifications: false,
           theme: "light",
@@ -257,7 +261,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateUserSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           theme: "invalid",
         });
@@ -268,7 +272,7 @@ describe("app/server/routers/settings.ts", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateUserSettings._def
-            .inputs[0] as any
+            .inputs[0] as ZodSchema
         )?.parse({
           digestEmail: "invalid",
         });
@@ -282,7 +286,7 @@ describe("app/server/routers/settings.ts", () => {
         expect(() => {
           (
             settingsRouter._def.procedures.updateUserSettings._def
-              .inputs[0] as any
+              .inputs[0] as ZodSchema
           )?.parse({
             theme,
           });
@@ -297,7 +301,7 @@ describe("app/server/routers/settings.ts", () => {
         expect(() => {
           (
             settingsRouter._def.procedures.updateUserSettings._def
-              .inputs[0] as any
+              .inputs[0] as ZodSchema
           )?.parse({
             digestEmail,
           });
