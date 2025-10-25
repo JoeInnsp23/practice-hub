@@ -220,7 +220,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         description: "Missing required fields",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(caller.create(invalidInput as Record<string, unknown>)).rejects.toThrow();
     });
   });
 

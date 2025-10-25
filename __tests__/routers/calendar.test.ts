@@ -66,7 +66,7 @@ describe("app/server/routers/calendar.ts", () => {
     it("should reject invalid type enum values", async () => {
       await expect(
         caller.listEvents({
-          type: "invalid_type" as any,
+          type: "invalid_type" as unknown as "meeting",
         }),
       ).rejects.toThrow();
     });
@@ -74,7 +74,9 @@ describe("app/server/routers/calendar.ts", () => {
 
   describe("getEvent", () => {
     it("should reject missing eventId field", async () => {
-      await expect(caller.getEvent({} as any)).rejects.toThrow();
+      await expect(
+        caller.getEvent({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid event ID", async () => {
@@ -99,7 +101,7 @@ describe("app/server/routers/calendar.ts", () => {
       await expect(
         caller.createEvent({
           description: "Test event",
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -151,7 +153,7 @@ describe("app/server/routers/calendar.ts", () => {
       await expect(
         caller.updateEvent({
           title: "Updated Event",
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -177,7 +179,9 @@ describe("app/server/routers/calendar.ts", () => {
 
   describe("deleteEvent", () => {
     it("should reject missing eventId field", async () => {
-      await expect(caller.deleteEvent({} as any)).rejects.toThrow();
+      await expect(
+        caller.deleteEvent({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
     it("should accept valid event ID", async () => {
@@ -194,7 +198,7 @@ describe("app/server/routers/calendar.ts", () => {
       await expect(
         caller.respondToInvitation({
           eventId: "550e8400-e29b-41d4-a716-446655440000",
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -226,7 +230,7 @@ describe("app/server/routers/calendar.ts", () => {
       await expect(
         caller.addAttendee({
           eventId: "550e8400-e29b-41d4-a716-446655440000",
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -255,7 +259,7 @@ describe("app/server/routers/calendar.ts", () => {
       await expect(
         caller.removeAttendee({
           userId: "660e8400-e29b-41d4-a716-446655440000",
-        } as any),
+        } as Record<string, unknown>),
       ).rejects.toThrow();
     });
 

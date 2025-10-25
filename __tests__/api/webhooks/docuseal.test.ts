@@ -155,10 +155,12 @@ vi.mock("@/lib/db", () => {
   const mockDb = createDbInterface() as MockDbChain & {
     transaction: ReturnType<typeof vi.fn>;
   };
-  mockDb.transaction = vi.fn().mockImplementation(async (cb: (tx: MockDbChain) => Promise<unknown>) => {
-    const tx = createDbInterface();
-    return await cb(tx);
-  });
+  mockDb.transaction = vi
+    .fn()
+    .mockImplementation(async (cb: (tx: MockDbChain) => Promise<unknown>) => {
+      const tx = createDbInterface();
+      return await cb(tx);
+    });
 
   return {
     db: mockDb,
