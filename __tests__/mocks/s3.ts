@@ -14,7 +14,7 @@ import { vi } from "vitest";
 
 // Mock S3 client
 export class MockS3Client {
-  send = vi.fn(async (_command: Command<any, any, any>) => {
+  send = vi.fn(async (_command: Command<unknown, unknown, unknown>) => {
     // Mock successful S3 operations
     return {
       $metadata: {
@@ -38,10 +38,11 @@ export class MockGetObjectCommand {
 export const mockGetSignedUrl = vi.fn(
   async (
     _client: MockS3Client,
-    command: Command<any, MetadataBearer, any>,
+    command: Command<unknown, MetadataBearer, unknown>,
     options?: RequestPresigningArguments,
   ) => {
-    const key = command.input?.Key || "test-key";
+    const cmdInput = command.input as { Key?: string } | undefined;
+    const key = cmdInput?.Key || "test-key";
     const expiresIn = options?.expiresIn || 3600;
     return `https://mock-s3.example.com/test-bucket/${key}?X-Amz-Expires=${expiresIn}&X-Amz-Signature=mock-signature`;
   },

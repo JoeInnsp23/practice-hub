@@ -121,12 +121,14 @@ export async function selectRadixOption(
 
       // Success - exit retry loop
       return;
-    } catch (error: any) {
+    } catch (error: unknown) {
       retries--;
       if (retries === 0) {
         // If all retries exhausted, throw the error
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         throw new Error(
-          `Failed to select option "${optionText}" after 3 attempts: ${error.message}`,
+          `Failed to select option "${optionText}" after 3 attempts: ${errorMessage}`,
         );
       }
       // Wait before retry

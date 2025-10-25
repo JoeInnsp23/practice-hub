@@ -12,6 +12,73 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // Import real handler
 import { POST } from "@/app/api/webhooks/docuseal/route";
 
+// ==================== TYPE DEFINITIONS ====================
+
+/** Mock proposal record for testing */
+interface MockProposal {
+  id: string;
+  proposalNumber: string;
+  status: string;
+  tenantId: string;
+  leadId?: string | null;
+  [key: string]: unknown;
+}
+
+/** Mock signature record for testing */
+interface MockSignature {
+  id: string;
+  docusealSubmissionId: string;
+  [key: string]: unknown;
+}
+
+/** Mock client portal user for testing */
+interface MockClientPortalUser {
+  id?: string;
+  email?: string;
+  [key: string]: unknown;
+}
+
+/** Chainable database query builder interface */
+interface MockDbChain {
+  select: ReturnType<typeof vi.fn>;
+  from: ReturnType<typeof vi.fn>;
+  where: ReturnType<typeof vi.fn>;
+  limit: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  set: ReturnType<typeof vi.fn>;
+  insert: ReturnType<typeof vi.fn>;
+  values: ReturnType<typeof vi.fn>;
+  returning: ReturnType<typeof vi.fn>;
+}
+
+/** Database transaction callback type */
+type TransactionCallback<T> = (tx: MockDbChain) => Promise<T>;
+
+/** DocuSeal webhook event structure */
+interface WebhookEvent {
+  event: string;
+  data: {
+    id?: string;
+    template_id?: string;
+    status?: string;
+    completed_at?: string;
+    metadata?: {
+      tenant_id?: string;
+      proposal_id?: string;
+      proposal_number?: string;
+      signer_email?: string;
+      [key: string]: unknown;
+    };
+    submitters?: Array<{
+      name?: string;
+      email?: string;
+      completed_at?: string;
+      [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+  };
+}
+
 // ==================== MOCKS ====================
 
 // Hoisted variables (accessible in vi.mock factories)
@@ -30,9 +97,9 @@ const {
   valuesSpy,
   returningSpy,
 } = vi.hoisted(() => {
-  const mockProposals: any[] = [];
-  const mockProposalSignatures: any[] = [];
-  const mockClientPortalUsers: any[] = [];
+  const mockProposals: MockProposal[] = [];
+  const mockProposalSignatures: MockSignature[] = [];
+  const mockClientPortalUsers: MockClientPortalUser[] = [];
   const currentTableRef = { value: null as string | null };
 
   return {
@@ -53,10 +120,10 @@ const {
 });
 
 vi.mock("@/lib/db", () => {
-  const createDbInterface = () => {
-    const obj: any = {};
+  const createDbInterface = (): MockDbChain => {
+    const obj = {} as MockDbChain;
     obj.select = selectSpy.mockImplementation(() => obj);
-    obj.from = fromSpy.mockImplementation((table: any) => {
+    obj.from = fromSpy.mockImplementation((table: string) => {
       currentTableRef.value = table;
       return obj;
     });
@@ -85,8 +152,10 @@ vi.mock("@/lib/db", () => {
     return obj;
   };
 
-  const mockDb = createDbInterface();
-  mockDb.transaction = vi.fn(async (cb: any) => {
+  const mockDb = createDbInterface() as MockDbChain & {
+    transaction: ReturnType<typeof vi.fn>;
+  };
+  mockDb.transaction = vi.fn().mockImplementation(async (cb: (tx: MockDbChain) => Promise<unknown>) => {
     const tx = createDbInterface();
     return await cb(tx);
   });
@@ -195,7 +264,7 @@ function generateWebhookSignature(payload: string, secret: string): string {
  * Create mock Request object with headers and body
  */
 function createWebhookRequest(
-  event: any,
+  event: WebhookEvent,
   options: {
     signature?: string;
     timestamp?: number;
@@ -221,7 +290,16 @@ function createWebhookRequest(
 /**
  * Create 'submission.completed' event payload
  */
-function createCompletedEvent(overrides: any = {}) {
+function createCompletedEvent(
+  overrides: Partial<WebhookEvent["data"]> & {
+    metadata?: Partial<WebhookEvent["data"]["metadata"]>;
+    submitter?: Partial<{
+      name?: string;
+      email?: string;
+      completed_at?: string;
+    }>;
+  } = {},
+): WebhookEvent {
   return {
     event: "submission.completed",
     data: {
@@ -251,7 +329,11 @@ function createCompletedEvent(overrides: any = {}) {
 /**
  * Create 'submission.declined' event payload
  */
-function createDeclinedEvent(overrides: any = {}) {
+function createDeclinedEvent(
+  overrides: Partial<WebhookEvent["data"]> & {
+    metadata?: Partial<WebhookEvent["data"]["metadata"]>;
+  } = {},
+): WebhookEvent {
   return {
     event: "submission.declined",
     data: {
@@ -270,7 +352,11 @@ function createDeclinedEvent(overrides: any = {}) {
 /**
  * Create 'submission.expired' event payload
  */
-function createExpiredEvent(overrides: any = {}) {
+function createExpiredEvent(
+  overrides: Partial<WebhookEvent["data"]> & {
+    metadata?: Partial<WebhookEvent["data"]["metadata"]>;
+  } = {},
+): WebhookEvent {
   return {
     event: "submission.expired",
     data: {
@@ -288,7 +374,7 @@ function createExpiredEvent(overrides: any = {}) {
 /**
  * Setup mock proposal in database
  */
-function setupMockProposal(proposal: any) {
+function setupMockProposal(proposal: Partial<MockProposal>): void {
   mockProposals.length = 0;
   mockProposals.push({
     id: "prop_789ghi",

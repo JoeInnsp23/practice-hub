@@ -6,6 +6,7 @@
  */
 
 import { eq } from "drizzle-orm";
+import type { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/import/services/route";
 import { db } from "@/lib/db";
@@ -132,7 +133,7 @@ Bookkeeping,BOOK_BASIC,Monthly bookkeeping,bookkeeping,250.00,monthly,4,true,tru
     });
 
     // Call the handler (auth context mocked via vi.mock above)
-    const response = await POST(request as any);
+    const response = await POST(request as unknown as NextRequest);
     expect(response.status).toBe(200);
 
     const result = await response.json();
@@ -168,10 +169,13 @@ Bookkeeping,BOOK_BASIC,Monthly bookkeeping,bookkeeping,250.00,monthly,4,true,tru
 
     // Verify metadata contains tax info
     expect(annualAccounts?.metadata).toBeDefined();
-    const metadata = annualAccounts?.metadata as any;
-    expect(metadata.notes).toBe("Includes Companies House filing");
-    expect(metadata.is_taxable).toBe(true);
-    expect(metadata.tax_rate).toBe(20);
+    const metadata = annualAccounts?.metadata as
+      | { notes?: string; is_taxable?: boolean; tax_rate?: number }
+      | null
+      | undefined;
+    expect(metadata?.notes).toBe("Includes Companies House filing");
+    expect(metadata?.is_taxable).toBe(true);
+    expect(metadata?.tax_rate).toBe(20);
 
     // Verify import log was created
     const importLog = await db
@@ -240,7 +244,7 @@ New Service,NEW_SVC,This should succeed,vat`;
       body: formData,
     });
 
-    const response = await POST(request as any);
+    const response = await POST(request as unknown as NextRequest);
     const result = await response.json();
 
     // Should have processed 1 valid row (the duplicate should be skipped)
@@ -308,7 +312,7 @@ Service Without Code,,vat`;
       body: formData,
     });
 
-    const response = await POST(request as any);
+    const response = await POST(request as unknown as NextRequest);
     const result = await response.json();
 
     // Both rows should be invalid (no data to process)
@@ -317,7 +321,9 @@ Service Without Code,,vat`;
     expect(result.errors.length).toBeGreaterThan(0);
 
     // Verify error messages mention required fields
-    const errorMessages = result.errors.map((e: any) => e.message);
+    const errorMessages = result.errors.map(
+      (e: { message: string }) => e.message,
+    );
     expect(
       errorMessages.some((msg: string) =>
         msg.toLowerCase().includes("required"),
@@ -366,7 +372,7 @@ Test Service Dry Run,TEST_DRY,compliance`;
       .from(services)
       .where(eq(services.tenantId, TEST_TENANT_ID));
 
-    const response = await POST(request as any);
+    const response = await POST(request as unknown as NextRequest);
     const result = await response.json();
 
     // Should return validation results
