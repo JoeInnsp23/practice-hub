@@ -207,7 +207,22 @@ export default function StaffStatisticsPage() {
                 <StaffComparisonTable
                   startDate={dateRange.startDate}
                   endDate={dateRange.endDate}
-                  onExport={exportStaffUtilizationToCSV as any}
+                  onExport={(data) => {
+                    exportStaffUtilizationToCSV(
+                      data.map((staff) => ({
+                        userId: staff.userId,
+                        firstName: staff.firstName,
+                        lastName: staff.lastName,
+                        role: staff.role || null,
+                        departmentName: staff.departmentName ?? null,
+                        totalLoggedHours: staff.totalLoggedHours,
+                        capacityHours: staff.capacityHours,
+                        utilization: staff.utilization,
+                        billablePercentage: staff.billablePercentage,
+                        status: staff.status as string,
+                      })),
+                    );
+                  }}
                 />
               </TabsContent>
             </Tabs>
