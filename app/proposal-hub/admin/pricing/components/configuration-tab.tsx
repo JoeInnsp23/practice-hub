@@ -1,8 +1,10 @@
 "use client";
 
+import type { inferProcedureOutput } from "@trpc/server";
 import { AlertCircle, Download, RefreshCcw, Save } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import type { AppRouter } from "@/app/server";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+// Type inference from tRPC router
+type PricingConfigOutput = inferProcedureOutput<
+  AppRouter["pricingConfig"]["getConfig"]
+>;
+type PricingConfig = NonNullable<PricingConfigOutput["config"]>;
+type ComplexityMultipliers = PricingConfig["complexityMultipliers"]["modelA"];
+type IndustryMultipliers = PricingConfig["industryMultipliers"];
+type DiscountRules = PricingConfig["discountRules"];
+type GlobalSettings = PricingConfig["globalSettings"];
 
 export function ConfigurationTab() {
   const { data, isLoading, refetch } = trpc.pricingConfig.getConfig.useQuery();
@@ -35,15 +47,67 @@ export function ConfigurationTab() {
   const config = data?.config;
   const isDefault = data?.isDefault;
 
-  const [complexityA, setComplexityA] = useState(
-    config?.complexityMultipliers.modelA || {},
+  const [complexityA, setComplexityA] = useState<ComplexityMultipliers>(
+    config?.complexityMultipliers.modelA || {
+      clean: 0.95,
+      average: 1.0,
+      complex: 1.15,
+      disaster: 1.4,
+    },
   );
-  const [complexityB, setComplexityB] = useState(
-    config?.complexityMultipliers.modelB || {},
+  const [complexityB, setComplexityB] = useState<ComplexityMultipliers>(
+    config?.complexityMultipliers.modelB || {
+      clean: 0.95,
+      average: 1.0,
+      complex: 1.1,
+      disaster: 1.25,
+    },
   );
-  const [industry, setIndustry] = useState(config?.industryMultipliers || {});
-  const [discounts, setDiscounts] = useState(config?.discountRules || {});
-  const [global, setGlobal] = useState(config?.globalSettings || {});
+  const [industry, setIndustry] = useState<IndustryMultipliers>(
+    config?.industryMultipliers || {
+      simple: 0.95,
+      standard: 1.0,
+      complex: 1.15,
+      regulated: 1.3,
+    },
+  );
+  const [discounts, setDiscounts] = useState<DiscountRules>(
+    config?.discountRules || {
+      volumeTier1: {
+        threshold: 500,
+        percentage: 5,
+        description: "5% volume discount (over £500/month)",
+      },
+      volumeTier2: {
+        threshold: 1000,
+        percentage: 3,
+        description: "Additional 3% discount (over £1000/month)",
+      },
+      rushFee: {
+        percentage: 25,
+        description: "25% rush fee (within 1 month of deadline)",
+      },
+      newClient: {
+        percentage: 10,
+        duration: 12,
+        description: "10% first-year discount (new client)",
+      },
+      customDiscount: {
+        maxPercentage: 25,
+        requiresApproval: true,
+        description: "Custom discount (requires approval)",
+      },
+    },
+  );
+  const [global, setGlobal] = useState<GlobalSettings>(
+    config?.globalSettings || {
+      defaultTurnoverBand: "90k-149k",
+      defaultIndustry: "standard" as const,
+      roundingRule: "nearest_1" as const,
+      currencySymbol: "£",
+      taxRate: 0,
+    },
+  );
 
   // Update local state when config loads
   React.useEffect(() => {
@@ -99,7 +163,20 @@ export function ConfigurationTab() {
 
   const handleSaveGlobal = async () => {
     try {
-      await updateGlobalMutation.mutateAsync(global);
+      // Type assertion needed due to TypeScript widening literal types in state updates
+      await updateGlobalMutation.mutateAsync({
+        ...global,
+        defaultIndustry: global.defaultIndustry as
+          | "simple"
+          | "standard"
+          | "complex"
+          | "regulated",
+        roundingRule: global.roundingRule as
+          | "none"
+          | "nearest_1"
+          | "nearest_5"
+          | "nearest_10",
+      });
       toast.success("Global settings saved");
       refetch();
     } catch (error: unknown) {
@@ -533,9 +610,23 @@ export function ConfigurationTab() {
             <Label htmlFor="default-turnover">Default Turnover Band</Label>
             <Select
               value={global.defaultTurnoverBand}
-              onValueChange={(value) =>
-                setGlobal({ ...global, defaultTurnoverBand: value })
-              }
+              onValueChange={(value) => {
+                setGlobal({
+                  defaultTurnoverBand: value,
+                  defaultIndustry: global.defaultIndustry as
+                    | "simple"
+                    | "standard"
+                    | "complex"
+                    | "regulated",
+                  roundingRule: global.roundingRule as
+                    | "none"
+                    | "nearest_1"
+                    | "nearest_5"
+                    | "nearest_10",
+                  currencySymbol: global.currencySymbol,
+                  taxRate: global.taxRate,
+                });
+              }}
             >
               <SelectTrigger id="default-turnover">
                 <SelectValue />
@@ -556,12 +647,23 @@ export function ConfigurationTab() {
             <Label htmlFor="default-industry">Default Industry</Label>
             <Select
               value={global.defaultIndustry}
-              onValueChange={(value) =>
+              onValueChange={(value) => {
                 setGlobal({
-                  ...global,
-                  defaultIndustry: value as typeof global.defaultIndustry,
-                })
-              }
+                  defaultTurnoverBand: global.defaultTurnoverBand,
+                  defaultIndustry: value as
+                    | "simple"
+                    | "standard"
+                    | "complex"
+                    | "regulated",
+                  roundingRule: global.roundingRule as
+                    | "none"
+                    | "nearest_1"
+                    | "nearest_5"
+                    | "nearest_10",
+                  currencySymbol: global.currencySymbol,
+                  taxRate: global.taxRate,
+                });
+              }}
             >
               <SelectTrigger id="default-industry">
                 <SelectValue />
@@ -579,12 +681,23 @@ export function ConfigurationTab() {
             <Label htmlFor="rounding-rule">Rounding Rule</Label>
             <Select
               value={global.roundingRule}
-              onValueChange={(value) =>
+              onValueChange={(value) => {
                 setGlobal({
-                  ...global,
-                  roundingRule: value as typeof global.roundingRule,
-                })
-              }
+                  defaultTurnoverBand: global.defaultTurnoverBand,
+                  defaultIndustry: global.defaultIndustry as
+                    | "simple"
+                    | "standard"
+                    | "complex"
+                    | "regulated",
+                  roundingRule: value as
+                    | "none"
+                    | "nearest_1"
+                    | "nearest_5"
+                    | "nearest_10",
+                  currencySymbol: global.currencySymbol,
+                  taxRate: global.taxRate,
+                });
+              }}
             >
               <SelectTrigger id="rounding-rule">
                 <SelectValue />
@@ -603,9 +716,23 @@ export function ConfigurationTab() {
             <Input
               id="currency"
               value={global.currencySymbol}
-              onChange={(e) =>
-                setGlobal({ ...global, currencySymbol: e.target.value })
-              }
+              onChange={(e) => {
+                setGlobal({
+                  defaultTurnoverBand: global.defaultTurnoverBand,
+                  defaultIndustry: global.defaultIndustry as
+                    | "simple"
+                    | "standard"
+                    | "complex"
+                    | "regulated",
+                  roundingRule: global.roundingRule as
+                    | "none"
+                    | "nearest_1"
+                    | "nearest_5"
+                    | "nearest_10",
+                  currencySymbol: e.target.value,
+                  taxRate: global.taxRate,
+                });
+              }}
               maxLength={3}
             />
           </div>
