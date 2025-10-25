@@ -29,15 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
-
-// Type for leave request from tRPC router
-type LeaveRequest = NonNullable<
-  ReturnType<typeof trpc.leave.getHistory.useQuery>["data"] extends infer T
-    ? T extends { requests: Array<infer P> }
-      ? P
-      : any
-    : any
->;
+import type { LeaveRequest } from "@/lib/trpc/types";
 
 export default function LeavePage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);

@@ -35,21 +35,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
-
-interface LeaveRequest {
-  id: string;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  daysCount: number;
-  status: string;
-  notes: string | null;
-  requestedAt: Date;
-  reviewedBy: string | null;
-  reviewedAt: Date | null;
-  reviewerComments: string | null;
-  reviewerName?: string | null;
-}
+import type { LeaveRequest } from "@/lib/trpc/types";
 
 interface LeaveListProps {
   requests: LeaveRequest[];
