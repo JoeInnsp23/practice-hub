@@ -65,7 +65,7 @@ export function BulkActionBar({
   const departments = departmentsData?.departments || [];
 
   // Check if current user is in selection (for admin protection warning)
-  const includesCurrentUser = currentUserId && selectedUserIds.includes(currentUserId);
+  const includesCurrentUser = Boolean(currentUserId && selectedUserIds.includes(currentUserId));
 
   // Bulk update status mutation
   const bulkUpdateStatusMutation = trpc.users.bulkUpdateStatus.useMutation({
@@ -247,7 +247,7 @@ export function BulkActionBar({
             <Button
               onClick={handleStatusUpdate}
               disabled={
-                !selectedStatus ||
+                selectedStatus === "" ||
                 bulkUpdateStatusMutation.isPending ||
                 (selectedStatus === "inactive" && includesCurrentUser)
               }

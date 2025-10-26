@@ -8,7 +8,7 @@
 
 > **ModelComparisonChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/charts/model-comparison-chart.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/proposal-hub/charts/model-comparison-chart.tsx#L32)
+Defined in: [components/proposal-hub/charts/model-comparison-chart.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/components/proposal-hub/charts/model-comparison-chart.tsx#L32)
 
 ## Parameters
 

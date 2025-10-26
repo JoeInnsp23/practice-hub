@@ -8,7 +8,7 @@
 
 > **Table**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/table.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/ui/table.tsx#L7)
+Defined in: [components/ui/table.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/components/ui/table.tsx#L7)
 
 ## Parameters
 

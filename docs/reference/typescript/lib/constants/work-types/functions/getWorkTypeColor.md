@@ -8,7 +8,7 @@
 
 > **getWorkTypeColor**(`code`): `string`
 
-Defined in: [lib/constants/work-types.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/lib/constants/work-types.ts#L97)
+Defined in: [lib/constants/work-types.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/constants/work-types.ts#L97)
 
 ## Parameters
 

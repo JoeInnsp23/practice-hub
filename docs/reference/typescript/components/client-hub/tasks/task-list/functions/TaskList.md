@@ -8,7 +8,7 @@
 
 > **TaskList**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/tasks/task-list.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/tasks/task-list.tsx#L49)
+Defined in: [components/client-hub/tasks/task-list.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/components/client-hub/tasks/task-list.tsx#L49)
 
 ## Parameters
 

@@ -1,11 +1,11 @@
 import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
-import { and, eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, inArray, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { activityLogs, users } from "@/lib/db/schema";
+import { activityLogs, departments, users } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Role enum for filtering

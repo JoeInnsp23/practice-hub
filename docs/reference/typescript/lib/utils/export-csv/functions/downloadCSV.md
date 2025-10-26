@@ -8,7 +8,7 @@
 
 > **downloadCSV**(`csvContent`, `filename`): `void`
 
-Defined in: [lib/utils/export-csv.ts:66](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/lib/utils/export-csv.ts#L66)
+Defined in: [lib/utils/export-csv.ts:66](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/utils/export-csv.ts#L66)
 
 Trigger browser download of CSV content
 

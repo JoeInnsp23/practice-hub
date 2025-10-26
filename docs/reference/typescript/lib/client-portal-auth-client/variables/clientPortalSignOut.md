@@ -8,7 +8,7 @@
 
 > **clientPortalSignOut**: \<`FetchOptions`\>(...`data`) => `Promise`\<`BetterFetchResponse`\<\{ \}, \{ \}, `FetchOptions`\[`"throw"`\] *extends* `true` ? `true` : `false`\>\>
 
-Defined in: [lib/client-portal-auth-client.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/lib/client-portal-auth-client.ts#L17)
+Defined in: [lib/client-portal-auth-client.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/client-portal-auth-client.ts#L17)
 
 ## Type Parameters
 

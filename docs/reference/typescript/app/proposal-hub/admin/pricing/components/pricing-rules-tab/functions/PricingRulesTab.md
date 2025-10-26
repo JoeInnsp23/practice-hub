@@ -8,7 +8,7 @@
 
 > **PricingRulesTab**(): `Element`
 
-Defined in: [app/proposal-hub/admin/pricing/components/pricing-rules-tab.tsx:68](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/app/proposal-hub/admin/pricing/components/pricing-rules-tab.tsx#L68)
+Defined in: [app/proposal-hub/admin/pricing/components/pricing-rules-tab.tsx:68](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/app/proposal-hub/admin/pricing/components/pricing-rules-tab.tsx#L68)
 
 ## Returns
 

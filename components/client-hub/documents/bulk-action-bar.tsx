@@ -207,8 +207,8 @@ export function BulkActionBar({
                 <SelectContent>
                   <SelectItem value="">Root Folder</SelectItem>
                   {folders.map((folder) => (
-                    <SelectItem key={folder.id} value={folder.id}>
-                      {folder.name}
+                    <SelectItem key={folder.document.id} value={folder.document.id}>
+                      {folder.document.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
