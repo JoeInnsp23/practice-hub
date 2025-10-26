@@ -8,4 +8,4 @@
 
 > **Service** = [`ServiceListOutput`](ServiceListOutput.md)\[`"services"`\]\[`number`\]
 
-Defined in: [lib/trpc/types.ts:162](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/trpc/types.ts#L162)
+Defined in: [lib/trpc/types.ts:162](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/trpc/types.ts#L162)

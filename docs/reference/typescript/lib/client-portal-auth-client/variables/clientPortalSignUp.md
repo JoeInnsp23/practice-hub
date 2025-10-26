@@ -8,7 +8,7 @@
 
 > **clientPortalSignUp**: `object`
 
-Defined in: [lib/client-portal-auth-client.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/client-portal-auth-client.ts#L16)
+Defined in: [lib/client-portal-auth-client.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/client-portal-auth-client.ts#L16)
 
 ## Type Declaration
 

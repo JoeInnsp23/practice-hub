@@ -1565,7 +1565,8 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
         expect(updatedDocs[0].tags).toContain("existing-tag");
         expect(updatedDocs[0].tags).toContain("new-tag");
-        expect(updatedDocs[0].tags?.length).toBe(2);
+        expect(Array.isArray(updatedDocs[0].tags)).toBe(true);
+        expect((updatedDocs[0].tags as string[]).length).toBe(2);
       });
 
       it("should log activity for bulk category change (AC22)", async () => {

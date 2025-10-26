@@ -8,7 +8,7 @@
 
 > **addBreadcrumb**(`message`, `category`, `data?`): `void`
 
-Defined in: [lib/sentry.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/sentry.ts#L96)
+Defined in: [lib/sentry.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/sentry.ts#L96)
 
 Add breadcrumb for tracking user actions
 

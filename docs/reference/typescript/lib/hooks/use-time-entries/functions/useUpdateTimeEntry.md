@@ -8,7 +8,7 @@
 
 > **useUpdateTimeEntry**(): `object`
 
-Defined in: [lib/hooks/use-time-entries.ts:172](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/hooks/use-time-entries.ts#L172)
+Defined in: [lib/hooks/use-time-entries.ts:172](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/hooks/use-time-entries.ts#L172)
 
 ## Returns
 

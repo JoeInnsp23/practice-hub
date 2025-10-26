@@ -8,7 +8,7 @@
 
 > **ImportHistoryContent**(): `Element`
 
-Defined in: [components/admin/import-history-content.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/components/admin/import-history-content.tsx#L65)
+Defined in: [components/admin/import-history-content.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/components/admin/import-history-content.tsx#L65)
 
 ## Returns
 

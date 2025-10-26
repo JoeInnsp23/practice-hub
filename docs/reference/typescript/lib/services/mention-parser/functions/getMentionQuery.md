@@ -8,7 +8,7 @@
 
 > **getMentionQuery**(`text`, `cursorPosition`): `string`
 
-Defined in: [lib/services/mention-parser.ts:250](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/services/mention-parser.ts#L250)
+Defined in: [lib/services/mention-parser.ts:250](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/services/mention-parser.ts#L250)
 
 Extract partial mention query from text at cursor position
 
