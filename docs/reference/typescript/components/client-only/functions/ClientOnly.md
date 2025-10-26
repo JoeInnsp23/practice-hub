@@ -8,7 +8,7 @@
 
 > **ClientOnly**(`__namedParameters`): `Element`
 
-Defined in: [components/client-only.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/ec3a96142a4bc90940f1dc483685d47553a5d556/components/client-only.tsx#L10)
+Defined in: [components/client-only.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/components/client-only.tsx#L10)
 
 ## Parameters
 

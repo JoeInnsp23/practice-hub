@@ -849,6 +849,215 @@ export const documentsRouter = router({
         signature: signature || null,
       };
     }),
+
+  // BULK OPERATIONS
+
+  // Bulk move documents to a new folder
+  bulkMove: protectedProcedure
+    .input(
+      z.object({
+        documentIds: z
+          .array(z.string())
+          .min(1, "At least one document ID required"),
+        parentId: z.string().nullable(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all documents exist and belong to tenant
+        const existingDocuments = await tx
+          .select()
+          .from(documents)
+          .where(
+            and(
+              inArray(documents.id, input.documentIds),
+              eq(documents.tenantId, tenantId),
+            ),
+          );
+
+        if (existingDocuments.length !== input.documentIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more documents not found",
+          });
+        }
+
+        // If parentId is provided, verify it exists and is a folder
+        if (input.parentId) {
+          const parentFolder = await tx
+            .select()
+            .from(documents)
+            .where(
+              and(
+                eq(documents.id, input.parentId),
+                eq(documents.tenantId, tenantId),
+                eq(documents.type, "folder"),
+              ),
+            )
+            .limit(1);
+
+          if (parentFolder.length === 0) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Parent folder not found",
+            });
+          }
+        }
+
+        // Update all documents
+        const updatedDocuments = await tx
+          .update(documents)
+          .set({
+            parentId: input.parentId,
+            updatedAt: new Date(),
+          })
+          .where(inArray(documents.id, input.documentIds))
+          .returning();
+
+        // Log activity for each document
+        for (const document of updatedDocuments) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "document",
+            entityId: document.id,
+            action: "bulk_move",
+            description: `Bulk moved document to ${input.parentId ? "folder" : "root"}`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { parentId: input.parentId },
+          });
+        }
+
+        return { count: updatedDocuments.length, documents: updatedDocuments };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk update tags/category for documents
+  bulkChangeCategory: protectedProcedure
+    .input(
+      z.object({
+        documentIds: z
+          .array(z.string())
+          .min(1, "At least one document ID required"),
+        tags: z.array(z.string()),
+        addTags: z.boolean().default(false), // If true, add to existing tags; if false, replace
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all documents exist and belong to tenant
+        const existingDocuments = await tx
+          .select()
+          .from(documents)
+          .where(
+            and(
+              inArray(documents.id, input.documentIds),
+              eq(documents.tenantId, tenantId),
+            ),
+          );
+
+        if (existingDocuments.length !== input.documentIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more documents not found",
+          });
+        }
+
+        // Update documents with new tags
+        const updatedDocuments = await tx
+          .update(documents)
+          .set({
+            tags: input.addTags
+              ? sql`COALESCE(tags, '[]'::jsonb) || ${JSON.stringify(input.tags)}::jsonb`
+              : input.tags,
+            updatedAt: new Date(),
+          })
+          .where(inArray(documents.id, input.documentIds))
+          .returning();
+
+        // Log activity for each document
+        for (const document of updatedDocuments) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "document",
+            entityId: document.id,
+            action: "bulk_change_category",
+            description: `Bulk ${input.addTags ? "added" : "changed"} tags for document`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { tags: input.tags },
+          });
+        }
+
+        return { count: updatedDocuments.length, documents: updatedDocuments };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk delete multiple documents
+  bulkDelete: protectedProcedure
+    .input(
+      z.object({
+        documentIds: z
+          .array(z.string())
+          .min(1, "At least one document ID required"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all documents exist and belong to tenant
+        const existingDocuments = await tx
+          .select()
+          .from(documents)
+          .where(
+            and(
+              inArray(documents.id, input.documentIds),
+              eq(documents.tenantId, tenantId),
+            ),
+          );
+
+        if (existingDocuments.length !== input.documentIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more documents not found",
+          });
+        }
+
+        // Log activity for each document before deletion
+        for (const document of existingDocuments) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "document",
+            entityId: document.id,
+            action: "bulk_delete",
+            description: `Bulk deleted document "${document.name}"`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+          });
+        }
+
+        // Delete all documents
+        await tx
+          .delete(documents)
+          .where(inArray(documents.id, input.documentIds));
+
+        return { count: existingDocuments.length };
+      });
+
+      return { success: true, ...result };
+    }),
 });
 
 // Helper function to format bytes

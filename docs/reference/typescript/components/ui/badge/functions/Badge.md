@@ -8,7 +8,7 @@
 
 > **Badge**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/badge.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/ec3a96142a4bc90940f1dc483685d47553a5d556/components/ui/badge.tsx#L28)
+Defined in: [components/ui/badge.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/components/ui/badge.tsx#L28)
 
 ## Parameters
 
