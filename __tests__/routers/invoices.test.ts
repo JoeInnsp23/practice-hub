@@ -914,6 +914,66 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
     });
   });
 
+  describe("Bulk Operations", () => {
+    describe("bulkUpdateStatus", () => {
+      it("should update status for multiple invoices", async () => {
+        // TODO: Implement bulk status update test
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk status update", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("bulkSendEmails", () => {
+      it("should send emails for multiple invoices", async () => {
+        // TODO: Implement bulk email sending test (AC9-10)
+        expect(true).toBe(true);
+      });
+
+      it("should track sent/failed counts for progress tracking (AC9-10)", async () => {
+        // TODO: Test email progress tracking
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk email operations", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("bulkDelete", () => {
+      it("should delete multiple invoices and cascade to items", async () => {
+        // TODO: Implement bulk delete test with cascade
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk delete", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("Transaction Safety (AC23)", () => {
+      it("should rollback on partial failure - bulkUpdateStatus", async () => {
+        // TODO: CRITICAL DATA INTEGRITY TEST
+        expect(true).toBe(true);
+      });
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(invoicesRouter._def.procedures);

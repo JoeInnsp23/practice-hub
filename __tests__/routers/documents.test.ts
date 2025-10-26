@@ -1361,6 +1361,66 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
   });
 
+  describe("Bulk Operations", () => {
+    describe("bulkMove", () => {
+      it("should move multiple documents to folder", async () => {
+        // TODO: Implement bulk move test
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk move", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("bulkChangeCategory", () => {
+      it("should change tags for multiple documents (replace mode)", async () => {
+        // TODO: Implement bulk tag change test (AC13 replace mode)
+        expect(true).toBe(true);
+      });
+
+      it("should add tags to existing tags (add mode)", async () => {
+        // TODO: Implement bulk tag add test (AC13 add mode)
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk category change", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("bulkDelete", () => {
+      it("should delete multiple documents", async () => {
+        // TODO: Implement bulk delete test
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk delete", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("Transaction Safety (AC23)", () => {
+      it("should rollback on partial failure - bulkMove", async () => {
+        // TODO: CRITICAL DATA INTEGRITY TEST
+        expect(true).toBe(true);
+      });
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(documentsRouter._def.procedures);

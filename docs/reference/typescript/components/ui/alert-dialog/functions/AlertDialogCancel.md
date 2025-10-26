@@ -8,7 +8,7 @@
 
 > **AlertDialogCancel**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/alert-dialog.tsx:132](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/components/ui/alert-dialog.tsx#L132)
+Defined in: [components/ui/alert-dialog.tsx:132](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/components/ui/alert-dialog.tsx#L132)
 
 ## Parameters
 

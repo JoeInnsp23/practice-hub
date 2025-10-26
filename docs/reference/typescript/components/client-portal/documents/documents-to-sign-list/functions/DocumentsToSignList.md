@@ -8,7 +8,7 @@
 
 > **DocumentsToSignList**(`__namedParameters`): `Element`
 
-Defined in: [components/client-portal/documents/documents-to-sign-list.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/components/client-portal/documents/documents-to-sign-list.tsx#L27)
+Defined in: [components/client-portal/documents/documents-to-sign-list.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/components/client-portal/documents/documents-to-sign-list.tsx#L27)
 
 ## Parameters
 

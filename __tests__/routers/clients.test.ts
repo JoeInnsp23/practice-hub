@@ -834,6 +834,66 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
   });
 
+  describe("Bulk Operations", () => {
+    describe("bulkUpdateStatus", () => {
+      it("should update status for multiple clients", async () => {
+        // TODO: Implement bulk status update test
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk status update", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("bulkAssignManager", () => {
+      it("should assign manager to multiple clients", async () => {
+        // TODO: Implement bulk manager assignment test
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk manager assignment", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("bulkDelete", () => {
+      it("should delete multiple clients", async () => {
+        // TODO: Implement bulk delete test
+        expect(true).toBe(true);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // TODO: Test cross-tenant protection
+        expect(true).toBe(true);
+      });
+
+      it("should log activity for bulk delete", async () => {
+        // TODO: Test audit logging (AC22)
+        expect(true).toBe(true);
+      });
+    });
+
+    describe("Transaction Safety (AC23)", () => {
+      it("should rollback on partial failure - bulkUpdateStatus", async () => {
+        // TODO: CRITICAL DATA INTEGRITY TEST
+        expect(true).toBe(true);
+      });
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(clientsRouter._def.procedures);

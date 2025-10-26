@@ -8,7 +8,7 @@
 
 > **PortalLinksClient**(): `Element`
 
-Defined in: [app/admin/portal-links/portal-links-client.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/app/admin/portal-links/portal-links-client.tsx#L8)
+Defined in: [app/admin/portal-links/portal-links-client.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/app/admin/portal-links/portal-links-client.tsx#L8)
 
 ## Returns
 

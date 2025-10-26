@@ -8,4 +8,4 @@
 
 > **LeaveRequest** = [`LeaveHistoryOutput`](LeaveHistoryOutput.md)\[`"requests"`\]\[`number`\]
 
-Defined in: [lib/trpc/types.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/lib/trpc/types.ts#L97)
+Defined in: [lib/trpc/types.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/trpc/types.ts#L97)
