@@ -8,7 +8,7 @@
 
 > **AlertDialogAction**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/alert-dialog.tsx:120](https://github.com/JoeInnsp23/practice-hub/blob/7fec9eba7e45b7f3789317f983edb1361575ad94/components/ui/alert-dialog.tsx#L120)
+Defined in: [components/ui/alert-dialog.tsx:120](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/components/ui/alert-dialog.tsx#L120)
 
 ## Parameters
 

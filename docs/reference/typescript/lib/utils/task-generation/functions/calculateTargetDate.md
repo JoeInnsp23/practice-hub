@@ -8,7 +8,7 @@
 
 > **calculateTargetDate**(`dueDate`): `Date`
 
-Defined in: [lib/utils/task-generation.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/7fec9eba7e45b7f3789317f983edb1361575ad94/lib/utils/task-generation.ts#L85)
+Defined in: [lib/utils/task-generation.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/utils/task-generation.ts#L85)
 
 Calculate target date (7 days before due date for internal completion goal)
 

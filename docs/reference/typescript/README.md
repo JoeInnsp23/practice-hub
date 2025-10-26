@@ -174,6 +174,7 @@
 - [components/client-hub/documents/file-preview-modal](components/client-hub/documents/file-preview-modal/README.md)
 - [components/client-hub/documents/signature-upload-modal](components/client-hub/documents/signature-upload-modal/README.md)
 - [components/client-hub/documents/upload-modal](components/client-hub/documents/upload-modal/README.md)
+- [components/client-hub/invoices/bulk-action-bar](components/client-hub/invoices/bulk-action-bar/README.md)
 - [components/client-hub/invoices/invoice-form](components/client-hub/invoices/invoice-form/README.md)
 - [components/client-hub/invoices/invoice-list](components/client-hub/invoices/invoice-list/README.md)
 - [components/client-hub/leave/leave-balance-widget](components/client-hub/leave/leave-balance-widget/README.md)

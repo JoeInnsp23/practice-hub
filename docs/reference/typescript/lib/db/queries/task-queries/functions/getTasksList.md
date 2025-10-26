@@ -8,7 +8,7 @@
 
 > **getTasksList**(`tenantId`, `filters`): `Promise`\<`object`[]\>
 
-Defined in: [lib/db/queries/task-queries.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/7fec9eba7e45b7f3789317f983edb1361575ad94/lib/db/queries/task-queries.ts#L9)
+Defined in: [lib/db/queries/task-queries.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/db/queries/task-queries.ts#L9)
 
 Fetch tasks list with filters
 Uses task_details_view for joined data

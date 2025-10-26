@@ -8,7 +8,7 @@
 
 > **SalesCycleChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/analytics/sales-cycle-chart.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/7fec9eba7e45b7f3789317f983edb1361575ad94/components/proposal-hub/analytics/sales-cycle-chart.tsx#L33)
+Defined in: [components/proposal-hub/analytics/sales-cycle-chart.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/components/proposal-hub/analytics/sales-cycle-chart.tsx#L33)
 
 ## Parameters
 

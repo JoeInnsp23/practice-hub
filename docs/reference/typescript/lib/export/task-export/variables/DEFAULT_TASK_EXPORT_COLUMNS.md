@@ -8,4 +8,4 @@
 
 > `const` **DEFAULT\_TASK\_EXPORT\_COLUMNS**: [`TaskExportColumn`](../interfaces/TaskExportColumn.md)[]
 
-Defined in: [lib/export/task-export.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/7fec9eba7e45b7f3789317f983edb1361575ad94/lib/export/task-export.ts#L11)
+Defined in: [lib/export/task-export.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/export/task-export.ts#L11)

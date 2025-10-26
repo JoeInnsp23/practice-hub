@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/(public)/lead-capture/thank-you/page.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/7fec9eba7e45b7f3789317f983edb1361575ad94/app/(public)/lead-capture/thank-you/page.tsx#L8)
+Defined in: [app/(public)/lead-capture/thank-you/page.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/app/(public)/lead-capture/thank-you/page.tsx#L8)
 
 ## Returns
 
