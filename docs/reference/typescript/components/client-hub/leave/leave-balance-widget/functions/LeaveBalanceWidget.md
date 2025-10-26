@@ -8,7 +8,7 @@
 
 > **LeaveBalanceWidget**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/leave/leave-balance-widget.tsx:23](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/components/client-hub/leave/leave-balance-widget.tsx#L23)
+Defined in: [components/client-hub/leave/leave-balance-widget.tsx:23](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/components/client-hub/leave/leave-balance-widget.tsx#L23)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > `const` **webhookTenantRateLimit**: `RegionRatelimit` \| `null`
 
-Defined in: [lib/rate-limit/webhook.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/rate-limit/webhook.ts#L40)
+Defined in: [lib/rate-limit/webhook.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/rate-limit/webhook.ts#L40)
 
 Tenant-level rate limiter: 10 requests/second
 

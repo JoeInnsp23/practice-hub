@@ -6,7 +6,7 @@
 
 # Interface: VerificationResponse
 
-Defined in: [lib/kyc/lemverify-client.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/kyc/lemverify-client.ts#L57)
+Defined in: [lib/kyc/lemverify-client.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/kyc/lemverify-client.ts#L57)
 
 Verification response from LEM Verify
 
@@ -16,7 +16,7 @@ Verification response from LEM Verify
 
 > **clientRef**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/kyc/lemverify-client.ts#L59)
+Defined in: [lib/kyc/lemverify-client.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/kyc/lemverify-client.ts#L59)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [lib/kyc/lemverify-client.ts:59](https://github.com/JoeInnsp23/pract
 
 > **createdAt**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:62](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/kyc/lemverify-client.ts#L62)
+Defined in: [lib/kyc/lemverify-client.ts:62](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/kyc/lemverify-client.ts#L62)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [lib/kyc/lemverify-client.ts:62](https://github.com/JoeInnsp23/pract
 
 > **id**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/kyc/lemverify-client.ts#L58)
+Defined in: [lib/kyc/lemverify-client.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/kyc/lemverify-client.ts#L58)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [lib/kyc/lemverify-client.ts:58](https://github.com/JoeInnsp23/pract
 
 > **status**: `"pending"` \| `"completed"` \| `"failed"`
 
-Defined in: [lib/kyc/lemverify-client.ts:60](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/kyc/lemverify-client.ts#L60)
+Defined in: [lib/kyc/lemverify-client.ts:60](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/kyc/lemverify-client.ts#L60)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [lib/kyc/lemverify-client.ts:60](https://github.com/JoeInnsp23/pract
 
 > **verificationUrl**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/kyc/lemverify-client.ts#L61)
+Defined in: [lib/kyc/lemverify-client.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/kyc/lemverify-client.ts#L61)

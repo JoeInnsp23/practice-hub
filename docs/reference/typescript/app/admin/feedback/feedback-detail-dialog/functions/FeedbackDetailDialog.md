@@ -8,7 +8,7 @@
 
 > **FeedbackDetailDialog**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/feedback/feedback-detail-dialog.tsx:62](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/app/admin/feedback/feedback-detail-dialog.tsx#L62)
+Defined in: [app/admin/feedback/feedback-detail-dialog.tsx:62](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/app/admin/feedback/feedback-detail-dialog.tsx#L62)
 
 ## Parameters
 

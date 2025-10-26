@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/(public)/proposals/signed/\[id\]/page.tsx:9](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/app/(public)/proposals/signed/[id]/page.tsx#L9)
+Defined in: [app/(public)/proposals/signed/\[id\]/page.tsx:9](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/app/(public)/proposals/signed/[id]/page.tsx#L9)
 
 ## Parameters
 

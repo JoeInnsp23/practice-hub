@@ -8,7 +8,7 @@
 
 > **formatPhoneNumber**(`phone`): `string`
 
-Defined in: [lib/utils/format.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/624a835c80503036b953c653b801ebc1fc5dbf0f/lib/utils/format.ts#L46)
+Defined in: [lib/utils/format.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/c04a58b0b0fade7601286d40714502e52afe6cf4/lib/utils/format.ts#L46)
 
 ## Parameters
 
