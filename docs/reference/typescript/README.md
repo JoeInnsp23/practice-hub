@@ -150,6 +150,7 @@
 - [components/client-admin/user-access-drawer](components/client-admin/user-access-drawer/README.md)
 - [components/client-hub/client-import-modal](components/client-hub/client-import-modal/README.md)
 - [components/client-hub/client-template-overrides](components/client-hub/client-template-overrides/README.md)
+- [components/client-hub/clients/bulk-action-bar](components/client-hub/clients/bulk-action-bar/README.md)
 - [components/client-hub/clients/client-filters](components/client-hub/clients/client-filters/README.md)
 - [components/client-hub/clients/client-modal](components/client-hub/clients/client-modal/README.md)
 - [components/client-hub/clients/client-wizard-modal](components/client-hub/clients/client-wizard-modal/README.md)
