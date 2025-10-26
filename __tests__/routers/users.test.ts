@@ -4,8 +4,17 @@
  * Tests for the users tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { and, eq } from "drizzle-orm";
 import { usersRouter } from "@/app/server/routers/users";
+import { db } from "@/lib/db";
+import { activityLogs, departments, users } from "@/lib/db/schema";
+import {
+  cleanupTestData,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
 import {
   createAdminCaller,
   createCaller,
@@ -274,81 +283,407 @@ describe("app/server/routers/users.ts", () => {
     });
   });
 
-  describe("Bulk Operations", () => {
+  describe("Bulk Operations (Integration)", () => {
+    // Integration test context (uses real database, not mocks)
+    let integrationCtx: TestContextWithAuth;
+    let integrationCaller: ReturnType<typeof createCaller<typeof usersRouter>>;
+    const integrationTracker: TestDataTracker = {
+      tenants: [],
+      users: [],
+      departments: [],
+    };
+
+    beforeEach(async () => {
+      // Unmock the database for integration tests
+      vi.unmock("@/lib/db");
+
+      // Create test tenant and admin user
+      const tenantId = await createTestTenant();
+      const userId = await createTestUser(tenantId, { role: "admin" });
+
+      integrationTracker.tenants?.push(tenantId);
+      integrationTracker.users?.push(userId);
+
+      // Create mock context with test tenant and user
+      integrationCtx = createMockContext({
+        authContext: {
+          userId,
+          tenantId,
+          organizationName: "Test Organization",
+          role: "admin",
+          email: `test-${Date.now()}@example.com`,
+          firstName: "Test",
+          lastName: "Admin",
+        },
+      });
+
+      integrationCaller = createCaller(usersRouter, integrationCtx);
+    });
+
+    afterEach(async () => {
+      await cleanupTestData(integrationTracker);
+      // Reset tracker
+      integrationTracker.tenants = [];
+      integrationTracker.users = [];
+      integrationTracker.departments = [];
+
+      // Re-mock the database for other tests
+      vi.doMock("@/lib/db");
+    });
+
     describe("bulkUpdateStatus", () => {
       it("should update status for multiple users", async () => {
-        // TODO: Implement bulk status update test
-        // Follow tasks router pattern from __tests__/routers/tasks.test.ts:928
-        expect(true).toBe(true);
+        // Create 3 test users
+        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          status: "pending",
+        });
+        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          status: "pending",
+        });
+        const user3Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          status: "pending",
+        });
+        integrationTracker.users?.push(user1Id, user2Id, user3Id);
+
+        const result = await integrationCaller.bulkUpdateStatus({
+          userIds: [user1Id, user2Id, user3Id],
+          status: "active",
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(3);
+
+        // Verify database state
+        const updatedUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, user1Id));
+
+        expect(updatedUsers[0].status).toBe("active");
+        expect(updatedUsers[0].isActive).toBe(true);
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId, {
+          status: "pending",
+        });
+        integrationTracker.tenants?.push(otherTenantId);
+        integrationTracker.users?.push(otherUserId);
+
+        // Create a user in current tenant
+        const currentTenantUserId = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          { status: "pending" },
+        );
+        integrationTracker.users?.push(currentTenantUserId);
+
+        // Try to update users from both tenants
+        await expect(
+          integrationCaller.bulkUpdateStatus({
+            userIds: [currentTenantUserId, otherUserId],
+            status: "active",
+          }),
+        ).rejects.toThrow("One or more users not found");
       });
 
-      it("should log activity for bulk status update", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk status update (AC22)", async () => {
+        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          status: "pending",
+        });
+        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          status: "pending",
+        });
+        integrationTracker.users?.push(user1Id, user2Id);
+
+        await integrationCaller.bulkUpdateStatus({
+          userIds: [user1Id, user2Id],
+          status: "active",
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_status_update"),
+              eq(activityLogs.tenantId, integrationCtx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk updated user status");
       });
 
       it("should prevent admin from deactivating own account (AC18 - CRITICAL)", async () => {
-        // TODO: CRITICAL SECURITY TEST
-        // Test admin protection: cannot deactivate own account
-        // This is AC18 from Story 5.3 - MUST BE TESTED
-        expect(true).toBe(true);
+        // Try to deactivate the current admin user (self)
+        await expect(
+          integrationCaller.bulkUpdateStatus({
+            userIds: [integrationCtx.authContext.userId],
+            status: "inactive",
+          }),
+        ).rejects.toThrow(
+          "Cannot deactivate your own account via bulk operation",
+        );
+
+        // Verify user status unchanged
+        const adminUser = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, integrationCtx.authContext.userId))
+          .limit(1);
+
+        expect(adminUser[0].status).not.toBe("inactive");
       });
     });
 
     describe("bulkChangeRole", () => {
       it("should change role for multiple users", async () => {
-        // TODO: Implement bulk role change test
-        expect(true).toBe(true);
+        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          role: "member",
+        });
+        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          role: "member",
+        });
+        integrationTracker.users?.push(user1Id, user2Id);
+
+        const result = await integrationCaller.bulkChangeRole({
+          userIds: [user1Id, user2Id],
+          role: "accountant",
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state
+        const updatedUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, user1Id));
+
+        expect(updatedUsers[0].role).toBe("accountant");
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId, {
+          role: "member",
+        });
+        integrationTracker.tenants?.push(otherTenantId);
+        integrationTracker.users?.push(otherUserId);
+
+        // Try to change role for user in different tenant
+        await expect(
+          integrationCaller.bulkChangeRole({
+            userIds: [otherUserId],
+            role: "admin",
+          }),
+        ).rejects.toThrow("One or more users not found");
       });
 
-      it("should log activity for bulk role change", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk role change (AC22)", async () => {
+        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          role: "member",
+        });
+        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
+          role: "member",
+        });
+        integrationTracker.users?.push(user1Id, user2Id);
+
+        await integrationCaller.bulkChangeRole({
+          userIds: [user1Id, user2Id],
+          role: "admin",
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_role_change"),
+              eq(activityLogs.tenantId, integrationCtx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk changed user role");
       });
 
       it("should handle invalid role values", async () => {
-        // TODO: Test validation
-        expect(true).toBe(true);
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        integrationTracker.users?.push(user1Id);
+
+        await expect(
+          integrationCaller.bulkChangeRole({
+            userIds: [user1Id],
+            role: "invalid_role" as any,
+          }),
+        ).rejects.toThrow();
       });
     });
 
     describe("bulkAssignDepartment", () => {
       it("should assign department to multiple users", async () => {
-        // TODO: Implement bulk department assignment test
-        expect(true).toBe(true);
+        // Create a test department
+        const [department] = await db
+          .insert(departments)
+          .values({
+            id: crypto.randomUUID(),
+            tenantId: integrationCtx.authContext.tenantId,
+            name: "Test Department",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning();
+        integrationTracker.departments?.push(department.id);
+
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        const user2Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        integrationTracker.users?.push(user1Id, user2Id);
+
+        const result = await integrationCaller.bulkAssignDepartment({
+          userIds: [user1Id, user2Id],
+          departmentId: department.id,
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state
+        const updatedUsers = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, user1Id));
+
+        expect(updatedUsers[0].departmentId).toBe(department.id);
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a department in different tenant
+        const otherTenantId = await createTestTenant();
+        integrationTracker.tenants?.push(otherTenantId);
+
+        const [otherDepartment] = await db
+          .insert(departments)
+          .values({
+            id: crypto.randomUUID(),
+            tenantId: otherTenantId,
+            name: "Other Department",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning();
+        integrationTracker.departments?.push(otherDepartment.id);
+
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        integrationTracker.users?.push(user1Id);
+
+        // Try to assign department from different tenant
+        await expect(
+          integrationCaller.bulkAssignDepartment({
+            userIds: [user1Id],
+            departmentId: otherDepartment.id,
+          }),
+        ).rejects.toThrow("Department not found");
       });
 
-      it("should log activity for bulk department assignment", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk department assignment (AC22)", async () => {
+        const [department] = await db
+          .insert(departments)
+          .values({
+            id: crypto.randomUUID(),
+            tenantId: integrationCtx.authContext.tenantId,
+            name: "Test Department",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning();
+        integrationTracker.departments?.push(department.id);
+
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        const user2Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        integrationTracker.users?.push(user1Id, user2Id);
+
+        await integrationCaller.bulkAssignDepartment({
+          userIds: [user1Id, user2Id],
+          departmentId: department.id,
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_department_assign"),
+              eq(activityLogs.tenantId, integrationCtx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk assigned user");
       });
 
       it("should validate department exists", async () => {
-        // TODO: Test department validation
-        expect(true).toBe(true);
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+        );
+        integrationTracker.users?.push(user1Id);
+
+        const nonExistentDeptId = crypto.randomUUID();
+
+        await expect(
+          integrationCaller.bulkAssignDepartment({
+            userIds: [user1Id],
+            departmentId: nonExistentDeptId,
+          }),
+        ).rejects.toThrow("Department not found");
       });
     });
 
     describe("Transaction Safety (AC23)", () => {
       it("should rollback on partial failure - bulkUpdateStatus", async () => {
-        // TODO: CRITICAL DATA INTEGRITY TEST
-        // Test transaction rollback when some users don't exist
-        expect(true).toBe(true);
+        // Create one valid user
+        const validUserId = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          { status: "pending" },
+        );
+        integrationTracker.users?.push(validUserId);
+
+        const nonExistentUserId = crypto.randomUUID();
+
+        // Try to update one valid and one non-existent user
+        await expect(
+          integrationCaller.bulkUpdateStatus({
+            userIds: [validUserId, nonExistentUserId],
+            status: "active",
+          }),
+        ).rejects.toThrow("One or more users not found");
+
+        // Verify valid user was NOT updated (transaction rolled back)
+        const validUser = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, validUserId))
+          .limit(1);
+
+        expect(validUser[0].status).toBe("pending");
       });
     });
   });

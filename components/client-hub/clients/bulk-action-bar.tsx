@@ -32,7 +32,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type ClientStatus = "prospect" | "onboarding" | "active" | "inactive" | "archived";
+type ClientStatus =
+  | "prospect"
+  | "onboarding"
+  | "active"
+  | "inactive"
+  | "archived";
 
 interface BulkActionBarProps {
   selectedClientIds: string[];
@@ -136,8 +141,8 @@ export function BulkActionBar({
     <>
       <div className="mx-6 my-4 p-3 bg-muted rounded-lg flex items-center justify-between">
         <span className="text-sm font-medium">
-          {selectedClientIds.length} client{selectedClientIds.length > 1 ? "s" : ""}{" "}
-          selected
+          {selectedClientIds.length} client
+          {selectedClientIds.length > 1 ? "s" : ""} selected
         </span>
         <div className="flex gap-2">
           <Button
@@ -265,9 +270,13 @@ export function BulkActionBar({
             </Button>
             <Button
               onClick={handleBulkAssignManager}
-              disabled={!selectedManagerId || bulkAssignManagerMutation.isPending}
+              disabled={
+                !selectedManagerId || bulkAssignManagerMutation.isPending
+              }
             >
-              {bulkAssignManagerMutation.isPending ? "Assigning..." : "Assign Manager"}
+              {bulkAssignManagerMutation.isPending
+                ? "Assigning..."
+                : "Assign Manager"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -282,9 +291,9 @@ export function BulkActionBar({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Clients</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {selectedClientIds.length} selected
-              client{selectedClientIds.length > 1 ? "s" : ""}? This action cannot be
-              undone.
+              Are you sure you want to delete {selectedClientIds.length}{" "}
+              selected client{selectedClientIds.length > 1 ? "s" : ""}? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

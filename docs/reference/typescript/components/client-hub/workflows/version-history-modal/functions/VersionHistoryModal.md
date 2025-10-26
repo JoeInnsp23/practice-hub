@@ -8,7 +8,7 @@
 
 > **VersionHistoryModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/workflows/version-history-modal.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/components/client-hub/workflows/version-history-modal.tsx#L65)
+Defined in: [components/client-hub/workflows/version-history-modal.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/workflows/version-history-modal.tsx#L65)
 
 ## Parameters
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { UTF8_BOM } from "../utils/csv-parser-enhanced";
 import {
   CLIENT_CSV_FIELDS,
   CLIENT_EXAMPLE_DATA,
@@ -311,6 +312,224 @@ ABC Ltd,invalid-email`;
         const result = await parseCsvFile(csvContent, clientImportSchema);
 
         expect(result.errors[0].field).toBe("email");
+      });
+    });
+
+    // ============================================
+    // Enhanced CSV Parser Tests (Story 5.2)
+    // ============================================
+
+    describe("BOM Handling (AC5)", () => {
+      it("should handle UTF-8 BOM prefix", async () => {
+        const csvContent = `${UTF8_BOM}name,email
+ABC Ltd,contact@abc.com`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          stripBOM: true,
+        });
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].name).toBe("ABC Ltd");
+      });
+
+      it("should strip BOM by default", async () => {
+        const csvContent = `${UTF8_BOM}name,email
+ABC Ltd,contact@abc.com`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.meta.validRows).toBe(1);
+      });
+
+      it("should handle CSV without BOM", async () => {
+        const csvContent = `name,email
+ABC Ltd,contact@abc.com`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          stripBOM: true,
+        });
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].name).toBe("ABC Ltd");
+      });
+    });
+
+    describe("Multi-Delimiter Support (AC1, AC2)", () => {
+      it("should parse semicolon-delimited CSV", async () => {
+        const csvContent = `name;email;phone
+ABC Ltd;contact@abc.com;+441234567890
+XYZ Ltd;info@xyz.com;+449876543210`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          autoDetectDelimiter: true,
+        });
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0].name).toBe("ABC Ltd");
+        expect(result.data[0].email).toBe("contact@abc.com");
+        expect(result.data[1].name).toBe("XYZ Ltd");
+      });
+
+      it("should parse tab-delimited CSV", async () => {
+        const csvContent = `name\temail\tphone
+ABC Ltd\tcontact@abc.com\t+441234567890
+XYZ Ltd\tinfo@xyz.com\t+449876543210`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          autoDetectDelimiter: true,
+        });
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0].name).toBe("ABC Ltd");
+        expect(result.data[1].name).toBe("XYZ Ltd");
+      });
+
+      it("should use explicit delimiter if provided", async () => {
+        const csvContent = `name;email
+ABC Ltd;contact@abc.com`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          delimiter: ";",
+        });
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].name).toBe("ABC Ltd");
+      });
+
+      it("should auto-detect delimiter without explicit option", async () => {
+        const csvContent = `name;email;phone
+ABC Ltd;contact@abc.com;123`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          autoDetectDelimiter: true,
+        });
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].email).toBe("contact@abc.com");
+      });
+    });
+
+    describe("Date Format Support (AC3, AC4)", () => {
+      it("should parse UK date format (DD/MM/YYYY)", async () => {
+        const csvContent = `title,client_code,due_date
+Task 1,ABC001,31/12/2025`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].due_date).toBe("2025-12-31");
+      });
+
+      it("should parse ISO date format (YYYY-MM-DD)", async () => {
+        const csvContent = `title,client_code,due_date
+Task 1,ABC001,2025-12-31`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].due_date).toBe("2025-12-31");
+      });
+
+      it("should parse US date format (MM/DD/YYYY)", async () => {
+        const csvContent = `title,client_code,due_date
+Task 1,ABC001,12/31/2025`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].due_date).toBe("2025-12-31");
+      });
+
+      it("should parse hyphenated UK format (DD-MM-YYYY)", async () => {
+        const csvContent = `title,client_code,due_date
+Task 1,ABC001,31-12-2025`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].due_date).toBe("2025-12-31");
+      });
+
+      it("should handle mixed date formats in same CSV", async () => {
+        const csvContent = `title,client_code,due_date,start_date
+Task 1,ABC001,31/12/2025,2025-01-15
+Task 2,ABC002,12/31/2025,15-01-2025`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0].due_date).toBe("2025-12-31");
+        expect(result.data[0].start_date).toBe("2025-01-15");
+        expect(result.data[1].due_date).toBe("2025-12-31");
+        expect(result.data[1].start_date).toBe("2025-01-15");
+      });
+    });
+
+    describe("Combined Enhancement Tests", () => {
+      it("should handle BOM + semicolon delimiter + date formats", async () => {
+        const csvContent = `${UTF8_BOM}title;client_code;due_date
+Task 1;ABC001;31/12/2025
+Task 2;ABC002;2025-12-31`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema, {
+          stripBOM: true,
+          autoDetectDelimiter: true,
+        });
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0].title).toBe("Task 1");
+        expect(result.data[0].due_date).toBe("2025-12-31");
+        expect(result.data[1].due_date).toBe("2025-12-31");
+      });
+
+      it("should handle tab-delimited with BOM", async () => {
+        const csvContent = `${UTF8_BOM}name\temail\tphone
+ABC Ltd\tcontact@abc.com\t123`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          autoDetectDelimiter: true,
+        });
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].name).toBe("ABC Ltd");
+      });
+
+      it("should handle real-world Excel CSV export (semicolons + quotes)", async () => {
+        const csvContent = `name;email;address_line1
+"ABC Ltd";"contact@abc.com";"123 Main St, Suite 5"
+"XYZ Corp";"info@xyz.com";"456 High St, Floor 2"`;
+
+        const result = await parseCsvFile(csvContent, clientImportSchema, {
+          autoDetectDelimiter: true,
+        });
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0].address_line1).toBe("123 Main St, Suite 5");
+        expect(result.data[1].address_line1).toBe("456 High St, Floor 2");
+      });
+    });
+
+    describe("Task Import with service_name (AC10)", () => {
+      it("should accept service_name field", async () => {
+        const csvContent = `title,client_code,service_name
+Task 1,ABC001,Annual Accounts`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].title).toBe("Task 1");
+        expect(result.data[0].service_name).toBe("Annual Accounts");
+      });
+
+      it("should handle missing service_name (optional)", async () => {
+        const csvContent = `title,client_code,service_name
+Task 1,ABC001,`;
+
+        const result = await parseCsvFile(csvContent, taskImportSchema);
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].service_name).toBe("");
       });
     });
   });

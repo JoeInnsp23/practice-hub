@@ -1,9 +1,5 @@
 {
-  "entryPoints": [
-    "app/**/*.tsx",
-    "lib/**/*.ts",
-    "components/**/*.tsx"
-  ],
+  "entryPoints": ["app/**/*.tsx", "lib/**/*.ts", "components/**/*.tsx"],
   "exclude": [
     "**/*.test.ts",
     "**/*.test.tsx",

@@ -51,7 +51,8 @@ export function BulkActionBar({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const [selectedStatus, setSelectedStatus] = useState<InvoiceStatus | "">("");
-  const [selectedEmailType, setSelectedEmailType] = useState<EmailType>("reminder");
+  const [selectedEmailType, setSelectedEmailType] =
+    useState<EmailType>("reminder");
 
   const utils = trpc.useUtils();
 
@@ -75,7 +76,7 @@ export function BulkActionBar({
     onSuccess: (data) => {
       if (data.failed && data.failed > 0) {
         toast.success(
-          `Sent ${data.sent} email(s), ${data.failed} failed. Check activity log for details.`
+          `Sent ${data.sent} email(s), ${data.failed} failed. Check activity log for details.`,
         );
       } else {
         toast.success(`Sent ${data.sent} email(s) successfully`);
@@ -133,8 +134,8 @@ export function BulkActionBar({
     <>
       <div className="mx-6 my-4 p-3 bg-muted rounded-lg flex items-center justify-between">
         <span className="text-sm font-medium">
-          {selectedInvoiceIds.length} invoice{selectedInvoiceIds.length > 1 ? "s" : ""}{" "}
-          selected
+          {selectedInvoiceIds.length} invoice
+          {selectedInvoiceIds.length > 1 ? "s" : ""} selected
         </span>
         <div className="flex gap-2">
           <Button
@@ -228,7 +229,8 @@ export function BulkActionBar({
             <DialogTitle>Send Email Reminders</DialogTitle>
             <DialogDescription>
               Send emails for {selectedInvoiceIds.length} selected invoice
-              {selectedInvoiceIds.length > 1 ? "s" : ""}. Emails will be sent to the associated clients.
+              {selectedInvoiceIds.length > 1 ? "s" : ""}. Emails will be sent to
+              the associated clients.
             </DialogDescription>
           </DialogHeader>
 
@@ -247,7 +249,9 @@ export function BulkActionBar({
                 <SelectContent>
                   <SelectItem value="reminder">Payment Reminder</SelectItem>
                   <SelectItem value="overdue">Overdue Notice</SelectItem>
-                  <SelectItem value="thank_you">Thank You (Payment Received)</SelectItem>
+                  <SelectItem value="thank_you">
+                    Thank You (Payment Received)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -270,9 +274,7 @@ export function BulkActionBar({
               onClick={handleBulkSendEmails}
               disabled={bulkSendEmailsMutation.isPending}
             >
-              {bulkSendEmailsMutation.isPending
-                ? "Sending..."
-                : "Send Emails"}
+              {bulkSendEmailsMutation.isPending ? "Sending..." : "Send Emails"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -287,9 +289,9 @@ export function BulkActionBar({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Invoices</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {selectedInvoiceIds.length} selected
-              invoice{selectedInvoiceIds.length > 1 ? "s" : ""}? This action cannot be
-              undone.
+              Are you sure you want to delete {selectedInvoiceIds.length}{" "}
+              selected invoice{selectedInvoiceIds.length > 1 ? "s" : ""}? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

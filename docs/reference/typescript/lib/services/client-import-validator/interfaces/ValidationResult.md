@@ -6,7 +6,7 @@
 
 # Interface: ValidationResult
 
-Defined in: [lib/services/client-import-validator.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/services/client-import-validator.ts#L41)
+Defined in: [lib/services/client-import-validator.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/services/client-import-validator.ts#L41)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/services/client-import-validator.ts:41](https://github.com/JoeI
 
 > **errors**: `string`[]
 
-Defined in: [lib/services/client-import-validator.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/services/client-import-validator.ts#L43)
+Defined in: [lib/services/client-import-validator.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/services/client-import-validator.ts#L43)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/services/client-import-validator.ts:43](https://github.com/JoeI
 
 > `optional` **managerId**: `string`
 
-Defined in: [lib/services/client-import-validator.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/services/client-import-validator.ts#L45)
+Defined in: [lib/services/client-import-validator.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/services/client-import-validator.ts#L45)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/services/client-import-validator.ts:45](https://github.com/JoeI
 
 > `optional` **normalizedRow**: `object`
 
-Defined in: [lib/services/client-import-validator.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/services/client-import-validator.ts#L46)
+Defined in: [lib/services/client-import-validator.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/services/client-import-validator.ts#L46)
 
 #### city?
 
@@ -90,7 +90,7 @@ Defined in: [lib/services/client-import-validator.ts:46](https://github.com/JoeI
 
 > **valid**: `boolean`
 
-Defined in: [lib/services/client-import-validator.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/services/client-import-validator.ts#L42)
+Defined in: [lib/services/client-import-validator.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/services/client-import-validator.ts#L42)
 
 ***
 
@@ -98,4 +98,4 @@ Defined in: [lib/services/client-import-validator.ts:42](https://github.com/JoeI
 
 > `optional` **warnings**: `string`[]
 
-Defined in: [lib/services/client-import-validator.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/284a9fff32491ffcb5ff51d36ad52c88493e7404/lib/services/client-import-validator.ts#L44)
+Defined in: [lib/services/client-import-validator.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/services/client-import-validator.ts#L44)

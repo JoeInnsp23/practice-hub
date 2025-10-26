@@ -3,7 +3,6 @@
 import { Building2, Check, Shield, Trash2, User, X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useSession } from "@/lib/auth-client";
 import { trpc } from "@/app/providers/trpc-provider";
 import {
   AlertDialog,
@@ -32,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSession } from "@/lib/auth-client";
 
 type UserStatus = "active" | "inactive" | "pending";
 type UserRole = "admin" | "accountant" | "member";
@@ -65,7 +65,9 @@ export function BulkActionBar({
   const departments = departmentsData?.departments || [];
 
   // Check if current user is in selection (for admin protection warning)
-  const includesCurrentUser = Boolean(currentUserId && selectedUserIds.includes(currentUserId));
+  const includesCurrentUser = Boolean(
+    currentUserId && selectedUserIds.includes(currentUserId),
+  );
 
   // Bulk update status mutation
   const bulkUpdateStatusMutation = trpc.users.bulkUpdateStatus.useMutation({
@@ -230,8 +232,8 @@ export function BulkActionBar({
                   ⚠️ Admin Protection
                 </p>
                 <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                  You cannot deactivate your own account via bulk operation. Please
-                  deselect yourself or choose a different status.
+                  You cannot deactivate your own account via bulk operation.
+                  Please deselect yourself or choose a different status.
                 </p>
               </div>
             )}

@@ -408,7 +408,10 @@ export const usersRouter = router({
             description: `Bulk updated user status to ${input.status}`,
             userId,
             userName: `${firstName} ${lastName}`,
-            newValues: { status: input.status, isActive: input.status === "active" },
+            newValues: {
+              status: input.status,
+              isActive: input.status === "active",
+            },
           });
         }
 

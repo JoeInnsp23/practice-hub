@@ -966,7 +966,9 @@ export const clientsRouter = router({
   bulkUpdateStatus: protectedProcedure
     .input(
       z.object({
-        clientIds: z.array(z.string()).min(1, "At least one client ID required"),
+        clientIds: z
+          .array(z.string())
+          .min(1, "At least one client ID required"),
         status: z.enum([
           "prospect",
           "onboarding",
@@ -1033,7 +1035,9 @@ export const clientsRouter = router({
   bulkAssignManager: protectedProcedure
     .input(
       z.object({
-        clientIds: z.array(z.string()).min(1, "At least one client ID required"),
+        clientIds: z
+          .array(z.string())
+          .min(1, "At least one client ID required"),
         managerId: z.string(),
       }),
     )
@@ -1065,10 +1069,7 @@ export const clientsRouter = router({
           .select()
           .from(users)
           .where(
-            and(
-              eq(users.id, input.managerId),
-              eq(users.tenantId, tenantId),
-            ),
+            and(eq(users.id, input.managerId), eq(users.tenantId, tenantId)),
           )
           .limit(1);
 
@@ -1113,7 +1114,9 @@ export const clientsRouter = router({
   bulkDelete: protectedProcedure
     .input(
       z.object({
-        clientIds: z.array(z.string()).min(1, "At least one client ID required"),
+        clientIds: z
+          .array(z.string())
+          .min(1, "At least one client ID required"),
       }),
     )
     .mutation(async ({ ctx, input }) => {

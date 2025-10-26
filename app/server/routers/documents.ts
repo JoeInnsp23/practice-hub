@@ -1,9 +1,25 @@
 import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, clients, documentSignatures, documents, users } from "@/lib/db/schema";
+import {
+  activityLogs,
+  clients,
+  documentSignatures,
+  documents,
+  users,
+} from "@/lib/db/schema";
 import { docusealClient } from "@/lib/docuseal/client";
 import {
   deleteFromS3,

@@ -80,7 +80,7 @@ export function BulkActionBar({
     trpc.documents.bulkChangeCategory.useMutation({
       onSuccess: (data) => {
         toast.success(
-          `${addTags ? "Added" : "Changed"} tags for ${data.count} document(s)`
+          `${addTags ? "Added" : "Changed"} tags for ${data.count} document(s)`,
         );
         utils.documents.list.invalidate();
         setIsTagsDialogOpen(false);
@@ -148,8 +148,8 @@ export function BulkActionBar({
     <>
       <div className="mx-6 my-4 p-3 bg-muted rounded-lg flex items-center justify-between">
         <span className="text-sm font-medium">
-          {selectedDocumentIds.length} document{selectedDocumentIds.length > 1 ? "s" : ""}{" "}
-          selected
+          {selectedDocumentIds.length} document
+          {selectedDocumentIds.length > 1 ? "s" : ""} selected
         </span>
         <div className="flex gap-2">
           <Button
@@ -207,7 +207,10 @@ export function BulkActionBar({
                 <SelectContent>
                   <SelectItem value="">Root Folder</SelectItem>
                   {folders.map((folder) => (
-                    <SelectItem key={folder.document.id} value={folder.document.id}>
+                    <SelectItem
+                      key={folder.document.id}
+                      value={folder.document.id}
+                    >
                       {folder.document.name}
                     </SelectItem>
                   ))}
@@ -302,9 +305,9 @@ export function BulkActionBar({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Documents</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {selectedDocumentIds.length} selected
-              document{selectedDocumentIds.length > 1 ? "s" : ""}? This action cannot be
-              undone.
+              Are you sure you want to delete {selectedDocumentIds.length}{" "}
+              selected document{selectedDocumentIds.length > 1 ? "s" : ""}? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -314,7 +317,9 @@ export function BulkActionBar({
               disabled={bulkDeleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {bulkDeleteMutation.isPending ? "Deleting..." : "Delete Documents"}
+              {bulkDeleteMutation.isPending
+                ? "Deleting..."
+                : "Delete Documents"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

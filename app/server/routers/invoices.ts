@@ -413,8 +413,7 @@ export const invoicesRouter = router({
           .update(invoices)
           .set({
             status: input.status,
-            paidDate:
-              input.status === "paid" ? sql`CURRENT_DATE` : undefined,
+            paidDate: input.status === "paid" ? sql`CURRENT_DATE` : undefined,
             updatedAt: new Date(),
           })
           .where(inArray(invoices.id, input.invoiceIds))
