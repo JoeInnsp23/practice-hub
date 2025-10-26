@@ -8,7 +8,7 @@
 
 > **ActivityFeed**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/dashboard/activity-feed.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/components/client-hub/dashboard/activity-feed.tsx#L34)
+Defined in: [components/client-hub/dashboard/activity-feed.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/ec3a96142a4bc90940f1dc483685d47553a5d556/components/client-hub/dashboard/activity-feed.tsx#L34)
 
 ## Parameters
 

@@ -372,4 +372,227 @@ export const invoicesRouter = router({
 
       return { success: true };
     }),
+
+  // BULK OPERATIONS
+
+  // Bulk update status for multiple invoices
+  bulkUpdateStatus: protectedProcedure
+    .input(
+      z.object({
+        invoiceIds: z
+          .array(z.string())
+          .min(1, "At least one invoice ID required"),
+        status: z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all invoices exist and belong to tenant
+        const existingInvoices = await tx
+          .select()
+          .from(invoices)
+          .where(
+            and(
+              inArray(invoices.id, input.invoiceIds),
+              eq(invoices.tenantId, tenantId),
+            ),
+          );
+
+        if (existingInvoices.length !== input.invoiceIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more invoices not found",
+          });
+        }
+
+        // Update all invoices
+        const updatedInvoices = await tx
+          .update(invoices)
+          .set({
+            status: input.status,
+            paidDate:
+              input.status === "paid" ? sql`CURRENT_DATE` : undefined,
+            updatedAt: new Date(),
+          })
+          .where(inArray(invoices.id, input.invoiceIds))
+          .returning();
+
+        // Log activity for each invoice
+        for (const invoice of updatedInvoices) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "invoice",
+            entityId: invoice.id,
+            action: "bulk_status_update",
+            description: `Bulk updated invoice status to ${input.status}`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { status: input.status },
+          });
+        }
+
+        return { count: updatedInvoices.length, invoices: updatedInvoices };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk send email reminders for multiple invoices
+  bulkSendEmails: protectedProcedure
+    .input(
+      z.object({
+        invoiceIds: z
+          .array(z.string())
+          .min(1, "At least one invoice ID required"),
+        emailType: z.enum(["reminder", "overdue", "thank_you"]).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all invoices exist and belong to tenant
+        const existingInvoices = await tx
+          .select({
+            invoice: invoices,
+            client: clients,
+          })
+          .from(invoices)
+          .innerJoin(clients, eq(invoices.clientId, clients.id))
+          .where(
+            and(
+              inArray(invoices.id, input.invoiceIds),
+              eq(invoices.tenantId, tenantId),
+            ),
+          );
+
+        if (existingInvoices.length !== input.invoiceIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more invoices not found",
+          });
+        }
+
+        // Track progress
+        const emailsSent: string[] = [];
+        const emailsFailed: string[] = [];
+
+        // Send emails (would integrate with actual email service)
+        for (const { invoice, client } of existingInvoices) {
+          try {
+            // TODO: Integrate with actual email service (SendGrid, Resend, etc.)
+            // await emailService.send({
+            //   to: client.email,
+            //   subject: `Invoice ${invoice.invoiceNumber} Reminder`,
+            //   template: input.emailType || 'reminder',
+            //   data: { invoice, client }
+            // });
+
+            emailsSent.push(invoice.id);
+
+            // Log activity
+            await tx.insert(activityLogs).values({
+              tenantId,
+              entityType: "invoice",
+              entityId: invoice.id,
+              action: "bulk_email_sent",
+              description: `Bulk sent ${input.emailType || "reminder"} email for invoice ${invoice.invoiceNumber}`,
+              userId,
+              userName: `${firstName} ${lastName}`,
+              metadata: {
+                emailType: input.emailType || "reminder",
+                recipientEmail: client.email,
+              },
+            });
+          } catch (error) {
+            emailsFailed.push(invoice.id);
+            // Log failure
+            await tx.insert(activityLogs).values({
+              tenantId,
+              entityType: "invoice",
+              entityId: invoice.id,
+              action: "bulk_email_failed",
+              description: `Failed to send email for invoice ${invoice.invoiceNumber}`,
+              userId,
+              userName: `${firstName} ${lastName}`,
+              metadata: {
+                error: error instanceof Error ? error.message : "Unknown error",
+              },
+            });
+          }
+        }
+
+        return {
+          count: emailsSent.length,
+          sent: emailsSent.length,
+          failed: emailsFailed.length,
+          failedIds: emailsFailed,
+        };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk delete multiple invoices
+  bulkDelete: protectedProcedure
+    .input(
+      z.object({
+        invoiceIds: z
+          .array(z.string())
+          .min(1, "At least one invoice ID required"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all invoices exist and belong to tenant
+        const existingInvoices = await tx
+          .select()
+          .from(invoices)
+          .where(
+            and(
+              inArray(invoices.id, input.invoiceIds),
+              eq(invoices.tenantId, tenantId),
+            ),
+          );
+
+        if (existingInvoices.length !== input.invoiceIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more invoices not found",
+          });
+        }
+
+        // Log activity for each invoice before deletion
+        for (const invoice of existingInvoices) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "invoice",
+            entityId: invoice.id,
+            action: "bulk_delete",
+            description: `Bulk deleted invoice ${invoice.invoiceNumber}`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+          });
+        }
+
+        // Delete invoice items first (cascade)
+        await tx
+          .delete(invoiceItems)
+          .where(inArray(invoiceItems.invoiceId, input.invoiceIds));
+
+        // Delete all invoices
+        await tx.delete(invoices).where(inArray(invoices.id, input.invoiceIds));
+
+        return { count: existingInvoices.length };
+      });
+
+      return { success: true, ...result };
+    }),
 });

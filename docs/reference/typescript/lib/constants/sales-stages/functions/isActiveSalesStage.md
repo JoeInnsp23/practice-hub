@@ -8,7 +8,7 @@
 
 > **isActiveSalesStage**(`stage`): `boolean`
 
-Defined in: [lib/constants/sales-stages.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/sales-stages.ts#L133)
+Defined in: [lib/constants/sales-stages.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/ec3a96142a4bc90940f1dc483685d47553a5d556/lib/constants/sales-stages.ts#L133)
 
 Check if a stage is active (not terminal)
 

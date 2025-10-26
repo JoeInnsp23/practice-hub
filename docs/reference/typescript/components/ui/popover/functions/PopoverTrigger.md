@@ -8,7 +8,7 @@
 
 > **PopoverTrigger**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/popover.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/components/ui/popover.tsx#L14)
+Defined in: [components/ui/popover.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/ec3a96142a4bc90940f1dc483685d47553a5d556/components/ui/popover.tsx#L14)
 
 ## Parameters
 

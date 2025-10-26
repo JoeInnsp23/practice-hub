@@ -8,7 +8,7 @@
 
 > **PricingCalculator**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/proposal-hub/calculator/pricing-calculator.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/components/proposal-hub/calculator/pricing-calculator.tsx#L28)
+Defined in: [components/proposal-hub/calculator/pricing-calculator.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/ec3a96142a4bc90940f1dc483685d47553a5d556/components/proposal-hub/calculator/pricing-calculator.tsx#L28)
 
 ## Parameters
 
