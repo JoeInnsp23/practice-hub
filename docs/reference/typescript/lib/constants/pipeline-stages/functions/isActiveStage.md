@@ -8,7 +8,7 @@
 
 > **isActiveStage**(`stage`): `boolean`
 
-Defined in: [lib/constants/pipeline-stages.ts:134](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/constants/pipeline-stages.ts#L134)
+Defined in: [lib/constants/pipeline-stages.ts:134](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/constants/pipeline-stages.ts#L134)
 
 Check if a stage is active (not terminal)
 

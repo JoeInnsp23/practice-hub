@@ -8,11 +8,11 @@
  */
 
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { documentsRouter } from "@/app/server/routers/documents";
 import { db } from "@/lib/db";
-import { documents } from "@/lib/db/schema";
+import { activityLogs, documents } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestClient,
@@ -1361,62 +1361,383 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
   });
 
-  describe("Bulk Operations", () => {
+  describe("Bulk Operations (Integration)", () => {
+    let testClientId: string;
+
+    beforeEach(async () => {
+      // Create a test client for document tests
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      testClientId = client.id;
+      tracker.clients?.push(testClientId);
+    });
+
     describe("bulkMove", () => {
       it("should move multiple documents to folder", async () => {
-        // TODO: Implement bulk move test
-        expect(true).toBe(true);
+        // Create a folder
+        const folder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Test Folder" },
+        );
+        tracker.documents?.push(folder.id);
+
+        // Create 3 test documents
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc3 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id, doc3.id);
+
+        const result = await caller.bulkMove({
+          documentIds: [doc1.id, doc2.id, doc3.id],
+          parentId: folder.id,
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(3);
+
+        // Verify database state
+        const updatedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(updatedDocs[0].parentId).toBe(folder.id);
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherDoc = await createTestDocument(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+        );
+        tracker.documents?.push(otherDoc.id);
+
+        // Create a folder in current tenant
+        const currentFolder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Current Folder" },
+        );
+        tracker.documents?.push(currentFolder.id);
+
+        // Try to move document from different tenant
+        await expect(
+          caller.bulkMove({
+            documentIds: [otherDoc.id],
+            parentId: currentFolder.id,
+          }),
+        ).rejects.toThrow("One or more documents not found");
       });
 
-      it("should log activity for bulk move", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk move (AC22)", async () => {
+        const folder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Test Folder" },
+        );
+        tracker.documents?.push(folder.id);
+
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        await caller.bulkMove({
+          documentIds: [doc1.id, doc2.id],
+          parentId: folder.id,
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_move"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk moved document");
       });
     });
 
     describe("bulkChangeCategory", () => {
-      it("should change tags for multiple documents (replace mode)", async () => {
-        // TODO: Implement bulk tag change test (AC13 replace mode)
-        expect(true).toBe(true);
+      it("should change tags for multiple documents (replace mode - AC13)", async () => {
+        // Create documents with existing tags
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["old-tag-1", "old-tag-2"] },
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["old-tag-1"] },
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        const result = await caller.bulkChangeCategory({
+          documentIds: [doc1.id, doc2.id],
+          tags: ["new-tag-1", "new-tag-2"],
+          addTags: false, // Replace mode
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state - tags should be replaced
+        const updatedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(updatedDocs[0].tags).toEqual(["new-tag-1", "new-tag-2"]);
       });
 
-      it("should add tags to existing tags (add mode)", async () => {
-        // TODO: Implement bulk tag add test (AC13 add mode)
-        expect(true).toBe(true);
+      it("should add tags to existing tags (add mode - AC13)", async () => {
+        // Create documents with existing tags
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["existing-tag"] },
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["existing-tag"] },
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        const result = await caller.bulkChangeCategory({
+          documentIds: [doc1.id, doc2.id],
+          tags: ["new-tag"],
+          addTags: true, // Add mode
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state - tags should be merged
+        const updatedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(updatedDocs[0].tags).toContain("existing-tag");
+        expect(updatedDocs[0].tags).toContain("new-tag");
+        expect(updatedDocs[0].tags?.length).toBe(2);
       });
 
-      it("should log activity for bulk category change", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk category change (AC22)", async () => {
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        await caller.bulkChangeCategory({
+          documentIds: [doc1.id, doc2.id],
+          tags: ["test-tag"],
+          addTags: false,
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_change_category"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk changed tags for document");
       });
     });
 
     describe("bulkDelete", () => {
       it("should delete multiple documents", async () => {
-        // TODO: Implement bulk delete test
-        expect(true).toBe(true);
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        const result = await caller.bulkDelete({
+          documentIds: [doc1.id, doc2.id],
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify documents are deleted
+        const deletedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(deletedDocs.length).toBe(0);
+
+        // Remove from tracker since they're deleted
+        tracker.documents = tracker.documents?.filter(
+          (id) => id !== doc1.id && id !== doc2.id,
+        );
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherDoc = await createTestDocument(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+        );
+        tracker.documents?.push(otherDoc.id);
+
+        // Try to delete document from different tenant
+        await expect(
+          caller.bulkDelete({
+            documentIds: [otherDoc.id],
+          }),
+        ).rejects.toThrow("One or more documents not found");
       });
 
-      it("should log activity for bulk delete", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk delete (AC22)", async () => {
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        await caller.bulkDelete({
+          documentIds: [doc1.id, doc2.id],
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_delete"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk deleted document");
+
+        // Remove from tracker since they're deleted
+        tracker.documents = tracker.documents?.filter(
+          (id) => id !== doc1.id && id !== doc2.id,
+        );
       });
     });
 
     describe("Transaction Safety (AC23)", () => {
       it("should rollback on partial failure - bulkMove", async () => {
-        // TODO: CRITICAL DATA INTEGRITY TEST
-        expect(true).toBe(true);
+        // Create a folder
+        const folder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Test Folder" },
+        );
+        tracker.documents?.push(folder.id);
+
+        // Create one valid document
+        const validDoc = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(validDoc.id);
+
+        const nonExistentDocId = crypto.randomUUID();
+
+        // Try to move one valid and one non-existent document
+        await expect(
+          caller.bulkMove({
+            documentIds: [validDoc.id, nonExistentDocId],
+            parentId: folder.id,
+          }),
+        ).rejects.toThrow("One or more documents not found");
+
+        // Verify valid document was NOT moved (transaction rolled back)
+        const unchangedDoc = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, validDoc.id))
+          .limit(1);
+
+        expect(unchangedDoc[0].parentId).not.toBe(folder.id);
       });
     });
   });

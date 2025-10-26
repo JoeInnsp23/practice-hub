@@ -6,7 +6,7 @@
 
 # Class: CompanyNotFoundError
 
-Defined in: [lib/companies-house/client.ts:62](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/companies-house/client.ts#L62)
+Defined in: [lib/companies-house/client.ts:62](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/companies-house/client.ts#L62)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/companies-house/client.ts:62](https://github.com/JoeInnsp23/pra
 
 > **new CompanyNotFoundError**(`companyNumber`): `CompanyNotFoundError`
 
-Defined in: [lib/companies-house/client.ts:63](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/companies-house/client.ts#L63)
+Defined in: [lib/companies-house/client.ts:63](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/companies-house/client.ts#L63)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [lib/companies-house/client.ts:63](https://github.com/JoeInnsp23/pra
 
 > `optional` **companyNumber**: `string`
 
-Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/companies-house/client.ts#L55)
+Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/companies-house/client.ts#L55)
 
 #### Inherited from
 
@@ -52,7 +52,7 @@ Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/pra
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/companies-house/client.ts#L54)
+Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/companies-house/client.ts#L54)
 
 #### Inherited from
 

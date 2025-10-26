@@ -8,7 +8,7 @@
 
 > **AlertDialogFooter**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/alert-dialog.tsx:78](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/components/ui/alert-dialog.tsx#L78)
+Defined in: [components/ui/alert-dialog.tsx:78](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/components/ui/alert-dialog.tsx#L78)
 
 ## Parameters
 

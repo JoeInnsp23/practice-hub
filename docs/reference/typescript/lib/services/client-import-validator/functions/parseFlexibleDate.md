@@ -8,7 +8,7 @@
 
 > **parseFlexibleDate**(`dateString`): `object`
 
-Defined in: [lib/services/client-import-validator.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/client-import-validator.ts#L50)
+Defined in: [lib/services/client-import-validator.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/services/client-import-validator.ts#L50)
 
 ## Parameters
 

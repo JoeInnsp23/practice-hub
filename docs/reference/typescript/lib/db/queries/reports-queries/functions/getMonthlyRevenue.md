@@ -8,7 +8,7 @@
 
 > **getMonthlyRevenue**(`tenantId`, `options`): `Promise`\<`object`[]\>
 
-Defined in: [lib/db/queries/reports-queries.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/db/queries/reports-queries.ts#L31)
+Defined in: [lib/db/queries/reports-queries.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/db/queries/reports-queries.ts#L31)
 
 Fetch monthly revenue data for charts
 Returns last N months of revenue data

@@ -4,8 +4,8 @@
  * Tests for the users tRPC router
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { and, eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { usersRouter } from "@/app/server/routers/users";
 import { db } from "@/lib/db";
 import { activityLogs, departments, users } from "@/lib/db/schema";
@@ -334,15 +334,24 @@ describe("app/server/routers/users.ts", () => {
     describe("bulkUpdateStatus", () => {
       it("should update status for multiple users", async () => {
         // Create 3 test users
-        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          status: "pending",
-        });
-        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          status: "pending",
-        });
-        const user3Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          status: "pending",
-        });
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            status: "pending",
+          },
+        );
+        const user2Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            status: "pending",
+          },
+        );
+        const user3Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            status: "pending",
+          },
+        );
         integrationTracker.users?.push(user1Id, user2Id, user3Id);
 
         const result = await integrationCaller.bulkUpdateStatus({
@@ -389,12 +398,18 @@ describe("app/server/routers/users.ts", () => {
       });
 
       it("should log activity for bulk status update (AC22)", async () => {
-        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          status: "pending",
-        });
-        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          status: "pending",
-        });
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            status: "pending",
+          },
+        );
+        const user2Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            status: "pending",
+          },
+        );
         integrationTracker.users?.push(user1Id, user2Id);
 
         await integrationCaller.bulkUpdateStatus({
@@ -441,12 +456,18 @@ describe("app/server/routers/users.ts", () => {
 
     describe("bulkChangeRole", () => {
       it("should change role for multiple users", async () => {
-        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          role: "member",
-        });
-        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          role: "member",
-        });
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            role: "member",
+          },
+        );
+        const user2Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            role: "member",
+          },
+        );
         integrationTracker.users?.push(user1Id, user2Id);
 
         const result = await integrationCaller.bulkChangeRole({
@@ -485,12 +506,18 @@ describe("app/server/routers/users.ts", () => {
       });
 
       it("should log activity for bulk role change (AC22)", async () => {
-        const user1Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          role: "member",
-        });
-        const user2Id = await createTestUser(integrationCtx.authContext.tenantId, {
-          role: "member",
-        });
+        const user1Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            role: "member",
+          },
+        );
+        const user2Id = await createTestUser(
+          integrationCtx.authContext.tenantId,
+          {
+            role: "member",
+          },
+        );
         integrationTracker.users?.push(user1Id, user2Id);
 
         await integrationCaller.bulkChangeRole({

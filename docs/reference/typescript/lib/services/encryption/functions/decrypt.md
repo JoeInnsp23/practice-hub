@@ -8,7 +8,7 @@
 
 > **decrypt**(`encryptedText`): `string`
 
-Defined in: [lib/services/encryption.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/encryption.ts#L93)
+Defined in: [lib/services/encryption.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/services/encryption.ts#L93)
 
 Decrypt text encrypted with AES-256-GCM
 

@@ -6,7 +6,7 @@
 
 # Interface: RateLimitResult
 
-Defined in: [lib/rate-limit.ts:74](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/rate-limit.ts#L74)
+Defined in: [lib/rate-limit.ts:74](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/rate-limit.ts#L74)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/rate-limit.ts:74](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **limit**: `number`
 
-Defined in: [lib/rate-limit.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/rate-limit.ts#L76)
+Defined in: [lib/rate-limit.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/rate-limit.ts#L76)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/rate-limit.ts:76](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **remaining**: `number`
 
-Defined in: [lib/rate-limit.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/rate-limit.ts#L77)
+Defined in: [lib/rate-limit.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/rate-limit.ts#L77)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/rate-limit.ts:77](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **resetAt**: `number`
 
-Defined in: [lib/rate-limit.ts:78](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/rate-limit.ts#L78)
+Defined in: [lib/rate-limit.ts:78](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/rate-limit.ts#L78)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/rate-limit.ts:78](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **success**: `boolean`
 
-Defined in: [lib/rate-limit.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/rate-limit.ts#L75)
+Defined in: [lib/rate-limit.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/rate-limit.ts#L75)

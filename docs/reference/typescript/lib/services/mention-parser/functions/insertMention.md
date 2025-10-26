@@ -8,7 +8,7 @@
 
 > **insertMention**(`text`, `cursorPosition`, `userName`): `object`
 
-Defined in: [lib/services/mention-parser.ts:168](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/mention-parser.ts#L168)
+Defined in: [lib/services/mention-parser.ts:168](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/services/mention-parser.ts#L168)
 
 Insert a mention at the cursor position in text
 

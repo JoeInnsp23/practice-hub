@@ -6,7 +6,7 @@
 
 # Interface: CreateTemplateParams
 
-Defined in: [lib/docuseal/client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/docuseal/client.ts#L18)
+Defined in: [lib/docuseal/client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/docuseal/client.ts#L18)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/docuseal/client.ts:18](https://github.com/JoeInnsp23/practice-h
 
 > **fields**: [`TemplateField`](TemplateField.md)[]
 
-Defined in: [lib/docuseal/client.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/docuseal/client.ts#L20)
+Defined in: [lib/docuseal/client.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/docuseal/client.ts#L20)
 
 ***
 
@@ -22,4 +22,4 @@ Defined in: [lib/docuseal/client.ts:20](https://github.com/JoeInnsp23/practice-h
 
 > **name**: `string`
 
-Defined in: [lib/docuseal/client.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/docuseal/client.ts#L19)
+Defined in: [lib/docuseal/client.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/docuseal/client.ts#L19)

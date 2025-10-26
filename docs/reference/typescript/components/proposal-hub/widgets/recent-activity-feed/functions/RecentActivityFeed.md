@@ -8,7 +8,7 @@
 
 > **RecentActivityFeed**(): `Element`
 
-Defined in: [components/proposal-hub/widgets/recent-activity-feed.tsx:69](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/components/proposal-hub/widgets/recent-activity-feed.tsx#L69)
+Defined in: [components/proposal-hub/widgets/recent-activity-feed.tsx:69](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/components/proposal-hub/widgets/recent-activity-feed.tsx#L69)
 
 ## Returns
 

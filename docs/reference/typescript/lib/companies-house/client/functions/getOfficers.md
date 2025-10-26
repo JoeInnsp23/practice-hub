@@ -8,7 +8,7 @@
 
 > **getOfficers**(`companyNumber`): `Promise`\<[`Officer`](../interfaces/Officer.md)[]\>
 
-Defined in: [lib/companies-house/client.ts:276](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/companies-house/client.ts#L276)
+Defined in: [lib/companies-house/client.ts:276](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/companies-house/client.ts#L276)
 
 Get list of officers (directors, secretaries) for a company
 

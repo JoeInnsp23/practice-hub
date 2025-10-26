@@ -6,7 +6,7 @@
 
 # Class: AuthenticationError
 
-Defined in: [lib/hmrc/client.ts:84](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/hmrc/client.ts#L84)
+Defined in: [lib/hmrc/client.ts:84](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/hmrc/client.ts#L84)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/hmrc/client.ts:84](https://github.com/JoeInnsp23/practice-hub/b
 
 > **new AuthenticationError**(`message`): `AuthenticationError`
 
-Defined in: [lib/hmrc/client.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/hmrc/client.ts#L85)
+Defined in: [lib/hmrc/client.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/hmrc/client.ts#L85)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [lib/hmrc/client.ts:85](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/hmrc/client.ts#L46)
+Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/hmrc/client.ts#L46)
 
 #### Inherited from
 
@@ -52,7 +52,7 @@ Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **vatNumber**: `string`
 
-Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/hmrc/client.ts#L47)
+Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/484e2e6b732b598a9304bb9946ce67fbb493d71e/lib/hmrc/client.ts#L47)
 
 #### Inherited from
 
