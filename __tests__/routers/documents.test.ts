@@ -1378,11 +1378,14 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       expect(procedures).toContain("search");
       expect(procedures).toContain("createSignatureDocument");
       expect(procedures).toContain("getSigningStatus");
+      expect(procedures).toContain("bulkMove");
+      expect(procedures).toContain("bulkChangeCategory");
+      expect(procedures).toContain("bulkDelete");
     });
 
-    it("should have 13 procedures total", () => {
+    it("should have 16 procedures total", () => {
       const procedures = Object.keys(documentsRouter._def.procedures);
-      expect(procedures).toHaveLength(13);
+      expect(procedures).toHaveLength(16);
     });
   });
 });

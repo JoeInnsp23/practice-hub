@@ -8,7 +8,7 @@
 
 > **processWebhookEvents**(): `Promise`\<\{ `failed`: `number`; `processed`: `number`; \}\>
 
-Defined in: [lib/xero/webhook-processor.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/xero/webhook-processor.ts#L40)
+Defined in: [lib/xero/webhook-processor.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/lib/xero/webhook-processor.ts#L40)
 
 Process webhook events
 

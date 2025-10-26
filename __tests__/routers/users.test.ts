@@ -285,11 +285,14 @@ describe("app/server/routers/users.ts", () => {
       expect(procedures).toContain("delete");
       expect(procedures).toContain("updateRole");
       expect(procedures).toContain("sendPasswordReset");
+      expect(procedures).toContain("bulkUpdateStatus");
+      expect(procedures).toContain("bulkChangeRole");
+      expect(procedures).toContain("bulkAssignDepartment");
     });
 
-    it("should have 7 procedures total", () => {
+    it("should have 10 procedures total", () => {
       const procedures = Object.keys(usersRouter._def.procedures);
-      expect(procedures).toHaveLength(7);
+      expect(procedures).toHaveLength(10);
     });
   });
 });

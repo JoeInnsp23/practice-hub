@@ -8,4 +8,4 @@
 
 > `const` **CLIENT\_EXAMPLE\_DATA**: `Record`\<`string`, `string`\>
 
-Defined in: [lib/validators/csv-import.ts:348](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/validators/csv-import.ts#L348)
+Defined in: [lib/validators/csv-import.ts:348](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/lib/validators/csv-import.ts#L348)

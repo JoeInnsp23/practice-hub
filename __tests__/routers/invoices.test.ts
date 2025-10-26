@@ -924,11 +924,14 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       expect(procedures).toContain("update");
       expect(procedures).toContain("updateStatus");
       expect(procedures).toContain("delete");
+      expect(procedures).toContain("bulkUpdateStatus");
+      expect(procedures).toContain("bulkSendEmails");
+      expect(procedures).toContain("bulkDelete");
     });
 
-    it("should have 6 procedures total", () => {
+    it("should have 9 procedures total", () => {
       const procedures = Object.keys(invoicesRouter._def.procedures);
-      expect(procedures).toHaveLength(6);
+      expect(procedures).toHaveLength(9);
     });
   });
 });

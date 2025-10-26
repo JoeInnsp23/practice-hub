@@ -8,7 +8,7 @@
 
 > **getConnections**(`accessToken`): `Promise`\<[`XeroConnection`](../interfaces/XeroConnection.md)[]\>
 
-Defined in: [lib/xero/client.ts:151](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/xero/client.ts#L151)
+Defined in: [lib/xero/client.ts:151](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/lib/xero/client.ts#L151)
 
 Get connected Xero organizations (tenants)
 

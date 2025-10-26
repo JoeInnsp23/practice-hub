@@ -8,4 +8,4 @@
 
 > `const` **docusealClient**: [`DocuSealClient`](../classes/DocuSealClient.md)
 
-Defined in: [lib/docuseal/client.ts:139](https://github.com/JoeInnsp23/practice-hub/blob/d95822c6b7b70406089448c0731a89c79d9d915e/lib/docuseal/client.ts#L139)
+Defined in: [lib/docuseal/client.ts:139](https://github.com/JoeInnsp23/practice-hub/blob/2beb59809e0a0bb8425808ee5847eff86199c265/lib/docuseal/client.ts#L139)
