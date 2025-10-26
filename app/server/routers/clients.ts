@@ -959,4 +959,205 @@ export const clientsRouter = router({
         });
       }
     }),
+
+  // BULK OPERATIONS
+
+  // Bulk update status for multiple clients
+  bulkUpdateStatus: protectedProcedure
+    .input(
+      z.object({
+        clientIds: z.array(z.string()).min(1, "At least one client ID required"),
+        status: z.enum([
+          "prospect",
+          "onboarding",
+          "active",
+          "inactive",
+          "archived",
+        ]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all clients exist and belong to tenant
+        const existingClients = await tx
+          .select()
+          .from(clients)
+          .where(
+            and(
+              inArray(clients.id, input.clientIds),
+              eq(clients.tenantId, tenantId),
+            ),
+          );
+
+        if (existingClients.length !== input.clientIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more clients not found",
+          });
+        }
+
+        // Update all clients
+        const updatedClients = await tx
+          .update(clients)
+          .set({
+            status: input.status,
+            updatedAt: new Date(),
+          })
+          .where(inArray(clients.id, input.clientIds))
+          .returning();
+
+        // Log activity for each client
+        for (const client of updatedClients) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "client",
+            entityId: client.id,
+            action: "bulk_status_update",
+            description: `Bulk updated client status to ${input.status}`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { status: input.status },
+          });
+        }
+
+        return { count: updatedClients.length, clients: updatedClients };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk assign account manager to multiple clients
+  bulkAssignManager: protectedProcedure
+    .input(
+      z.object({
+        clientIds: z.array(z.string()).min(1, "At least one client ID required"),
+        managerId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all clients exist and belong to tenant
+        const existingClients = await tx
+          .select()
+          .from(clients)
+          .where(
+            and(
+              inArray(clients.id, input.clientIds),
+              eq(clients.tenantId, tenantId),
+            ),
+          );
+
+        if (existingClients.length !== input.clientIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more clients not found",
+          });
+        }
+
+        // Verify manager exists
+        const manager = await tx
+          .select()
+          .from(users)
+          .where(
+            and(
+              eq(users.id, input.managerId),
+              eq(users.tenantId, tenantId),
+            ),
+          )
+          .limit(1);
+
+        if (manager.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Manager not found",
+          });
+        }
+
+        // Update all clients
+        const updatedClients = await tx
+          .update(clients)
+          .set({
+            accountManagerId: input.managerId,
+            updatedAt: new Date(),
+          })
+          .where(inArray(clients.id, input.clientIds))
+          .returning();
+
+        // Log activity for each client
+        for (const client of updatedClients) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "client",
+            entityId: client.id,
+            action: "bulk_assign_manager",
+            description: `Bulk assigned account manager`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+            newValues: { accountManagerId: input.managerId },
+          });
+        }
+
+        return { count: updatedClients.length, clients: updatedClients };
+      });
+
+      return { success: true, ...result };
+    }),
+
+  // Bulk delete multiple clients
+  bulkDelete: protectedProcedure
+    .input(
+      z.object({
+        clientIds: z.array(z.string()).min(1, "At least one client ID required"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Start transaction
+      const result = await db.transaction(async (tx) => {
+        // Verify all clients exist and belong to tenant
+        const existingClients = await tx
+          .select()
+          .from(clients)
+          .where(
+            and(
+              inArray(clients.id, input.clientIds),
+              eq(clients.tenantId, tenantId),
+            ),
+          );
+
+        if (existingClients.length !== input.clientIds.length) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "One or more clients not found",
+          });
+        }
+
+        // Log activity for each client before deletion
+        for (const client of existingClients) {
+          await tx.insert(activityLogs).values({
+            tenantId,
+            entityType: "client",
+            entityId: client.id,
+            action: "bulk_delete",
+            description: `Bulk deleted client "${client.name}"`,
+            userId,
+            userName: `${firstName} ${lastName}`,
+          });
+        }
+
+        // Delete all clients
+        await tx.delete(clients).where(inArray(clients.id, input.clientIds));
+
+        return { count: existingClients.length };
+      });
+
+      return { success: true, ...result };
+    }),
 });

@@ -6,7 +6,7 @@
 
 # ~~Interface: WorkType~~
 
-Defined in: [lib/constants/work-types.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/work-types.ts#L19)
+Defined in: [lib/constants/work-types.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/work-types.ts#L19)
 
 ## Deprecated
 
@@ -32,7 +32,7 @@ See: docs/stories/epic-4/story-6-work-types-migration.md
 
 > **billable**: `boolean`
 
-Defined in: [lib/constants/work-types.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/work-types.ts#L24)
+Defined in: [lib/constants/work-types.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/work-types.ts#L24)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [lib/constants/work-types.ts:24](https://github.com/JoeInnsp23/pract
 
 > **code**: `string`
 
-Defined in: [lib/constants/work-types.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/work-types.ts#L20)
+Defined in: [lib/constants/work-types.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/work-types.ts#L20)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [lib/constants/work-types.ts:20](https://github.com/JoeInnsp23/pract
 
 > **colorCode**: `string`
 
-Defined in: [lib/constants/work-types.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/work-types.ts#L22)
+Defined in: [lib/constants/work-types.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/work-types.ts#L22)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [lib/constants/work-types.ts:22](https://github.com/JoeInnsp23/pract
 
 > **description**: `string`
 
-Defined in: [lib/constants/work-types.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/work-types.ts#L23)
+Defined in: [lib/constants/work-types.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/work-types.ts#L23)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [lib/constants/work-types.ts:23](https://github.com/JoeInnsp23/pract
 
 > **label**: `string`
 
-Defined in: [lib/constants/work-types.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/work-types.ts#L21)
+Defined in: [lib/constants/work-types.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/work-types.ts#L21)

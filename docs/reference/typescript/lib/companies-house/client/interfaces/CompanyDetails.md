@@ -6,7 +6,7 @@
 
 # Interface: CompanyDetails
 
-Defined in: [lib/companies-house/client.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L16)
+Defined in: [lib/companies-house/client.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L16)
 
 Companies House API Client
 
@@ -23,7 +23,7 @@ Documentation: https://developer-specs.company-information.service.gov.uk/
 
 > **companyName**: `string`
 
-Defined in: [lib/companies-house/client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L18)
+Defined in: [lib/companies-house/client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L18)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [lib/companies-house/client.ts:18](https://github.com/JoeInnsp23/pra
 
 > **companyNumber**: `string`
 
-Defined in: [lib/companies-house/client.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L17)
+Defined in: [lib/companies-house/client.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L17)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [lib/companies-house/client.ts:17](https://github.com/JoeInnsp23/pra
 
 > **dateOfCreation**: `string`
 
-Defined in: [lib/companies-house/client.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L29)
+Defined in: [lib/companies-house/client.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L29)
 
 ***
 
@@ -47,7 +47,7 @@ Defined in: [lib/companies-house/client.ts:29](https://github.com/JoeInnsp23/pra
 
 > **registeredOffice**: `object`
 
-Defined in: [lib/companies-house/client.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L21)
+Defined in: [lib/companies-house/client.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L21)
 
 #### addressLine1?
 
@@ -79,7 +79,7 @@ Defined in: [lib/companies-house/client.ts:21](https://github.com/JoeInnsp23/pra
 
 > `optional` **sicCodes**: `string`[]
 
-Defined in: [lib/companies-house/client.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L30)
+Defined in: [lib/companies-house/client.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L30)
 
 ***
 
@@ -87,7 +87,7 @@ Defined in: [lib/companies-house/client.ts:30](https://github.com/JoeInnsp23/pra
 
 > **status**: `string`
 
-Defined in: [lib/companies-house/client.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L19)
+Defined in: [lib/companies-house/client.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L19)
 
 ***
 
@@ -95,4 +95,4 @@ Defined in: [lib/companies-house/client.ts:19](https://github.com/JoeInnsp23/pra
 
 > **type**: `string`
 
-Defined in: [lib/companies-house/client.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/companies-house/client.ts#L20)
+Defined in: [lib/companies-house/client.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/companies-house/client.ts#L20)

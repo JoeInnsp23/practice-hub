@@ -8,6 +8,6 @@
 
 > `const` **TERMINAL\_SALES\_STAGES**: [`SalesStage`](../type-aliases/SalesStage.md)[]
 
-Defined in: [lib/constants/sales-stages.ts:128](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/constants/sales-stages.ts#L128)
+Defined in: [lib/constants/sales-stages.ts:128](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/lib/constants/sales-stages.ts#L128)
 
 Terminal stages (final states)

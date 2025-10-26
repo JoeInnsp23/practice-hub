@@ -8,7 +8,7 @@
 
 > **TaskTemplatePreviewDialog**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/client-hub/task-template-preview-dialog.tsx:30](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/components/client-hub/task-template-preview-dialog.tsx#L30)
+Defined in: [components/client-hub/task-template-preview-dialog.tsx:30](https://github.com/JoeInnsp23/practice-hub/blob/dd6e6b68ea20e4a4da6a41a1d5fc2357a10ba23b/components/client-hub/task-template-preview-dialog.tsx#L30)
 
 ## Parameters
 
