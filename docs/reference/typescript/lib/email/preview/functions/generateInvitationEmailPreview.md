@@ -8,7 +8,7 @@
 
 > **generateInvitationEmailPreview**(`params`): `Promise`\<`string`\>
 
-Defined in: [lib/email/preview.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/email/preview.ts#L12)
+Defined in: [lib/email/preview.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/email/preview.ts#L12)
 
 ## Parameters
 

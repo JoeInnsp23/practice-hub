@@ -8,7 +8,7 @@
 
 > **ToilHistoryTable**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/toil-history-table.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/staff/toil-history-table.tsx#L32)
+Defined in: [components/staff/toil-history-table.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/staff/toil-history-table.tsx#L32)
 
 ## Parameters
 

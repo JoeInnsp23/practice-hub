@@ -8,7 +8,7 @@
 
 > **sendLeaveRequestRejected**(`data`): `Promise`\<\{ `error`: `string`; `success`: `boolean`; \} \| \{ `error?`: `undefined`; `success`: `boolean`; \}\>
 
-Defined in: [lib/email/leave-notifications.ts:82](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/lib/email/leave-notifications.ts#L82)
+Defined in: [lib/email/leave-notifications.ts:82](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/email/leave-notifications.ts#L82)
 
 Send email notification when a leave request is rejected
 

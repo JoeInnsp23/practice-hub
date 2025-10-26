@@ -834,62 +834,318 @@ describe("app/server/routers/clients.ts (Integration)", () => {
     });
   });
 
-  describe("Bulk Operations", () => {
+  describe("Bulk Operations (Integration)", () => {
     describe("bulkUpdateStatus", () => {
       it("should update status for multiple clients", async () => {
-        // TODO: Implement bulk status update test
-        expect(true).toBe(true);
+        // Create 3 test clients
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        const client2 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        const client3 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        tracker.clients?.push(client1.id, client2.id, client3.id);
+
+        const result = await caller.bulkUpdateStatus({
+          clientIds: [client1.id, client2.id, client3.id],
+          status: "active",
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(3);
+
+        // Verify database state
+        const updatedClients = await db
+          .select()
+          .from(clients)
+          .where(eq(clients.id, client1.id));
+
+        expect(updatedClients[0].status).toBe("active");
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId, {
+          status: "prospect",
+        });
+        tracker.clients?.push(otherClient.id);
+
+        // Create a client in current tenant
+        const currentClient = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        tracker.clients?.push(currentClient.id);
+
+        // Try to update clients from both tenants
+        await expect(
+          caller.bulkUpdateStatus({
+            clientIds: [currentClient.id, otherClient.id],
+            status: "active",
+          }),
+        ).rejects.toThrow("One or more clients not found");
       });
 
-      it("should log activity for bulk status update", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk status update (AC22)", async () => {
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        const client2 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        tracker.clients?.push(client1.id, client2.id);
+
+        await caller.bulkUpdateStatus({
+          clientIds: [client1.id, client2.id],
+          status: "active",
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_status_update"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk updated client status");
       });
     });
 
     describe("bulkAssignManager", () => {
       it("should assign manager to multiple clients", async () => {
-        // TODO: Implement bulk manager assignment test
-        expect(true).toBe(true);
+        // Create a manager user
+        const managerId = await createTestUser(ctx.authContext.tenantId, {
+          role: "admin",
+        });
+        tracker.users?.push(managerId);
+
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        const client2 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        tracker.clients?.push(client1.id, client2.id);
+
+        const result = await caller.bulkAssignManager({
+          clientIds: [client1.id, client2.id],
+          managerId,
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state
+        const updatedClients = await db
+          .select()
+          .from(clients)
+          .where(eq(clients.id, client1.id));
+
+        expect(updatedClients[0].accountManagerId).toBe(managerId);
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a manager in different tenant
+        const otherTenantId = await createTestTenant();
+        const otherManagerId = await createTestUser(otherTenantId, {
+          role: "admin",
+        });
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherManagerId);
+
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        tracker.clients?.push(client1.id);
+
+        // Try to assign manager from different tenant
+        await expect(
+          caller.bulkAssignManager({
+            clientIds: [client1.id],
+            managerId: otherManagerId,
+          }),
+        ).rejects.toThrow();
       });
 
-      it("should log activity for bulk manager assignment", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk manager assignment (AC22)", async () => {
+        const managerId = await createTestUser(ctx.authContext.tenantId, {
+          role: "admin",
+        });
+        tracker.users?.push(managerId);
+
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        const client2 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        tracker.clients?.push(client1.id, client2.id);
+
+        await caller.bulkAssignManager({
+          clientIds: [client1.id, client2.id],
+          managerId,
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_assign_manager"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk assigned");
       });
     });
 
     describe("bulkDelete", () => {
       it("should delete multiple clients", async () => {
-        // TODO: Implement bulk delete test
-        expect(true).toBe(true);
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        const client2 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        tracker.clients?.push(client1.id, client2.id);
+
+        const result = await caller.bulkDelete({
+          clientIds: [client1.id, client2.id],
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify clients are deleted
+        const deletedClients = await db
+          .select()
+          .from(clients)
+          .where(eq(clients.id, client1.id));
+
+        expect(deletedClients.length).toBe(0);
+
+        // Remove from tracker since they're deleted
+        tracker.clients = tracker.clients?.filter(
+          (id) => id !== client1.id && id !== client2.id,
+        );
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        // Try to delete client from different tenant
+        await expect(
+          caller.bulkDelete({
+            clientIds: [otherClient.id],
+          }),
+        ).rejects.toThrow("One or more clients not found");
       });
 
-      it("should log activity for bulk delete", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk delete (AC22)", async () => {
+        const client1 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        const client2 = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+        );
+        tracker.clients?.push(client1.id, client2.id);
+
+        await caller.bulkDelete({
+          clientIds: [client1.id, client2.id],
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_delete"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk deleted client");
+
+        // Remove from tracker since they're deleted
+        tracker.clients = tracker.clients?.filter(
+          (id) => id !== client1.id && id !== client2.id,
+        );
       });
     });
 
     describe("Transaction Safety (AC23)", () => {
       it("should rollback on partial failure - bulkUpdateStatus", async () => {
-        // TODO: CRITICAL DATA INTEGRITY TEST
-        expect(true).toBe(true);
+        // Create one valid client
+        const validClient = await createTestClient(
+          ctx.authContext.tenantId,
+          ctx.authContext.userId,
+          { status: "prospect" },
+        );
+        tracker.clients?.push(validClient.id);
+
+        const nonExistentClientId = crypto.randomUUID();
+
+        // Try to update one valid and one non-existent client
+        await expect(
+          caller.bulkUpdateStatus({
+            clientIds: [validClient.id, nonExistentClientId],
+            status: "active",
+          }),
+        ).rejects.toThrow("One or more clients not found");
+
+        // Verify valid client was NOT updated (transaction rolled back)
+        const unchangedClient = await db
+          .select()
+          .from(clients)
+          .where(eq(clients.id, validClient.id))
+          .limit(1);
+
+        expect(unchangedClient[0].status).toBe("prospect");
       });
     });
   });

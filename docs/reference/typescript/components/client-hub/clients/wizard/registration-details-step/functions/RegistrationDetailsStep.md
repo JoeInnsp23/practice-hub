@@ -8,7 +8,7 @@
 
 > **RegistrationDetailsStep**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/wizard/registration-details-step.tsx:26](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/wizard/registration-details-step.tsx#L26)
+Defined in: [components/client-hub/clients/wizard/registration-details-step.tsx:26](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/wizard/registration-details-step.tsx#L26)
 
 ## Parameters
 

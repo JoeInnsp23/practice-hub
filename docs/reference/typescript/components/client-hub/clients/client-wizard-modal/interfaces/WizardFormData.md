@@ -6,7 +6,7 @@
 
 # Interface: WizardFormData
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L32)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L32)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:32](https://g
 
 > `optional` **accountManager**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:47](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L47)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:47](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L47)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:47](https://g
 
 > `optional` **accountOffice**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:57](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L57)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:57](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L57)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:57](https://g
 
 > `optional` **addressLine1**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:123](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L123)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:123](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L123)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:123](https://
 
 > `optional` **addressLine2**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:124](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L124)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:124](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L124)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:124](https://
 
 > `optional` **billingStrategy**: `"ad_hoc_hourly"` \| `"fixed_per_service"` \| `"monthly_retainer"`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:112](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L112)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:112](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L112)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:112](https://
 
 > `optional` **city**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:125](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L125)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:125](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L125)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:125](https://
 
 > **clientCode**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L34)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L34)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:34](https://g
 
 > `optional` **clientManagerId**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L48)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L48)
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:48](https://g
 
 > `optional` **companiesHouseNumber**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:51](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L51)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:51](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L51)
 
 ***
 
@@ -86,7 +86,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:51](https://g
 
 > `optional` **country**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:127](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L127)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:127](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L127)
 
 ***
 
@@ -94,7 +94,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:127](https://
 
 > `optional` **defaultHourlyRate**: `number`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:114](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L114)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:114](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L114)
 
 ***
 
@@ -102,7 +102,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:114](https://
 
 > `optional` **directors**: `object`[]
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:62](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L62)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:62](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L62)
 
 #### appointedDate
 
@@ -150,7 +150,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:62](https://g
 
 > `optional` **healthScore**: `number`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:128](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L128)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:128](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L128)
 
 ***
 
@@ -158,7 +158,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:128](https://
 
 > `optional` **incorporationDate**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:59](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L59)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:59](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L59)
 
 ***
 
@@ -166,7 +166,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:59](https://g
 
 > `optional` **manualContacts**: `object`[]
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:82](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L82)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:82](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L82)
 
 #### email
 
@@ -198,7 +198,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:82](https://g
 
 > `optional` **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:132](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L132)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:132](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L132)
 
 ***
 
@@ -206,7 +206,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:132](https://
 
 > `optional` **monthlyRetainer**: `number`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:113](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L113)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:113](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L113)
 
 ***
 
@@ -214,7 +214,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:113](https://
 
 > **name**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L35)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L35)
 
 ***
 
@@ -222,7 +222,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:35](https://g
 
 > `optional` **notes**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:129](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L129)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:129](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L129)
 
 ***
 
@@ -230,7 +230,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:129](https://
 
 > `optional` **payePeriods**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:56](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L56)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:56](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L56)
 
 ***
 
@@ -238,7 +238,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:56](https://g
 
 > `optional` **payeReference**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:55](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L55)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:55](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L55)
 
 ***
 
@@ -246,7 +246,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:55](https://g
 
 > `optional` **postalCode**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:126](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L126)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:126](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L126)
 
 ***
 
@@ -254,7 +254,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:126](https://
 
 > `optional` **primaryContactEmail**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:121](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L121)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:121](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L121)
 
 ***
 
@@ -262,7 +262,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:121](https://
 
 > `optional` **primaryContactFirstName**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:118](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L118)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:118](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L118)
 
 ***
 
@@ -270,7 +270,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:118](https://
 
 > `optional` **primaryContactLastName**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:120](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L120)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:120](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L120)
 
 ***
 
@@ -278,7 +278,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:120](https://
 
 > `optional` **primaryContactMiddleName**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:119](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L119)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:119](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L119)
 
 ***
 
@@ -286,7 +286,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:119](https://
 
 > `optional` **primaryContactName**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:117](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L117)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:117](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L117)
 
 ***
 
@@ -294,7 +294,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:117](https://
 
 > `optional` **primaryContactPhone**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:122](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L122)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:122](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L122)
 
 ***
 
@@ -302,7 +302,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:122](https://
 
 > `optional` **selectedServices**: `object`[]
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:92](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L92)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:92](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L92)
 
 #### contractEndDate?
 
@@ -374,7 +374,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:92](https://g
 
 > `optional` **shareholders**: `object`[]
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:74](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L74)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:74](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L74)
 
 #### id
 
@@ -406,7 +406,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:74](https://g
 
 > **status**: `"active"` \| `"prospect"` \| `"onboarding"` \| `"inactive"` \| `"archived"`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:46](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L46)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:46](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L46)
 
 ***
 
@@ -414,7 +414,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:46](https://g
 
 > **type**: `"other"` \| `"individual"` \| `"company"` \| `"limited_company"` \| `"sole_trader"` \| `"partnership"` \| `"llp"` \| `"trust"` \| `"charity"`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L36)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L36)
 
 ***
 
@@ -422,7 +422,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:36](https://g
 
 > `optional` **utr**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L54)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L54)
 
 ***
 
@@ -430,7 +430,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:54](https://g
 
 > `optional` **vatNumber**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:52](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L52)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:52](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L52)
 
 ***
 
@@ -438,7 +438,7 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:52](https://g
 
 > `optional` **vatPeriods**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L53)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L53)
 
 ***
 
@@ -446,4 +446,4 @@ Defined in: [components/client-hub/clients/client-wizard-modal.tsx:53](https://g
 
 > `optional` **yearEndDate**: `string`
 
-Defined in: [components/client-hub/clients/client-wizard-modal.tsx:58](https://github.com/JoeInnsp23/practice-hub/blob/d148037f52e455f83c3f32f11b0d4bdd2976ba75/components/client-hub/clients/client-wizard-modal.tsx#L58)
+Defined in: [components/client-hub/clients/client-wizard-modal.tsx:58](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/client-hub/clients/client-wizard-modal.tsx#L58)
