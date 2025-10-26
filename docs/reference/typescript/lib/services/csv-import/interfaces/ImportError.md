@@ -6,7 +6,7 @@
 
 # Interface: ImportError
 
-Defined in: [lib/services/csv-import.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/services/csv-import.ts#L14)
+Defined in: [lib/services/csv-import.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/services/csv-import.ts#L20)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/services/csv-import.ts:14](https://github.com/JoeInnsp23/practi
 
 > **field**: `string`
 
-Defined in: [lib/services/csv-import.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/services/csv-import.ts#L16)
+Defined in: [lib/services/csv-import.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/services/csv-import.ts#L22)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/services/csv-import.ts:16](https://github.com/JoeInnsp23/practi
 
 > **message**: `string`
 
-Defined in: [lib/services/csv-import.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/services/csv-import.ts#L17)
+Defined in: [lib/services/csv-import.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/services/csv-import.ts#L23)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/services/csv-import.ts:17](https://github.com/JoeInnsp23/practi
 
 > **row**: `number`
 
-Defined in: [lib/services/csv-import.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/services/csv-import.ts#L15)
+Defined in: [lib/services/csv-import.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/services/csv-import.ts#L21)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/services/csv-import.ts:15](https://github.com/JoeInnsp23/practi
 
 > `optional` **value**: `unknown`
 
-Defined in: [lib/services/csv-import.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/services/csv-import.ts#L18)
+Defined in: [lib/services/csv-import.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/services/csv-import.ts#L24)

@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-26T15:13:46.004Z
+# Generated: 2025-10-26T16:34:46.974Z
 
 functions:
   staffStatisticsRouter:
@@ -438,13 +438,13 @@ functions:
   dataToCSV:
     description: "Convert data to CSV string"
     file: "lib/services/csv-import.ts"
-    line: 184
+    line: 237
     type: "function"
     signature: "function dataToCSV"
   chunkData:
     description: "Validate CSV headers against expected fields"
     file: "lib/services/csv-import.ts"
-    line: 207
+    line: 260
     type: "function"
     signature: "function chunkData"
   generateCSV:
@@ -543,6 +543,102 @@ functions:
     line: 174
     type: "function"
     signature: "function calculateNextPeriod"
+  SUPPORTED_DELIMITERS:
+    description: "Enhanced CSV Parser Utilities"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 1
+    type: "function"
+    signature: "const SUPPORTED_DELIMITERS"
+  DEFAULT_DATE_FORMATS:
+    description: "Default date formats to try (in priority order)"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 47
+    type: "function"
+    signature: "const DEFAULT_DATE_FORMATS"
+  UTF8_BOM:
+    description: "UTF-8 Byte Order Mark character"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 60
+    type: "function"
+    signature: "const UTF8_BOM"
+  UTF16BE_BOM:
+    description: "UTF-16 Big Endian BOM"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 65
+    type: "function"
+    signature: "const UTF16BE_BOM"
+  UTF16LE_BOM:
+    description: "UTF-16 Little Endian BOM"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 70
+    type: "function"
+    signature: "const UTF16LE_BOM"
+  stripBOM:
+    description: "Strip Byte Order Mark (BOM) from CSV content"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 79
+    type: "function"
+    signature: "function stripBOM"
+  hasBOM:
+    description: "Check if content starts with a BOM"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 107
+    type: "function"
+    signature: "function hasBOM"
+  detectDelimiter:
+    description: "Detect the most likely delimiter from CSV content"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 126
+    type: "function"
+    signature: "function detectDelimiter"
+  detectDelimiterRobust:
+    description: "Analyze delimiter usage across multiple lines for better detection"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 170
+    type: "function"
+    signature: "function detectDelimiterRobust"
+  parseDate:
+    description: "Parse date string with multiple format support"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 232
+    type: "function"
+    signature: "function parseDate"
+  parseDateAuto:
+    description: "Parse date with auto-format detection"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 275
+    type: "function"
+    signature: "function parseDateAuto"
+  toISODateString:
+    description: "Convert date to ISO string (YYYY-MM-DD format)"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 287
+    type: "function"
+    signature: "function toISODateString"
+  parseNumber:
+    description: "Parse numeric string to number"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 305
+    type: "function"
+    signature: "function parseNumber"
+  parseBoolean:
+    description: "Parse boolean string to boolean"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 335
+    type: "function"
+    signature: "function parseBoolean"
+  transformValue:
+    description: "Transform value to specified type"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 384
+    type: "function"
+    signature: "function transformValue"
+  transformRow:
+    description: "Transform CSV row values based on field types"
+    file: "lib/utils/csv-parser-enhanced.ts"
+    line: 413
+    type: "function"
+    signature: "function transformRow"
   convertToCSV:
     description: "CSV Export Utilities"
     file: "lib/utils/export-csv.ts"
@@ -1050,9 +1146,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-26T15:13:46.005Z"
-  total_entries: 173
-  functions: 106
+  generated: "2025-10-26T16:34:46.978Z"
+  total_entries: 189
+  functions: 122
   types: 52
   components: 11
   classes: 4

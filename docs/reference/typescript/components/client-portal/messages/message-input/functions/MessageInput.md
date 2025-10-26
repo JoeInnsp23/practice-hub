@@ -8,7 +8,7 @@
 
 > **MessageInput**(`__namedParameters`): `Element`
 
-Defined in: [components/client-portal/messages/message-input.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/components/client-portal/messages/message-input.tsx#L15)
+Defined in: [components/client-portal/messages/message-input.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/components/client-portal/messages/message-input.tsx#L15)
 
 ## Parameters
 

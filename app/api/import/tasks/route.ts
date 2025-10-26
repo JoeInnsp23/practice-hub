@@ -118,6 +118,17 @@ export async function POST(request: NextRequest) {
       tenantUsers.map((u) => [u.email.toLowerCase(), u.id]),
     );
 
+    // Pre-fetch existing tasks for duplicate detection (AC13)
+    const existingTasks = await db
+      .select({ clientId: tasks.clientId, title: tasks.title })
+      .from(tasks)
+      .where(eq(tasks.tenantId, authContext.tenantId));
+
+    // Build duplicate lookup map (clientId:title lowercase)
+    const duplicateKeys = new Set(
+      existingTasks.map((t) => `${t.clientId}:${t.title.toLowerCase().trim()}`),
+    );
+
     // Import tasks in batches
     let processedCount = 0;
     let failedCount = 0;
@@ -145,6 +156,22 @@ export async function POST(request: NextRequest) {
             return null;
           }
 
+          // Check for duplicate task (AC13: duplicate detection by title for client)
+          const duplicateKey = `${clientId}:${row.title.toLowerCase().trim()}`;
+          if (duplicateKeys.has(duplicateKey)) {
+            importErrors.push({
+              row: rowNumber,
+              field: "title",
+              message: `Duplicate task: "${row.title}" already exists for this client`,
+              value: row.title,
+            });
+            failedCount++;
+            return null;
+          }
+
+          // Add to duplicate keys to prevent duplicates within the same import
+          duplicateKeys.add(duplicateKey);
+
           // Look up assigned user
           let assignedToId: string | null = null;
           if (row.assigned_to_email) {
@@ -157,6 +184,8 @@ export async function POST(request: NextRequest) {
                 message: `User not found: ${row.assigned_to_email}`,
                 value: row.assigned_to_email,
               });
+              failedCount++;
+              return null;
             }
           }
 
@@ -237,8 +266,6 @@ export async function POST(request: NextRequest) {
     Sentry.captureException(error, {
       tags: { operation: "importTasks" },
     });
-
-    console.error("[Task Import] Error:", error);
 
     return NextResponse.json(
       {

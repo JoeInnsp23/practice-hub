@@ -380,6 +380,7 @@
 - [lib/trpc/client](lib/trpc/client/README.md)
 - [lib/trpc/types](lib/trpc/types/README.md)
 - [lib/utils](lib/utils/README.md)
+- [lib/utils/csv-parser-enhanced](lib/utils/csv-parser-enhanced/README.md)
 - [lib/utils/export-csv](lib/utils/export-csv/README.md)
 - [lib/utils/format](lib/utils/format/README.md)
 - [lib/utils/sales-stage-automation](lib/utils/sales-stage-automation/README.md)

@@ -8,7 +8,7 @@
 
 > **uploadPublicFile**(`buffer`, `key`, `contentType`): `Promise`\<`string`\>
 
-Defined in: [lib/s3/upload.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/s3/upload.ts#L61)
+Defined in: [lib/s3/upload.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/b1a6e9b4a505f41d42a9ddc98abf902faf54e35f/lib/s3/upload.ts#L61)
 
 Upload file with automatic public read ACL (for MinIO)
 
