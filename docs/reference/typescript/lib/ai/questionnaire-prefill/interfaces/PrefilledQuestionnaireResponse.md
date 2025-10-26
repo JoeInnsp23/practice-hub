@@ -6,7 +6,7 @@
 
 # Interface: PrefilledQuestionnaireResponse
 
-Defined in: [lib/ai/questionnaire-prefill.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/ai/questionnaire-prefill.ts#L43)
+Defined in: [lib/ai/questionnaire-prefill.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/ai/questionnaire-prefill.ts#L43)
 
 Pre-filled questionnaire response
 
@@ -16,7 +16,7 @@ Pre-filled questionnaire response
 
 > **aiExtractedCount**: `number`
 
-Defined in: [lib/ai/questionnaire-prefill.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/ai/questionnaire-prefill.ts#L55)
+Defined in: [lib/ai/questionnaire-prefill.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/ai/questionnaire-prefill.ts#L55)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [lib/ai/questionnaire-prefill.ts:55](https://github.com/JoeInnsp23/p
 
 > **completionPercentage**: `number`
 
-Defined in: [lib/ai/questionnaire-prefill.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/ai/questionnaire-prefill.ts#L53)
+Defined in: [lib/ai/questionnaire-prefill.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/ai/questionnaire-prefill.ts#L53)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [lib/ai/questionnaire-prefill.ts:53](https://github.com/JoeInnsp23/p
 
 > **fields**: `Record`\<`string`, \{ `extractedFromAi`: `boolean`; `fieldDefinition`: [`QuestionnaireField`](QuestionnaireField.md); `value`: `any`; `verifiedByUser`: `boolean`; \}\>
 
-Defined in: [lib/ai/questionnaire-prefill.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/ai/questionnaire-prefill.ts#L44)
+Defined in: [lib/ai/questionnaire-prefill.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/ai/questionnaire-prefill.ts#L44)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [lib/ai/questionnaire-prefill.ts:44](https://github.com/JoeInnsp23/p
 
 > **requiredFieldsRemaining**: `string`[]
 
-Defined in: [lib/ai/questionnaire-prefill.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/ai/questionnaire-prefill.ts#L54)
+Defined in: [lib/ai/questionnaire-prefill.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/ai/questionnaire-prefill.ts#L54)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [lib/ai/questionnaire-prefill.ts:54](https://github.com/JoeInnsp23/p
 
 > **userEnteredCount**: `number`
 
-Defined in: [lib/ai/questionnaire-prefill.ts:56](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/ai/questionnaire-prefill.ts#L56)
+Defined in: [lib/ai/questionnaire-prefill.ts:56](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/ai/questionnaire-prefill.ts#L56)

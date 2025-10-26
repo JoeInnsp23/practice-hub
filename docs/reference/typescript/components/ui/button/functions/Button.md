@@ -8,7 +8,7 @@
 
 > **Button**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/button.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/components/ui/button.tsx#L37)
+Defined in: [components/ui/button.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/ui/button.tsx#L37)
 
 ## Parameters
 

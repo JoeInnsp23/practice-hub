@@ -8,7 +8,7 @@
 
 > **TaskCard**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/tasks/task-card.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/components/client-hub/tasks/task-card.tsx#L33)
+Defined in: [components/client-hub/tasks/task-card.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/tasks/task-card.tsx#L33)
 
 ## Parameters
 

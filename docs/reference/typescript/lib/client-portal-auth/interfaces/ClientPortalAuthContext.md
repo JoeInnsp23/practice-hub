@@ -6,7 +6,7 @@
 
 # Interface: ClientPortalAuthContext
 
-Defined in: [lib/client-portal-auth.ts:56](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L56)
+Defined in: [lib/client-portal-auth.ts:56](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L56)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/client-portal-auth.ts:56](https://github.com/JoeInnsp23/practic
 
 > **clientAccess**: `object`[]
 
-Defined in: [lib/client-portal-auth.ts:63](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L63)
+Defined in: [lib/client-portal-auth.ts:63](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L63)
 
 #### clientId
 
@@ -38,7 +38,7 @@ Defined in: [lib/client-portal-auth.ts:63](https://github.com/JoeInnsp23/practic
 
 > `optional` **currentClientId**: `string`
 
-Defined in: [lib/client-portal-auth.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L70)
+Defined in: [lib/client-portal-auth.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L70)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/client-portal-auth.ts:70](https://github.com/JoeInnsp23/practic
 
 > **email**: `string`
 
-Defined in: [lib/client-portal-auth.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L59)
+Defined in: [lib/client-portal-auth.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L59)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/client-portal-auth.ts:59](https://github.com/JoeInnsp23/practic
 
 > **firstName**: `string` \| `null`
 
-Defined in: [lib/client-portal-auth.ts:60](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L60)
+Defined in: [lib/client-portal-auth.ts:60](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L60)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [lib/client-portal-auth.ts:60](https://github.com/JoeInnsp23/practic
 
 > **lastName**: `string` \| `null`
 
-Defined in: [lib/client-portal-auth.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L61)
+Defined in: [lib/client-portal-auth.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L61)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [lib/client-portal-auth.ts:61](https://github.com/JoeInnsp23/practic
 
 > **portalUserId**: `string`
 
-Defined in: [lib/client-portal-auth.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L57)
+Defined in: [lib/client-portal-auth.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L57)
 
 ***
 
@@ -78,4 +78,4 @@ Defined in: [lib/client-portal-auth.ts:57](https://github.com/JoeInnsp23/practic
 
 > **tenantId**: `string`
 
-Defined in: [lib/client-portal-auth.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/client-portal-auth.ts#L58)
+Defined in: [lib/client-portal-auth.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/client-portal-auth.ts#L58)

@@ -8,7 +8,7 @@
 
 > **DepartmentUtilizationChart**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/department-utilization-chart.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/components/staff/department-utilization-chart.tsx#L19)
+Defined in: [components/staff/department-utilization-chart.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/staff/department-utilization-chart.tsx#L19)
 
 ## Parameters
 

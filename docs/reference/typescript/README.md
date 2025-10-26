@@ -170,6 +170,7 @@
 - [components/client-hub/dashboard/quick-actions](components/client-hub/dashboard/quick-actions/README.md)
 - [components/client-hub/data-export-button](components/client-hub/data-export-button/README.md)
 - [components/client-hub/data-import-modal](components/client-hub/data-import-modal/README.md)
+- [components/client-hub/documents/bulk-action-bar](components/client-hub/documents/bulk-action-bar/README.md)
 - [components/client-hub/documents/document-grid](components/client-hub/documents/document-grid/README.md)
 - [components/client-hub/documents/file-preview-modal](components/client-hub/documents/file-preview-modal/README.md)
 - [components/client-hub/documents/signature-upload-modal](components/client-hub/documents/signature-upload-modal/README.md)

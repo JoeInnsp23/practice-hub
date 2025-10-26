@@ -8,7 +8,7 @@
 
 > **invalidateQuestionnaireCache**(`onboardingSessionId`): `void`
 
-Defined in: [lib/cache.ts:113](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/cache.ts#L113)
+Defined in: [lib/cache.ts:113](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/cache.ts#L113)
 
 Invalidate questionnaire cache for a specific session
 

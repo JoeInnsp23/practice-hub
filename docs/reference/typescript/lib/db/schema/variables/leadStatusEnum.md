@@ -8,4 +8,4 @@
 
 > `const` **leadStatusEnum**: `PgEnum`\<\[`"new"`, `"contacted"`, `"qualified"`, `"proposal_sent"`, `"negotiating"`, `"converted"`, `"lost"`\]\>
 
-Defined in: [lib/db/schema.ts:1611](https://github.com/JoeInnsp23/practice-hub/blob/d4761611df47282af659718bb86e88ba38337d80/lib/db/schema.ts#L1611)
+Defined in: [lib/db/schema.ts:1611](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/db/schema.ts#L1611)
