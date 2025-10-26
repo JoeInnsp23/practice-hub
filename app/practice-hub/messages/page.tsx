@@ -13,7 +13,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
-import type { RouterOutputs } from "@/lib/trpc/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import type { RouterOutputs } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
 type ThreadType = "direct" | "team_channel" | "client";

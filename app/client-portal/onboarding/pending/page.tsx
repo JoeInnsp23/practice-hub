@@ -14,6 +14,7 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SUPPORT_EMAIL } from "@/lib/config";
+import type { KycVerificationMetadata } from "@/lib/trpc/types";
 
 export default function OnboardingPendingPage() {
   const router = useRouter();
@@ -125,7 +126,7 @@ export default function OnboardingPendingPage() {
   // Get verification URL from session metadata
   const verificationUrl =
     onboardingSession?.status === "pending_approval" && kycVerification
-      ? (kycVerification.metadata as any)?.verificationUrl
+      ? (kycVerification.metadata as KycVerificationMetadata)?.verificationUrl
       : null;
 
   const isApproved = canAccessPortal;

@@ -1,0 +1,11 @@
+[**practice-hub v0.1.0**](../../../../README.md)
+
+***
+
+[practice-hub](../../../../README.md) / [lib/db/schema](../README.md) / clientDetailsView
+
+# Variable: clientDetailsView
+
+> `const` **clientDetailsView**: `PgViewWithSelection`\<`"client_details_view"`, `true`, \{ `accountManagerEmail`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `accountManagerFirstName`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `accountManagerId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `accountManagerLastName`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `accountManagerName`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `addressLine1`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `addressLine2`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `city`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `clientCode`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `country`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `createdAt`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `createdBy`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `email`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `healthScore`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `id`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `incorporationDate`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `metadata`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `name`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `notes`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `parentClientId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `phone`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `postalCode`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `registrationNumber`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `state`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `status`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `tenantId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `type`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `updatedAt`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `vatNumber`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `vatRegistered`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `vatValidatedAt`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `vatValidationStatus`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `website`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `xeroContactId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `xeroLastSyncedAt`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `xeroSyncError`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `xeroSyncStatus`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `yearEnd`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; \}\>
+
+Defined in: [lib/db/schema.ts:2815](https://github.com/JoeInnsp23/practice-hub/blob/502210854a7c20570dc1f03ece87fce3c6b533f0/lib/db/schema.ts#L2815)

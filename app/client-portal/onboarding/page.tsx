@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import type { QuestionnaireData } from "@/lib/trpc/types";
 import { OnboardingBusinessForm } from "./components/business-form";
 import { OnboardingCompanyForm } from "./components/company-form";
 import { OnboardingDocumentUpload } from "./components/document-upload";
@@ -395,7 +396,7 @@ export default function OnboardingQuestionnairePage() {
             {currentStep === 6 && (
               <OnboardingReview
                 formData={formData}
-                questionnaire={sessionData?.questionnaire as any}
+                questionnaire={sessionData?.questionnaire}
                 onSubmit={handleSubmit}
                 isSubmitting={submitQuestionnaireMutation.isPending}
               />

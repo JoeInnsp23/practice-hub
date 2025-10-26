@@ -25,33 +25,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Invoice } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
-
-interface Invoice {
-  id: string;
-  tenantId: string;
-  invoiceNumber: string;
-  clientId: string;
-  issueDate: string | Date;
-  dueDate: string | Date;
-  paidDate: string | Date | null;
-  subtotal: string;
-  taxRate: string | null;
-  taxAmount: string | null;
-  discount: string | null;
-  total: string;
-  amountPaid: string | null;
-  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
-  currency: string | null;
-  notes: string | null;
-  terms: string | null;
-  purchaseOrderNumber: string | null;
-  metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
-  createdById: string | null;
-}
 
 interface InvoiceListProps {
   invoices: Invoice[];

@@ -1,0 +1,1058 @@
+# Practice Hub Code Index v1.0
+# Auto-generated from JSDoc comments in TypeScript files
+# Generated: 2025-10-26T15:13:46.004Z
+
+functions:
+  staffStatisticsRouter:
+    description: "Staff Statistics Router"
+    file: "app/server/routers/staffStatistics.ts"
+    line: 13
+    type: "function"
+    signature: "const staffStatisticsRouter"
+  mapExtractedDataToQuestionnaire:
+    description: "Extract data from a document using Gemini Vision"
+    file: "lib/ai/extract-client-data.ts"
+    line: 133
+    type: "function"
+    signature: "function mapExtractedDataToQuestionnaire"
+  QUESTIONNAIRE_FIELDS:
+    description: "Complete questionnaire field definitions"
+    file: "lib/ai/questionnaire-prefill.ts"
+    line: 59
+    type: "function"
+    signature: "const QUESTIONNAIRE_FIELDS"
+  validateQuestionnaireComplete:
+    description: "Get pre-filled questionnaire for an onboarding session"
+    file: "lib/ai/questionnaire-prefill.ts"
+    line: 271
+    type: "function"
+    signature: "function validateQuestionnaireComplete"
+  calculateCompletionPercentage:
+    description: "Save extracted data to onboarding_responses table"
+    file: "lib/ai/save-extracted-data.ts"
+    line: 27
+    type: "function"
+    signature: "function calculateCompletionPercentage"
+  REQUIRED_AML_FIELDS:
+    description: "Get list of required fields for AML compliance"
+    file: "lib/ai/save-extracted-data.ts"
+    line: 228
+    type: "function"
+    signature: "const REQUIRED_AML_FIELDS"
+  questionnaireResponsesCache:
+    description: "Simple in-memory cache with TTL (Time To Live)"
+    file: "lib/cache.ts"
+    line: 1
+    type: "function"
+    signature: "const questionnaireResponsesCache"
+  invalidateQuestionnaireCache:
+    description: "Invalidate questionnaire cache for a specific session"
+    file: "lib/cache.ts"
+    line: 108
+    type: "function"
+    signature: "function invalidateQuestionnaireCache"
+  reportsDashboardKpiCache:
+    description: "Cache for reports dashboard KPIs"
+    file: "lib/cache.ts"
+    line: 119
+    type: "function"
+    signature: "const reportsDashboardKpiCache"
+  invalidateKpiCache:
+    description: "Invalidate KPI cache for a specific tenant"
+    file: "lib/cache.ts"
+    line: 138
+    type: "function"
+    signature: "function invalidateKpiCache"
+  mapCompanyToClient:
+    description: "Companies House Data Mapper"
+    file: "lib/companies-house/mapper.ts"
+    line: 1
+    type: "function"
+    signature: "function mapCompanyToClient"
+  mapOfficersToContacts:
+    description: "Map Companies House officers to Practice Hub client contacts"
+    file: "lib/companies-house/mapper.ts"
+    line: 137
+    type: "function"
+    signature: "function mapOfficersToContacts"
+  mapPSCsToPSCs:
+    description: "Map Companies House PSCs to Practice Hub client PSCs"
+    file: "lib/companies-house/mapper.ts"
+    line: 167
+    type: "function"
+    signature: "function mapPSCsToPSCs"
+  SUPPORT_EMAIL:
+    description: "Application Configuration"
+    file: "lib/config.ts"
+    line: 1
+    type: "function"
+    signature: "const SUPPORT_EMAIL"
+  APP_NAME:
+    description: "Application name"
+    file: "lib/config.ts"
+    line: 22
+    type: "function"
+    signature: "const APP_NAME"
+  APP_URL:
+    description: "Application URL"
+    file: "lib/config.ts"
+    line: 28
+    type: "function"
+    signature: "const APP_URL"
+  PIPELINE_STAGE_ORDER:
+    description: "Pipeline stages for Kanban board"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 1
+    type: "function"
+    signature: "const PIPELINE_STAGE_ORDER"
+  ACTIVE_STAGES:
+    description: "Active stages (not terminal states)"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 115
+    type: "function"
+    signature: "const ACTIVE_STAGES"
+  TERMINAL_STAGES:
+    description: "Terminal stages (final states)"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 126
+    type: "function"
+    signature: "const TERMINAL_STAGES"
+  isActiveStage:
+    description: "Check if a stage is active (not terminal)"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 131
+    type: "function"
+    signature: "function isActiveStage"
+  isTerminalStage:
+    description: "Check if a stage is terminal (final state)"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 138
+    type: "function"
+    signature: "function isTerminalStage"
+  getNextStage:
+    description: "Get next stage in pipeline (null if no logical next stage)"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 145
+    type: "function"
+    signature: "function getNextStage"
+  getPreviousStage:
+    description: "Get previous stage in pipeline (null if no logical previous stage)"
+    file: "lib/constants/pipeline-stages.ts"
+    line: 158
+    type: "function"
+    signature: "function getPreviousStage"
+  SALES_STAGE_ORDER:
+    description: "Sales stages for Proposals Kanban board"
+    file: "lib/constants/sales-stages.ts"
+    line: 1
+    type: "function"
+    signature: "const SALES_STAGE_ORDER"
+  ACTIVE_SALES_STAGES:
+    description: "Active stages (not terminal states)"
+    file: "lib/constants/sales-stages.ts"
+    line: 115
+    type: "function"
+    signature: "const ACTIVE_SALES_STAGES"
+  TERMINAL_SALES_STAGES:
+    description: "Terminal stages (final states)"
+    file: "lib/constants/sales-stages.ts"
+    line: 125
+    type: "function"
+    signature: "const TERMINAL_SALES_STAGES"
+  isActiveSalesStage:
+    description: "Check if a stage is active (not terminal)"
+    file: "lib/constants/sales-stages.ts"
+    line: 130
+    type: "function"
+    signature: "function isActiveSalesStage"
+  isTerminalSalesStage:
+    description: "Check if a stage is terminal (final state)"
+    file: "lib/constants/sales-stages.ts"
+    line: 137
+    type: "function"
+    signature: "function isTerminalSalesStage"
+  calculateDateRange:
+    description: "Fetch dashboard KPIs for reports page"
+    file: "lib/db/queries/reports-queries.ts"
+    line: 13
+    type: "function"
+    signature: "function calculateDateRange"
+  UKComplianceFields:
+    description: "UK Simple Electronic Signature (SES) Compliance Field Definitions"
+    file: "lib/docuseal/uk-compliance-fields.ts"
+    line: 3
+    type: "function"
+    signature: "const UKComplianceFields"
+  getProposalSignatureFields:
+    description: "Auto-captured fields by DocuSeal (no need to define):"
+    file: "lib/docuseal/uk-compliance-fields.ts"
+    line: 94
+    type: "function"
+    signature: "function getProposalSignatureFields"
+  extractAuditTrail:
+    description: "Extract audit trail data from DocuSeal submission"
+    file: "lib/docuseal/uk-compliance-fields.ts"
+    line: 125
+    type: "function"
+    signature: "function extractAuditTrail"
+  exportTasksToCSV:
+    description: "Format a task value for export"
+    file: "lib/export/task-export.ts"
+    line: 29
+    type: "function"
+    signature: "function exportTasksToCSV"
+  downloadCSV:
+    description: "Download CSV file"
+    file: "lib/export/task-export.ts"
+    line: 86
+    type: "function"
+    signature: "function downloadCSV"
+  exportTasksToXLSX:
+    description: "Export tasks to XLSX format"
+    file: "lib/export/task-export.ts"
+    line: 102
+    type: "function"
+    signature: "function exportTasksToXLSX"
+  downloadXLSX:
+    description: "Download XLSX file"
+    file: "lib/export/task-export.ts"
+    line: 138
+    type: "function"
+    signature: "function downloadXLSX"
+  exportTasks:
+    description: "Main export function with format selection"
+    file: "lib/export/task-export.ts"
+    line: 156
+    type: "function"
+    signature: "function exportTasks"
+  __resetTokenCache:
+    description: "HMRC VAT API Client"
+    file: "lib/hmrc/client.ts"
+    line: 1
+    type: "function"
+    signature: "function __resetTokenCache"
+  useSSE:
+    description: "React hook for SSE connections"
+    file: "lib/hooks/use-sse.ts"
+    line: 30
+    type: "function"
+    signature: "function useSSE"
+  useWorkTypes:
+    description: "Hook to fetch work types from database"
+    file: "lib/hooks/use-work-types.ts"
+    line: 3
+    type: "function"
+    signature: "function useWorkTypes"
+  useWorkTypeByCode:
+    description: "Hook to get a specific work type by code"
+    file: "lib/hooks/use-work-types.ts"
+    line: 17
+    type: "function"
+    signature: "function useWorkTypeByCode"
+  useWorkTypeColor:
+    description: "Hook to get color for a work type"
+    file: "lib/hooks/use-work-types.ts"
+    line: 27
+    type: "function"
+    signature: "function useWorkTypeColor"
+  useWorkTypeLabel:
+    description: "Hook to get label for a work type"
+    file: "lib/hooks/use-work-types.ts"
+    line: 37
+    type: "function"
+    signature: "function useWorkTypeLabel"
+  calculateLeadScore:
+    description: "Calculate turnover score (0-3 points)"
+    file: "lib/lead-scoring/calculate-score.ts"
+    line: 52
+    type: "function"
+    signature: "function calculateLeadScore"
+  getQualificationLevel:
+    description: "Get a human-readable qualification level"
+    file: "lib/lead-scoring/calculate-score.ts"
+    line: 145
+    type: "function"
+    signature: "function getQualificationLevel"
+  getScoreBreakdown:
+    description: "Get scoring breakdown for debugging/transparency"
+    file: "lib/lead-scoring/calculate-score.ts"
+    line: 156
+    type: "function"
+    signature: "function getScoreBreakdown"
+  calculateCarryover:
+    description: "Calculate how many days of annual leave can be carried over to the next year"
+    file: "lib/leave/carryover.ts"
+    line: 7
+    type: "function"
+    signature: "function calculateCarryover"
+  isUKBankHoliday:
+    description: "UK Bank Holidays 2025 (https://www.gov.uk/bank-holidays)"
+    file: "lib/leave/working-days.ts"
+    line: 3
+    type: "function"
+    signature: "function isUKBankHoliday"
+  isWorkingDay:
+    description: "Check if a date is a working day (not weekend or bank holiday)"
+    file: "lib/leave/working-days.ts"
+    line: 48
+    type: "function"
+    signature: "function isWorkingDay"
+  calculateWorkingDays:
+    description: "Calculate working days between two dates (excluding weekends and UK bank holidays)"
+    file: "lib/leave/working-days.ts"
+    line: 55
+    type: "function"
+    signature: "function calculateWorkingDays"
+  calculateHalfDay:
+    description: "Calculate half-day leave (0.5 days)"
+    file: "lib/leave/working-days.ts"
+    line: 77
+    type: "function"
+    signature: "function calculateHalfDay"
+  getUKBankHolidays:
+    description: "Get all UK bank holidays for a given year"
+    file: "lib/leave/working-days.ts"
+    line: 85
+    type: "function"
+    signature: "function getUKBankHolidays"
+  hasWorkingDays:
+    description: "Validate that a leave request doesn't include only weekends/holidays"
+    file: "lib/leave/working-days.ts"
+    line: 99
+    type: "function"
+    signature: "function hasWorkingDays"
+  getClientIp:
+    description: "Proposal Signing Rate Limiting"
+    file: "lib/rate-limit/signing.ts"
+    line: 1
+    type: "function"
+    signature: "function getClientIp"
+  webhookTenantRateLimit:
+    description: "DocuSeal Webhook Rate Limiting"
+    file: "lib/rate-limit/webhook.ts"
+    line: 1
+    type: "function"
+    signature: "const webhookTenantRateLimit"
+  webhookSubmissionRateLimit:
+    description: "Submission-level rate limiter: 1 request/second"
+    file: "lib/rate-limit/webhook.ts"
+    line: 49
+    type: "function"
+    signature: "const webhookSubmissionRateLimit"
+  checkWebhookRateLimitInMemory:
+    description: "In-memory rate limit store for development fallback"
+    file: "lib/rate-limit/webhook.ts"
+    line: 64
+    type: "function"
+    signature: "function checkWebhookRateLimitInMemory"
+  checkRateLimit:
+    description: "Production-ready rate limiter using Upstash Redis"
+    file: "lib/rate-limit.ts"
+    line: 1
+    type: "function"
+    signature: "function checkRateLimit"
+  getClientIdentifier:
+    description: "Get client identifier from request"
+    file: "lib/rate-limit.ts"
+    line: 159
+    type: "function"
+    signature: "function getClientIdentifier"
+  getClientId:
+    description: "Get client ID from Next.js headers (for tRPC)"
+    file: "lib/rate-limit.ts"
+    line: 181
+    type: "function"
+    signature: "function getClientId"
+  formatResetTime:
+    description: "Format seconds remaining until reset"
+    file: "lib/rate-limit.ts"
+    line: 193
+    type: "function"
+    signature: "function formatResetTime"
+  serverEventEmitter:
+    description: "Map of tenantId -> Set of event callbacks"
+    file: "lib/realtime/event-emitter.ts"
+    line: 36
+    type: "function"
+    signature: "const serverEventEmitter"
+  extractS3Key:
+    description: "Upload file to S3 (MinIO or Hetzner)"
+    file: "lib/s3/upload.ts"
+    line: 21
+    type: "function"
+    signature: "function extractS3Key"
+  companySettingsSchema:
+    description: "Schema for company/tenant settings stored in tenants.metadata JSONB"
+    file: "lib/schemas/settings-schemas.ts"
+    line: 3
+    type: "function"
+    signature: "const companySettingsSchema"
+  userSettingsSchema:
+    description: "Schema for user-scoped settings stored in userSettings table"
+    file: "lib/schemas/settings-schemas.ts"
+    line: 33
+    type: "function"
+    signature: "const userSettingsSchema"
+  captureError:
+    description: "Sentry Error Tracking Utilities"
+    file: "lib/sentry.ts"
+    line: 1
+    type: "function"
+    signature: "function captureError"
+  captureMessage:
+    description: "Capture a message with a severity level"
+    file: "lib/sentry.ts"
+    line: 29
+    type: "function"
+    signature: "function captureMessage"
+  setUserContext:
+    description: "Set user context for error tracking"
+    file: "lib/sentry.ts"
+    line: 52
+    type: "function"
+    signature: "function setUserContext"
+  clearUserContext:
+    description: "Clear user context (on logout)"
+    file: "lib/sentry.ts"
+    line: 78
+    type: "function"
+    signature: "function clearUserContext"
+  addBreadcrumb:
+    description: "Add breadcrumb for tracking user actions"
+    file: "lib/sentry.ts"
+    line: 89
+    type: "function"
+    signature: "function addBreadcrumb"
+  captureTRPCError:
+    description: "Capture tRPC error with procedure context"
+    file: "lib/sentry.ts"
+    line: 113
+    type: "function"
+    signature: "function captureTRPCError"
+  generateCsvTemplate:
+    description: "CSV Import Service"
+    file: "lib/services/csv-import.ts"
+    line: 1
+    type: "function"
+    signature: "function generateCsvTemplate"
+  dataToCSV:
+    description: "Convert data to CSV string"
+    file: "lib/services/csv-import.ts"
+    line: 184
+    type: "function"
+    signature: "function dataToCSV"
+  chunkData:
+    description: "Validate CSV headers against expected fields"
+    file: "lib/services/csv-import.ts"
+    line: 207
+    type: "function"
+    signature: "function chunkData"
+  generateCSV:
+    description: "Parse a CSV file with validation"
+    file: "lib/services/csv-parser.ts"
+    line: 45
+    type: "function"
+    signature: "function generateCSV"
+  downloadCSV:
+    description: "Download CSV file in browser"
+    file: "lib/services/csv-parser.ts"
+    line: 266
+    type: "function"
+    signature: "function downloadCSV"
+  encrypt:
+    description: "Encryption Service - AES-256-GCM for credential storage"
+    file: "lib/services/encryption.ts"
+    line: 1
+    type: "function"
+    signature: "function encrypt"
+  decrypt:
+    description: "Decrypt text encrypted with AES-256-GCM"
+    file: "lib/services/encryption.ts"
+    line: 81
+    type: "function"
+    signature: "function decrypt"
+  encryptObject:
+    description: "Encrypt an object as JSON"
+    file: "lib/services/encryption.ts"
+    line: 154
+    type: "function"
+    signature: "function encryptObject"
+  decryptObject:
+    description: "Decrypt a string back to an object"
+    file: "lib/services/encryption.ts"
+    line: 170
+    type: "function"
+    signature: "function decryptObject"
+  validateEncryptionKey:
+    description: "Utility to validate encryption key format"
+    file: "lib/services/encryption.ts"
+    line: 187
+    type: "function"
+    signature: "function validateEncryptionKey"
+  parseMentions:
+    description: "Mention Parser Service"
+    file: "lib/services/mention-parser.ts"
+    line: 1
+    type: "function"
+    signature: "function parseMentions"
+  highlightMentions:
+    description: "HTML-escape a string to prevent XSS attacks"
+    file: "lib/services/mention-parser.ts"
+    line: 44
+    type: "function"
+    signature: "function highlightMentions"
+  extractUserIds:
+    description: "Extract user IDs from an array of user objects based on mentioned names"
+    file: "lib/services/mention-parser.ts"
+    line: 87
+    type: "function"
+    signature: "function extractUserIds"
+  formatUserForMention:
+    description: "Format a user object for display in @mention autocomplete"
+    file: "lib/services/mention-parser.ts"
+    line: 137
+    type: "function"
+    signature: "function formatUserForMention"
+  insertMention:
+    description: "Insert a mention at the cursor position in text"
+    file: "lib/services/mention-parser.ts"
+    line: 156
+    type: "function"
+    signature: "function insertMention"
+  isInMentionContext:
+    description: "Check if cursor is in a mention context (after @ symbol)"
+    file: "lib/services/mention-parser.ts"
+    line: 200
+    type: "function"
+    signature: "function isInMentionContext"
+  getMentionQuery:
+    description: "Extract partial mention query from text at cursor position"
+    file: "lib/services/mention-parser.ts"
+    line: 237
+    type: "function"
+    signature: "function getMentionQuery"
+  calculatePeriodEndDate:
+    description: "Calculate the period end date based on activation date and recurring frequency"
+    file: "lib/services/template-placeholders.ts"
+    line: 113
+    type: "function"
+    signature: "function calculatePeriodEndDate"
+  calculateNextPeriod:
+    description: "Calculate the next period's activation date after task completion"
+    file: "lib/services/template-placeholders.ts"
+    line: 174
+    type: "function"
+    signature: "function calculateNextPeriod"
+  convertToCSV:
+    description: "CSV Export Utilities"
+    file: "lib/utils/export-csv.ts"
+    line: 1
+    type: "function"
+    signature: "function convertToCSV"
+  downloadCSV:
+    description: "Trigger browser download of CSV content"
+    file: "lib/utils/export-csv.ts"
+    line: 61
+    type: "function"
+    signature: "function downloadCSV"
+  formatReportData:
+    description: "Format report data for export"
+    file: "lib/utils/export-csv.ts"
+    line: 92
+    type: "function"
+    signature: "function formatReportData"
+  exportReport:
+    description: "Export report to CSV with standardized naming"
+    file: "lib/utils/export-csv.ts"
+    line: 143
+    type: "function"
+    signature: "function exportReport"
+  exportStaffUtilizationToCSV:
+    description: "Export staff utilization data to CSV"
+    file: "lib/utils/export-csv.ts"
+    line: 166
+    type: "function"
+    signature: "function exportStaffUtilizationToCSV"
+  getAutoSalesStage:
+    description: "Sales Stage Automation"
+    file: "lib/utils/sales-stage-automation.ts"
+    line: 1
+    type: "function"
+    signature: "function getAutoSalesStage"
+  wasStageChangeAutomated:
+    description: "Checks if a sales stage change was triggered by automation"
+    file: "lib/utils/sales-stage-automation.ts"
+    line: 63
+    type: "function"
+    signature: "function wasStageChangeAutomated"
+  getAutomationReason:
+    description: "Gets a human-readable description of the automation rule"
+    file: "lib/utils/sales-stage-automation.ts"
+    line: 81
+    type: "function"
+    signature: "function getAutomationReason"
+  calculateTimeInStage:
+    description: "Calculates time spent in a sales stage (in days)"
+    file: "lib/utils/sales-stage-automation.ts"
+    line: 114
+    type: "function"
+    signature: "function calculateTimeInStage"
+  replacePlaceholders:
+    description: "Replace placeholders in template strings with actual values"
+    file: "lib/utils/task-generation.ts"
+    line: 17
+    type: "function"
+    signature: "function replacePlaceholders"
+  calculateDueDate:
+    description: "Calculate due date by adding offset months and days to activation date"
+    file: "lib/utils/task-generation.ts"
+    line: 51
+    type: "function"
+    signature: "function calculateDueDate"
+  calculateTargetDate:
+    description: "Calculate target date (7 days before due date for internal completion goal)"
+    file: "lib/utils/task-generation.ts"
+    line: 79
+    type: "function"
+    signature: "function calculateTargetDate"
+  calculatePeriodInfo:
+    description: "Calculate period information for recurring tasks"
+    file: "lib/utils/task-generation.ts"
+    line: 89
+    type: "function"
+    signature: "function calculatePeriodInfo"
+  calculateTaxYear:
+    description: "Calculate tax year from a given date (UK tax year: 6 April to 5 April)"
+    file: "lib/utils/task-generation.ts"
+    line: 134
+    type: "function"
+    signature: "function calculateTaxYear"
+  getAuthorizationUrl:
+    description: "Xero API Client"
+    file: "lib/xero/client.ts"
+    line: 1
+    type: "function"
+    signature: "function getAuthorizationUrl"
+  calculateMonthlyTransactions:
+    description: "Exchange authorization code for access token"
+    file: "lib/xero/client.ts"
+    line: 85
+    type: "function"
+    signature: "function calculateMonthlyTransactions"
+
+types:
+  RouterOutputs:
+    description: "Router output types have been centralized to @/lib/trpc/types"
+    file: "app/providers/trpc-provider.tsx"
+    line: 13
+    type: "type"
+    signature: "type RouterOutputs"
+  ExtractedIndividualData:
+    description: "AI Document Extraction for Client Onboarding"
+    file: "lib/ai/extract-client-data.ts"
+    line: 1
+    type: "type"
+    signature: "interface ExtractedIndividualData"
+  ExtractedCompanyData:
+    description: "Extracted company data from incorporation certificates and Companies House extracts"
+    file: "lib/ai/extract-client-data.ts"
+    line: 45
+    type: "type"
+    signature: "interface ExtractedCompanyData"
+  ExtractedAddressData:
+    description: "Extracted proof of address data"
+    file: "lib/ai/extract-client-data.ts"
+    line: 75
+    type: "type"
+    signature: "interface ExtractedAddressData"
+  DocumentExtractionResult:
+    description: "Combined extraction result (UK-specific document types)"
+    file: "lib/ai/extract-client-data.ts"
+    line: 91
+    type: "type"
+    signature: "interface DocumentExtractionResult"
+  QuestionnaireValue:
+    description: "Questionnaire response value type"
+    file: "lib/ai/extract-client-data.ts"
+    line: 108
+    type: "type"
+    signature: "type QuestionnaireValue"
+  QuestionnaireResponses:
+    description: "Mapped questionnaire responses from extracted document data"
+    file: "lib/ai/extract-client-data.ts"
+    line: 128
+    type: "type"
+    signature: "type QuestionnaireResponses"
+  QuestionnaireField:
+    description: "Questionnaire Pre-fill Logic"
+    file: "lib/ai/questionnaire-prefill.ts"
+    line: 1
+    type: "type"
+    signature: "interface QuestionnaireField"
+  PrefilledQuestionnaireResponse:
+    description: "Pre-filled questionnaire response"
+    file: "lib/ai/questionnaire-prefill.ts"
+    line: 40
+    type: "type"
+    signature: "interface PrefilledQuestionnaireResponse"
+  OnboardingResponseMetadata:
+    description: "Save Extracted Data to Database"
+    file: "lib/ai/save-extracted-data.ts"
+    line: 1
+    type: "type"
+    signature: "interface OnboardingResponseMetadata"
+  PortalUserResult:
+    description: "Multi-Client Portal Access Manager"
+    file: "lib/client-portal/access-manager.ts"
+    line: 12
+    type: "type"
+    signature: "interface PortalUserResult"
+  CompanyData:
+    description: "Companies House API cache layer"
+    file: "lib/companies-house/cache.ts"
+    line: 7
+    type: "type"
+    signature: "interface CompanyData"
+  WorkType:
+    description: "@deprecated This file is deprecated as of STORY-4.6: Work Type Migration to Database"
+    file: "lib/constants/work-types.ts"
+    line: 1
+    type: "type"
+    signature: "interface WorkType"
+  ExpireProposalsResult:
+    description: "Proposal Expiration Cron Job - Core Logic"
+    file: "lib/cron/expire-proposals.ts"
+    line: 7
+    type: "type"
+    signature: "interface ExpireProposalsResult"
+  VerificationRequest:
+    description: "LEM Verify API Client"
+    file: "lib/kyc/lemverify-client.ts"
+    line: 1
+    type: "type"
+    signature: "interface VerificationRequest"
+  VerificationResponse:
+    description: "Verification response from LEM Verify"
+    file: "lib/kyc/lemverify-client.ts"
+    line: 54
+    type: "type"
+    signature: "interface VerificationResponse"
+  VerificationStatus:
+    description: "Complete verification status including all checks"
+    file: "lib/kyc/lemverify-client.ts"
+    line: 65
+    type: "type"
+    signature: "interface VerificationStatus"
+  LeadScoringInput:
+    description: "Lead Scoring Algorithm"
+    file: "lib/lead-scoring/calculate-score.ts"
+    line: 1
+    type: "type"
+    signature: "interface LeadScoringInput"
+  ConnectionState:
+    description: "Realtime Client Interface"
+    file: "lib/realtime/client.ts"
+    line: 1
+    type: "type"
+    signature: "type ConnectionState"
+  RealtimeEvent:
+    description: "Realtime event structure"
+    file: "lib/realtime/client.ts"
+    line: 31
+    type: "type"
+    signature: "interface RealtimeEvent"
+  SubscriptionCallback:
+    description: "Subscription callback"
+    file: "lib/realtime/client.ts"
+    line: 35
+    type: "type"
+    signature: "type SubscriptionCallback"
+  ConnectionOptions:
+    description: "Connection options"
+    file: "lib/realtime/client.ts"
+    line: 52
+    type: "type"
+    signature: "interface ConnectionOptions"
+  ConnectionStats:
+    description: "Connection statistics"
+    file: "lib/realtime/client.ts"
+    line: 56
+    type: "type"
+    signature: "interface ConnectionStats"
+  RealtimeClient:
+    description: "Abstract Realtime Client Interface"
+    file: "lib/realtime/client.ts"
+    line: 76
+    type: "type"
+    signature: "interface RealtimeClient"
+  CompanySettings:
+    description: "Type exports for use in tRPC procedures and components"
+    file: "lib/schemas/settings-schemas.ts"
+    line: 45
+    type: "type"
+    signature: "type CompanySettings"
+  CSVRowError:
+    description: "CSV Parser Service - Parse and validate CSV files for bulk import"
+    file: "lib/services/csv-parser.ts"
+    line: 1
+    type: "type"
+    signature: "interface CSVRowError"
+  RowValidationResult:
+    description: "Validation result for a single row"
+    file: "lib/services/csv-parser.ts"
+    line: 19
+    type: "type"
+    signature: "interface RowValidationResult"
+  CSVParseResult:
+    description: "Result of CSV parsing operation"
+    file: "lib/services/csv-parser.ts"
+    line: 27
+    type: "type"
+    signature: "interface CSVParseResult"
+  CSVParseOptions:
+    description: "Options for CSV parsing"
+    file: "lib/services/csv-parser.ts"
+    line: 41
+    type: "type"
+    signature: "interface CSVParseOptions"
+  RouterOutputs:
+    description: "Centralized tRPC Type Definitions"
+    file: "lib/trpc/types.ts"
+    line: 1
+    type: "type"
+    signature: "type RouterOutputs"
+  ClientListOutput:
+    description: "Client Types"
+    file: "lib/trpc/types.ts"
+    line: 31
+    type: "type"
+    signature: "type ClientListOutput"
+  TaskListOutput:
+    description: "Task Types"
+    file: "lib/trpc/types.ts"
+    line: 38
+    type: "type"
+    signature: "type TaskListOutput"
+  InvoiceListOutput:
+    description: "Invoice Types"
+    file: "lib/trpc/types.ts"
+    line: 45
+    type: "type"
+    signature: "type InvoiceListOutput"
+  ProposalListOutput:
+    description: "Proposal Types"
+    file: "lib/trpc/types.ts"
+    line: 53
+    type: "type"
+    signature: "type ProposalListOutput"
+  DocumentListOutput:
+    description: "Document Types"
+    file: "lib/trpc/types.ts"
+    line: 60
+    type: "type"
+    signature: "type DocumentListOutput"
+  CalendarEventListOutput:
+    description: "Calendar Types"
+    file: "lib/trpc/types.ts"
+    line: 66
+    type: "type"
+    signature: "type CalendarEventListOutput"
+  NotificationListOutput:
+    description: "Notification Types"
+    file: "lib/trpc/types.ts"
+    line: 72
+    type: "type"
+    signature: "type NotificationListOutput"
+  MessageThreadListOutput:
+    description: "Message Types"
+    file: "lib/trpc/types.ts"
+    line: 78
+    type: "type"
+    signature: "type MessageThreadListOutput"
+  UserListOutput:
+    description: "User Types"
+    file: "lib/trpc/types.ts"
+    line: 86
+    type: "type"
+    signature: "type UserListOutput"
+  LeaveHistoryOutput:
+    description: "Leave Management Types"
+    file: "lib/trpc/types.ts"
+    line: 93
+    type: "type"
+    signature: "type LeaveHistoryOutput"
+  WorkingPatternListOutput:
+    description: "Working Pattern Types"
+    file: "lib/trpc/types.ts"
+    line: 100
+    type: "type"
+    signature: "type WorkingPatternListOutput"
+  StaffCapacityListOutput:
+    description: "Staff Capacity Types"
+    file: "lib/trpc/types.ts"
+    line: 107
+    type: "type"
+    signature: "type StaffCapacityListOutput"
+  StaffComparisonOutput:
+    description: "Staff Statistics Types"
+    file: "lib/trpc/types.ts"
+    line: 115
+    type: "type"
+    signature: "type StaffComparisonOutput"
+  WorkTypeListOutput:
+    description: "Work Type Types"
+    file: "lib/trpc/types.ts"
+    line: 122
+    type: "type"
+    signature: "type WorkTypeListOutput"
+  LeadListOutput:
+    description: "Lead Types"
+    file: "lib/trpc/types.ts"
+    line: 128
+    type: "type"
+    signature: "type LeadListOutput"
+  OnboardingSessionListOutput:
+    description: "Onboarding Types"
+    file: "lib/trpc/types.ts"
+    line: 135
+    type: "type"
+    signature: "type OnboardingSessionListOutput"
+  QuestionnaireSessionData:
+    description: "Onboarding Questionnaire Types (Story 7.2 completion)"
+    file: "lib/trpc/types.ts"
+    line: 143
+    type: "type"
+    signature: "type QuestionnaireSessionData"
+  KycVerificationMetadata:
+    description: "KYC Verification Metadata Type"
+    file: "lib/trpc/types.ts"
+    line: 150
+    type: "type"
+    signature: "type KycVerificationMetadata"
+  ServiceListOutput:
+    description: "Service Types"
+    file: "lib/trpc/types.ts"
+    line: 158
+    type: "type"
+    signature: "type ServiceListOutput"
+  TimesheetListOutput:
+    description: "Timesheet Types"
+    file: "lib/trpc/types.ts"
+    line: 165
+    type: "type"
+    signature: "type TimesheetListOutput"
+  WorkflowListOutput:
+    description: "Workflow Types"
+    file: "lib/trpc/types.ts"
+    line: 171
+    type: "type"
+    signature: "type WorkflowListOutput"
+  PlaceholderData:
+    description: "Data required for placeholder replacement in task templates"
+    file: "lib/utils/task-generation.ts"
+    line: 3
+    type: "type"
+    signature: "interface PlaceholderData"
+
+components:
+  CookiePolicyPage:
+    description: "Cookie Policy Page"
+    file: "app/(legal)/cookie-policy/page.tsx"
+    line: 9
+    type: "component"
+    signature: "default function CookiePolicyPage"
+  PrivacyPage:
+    description: "Privacy Policy Page"
+    file: "app/(legal)/privacy/page.tsx"
+    line: 9
+    type: "component"
+    signature: "default function PrivacyPage"
+  TermsPage:
+    description: "Terms of Service Page"
+    file: "app/(legal)/terms/page.tsx"
+    line: 9
+    type: "component"
+    signature: "default function TermsPage"
+  AdminLegalSettingsPage:
+    description: "Admin Legal Settings Page"
+    file: "app/admin/settings/legal/page.tsx"
+    line: 11
+    type: "component"
+    signature: "default function AdminLegalSettingsPage"
+  GenerateTasksButton:
+    description: "Button to trigger auto-generation of tasks from templates"
+    file: "components/client-hub/services/generate-tasks-button.tsx"
+    line: 16
+    type: "component"
+    signature: "function GenerateTasksButton"
+  GenerationPreviewModal:
+    description: "Modal to preview and confirm task generation from templates"
+    file: "components/client-hub/services/generation-preview-modal.tsx"
+    line: 33
+    type: "component"
+    signature: "function GenerationPreviewModal"
+  LegalEditor:
+    description: "Legal Editor Component"
+    file: "components/legal/legal-editor.tsx"
+    line: 19
+    type: "component"
+    signature: "function LegalEditor"
+  LegalPageViewer:
+    description: "Legal Page Viewer Component"
+    file: "components/legal/legal-page-viewer.tsx"
+    line: 16
+    type: "component"
+    signature: "function LegalPageViewer"
+  LegalVersionHistoryDialog:
+    description: "Legal Version History Dialog Component"
+    file: "components/legal/legal-version-history-dialog.tsx"
+    line: 25
+    type: "component"
+    signature: "function LegalVersionHistoryDialog"
+  ConnectionStatus:
+    description: "Connection Status Indicator"
+    file: "components/shared/connection-status.tsx"
+    line: 13
+    type: "component"
+    signature: "function ConnectionStatus"
+  Footer:
+    description: "Global Footer Component"
+    file: "components/shared/footer.tsx"
+    line: 3
+    type: "component"
+    signature: "function Footer"
+
+classes:
+  EventSubscriptionManager:
+    description: "Establish connection to realtime server"
+    file: "lib/realtime/client.ts"
+    line: 97
+    type: "class"
+    signature: "class EventSubscriptionManager"
+  ServerEventEmitter:
+    description: "Server-Side Event Emitter"
+    file: "lib/realtime/event-emitter.ts"
+    line: 1
+    type: "class"
+    signature: "class ServerEventEmitter"
+  SSEClient:
+    description: "SSE Client Implementation"
+    file: "lib/realtime/sse-client.ts"
+    line: 11
+    type: "class"
+    signature: "class SSEClient"
+  XeroApiClient:
+    description: "Xero API Client - Push data from Practice Hub to Xero"
+    file: "lib/xero/api-client.ts"
+    line: 1
+    type: "class"
+    signature: "class XeroApiClient"
+
+metadata:
+  version: "1.0"
+  generated: "2025-10-26T15:13:46.005Z"
+  total_entries: 173
+  functions: 106
+  types: 52
+  components: 11
+  classes: 4

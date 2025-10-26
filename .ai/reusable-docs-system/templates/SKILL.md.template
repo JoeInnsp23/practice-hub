@@ -1,0 +1,323 @@
+---
+name: PROJECT-docs-search
+description: Search comprehensive documentation across multiple domains (requirements, architecture, API reference, stories, QA gates, patterns) and source code index. MUST invoke during plan mode to provide context before any development work. Use when asking about features, requirements, implementation details, architecture decisions, story status, code structure, or development workflows. Triggers when user mentions features, components, tech stack, coding standards, or asks how to implement something. Always uses this skill to search the docs and codebase.
+allowed-tools: Read, Grep, Glob
+---
+
+# PROJECT Documentation Search v1.0
+
+**Complete unified knowledge graph** for PROJECT_NAME: requirements → design → implementation → quality validation.
+
+## What This Skill Does
+
+This skill searches **multiple documentation domains + source code** simultaneously when you're doing development work:
+
+1. 📋 **Requirements** — What we're building (if applicable)
+2. 🏗️ **Architecture** — How we designed it (tech stack, components, patterns, workflows)
+3. 📚 **API Reference** — How we implemented it (TypeScript + Python function signatures + types + examples)
+4. 📖 **Stories** — What we built (if applicable)
+5. 🧪 **QA Gates** — Quality validation (if applicable)
+6. 💻 **Coding Standards** — Best practices (how to structure code, patterns, conventions)
+7. 🔍 **Code Index** — Fast lookups of functions, types, and components with line numbers
+
+**Returns all relevant results** clearly labeled by domain, with direct links to source files.
+
+---
+
+## Code Index: Fast Function & Type Lookups
+
+The skill includes **code-index.yaml**, a comprehensive index of all TypeScript, React, and Python code with documentation.
+
+### What's Indexed
+
+- ✅ All TypeScript utilities
+- ✅ All TypeScript types and interfaces
+- ✅ All React components
+- ✅ All Python functions with signatures and examples
+- ✅ All Python classes and methods
+
+### How It Works
+
+**3-layer search strategy (all layers run in parallel)**:
+
+**Layer 0: Code Index (Fast)**
+- Check `code-index.yaml` for exact function/type/class name matches
+- Return file path, line number, signature, description, parameters, returns
+- Examples: "myFunction", "User type", "MyComponent", "api_endpoint"
+
+**Layer 1: Concept Index (Parallel)**
+- Check `doc-index.yaml` for feature/component concepts
+- Return requirements, architecture, API reference across all domains
+- Examples: "authentication", "database-models", "api-endpoints"
+
+**Layer 2: Full Text Search (Fallback)**
+- If not in indexes, grep search by domain
+- Finds content, architecture decisions, patterns, examples
+
+### Example Queries That Hit Code Index
+
+- "What's the signature for myFunction?" → Returns function signature, parameters, file:line
+- "What fields does the User type have?" → Returns type definition, properties, description
+- "What components are in the project?" → Lists all components with descriptions
+- "What's the health endpoint?" → Returns endpoint with parameters and examples
+
+### Code Index Auto-Updates
+
+The code index regenerates automatically on commit when source files change:
+
+```bash
+# Pre-commit hook detects .ts, .tsx, .py file changes
+# Automatically runs: ts-node .claude/skills/PROJECT-docs-search/scripts/generate-code-index.ts
+# Adds updated code-index.yaml to commit
+
+# To manually regenerate:
+pnpm docs:generate:code-index
+```
+
+---
+
+## How to Use (Auto-Activation)
+
+**The skill automatically activates during development work.** You don't need to prompt for it.
+
+### Automatic Trigger Scenarios
+
+The skill triggers automatically on ANY of these:
+
+**Planning & Design**
+- "I'm about to implement [feature]..."
+- "I need to start working on..."
+- "Show me the complete [system/feature/flow]..."
+- "What are the requirements for...?"
+
+**Implementation**
+- "How do I implement [feature]?"
+- "What's the code structure for...?"
+- "Where should I put the new [component/service]?"
+
+**Debugging & Exploration**
+- "I'm debugging an issue with..."
+- "Why is [code] doing this?"
+- "Show me the test for..."
+- "What tests exist for...?"
+
+**Code Review & Patterns**
+- "Show me [component] implementation"
+- "How should I structure [feature]?"
+- "What's the pattern for...?"
+- "Why did we choose [tech decision]?"
+
+**Questions About Code**
+- "What's the signature for [function]?"
+- "What fields does [type] have?"
+- "What components exist?"
+- "Show me an example of [pattern]"
+
+### Ask Naturally
+
+The skill automatically detects what you're looking for and searches appropriate domains:
+
+**Architecture Questions**:
+```
+"Why did we choose [technology]?"
+→ Returns tech stack decision + rationale + design
+```
+
+**Implementation Questions**:
+```
+"How do I [implement feature]?"
+→ Returns function signature + @example + parameter docs
+```
+
+**Code Structure Questions**:
+```
+"What's the [type/interface/class]?"
+→ Returns definition + properties + file:line
+```
+
+**Pattern Questions**:
+```
+"How should I structure [feature]?"
+→ Returns coding standards + examples + patterns
+```
+
+---
+
+## Search by Domain
+
+### 🏗️ Architecture (System Design)
+
+**What it has**: Tech stack, components, workflows, data models, patterns
+
+**When to search**: "Why did we...", "How is X designed?", "What's the workflow?", "Show me the system diagram"
+
+**Key documents**:
+- `docs/architecture/tech-stack.md` — Technology choices + rationale
+- `docs/architecture/components.md` — System components + interactions
+- `docs/architecture/database-schema.md` — Data models
+
+---
+
+### 📚 API Reference (Implementation)
+
+**What it has**: TypeScript (types, components, utilities) + Python (services, repositories, models) APIs with JSDoc + docstrings
+
+**When to search**: "How do I use X?", "What's the function signature?", "Show me an example"
+
+**Key documents**:
+- `docs/reference/typescript/` — TypeScript types, components, utilities
+- `docs/reference/python/` — Python services, models, routes
+
+**Every API includes**:
+- Full JSDoc/docstring with description
+- All parameters with types
+- Return value with type
+- `@example` showing realistic usage
+- `@throws` documenting errors
+
+---
+
+### 💻 Coding Standards (Patterns)
+
+**What it has**: Best practices, code conventions, implementation patterns
+
+**When to search**: "How should I structure X?", "What's the pattern for Y?"
+
+**Key documents**:
+- `docs/patterns/coding-standards.md` — Code style and conventions
+- `docs/patterns/best-practices.md` — Implementation best practices
+
+---
+
+## Common Patterns
+
+| Question | Domain(s) | Example |
+|----------|-----------|---------|
+| **"Why did we choose X?"** | Architecture | "Why [technology]?" → Returns tech-stack + rationale |
+| **"How do I implement X?"** | API | "How do I [feature]?" → Returns function signature + @example |
+| **"Show me X flow"** | Architecture | "Show me the [flow]" → Returns workflow diagram + steps |
+| **"What are the requirements?"** | Requirements | "Requirements for [feature]?" → Returns requirements |
+| **"How should I structure X?"** | Patterns | "How to structure [feature]?" → Returns coding standards + examples |
+| **"Complete picture"** | All domains | "Show me [feature]" → Returns requirements + architecture + API + patterns |
+
+---
+
+## What Gets Searched
+
+✅ **INCLUDED**:
+- API Reference: `docs/reference/typescript/**/*.md` + `docs/reference/python/**/*.md`
+- Architecture: `docs/architecture/**/*.md`
+- Patterns: `docs/patterns/**/*.md`
+- Code Index: `.claude/skills/PROJECT-docs-search/code-index.yaml`
+
+**Optional (remove from doc-index.yaml if not applicable)**:
+- Requirements/PRD: `docs/prd/**/*.md`
+- Stories: `docs/stories/*.story.md`
+- QA Gates: `docs/qa/gates/*.yml`
+
+---
+
+## Tips for Best Results
+
+### 1. Be Feature-Specific
+✅ "How do I use [specific-feature]?" → Good, specific
+❌ "Tell me about the project" → Too vague
+
+### 2. Use Natural Domain Language
+✅ "Why [technology]?" → Clearly asking about architecture
+✅ "Show me [feature] implementation" → Clearly asking about code
+
+### 3. Reference Real Concepts
+Use system terminology from your project:
+- Features: [list your key features]
+- Tech: [list your tech stack]
+- Components: [list your components]
+
+### 4. Ask About Relationships
+✅ "Show me the complete [feature] system" → Returns all domains
+✅ "What are the requirements for [feature]?" → Returns requirements + architecture
+
+### 5. Check Examples
+- Every API function includes `@example` blocks showing realistic usage
+- Architecture docs show design diagrams and workflows
+- Patterns docs show implementation examples
+
+---
+
+## Troubleshooting
+
+### No results found?
+- The concept might not be documented yet
+- Try searching with different keywords
+- Check `doc-index.yaml` for available concepts
+
+### Wrong domain?
+- Be explicit: "Show me the **API** for X" vs "Show me the **design** for X"
+- Include domain hints: "Why" questions → Architecture, "How to" → API
+
+### Too many results?
+- Be more specific in your search
+- Mention the exact feature or component name
+
+---
+
+## Examples by Domain
+
+### Architecture: "Why did we choose [technology]?"
+```
+[Architecture - Tech Stack]
+
+Technology: [Technology Name]
+Rationale: [Why we chose it]
+Alternatives considered: [Other options]
+Trade-offs: [Pros/cons]
+```
+
+### API: "Show me [Type] definition"
+```
+[API - TypeScript Type Definition]
+
+type MyType = {
+  id: string
+  name: string
+  // ...
+}
+
+@example:
+const instance: MyType = {
+  id: 'abc-123',
+  name: 'Example'
+}
+```
+
+### Patterns: "How should I structure [feature]?"
+```
+[Patterns - Coding Standards]
+
+Pattern: [Pattern name]
+Use when: [When to use]
+Example:
+  [Code example]
+```
+
+---
+
+**Last Updated:** [DATE]
+**Version:** 1.0.0
+**Source:** Reusable Documentation System Template
+
+---
+
+# CUSTOMIZATION CHECKLIST
+
+**Before using this skill:**
+
+- [ ] Replace `PROJECT-docs-search` with your skill name (in frontmatter `name:` field)
+- [ ] Replace `PROJECT_NAME` with your project name (throughout document)
+- [ ] Update `description:` field with project-specific terminology
+- [ ] Customize trigger patterns in `description:` with your features/components
+- [ ] Update domain sections to match your documentation structure
+- [ ] Remove optional domains (PRD, Stories, QA) if not applicable
+- [ ] Add your project's key features/tech/components to "Reference Real Concepts"
+- [ ] Update file paths to match your documentation structure
+- [ ] Test skill activation with queries like "I'm implementing [your-feature]"

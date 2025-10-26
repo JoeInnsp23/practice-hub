@@ -141,6 +141,21 @@ export type OnboardingSessionWithRelations =
   RouterOutputs["onboarding"]["getById"];
 
 /**
+ * Onboarding Questionnaire Types (Story 7.2 completion)
+ */
+export type QuestionnaireSessionData =
+  RouterOutputs["onboarding"]["getQuestionnaireSession"];
+export type QuestionnaireData = QuestionnaireSessionData["questionnaire"];
+
+/**
+ * KYC Verification Metadata Type
+ */
+export type KycVerificationMetadata = {
+  verificationUrl?: string;
+  [key: string]: unknown;
+};
+
+/**
  * Service Types
  */
 export type ServiceListOutput = RouterOutputs["services"]["list"];

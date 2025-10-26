@@ -1,0 +1,94 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# ============================================================================
+# AUTO-GENERATED DOCUMENTATION PRE-COMMIT HOOK
+# Regenerates API docs + code index when source files change
+# ============================================================================
+
+echo "📚 Checking for documentation updates..."
+echo ""
+
+# ============================================================================
+# DOCUMENTATION ENFORCEMENT (OPTIONAL - ENABLE IF DESIRED)
+# ============================================================================
+
+# Uncomment to enforce JSDoc/docstrings before commit
+# echo "🔍 Enforcing documentation standards..."
+# cd apps/web
+# pnpm lint
+# TS_EXIT=$?
+# cd ../..
+#
+# if [ $TS_EXIT -ne 0 ]; then
+#     echo ""
+#     echo "❌ BLOCKED: TypeScript documentation violations detected!"
+#     echo "   All functions must have JSDoc with @param, @returns, @example"
+#     exit 1
+# fi
+
+# ============================================================================
+# REGENERATE API DOCUMENTATION
+# ============================================================================
+
+echo "📚 Regenerating API reference documentation..."
+echo ""
+
+# TypeScript docs (only if .ts/.tsx files changed)
+TS_FILES_CHANGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' || true)
+if [ -n "$TS_FILES_CHANGED" ]; then
+    echo "🔄 TypeScript files changed, regenerating API docs..."
+    pnpm docs:generate > /dev/null 2>&1
+    if [ -d "docs/reference/typescript" ]; then
+        git add docs/reference/typescript/ 2>/dev/null || true
+        echo "✅ TypeScript API docs updated and staged"
+    fi
+fi
+
+# Python docs (only if .py files changed)
+PY_FILES_CHANGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.py$' || true)
+if [ -n "$PY_FILES_CHANGED" ]; then
+    echo "🔄 Python files changed, regenerating API docs..."
+    pnpm docs:generate:python > /dev/null 2>&1
+    if [ -d "docs/reference/python" ]; then
+        git add docs/reference/python/ 2>/dev/null || true
+        echo "✅ Python API docs updated and staged"
+    fi
+fi
+
+if [ -z "$TS_FILES_CHANGED" ] && [ -z "$PY_FILES_CHANGED" ]; then
+    echo "✅ No source files changed, docs already up-to-date"
+fi
+
+echo ""
+
+# ============================================================================
+# REGENERATE CODE INDEX
+# ============================================================================
+
+echo "📝 Regenerating skill code index..."
+echo ""
+
+SOURCE_FILES_CHANGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|py)$' || true)
+if [ -n "$SOURCE_FILES_CHANGED" ]; then
+    echo "🔄 Source files changed, regenerating code index..."
+    # Replace PROJECT-docs-search with your skill name
+    if command -v pnpm &> /dev/null && pnpm docs:generate:code-index > /dev/null 2>&1; then
+        if [ -f ".claude/skills/PROJECT-docs-search/code-index.yaml" ]; then
+            git add .claude/skills/PROJECT-docs-search/code-index.yaml 2>/dev/null || true
+            echo "✅ Code index updated and staged"
+        fi
+    else
+        echo "⚠️  Code index generation skipped (run 'pnpm install' to enable ts-node)"
+    fi
+else
+    echo "✅ No source files changed, code index already up-to-date"
+fi
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Pre-commit checks COMPLETE!"
+echo "📚 API reference docs auto-generated"
+echo "🔍 Code index auto-generated"
+echo "🎯 Ready to commit"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

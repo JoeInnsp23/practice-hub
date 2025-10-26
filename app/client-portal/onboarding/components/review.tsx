@@ -8,10 +8,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import type { QuestionnaireData } from "@/lib/trpc/types";
 
 interface OnboardingReviewProps {
   formData: Record<string, unknown>;
-  questionnaire?: Record<string, unknown>;
+  questionnaire?: QuestionnaireData;
   onSubmit: () => void;
   isSubmitting: boolean;
 }
