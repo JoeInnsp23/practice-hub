@@ -6,7 +6,7 @@
 
 # Interface: ParseResult\<T\>
 
-Defined in: [lib/services/csv-import.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/services/csv-import.ts#L27)
+Defined in: [lib/services/csv-import.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/csv-import.ts#L27)
 
 ## Type Parameters
 
@@ -20,7 +20,7 @@ Defined in: [lib/services/csv-import.ts:27](https://github.com/JoeInnsp23/practi
 
 > **data**: `T`[]
 
-Defined in: [lib/services/csv-import.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/services/csv-import.ts#L28)
+Defined in: [lib/services/csv-import.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/csv-import.ts#L28)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [lib/services/csv-import.ts:28](https://github.com/JoeInnsp23/practi
 
 > **errors**: [`ImportError`](ImportError.md)[]
 
-Defined in: [lib/services/csv-import.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/services/csv-import.ts#L29)
+Defined in: [lib/services/csv-import.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/csv-import.ts#L29)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [lib/services/csv-import.ts:29](https://github.com/JoeInnsp23/practi
 
 > **meta**: `object`
 
-Defined in: [lib/services/csv-import.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/services/csv-import.ts#L30)
+Defined in: [lib/services/csv-import.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/csv-import.ts#L30)
 
 #### invalidRows
 

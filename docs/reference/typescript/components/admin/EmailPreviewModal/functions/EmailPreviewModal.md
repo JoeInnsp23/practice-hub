@@ -8,7 +8,7 @@
 
 > **EmailPreviewModal**(`__namedParameters`): `Element`
 
-Defined in: [components/admin/EmailPreviewModal.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/admin/EmailPreviewModal.tsx#L22)
+Defined in: [components/admin/EmailPreviewModal.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/components/admin/EmailPreviewModal.tsx#L22)
 
 ## Parameters
 

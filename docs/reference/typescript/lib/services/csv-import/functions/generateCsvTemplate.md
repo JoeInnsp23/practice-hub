@@ -8,7 +8,7 @@
 
 > **generateCsvTemplate**(`fields`, `includeExampleRow`, `exampleData?`): `string`
 
-Defined in: [lib/services/csv-import.ts:219](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/lib/services/csv-import.ts#L219)
+Defined in: [lib/services/csv-import.ts:219](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/lib/services/csv-import.ts#L219)
 
 Generate CSV template with headers
 

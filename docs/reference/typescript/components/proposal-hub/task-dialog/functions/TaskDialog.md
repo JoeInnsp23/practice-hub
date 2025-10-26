@@ -8,7 +8,7 @@
 
 > **TaskDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/task-dialog.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/proposal-hub/task-dialog.tsx#L65)
+Defined in: [components/proposal-hub/task-dialog.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/components/proposal-hub/task-dialog.tsx#L65)
 
 ## Parameters
 

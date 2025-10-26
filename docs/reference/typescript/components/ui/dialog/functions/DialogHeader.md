@@ -8,7 +8,7 @@
 
 > **DialogHeader**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/dialog.tsx:90](https://github.com/JoeInnsp23/practice-hub/blob/9ffe11ce62534511f8e0911416af99f9975bb246/components/ui/dialog.tsx#L90)
+Defined in: [components/ui/dialog.tsx:90](https://github.com/JoeInnsp23/practice-hub/blob/e5212518243e636a35760c697a20f8c5b2544274/components/ui/dialog.tsx#L90)
 
 ## Parameters
 

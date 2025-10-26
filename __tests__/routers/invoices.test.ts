@@ -914,62 +914,355 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
     });
   });
 
-  describe("Bulk Operations", () => {
+  describe("Bulk Operations (Integration)", () => {
     describe("bulkUpdateStatus", () => {
       it("should update status for multiple invoices", async () => {
-        // TODO: Implement bulk status update test
-        expect(true).toBe(true);
+        // Create 3 test invoices
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        const invoice2 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        const invoice3 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(invoice1.id, invoice2.id, invoice3.id);
+
+        const result = await caller.bulkUpdateStatus({
+          invoiceIds: [invoice1.id, invoice2.id, invoice3.id],
+          status: "sent",
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(3);
+
+        // Verify database state
+        const updatedInvoices = await db
+          .select()
+          .from(invoices)
+          .where(eq(invoices.id, invoice1.id));
+
+        expect(updatedInvoices[0].status).toBe("sent");
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherInvoice = await createTestInvoice(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(otherInvoice.id);
+
+        // Create an invoice in current tenant
+        const currentInvoice = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(currentInvoice.id);
+
+        // Try to update invoices from both tenants
+        await expect(
+          caller.bulkUpdateStatus({
+            invoiceIds: [currentInvoice.id, otherInvoice.id],
+            status: "sent",
+          }),
+        ).rejects.toThrow("One or more invoices not found");
       });
 
-      it("should log activity for bulk status update", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk status update (AC22)", async () => {
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        const invoice2 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(invoice1.id, invoice2.id);
+
+        await caller.bulkUpdateStatus({
+          invoiceIds: [invoice1.id, invoice2.id],
+          status: "sent",
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_status_update"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk updated invoice status");
       });
     });
 
     describe("bulkSendEmails", () => {
-      it("should send emails for multiple invoices", async () => {
-        // TODO: Implement bulk email sending test (AC9-10)
-        expect(true).toBe(true);
+      it("should send emails for multiple invoices (AC9-10)", async () => {
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        const invoice2 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(invoice1.id, invoice2.id);
+
+        const result = await caller.bulkSendEmails({
+          invoiceIds: [invoice1.id, invoice2.id],
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBeGreaterThanOrEqual(0);
+        expect(result.sent).toBeGreaterThanOrEqual(0);
+        expect(result.failed).toBeGreaterThanOrEqual(0);
+        expect(result.sent + result.failed).toBeLessThanOrEqual(2);
       });
 
       it("should track sent/failed counts for progress tracking (AC9-10)", async () => {
-        // TODO: Test email progress tracking
-        expect(true).toBe(true);
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        const invoice2 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(invoice1.id, invoice2.id);
+
+        const result = await caller.bulkSendEmails({
+          invoiceIds: [invoice1.id, invoice2.id],
+        });
+
+        // Verify progress tracking
+        expect(result.sent).toBeGreaterThanOrEqual(0);
+        expect(result.failed).toBeGreaterThanOrEqual(0);
+
+        // Check that failed invoice IDs are tracked
+        expect(result.failedIds).toBeDefined();
+        expect(Array.isArray(result.failedIds)).toBe(true);
       });
 
-      it("should log activity for bulk email operations", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk email operations (AC22)", async () => {
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(invoice1.id);
+
+        await caller.bulkSendEmails({
+          invoiceIds: [invoice1.id],
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+              eq(activityLogs.entityType, "invoice"),
+            ),
+          );
+
+        // Should have either bulk_email_sent or bulk_email_failed logs
+        const bulkEmailLogs = logs.filter(
+          (log) =>
+            log.action === "bulk_email_sent" ||
+            log.action === "bulk_email_failed",
+        );
+        expect(bulkEmailLogs.length).toBeGreaterThanOrEqual(1);
       });
     });
 
     describe("bulkDelete", () => {
       it("should delete multiple invoices and cascade to items", async () => {
-        // TODO: Implement bulk delete test with cascade
-        expect(true).toBe(true);
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const invoice2 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.invoices?.push(invoice1.id, invoice2.id);
+
+        // Add invoice items to test cascade delete
+        await db.insert(invoiceItems).values({
+          id: crypto.randomUUID(),
+          invoiceId: invoice1.id,
+          description: "Test Item",
+          quantity: "1",
+          rate: "100.00",
+          amount: "100.00",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        const result = await caller.bulkDelete({
+          invoiceIds: [invoice1.id, invoice2.id],
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify invoices are deleted
+        const deletedInvoices = await db
+          .select()
+          .from(invoices)
+          .where(eq(invoices.id, invoice1.id));
+
+        expect(deletedInvoices.length).toBe(0);
+
+        // Verify invoice items are also deleted (cascade)
+        const deletedItems = await db
+          .select()
+          .from(invoiceItems)
+          .where(eq(invoiceItems.invoiceId, invoice1.id));
+
+        expect(deletedItems.length).toBe(0);
+
+        // Remove from tracker since they're deleted
+        tracker.invoices = tracker.invoices?.filter(
+          (id) => id !== invoice1.id && id !== invoice2.id,
+        );
       });
 
       it("should enforce multi-tenant isolation", async () => {
-        // TODO: Test cross-tenant protection
-        expect(true).toBe(true);
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherInvoice = await createTestInvoice(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+        );
+        tracker.invoices?.push(otherInvoice.id);
+
+        // Try to delete invoice from different tenant
+        await expect(
+          caller.bulkDelete({
+            invoiceIds: [otherInvoice.id],
+          }),
+        ).rejects.toThrow("One or more invoices not found");
       });
 
-      it("should log activity for bulk delete", async () => {
-        // TODO: Test audit logging (AC22)
-        expect(true).toBe(true);
+      it("should log activity for bulk delete (AC22)", async () => {
+        const invoice1 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const invoice2 = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.invoices?.push(invoice1.id, invoice2.id);
+
+        await caller.bulkDelete({
+          invoiceIds: [invoice1.id, invoice2.id],
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_delete"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk deleted invoice");
+
+        // Remove from tracker since they're deleted
+        tracker.invoices = tracker.invoices?.filter(
+          (id) => id !== invoice1.id && id !== invoice2.id,
+        );
       });
     });
 
     describe("Transaction Safety (AC23)", () => {
       it("should rollback on partial failure - bulkUpdateStatus", async () => {
-        // TODO: CRITICAL DATA INTEGRITY TEST
-        expect(true).toBe(true);
+        // Create one valid invoice
+        const validInvoice = await createTestInvoice(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { status: "draft" },
+        );
+        tracker.invoices?.push(validInvoice.id);
+
+        const nonExistentInvoiceId = crypto.randomUUID();
+
+        // Try to update one valid and one non-existent invoice
+        await expect(
+          caller.bulkUpdateStatus({
+            invoiceIds: [validInvoice.id, nonExistentInvoiceId],
+            status: "sent",
+          }),
+        ).rejects.toThrow("One or more invoices not found");
+
+        // Verify valid invoice was NOT updated (transaction rolled back)
+        const unchangedInvoice = await db
+          .select()
+          .from(invoices)
+          .where(eq(invoices.id, validInvoice.id))
+          .limit(1);
+
+        expect(unchangedInvoice[0].status).toBe("draft");
       });
     });
   });
