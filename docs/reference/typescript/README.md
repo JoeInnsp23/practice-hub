@@ -137,6 +137,7 @@
 - [app/providers/trpc-provider](app/providers/trpc-provider/README.md)
 - [app/social-hub/layout](app/social-hub/layout/README.md)
 - [app/social-hub/page](app/social-hub/page/README.md)
+- [components/admin-panel/users/bulk-action-bar](components/admin-panel/users/bulk-action-bar/README.md)
 - [components/admin/EmailPreviewModal](components/admin/EmailPreviewModal/README.md)
 - [components/admin/import-history-content](components/admin/import-history-content/README.md)
 - [components/admin/leave/approval-actions-modal](components/admin/leave/approval-actions-modal/README.md)

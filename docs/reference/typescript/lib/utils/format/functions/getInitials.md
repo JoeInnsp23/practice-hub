@@ -8,7 +8,7 @@
 
 > **getInitials**(`name`): `string`
 
-Defined in: [lib/utils/format.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/utils/format.ts#L57)
+Defined in: [lib/utils/format.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/lib/utils/format.ts#L57)
 
 ## Parameters
 

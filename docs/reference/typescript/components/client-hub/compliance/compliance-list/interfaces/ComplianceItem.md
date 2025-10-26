@@ -6,7 +6,7 @@
 
 # Interface: ComplianceItem
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L32)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L32)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:32](https://gi
 
 > **assignedToId**: `string` \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:39](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L39)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:39](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L39)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:39](https://gi
 
 > **attachments**: `unknown`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:46](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L46)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:46](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L46)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:46](https://gi
 
 > **clientId**: `string`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L38)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L38)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:38](https://gi
 
 > **completedDate**: `Date` \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L41)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L41)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:41](https://gi
 
 > **createdAt**: `Date`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L48)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L48)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:48](https://gi
 
 > **createdById**: `string` \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:50](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L50)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:50](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L50)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:50](https://gi
 
 > **description**: `string` \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L37)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L37)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:37](https://gi
 
 > **dueDate**: `Date`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:40](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L40)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:40](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L40)
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:40](https://gi
 
 > **id**: `string`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L33)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L33)
 
 ***
 
@@ -86,7 +86,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:33](https://gi
 
 > **metadata**: `Record`\<`string`, `unknown`\> \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:47](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L47)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:47](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L47)
 
 ***
 
@@ -94,7 +94,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:47](https://gi
 
 > **notes**: `string` \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:45](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L45)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:45](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L45)
 
 ***
 
@@ -102,7 +102,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:45](https://gi
 
 > **priority**: `"medium"` \| `"low"` \| `"high"` \| `"critical"`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:44](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L44)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:44](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L44)
 
 ***
 
@@ -110,7 +110,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:44](https://gi
 
 > **reminderDate**: `Date` \| `null`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:42](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L42)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:42](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L42)
 
 ***
 
@@ -118,7 +118,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:42](https://gi
 
 > **status**: `"pending"` \| `"in_progress"` \| `"completed"` \| `"overdue"`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:43](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L43)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:43](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L43)
 
 ***
 
@@ -126,7 +126,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:43](https://gi
 
 > **tenantId**: `string`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L34)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L34)
 
 ***
 
@@ -134,7 +134,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:34](https://gi
 
 > **title**: `string`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L35)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L35)
 
 ***
 
@@ -142,7 +142,7 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:35](https://gi
 
 > **type**: `string`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L36)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L36)
 
 ***
 
@@ -150,4 +150,4 @@ Defined in: [components/client-hub/compliance/compliance-list.tsx:36](https://gi
 
 > **updatedAt**: `Date`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/client-hub/compliance/compliance-list.tsx#L49)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/client-hub/compliance/compliance-list.tsx#L49)

@@ -8,7 +8,7 @@
 
 > **useTimeEntries**(`startDate?`, `endDate?`, `_refreshKey?`): `object`
 
-Defined in: [lib/hooks/use-time-entries.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/hooks/use-time-entries.ts#L59)
+Defined in: [lib/hooks/use-time-entries.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/lib/hooks/use-time-entries.ts#L59)
 
 ## Parameters
 

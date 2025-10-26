@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/departments/department-modal.tsx:39](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/app/admin/departments/department-modal.tsx#L39)
+Defined in: [app/admin/departments/department-modal.tsx:39](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/app/admin/departments/department-modal.tsx#L39)
 
 ## Parameters
 

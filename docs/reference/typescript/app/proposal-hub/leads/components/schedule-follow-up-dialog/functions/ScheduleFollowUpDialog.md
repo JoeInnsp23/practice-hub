@@ -8,7 +8,7 @@
 
 > **ScheduleFollowUpDialog**(`__namedParameters`): `Element`
 
-Defined in: [app/proposal-hub/leads/components/schedule-follow-up-dialog.tsx:45](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/app/proposal-hub/leads/components/schedule-follow-up-dialog.tsx#L45)
+Defined in: [app/proposal-hub/leads/components/schedule-follow-up-dialog.tsx:45](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/app/proposal-hub/leads/components/schedule-follow-up-dialog.tsx#L45)
 
 ## Parameters
 

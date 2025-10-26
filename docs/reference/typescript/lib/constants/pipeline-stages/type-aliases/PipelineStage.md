@@ -8,4 +8,4 @@
 
 > **PipelineStage** = `"new"` \| `"contacted"` \| `"qualified"` \| `"proposal_sent"` \| `"negotiating"` \| `"converted"` \| `"lost"`
 
-Defined in: [lib/constants/pipeline-stages.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/lib/constants/pipeline-stages.ts#L17)
+Defined in: [lib/constants/pipeline-stages.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/lib/constants/pipeline-stages.ts#L17)

@@ -8,7 +8,7 @@
 
 > **Textarea**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/textarea.tsx:5](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/ui/textarea.tsx#L5)
+Defined in: [components/ui/textarea.tsx:5](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/ui/textarea.tsx#L5)
 
 ## Parameters
 

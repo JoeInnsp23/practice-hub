@@ -8,7 +8,7 @@
 
 > **NotificationsDropdown**(): `Element`
 
-Defined in: [components/shared/notifications-dropdown.tsx:18](https://github.com/JoeInnsp23/practice-hub/blob/5a81eef93b46beb81e7e9db3e6f24af22dcfbdcf/components/shared/notifications-dropdown.tsx#L18)
+Defined in: [components/shared/notifications-dropdown.tsx:18](https://github.com/JoeInnsp23/practice-hub/blob/df180f9cfc127489877e096ef593182cb175824e/components/shared/notifications-dropdown.tsx#L18)
 
 ## Returns
 
