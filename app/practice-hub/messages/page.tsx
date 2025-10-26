@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import type { RouterOutputs } from "@/app/providers/trpc-provider";
 import { trpc } from "@/app/providers/trpc-provider";
+import type { RouterOutputs } from "@/lib/trpc/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

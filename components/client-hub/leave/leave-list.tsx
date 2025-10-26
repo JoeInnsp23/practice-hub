@@ -33,9 +33,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { LeaveRequest } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
-import type { LeaveRequest } from "@/lib/trpc/types";
 
 interface LeaveListProps {
   requests: LeaveRequest[];

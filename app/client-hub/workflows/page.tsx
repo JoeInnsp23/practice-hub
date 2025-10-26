@@ -1,6 +1,6 @@
 "use client";
 
-import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import type { inferRouterInputs } from "@trpc/server";
 import {
   Activity,
   Copy,
@@ -33,10 +33,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Workflow } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
-type WorkflowTemplate =
-  inferRouterOutputs<AppRouter>["workflows"]["list"][number];
+type WorkflowTemplate = Workflow;
 type WorkflowCreateInput = inferRouterInputs<AppRouter>["workflows"]["create"];
 type WorkflowUpdateArgs = inferRouterInputs<AppRouter>["workflows"]["update"];
 type WorkflowUpdateInput = WorkflowUpdateArgs["data"];

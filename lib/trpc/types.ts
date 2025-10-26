@@ -101,19 +101,22 @@ export type LeaveBalance = RouterOutputs["leave"]["getBalance"];
  * Working Pattern Types
  */
 export type WorkingPatternListOutput = RouterOutputs["workingPatterns"]["list"];
-export type WorkingPattern = WorkingPatternListOutput["workingPatterns"][number];
+export type WorkingPattern =
+  WorkingPatternListOutput["workingPatterns"][number];
 
 /**
  * Staff Capacity Types
  */
 export type StaffCapacityListOutput = RouterOutputs["staffCapacity"]["list"];
-export type StaffCapacityRecord = StaffCapacityListOutput["capacityRecords"][number];
+export type StaffCapacityRecord =
+  StaffCapacityListOutput["capacityRecords"][number];
 export type StaffUtilization = RouterOutputs["staffCapacity"]["getUtilization"];
 
 /**
  * Staff Statistics Types
  */
-export type StaffComparisonOutput = RouterOutputs["staffStatistics"]["getStaffComparison"];
+export type StaffComparisonOutput =
+  RouterOutputs["staffStatistics"]["getStaffComparison"];
 export type StaffMemberComparison = StaffComparisonOutput["staff"][number];
 
 /**
@@ -134,7 +137,8 @@ export type LeadWithRelations = RouterOutputs["leads"]["getById"];
  */
 export type OnboardingSessionListOutput = RouterOutputs["onboarding"]["list"];
 export type OnboardingSession = OnboardingSessionListOutput["sessions"][number];
-export type OnboardingSessionWithRelations = RouterOutputs["onboarding"]["getById"];
+export type OnboardingSessionWithRelations =
+  RouterOutputs["onboarding"]["getById"];
 
 /**
  * Service Types
