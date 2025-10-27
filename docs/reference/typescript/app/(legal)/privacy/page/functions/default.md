@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/(legal)/privacy/page.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/app/(legal)/privacy/page.tsx#L14)
+Defined in: [app/(legal)/privacy/page.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/app/(legal)/privacy/page.tsx#L14)
 
 Privacy Policy Page
 Public-facing legal page showing the organization's Privacy Policy

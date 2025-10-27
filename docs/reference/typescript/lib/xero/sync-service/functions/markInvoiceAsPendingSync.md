@@ -8,7 +8,7 @@
 
 > **markInvoiceAsPendingSync**(`invoiceId`): `Promise`\<`void`\>
 
-Defined in: [lib/xero/sync-service.ts:376](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/xero/sync-service.ts#L376)
+Defined in: [lib/xero/sync-service.ts:376](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/xero/sync-service.ts#L376)
 
 ## Parameters
 

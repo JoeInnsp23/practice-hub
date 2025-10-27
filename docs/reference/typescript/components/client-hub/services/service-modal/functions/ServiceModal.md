@@ -8,7 +8,7 @@
 
 > **ServiceModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/services/service-modal.tsx:99](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/components/client-hub/services/service-modal.tsx#L99)
+Defined in: [components/client-hub/services/service-modal.tsx:99](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/components/client-hub/services/service-modal.tsx#L99)
 
 ## Parameters
 

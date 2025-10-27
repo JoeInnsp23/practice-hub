@@ -6,7 +6,7 @@
 
 # Interface: SalesStageConfig
 
-Defined in: [lib/constants/sales-stages.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L26)
+Defined in: [lib/constants/sales-stages.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L26)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/constants/sales-stages.ts:26](https://github.com/JoeInnsp23/pra
 
 > **bgColor**: `string`
 
-Defined in: [lib/constants/sales-stages.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L32)
+Defined in: [lib/constants/sales-stages.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L32)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/constants/sales-stages.ts:32](https://github.com/JoeInnsp23/pra
 
 > **borderColor**: `string`
 
-Defined in: [lib/constants/sales-stages.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L33)
+Defined in: [lib/constants/sales-stages.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L33)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/constants/sales-stages.ts:33](https://github.com/JoeInnsp23/pra
 
 > **color**: `string`
 
-Defined in: [lib/constants/sales-stages.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L31)
+Defined in: [lib/constants/sales-stages.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L31)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/constants/sales-stages.ts:31](https://github.com/JoeInnsp23/pra
 
 > **description**: `string`
 
-Defined in: [lib/constants/sales-stages.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L29)
+Defined in: [lib/constants/sales-stages.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L29)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/constants/sales-stages.ts:29](https://github.com/JoeInnsp23/pra
 
 > **icon**: `LucideIcon`
 
-Defined in: [lib/constants/sales-stages.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L30)
+Defined in: [lib/constants/sales-stages.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L30)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/constants/sales-stages.ts:30](https://github.com/JoeInnsp23/pra
 
 > **id**: [`SalesStage`](../type-aliases/SalesStage.md)
 
-Defined in: [lib/constants/sales-stages.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L27)
+Defined in: [lib/constants/sales-stages.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L27)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [lib/constants/sales-stages.ts:27](https://github.com/JoeInnsp23/pra
 
 > **label**: `string`
 
-Defined in: [lib/constants/sales-stages.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/constants/sales-stages.ts#L28)
+Defined in: [lib/constants/sales-stages.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/sales-stages.ts#L28)

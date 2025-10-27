@@ -8,4 +8,4 @@
 
 > `const` **documentSignatures**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:1318](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/db/schema.ts#L1318)
+Defined in: [lib/db/schema.ts:1318](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/db/schema.ts#L1318)
