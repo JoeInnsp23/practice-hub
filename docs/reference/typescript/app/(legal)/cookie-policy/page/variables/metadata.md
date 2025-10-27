@@ -8,7 +8,7 @@
 
 > `const` **metadata**: `object`
 
-Defined in: [app/(legal)/cookie-policy/page.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/app/(legal)/cookie-policy/page.tsx#L3)
+Defined in: [app/(legal)/cookie-policy/page.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/app/(legal)/cookie-policy/page.tsx#L3)
 
 ## Type Declaration
 

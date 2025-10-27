@@ -1077,7 +1077,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.getUpcoming({ days: 30 });
 
       expect(result.deadlines.length).toBeGreaterThanOrEqual(2);
-      const ourDeadlines = result.deadlines.filter((d) =>
+      const ourDeadlines = result.deadlines.filter((d: any) =>
         [result1.compliance.id, result2.compliance.id].includes(d.id),
       );
       expect(ourDeadlines).toHaveLength(2);
@@ -1122,7 +1122,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       // Query for next 7 days
       const result = await caller.getUpcoming({ days: 7 });
 
-      const foundIds = result.deadlines.map((d) => d.id);
+      const foundIds = result.deadlines.map((d: any) => d.id);
       expect(foundIds).toContain(result1.compliance.id);
       expect(foundIds).not.toContain(result2.compliance.id);
     });
@@ -1178,7 +1178,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       // Query from tenant 1 - should not see tenant 2 deadline
       const tenant1Result = await caller.getUpcoming({ days: 30 });
-      const foundIds = tenant1Result.deadlines.map((d) => d.id);
+      const foundIds = tenant1Result.deadlines.map((d: any) => d.id);
 
       expect(foundIds).toContain(result1.compliance.id);
       expect(foundIds).not.toContain(result2.compliance.id);
@@ -1206,7 +1206,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.getUpcoming({ days: 30 });
 
       const deadline = result.deadlines.find(
-        (d) => d.id === result1.compliance.id,
+        (d: any) => d.id === result1.compliance.id,
       );
       expect(deadline).toBeDefined();
       expect(deadline?.clientName).toBe(client.name);
@@ -1255,7 +1255,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       const result = await caller.getUpcoming({ days: 30 });
 
-      const ourDeadlines = result.deadlines.filter((d) =>
+      const ourDeadlines = result.deadlines.filter((d: any) =>
         [
           result1.compliance.id,
           result2.compliance.id,
@@ -1291,7 +1291,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       const result = await caller.getUpcoming({ days: 30 });
 
-      const foundIds = result.deadlines.map((d) => d.id);
+      const foundIds = result.deadlines.map((d: any) => d.id);
       expect(foundIds).not.toContain(pastResult.compliance.id);
     });
 
@@ -1316,7 +1316,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       const result = await caller.getUpcoming({ days: 30 });
 
-      const foundIds = result.deadlines.map((d) => d.id);
+      const foundIds = result.deadlines.map((d: any) => d.id);
       expect(foundIds).not.toContain(farFutureResult.compliance.id);
     });
 
@@ -1346,7 +1346,7 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.getUpcoming({ days: 30 });
 
       const deadline = result.deadlines.find(
-        (d) => d.id === result1.compliance.id,
+        (d: any) => d.id === result1.compliance.id,
       );
 
       expect(deadline).toBeDefined();

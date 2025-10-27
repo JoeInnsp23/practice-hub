@@ -8,7 +8,7 @@
 
 > **calculateDueDate**(`activationDate`, `offsetDays`, `offsetMonths`): `Date`
 
-Defined in: [lib/services/template-placeholders.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/services/template-placeholders.ts#L95)
+Defined in: [lib/services/template-placeholders.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/services/template-placeholders.ts#L95)
 
 ## Parameters
 

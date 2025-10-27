@@ -8,7 +8,7 @@
 
 > **FeedbackButton**(): `Element`
 
-Defined in: [components/feedback/feedback-button.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/components/feedback/feedback-button.tsx#L8)
+Defined in: [components/feedback/feedback-button.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/feedback/feedback-button.tsx#L8)
 
 ## Returns
 

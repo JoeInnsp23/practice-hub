@@ -8,7 +8,7 @@
 
 > **DialogClose**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/dialog.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/components/ui/dialog.tsx#L27)
+Defined in: [components/ui/dialog.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/ui/dialog.tsx#L27)
 
 ## Parameters
 

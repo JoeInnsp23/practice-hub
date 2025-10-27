@@ -8,7 +8,7 @@
 
 > **getPreviousStage**(`currentStage`): [`PipelineStage`](../type-aliases/PipelineStage.md) \| `null`
 
-Defined in: [lib/constants/pipeline-stages.ts:161](https://github.com/JoeInnsp23/practice-hub/blob/e0c9daba02b231d483fd14bd0338aa435b6813ab/lib/constants/pipeline-stages.ts#L161)
+Defined in: [lib/constants/pipeline-stages.ts:161](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L161)
 
 Get previous stage in pipeline (null if no logical previous stage)
 
