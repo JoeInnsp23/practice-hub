@@ -8,7 +8,7 @@
 
 > **getXeroTenantId**(`tenantId`): `Promise`\<`string` \| `null`\>
 
-Defined in: [lib/xero/middleware.ts:118](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/xero/middleware.ts#L118)
+Defined in: [lib/xero/middleware.ts:118](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/xero/middleware.ts#L118)
 
 Get Xero tenant ID (organisation ID) for a tenant
 

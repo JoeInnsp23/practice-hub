@@ -8,7 +8,7 @@
 
 > **getCachedCompany**(`companyNumber`): `Promise`\<[`CompanyData`](../interfaces/CompanyData.md) \| `null`\>
 
-Defined in: [lib/companies-house/cache.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/companies-house/cache.ts#L26)
+Defined in: [lib/companies-house/cache.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/companies-house/cache.ts#L26)
 
 Get cached company data from database
 

@@ -8,7 +8,7 @@
 
 > **KycVerificationMetadata** = `object`
 
-Defined in: [lib/trpc/types.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/trpc/types.ts#L153)
+Defined in: [lib/trpc/types.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/trpc/types.ts#L153)
 
 KYC Verification Metadata Type
 
@@ -22,4 +22,4 @@ KYC Verification Metadata Type
 
 > `optional` **verificationUrl**: `string`
 
-Defined in: [lib/trpc/types.ts:154](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/trpc/types.ts#L154)
+Defined in: [lib/trpc/types.ts:154](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/trpc/types.ts#L154)

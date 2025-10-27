@@ -8,7 +8,7 @@
 
 > **SalesKanbanColumn**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/kanban/sales-kanban-column.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/components/proposal-hub/kanban/sales-kanban-column.tsx#L32)
+Defined in: [components/proposal-hub/kanban/sales-kanban-column.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/components/proposal-hub/kanban/sales-kanban-column.tsx#L32)
 
 ## Parameters
 

@@ -6,7 +6,7 @@
 
 # Interface: TaskExportColumn
 
-Defined in: [lib/export/task-export.ts:5](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/export/task-export.ts#L5)
+Defined in: [lib/export/task-export.ts:5](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/export/task-export.ts#L5)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/export/task-export.ts:5](https://github.com/JoeInnsp23/practice
 
 > **enabled**: `boolean`
 
-Defined in: [lib/export/task-export.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/export/task-export.ts#L8)
+Defined in: [lib/export/task-export.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/export/task-export.ts#L8)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/export/task-export.ts:8](https://github.com/JoeInnsp23/practice
 
 > **key**: `string`
 
-Defined in: [lib/export/task-export.ts:6](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/export/task-export.ts#L6)
+Defined in: [lib/export/task-export.ts:6](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/export/task-export.ts#L6)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [lib/export/task-export.ts:6](https://github.com/JoeInnsp23/practice
 
 > **label**: `string`
 
-Defined in: [lib/export/task-export.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/export/task-export.ts#L7)
+Defined in: [lib/export/task-export.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/export/task-export.ts#L7)

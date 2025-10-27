@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/practice-hub/messages/page.tsx:61](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/app/practice-hub/messages/page.tsx#L61)
+Defined in: [app/practice-hub/messages/page.tsx:61](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/app/practice-hub/messages/page.tsx#L61)
 
 ## Returns
 

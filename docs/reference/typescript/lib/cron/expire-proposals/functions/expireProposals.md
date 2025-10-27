@@ -8,7 +8,7 @@
 
 > **expireProposals**(): `Promise`\<[`ExpireProposalsResult`](../interfaces/ExpireProposalsResult.md)\>
 
-Defined in: [lib/cron/expire-proposals.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/cron/expire-proposals.ts#L40)
+Defined in: [lib/cron/expire-proposals.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/cron/expire-proposals.ts#L40)
 
 Find and expire proposals past their validity date
 

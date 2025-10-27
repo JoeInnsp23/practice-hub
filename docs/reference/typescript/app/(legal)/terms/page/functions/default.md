@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/(legal)/terms/page.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/app/(legal)/terms/page.tsx#L14)
+Defined in: [app/(legal)/terms/page.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/app/(legal)/terms/page.tsx#L14)
 
 Terms of Service Page
 Public-facing legal page showing the organization's Terms of Service

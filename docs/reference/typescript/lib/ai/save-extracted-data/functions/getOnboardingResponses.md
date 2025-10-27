@@ -8,7 +8,7 @@
 
 > **getOnboardingResponses**(`onboardingSessionId`): `Promise`\<`Record`\<`string`, [`OnboardingResponseMetadata`](../interfaces/OnboardingResponseMetadata.md)\>\>
 
-Defined in: [lib/ai/save-extracted-data.ts:189](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/ai/save-extracted-data.ts#L189)
+Defined in: [lib/ai/save-extracted-data.ts:189](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/ai/save-extracted-data.ts#L189)
 
 Get all responses for an onboarding session
 

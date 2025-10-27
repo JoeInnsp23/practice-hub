@@ -8,7 +8,7 @@
 
 > `const` **UKComplianceFields**: [`TemplateField`](../../client/interfaces/TemplateField.md)[]
 
-Defined in: [lib/docuseal/uk-compliance-fields.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/docuseal/uk-compliance-fields.ts#L13)
+Defined in: [lib/docuseal/uk-compliance-fields.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/docuseal/uk-compliance-fields.ts#L13)
 
 UK Simple Electronic Signature (SES) Compliance Field Definitions
 

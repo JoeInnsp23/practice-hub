@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/client-hub/documents/documents-client.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/app/client-hub/documents/documents-client.tsx#L49)
+Defined in: [app/client-hub/documents/documents-client.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/app/client-hub/documents/documents-client.tsx#L49)
 
 ## Returns
 
