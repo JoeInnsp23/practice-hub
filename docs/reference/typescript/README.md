@@ -203,6 +203,7 @@
 - [components/client-hub/tasks/task-card](components/client-hub/tasks/task-card/README.md)
 - [components/client-hub/tasks/task-list](components/client-hub/tasks/task-list/README.md)
 - [components/client-hub/tasks/task-modal](components/client-hub/tasks/task-modal/README.md)
+- [components/client-hub/time/date-picker-button](components/client-hub/time/date-picker-button/README.md)
 - [components/client-hub/time/hourly-timesheet](components/client-hub/time/hourly-timesheet/README.md)
 - [components/client-hub/time/monthly-timesheet](components/client-hub/time/monthly-timesheet/README.md)
 - [components/client-hub/time/quick-time-entry](components/client-hub/time/quick-time-entry/README.md)

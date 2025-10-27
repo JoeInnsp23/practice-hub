@@ -8,7 +8,7 @@
 
 > **LegalEditor**(`__namedParameters`): `Element`
 
-Defined in: [components/legal/legal-editor.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/components/legal/legal-editor.tsx#L24)
+Defined in: [components/legal/legal-editor.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/components/legal/legal-editor.tsx#L24)
 
 Legal Editor Component
 Allows admins to edit legal page content

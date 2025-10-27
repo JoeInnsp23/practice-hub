@@ -8,7 +8,7 @@
 
 > **runGlobalCarryover**(`fromYear`): `Promise`\<\{ `success`: `boolean`; `tenantsProcessed`: `number`; `totalUsersFailed`: `number`; `totalUsersProcessed`: `number`; \}\>
 
-Defined in: [lib/leave/carryover.ts:191](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/lib/leave/carryover.ts#L191)
+Defined in: [lib/leave/carryover.ts:191](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/leave/carryover.ts#L191)
 
 Run annual carryover for ALL tenants (use with caution!)
 

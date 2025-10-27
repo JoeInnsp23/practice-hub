@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { DatePickerButton } from "@/components/client-hub/time/date-picker-button";
 import { WeeklySummaryCard } from "@/components/client-hub/time/weekly-summary-card";
+import { WeeklyTimesheetGrid } from "@/components/client-hub/time/weekly-timesheet-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +45,10 @@ export default function TimePage() {
   });
 
   const { data: leaveBalance } = trpc.leave.getBalance.useQuery({});
+
+  // Fetch user timesheet settings (Story 6.3)
+  const { data: timesheetSettings } =
+    trpc.settings.getTimesheetSettings.useQuery();
 
   const submitMutation = trpc.timesheets.submit.useMutation({
     onSuccess: () => {
@@ -103,7 +109,8 @@ export default function TimePage() {
   const isSubmitted = submissionStatus !== null;
   const isReadOnly = isSubmitted && submissionStatus?.status === "pending";
   const totalHours = summary?.totalHours || 0;
-  const minimumHours = 37.5;
+  // Use user's configured minimum weekly hours (default 37.5)
+  const minimumHours = timesheetSettings?.minWeeklyHours ?? 37.5;
   const canSubmit = totalHours >= minimumHours && !isSubmitted;
 
   // Calculate TOIL balance in days
@@ -165,6 +172,12 @@ export default function TimePage() {
           <Button variant="outline" size="sm" onClick={handleNextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
+          {/* Enhanced Date Picker (AC12) */}
+          <DatePickerButton
+            selectedWeekStart={currentWeekStart}
+            onWeekChange={setCurrentWeekStart}
+            displayFormat="short"
+          />
         </div>
       </div>
 
@@ -281,15 +294,12 @@ export default function TimePage() {
           </div>
         )}
 
-        <div className="border-t pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            <p className="text-lg mb-2">Time entry interface coming soon</p>
-            <p className="text-sm">
-              This will display your time entries for the week with the ability
-              to add, edit, and delete entries
-            </p>
-          </div>
-        </div>
+        {/* Weekly Timesheet Grid (AC1-AC4, AC11, AC14) */}
+        <WeeklyTimesheetGrid
+          weekStartDate={currentWeekStart}
+          isReadOnly={isReadOnly}
+          dailyTargetHours={timesheetSettings?.dailyTargetHours ?? 7.5}
+        />
       </div>
 
       {/* Weekly Summary Card with Pie Chart */}

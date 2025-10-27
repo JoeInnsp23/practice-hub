@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/error.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/app/error.tsx#L15)
+Defined in: [app/error.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/app/error.tsx#L15)
 
 ## Parameters
 

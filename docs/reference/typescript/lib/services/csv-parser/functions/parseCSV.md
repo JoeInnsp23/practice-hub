@@ -8,7 +8,7 @@
 
 > **parseCSV**\<`T`\>(`file`, `options`): `Promise`\<[`CSVParseResult`](../interfaces/CSVParseResult.md)\<`T`\>\>
 
-Defined in: [lib/services/csv-parser.ts:72](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/lib/services/csv-parser.ts#L72)
+Defined in: [lib/services/csv-parser.ts:72](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/services/csv-parser.ts#L72)
 
 Parse a CSV file with validation
 
