@@ -748,4 +748,179 @@ export const timesheetsRouter = router({
 
       return submission.length > 0 ? submission[0] : null;
     }),
+
+  // Get time entries for a specific week
+  getWeek: protectedProcedure
+    .input(
+      z.object({
+        weekStartDate: z.string(), // ISO date (YYYY-MM-DD)
+        weekEndDate: z.string(), // ISO date (YYYY-MM-DD)
+        userId: z.string().optional(), // Optional: filter by specific user (for manager view)
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId, userId: currentUserId } = ctx.authContext;
+      const targetUserId = input.userId || currentUserId;
+
+      const entries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.tenantId, tenantId),
+            eq(timeEntries.userId, targetUserId),
+            gte(timeEntries.date, input.weekStartDate),
+            lte(timeEntries.date, input.weekEndDate),
+          ),
+        )
+        .orderBy(timeEntries.date, timeEntries.createdAt);
+
+      return entries;
+    }),
+
+  // Copy previous week's time entries to current week
+  copyPreviousWeek: protectedProcedure
+    .input(
+      z.object({
+        currentWeekStartDate: z.string(), // ISO date for current week Monday
+        currentWeekEndDate: z.string(), // ISO date for current week Sunday
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId } = ctx.authContext;
+
+      // Calculate previous week dates (7 days earlier)
+      const prevWeekStart = new Date(input.currentWeekStartDate);
+      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+      const prevWeekStartStr = prevWeekStart.toISOString().split("T")[0];
+
+      const prevWeekEnd = new Date(input.currentWeekEndDate);
+      prevWeekEnd.setDate(prevWeekEnd.getDate() - 7);
+      const prevWeekEndStr = prevWeekEnd.toISOString().split("T")[0];
+
+      // Get previous week's entries
+      const previousEntries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.tenantId, tenantId),
+            eq(timeEntries.userId, userId),
+            gte(timeEntries.date, prevWeekStartStr),
+            lte(timeEntries.date, prevWeekEndStr),
+          ),
+        );
+
+      if (previousEntries.length === 0) {
+        return { success: true, entriesCopied: 0 };
+      }
+
+      // Copy entries with adjusted dates (maintain day-of-week)
+      const newEntries = previousEntries.map((entry) => {
+        const entryDate = new Date(entry.date);
+        const adjustedDate = new Date(entryDate);
+        adjustedDate.setDate(adjustedDate.getDate() + 7); // Move forward 7 days
+
+        return {
+          tenantId,
+          userId,
+          clientId: entry.clientId,
+          taskId: entry.taskId,
+          serviceId: entry.serviceId,
+          date: adjustedDate.toISOString().split("T")[0],
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+          hours: entry.hours,
+          workType: entry.workType,
+          billable: entry.billable,
+          billed: false, // Reset billed status for new entries
+          rate: entry.rate,
+          amount: entry.amount,
+          description: entry.description,
+          notes: entry.notes,
+          status: "draft" as const, // Always create as draft
+          submissionId: null, // Not part of any submission yet
+          submittedAt: null,
+          approvedById: null,
+          approvedAt: null,
+          metadata: entry.metadata,
+        };
+      });
+
+      // Bulk insert copied entries
+      await db.insert(timeEntries).values(newEntries);
+
+      return { success: true, entriesCopied: newEntries.length };
+    }),
+
+  // Get weekly summary with work type breakdown
+  getWeeklySummary: protectedProcedure
+    .input(
+      z.object({
+        weekStartDate: z.string(),
+        weekEndDate: z.string(),
+        userId: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId, userId: currentUserId } = ctx.authContext;
+      const targetUserId = input.userId || currentUserId;
+
+      // Get all entries for week
+      const entries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.tenantId, tenantId),
+            eq(timeEntries.userId, targetUserId),
+            gte(timeEntries.date, input.weekStartDate),
+            lte(timeEntries.date, input.weekEndDate),
+          ),
+        );
+
+      // Calculate total hours and billable hours
+      const totalHours = entries.reduce(
+        (sum, entry) => sum + Number(entry.hours),
+        0,
+      );
+      const billableHours = entries
+        .filter((entry) => entry.billable)
+        .reduce((sum, entry) => sum + Number(entry.hours), 0);
+
+      // Calculate billable percentage
+      const billablePercentage =
+        totalHours > 0 ? (billableHours / totalHours) * 100 : 0;
+
+      // Group by work type
+      const workTypeBreakdown = entries.reduce(
+        (acc, entry) => {
+          const workType = entry.workType || "WORK";
+          if (!acc[workType]) {
+            acc[workType] = 0;
+          }
+          acc[workType] += Number(entry.hours);
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      // Convert to array for pie chart
+      const workTypeData = Object.entries(workTypeBreakdown).map(
+        ([name, hours]) => ({
+          name,
+          hours,
+          percentage: totalHours > 0 ? (hours / totalHours) * 100 : 0,
+        }),
+      );
+
+      return {
+        totalHours,
+        billableHours,
+        nonBillableHours: totalHours - billableHours,
+        billablePercentage,
+        workTypeBreakdown: workTypeData,
+        entriesCount: entries.length,
+      };
+    }),
 });

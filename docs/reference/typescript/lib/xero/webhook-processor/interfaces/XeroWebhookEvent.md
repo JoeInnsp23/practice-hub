@@ -6,7 +6,7 @@
 
 # Interface: XeroWebhookEvent
 
-Defined in: [lib/xero/webhook-processor.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L17)
+Defined in: [lib/xero/webhook-processor.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L17)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/xero/webhook-processor.ts:17](https://github.com/JoeInnsp23/pra
 
 > **createdAt**: `Date`
 
-Defined in: [lib/xero/webhook-processor.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L31)
+Defined in: [lib/xero/webhook-processor.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L31)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/xero/webhook-processor.ts:31](https://github.com/JoeInnsp23/pra
 
 > **eventCategory**: `string`
 
-Defined in: [lib/xero/webhook-processor.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L22)
+Defined in: [lib/xero/webhook-processor.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L22)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/xero/webhook-processor.ts:22](https://github.com/JoeInnsp23/pra
 
 > **eventDateUtc**: `Date`
 
-Defined in: [lib/xero/webhook-processor.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L23)
+Defined in: [lib/xero/webhook-processor.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L23)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/xero/webhook-processor.ts:23](https://github.com/JoeInnsp23/pra
 
 > **eventId**: `string`
 
-Defined in: [lib/xero/webhook-processor.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L20)
+Defined in: [lib/xero/webhook-processor.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L20)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/xero/webhook-processor.ts:20](https://github.com/JoeInnsp23/pra
 
 > **eventType**: `"DELETE"` \| `"CREATE"` \| `"UPDATE"`
 
-Defined in: [lib/xero/webhook-processor.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L21)
+Defined in: [lib/xero/webhook-processor.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L21)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/xero/webhook-processor.ts:21](https://github.com/JoeInnsp23/pra
 
 > **id**: `string`
 
-Defined in: [lib/xero/webhook-processor.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L18)
+Defined in: [lib/xero/webhook-processor.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L18)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [lib/xero/webhook-processor.ts:18](https://github.com/JoeInnsp23/pra
 
 > **processed**: `boolean`
 
-Defined in: [lib/xero/webhook-processor.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L27)
+Defined in: [lib/xero/webhook-processor.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L27)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [lib/xero/webhook-processor.ts:27](https://github.com/JoeInnsp23/pra
 
 > **processedAt**: `Date` \| `null`
 
-Defined in: [lib/xero/webhook-processor.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L28)
+Defined in: [lib/xero/webhook-processor.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L28)
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: [lib/xero/webhook-processor.ts:28](https://github.com/JoeInnsp23/pra
 
 > **processingError**: `string` \| `null`
 
-Defined in: [lib/xero/webhook-processor.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L29)
+Defined in: [lib/xero/webhook-processor.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L29)
 
 ***
 
@@ -86,7 +86,7 @@ Defined in: [lib/xero/webhook-processor.ts:29](https://github.com/JoeInnsp23/pra
 
 > **rawPayload**: `unknown`
 
-Defined in: [lib/xero/webhook-processor.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L30)
+Defined in: [lib/xero/webhook-processor.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L30)
 
 ***
 
@@ -94,7 +94,7 @@ Defined in: [lib/xero/webhook-processor.ts:30](https://github.com/JoeInnsp23/pra
 
 > **resourceId**: `string`
 
-Defined in: [lib/xero/webhook-processor.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L24)
+Defined in: [lib/xero/webhook-processor.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L24)
 
 ***
 
@@ -102,7 +102,7 @@ Defined in: [lib/xero/webhook-processor.ts:24](https://github.com/JoeInnsp23/pra
 
 > **resourceUrl**: `string` \| `null`
 
-Defined in: [lib/xero/webhook-processor.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L25)
+Defined in: [lib/xero/webhook-processor.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L25)
 
 ***
 
@@ -110,7 +110,7 @@ Defined in: [lib/xero/webhook-processor.ts:25](https://github.com/JoeInnsp23/pra
 
 > **tenantId**: `string`
 
-Defined in: [lib/xero/webhook-processor.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L19)
+Defined in: [lib/xero/webhook-processor.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L19)
 
 ***
 
@@ -118,4 +118,4 @@ Defined in: [lib/xero/webhook-processor.ts:19](https://github.com/JoeInnsp23/pra
 
 > **xeroTenantId**: `string`
 
-Defined in: [lib/xero/webhook-processor.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/webhook-processor.ts#L26)
+Defined in: [lib/xero/webhook-processor.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/webhook-processor.ts#L26)

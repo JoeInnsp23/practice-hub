@@ -8,7 +8,7 @@
 
 > **SelectContent**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/select.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/components/ui/select.tsx#L53)
+Defined in: [components/ui/select.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/components/ui/select.tsx#L53)
 
 ## Parameters
 

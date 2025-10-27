@@ -8,7 +8,7 @@
 
 > **captureMessage**(`message`, `level`, `context?`): `void`
 
-Defined in: [lib/sentry.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/sentry.ts#L36)
+Defined in: [lib/sentry.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/sentry.ts#L36)
 
 Capture a message with a severity level
 

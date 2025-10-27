@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/client-hub/time-tracking/page.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/app/client-hub/time-tracking/page.tsx#L10)
+Defined in: [app/client-hub/time-tracking/page.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/app/client-hub/time-tracking/page.tsx#L10)
 
 ## Returns
 

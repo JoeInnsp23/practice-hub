@@ -8,7 +8,7 @@
 
 > **checkSigningRateLimit**(`ip`, `proposalId`, `config`): `Promise`\<`void`\>
 
-Defined in: [lib/rate-limit/signing.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/rate-limit/signing.ts#L35)
+Defined in: [lib/rate-limit/signing.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/rate-limit/signing.ts#L35)
 
 Check signing rate limit for a specific IP + proposalId combination
 

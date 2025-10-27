@@ -8,7 +8,7 @@
 
 > **ConvertToClientDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/convert-to-client-dialog.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/components/proposal-hub/convert-to-client-dialog.tsx#L34)
+Defined in: [components/proposal-hub/convert-to-client-dialog.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/components/proposal-hub/convert-to-client-dialog.tsx#L34)
 
 ## Parameters
 

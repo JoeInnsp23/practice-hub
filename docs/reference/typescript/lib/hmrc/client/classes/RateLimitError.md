@@ -6,7 +6,7 @@
 
 # Class: RateLimitError
 
-Defined in: [lib/hmrc/client.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/hmrc/client.ts#L61)
+Defined in: [lib/hmrc/client.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L61)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/hmrc/client.ts:61](https://github.com/JoeInnsp23/practice-hub/b
 
 > **new RateLimitError**(): `RateLimitError`
 
-Defined in: [lib/hmrc/client.ts:62](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/hmrc/client.ts#L62)
+Defined in: [lib/hmrc/client.ts:62](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L62)
 
 #### Returns
 
@@ -34,7 +34,7 @@ Defined in: [lib/hmrc/client.ts:62](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/hmrc/client.ts#L46)
+Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L46)
 
 #### Inherited from
 
@@ -46,7 +46,7 @@ Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **vatNumber**: `string`
 
-Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/hmrc/client.ts#L47)
+Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L47)
 
 #### Inherited from
 

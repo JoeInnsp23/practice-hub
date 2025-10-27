@@ -6,7 +6,7 @@
 
 # Interface: OnboardingResponseMetadata
 
-Defined in: [lib/ai/save-extracted-data.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/ai/save-extracted-data.ts#L21)
+Defined in: [lib/ai/save-extracted-data.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/ai/save-extracted-data.ts#L21)
 
 Response metadata type for onboarding questionnaire
 Includes the answer value and metadata about extraction/verification
@@ -17,7 +17,7 @@ Includes the answer value and metadata about extraction/verification
 
 > **extractedFromAi**: `boolean`
 
-Defined in: [lib/ai/save-extracted-data.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/ai/save-extracted-data.ts#L23)
+Defined in: [lib/ai/save-extracted-data.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/ai/save-extracted-data.ts#L23)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [lib/ai/save-extracted-data.ts:23](https://github.com/JoeInnsp23/pra
 
 > **value**: [`QuestionnaireValue`](../../extract-client-data/type-aliases/QuestionnaireValue.md)
 
-Defined in: [lib/ai/save-extracted-data.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/ai/save-extracted-data.ts#L22)
+Defined in: [lib/ai/save-extracted-data.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/ai/save-extracted-data.ts#L22)
 
 ***
 
@@ -33,4 +33,4 @@ Defined in: [lib/ai/save-extracted-data.ts:22](https://github.com/JoeInnsp23/pra
 
 > **verifiedByUser**: `boolean`
 
-Defined in: [lib/ai/save-extracted-data.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/ai/save-extracted-data.ts#L24)
+Defined in: [lib/ai/save-extracted-data.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/ai/save-extracted-data.ts#L24)

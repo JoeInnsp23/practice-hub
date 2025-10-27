@@ -8,7 +8,7 @@
 
 > **processEmailQueue**(`options`): `Promise`\<\{ `failed`: `number`; `processed`: `number`; `retrying`: `number`; `sent`: `number`; \}\>
 
-Defined in: [lib/email/queue-processor.ts:268](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/email/queue-processor.ts#L268)
+Defined in: [lib/email/queue-processor.ts:268](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/email/queue-processor.ts#L268)
 
 Processes pending emails from the queue
 

@@ -6,7 +6,7 @@
 
 # Interface: XeroConnection
 
-Defined in: [lib/xero/client.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/client.ts#L45)
+Defined in: [lib/xero/client.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/client.ts#L45)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/xero/client.ts:45](https://github.com/JoeInnsp23/practice-hub/b
 
 > **organisationId**: `string`
 
-Defined in: [lib/xero/client.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/client.ts#L48)
+Defined in: [lib/xero/client.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/client.ts#L48)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/xero/client.ts:48](https://github.com/JoeInnsp23/practice-hub/b
 
 > **tenantId**: `string`
 
-Defined in: [lib/xero/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/client.ts#L46)
+Defined in: [lib/xero/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/client.ts#L46)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [lib/xero/client.ts:46](https://github.com/JoeInnsp23/practice-hub/b
 
 > **tenantName**: `string`
 
-Defined in: [lib/xero/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/xero/client.ts#L47)
+Defined in: [lib/xero/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/client.ts#L47)
