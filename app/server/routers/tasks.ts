@@ -31,6 +31,10 @@ import {
   workflows,
   workflowVersions,
 } from "@/lib/db/schema";
+import {
+  detectStageCompletion,
+  triggerWorkflowEmails,
+} from "@/lib/email/workflow-triggers";
 import { shouldSendNotification } from "@/lib/notifications/check-preferences";
 import {
   calculateDueDate,
@@ -1013,6 +1017,46 @@ export const tasksRouter = router({
           updatedAt: new Date(),
         })
         .where(eq(taskWorkflowInstances.taskId, input.taskId));
+
+      // Check if stage just completed and trigger workflow emails (FR32: AC3)
+      // Get checklist items for the current stage
+      const currentStage = await db
+        .select()
+        .from(workflowStages)
+        .where(eq(workflowStages.id, input.stageId))
+        .limit(1);
+
+      if (currentStage[0]) {
+        const checklistItems =
+          (currentStage[0].checklistItems as ChecklistItem[]) || [];
+
+        const stageJustCompleted = detectStageCompletion(
+          stageProgress,
+          input.stageId,
+          checklistItems,
+        );
+
+        if (stageJustCompleted) {
+          // Trigger workflow email rules (don't await - run in background)
+          // Errors are caught and logged in triggerWorkflowEmails, won't block checklist update
+          triggerWorkflowEmails(
+            instance[0].workflowId,
+            input.stageId,
+            tenantId,
+            input.taskId,
+          ).catch((error) => {
+            // Extra safety: catch any unhandled errors
+            Sentry.captureException(error, {
+              tags: { operation: "workflow_email_trigger_background" },
+              extra: {
+                workflowId: instance[0].workflowId,
+                stageId: input.stageId,
+                taskId: input.taskId,
+              },
+            });
+          });
+        }
+      }
 
       // Calculate and update task progress
       const _workflow = await db

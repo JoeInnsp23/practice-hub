@@ -8,7 +8,7 @@
 
 > **parseDate**(`value`, `formats`): `Date` \| `null`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:247](https://github.com/JoeInnsp23/practice-hub/blob/f2fa20f0e070cc93df33366f2b8847ea7a37ea66/lib/utils/csv-parser-enhanced.ts#L247)
+Defined in: [lib/utils/csv-parser-enhanced.ts:247](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/utils/csv-parser-enhanced.ts#L247)
 
 Parse date string with multiple format support
 

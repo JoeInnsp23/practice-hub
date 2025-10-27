@@ -361,6 +361,7 @@
 - [lib/email/send-client-portal-invitation](lib/email/send-client-portal-invitation/README.md)
 - [lib/email/template-renderer](lib/email/template-renderer/README.md)
 - [lib/email/timesheet-notifications](lib/email/timesheet-notifications/README.md)
+- [lib/email/workflow-triggers](lib/email/workflow-triggers/README.md)
 - [lib/export/task-export](lib/export/task-export/README.md)
 - [lib/hmrc/client](lib/hmrc/client/README.md)
 - [lib/hooks/use-debounce](lib/hooks/use-debounce/README.md)

@@ -8,6 +8,6 @@
 
 > **InvoiceListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"invoices"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/f2fa20f0e070cc93df33366f2b8847ea7a37ea66/lib/trpc/types.ts#L48)
+Defined in: [lib/trpc/types.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/trpc/types.ts#L48)
 
 Invoice Types

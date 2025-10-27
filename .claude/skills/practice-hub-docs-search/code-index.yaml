@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-27T12:51:49.264Z
+# Generated: 2025-10-27T17:21:33.292Z
 
 functions:
   staffStatisticsRouter:
@@ -243,6 +243,12 @@ functions:
     line: 177
     type: "function"
     signature: "const SUPPORTED_VARIABLES"
+  detectStageCompletion:
+    description: "Workflow Email Triggers"
+    file: "lib/email/workflow-triggers.ts"
+    line: 1
+    type: "function"
+    signature: "function detectStageCompletion"
   exportTasksToCSV:
     description: "Format a task value for export"
     file: "lib/export/task-export.ts"
@@ -1224,9 +1230,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-27T12:51:49.267Z"
-  total_entries: 202
-  functions: 130
+  generated: "2025-10-27T17:21:33.293Z"
+  total_entries: 203
+  functions: 131
   types: 57
   components: 11
   classes: 4

@@ -8,7 +8,7 @@
 
 > **RouterOutputs** = `inferRouterOutputs`\<`AppRouter`\>
 
-Defined in: [lib/trpc/types.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/f2fa20f0e070cc93df33366f2b8847ea7a37ea66/lib/trpc/types.ts#L25)
+Defined in: [lib/trpc/types.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/e84dc99995cd5128c5f1cb3fce327bea6acf37d9/lib/trpc/types.ts#L25)
 
 Base type for all router outputs
 Usage: RouterOutputs['routerName']['procedureName']

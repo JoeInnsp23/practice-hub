@@ -5112,6 +5112,102 @@ For more information, visit the ICO website: https://ico.org.uk
 
   console.log(`✓ Created ${emailTemplatesList.length} email templates`);
 
+  // Create Workflow Email Rules (FR32: AC3)
+  console.log("Creating workflow email rules...");
+
+  // Get first workflow and its stages for testing
+  const firstWorkflow = createdWorkflows[0];
+  if (firstWorkflow) {
+    // Get stages for this workflow
+    const workflowStagesList = await db
+      .select()
+      .from(workflowStages)
+      .where(eq(workflowStages.workflowId, firstWorkflow.id));
+
+    // Get the "Workflow Stage Completed" email template
+    const workflowStageTemplate = emailTemplatesList.find(
+      (t) => t.templateType === "workflow_stage_complete",
+    );
+
+    // Get the "Task Assigned" email template
+    const taskAssignedTemplate = emailTemplatesList.find(
+      (t) => t.templateType === "task_assigned",
+    );
+
+    if (workflowStageTemplate && workflowStagesList.length > 0) {
+      const workflowEmailRulesList = await db
+        .insert(workflowEmailRules)
+        .values(
+          [
+            // Rule 1: Send to assigned staff when first stage completes (no delay)
+            {
+              id: crypto.randomUUID(),
+              tenantId: tenant.id,
+              workflowId: firstWorkflow.id,
+              stageId: workflowStagesList[0].id, // First stage
+              emailTemplateId: workflowStageTemplate.id,
+              recipientType: "assigned_staff",
+              customRecipientEmail: null,
+              sendDelayHours: 0, // Send immediately
+              isActive: true,
+            },
+            // Rule 2: Send to client when second stage completes (2 hour delay)
+            workflowStagesList.length > 1
+              ? {
+                  id: crypto.randomUUID(),
+                  tenantId: tenant.id,
+                  workflowId: firstWorkflow.id,
+                  stageId: workflowStagesList[1].id, // Second stage
+                  emailTemplateId: workflowStageTemplate.id,
+                  recipientType: "client",
+                  customRecipientEmail: null,
+                  sendDelayHours: 2, // 2 hour delay
+                  isActive: true,
+                }
+              : null,
+            // Rule 3: Send to custom email on any stage completion (24 hour delay)
+            {
+              id: crypto.randomUUID(),
+              tenantId: tenant.id,
+              workflowId: firstWorkflow.id,
+              stageId: null, // Any stage (null = trigger on all stages)
+              emailTemplateId:
+                taskAssignedTemplate?.id || workflowStageTemplate.id,
+              recipientType: "custom_email",
+              customRecipientEmail: "compliance@example.com",
+              sendDelayHours: 24, // 24 hour delay
+              isActive: true,
+            },
+            // Rule 4: Send to client manager when workflow complete
+            workflowStagesList.length > 2
+              ? {
+                  id: crypto.randomUUID(),
+                  tenantId: tenant.id,
+                  workflowId: firstWorkflow.id,
+                  stageId: workflowStagesList[workflowStagesList.length - 1].id, // Last stage
+                  emailTemplateId: workflowStageTemplate.id,
+                  recipientType: "client_manager",
+                  customRecipientEmail: null,
+                  sendDelayHours: 0,
+                  isActive: true,
+                }
+              : null,
+          ].filter(Boolean),
+        ) // Filter out null values
+        .returning();
+
+      console.log(
+        `✓ Created ${workflowEmailRulesList.length} workflow email rules for workflow "${firstWorkflow.name}"`,
+      );
+    } else {
+      console.log(
+        "⚠ Skipped workflow email rules (no workflow stages or template found)",
+      );
+    }
+  } else {
+    console.log("⚠ Skipped workflow email rules (no workflows found)");
+  }
+
   console.log("✅ Database seeding completed!");
 
   // Print summary
@@ -5131,6 +5227,7 @@ For more information, visit the ICO website: https://ico.org.uk
   console.log(`✓ Document structure created`);
   console.log(`✓ ${workflowTemplates.length} Workflow templates created`);
   console.log(`✓ ${emailTemplatesList.length} Email templates created`);
+  console.log(`✓ Workflow email rules created (workflow triggers)`);
   console.log(`✓ 100 Activity logs created`);
 
   console.log("\n👤 Test Users:");

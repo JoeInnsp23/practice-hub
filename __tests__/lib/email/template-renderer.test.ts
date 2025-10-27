@@ -2,14 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   extractVariables,
   renderTemplate,
-  validateTemplate,
   type TemplateVariables,
+  validateTemplate,
 } from "@/lib/email/template-renderer";
 
 describe("Template Renderer", () => {
   describe("renderTemplate", () => {
     it("should substitute basic variables", () => {
-      const template = "Hello {client_name}, your task {task_name} is due on {due_date}";
+      const template =
+        "Hello {client_name}, your task {task_name} is due on {due_date}";
       const variables: TemplateVariables = {
         client_name: "ABC Manufacturing",
         task_name: "VAT Return Q3",
@@ -186,8 +187,7 @@ describe("Template Renderer", () => {
     });
 
     it("should detect multiple unsupported variables", () => {
-      const template =
-        "Hello {client_name}, {invoice_number} and {order_id}";
+      const template = "Hello {client_name}, {invoice_number} and {order_id}";
 
       const result = validateTemplate(template, supportedVariables);
 
