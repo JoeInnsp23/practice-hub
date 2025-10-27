@@ -8,7 +8,7 @@
 
 > **useSession**: () => `object`
 
-Defined in: [lib/auth-client.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/auth-client.ts#L11)
+Defined in: [lib/auth-client.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/auth-client.ts#L11)
 
 ## Returns
 

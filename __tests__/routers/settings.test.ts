@@ -297,6 +297,127 @@ describe("app/server/routers/settings.ts", () => {
     });
   });
 
+  describe("getTimesheetSettings (Story 6.3)", () => {
+    it("should have no required input", () => {
+      const procedure = settingsRouter._def.procedures.getTimesheetSettings;
+
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
+    });
+  });
+
+  describe("updateTimesheetSettings (Story 6.3)", () => {
+    it("should accept empty input (partial schema)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept minWeeklyHours only", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 40,
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept dailyTargetHours only", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          dailyTargetHours: 8,
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept both fields together", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 35,
+          dailyTargetHours: 7,
+        });
+      }).not.toThrow();
+    });
+
+    it("should validate minWeeklyHours minimum (0)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: -1,
+        });
+      }).toThrow();
+    });
+
+    it("should validate minWeeklyHours maximum (168)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 169,
+        });
+      }).toThrow();
+    });
+
+    it("should validate dailyTargetHours minimum (0)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          dailyTargetHours: -1,
+        });
+      }).toThrow();
+    });
+
+    it("should validate dailyTargetHours maximum (24)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          dailyTargetHours: 25,
+        });
+      }).toThrow();
+    });
+
+    it("should accept boundary values (0 and maximums)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 0,
+          dailyTargetHours: 24,
+        });
+      }).not.toThrow();
+
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 168,
+          dailyTargetHours: 0,
+        });
+      }).not.toThrow();
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(settingsRouter._def.procedures);
@@ -307,11 +428,13 @@ describe("app/server/routers/settings.ts", () => {
       expect(procedures).toContain("updateNotificationSettings");
       expect(procedures).toContain("getUserSettings");
       expect(procedures).toContain("updateUserSettings");
+      expect(procedures).toContain("getTimesheetSettings");
+      expect(procedures).toContain("updateTimesheetSettings");
     });
 
-    it("should have 6 procedures total", () => {
+    it("should have 8 procedures total", () => {
       const procedures = Object.keys(settingsRouter._def.procedures);
-      expect(procedures).toHaveLength(6);
+      expect(procedures).toHaveLength(8);
     });
   });
 });

@@ -8,6 +8,6 @@
 
 > **OnboardingSessionListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"onboarding"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:138](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/trpc/types.ts#L138)
+Defined in: [lib/trpc/types.ts:138](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/trpc/types.ts#L138)
 
 Onboarding Types

@@ -6,7 +6,7 @@
 
 # Interface: ExternalApiDoc
 
-Defined in: [lib/api-docs/external-apis.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L31)
+Defined in: [lib/api-docs/external-apis.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L31)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/api-docs/external-apis.ts:31](https://github.com/JoeInnsp23/pra
 
 > **authentication**: `object`
 
-Defined in: [lib/api-docs/external-apis.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L35)
+Defined in: [lib/api-docs/external-apis.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L35)
 
 #### description
 
@@ -30,7 +30,7 @@ Defined in: [lib/api-docs/external-apis.ts:35](https://github.com/JoeInnsp23/pra
 
 > **baseUrl**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L34)
+Defined in: [lib/api-docs/external-apis.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L34)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/api-docs/external-apis.ts:34](https://github.com/JoeInnsp23/pra
 
 > **description**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L33)
+Defined in: [lib/api-docs/external-apis.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L33)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/api-docs/external-apis.ts:33](https://github.com/JoeInnsp23/pra
 
 > **endpoints**: [`ExternalApiEndpoint`](ExternalApiEndpoint.md)[]
 
-Defined in: [lib/api-docs/external-apis.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L39)
+Defined in: [lib/api-docs/external-apis.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L39)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/api-docs/external-apis.ts:39](https://github.com/JoeInnsp23/pra
 
 > **links**: `object`
 
-Defined in: [lib/api-docs/external-apis.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L40)
+Defined in: [lib/api-docs/external-apis.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L40)
 
 #### apiReference?
 
@@ -74,4 +74,4 @@ Defined in: [lib/api-docs/external-apis.ts:40](https://github.com/JoeInnsp23/pra
 
 > **name**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/api-docs/external-apis.ts#L32)
+Defined in: [lib/api-docs/external-apis.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/api-docs/external-apis.ts#L32)

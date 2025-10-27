@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/client-hub/leave/calendar/page.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/app/client-hub/leave/calendar/page.tsx#L17)
+Defined in: [app/client-hub/leave/calendar/page.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/app/client-hub/leave/calendar/page.tsx#L17)
 
 ## Returns
 
