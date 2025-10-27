@@ -22,6 +22,10 @@ import { cn } from "@/lib/utils";
 interface WeeklyTimesheetGridProps {
   weekStartDate: Date;
   isReadOnly?: boolean;
+  /**
+   * Daily target hours threshold for highlighting low hours (default: 7.5)
+   */
+  dailyTargetHours?: number;
 }
 
 interface DayData {
@@ -52,6 +56,7 @@ interface EntryFormData {
 export function WeeklyTimesheetGrid({
   weekStartDate,
   isReadOnly = false,
+  dailyTargetHours = 7.5,
 }: WeeklyTimesheetGridProps) {
   const weekStart = startOfWeek(weekStartDate, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 6);
@@ -284,7 +289,8 @@ export function WeeklyTimesheetGrid({
       {/* Weekly Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
         {days.map((day) => {
-          const isLowHours = day.totalHours < 7.5 && day.totalHours > 0;
+          const isLowHours =
+            day.totalHours < dailyTargetHours && day.totalHours > 0;
           const isZeroHours = day.totalHours === 0;
           const isAddingToThisDay = addingToDay === day.date;
 
@@ -406,6 +412,7 @@ export function WeeklyTimesheetGrid({
                           Save
                         </Button>
                         <Button
+                          type="button"
                           size="sm"
                           variant="outline"
                           onClick={resetForm}
@@ -518,6 +525,7 @@ export function WeeklyTimesheetGrid({
                               Save
                             </Button>
                             <Button
+                              type="button"
                               size="sm"
                               variant="outline"
                               onClick={resetForm}
@@ -618,7 +626,8 @@ export function WeeklyTimesheetGrid({
                   </div>
                   {(isLowHours || isZeroHours) && !day.isWeekend && (
                     <div className="text-xs text-muted-foreground mt-1">
-                      Need {(7.5 - day.totalHours).toFixed(1)}h more
+                      Need {(dailyTargetHours - day.totalHours).toFixed(1)}h
+                      more
                     </div>
                   )}
                 </div>

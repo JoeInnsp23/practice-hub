@@ -96,6 +96,11 @@ export const users = pgTable(
       (): AnyPgColumn => departments.id,
     ), // Optional department assignment
     hourlyRate: decimal("hourly_rate", { precision: 10, scale: 2 }),
+    // Timesheet preferences (Story 6.3)
+    timesheetMinWeeklyHours: real("timesheet_min_weekly_hours").default(37.5),
+    timesheetDailyTargetHours: real("timesheet_daily_target_hours").default(
+      7.5,
+    ),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

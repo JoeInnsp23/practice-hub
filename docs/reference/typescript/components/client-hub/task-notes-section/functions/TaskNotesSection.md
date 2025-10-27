@@ -8,7 +8,7 @@
 
 > **TaskNotesSection**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/task-notes-section.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/components/client-hub/task-notes-section.tsx#L29)
+Defined in: [components/client-hub/task-notes-section.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/components/client-hub/task-notes-section.tsx#L29)
 
 ## Parameters
 

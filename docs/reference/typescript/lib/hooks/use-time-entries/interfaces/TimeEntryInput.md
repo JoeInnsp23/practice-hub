@@ -6,7 +6,7 @@
 
 # Interface: TimeEntryInput
 
-Defined in: [lib/hooks/use-time-entries.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L46)
+Defined in: [lib/hooks/use-time-entries.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L46)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/hooks/use-time-entries.ts:46](https://github.com/JoeInnsp23/pra
 
 > **billable**: `boolean`
 
-Defined in: [lib/hooks/use-time-entries.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L52)
+Defined in: [lib/hooks/use-time-entries.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L52)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/hooks/use-time-entries.ts:52](https://github.com/JoeInnsp23/pra
 
 > `optional` **clientId**: `string`
 
-Defined in: [lib/hooks/use-time-entries.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L48)
+Defined in: [lib/hooks/use-time-entries.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L48)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/hooks/use-time-entries.ts:48](https://github.com/JoeInnsp23/pra
 
 > **date**: `Date`
 
-Defined in: [lib/hooks/use-time-entries.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L47)
+Defined in: [lib/hooks/use-time-entries.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L47)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/hooks/use-time-entries.ts:47](https://github.com/JoeInnsp23/pra
 
 > `optional` **description**: `string`
 
-Defined in: [lib/hooks/use-time-entries.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L50)
+Defined in: [lib/hooks/use-time-entries.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L50)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/hooks/use-time-entries.ts:50](https://github.com/JoeInnsp23/pra
 
 > `optional` **endTime**: `string`
 
-Defined in: [lib/hooks/use-time-entries.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L55)
+Defined in: [lib/hooks/use-time-entries.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L55)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/hooks/use-time-entries.ts:55](https://github.com/JoeInnsp23/pra
 
 > **hours**: `number`
 
-Defined in: [lib/hooks/use-time-entries.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L51)
+Defined in: [lib/hooks/use-time-entries.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L51)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [lib/hooks/use-time-entries.ts:51](https://github.com/JoeInnsp23/pra
 
 > `optional` **startTime**: `string`
 
-Defined in: [lib/hooks/use-time-entries.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L54)
+Defined in: [lib/hooks/use-time-entries.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L54)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [lib/hooks/use-time-entries.ts:54](https://github.com/JoeInnsp23/pra
 
 > `optional` **taskId**: `string`
 
-Defined in: [lib/hooks/use-time-entries.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L49)
+Defined in: [lib/hooks/use-time-entries.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L49)
 
 ***
 
@@ -78,4 +78,4 @@ Defined in: [lib/hooks/use-time-entries.ts:49](https://github.com/JoeInnsp23/pra
 
 > `optional` **workType**: `string`
 
-Defined in: [lib/hooks/use-time-entries.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/lib/hooks/use-time-entries.ts#L53)
+Defined in: [lib/hooks/use-time-entries.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/lib/hooks/use-time-entries.ts#L53)

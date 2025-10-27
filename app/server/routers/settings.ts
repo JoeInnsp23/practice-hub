@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, tenants, userSettings } from "@/lib/db/schema";
+import { activityLogs, tenants, userSettings, users } from "@/lib/db/schema";
 import {
   companySettingsSchema,
   userSettingsSchema,
@@ -317,6 +317,85 @@ export const settingsRouter = router({
         entityId: userId,
         action: "updated",
         description: `Updated user settings`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: input,
+      });
+
+      return { success: true };
+    }),
+
+  // Get timesheet settings (Story 6.3)
+  getTimesheetSettings: protectedProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx.authContext;
+
+    const userRecord = await db
+      .select({
+        timesheetMinWeeklyHours: users.timesheetMinWeeklyHours,
+        timesheetDailyTargetHours: users.timesheetDailyTargetHours,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (userRecord.length === 0) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+    }
+
+    return {
+      minWeeklyHours: userRecord[0].timesheetMinWeeklyHours ?? 37.5,
+      dailyTargetHours: userRecord[0].timesheetDailyTargetHours ?? 7.5,
+    };
+  }),
+
+  // Update timesheet settings (Story 6.3)
+  updateTimesheetSettings: protectedProcedure
+    .input(
+      z.object({
+        minWeeklyHours: z
+          .number()
+          .min(0, "Minimum weekly hours must be 0 or greater")
+          .max(168, "Cannot exceed 168 hours per week")
+          .optional(),
+        dailyTargetHours: z
+          .number()
+          .min(0, "Daily target hours must be 0 or greater")
+          .max(24, "Cannot exceed 24 hours per day")
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Build update object
+      const updateData: {
+        timesheetMinWeeklyHours?: number;
+        timesheetDailyTargetHours?: number;
+        updatedAt: Date;
+      } = {
+        updatedAt: new Date(),
+      };
+
+      if (input.minWeeklyHours !== undefined) {
+        updateData.timesheetMinWeeklyHours = input.minWeeklyHours;
+      }
+      if (input.dailyTargetHours !== undefined) {
+        updateData.timesheetDailyTargetHours = input.dailyTargetHours;
+      }
+
+      // Update user timesheet settings
+      await db.update(users).set(updateData).where(eq(users.id, userId));
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "settings",
+        entityId: userId,
+        action: "updated",
+        description: `Updated timesheet settings`,
         userId,
         userName: `${firstName} ${lastName}`,
         newValues: input,

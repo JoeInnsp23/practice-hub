@@ -8,7 +8,7 @@
 
 > **ProposalsStatusChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/charts/proposals-status-chart.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/39fb7d4e8ea4e955ee58ecabc3e83886681b9eab/components/proposal-hub/charts/proposals-status-chart.tsx#L36)
+Defined in: [components/proposal-hub/charts/proposals-status-chart.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/f6c9fffaaf239690b4a029fff64ca19b4a1dd38f/components/proposal-hub/charts/proposals-status-chart.tsx#L36)
 
 ## Parameters
 
