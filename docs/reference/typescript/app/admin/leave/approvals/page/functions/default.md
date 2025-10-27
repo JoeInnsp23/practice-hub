@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/leave/approvals/page.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/app/admin/leave/approvals/page.tsx#L41)
+Defined in: [app/admin/leave/approvals/page.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/app/admin/leave/approvals/page.tsx#L41)
 
 ## Returns
 

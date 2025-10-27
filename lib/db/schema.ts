@@ -3533,3 +3533,112 @@ export const taskAssignmentHistory = pgTable(
     ),
   }),
 );
+
+// Email Templates - Pre-defined email content with variables (FR32: AC1)
+export const emailTemplates = pgTable(
+  "email_templates",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    templateName: text("template_name").notNull(),
+    templateType: text("template_type").notNull(), // "workflow_stage_complete" | "task_assigned" | "task_due_soon" | "task_overdue" | "client_created" | "client_status_changed" (AC2)
+    subject: text("subject").notNull(),
+    bodyHtml: text("body_html").notNull(),
+    bodyText: text("body_text"),
+    variables: text("variables").array(), // ["{client_name}", "{task_name}", "{due_date}", "{staff_name}", "{company_name}", "{workflow_name}", "{stage_name}"] (AC5)
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("email_templates_tenant_id_idx").on(table.tenantId),
+    templateTypeIdx: index("email_templates_type_idx").on(table.templateType),
+    isActiveIdx: index("email_templates_active_idx").on(table.isActive),
+  }),
+);
+
+// Workflow Email Rules - Configure email triggers for workflow stages (FR32: AC3)
+export const workflowEmailRules = pgTable(
+  "workflow_email_rules",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    workflowId: uuid("workflow_id")
+      .references((): AnyPgColumn => workflows.id, { onDelete: "cascade" })
+      .notNull(),
+    stageId: uuid("stage_id"), // Optional: trigger on specific stage completion, null = any stage
+    emailTemplateId: text("email_template_id")
+      .references(() => emailTemplates.id, { onDelete: "cascade" })
+      .notNull(),
+    recipientType: text("recipient_type").notNull(), // "client" | "assigned_staff" | "client_manager" | "custom_email" (AC4)
+    customRecipientEmail: text("custom_recipient_email"), // Used when recipientType = "custom_email"
+    sendDelayHours: integer("send_delay_hours").default(0).notNull(), // Delay before sending (AC7)
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("workflow_email_rules_tenant_id_idx").on(table.tenantId),
+    workflowIdIdx: index("workflow_email_rules_workflow_id_idx").on(
+      table.workflowId,
+    ),
+    stageIdIdx: index("workflow_email_rules_stage_id_idx").on(table.stageId),
+    templateIdIdx: index("workflow_email_rules_template_id_idx").on(
+      table.emailTemplateId,
+    ),
+  }),
+);
+
+// Email Queue - Pending and sent emails with retry logic (FR32: AC8)
+export const emailQueue = pgTable(
+  "email_queue",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    emailTemplateId: text("email_template_id").references(
+      () => emailTemplates.id,
+    ), // Nullable: email may be queued after template deletion
+    recipientEmail: text("recipient_email").notNull(),
+    recipientName: text("recipient_name"),
+    subject: text("subject").notNull(),
+    bodyHtml: text("body_html").notNull(),
+    bodyText: text("body_text"),
+    variables: jsonb("variables"), // Variable values used for rendering (AC6)
+    status: text("status").notNull(), // "pending" | "sent" | "failed" | "bounced"
+    sendAt: timestamp("send_at").notNull(), // Scheduled send time (now + delay) (AC7)
+    sentAt: timestamp("sent_at"),
+    errorMessage: text("error_message"),
+    attempts: integer("attempts").default(0).notNull(), // Retry counter (AC8)
+    maxAttempts: integer("max_attempts").default(3).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("email_queue_tenant_id_idx").on(table.tenantId),
+    statusIdx: index("email_queue_status_idx").on(table.status),
+    sendAtIdx: index("email_queue_send_at_idx").on(table.sendAt), // For efficient queue processing
+    templateIdIdx: index("email_queue_template_id_idx").on(
+      table.emailTemplateId,
+    ),
+    recipientEmailIdx: index("email_queue_recipient_email_idx").on(
+      table.recipientEmail,
+    ),
+  }),
+);

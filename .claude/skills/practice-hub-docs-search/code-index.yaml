@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-27T00:29:48.145Z
+# Generated: 2025-10-27T01:57:34.277Z
 
 functions:
   staffStatisticsRouter:
@@ -195,6 +195,30 @@ functions:
     line: 125
     type: "function"
     signature: "function extractAuditTrail"
+  renderTemplate:
+    description: "Escapes HTML special characters to prevent XSS attacks"
+    file: "lib/email/template-renderer.ts"
+    line: 31
+    type: "function"
+    signature: "function renderTemplate"
+  extractVariables:
+    description: "Extracts variable names from a template"
+    file: "lib/email/template-renderer.ts"
+    line: 87
+    type: "function"
+    signature: "function extractVariables"
+  validateTemplate:
+    description: "Validates that a template only uses supported variables"
+    file: "lib/email/template-renderer.ts"
+    line: 144
+    type: "function"
+    signature: "function validateTemplate"
+  SUPPORTED_VARIABLES:
+    description: "Standard supported variables for Practice Hub email templates (FR32: AC5)"
+    file: "lib/email/template-renderer.ts"
+    line: 177
+    type: "function"
+    signature: "const SUPPORTED_VARIABLES"
   exportTasksToCSV:
     description: "Format a task value for export"
     file: "lib/export/task-export.ts"
@@ -821,6 +845,24 @@ types:
     line: 7
     type: "type"
     signature: "interface ExpireProposalsResult"
+  QueueProcessorOptions:
+    description: "Email Queue Processor"
+    file: "lib/email/queue-processor.ts"
+    line: 1
+    type: "type"
+    signature: "interface QueueProcessorOptions"
+  TemplateVariables:
+    description: "Template Variable Renderer"
+    file: "lib/email/template-renderer.ts"
+    line: 1
+    type: "type"
+    signature: "interface TemplateVariables"
+  SupportedVariable:
+    description: "Type-safe variable name"
+    file: "lib/email/template-renderer.ts"
+    line: 190
+    type: "type"
+    signature: "type SupportedVariable"
   VerificationRequest:
     description: "LEM Verify API Client"
     file: "lib/kyc/lemverify-client.ts"
@@ -1152,9 +1194,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-27T00:29:48.146Z"
-  total_entries: 190
-  functions: 122
-  types: 53
+  generated: "2025-10-27T01:57:34.278Z"
+  total_entries: 197
+  functions: 126
+  types: 56
   components: 11
   classes: 4

@@ -6,7 +6,7 @@
 
 # Interface: StageConfig
 
-Defined in: [lib/constants/pipeline-stages.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L26)
+Defined in: [lib/constants/pipeline-stages.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L26)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/constants/pipeline-stages.ts:26](https://github.com/JoeInnsp23/
 
 > **bgColor**: `string`
 
-Defined in: [lib/constants/pipeline-stages.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L32)
+Defined in: [lib/constants/pipeline-stages.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L32)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/constants/pipeline-stages.ts:32](https://github.com/JoeInnsp23/
 
 > **borderColor**: `string`
 
-Defined in: [lib/constants/pipeline-stages.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L33)
+Defined in: [lib/constants/pipeline-stages.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L33)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/constants/pipeline-stages.ts:33](https://github.com/JoeInnsp23/
 
 > **color**: `string`
 
-Defined in: [lib/constants/pipeline-stages.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L31)
+Defined in: [lib/constants/pipeline-stages.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L31)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/constants/pipeline-stages.ts:31](https://github.com/JoeInnsp23/
 
 > **description**: `string`
 
-Defined in: [lib/constants/pipeline-stages.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L29)
+Defined in: [lib/constants/pipeline-stages.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L29)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/constants/pipeline-stages.ts:29](https://github.com/JoeInnsp23/
 
 > **icon**: `LucideIcon`
 
-Defined in: [lib/constants/pipeline-stages.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L30)
+Defined in: [lib/constants/pipeline-stages.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L30)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/constants/pipeline-stages.ts:30](https://github.com/JoeInnsp23/
 
 > **id**: [`PipelineStage`](../type-aliases/PipelineStage.md)
 
-Defined in: [lib/constants/pipeline-stages.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L27)
+Defined in: [lib/constants/pipeline-stages.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L27)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [lib/constants/pipeline-stages.ts:27](https://github.com/JoeInnsp23/
 
 > **label**: `string`
 
-Defined in: [lib/constants/pipeline-stages.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/constants/pipeline-stages.ts#L28)
+Defined in: [lib/constants/pipeline-stages.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/constants/pipeline-stages.ts#L28)

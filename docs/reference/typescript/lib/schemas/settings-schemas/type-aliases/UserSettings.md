@@ -8,4 +8,4 @@
 
 > **UserSettings** = `z.infer`\<*typeof* [`userSettingsSchema`](../variables/userSettingsSchema.md)\>
 
-Defined in: [lib/schemas/settings-schemas.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/lib/schemas/settings-schemas.ts#L58)
+Defined in: [lib/schemas/settings-schemas.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/schemas/settings-schemas.ts#L58)

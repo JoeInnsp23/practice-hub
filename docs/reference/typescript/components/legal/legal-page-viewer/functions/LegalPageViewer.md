@@ -8,7 +8,7 @@
 
 > **LegalPageViewer**(`__namedParameters`): `Element`
 
-Defined in: [components/legal/legal-page-viewer.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/legal/legal-page-viewer.tsx#L21)
+Defined in: [components/legal/legal-page-viewer.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/legal/legal-page-viewer.tsx#L21)
 
 Legal Page Viewer Component
 Displays legal content (Privacy Policy, Terms of Service, Cookie Policy)

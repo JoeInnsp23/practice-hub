@@ -6,7 +6,7 @@
 
 # Interface: TimeEntryFormData
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:50](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L50)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:50](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L50)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:50](https://github.
 
 > **billable**: `boolean`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:56](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L56)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:56](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L56)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:56](https://github.
 
 > `optional` **clientId**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:52](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L52)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:52](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L52)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:52](https://github.
 
 > **date**: `Date`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:51](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L51)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:51](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L51)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:51](https://github.
 
 > **description**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L54)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L54)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:54](https://github.
 
 > **endTime**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:59](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L59)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:59](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L59)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:59](https://github.
 
 > **fullDescription**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:60](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L60)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:60](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L60)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:60](https://github.
 
 > **hours**: `number`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:55](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L55)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:55](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L55)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:55](https://github.
 
 > **startTime**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:58](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L58)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:58](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L58)
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:58](https://github.
 
 > `optional` **taskId**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L53)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L53)
 
 ***
 
@@ -86,4 +86,4 @@ Defined in: [components/client-hub/time/time-entry-modal.tsx:53](https://github.
 
 > **workType**: `string`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:57](https://github.com/JoeInnsp23/practice-hub/blob/1c2bcbdc3a1f5b59e304e10e04459722a22a960d/components/client-hub/time/time-entry-modal.tsx#L57)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:57](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/client-hub/time/time-entry-modal.tsx#L57)
