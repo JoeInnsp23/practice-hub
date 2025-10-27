@@ -8,7 +8,7 @@
 
 > **calculateHalfDay**(): `number`
 
-Defined in: [lib/leave/working-days.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/7c932d85a4ffc59abe78e386db0d258f6398fe91/lib/leave/working-days.ts#L81)
+Defined in: [lib/leave/working-days.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/2f3044cf4377c876e1fd695d656fbf0e32cd8e83/lib/leave/working-days.ts#L81)
 
 Calculate half-day leave (0.5 days)
 Useful for partial day leave requests

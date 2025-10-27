@@ -106,8 +106,8 @@ describe("app/server/routers/settings.ts", () => {
     });
   });
 
-  describe("updateNotificationSettings", () => {
-    it("should accept empty input", () => {
+  describe("updateNotificationSettings (FR31)", () => {
+    it("should accept empty input (partial schema)", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
@@ -116,109 +116,86 @@ describe("app/server/routers/settings.ts", () => {
       }).not.toThrow();
     });
 
-    it("should accept email notifications update", () => {
+    it("should accept global toggles (emailNotifications, inAppNotifications)", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
             .inputs[0] as ZodSchema
         )?.parse({
-          emailNotifications: {
-            taskAssigned: true,
-            taskCompleted: false,
-            invoiceCreated: true,
-          },
+          emailNotifications: true,
+          inAppNotifications: false,
         });
       }).not.toThrow();
     });
 
-    it("should accept in-app notifications update", () => {
+    it("should accept digestEmail string", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
             .inputs[0] as ZodSchema
         )?.parse({
-          inAppNotifications: {
-            taskOverdue: true,
-            clientAdded: false,
-          },
+          digestEmail: "weekly",
         });
       }).not.toThrow();
     });
 
-    it("should accept digest email settings", () => {
+    it("should accept individual notification preferences (FR31)", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
             .inputs[0] as ZodSchema
         )?.parse({
-          digestEmail: {
-            enabled: true,
-            frequency: "weekly",
-          },
+          notifTaskAssigned: true,
+          notifTaskMention: false,
+          notifTaskReassigned: true,
         });
       }).not.toThrow();
     });
 
-    it("should accept all settings combined", () => {
+    it("should accept all 6 granular notification preferences (FR31)", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
             .inputs[0] as ZodSchema
         )?.parse({
-          emailNotifications: {
-            taskAssigned: true,
-            taskCompleted: true,
-            taskOverdue: true,
-            invoiceCreated: true,
-            invoicePaid: true,
-            clientAdded: true,
-            reportGenerated: true,
-          },
-          inAppNotifications: {
-            taskAssigned: false,
-            taskCompleted: false,
-            taskOverdue: true,
-            invoiceCreated: false,
-            invoicePaid: true,
-            clientAdded: false,
-            reportGenerated: false,
-          },
-          digestEmail: {
-            enabled: true,
-            frequency: "daily",
-          },
+          notifTaskAssigned: true,
+          notifTaskMention: false,
+          notifTaskReassigned: true,
+          notifDeadlineApproaching: false,
+          notifApprovalNeeded: true,
+          notifClientMessage: false,
         });
       }).not.toThrow();
     });
 
-    it("should validate digest frequency enum values", () => {
+    it("should accept combined global toggles and granular preferences (FR31)", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateNotificationSettings._def
             .inputs[0] as ZodSchema
         )?.parse({
-          digestEmail: {
-            frequency: "invalid",
-          },
+          emailNotifications: true,
+          inAppNotifications: true,
+          digestEmail: "daily",
+          notifTaskAssigned: true,
+          notifTaskMention: true,
+          notifTaskReassigned: false,
+          notifDeadlineApproaching: true,
+          notifApprovalNeeded: false,
+          notifClientMessage: true,
+        });
+      }).not.toThrow();
+    });
+
+    it("should validate boolean types for notification preferences", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          notifTaskAssigned: "invalid",
         });
       }).toThrow();
-    });
-
-    it("should accept all valid frequency values", () => {
-      const validFrequencies = ["daily", "weekly", "monthly"];
-
-      for (const frequency of validFrequencies) {
-        expect(() => {
-          (
-            settingsRouter._def.procedures.updateNotificationSettings._def
-              .inputs[0] as ZodSchema
-          )?.parse({
-            digestEmail: {
-              frequency,
-            },
-          });
-        }).not.toThrow();
-      }
     });
   });
 
@@ -232,8 +209,8 @@ describe("app/server/routers/settings.ts", () => {
     });
   });
 
-  describe("updateUserSettings", () => {
-    it("should accept valid user settings", () => {
+  describe("updateUserSettings (includes FR31 fields)", () => {
+    it("should accept valid user settings with notification preferences", () => {
       expect(() => {
         (
           settingsRouter._def.procedures.updateUserSettings._def
@@ -242,6 +219,12 @@ describe("app/server/routers/settings.ts", () => {
           emailNotifications: true,
           inAppNotifications: false,
           digestEmail: "weekly",
+          notifTaskAssigned: true,
+          notifTaskMention: false,
+          notifTaskReassigned: true,
+          notifDeadlineApproaching: false,
+          notifApprovalNeeded: true,
+          notifClientMessage: false,
           theme: "dark",
           language: "en",
           timezone: "Europe/London",
