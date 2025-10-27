@@ -8,7 +8,7 @@
 
 > **getAccessToken**(`code`): `Promise`\<[`XeroTokenResponse`](../interfaces/XeroTokenResponse.md)\>
 
-Defined in: [lib/xero/client.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/xero/client.ts#L88)
+Defined in: [lib/xero/client.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/lib/xero/client.ts#L88)
 
 Exchange authorization code for access token
 

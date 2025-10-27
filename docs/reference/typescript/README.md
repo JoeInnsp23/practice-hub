@@ -209,6 +209,7 @@
 - [components/client-hub/time/time-entry-modal](components/client-hub/time/time-entry-modal/README.md)
 - [components/client-hub/time/timesheet-grid](components/client-hub/time/timesheet-grid/README.md)
 - [components/client-hub/time/weekly-summary-card](components/client-hub/time/weekly-summary-card/README.md)
+- [components/client-hub/time/weekly-timesheet-grid](components/client-hub/time/weekly-timesheet-grid/README.md)
 - [components/client-hub/timesheet-reject-modal](components/client-hub/timesheet-reject-modal/README.md)
 - [components/client-hub/timesheet-submission-card](components/client-hub/timesheet-submission-card/README.md)
 - [components/client-hub/vat-validation-indicator](components/client-hub/vat-validation-indicator/README.md)

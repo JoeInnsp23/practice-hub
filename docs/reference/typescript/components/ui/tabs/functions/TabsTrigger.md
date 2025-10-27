@@ -8,7 +8,7 @@
 
 > **TabsTrigger**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/tabs.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/components/ui/tabs.tsx#L37)
+Defined in: [components/ui/tabs.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/components/ui/tabs.tsx#L37)
 
 ## Parameters
 

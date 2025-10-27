@@ -8,7 +8,7 @@
 
 > **shouldSendNotification**(`userId`, `notificationType`, `channel`): `Promise`\<`boolean`\>
 
-Defined in: [lib/notifications/check-preferences.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/notifications/check-preferences.ts#L24)
+Defined in: [lib/notifications/check-preferences.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/lib/notifications/check-preferences.ts#L24)
 
 Check if a notification should be sent to a user based on their preferences
 

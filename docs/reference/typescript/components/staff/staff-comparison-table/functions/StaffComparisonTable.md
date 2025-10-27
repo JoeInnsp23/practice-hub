@@ -8,7 +8,7 @@
 
 > **StaffComparisonTable**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/staff-comparison-table.tsx:44](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/components/staff/staff-comparison-table.tsx#L44)
+Defined in: [components/staff/staff-comparison-table.tsx:44](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/components/staff/staff-comparison-table.tsx#L44)
 
 ## Parameters
 

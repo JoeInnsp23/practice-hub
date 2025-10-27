@@ -8,7 +8,7 @@
 
 > **ThemeProvider**(`__namedParameters`): `Element`
 
-Defined in: [components/providers/theme-provider.tsx:6](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/components/providers/theme-provider.tsx#L6)
+Defined in: [components/providers/theme-provider.tsx:6](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/components/providers/theme-provider.tsx#L6)
 
 ## Parameters
 

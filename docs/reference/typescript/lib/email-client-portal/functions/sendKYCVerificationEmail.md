@@ -8,7 +8,7 @@
 
 > **sendKYCVerificationEmail**(`__namedParameters`): `Promise`\<`void`\>
 
-Defined in: [lib/email-client-portal.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/email-client-portal.ts#L81)
+Defined in: [lib/email-client-portal.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/e884ea9f5209b5419fb4ebc2881f2b55c91706c8/lib/email-client-portal.ts#L81)
 
 ## Parameters
 
