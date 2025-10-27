@@ -8,7 +8,7 @@
 
 > **TemplateList**(): `Element`
 
-Defined in: [components/proposal-hub/templates/template-list.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/components/proposal-hub/templates/template-list.tsx#L19)
+Defined in: [components/proposal-hub/templates/template-list.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/components/proposal-hub/templates/template-list.tsx#L19)
 
 ## Returns
 

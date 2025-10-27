@@ -8,7 +8,7 @@
 
 > **withXeroCredentials**\<`T`\>(`tenantId`, `callback`): `Promise`\<`T`\>
 
-Defined in: [lib/xero/middleware.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/xero/middleware.ts#L47)
+Defined in: [lib/xero/middleware.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/xero/middleware.ts#L47)
 
 Middleware wrapper for API routes that need Xero credentials
 

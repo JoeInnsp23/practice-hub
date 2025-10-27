@@ -8,7 +8,7 @@
 
 > **getWorkTypeByCode**(`code`): [`WorkType`](../interfaces/WorkType.md) \| `undefined`
 
-Defined in: [lib/constants/work-types.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/constants/work-types.ts#L93)
+Defined in: [lib/constants/work-types.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/constants/work-types.ts#L93)
 
 ## Parameters
 

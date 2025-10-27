@@ -802,6 +802,249 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
     });
   });
 
+  describe("getWeek (Integration)", () => {
+    it("should return time entries for specified week", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Create entries for 3 different days in the same week
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-13", // Monday
+          hours: "7.5",
+          workType: "WORK",
+        },
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-14", // Tuesday
+          hours: "8.0",
+          workType: "WORK",
+        },
+      );
+      const entry3 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-20", // Next Monday (different week)
+          hours: "6.0",
+          workType: "TOIL",
+        },
+      );
+
+      tracker.timeEntries?.push(entry1.id, entry2.id, entry3.id);
+
+      // Query for week of Jan 13-19
+      const result = await caller.getWeek({
+        weekStartDate: "2025-01-13",
+        weekEndDate: "2025-01-19",
+      });
+
+      expect(result).toHaveLength(2);
+      expect(result.map((e) => e.id)).toContain(entry1.id);
+      expect(result.map((e) => e.id)).toContain(entry2.id);
+      expect(result.map((e) => e.id)).not.toContain(entry3.id);
+    });
+
+    it("should enforce tenant isolation when querying week", async () => {
+      const tenantAId = await createTestTenant();
+      const userAId = await createTestUser(tenantAId, { role: "staff" });
+      const clientAId = await createTestClient(tenantAId, userAId);
+
+      tracker.tenants?.push(tenantAId);
+      tracker.users?.push(userAId);
+      tracker.clients?.push(clientAId.id);
+
+      const entryA = await createTestTimeEntry(
+        tenantAId,
+        userAId,
+        clientAId.id,
+        {
+          date: "2025-01-15",
+        },
+      );
+      tracker.timeEntries?.push(entryA.id);
+
+      // Query from tenant B (our test tenant) should not see tenant A's entries
+      const result = await caller.getWeek({
+        weekStartDate: "2025-01-13",
+        weekEndDate: "2025-01-19",
+      });
+
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe("copyPreviousWeek (Integration)", () => {
+    it("should copy entries from previous week with adjusted dates", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Create entries for previous week (Jan 6-12)
+      const prevEntry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-06", // Monday
+          hours: "7.5",
+          workType: "WORK",
+          description: "Week 1 work",
+        },
+      );
+      const prevEntry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-08", // Wednesday
+          hours: "8.0",
+          workType: "WORK",
+          description: "Week 1 work",
+        },
+      );
+
+      tracker.timeEntries?.push(prevEntry1.id, prevEntry2.id);
+
+      // Copy to current week (Jan 13-19)
+      const result = await caller.copyPreviousWeek({
+        currentWeekStartDate: "2025-01-13",
+        currentWeekEndDate: "2025-01-19",
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.entriesCopied).toBe(2);
+
+      // Verify copied entries exist in current week
+      const currentWeekEntries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.tenantId, ctx.authContext.tenantId),
+            eq(timeEntries.userId, ctx.authContext.userId),
+            eq(timeEntries.date, "2025-01-13"), // Monday of current week
+          ),
+        );
+
+      // Track new entries for cleanup
+      for (const entry of currentWeekEntries) {
+        tracker.timeEntries?.push(entry.id);
+      }
+
+      expect(currentWeekEntries).toHaveLength(1);
+      expect(currentWeekEntries[0].hours).toBe("7.50");
+      expect(currentWeekEntries[0].workType).toBe("WORK");
+      expect(currentWeekEntries[0].status).toBe("draft");
+    });
+
+    it("should return zero entries copied when previous week is empty", async () => {
+      const result = await caller.copyPreviousWeek({
+        currentWeekStartDate: "2025-01-13",
+        currentWeekEndDate: "2025-01-19",
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.entriesCopied).toBe(0);
+    });
+  });
+
+  describe("getWeeklySummary (Integration)", () => {
+    it("should calculate total hours and billable percentage", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Create entries with mix of billable and non-billable
+      const entry1 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-13",
+          hours: "7.5",
+          billable: true,
+          workType: "WORK",
+        },
+      );
+      const entry2 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-14",
+          hours: "8.0",
+          billable: true,
+          workType: "WORK",
+        },
+      );
+      const entry3 = await createTestTimeEntry(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        client.id,
+        {
+          date: "2025-01-15",
+          hours: "7.5",
+          billable: false,
+          workType: "TOIL",
+        },
+      );
+
+      tracker.timeEntries?.push(entry1.id, entry2.id, entry3.id);
+
+      const result = await caller.getWeeklySummary({
+        weekStartDate: "2025-01-13",
+        weekEndDate: "2025-01-19",
+      });
+
+      expect(result.totalHours).toBe(23);
+      expect(result.billableHours).toBe(15.5);
+      expect(result.nonBillableHours).toBe(7.5);
+      expect(result.billablePercentage).toBeCloseTo(67.39, 1);
+      expect(result.entriesCount).toBe(3);
+
+      // Check work type breakdown
+      expect(result.workTypeBreakdown).toHaveLength(2);
+      expect(result.workTypeBreakdown).toContainEqual({
+        name: "WORK",
+        hours: 15.5,
+        percentage: expect.closeTo(67.39, 1),
+      });
+      expect(result.workTypeBreakdown).toContainEqual({
+        name: "TOIL",
+        hours: 7.5,
+        percentage: expect.closeTo(32.61, 1),
+      });
+    });
+
+    it("should handle empty week with zero hours", async () => {
+      const result = await caller.getWeeklySummary({
+        weekStartDate: "2025-01-13",
+        weekEndDate: "2025-01-19",
+      });
+
+      expect(result.totalHours).toBe(0);
+      expect(result.billableHours).toBe(0);
+      expect(result.billablePercentage).toBe(0);
+      expect(result.workTypeBreakdown).toHaveLength(0);
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(timesheetsRouter._def.procedures);
@@ -812,11 +1055,14 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       expect(procedures).toContain("update");
       expect(procedures).toContain("delete");
       expect(procedures).toContain("summary");
+      expect(procedures).toContain("getWeek");
+      expect(procedures).toContain("copyPreviousWeek");
+      expect(procedures).toContain("getWeeklySummary");
     });
 
-    it("should have 13 procedures total", () => {
+    it("should have 16 procedures total", () => {
       const procedures = Object.keys(timesheetsRouter._def.procedures);
-      expect(procedures).toHaveLength(13);
+      expect(procedures).toHaveLength(16);
     });
   });
 });

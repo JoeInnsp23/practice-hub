@@ -8,7 +8,7 @@
 
 > **calculateLeadScore**(`input`): `number`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:120](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/lead-scoring/calculate-score.ts#L120)
+Defined in: [lib/lead-scoring/calculate-score.ts:120](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/lead-scoring/calculate-score.ts#L120)
 
 Main scoring function
 Returns a score from 1-10

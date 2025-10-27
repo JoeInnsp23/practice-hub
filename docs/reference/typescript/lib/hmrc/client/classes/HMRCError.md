@@ -6,7 +6,7 @@
 
 # Class: HMRCError
 
-Defined in: [lib/hmrc/client.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L43)
+Defined in: [lib/hmrc/client.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/hmrc/client.ts#L43)
 
 ## Extends
 
@@ -26,7 +26,7 @@ Defined in: [lib/hmrc/client.ts:43](https://github.com/JoeInnsp23/practice-hub/b
 
 > **new HMRCError**(`message`, `statusCode?`, `vatNumber?`): `HMRCError`
 
-Defined in: [lib/hmrc/client.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L44)
+Defined in: [lib/hmrc/client.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/hmrc/client.ts#L44)
 
 #### Parameters
 
@@ -56,7 +56,7 @@ Defined in: [lib/hmrc/client.ts:44](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L46)
+Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/hmrc/client.ts#L46)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **vatNumber**: `string`
 
-Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/hmrc/client.ts#L47)
+Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/hmrc/client.ts#L47)

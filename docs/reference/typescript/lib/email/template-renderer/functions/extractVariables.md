@@ -8,7 +8,7 @@
 
 > **extractVariables**(`template`): `string`[]
 
-Defined in: [lib/email/template-renderer.ts:130](https://github.com/JoeInnsp23/practice-hub/blob/b86ef329c1a1af142a431fcce71cc8e646e0efa2/lib/email/template-renderer.ts#L130)
+Defined in: [lib/email/template-renderer.ts:130](https://github.com/JoeInnsp23/practice-hub/blob/79900729bf957a1e6d9599b0eab6377416172d8b/lib/email/template-renderer.ts#L130)
 
 Extracts variable names from a template
 
