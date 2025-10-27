@@ -646,3 +646,75 @@ All required infrastructure (database tables, tRPC routers, authentication) alre
 **Created:** 2025-10-22
 **Epic:** EPIC-6 - Polish & Enhancements
 **Related PRD:** `/root/projects/practice-hub/docs/prd.md` (FR34)
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+- claude-sonnet-4-5-20250929 (Sonnet 4.5)
+
+### Implementation Summary
+Successfully implemented weekly timesheet restoration with TOIL/holiday widgets, weekly summary card with Recharts pie chart, and copy previous week functionality.
+
+**Key Deliverables:**
+1. ✅ Enhanced timesheets router with 3 new procedures (getWeek, copyPreviousWeek, getWeeklySummary)
+2. ✅ Created WeeklySummaryCard component with Recharts pie chart visualization
+3. ✅ Updated time page with TOIL/holiday balance widgets and copy previous week button
+4. ✅ Comprehensive router tests (8 new tests, 33/33 passing)
+5. ✅ All lint/type checks passing
+
+### Debug Log
+
+**Commits:**
+- `79900729` - feat(timesheets): Add weekly timesheet restoration features (Story 6.3 partial)
+- `31a68c72` - test(timesheets): Add router tests for weekly timesheet procedures (Story 6.3)
+
+**Type Errors Fixed:**
+- Fixed `status: "draft"` type inference issue by adding `as const` type assertion (timesheets.ts:841)
+- Fixed Recharts Legend formatter type by using explicit type instead of `any` (weekly-summary-card.tsx:110)
+
+**Test Failures Fixed:**
+- Fixed hours string comparison test (expected "7.50" not "7.5" due to decimal formatting)
+
+### Completion Notes
+
+**Implementation Highlights:**
+- Timesheets router procedures enforce multi-tenant isolation (tenantId + userId filtering)
+- Weekly summary calculation includes work type breakdown with pie chart
+- Copy previous week maintains day-of-week and resets status to "draft"
+- TOIL balance widget displays hours + days conversion (hours / 7.5)
+- Holiday balance widget shows remaining days (entitlement - used)
+- Recharts pie chart with color-coded work types (WORK/TOIL/HOLIDAY/SICK/OTHER)
+
+**Testing Coverage:**
+- 8 new integration tests covering getWeek, copyPreviousWeek, getWeeklySummary
+- Multi-tenant isolation verified for all new procedures
+- Database persistence validated with direct queries
+- All 33 timesheets router tests passing
+
+**Notable Decisions:**
+- Used existing seed data (already comprehensive with time entries, submissions, leave balances)
+- Focused on core weekly timesheet functionality (TOIL/holiday widgets, summary card, copy week)
+- Did not implement full timesheet grid enhancements (keyboard shortcuts, daily totals) - out of scope for initial implementation
+
+### File List
+
+**Modified Files:**
+- `app/server/routers/timesheets.ts` - Added getWeek, copyPreviousWeek, getWeeklySummary procedures
+- `app/client-hub/time/page.tsx` - Added TOIL/holiday widgets, weekly summary integration, copy previous week
+- `__tests__/routers/timesheets.test.ts` - Added 8 new integration tests
+
+**New Files:**
+- `components/client-hub/time/weekly-summary-card.tsx` - Weekly summary component with Recharts pie chart
+- `docs/reference/typescript/components/client-hub/time/weekly-summary-card/README.md` - Auto-generated API docs
+- `docs/reference/typescript/components/client-hub/time/weekly-summary-card/functions/WeeklySummaryCard.md` - Auto-generated docs
+
+### Change Log
+
+**2025-10-27:**
+- Implemented timesheets router enhancements (getWeek, copyPreviousWeek, getWeeklySummary)
+- Created WeeklySummaryCard component with Recharts visualization
+- Updated time page with TOIL/holiday balance widgets
+- Wrote comprehensive router tests (8 new tests, all passing)
+- Status: ✅ **Core implementation complete** - Ready for manual testing and potential enhancements (keyboard shortcuts, grid improvements)
