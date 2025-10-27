@@ -351,6 +351,15 @@ async function seedDatabase() {
       emailNotifications: true,
       inAppNotifications: true,
       digestEmail: user.role === "admin" ? "daily" : "weekly",
+
+      // Granular notification preferences (FR31) - all enabled by default
+      notifTaskAssigned: true,
+      notifTaskMention: true,
+      notifTaskReassigned: true,
+      notifDeadlineApproaching: true,
+      notifApprovalNeeded: true,
+      notifClientMessage: true,
+
       theme: "system",
       language: "en",
       timezone: "Europe/London",
@@ -1586,7 +1595,7 @@ For more information, visit the ICO website: https://ico.org.uk
   const accountsPrices = [49, 59, 79, 99, 119, 139, 159];
   turnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("COMP_ACCOUNTS").id,
+      componentId: getService("COMP_ACCOUNTS").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1597,7 +1606,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // COMP_ACCOUNTS - Transaction-based pricing (Model B)
   // Base £30 + £0.15 per transaction
   pricingRulesList.push({
-    serviceId: getService("COMP_ACCOUNTS").id,
+    componentId: getService("COMP_ACCOUNTS").id,
     ruleType: "per_unit" as const,
     price: "0.15",
     metadata: { basePrice: 30, description: "Per transaction" },
@@ -1613,7 +1622,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   vatTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("VAT_STANDARD").id,
+      componentId: getService("VAT_STANDARD").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1624,7 +1633,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // VAT_STANDARD - Transaction-based pricing (Model B)
   // £0.10 per transaction (minimum £20)
   pricingRulesList.push({
-    serviceId: getService("VAT_STANDARD").id,
+    componentId: getService("VAT_STANDARD").id,
     ruleType: "per_unit" as const,
     price: "0.10",
     metadata: { minimumPrice: 20, description: "Per transaction" },
@@ -1641,7 +1650,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   bookBasicTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("BOOK_BASIC").id,
+      componentId: getService("BOOK_BASIC").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1663,7 +1672,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   bookBasicTransactionBands.forEach((band) => {
     pricingRulesList.push({
-      serviceId: getService("BOOK_BASIC").id,
+      componentId: getService("BOOK_BASIC").id,
       ruleType: "transaction_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1673,7 +1682,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   // BOOK_BASIC - High volume transaction pricing (500+)
   pricingRulesList.push({
-    serviceId: getService("BOOK_BASIC").id,
+    componentId: getService("BOOK_BASIC").id,
     ruleType: "per_unit" as const,
     minValue: "501",
     price: "0.60",
@@ -1691,7 +1700,7 @@ For more information, visit the ICO website: https://ico.org.uk
   Object.entries(bookFullPrices).forEach(([complexity, prices]) => {
     turnoverBands.forEach((band, index) => {
       pricingRulesList.push({
-        serviceId: getService("BOOK_FULL").id,
+        componentId: getService("BOOK_FULL").id,
         ruleType: "turnover_band" as const,
         minValue: band.min.toString(),
         maxValue: band.max.toString(),
@@ -1752,7 +1761,7 @@ For more information, visit the ICO website: https://ico.org.uk
   Object.entries(bookFullTransactionBands).forEach(([complexity, bands]) => {
     bands.forEach((band) => {
       pricingRulesList.push({
-        serviceId: getService("BOOK_FULL").id,
+        componentId: getService("BOOK_FULL").id,
         ruleType: "transaction_band" as const,
         minValue: band.min.toString(),
         maxValue: band.max.toString(),
@@ -1771,7 +1780,7 @@ For more information, visit the ICO website: https://ico.org.uk
   };
   Object.entries(bookFullHighVolumeRates).forEach(([complexity, rate]) => {
     pricingRulesList.push({
-      serviceId: getService("BOOK_FULL").id,
+      componentId: getService("BOOK_FULL").id,
       ruleType: "per_unit" as const,
       minValue: "501",
       price: rate.toString(),
@@ -1791,7 +1800,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   mgmtMonthlyTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("MGMT_MONTHLY").id,
+      componentId: getService("MGMT_MONTHLY").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1802,7 +1811,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // MGMT_QUARTERLY - Turnover-based pricing (50% of monthly)
   mgmtMonthlyTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("MGMT_QUARTERLY").id,
+      componentId: getService("MGMT_QUARTERLY").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1849,7 +1858,7 @@ For more information, visit the ICO website: https://ico.org.uk
   payrollEmployeeBands.forEach((band) => {
     // Monthly (base rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1859,7 +1868,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // Weekly (3x monthly rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1869,7 +1878,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // Fortnightly (2x monthly rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1879,7 +1888,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // 4-Weekly (2x monthly rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1898,7 +1907,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   payrollPerEmployeePricing.forEach((pricing) => {
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "per_unit" as const,
       minValue: "21",
       price: pricing.pricePerEmployee.toString(),

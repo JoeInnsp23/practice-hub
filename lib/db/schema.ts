@@ -172,6 +172,15 @@ export const userSettings = pgTable("user_settings", {
   emailNotifications: boolean("email_notifications").default(true),
   inAppNotifications: boolean("in_app_notifications").default(true),
   digestEmail: text("digest_email").default("daily"), // "daily" | "weekly" | "never"
+
+  // Granular notification preferences (FR31)
+  notifTaskAssigned: boolean("notif_task_assigned").default(true),
+  notifTaskMention: boolean("notif_task_mention").default(true),
+  notifTaskReassigned: boolean("notif_task_reassigned").default(true),
+  notifDeadlineApproaching: boolean("notif_deadline_approaching").default(true),
+  notifApprovalNeeded: boolean("notif_approval_needed").default(true),
+  notifClientMessage: boolean("notif_client_message").default(true),
+
   theme: text("theme").default("system"), // "light" | "dark" | "system"
   language: text("language").default("en"),
   timezone: text("timezone").default("Europe/London"),
@@ -348,7 +357,7 @@ export const toilAccrualHistory = pgTable(
     userId: text("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    timesheetId: text("timesheet_id").references(
+    timesheetId: uuid("timesheet_id").references(
       () => timesheetSubmissions.id,
       {
         onDelete: "set null",

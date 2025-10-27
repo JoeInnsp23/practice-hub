@@ -6,7 +6,7 @@
 
 # Interface: UploadOptions
 
-Defined in: [lib/storage/s3.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/storage/s3.ts#L22)
+Defined in: [lib/storage/s3.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/storage/s3.ts#L22)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/storage/s3.ts:22](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **buffer**: `Buffer`
 
-Defined in: [lib/storage/s3.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/storage/s3.ts#L24)
+Defined in: [lib/storage/s3.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/storage/s3.ts#L24)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/storage/s3.ts:24](https://github.com/JoeInnsp23/practice-hub/bl
 
 > `optional` **contentType**: `string`
 
-Defined in: [lib/storage/s3.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/storage/s3.ts#L25)
+Defined in: [lib/storage/s3.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/storage/s3.ts#L25)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/storage/s3.ts:25](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **fileName**: `string`
 
-Defined in: [lib/storage/s3.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/storage/s3.ts#L23)
+Defined in: [lib/storage/s3.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/storage/s3.ts#L23)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/storage/s3.ts:23](https://github.com/JoeInnsp23/practice-hub/bl
 
 > `optional` **metadata**: `Record`\<`string`, `string`\>
 
-Defined in: [lib/storage/s3.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/storage/s3.ts#L26)
+Defined in: [lib/storage/s3.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/storage/s3.ts#L26)

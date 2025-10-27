@@ -8,4 +8,4 @@
 
 > `const` **taskTemplates**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:1035](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/db/schema.ts#L1035)
+Defined in: [lib/db/schema.ts:1044](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/db/schema.ts#L1044)

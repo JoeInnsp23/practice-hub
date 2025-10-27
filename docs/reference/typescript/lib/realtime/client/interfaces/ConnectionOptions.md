@@ -6,7 +6,7 @@
 
 # Interface: ConnectionOptions
 
-Defined in: [lib/realtime/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L55)
+Defined in: [lib/realtime/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L55)
 
 Connection options
 
@@ -16,7 +16,7 @@ Connection options
 
 > `optional` **authToken**: `string`
 
-Defined in: [lib/realtime/client.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L69)
+Defined in: [lib/realtime/client.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L69)
 
 Authentication token
 
@@ -26,7 +26,7 @@ Authentication token
 
 > `optional` **enablePollingFallback**: `boolean`
 
-Defined in: [lib/realtime/client.ts:65](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L65)
+Defined in: [lib/realtime/client.ts:65](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L65)
 
 Enable polling fallback (default: true)
 
@@ -36,7 +36,7 @@ Enable polling fallback (default: true)
 
 > `optional` **heartbeatTimeout**: `number`
 
-Defined in: [lib/realtime/client.ts:63](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L63)
+Defined in: [lib/realtime/client.ts:63](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L63)
 
 Heartbeat timeout in ms (default: 60000)
 
@@ -46,7 +46,7 @@ Heartbeat timeout in ms (default: 60000)
 
 > `optional` **maxReconnectAttempts**: `number`
 
-Defined in: [lib/realtime/client.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L57)
+Defined in: [lib/realtime/client.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L57)
 
 Maximum reconnection attempts before fallback (default: 3)
 
@@ -56,7 +56,7 @@ Maximum reconnection attempts before fallback (default: 3)
 
 > `optional` **maxReconnectDelay**: `number`
 
-Defined in: [lib/realtime/client.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L61)
+Defined in: [lib/realtime/client.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L61)
 
 Maximum reconnection delay in ms (default: 30000)
 
@@ -66,7 +66,7 @@ Maximum reconnection delay in ms (default: 30000)
 
 > `optional` **pollingInterval**: `number`
 
-Defined in: [lib/realtime/client.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L67)
+Defined in: [lib/realtime/client.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L67)
 
 Polling interval in ms (default: 30000)
 
@@ -76,6 +76,6 @@ Polling interval in ms (default: 30000)
 
 > `optional` **reconnectDelay**: `number`
 
-Defined in: [lib/realtime/client.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/lib/realtime/client.ts#L59)
+Defined in: [lib/realtime/client.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/lib/realtime/client.ts#L59)
 
 Base reconnection delay in ms (default: 1000)

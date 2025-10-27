@@ -31,6 +31,7 @@ import {
   workflows,
   workflowVersions,
 } from "@/lib/db/schema";
+import { shouldSendNotification } from "@/lib/notifications/check-preferences";
 import {
   calculateDueDate,
   calculateNextPeriod,
@@ -258,18 +259,25 @@ async function generateTaskFromTemplateInternal(params: {
 
   // Send notification to assignee if assigned
   if (assignedTo) {
-    await db.insert(notifications).values({
-      id: crypto.randomUUID(),
-      tenantId: params.tenantId,
-      userId: assignedTo,
-      type: "task_assigned",
-      title: "New task generated",
-      message: `Task "${taskName}" has been automatically assigned to you`,
-      actionUrl: `/client-hub/tasks/${taskId}`,
-      entityType: "task",
-      entityId: taskId,
-      isRead: false,
-    });
+    const shouldNotify = await shouldSendNotification(
+      assignedTo,
+      "task_assigned",
+      "in_app",
+    );
+    if (shouldNotify) {
+      await db.insert(notifications).values({
+        id: crypto.randomUUID(),
+        tenantId: params.tenantId,
+        userId: assignedTo,
+        type: "task_assigned",
+        title: "New task generated",
+        message: `Task "${taskName}" has been automatically assigned to you`,
+        actionUrl: `/client-hub/tasks/${taskId}`,
+        entityType: "task",
+        entityId: taskId,
+        isRead: false,
+      });
+    }
   }
 
   return { success: true, taskId };
@@ -1285,17 +1293,24 @@ export const tasksRouter = router({
 
       // Create notifications for mentioned users
       for (const mentionedUserId of input.mentionedUsers) {
-        await db.insert(notifications).values({
-          tenantId,
-          userId: mentionedUserId,
-          type: "task_mention",
-          title: "You were mentioned in a task",
-          message: `${firstName || ""} ${lastName || ""} mentioned you in task comments`,
-          actionUrl: `/client-hub/tasks/${input.taskId}`,
-          entityType: "task",
-          entityId: task.id,
-          isRead: false,
-        });
+        const shouldNotify = await shouldSendNotification(
+          mentionedUserId,
+          "task_mention",
+          "in_app",
+        );
+        if (shouldNotify) {
+          await db.insert(notifications).values({
+            tenantId,
+            userId: mentionedUserId,
+            type: "task_mention",
+            title: "You were mentioned in a task",
+            message: `${firstName || ""} ${lastName || ""} mentioned you in task comments`,
+            actionUrl: `/client-hub/tasks/${input.taskId}`,
+            entityType: "task",
+            entityId: task.id,
+            isRead: false,
+          });
+        }
       }
 
       // Log activity
@@ -1574,29 +1589,43 @@ export const tasksRouter = router({
 
         // Send notification to old assignee
         if (currentAssigneeId) {
+          const shouldNotifyOld = await shouldSendNotification(
+            currentAssigneeId,
+            "task_reassigned",
+            "in_app",
+          );
+          if (shouldNotifyOld) {
+            await tx.insert(notifications).values({
+              tenantId,
+              userId: currentAssigneeId,
+              type: "task_reassigned",
+              title: "Task reassigned",
+              message: `Task "${task.title}" has been reassigned`,
+              actionUrl: `/client-hub/tasks/${input.taskId}`,
+              entityType: "task",
+              entityId: input.taskId,
+            });
+          }
+        }
+
+        // Send notification to new assignee
+        const shouldNotifyNew = await shouldSendNotification(
+          input.toUserId,
+          "task_assigned",
+          "in_app",
+        );
+        if (shouldNotifyNew) {
           await tx.insert(notifications).values({
             tenantId,
-            userId: currentAssigneeId,
-            type: "task_reassigned",
-            title: "Task reassigned",
-            message: `Task "${task.title}" has been reassigned`,
+            userId: input.toUserId,
+            type: "task_assigned",
+            title: "Task assigned to you",
+            message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
             actionUrl: `/client-hub/tasks/${input.taskId}`,
             entityType: "task",
             entityId: input.taskId,
           });
         }
-
-        // Send notification to new assignee
-        await tx.insert(notifications).values({
-          tenantId,
-          userId: input.toUserId,
-          type: "task_assigned",
-          title: "Task assigned to you",
-          message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
-          actionUrl: `/client-hub/tasks/${input.taskId}`,
-          entityType: "task",
-          entityId: input.taskId,
-        });
       });
 
       return { success: true };
@@ -1663,29 +1692,43 @@ export const tasksRouter = router({
 
           // Send notifications (old assignee)
           if (currentAssigneeId) {
+            const shouldNotifyOld = await shouldSendNotification(
+              currentAssigneeId,
+              "task_reassigned",
+              "in_app",
+            );
+            if (shouldNotifyOld) {
+              await tx.insert(notifications).values({
+                tenantId,
+                userId: currentAssigneeId,
+                type: "task_reassigned",
+                title: "Task reassigned",
+                message: `Task "${task.title}" has been reassigned`,
+                actionUrl: `/client-hub/tasks/${taskId}`,
+                entityType: "task",
+                entityId: taskId,
+              });
+            }
+          }
+
+          // Send notification (new assignee)
+          const shouldNotifyNew = await shouldSendNotification(
+            input.toUserId,
+            "task_assigned",
+            "in_app",
+          );
+          if (shouldNotifyNew) {
             await tx.insert(notifications).values({
               tenantId,
-              userId: currentAssigneeId,
-              type: "task_reassigned",
-              title: "Task reassigned",
-              message: `Task "${task.title}" has been reassigned`,
+              userId: input.toUserId,
+              type: "task_assigned",
+              title: "Task assigned to you",
+              message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
               actionUrl: `/client-hub/tasks/${taskId}`,
               entityType: "task",
               entityId: taskId,
             });
           }
-
-          // Send notification (new assignee)
-          await tx.insert(notifications).values({
-            tenantId,
-            userId: input.toUserId,
-            type: "task_assigned",
-            title: "Task assigned to you",
-            message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
-            actionUrl: `/client-hub/tasks/${taskId}`,
-            entityType: "task",
-            entityId: taskId,
-          });
         }
       });
 

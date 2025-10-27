@@ -659,6 +659,138 @@ export default function SettingsPage() {
               </div>
 
               <div className="pt-4 border-t">
+                <h4 className="text-sm font-medium mb-4">
+                  Granular Notification Controls
+                </h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifTaskAssigned">Task Assigned</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a task is assigned to you
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifTaskAssigned"
+                      checked={userForm.notifTaskAssigned ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifTaskAssigned: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifTaskMention">
+                        Task Mention/Comment
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when you're mentioned in a task
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifTaskMention"
+                      checked={userForm.notifTaskMention ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifTaskMention: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifTaskReassigned">
+                        Task Reassigned
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a task is reassigned to/from you
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifTaskReassigned"
+                      checked={userForm.notifTaskReassigned ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifTaskReassigned: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifDeadlineApproaching">
+                        Deadline Approaching
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a task/compliance deadline is near
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifDeadlineApproaching"
+                      checked={userForm.notifDeadlineApproaching ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifDeadlineApproaching: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifApprovalNeeded">
+                        Approval Required
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when your approval is needed
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifApprovalNeeded"
+                      checked={userForm.notifApprovalNeeded ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifApprovalNeeded: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifClientMessage">
+                        Client Messages
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a client sends you a message
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifClientMessage"
+                      checked={userForm.notifClientMessage ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifClientMessage: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="digestEmail">Digest Email</Label>

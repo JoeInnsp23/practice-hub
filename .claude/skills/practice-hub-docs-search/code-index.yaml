@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-26T19:10:50.298Z
+# Generated: 2025-10-27T00:03:03.944Z
 
 functions:
   staffStatisticsRouter:
@@ -845,6 +845,12 @@ types:
     line: 1
     type: "type"
     signature: "interface LeadScoringInput"
+  NotificationType:
+    description: "Notification types that map to user preference fields"
+    file: "lib/notifications/check-preferences.ts"
+    line: 5
+    type: "type"
+    signature: "type NotificationType"
   ConnectionState:
     description: "Realtime Client Interface"
     file: "lib/realtime/client.ts"
@@ -884,7 +890,7 @@ types:
   CompanySettings:
     description: "Type exports for use in tRPC procedures and components"
     file: "lib/schemas/settings-schemas.ts"
-    line: 45
+    line: 54
     type: "type"
     signature: "type CompanySettings"
   CSVRowError:
@@ -1146,9 +1152,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-26T19:10:50.300Z"
-  total_entries: 189
+  generated: "2025-10-27T00:03:03.945Z"
+  total_entries: 190
   functions: 122
-  types: 52
+  types: 53
   components: 11
   classes: 4

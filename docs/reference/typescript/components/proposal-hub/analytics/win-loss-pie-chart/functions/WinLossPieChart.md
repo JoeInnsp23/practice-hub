@@ -8,7 +8,7 @@
 
 > **WinLossPieChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/analytics/win-loss-pie-chart.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/components/proposal-hub/analytics/win-loss-pie-chart.tsx#L25)
+Defined in: [components/proposal-hub/analytics/win-loss-pie-chart.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/components/proposal-hub/analytics/win-loss-pie-chart.tsx#L25)
 
 ## Parameters
 

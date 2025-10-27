@@ -8,7 +8,7 @@
 
 > **PublishNotesDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/workflows/publish-notes-dialog.tsx:23](https://github.com/JoeInnsp23/practice-hub/blob/2a46204a681094906843b7345518f00183c7c289/components/client-hub/workflows/publish-notes-dialog.tsx#L23)
+Defined in: [components/client-hub/workflows/publish-notes-dialog.tsx:23](https://github.com/JoeInnsp23/practice-hub/blob/a3dc67446cfc55d2f29bf75271eb5c98593aea17/components/client-hub/workflows/publish-notes-dialog.tsx#L23)
 
 ## Parameters
 

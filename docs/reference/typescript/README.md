@@ -364,6 +364,7 @@
 - [lib/lead-scoring/calculate-score](lib/lead-scoring/calculate-score/README.md)
 - [lib/leave/carryover](lib/leave/carryover/README.md)
 - [lib/leave/working-days](lib/leave/working-days/README.md)
+- [lib/notifications/check-preferences](lib/notifications/check-preferences/README.md)
 - [lib/rate-limit](lib/rate-limit/README.md)
 - [lib/rate-limit/signing](lib/rate-limit/signing/README.md)
 - [lib/rate-limit/webhook](lib/rate-limit/webhook/README.md)
