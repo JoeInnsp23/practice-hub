@@ -8,4 +8,4 @@
 
 > **WorkingPattern** = [`WorkingPatternListOutput`](WorkingPatternListOutput.md)\[`"workingPatterns"`\]\[`number`\]
 
-Defined in: [lib/trpc/types.ts:104](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/lib/trpc/types.ts#L104)
+Defined in: [lib/trpc/types.ts:104](https://github.com/JoeInnsp23/practice-hub/blob/f2fa20f0e070cc93df33366f2b8847ea7a37ea66/lib/trpc/types.ts#L104)

@@ -8,7 +8,7 @@
 
 > **LeadSourcesChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/charts/lead-sources-chart.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/components/proposal-hub/charts/lead-sources-chart.tsx#L35)
+Defined in: [components/proposal-hub/charts/lead-sources-chart.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/f2fa20f0e070cc93df33366f2b8847ea7a37ea66/components/proposal-hub/charts/lead-sources-chart.tsx#L35)
 
 ## Parameters
 

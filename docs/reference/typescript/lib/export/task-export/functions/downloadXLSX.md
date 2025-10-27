@@ -8,7 +8,7 @@
 
 > **downloadXLSX**(`buffer`, `filename`): `void`
 
-Defined in: [lib/export/task-export.ts:141](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/lib/export/task-export.ts#L141)
+Defined in: [lib/export/task-export.ts:141](https://github.com/JoeInnsp23/practice-hub/blob/f2fa20f0e070cc93df33366f2b8847ea7a37ea66/lib/export/task-export.ts#L141)
 
 Download XLSX file
 
