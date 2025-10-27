@@ -19,6 +19,8 @@ import {
   compliance,
   departments,
   documents,
+  emailQueue,
+  emailTemplates,
   importLogs,
   integrationSettings,
   invitations,
@@ -52,6 +54,7 @@ import {
   toilAccrualHistory,
   userSettings,
   users,
+  workflowEmailRules,
   workflowStages,
   workflows,
   workflowTemplates,
@@ -77,7 +80,10 @@ async function clearDatabase() {
   await db.delete(workflowVersions);
   await db.delete(workflowStages);
   await db.delete(workflowTemplates);
+  await db.delete(emailQueue);
+  await db.delete(workflowEmailRules);
   await db.delete(workflows);
+  await db.delete(emailTemplates);
   await db.delete(documents);
   await db.delete(compliance);
   await db.delete(clientServices);
@@ -4984,6 +4990,128 @@ For more information, visit the ICO website: https://ico.org.uk
     "✓ Created integration settings, import logs, and sample webhook events",
   );
 
+  // Create Email Templates
+  console.log("Creating email templates...");
+  const emailTemplatesList = await db
+    .insert(emailTemplates)
+    .values([
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Task Assigned Notification",
+        templateType: "task_assigned",
+        subject: "New task assigned: {task_name}",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>You have been assigned a new task:</p>
+<p><strong>{task_name}</strong></p>
+<p>Due date: {due_date}</p>
+<p>Client: {client_name}</p>
+<p>Please log in to Practice Hub to view the task details.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, You have been assigned a new task: {task_name}. Due date: {due_date}. Client: {client_name}. Please log in to Practice Hub to view the task details.",
+        variables: [
+          "staff_name",
+          "task_name",
+          "due_date",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Task Due Soon Reminder",
+        templateType: "task_due_soon",
+        subject: "Reminder: {task_name} is due soon",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>This is a reminder that the following task is due soon:</p>
+<p><strong>{task_name}</strong></p>
+<p>Due date: {due_date}</p>
+<p>Client: {client_name}</p>
+<p>Please ensure this task is completed on time.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, This is a reminder that the following task is due soon: {task_name}. Due date: {due_date}. Client: {client_name}. Please ensure this task is completed on time.",
+        variables: [
+          "staff_name",
+          "task_name",
+          "due_date",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Task Overdue Alert",
+        templateType: "task_overdue",
+        subject: "URGENT: {task_name} is overdue",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p><strong style="color: #dc2626;">URGENT:</strong> The following task is now overdue:</p>
+<p><strong>{task_name}</strong></p>
+<p>Due date: {due_date}</p>
+<p>Client: {client_name}</p>
+<p>Please complete this task as soon as possible.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, URGENT: The following task is now overdue: {task_name}. Due date: {due_date}. Client: {client_name}. Please complete this task as soon as possible.",
+        variables: [
+          "staff_name",
+          "task_name",
+          "due_date",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Workflow Stage Completed",
+        templateType: "workflow_stage_complete",
+        subject: "Workflow stage completed: {stage_name}",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>The following workflow stage has been completed:</p>
+<p><strong>Workflow:</strong> {workflow_name}</p>
+<p><strong>Stage:</strong> {stage_name}</p>
+<p><strong>Client:</strong> {client_name}</p>
+<p>You can now proceed to the next stage.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, The following workflow stage has been completed: Workflow: {workflow_name}, Stage: {stage_name}, Client: {client_name}. You can now proceed to the next stage.",
+        variables: [
+          "staff_name",
+          "workflow_name",
+          "stage_name",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "New Client Created",
+        templateType: "client_created",
+        subject: "New client added: {client_name}",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>A new client has been added to Practice Hub:</p>
+<p><strong>{client_name}</strong></p>
+<p>Please review the client details and complete any required onboarding tasks.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, A new client has been added to Practice Hub: {client_name}. Please review the client details and complete any required onboarding tasks.",
+        variables: ["staff_name", "client_name", "company_name"],
+        isActive: true,
+      },
+    ])
+    .returning();
+
+  console.log(`✓ Created ${emailTemplatesList.length} email templates`);
+
   console.log("✅ Database seeding completed!");
 
   // Print summary
@@ -5002,6 +5130,7 @@ For more information, visit the ICO website: https://ico.org.uk
   console.log(`✓ Compliance items created`);
   console.log(`✓ Document structure created`);
   console.log(`✓ ${workflowTemplates.length} Workflow templates created`);
+  console.log(`✓ ${emailTemplatesList.length} Email templates created`);
   console.log(`✓ 100 Activity logs created`);
 
   console.log("\n👤 Test Users:");

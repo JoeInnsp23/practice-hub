@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-27T01:57:34.277Z
+# Generated: 2025-10-27T12:17:01.844Z
 
 functions:
   staffStatisticsRouter:
@@ -39,6 +39,30 @@ functions:
     line: 228
     type: "function"
     signature: "const REQUIRED_AML_FIELDS"
+  companiesHouseApi:
+    description: "Companies House API Documentation"
+    file: "lib/api-docs/external-apis.ts"
+    line: 47
+    type: "function"
+    signature: "const companiesHouseApi"
+  hmrcApi:
+    description: "HMRC Making Tax Digital API Documentation"
+    file: "lib/api-docs/external-apis.ts"
+    line: 183
+    type: "function"
+    signature: "const hmrcApi"
+  docuSealApi:
+    description: "DocuSeal API Documentation"
+    file: "lib/api-docs/external-apis.ts"
+    line: 327
+    type: "function"
+    signature: "const docuSealApi"
+  getAllExternalApis:
+    description: "Get all external API documentation"
+    file: "lib/api-docs/external-apis.ts"
+    line: 479
+    type: "function"
+    signature: "function getAllExternalApis"
   questionnaireResponsesCache:
     description: "Simple in-memory cache with TTL (Time To Live)"
     file: "lib/cache.ts"
@@ -821,6 +845,12 @@ types:
     line: 1
     type: "type"
     signature: "interface OnboardingResponseMetadata"
+  ExternalApiEndpoint:
+    description: "External API Documentation"
+    file: "lib/api-docs/external-apis.ts"
+    line: 1
+    type: "type"
+    signature: "interface ExternalApiEndpoint"
   PortalUserResult:
     description: "Multi-Client Portal Access Manager"
     file: "lib/client-portal/access-manager.ts"
@@ -1194,9 +1224,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-27T01:57:34.278Z"
-  total_entries: 197
-  functions: 126
-  types: 56
+  generated: "2025-10-27T12:17:01.847Z"
+  total_entries: 202
+  functions: 130
+  types: 57
   components: 11
   classes: 4

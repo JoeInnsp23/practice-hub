@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/(legal)/cookie-policy/page.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/app/(legal)/cookie-policy/page.tsx#L14)
+Defined in: [app/(legal)/cookie-policy/page.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/app/(legal)/cookie-policy/page.tsx#L14)
 
 Cookie Policy Page
 Public-facing legal page showing the organization's Cookie Policy

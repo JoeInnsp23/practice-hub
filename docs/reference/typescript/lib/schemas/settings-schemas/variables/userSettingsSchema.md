@@ -8,6 +8,6 @@
 
 > `const` **userSettingsSchema**: `ZodObject`\<\{ `digestEmail`: `ZodDefault`\<`ZodEnum`\<\{ `daily`: `"daily"`; `never`: `"never"`; `weekly`: `"weekly"`; \}\>\>; `emailNotifications`: `ZodDefault`\<`ZodBoolean`\>; `inAppNotifications`: `ZodDefault`\<`ZodBoolean`\>; `language`: `ZodDefault`\<`ZodEnum`\<\{ `de`: `"de"`; `en`: `"en"`; `es`: `"es"`; `fr`: `"fr"`; \}\>\>; `notifApprovalNeeded`: `ZodDefault`\<`ZodBoolean`\>; `notifClientMessage`: `ZodDefault`\<`ZodBoolean`\>; `notifDeadlineApproaching`: `ZodDefault`\<`ZodBoolean`\>; `notifTaskAssigned`: `ZodDefault`\<`ZodBoolean`\>; `notifTaskMention`: `ZodDefault`\<`ZodBoolean`\>; `notifTaskReassigned`: `ZodDefault`\<`ZodBoolean`\>; `theme`: `ZodDefault`\<`ZodEnum`\<\{ `dark`: `"dark"`; `light`: `"light"`; `system`: `"system"`; \}\>\>; `timezone`: `ZodDefault`\<`ZodString`\>; \}, `$strip`\>
 
-Defined in: [lib/schemas/settings-schemas.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/schemas/settings-schemas.ts#L36)
+Defined in: [lib/schemas/settings-schemas.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/schemas/settings-schemas.ts#L36)
 
 Schema for user-scoped settings stored in userSettings table

@@ -8,4 +8,4 @@
 
 > `const` **pricingModelEnum**: `PgEnum`\<\[`"turnover"`, `"transaction"`, `"both"`, `"fixed"`\]\>
 
-Defined in: [lib/db/schema.ts:792](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/db/schema.ts#L792)
+Defined in: [lib/db/schema.ts:792](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/db/schema.ts#L792)

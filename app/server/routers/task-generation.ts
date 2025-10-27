@@ -11,6 +11,7 @@ import {
   tasks,
   taskTemplates,
 } from "@/lib/db/schema";
+import { shouldSendNotification } from "@/lib/notifications/check-preferences";
 import {
   calculateDueDate,
   calculatePeriodInfo,
@@ -19,7 +20,6 @@ import {
   type PlaceholderData,
   replacePlaceholders,
 } from "@/lib/utils/task-generation";
-import { shouldSendNotification } from "@/lib/notifications/check-preferences";
 import { protectedProcedure, router } from "../trpc";
 
 export const taskGenerationRouter = router({

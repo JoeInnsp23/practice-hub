@@ -182,12 +182,24 @@ describe("lib/notifications/check-preferences.ts (Integration)", () => {
       });
 
       // Test each notification type
-      expect(await shouldSendNotification(userId, "task_assigned", "in_app")).toBe(true);
-      expect(await shouldSendNotification(userId, "task_mention", "in_app")).toBe(false);
-      expect(await shouldSendNotification(userId, "task_reassigned", "in_app")).toBe(true);
-      expect(await shouldSendNotification(userId, "deadline_approaching", "in_app")).toBe(false);
-      expect(await shouldSendNotification(userId, "approval_needed", "in_app")).toBe(true);
-      expect(await shouldSendNotification(userId, "client_message", "in_app")).toBe(false);
+      expect(
+        await shouldSendNotification(userId, "task_assigned", "in_app"),
+      ).toBe(true);
+      expect(
+        await shouldSendNotification(userId, "task_mention", "in_app"),
+      ).toBe(false);
+      expect(
+        await shouldSendNotification(userId, "task_reassigned", "in_app"),
+      ).toBe(true);
+      expect(
+        await shouldSendNotification(userId, "deadline_approaching", "in_app"),
+      ).toBe(false);
+      expect(
+        await shouldSendNotification(userId, "approval_needed", "in_app"),
+      ).toBe(true);
+      expect(
+        await shouldSendNotification(userId, "client_message", "in_app"),
+      ).toBe(false);
     });
   });
 });

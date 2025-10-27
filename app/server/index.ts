@@ -9,6 +9,7 @@ import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
 import { departmentsRouter } from "./routers/departments";
 import { documentsRouter } from "./routers/documents";
+import { emailTemplatesRouter } from "./routers/email-templates";
 import { importLogsRouter } from "./routers/import-logs";
 import { integrationsRouter } from "./routers/integrations";
 import { invitationsRouter } from "./routers/invitations";
@@ -84,6 +85,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   calendar: calendarRouter,
   documents: documentsRouter,
+  emailTemplates: emailTemplatesRouter,
   legal: legalRouter,
   importLogs: importLogsRouter,
   integrations: integrationsRouter,

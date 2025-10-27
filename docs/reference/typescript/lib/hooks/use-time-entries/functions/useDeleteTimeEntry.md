@@ -8,7 +8,7 @@
 
 > **useDeleteTimeEntry**(): `object`
 
-Defined in: [lib/hooks/use-time-entries.ts:199](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/lib/hooks/use-time-entries.ts#L199)
+Defined in: [lib/hooks/use-time-entries.ts:199](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/hooks/use-time-entries.ts#L199)
 
 ## Returns
 

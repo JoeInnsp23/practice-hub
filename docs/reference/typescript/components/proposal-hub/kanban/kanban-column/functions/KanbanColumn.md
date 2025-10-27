@@ -8,7 +8,7 @@
 
 > **KanbanColumn**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/kanban/kanban-column.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/ec39bc47722fe13b1d3b24e2cb6c1d5ba6d1fb75/components/proposal-hub/kanban/kanban-column.tsx#L21)
+Defined in: [components/proposal-hub/kanban/kanban-column.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/components/proposal-hub/kanban/kanban-column.tsx#L21)
 
 ## Parameters
 
