@@ -8,7 +8,7 @@
 
 > **Switch**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/switch.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/components/ui/switch.tsx#L8)
+Defined in: [components/ui/switch.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/components/ui/switch.tsx#L8)
 
 ## Parameters
 

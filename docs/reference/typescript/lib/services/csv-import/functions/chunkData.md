@@ -8,7 +8,7 @@
 
 > **chunkData**\<`T`\>(`data`, `size`): `T`[][]
 
-Defined in: [lib/services/csv-import.ts:312](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/services/csv-import.ts#L312)
+Defined in: [lib/services/csv-import.ts:312](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/lib/services/csv-import.ts#L312)
 
 Batch data into chunks for processing
 

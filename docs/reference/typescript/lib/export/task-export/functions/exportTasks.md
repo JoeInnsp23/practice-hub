@@ -8,7 +8,7 @@
 
 > **exportTasks**(`tasks`, `columns`, `format`, `filename`): `void`
 
-Defined in: [lib/export/task-export.ts:159](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/export/task-export.ts#L159)
+Defined in: [lib/export/task-export.ts:159](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/lib/export/task-export.ts#L159)
 
 Main export function with format selection
 

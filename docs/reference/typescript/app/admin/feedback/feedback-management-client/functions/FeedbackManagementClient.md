@@ -8,7 +8,7 @@
 
 > **FeedbackManagementClient**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/feedback/feedback-management-client.tsx:79](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/app/admin/feedback/feedback-management-client.tsx#L79)
+Defined in: [app/admin/feedback/feedback-management-client.tsx:79](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/app/admin/feedback/feedback-management-client.tsx#L79)
 
 ## Parameters
 

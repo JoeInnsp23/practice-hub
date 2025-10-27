@@ -1,5 +1,5 @@
-import { generateApiDocs } from "@/lib/api-docs/generate-docs";
 import { getAllExternalApis } from "@/lib/api-docs/external-apis";
+import { generateApiDocs } from "@/lib/api-docs/generate-docs";
 import { generateSchemaDocs } from "@/lib/api-docs/schema-docs";
 import { ApiDocsClient } from "./api-docs-client";
 

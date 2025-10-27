@@ -19,6 +19,7 @@
 - [app/(public)/proposals/sign/\[id\]/page](app/(public)/proposals/sign/[id]/page/README.md)
 - [app/(public)/proposals/signed/\[id\]/page](app/(public)/proposals/signed/[id]/page/README.md)
 - [app/admin/admin-layout-client](app/admin/admin-layout-client/README.md)
+- [app/admin/api-docs/api-docs-client](app/admin/api-docs/api-docs-client/README.md)
 - [app/admin/api-docs/page](app/admin/api-docs/page/README.md)
 - [app/admin/departments/department-modal](app/admin/departments/department-modal/README.md)
 - [app/admin/departments/departments-client](app/admin/departments/departments-client/README.md)

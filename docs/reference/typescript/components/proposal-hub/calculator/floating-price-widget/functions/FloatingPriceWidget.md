@@ -8,7 +8,7 @@
 
 > **FloatingPriceWidget**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/proposal-hub/calculator/floating-price-widget.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/components/proposal-hub/calculator/floating-price-widget.tsx#L35)
+Defined in: [components/proposal-hub/calculator/floating-price-widget.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/components/proposal-hub/calculator/floating-price-widget.tsx#L35)
 
 ## Parameters
 

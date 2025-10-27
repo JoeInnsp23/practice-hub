@@ -8,7 +8,7 @@
 
 > **sendTimesheetRejectionEmail**(`__namedParameters`): `Promise`\<`CreateEmailResponseSuccess` \| `undefined`\>
 
-Defined in: [lib/email/timesheet-notifications.ts:135](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/email/timesheet-notifications.ts#L135)
+Defined in: [lib/email/timesheet-notifications.ts:135](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/lib/email/timesheet-notifications.ts#L135)
 
 ## Parameters
 

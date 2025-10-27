@@ -8,7 +8,7 @@
 
 > **getUKBankHolidays**(`year`): `string`[]
 
-Defined in: [lib/leave/working-days.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/b9b67ceadd84fbbc83140a301933583ac6086c5c/lib/leave/working-days.ts#L88)
+Defined in: [lib/leave/working-days.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/49fb3d52594bfe0a4b5b78917ca941048392595b/lib/leave/working-days.ts#L88)
 
 Get all UK bank holidays for a given year
 
