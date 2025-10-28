@@ -8,7 +8,7 @@
 
 > `const` **APP\_URL**: `string`
 
-Defined in: [lib/config.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/config.ts#L32)
+Defined in: [lib/config.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/config.ts#L32)
 
 Application URL
 Used in email links and redirects

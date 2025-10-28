@@ -8,4 +8,4 @@
 
 > `const` **auth**: `Auth`\<\{ `database`: (`options`) => `Adapter`; `emailAndPassword`: \{ `enabled`: `true`; `password`: \{ `hash`: (`password`) => `Promise`\<`string`\>; `verify`: (`__namedParameters`) => `Promise`\<`boolean`\>; \}; `requireEmailVerification`: `false`; `sendResetPassword`: (`__namedParameters`) => `Promise`\<`void`\>; \}; `emailVerification`: \{ `autoSignInAfterVerification`: `true`; `sendOnSignUp`: `true`; `sendVerificationEmail`: (`__namedParameters`) => `Promise`\<`void`\>; \}; `plugins`: \[\{ \}\]; `session`: \{ `expiresIn`: `number`; `updateAge`: `number`; \}; `socialProviders`: \{ `microsoft`: \{ `authority`: `string`; `clientId`: `string`; `clientSecret`: `string`; `prompt`: `"select_account"`; `tenantId`: `string`; \}; \} \| \{ `microsoft?`: `undefined`; \}; `trustedOrigins`: `string`[]; \}\>
 
-Defined in: [lib/auth.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/auth.ts#L8)
+Defined in: [lib/auth.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/auth.ts#L8)

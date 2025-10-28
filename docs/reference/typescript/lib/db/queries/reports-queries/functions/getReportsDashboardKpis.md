@@ -8,7 +8,7 @@
 
 > **getReportsDashboardKpis**(`tenantId`): `Promise`\<\{ `activeClients`: `number` \| `null`; `billableHours30d`: `string` \| `null`; `collectedRevenue`: `string` \| `null`; `completedTasks30d`: `number` \| `null`; `inProgressTasks`: `number` \| `null`; `newClients30d`: `number` \| `null`; `outstandingRevenue`: `string` \| `null`; `overdueCompliance`: `number` \| `null`; `overdueTasks`: `number` \| `null`; `pendingTasks`: `number` \| `null`; `tenantId`: `string`; `totalHours30d`: `string` \| `null`; `totalRevenue`: `string` \| `null`; `upcomingCompliance30d`: `number` \| `null`; \}\>
 
-Defined in: [lib/db/queries/reports-queries.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/db/queries/reports-queries.ts#L17)
+Defined in: [lib/db/queries/reports-queries.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/db/queries/reports-queries.ts#L17)
 
 Fetch dashboard KPIs for reports page
 Returns aggregated metrics from the dashboard_kpi_view

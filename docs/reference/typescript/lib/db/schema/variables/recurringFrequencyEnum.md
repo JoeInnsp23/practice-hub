@@ -8,4 +8,4 @@
 
 > `const` **recurringFrequencyEnum**: `PgEnum`\<\[`"daily"`, `"weekly"`, `"monthly"`, `"quarterly"`, `"annually"`\]\>
 
-Defined in: [lib/db/schema.ts:545](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/db/schema.ts#L545)
+Defined in: [lib/db/schema.ts:545](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/db/schema.ts#L545)

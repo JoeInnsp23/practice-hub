@@ -8,7 +8,7 @@
 
 > **SignatureUploadModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/documents/signature-upload-modal.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/components/client-hub/documents/signature-upload-modal.tsx#L33)
+Defined in: [components/client-hub/documents/signature-upload-modal.tsx:33](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/components/client-hub/documents/signature-upload-modal.tsx#L33)
 
 ## Parameters
 

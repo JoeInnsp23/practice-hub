@@ -8,7 +8,7 @@
 
 > **generateMarkdownDocs**(): `Promise`\<`string`\>
 
-Defined in: [lib/api-docs/generate-docs.ts:277](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/api-docs/generate-docs.ts#L277)
+Defined in: [lib/api-docs/generate-docs.ts:277](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/api-docs/generate-docs.ts#L277)
 
 Generate markdown documentation
 

@@ -8,7 +8,7 @@
 
 > **WorkflowTemplateModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/workflows/workflow-template-modal.tsx:77](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/components/client-hub/workflows/workflow-template-modal.tsx#L77)
+Defined in: [components/client-hub/workflows/workflow-template-modal.tsx:77](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/components/client-hub/workflows/workflow-template-modal.tsx#L77)
 
 ## Parameters
 

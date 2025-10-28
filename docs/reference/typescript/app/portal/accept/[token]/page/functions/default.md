@@ -8,7 +8,7 @@
 
 > **default**(): `Element` \| `null`
 
-Defined in: [app/portal/accept/\[token\]/page.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/app/portal/accept/[token]/page.tsx#L48)
+Defined in: [app/portal/accept/\[token\]/page.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/app/portal/accept/[token]/page.tsx#L48)
 
 ## Returns
 

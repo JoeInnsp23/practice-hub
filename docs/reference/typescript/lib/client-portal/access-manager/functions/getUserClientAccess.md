@@ -8,7 +8,7 @@
 
 > **getUserClientAccess**(`portalUserId`): `Promise`\<`object`[]\>
 
-Defined in: [lib/client-portal/access-manager.ts:232](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/client-portal/access-manager.ts#L232)
+Defined in: [lib/client-portal/access-manager.ts:232](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/client-portal/access-manager.ts#L232)
 
 Get all clients a portal user has access to
 

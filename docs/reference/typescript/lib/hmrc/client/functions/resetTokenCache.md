@@ -8,7 +8,7 @@
 
 > **\_\_resetTokenCache**(): `void`
 
-Defined in: [lib/hmrc/client.ts:134](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/hmrc/client.ts#L134)
+Defined in: [lib/hmrc/client.ts:134](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/hmrc/client.ts#L134)
 
 **`Internal`**
 

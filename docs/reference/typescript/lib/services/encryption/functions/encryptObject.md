@@ -8,7 +8,7 @@
 
 > **encryptObject**\<`T`\>(`obj`): `string`
 
-Defined in: [lib/services/encryption.ts:163](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/services/encryption.ts#L163)
+Defined in: [lib/services/encryption.ts:163](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/encryption.ts#L163)
 
 Encrypt an object as JSON
 
