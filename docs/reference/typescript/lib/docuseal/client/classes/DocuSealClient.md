@@ -6,7 +6,7 @@
 
 # Class: DocuSealClient
 
-Defined in: [lib/docuseal/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L47)
+Defined in: [lib/docuseal/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L47)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: [lib/docuseal/client.ts:47](https://github.com/JoeInnsp23/practice-h
 
 > **new DocuSealClient**(): `DocuSealClient`
 
-Defined in: [lib/docuseal/client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L51)
+Defined in: [lib/docuseal/client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L51)
 
 #### Returns
 
@@ -26,7 +26,7 @@ Defined in: [lib/docuseal/client.ts:51](https://github.com/JoeInnsp23/practice-h
 
 > **createSubmission**(`params`): `Promise`\<`any`\>
 
-Defined in: [lib/docuseal/client.ts:80](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L80)
+Defined in: [lib/docuseal/client.ts:80](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L80)
 
 Create a submission for signing
 
@@ -46,7 +46,7 @@ Create a submission for signing
 
 > **createTemplate**(`params`): `Promise`\<`any`\>
 
-Defined in: [lib/docuseal/client.ts:72](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L72)
+Defined in: [lib/docuseal/client.ts:72](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L72)
 
 Create a new template with specified fields
 
@@ -66,7 +66,7 @@ Create a new template with specified fields
 
 > **deleteTemplate**(`templateId`): `Promise`\<`any`\>
 
-Defined in: [lib/docuseal/client.ts:124](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L124)
+Defined in: [lib/docuseal/client.ts:124](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L124)
 
 Delete a template
 
@@ -86,7 +86,7 @@ Delete a template
 
 > **downloadSignedPdf**(`submissionId`): `Promise`\<`Buffer`\<`ArrayBufferLike`\>\>
 
-Defined in: [lib/docuseal/client.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L96)
+Defined in: [lib/docuseal/client.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L96)
 
 Download signed PDF as buffer
 
@@ -106,7 +106,7 @@ Download signed PDF as buffer
 
 > **getEmbedUrl**(`submissionId`, `email`): `string`
 
-Defined in: [lib/docuseal/client.ts:109](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L109)
+Defined in: [lib/docuseal/client.ts:109](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L109)
 
 Get embedded signing URL for a specific submitter
 
@@ -130,7 +130,7 @@ Get embedded signing URL for a specific submitter
 
 > **getSubmission**(`submissionId`): `Promise`\<[`DocuSealSubmission`](../interfaces/DocuSealSubmission.md)\>
 
-Defined in: [lib/docuseal/client.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L88)
+Defined in: [lib/docuseal/client.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L88)
 
 Get submission details by ID
 
@@ -150,7 +150,7 @@ Get submission details by ID
 
 > **getTemplate**(`templateId`): `Promise`\<`any`\>
 
-Defined in: [lib/docuseal/client.ts:132](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L132)
+Defined in: [lib/docuseal/client.ts:132](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L132)
 
 Get template by ID
 
@@ -170,7 +170,7 @@ Get template by ID
 
 > **listTemplates**(): `Promise`\<`any`\>
 
-Defined in: [lib/docuseal/client.ts:116](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/docuseal/client.ts#L116)
+Defined in: [lib/docuseal/client.ts:116](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/lib/docuseal/client.ts#L116)
 
 List all templates
 

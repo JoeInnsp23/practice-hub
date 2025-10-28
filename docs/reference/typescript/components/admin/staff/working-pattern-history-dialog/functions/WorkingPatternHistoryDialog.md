@@ -8,7 +8,7 @@
 
 > **WorkingPatternHistoryDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/admin/staff/working-pattern-history-dialog.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/components/admin/staff/working-pattern-history-dialog.tsx#L54)
+Defined in: [components/admin/staff/working-pattern-history-dialog.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/components/admin/staff/working-pattern-history-dialog.tsx#L54)
 
 ## Parameters
 

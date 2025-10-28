@@ -8,7 +8,7 @@
 
 > **MessageThreadList**(`__namedParameters`): `Element`
 
-Defined in: [components/client-portal/messages/message-thread-list.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/components/client-portal/messages/message-thread-list.tsx#L16)
+Defined in: [components/client-portal/messages/message-thread-list.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/components/client-portal/messages/message-thread-list.tsx#L16)
 
 ## Parameters
 

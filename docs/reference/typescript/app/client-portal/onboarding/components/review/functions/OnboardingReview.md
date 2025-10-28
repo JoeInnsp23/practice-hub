@@ -8,7 +8,7 @@
 
 > **OnboardingReview**(`__namedParameters`): `Element`
 
-Defined in: [app/client-portal/onboarding/components/review.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/app/client-portal/onboarding/components/review.tsx#L20)
+Defined in: [app/client-portal/onboarding/components/review.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/app/client-portal/onboarding/components/review.tsx#L20)
 
 ## Parameters
 

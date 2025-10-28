@@ -8,7 +8,7 @@
 
 > **WeeklySummaryCard**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/time/weekly-summary-card.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/components/client-hub/time/weekly-summary-card.tsx#L31)
+Defined in: [components/client-hub/time/weekly-summary-card.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/eff6b04e3024369473845314332b9fed12a0e0c8/components/client-hub/time/weekly-summary-card.tsx#L31)
 
 ## Parameters
 
