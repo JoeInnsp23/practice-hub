@@ -8,6 +8,6 @@
 
 > **NotificationType** = `"task_assigned"` \| `"task_mention"` \| `"task_reassigned"` \| `"deadline_approaching"` \| `"approval_needed"` \| `"client_message"`
 
-Defined in: [lib/notifications/check-preferences.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/notifications/check-preferences.ts#L8)
+Defined in: [lib/notifications/check-preferences.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/notifications/check-preferences.ts#L8)
 
 Notification types that map to user preference fields

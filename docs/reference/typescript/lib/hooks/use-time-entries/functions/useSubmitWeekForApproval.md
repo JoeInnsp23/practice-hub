@@ -8,7 +8,7 @@
 
 > **useSubmitWeekForApproval**(): `object`
 
-Defined in: [lib/hooks/use-time-entries.ts:223](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/hooks/use-time-entries.ts#L223)
+Defined in: [lib/hooks/use-time-entries.ts:223](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/hooks/use-time-entries.ts#L223)
 
 ## Returns
 

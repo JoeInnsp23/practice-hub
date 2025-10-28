@@ -8,4 +8,4 @@
 
 > `const` **taskStatusEnum**: `PgEnum`\<\[`"pending"`, `"in_progress"`, `"review"`, `"completed"`, `"cancelled"`, `"blocked"`, `"records_received"`, `"queries_sent"`, `"queries_received"`\]\>
 
-Defined in: [lib/db/schema.ts:526](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/db/schema.ts#L526)
+Defined in: [lib/db/schema.ts:526](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/db/schema.ts#L526)

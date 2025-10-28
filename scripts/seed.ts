@@ -5192,8 +5192,8 @@ For more information, visit the ICO website: https://ico.org.uk
                   isActive: true,
                 }
               : null,
-          ].filter(Boolean),
-        ) // Filter out null values
+          ].filter((rule): rule is NonNullable<typeof rule> => rule !== null),
+        ) // Filter out null values with type predicate
         .returning();
 
       console.log(

@@ -8,7 +8,7 @@
 
 > **UserButton**(): `Element` \| `null`
 
-Defined in: [components/shared/user-button.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/components/shared/user-button.tsx#L16)
+Defined in: [components/shared/user-button.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/shared/user-button.tsx#L16)
 
 ## Returns
 

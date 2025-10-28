@@ -8,7 +8,7 @@
 
 > **signUp**: `object`
 
-Defined in: [lib/auth-client.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/auth-client.ts#L11)
+Defined in: [lib/auth-client.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/auth-client.ts#L11)
 
 ## Type Declaration
 

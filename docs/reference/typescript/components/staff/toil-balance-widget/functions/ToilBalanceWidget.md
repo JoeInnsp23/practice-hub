@@ -8,7 +8,7 @@
 
 > **ToilBalanceWidget**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/toil-balance-widget.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/components/staff/toil-balance-widget.tsx#L17)
+Defined in: [components/staff/toil-balance-widget.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/staff/toil-balance-widget.tsx#L17)
 
 ## Parameters
 

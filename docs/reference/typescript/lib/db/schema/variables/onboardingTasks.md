@@ -8,4 +8,4 @@
 
 > `const` **onboardingTasks**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:2202](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/db/schema.ts#L2202)
+Defined in: [lib/db/schema.ts:2202](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/db/schema.ts#L2202)

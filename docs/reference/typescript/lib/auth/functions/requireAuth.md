@@ -8,7 +8,7 @@
 
 > **requireAuth**(): `Promise`\<[`AuthContext`](../interfaces/AuthContext.md)\>
 
-Defined in: [lib/auth.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/auth.ts#L153)
+Defined in: [lib/auth.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/auth.ts#L153)
 
 ## Returns
 

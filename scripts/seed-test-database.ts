@@ -271,7 +271,7 @@ async function seedTestDatabase() {
         name: "Test Client Ltd",
         email: "test@client.com",
         status: "active",
-        clientType: "limited_company",
+        type: "limited_company",
         accountManagerId: adminUser.id,
         createdAt: new Date(),
         updatedAt: new Date(),

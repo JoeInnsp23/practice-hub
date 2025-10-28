@@ -8,7 +8,7 @@
 
 > **VATValidationIndicator**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/client-hub/vat-validation-indicator.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/components/client-hub/vat-validation-indicator.tsx#L19)
+Defined in: [components/client-hub/vat-validation-indicator.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/client-hub/vat-validation-indicator.tsx#L19)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **AdminLayoutClient**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/admin-layout-client.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/app/admin/admin-layout-client.tsx#L38)
+Defined in: [app/admin/admin-layout-client.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/app/admin/admin-layout-client.tsx#L38)
 
 ## Parameters
 
