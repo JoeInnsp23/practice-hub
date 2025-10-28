@@ -8,4 +8,4 @@
 
 > `const` **metadata**: `Metadata`
 
-Defined in: [app/client-hub/invoices/\[id\]/page.tsx:4](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/app/client-hub/invoices/[id]/page.tsx#L4)
+Defined in: [app/client-hub/invoices/\[id\]/page.tsx:4](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/app/client-hub/invoices/[id]/page.tsx#L4)

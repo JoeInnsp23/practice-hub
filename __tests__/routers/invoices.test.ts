@@ -1267,6 +1267,109 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
     });
   });
 
+  describe("generatePdf (GAP-004)", () => {
+    it("should generate PDF for valid invoice", async () => {
+      // Create test invoice with items
+      const invoice = await createTestInvoice(
+        ctx.authContext.tenantId,
+        testClientId,
+        ctx.authContext.userId,
+        { status: "sent" },
+      );
+      tracker.invoices?.push(invoice.id);
+
+      // Add invoice items
+      await db.insert(invoiceItems).values([
+        {
+          invoiceId: invoice.id,
+          description: "Professional Services - January 2025",
+          quantity: "1",
+          rate: "100.00",
+          amount: "100.00",
+          sortOrder: 1,
+        },
+        {
+          invoiceId: invoice.id,
+          description: "Consultation - 2 hours",
+          quantity: "2",
+          rate: "50.00",
+          amount: "100.00",
+          sortOrder: 2,
+        },
+      ]);
+
+      // Generate PDF
+      const result = await caller.generatePdf(invoice.id);
+
+      // Verify result
+      expect(result.success).toBe(true);
+      expect(result.pdfUrl).toBeDefined();
+      expect(typeof result.pdfUrl).toBe("string");
+      expect(result.pdfUrl).toContain("invoices/");
+      expect(result.pdfUrl).toContain(invoice.id);
+    });
+
+    it("should log activity when PDF is generated", async () => {
+      const invoice = await createTestInvoice(
+        ctx.authContext.tenantId,
+        testClientId,
+        ctx.authContext.userId,
+      );
+      tracker.invoices?.push(invoice.id);
+
+      await caller.generatePdf(invoice.id);
+
+      // Verify activity log
+      const logs = await db
+        .select()
+        .from(activityLogs)
+        .where(
+          and(
+            eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            eq(activityLogs.entityType, "invoice"),
+            eq(activityLogs.entityId, invoice.id),
+            eq(activityLogs.action, "pdf_generated"),
+          ),
+        );
+
+      expect(logs).toHaveLength(1);
+      expect(logs[0].description).toContain("Generated PDF");
+      expect(logs[0].description).toContain(invoice.invoiceNumber);
+      expect(logs[0].newValues).toBeDefined();
+      expect(logs[0].newValues).toHaveProperty("pdfUrl");
+    });
+
+    it("should reject PDF generation for non-existent invoice", async () => {
+      const fakeId = "00000000-0000-0000-0000-000000000000";
+
+      await expect(caller.generatePdf(fakeId)).rejects.toThrow(
+        "Invoice not found",
+      );
+    });
+
+    it("should enforce tenant isolation for PDF generation", async () => {
+      // Create invoice in different tenant
+      const otherTenantId = await createTestTenant();
+      const otherUserId = await createTestUser(otherTenantId, { role: "admin" });
+      const otherClient = await createTestClient(otherTenantId, otherUserId);
+      const otherInvoice = await createTestInvoice(
+        otherTenantId,
+        otherClient.id,
+        otherUserId,
+      );
+
+      tracker.tenants?.push(otherTenantId);
+      tracker.users?.push(otherUserId);
+      tracker.clients?.push(otherClient.id);
+      tracker.invoices?.push(otherInvoice.id);
+
+      // Attempt to generate PDF from current tenant context
+      await expect(caller.generatePdf(otherInvoice.id)).rejects.toThrow(
+        "Invoice not found",
+      );
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(invoicesRouter._def.procedures);
@@ -1280,11 +1383,12 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
       expect(procedures).toContain("bulkUpdateStatus");
       expect(procedures).toContain("bulkSendEmails");
       expect(procedures).toContain("bulkDelete");
+      expect(procedures).toContain("generatePdf");
     });
 
-    it("should have 9 procedures total", () => {
+    it("should have 10 procedures total", () => {
       const procedures = Object.keys(invoicesRouter._def.procedures);
-      expect(procedures).toHaveLength(9);
+      expect(procedures).toHaveLength(10);
     });
   });
 });

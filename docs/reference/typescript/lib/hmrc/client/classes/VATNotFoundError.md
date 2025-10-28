@@ -6,7 +6,7 @@
 
 # Class: VATNotFoundError
 
-Defined in: [lib/hmrc/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/lib/hmrc/client.ts#L54)
+Defined in: [lib/hmrc/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/hmrc/client.ts#L54)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/hmrc/client.ts:54](https://github.com/JoeInnsp23/practice-hub/b
 
 > **new VATNotFoundError**(`vatNumber`): `VATNotFoundError`
 
-Defined in: [lib/hmrc/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/lib/hmrc/client.ts#L55)
+Defined in: [lib/hmrc/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/hmrc/client.ts#L55)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [lib/hmrc/client.ts:55](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/lib/hmrc/client.ts#L46)
+Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/hmrc/client.ts#L46)
 
 #### Inherited from
 
@@ -52,7 +52,7 @@ Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **vatNumber**: `string`
 
-Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/lib/hmrc/client.ts#L47)
+Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/hmrc/client.ts#L47)
 
 #### Inherited from
 

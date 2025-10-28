@@ -3,6 +3,7 @@ import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { generateInvoicePdf } from "@/lib/pdf/generate-invoice-pdf";
 import { activityLogs, clients, invoiceItems, invoices } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
@@ -593,5 +594,52 @@ export const invoicesRouter = router({
       });
 
       return { success: true, ...result };
+    }),
+
+  // Generate PDF for an invoice
+  generatePdf: protectedProcedure
+    .input(z.string().uuid())
+    .mutation(async ({ ctx, input: invoiceId }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Verify invoice exists and belongs to tenant
+      const invoice = await db.query.invoices.findFirst({
+        where: and(
+          eq(invoices.id, invoiceId),
+          eq(invoices.tenantId, tenantId),
+        ),
+      });
+
+      if (!invoice) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invoice not found",
+        });
+      }
+
+      // Generate PDF
+      const { pdfUrl } = await generateInvoicePdf({
+        invoiceId,
+        companyName: "Innspired Accountancy",
+        companyAddress: "123 Business Street, London, UK",
+        companyEmail: "accounts@innspired.co.uk",
+        companyPhone: "+44 20 1234 5678",
+      });
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "invoice",
+        entityId: invoiceId,
+        action: "pdf_generated",
+        description: `Generated PDF for invoice #${invoice.invoiceNumber}`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: {
+          pdfUrl,
+        },
+      });
+
+      return { success: true, pdfUrl };
     }),
 });

@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-28T00:55:45.718Z
+# Generated: 2025-10-28T01:05:38.387Z
 
 functions:
   staffStatisticsRouter:
@@ -375,6 +375,12 @@ functions:
     line: 99
     type: "function"
     signature: "function hasWorkingDays"
+  InvoiceDocument:
+    description: "Professional Invoice PDF Template"
+    file: "lib/pdf/invoice-template.tsx"
+    line: 234
+    type: "function"
+    signature: "const InvoiceDocument"
   getClientIp:
     description: "Proposal Signing Rate Limiting"
     file: "lib/rate-limit/signing.ts"
@@ -1236,9 +1242,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-28T00:55:45.721Z"
-  total_entries: 204
-  functions: 131
+  generated: "2025-10-28T01:05:38.388Z"
+  total_entries: 205
+  functions: 132
   types: 57
   components: 12
   classes: 4
