@@ -8,7 +8,7 @@
 
 > **DatePickerButton**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/time/date-picker-button.tsx:70](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/components/client-hub/time/date-picker-button.tsx#L70)
+Defined in: [components/client-hub/time/date-picker-button.tsx:70](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/components/client-hub/time/date-picker-button.tsx#L70)
 
 Enhanced date picker button for weekly timesheet navigation.
 Displays the selected week range and provides a calendar popover for direct week selection.

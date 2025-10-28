@@ -248,8 +248,8 @@ export function ClientImportModal({
                   <AlertDescription>
                     <p className="font-medium mb-2">Validation Errors:</p>
                     <ul className="list-disc list-inside space-y-1 text-sm">
-                      {previewResult.errors.slice(0, 10).map((error, index) => (
-                        <li key={index}>
+                      {previewResult.errors.slice(0, 10).map((error) => (
+                        <li key={`error-${error.row}`}>
                           Row {error.row}: {error.errors.join(", ")}
                         </li>
                       ))}
@@ -283,8 +283,11 @@ export function ClientImportModal({
                           </tr>
                         </thead>
                         <tbody>
-                          {previewResult.previewRows.map((row, index) => (
-                            <tr key={index} className="border-b">
+                          {previewResult.previewRows.map((row) => (
+                            <tr
+                              key={`${row.data.email}-${row.data.company_name}`}
+                              className="border-b"
+                            >
                               <td className="p-2">
                                 {row.data.company_name as string}
                               </td>
@@ -382,8 +385,8 @@ export function ClientImportModal({
                   <AlertDescription>
                     <p className="font-medium mb-2">Import Errors:</p>
                     <ul className="list-disc list-inside space-y-1 text-sm">
-                      {importSummary.errors.map((error, index) => (
-                        <li key={index}>
+                      {importSummary.errors.map((error) => (
+                        <li key={`import-error-${error.row}`}>
                           Row {error.row}: {error.errors.join(", ")}
                         </li>
                       ))}

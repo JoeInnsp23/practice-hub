@@ -8,6 +8,6 @@
 
 > **WorkflowListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"workflows"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:174](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/trpc/types.ts#L174)
+Defined in: [lib/trpc/types.ts:174](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/trpc/types.ts#L174)
 
 Workflow Types

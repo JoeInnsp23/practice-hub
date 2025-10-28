@@ -6,7 +6,7 @@
 
 # Interface: SchemaTableColumn
 
-Defined in: [lib/api-docs/schema-docs.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L10)
+Defined in: [lib/api-docs/schema-docs.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L10)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/api-docs/schema-docs.ts:10](https://github.com/JoeInnsp23/pract
 
 > `optional` **defaultValue**: `string`
 
-Defined in: [lib/api-docs/schema-docs.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L19)
+Defined in: [lib/api-docs/schema-docs.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L19)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/api-docs/schema-docs.ts:19](https://github.com/JoeInnsp23/pract
 
 > `optional` **foreignKey**: `object`
 
-Defined in: [lib/api-docs/schema-docs.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L15)
+Defined in: [lib/api-docs/schema-docs.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L15)
 
 #### column
 
@@ -38,7 +38,7 @@ Defined in: [lib/api-docs/schema-docs.ts:15](https://github.com/JoeInnsp23/pract
 
 > **name**: `string`
 
-Defined in: [lib/api-docs/schema-docs.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L11)
+Defined in: [lib/api-docs/schema-docs.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L11)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/api-docs/schema-docs.ts:11](https://github.com/JoeInnsp23/pract
 
 > **nullable**: `boolean`
 
-Defined in: [lib/api-docs/schema-docs.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L13)
+Defined in: [lib/api-docs/schema-docs.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L13)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/api-docs/schema-docs.ts:13](https://github.com/JoeInnsp23/pract
 
 > **primaryKey**: `boolean`
 
-Defined in: [lib/api-docs/schema-docs.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L14)
+Defined in: [lib/api-docs/schema-docs.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L14)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [lib/api-docs/schema-docs.ts:14](https://github.com/JoeInnsp23/pract
 
 > **type**: `string`
 
-Defined in: [lib/api-docs/schema-docs.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/api-docs/schema-docs.ts#L12)
+Defined in: [lib/api-docs/schema-docs.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/api-docs/schema-docs.ts#L12)

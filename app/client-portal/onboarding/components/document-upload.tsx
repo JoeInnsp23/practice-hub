@@ -204,9 +204,9 @@ export function OnboardingDocumentUpload({
           </h3>
 
           <div className="space-y-2">
-            {files.map((file, index) => (
+            {files.map((file) => (
               <div
-                key={index}
+                key={`${file.name}-${file.size}`}
                 className="flex items-center justify-between p-2 bg-muted/50 rounded"
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -220,7 +220,7 @@ export function OnboardingDocumentUpload({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => removeFile(index)}
+                  onClick={() => removeFile(files.indexOf(file))}
                   disabled={uploading}
                 >
                   <X className="h-4 w-4" />
@@ -258,9 +258,9 @@ export function OnboardingDocumentUpload({
           </h3>
 
           <div className="space-y-2">
-            {uploadedFiles.map((file, index) => (
+            {uploadedFiles.map((file) => (
               <div
-                key={index}
+                key={file.url}
                 className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
