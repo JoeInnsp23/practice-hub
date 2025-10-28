@@ -8,7 +8,7 @@
 
 > **Input**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/input.tsx:5](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/components/ui/input.tsx#L5)
+Defined in: [components/ui/input.tsx:5](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/components/ui/input.tsx#L5)
 
 ## Parameters
 

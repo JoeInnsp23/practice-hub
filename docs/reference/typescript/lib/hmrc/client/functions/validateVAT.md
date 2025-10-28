@@ -8,7 +8,7 @@
 
 > **validateVAT**(`vatNumber`): `Promise`\<[`VATValidationResult`](../interfaces/VATValidationResult.md)\>
 
-Defined in: [lib/hmrc/client.ts:294](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/hmrc/client.ts#L294)
+Defined in: [lib/hmrc/client.ts:294](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/hmrc/client.ts#L294)
 
 Validate a UK VAT number and retrieve business details
 

@@ -8,7 +8,7 @@
 
 > **getAutoSalesStage**(`newStatus`, `currentStage`): `SalesStage` \| `null`
 
-Defined in: [lib/utils/sales-stage-automation.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/utils/sales-stage-automation.ts#L28)
+Defined in: [lib/utils/sales-stage-automation.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/utils/sales-stage-automation.ts#L28)
 
 Determines if sales stage should be auto-updated based on status change
 

@@ -6,7 +6,7 @@
 
 # Class: RateLimitError
 
-Defined in: [lib/companies-house/client.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/companies-house/client.ts#L69)
+Defined in: [lib/companies-house/client.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/companies-house/client.ts#L69)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/companies-house/client.ts:69](https://github.com/JoeInnsp23/pra
 
 > **new RateLimitError**(): `RateLimitError`
 
-Defined in: [lib/companies-house/client.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/companies-house/client.ts#L70)
+Defined in: [lib/companies-house/client.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/companies-house/client.ts#L70)
 
 #### Returns
 
@@ -34,7 +34,7 @@ Defined in: [lib/companies-house/client.ts:70](https://github.com/JoeInnsp23/pra
 
 > `optional` **companyNumber**: `string`
 
-Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/companies-house/client.ts#L55)
+Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/companies-house/client.ts#L55)
 
 #### Inherited from
 
@@ -46,7 +46,7 @@ Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/pra
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/companies-house/client.ts#L54)
+Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/companies-house/client.ts#L54)
 
 #### Inherited from
 

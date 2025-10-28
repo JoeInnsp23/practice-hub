@@ -6,7 +6,7 @@
 
 # Interface: SigningInvitationParams
 
-Defined in: [lib/docuseal/email-handler.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/docuseal/email-handler.ts#L9)
+Defined in: [lib/docuseal/email-handler.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/email-handler.ts#L9)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/docuseal/email-handler.ts:9](https://github.com/JoeInnsp23/prac
 
 > **embeddedSigningUrl**: `string`
 
-Defined in: [lib/docuseal/email-handler.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/docuseal/email-handler.ts#L14)
+Defined in: [lib/docuseal/email-handler.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/email-handler.ts#L14)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/docuseal/email-handler.ts:14](https://github.com/JoeInnsp23/pra
 
 > **proposalId**: `string`
 
-Defined in: [lib/docuseal/email-handler.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/docuseal/email-handler.ts#L10)
+Defined in: [lib/docuseal/email-handler.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/email-handler.ts#L10)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/docuseal/email-handler.ts:10](https://github.com/JoeInnsp23/pra
 
 > **proposalNumber**: `string`
 
-Defined in: [lib/docuseal/email-handler.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/docuseal/email-handler.ts#L11)
+Defined in: [lib/docuseal/email-handler.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/email-handler.ts#L11)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/docuseal/email-handler.ts:11](https://github.com/JoeInnsp23/pra
 
 > **recipientEmail**: `string`
 
-Defined in: [lib/docuseal/email-handler.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/docuseal/email-handler.ts#L12)
+Defined in: [lib/docuseal/email-handler.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/email-handler.ts#L12)
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: [lib/docuseal/email-handler.ts:12](https://github.com/JoeInnsp23/pra
 
 > **recipientName**: `string`
 
-Defined in: [lib/docuseal/email-handler.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/docuseal/email-handler.ts#L13)
+Defined in: [lib/docuseal/email-handler.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/email-handler.ts#L13)

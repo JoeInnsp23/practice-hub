@@ -8,7 +8,7 @@
 
 > **setUserContext**(`userId`, `email`, `tenantId`, `role?`): `void`
 
-Defined in: [lib/sentry.ts:60](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/sentry.ts#L60)
+Defined in: [lib/sentry.ts:60](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/sentry.ts#L60)
 
 Set user context for error tracking
 

@@ -6,7 +6,7 @@
 
 # Class: SSEClient
 
-Defined in: [lib/realtime/sse-client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L42)
+Defined in: [lib/realtime/sse-client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L42)
 
 SSE Client Implementation
 
@@ -59,7 +59,7 @@ client.disconnect();
 
 > **connect**(`url`, `options?`): `void`
 
-Defined in: [lib/realtime/sse-client.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L67)
+Defined in: [lib/realtime/sse-client.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L67)
 
 Connect to SSE endpoint
 
@@ -87,7 +87,7 @@ Connect to SSE endpoint
 
 > **disconnect**(): `void`
 
-Defined in: [lib/realtime/sse-client.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L77)
+Defined in: [lib/realtime/sse-client.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L77)
 
 Disconnect from SSE
 
@@ -105,7 +105,7 @@ Disconnect from SSE
 
 > **getState**(): [`ConnectionState`](../../client/type-aliases/ConnectionState.md)
 
-Defined in: [lib/realtime/sse-client.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L102)
+Defined in: [lib/realtime/sse-client.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L102)
 
 Get current connection state
 
@@ -123,7 +123,7 @@ Get current connection state
 
 > **getStats**(): [`ConnectionStats`](../../client/interfaces/ConnectionStats.md)
 
-Defined in: [lib/realtime/sse-client.ts:109](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L109)
+Defined in: [lib/realtime/sse-client.ts:109](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L109)
 
 Get connection statistics
 
@@ -141,7 +141,7 @@ Get connection statistics
 
 > **isConnected**(): `boolean`
 
-Defined in: [lib/realtime/sse-client.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L133)
+Defined in: [lib/realtime/sse-client.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L133)
 
 Check if connected
 
@@ -159,7 +159,7 @@ Check if connected
 
 > **reconnect**(): `void`
 
-Defined in: [lib/realtime/sse-client.ts:123](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L123)
+Defined in: [lib/realtime/sse-client.ts:123](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L123)
 
 Manually trigger reconnection
 
@@ -177,7 +177,7 @@ Manually trigger reconnection
 
 > **setPollingFallback**(`enabled`): `void`
 
-Defined in: [lib/realtime/sse-client.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L140)
+Defined in: [lib/realtime/sse-client.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L140)
 
 Enable/disable polling fallback
 
@@ -201,7 +201,7 @@ Enable/disable polling fallback
 
 > **subscribe**\<`T`\>(`eventType`, `callback`): () => `void`
 
-Defined in: [lib/realtime/sse-client.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L85)
+Defined in: [lib/realtime/sse-client.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L85)
 
 Subscribe to event type
 
@@ -239,7 +239,7 @@ Subscribe to event type
 
 > **unsubscribe**(`eventType`, `callback?`): `void`
 
-Defined in: [lib/realtime/sse-client.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/realtime/sse-client.ts#L95)
+Defined in: [lib/realtime/sse-client.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/realtime/sse-client.ts#L95)
 
 Unsubscribe from event type
 

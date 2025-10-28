@@ -95,8 +95,8 @@ export function NewLeadNotificationEmail({
           <Section style={servicesBox}>
             <Heading style={h2}>Services of Interest</Heading>
             <Text style={servicesList}>
-              {interestedServices.map((service, index) => (
-                <span key={index}>
+              {interestedServices.map((service) => (
+                <span key={service}>
                   • {service}
                   <br />
                 </span>

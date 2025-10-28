@@ -8,7 +8,7 @@
 
 > **TeamCapacityWidget**(): `Element`
 
-Defined in: [components/practice-hub/team-capacity-widget.tsx:11](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/components/practice-hub/team-capacity-widget.tsx#L11)
+Defined in: [components/practice-hub/team-capacity-widget.tsx:11](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/components/practice-hub/team-capacity-widget.tsx#L11)
 
 ## Returns
 

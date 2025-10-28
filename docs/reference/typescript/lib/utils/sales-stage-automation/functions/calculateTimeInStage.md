@@ -8,7 +8,7 @@
 
 > **calculateTimeInStage**(`stageStartDate`, `stageEndDate?`): `number`
 
-Defined in: [lib/utils/sales-stage-automation.ts:120](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/utils/sales-stage-automation.ts#L120)
+Defined in: [lib/utils/sales-stage-automation.ts:120](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/utils/sales-stage-automation.ts#L120)
 
 Calculates time spent in a sales stage (in days)
 

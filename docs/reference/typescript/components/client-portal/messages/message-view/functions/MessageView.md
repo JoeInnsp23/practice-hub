@@ -8,7 +8,7 @@
 
 > **MessageView**(`__namedParameters`): `Element`
 
-Defined in: [components/client-portal/messages/message-view.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/components/client-portal/messages/message-view.tsx#L14)
+Defined in: [components/client-portal/messages/message-view.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/components/client-portal/messages/message-view.tsx#L14)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **initConsoleCapture**(): `void`
 
-Defined in: [lib/console-capture.ts:117](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/console-capture.ts#L117)
+Defined in: [lib/console-capture.ts:117](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/console-capture.ts#L117)
 
 ## Returns
 

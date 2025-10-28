@@ -6,7 +6,7 @@
 
 # Interface: AuthContext
 
-Defined in: [lib/auth.ts:90](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L90)
+Defined in: [lib/auth.ts:90](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L90)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/auth.ts:90](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > **email**: `string`
 
-Defined in: [lib/auth.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L95)
+Defined in: [lib/auth.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L95)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/auth.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > **firstName**: `string` \| `null`
 
-Defined in: [lib/auth.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L96)
+Defined in: [lib/auth.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L96)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/auth.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > **lastName**: `string` \| `null`
 
-Defined in: [lib/auth.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L97)
+Defined in: [lib/auth.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L97)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/auth.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > `optional` **organizationName**: `string`
 
-Defined in: [lib/auth.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L93)
+Defined in: [lib/auth.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L93)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/auth.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > **role**: `string`
 
-Defined in: [lib/auth.ts:94](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L94)
+Defined in: [lib/auth.ts:94](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L94)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/auth.ts:94](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > **tenantId**: `string`
 
-Defined in: [lib/auth.ts:92](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L92)
+Defined in: [lib/auth.ts:92](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L92)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [lib/auth.ts:92](https://github.com/JoeInnsp23/practice-hub/blob/54f
 
 > **userId**: `string`
 
-Defined in: [lib/auth.ts:91](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/auth.ts#L91)
+Defined in: [lib/auth.ts:91](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/auth.ts#L91)
