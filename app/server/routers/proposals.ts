@@ -109,7 +109,28 @@ export const proposalsRouter = router({
       const { tenantId } = ctx.authContext;
 
       // Build query with client information
-      let query = db
+      // Build filter conditions
+      const conditions = [eq(proposals.tenantId, tenantId)];
+
+      if (input?.clientId) {
+        conditions.push(eq(proposals.clientId, input.clientId));
+      }
+      if (input?.status) {
+        conditions.push(eq(proposals.status, input.status));
+      }
+      if (input?.salesStage) {
+        conditions.push(eq(proposals.salesStage, input.salesStage));
+      }
+      if (input?.search) {
+        conditions.push(
+          sql`(
+            ${proposals.title} ILIKE ${`%${input.search}%`} OR
+            ${proposals.proposalNumber} ILIKE ${`%${input.search}%`}
+          )`,
+        );
+      }
+
+      const proposalsList = await db
         .select({
           id: proposals.id,
           proposalNumber: proposals.proposalNumber,
@@ -130,29 +151,8 @@ export const proposalsRouter = router({
         })
         .from(proposals)
         .leftJoin(clients, eq(proposals.clientId, clients.id))
-        .where(eq(proposals.tenantId, tenantId))
-        .$dynamic();
-
-      // Apply filters
-      if (input?.clientId) {
-        query = query.where(eq(proposals.clientId, input.clientId));
-      }
-      if (input?.status) {
-        query = query.where(eq(proposals.status, input.status));
-      }
-      if (input?.salesStage) {
-        query = query.where(eq(proposals.salesStage, input.salesStage));
-      }
-      if (input?.search) {
-        query = query.where(
-          sql`(
-            ${proposals.title} ILIKE ${`%${input.search}%`} OR
-            ${proposals.proposalNumber} ILIKE ${`%${input.search}%`}
-          )`,
-        );
-      }
-
-      const proposalsList = await query.orderBy(desc(proposals.createdAt));
+        .where(and(...conditions))
+        .orderBy(desc(proposals.createdAt));
 
       return { proposals: proposalsList };
     }),
@@ -192,8 +192,7 @@ export const proposalsRouter = router({
           assignedToId: proposals.assignedToId,
         })
         .from(proposals)
-        .leftJoin(clients, eq(proposals.clientId, clients.id))
-        .$dynamic();
+        .leftJoin(clients, eq(proposals.clientId, clients.id));
 
       // Build filter conditions
       const conditions = [eq(proposals.tenantId, tenantId)];

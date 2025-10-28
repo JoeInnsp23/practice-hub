@@ -68,7 +68,18 @@ export const clientPortalRouter = router({
       }
 
       // Only show sent, viewed, signed, or expired proposals (not drafts)
-      let query = db
+      // Build filter conditions
+      const proposalConditions = [
+        eq(proposals.tenantId, tenantId),
+        eq(proposals.clientId, input.clientId),
+      ];
+
+      // Filter by status if provided
+      if (input.status) {
+        proposalConditions.push(eq(proposals.status, input.status));
+      }
+
+      const results = await db
         .select({
           id: proposals.id,
           proposalNumber: proposals.proposalNumber,
@@ -85,20 +96,7 @@ export const clientPortalRouter = router({
           createdAt: proposals.createdAt,
         })
         .from(proposals)
-        .where(
-          and(
-            eq(proposals.tenantId, tenantId),
-            eq(proposals.clientId, input.clientId),
-          ),
-        )
-        .$dynamic();
-
-      // Filter by status if provided
-      if (input.status) {
-        query = query.where(eq(proposals.status, input.status));
-      }
-
-      const results = await query;
+        .where(and(...proposalConditions));
 
       // Filter out drafts on the client side as extra safety
       return results.filter((p) => p.status !== "draft");
@@ -209,7 +207,18 @@ export const clientPortalRouter = router({
       }
 
       // Only show sent or paid invoices (not drafts)
-      let query = db
+      // Build filter conditions
+      const invoiceConditions = [
+        eq(invoices.tenantId, tenantId),
+        eq(invoices.clientId, input.clientId),
+      ];
+
+      // Filter by status if provided
+      if (input.status) {
+        invoiceConditions.push(eq(invoices.status, input.status));
+      }
+
+      const results = await db
         .select({
           id: invoices.id,
           invoiceNumber: invoices.invoiceNumber,
@@ -224,20 +233,7 @@ export const clientPortalRouter = router({
           createdAt: invoices.createdAt,
         })
         .from(invoices)
-        .where(
-          and(
-            eq(invoices.tenantId, tenantId),
-            eq(invoices.clientId, input.clientId),
-          ),
-        )
-        .$dynamic();
-
-      // Filter by status if provided
-      if (input.status) {
-        query = query.where(eq(invoices.status, input.status));
-      }
-
-      const results = await query;
+        .where(and(...invoiceConditions));
 
       // Filter out drafts on the client side as extra safety
       return results.filter((inv) => inv.status !== "draft");

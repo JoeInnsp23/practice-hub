@@ -8,7 +8,7 @@
 
 > **SignaturePad**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/signature-pad.tsx:13](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/components/proposal-hub/signature-pad.tsx#L13)
+Defined in: [components/proposal-hub/signature-pad.tsx:13](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/proposal-hub/signature-pad.tsx#L13)
 
 ## Parameters
 

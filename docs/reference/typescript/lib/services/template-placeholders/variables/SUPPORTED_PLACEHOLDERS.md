@@ -8,7 +8,7 @@
 
 > `const` **SUPPORTED\_PLACEHOLDERS**: `object`
 
-Defined in: [lib/services/template-placeholders.ts:3](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/services/template-placeholders.ts#L3)
+Defined in: [lib/services/template-placeholders.ts:3](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/services/template-placeholders.ts#L3)
 
 ## Type Declaration
 

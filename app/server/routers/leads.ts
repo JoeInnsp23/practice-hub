@@ -325,7 +325,27 @@ export const leadsRouter = router({
       const { tenantId } = ctx.authContext;
 
       // Build query
-      let query = db
+      // Build filter conditions
+      const conditions = [eq(leads.tenantId, tenantId)];
+
+      if (input?.status) {
+        conditions.push(eq(leads.status, input.status));
+      }
+      if (input?.assignedToId) {
+        conditions.push(eq(leads.assignedToId, input.assignedToId));
+      }
+      if (input?.search) {
+        conditions.push(
+          or(
+            ilike(leads.firstName, `%${input.search}%`),
+            ilike(leads.lastName, `%${input.search}%`),
+            ilike(leads.email, `%${input.search}%`),
+            ilike(leads.companyName, `%${input.search}%`),
+          )!,
+        );
+      }
+
+      const leadsList = await db
         .select({
           id: leads.id,
           firstName: leads.firstName,
@@ -350,28 +370,8 @@ export const leadsRouter = router({
           updatedAt: leads.updatedAt,
         })
         .from(leads)
-        .where(eq(leads.tenantId, tenantId))
-        .$dynamic();
-
-      // Apply filters
-      if (input?.status) {
-        query = query.where(eq(leads.status, input.status));
-      }
-      if (input?.assignedToId) {
-        query = query.where(eq(leads.assignedToId, input.assignedToId));
-      }
-      if (input?.search) {
-        query = query.where(
-          or(
-            ilike(leads.firstName, `%${input.search}%`),
-            ilike(leads.lastName, `%${input.search}%`),
-            ilike(leads.email, `%${input.search}%`),
-            ilike(leads.companyName, `%${input.search}%`),
-          ),
-        );
-      }
-
-      const leadsList = await query.orderBy(desc(leads.createdAt));
+        .where(and(...conditions))
+        .orderBy(desc(leads.createdAt));
 
       return { leads: leadsList };
     }),

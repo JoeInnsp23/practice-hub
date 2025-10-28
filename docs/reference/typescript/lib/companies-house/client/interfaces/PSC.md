@@ -6,7 +6,7 @@
 
 # Interface: PSC
 
-Defined in: [lib/companies-house/client.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/client.ts#L40)
+Defined in: [lib/companies-house/client.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/client.ts#L40)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/companies-house/client.ts:40](https://github.com/JoeInnsp23/pra
 
 > **kind**: `string`
 
-Defined in: [lib/companies-house/client.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/client.ts#L44)
+Defined in: [lib/companies-house/client.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/client.ts#L44)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/companies-house/client.ts:44](https://github.com/JoeInnsp23/pra
 
 > **name**: `string`
 
-Defined in: [lib/companies-house/client.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/client.ts#L41)
+Defined in: [lib/companies-house/client.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/client.ts#L41)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/companies-house/client.ts:41](https://github.com/JoeInnsp23/pra
 
 > **natureOfControl**: `string`[]
 
-Defined in: [lib/companies-house/client.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/client.ts#L43)
+Defined in: [lib/companies-house/client.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/client.ts#L43)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/companies-house/client.ts:43](https://github.com/JoeInnsp23/pra
 
 > **notifiedOn**: `string`
 
-Defined in: [lib/companies-house/client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/client.ts#L42)
+Defined in: [lib/companies-house/client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/client.ts#L42)

@@ -166,7 +166,14 @@ export const clientPortalAdminRouter = router({
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
 
-      let query = db
+      // Build filter conditions
+      const conditions = [eq(clientPortalInvitations.tenantId, tenantId)];
+
+      if (input?.status) {
+        conditions.push(eq(clientPortalInvitations.status, input.status));
+      }
+
+      const results = await db
         .select({
           id: clientPortalInvitations.id,
           email: clientPortalInvitations.email,
@@ -181,16 +188,8 @@ export const clientPortalAdminRouter = router({
           revokedAt: clientPortalInvitations.revokedAt,
         })
         .from(clientPortalInvitations)
-        .where(eq(clientPortalInvitations.tenantId, tenantId))
-        .$dynamic();
-
-      if (input?.status) {
-        query = query.where(eq(clientPortalInvitations.status, input.status));
-      }
-
-      const results = await query.orderBy(
-        sql`${clientPortalInvitations.sentAt} DESC`,
-      );
+        .where(and(...conditions))
+        .orderBy(sql`${clientPortalInvitations.sentAt} DESC`);
 
       return results;
     }),

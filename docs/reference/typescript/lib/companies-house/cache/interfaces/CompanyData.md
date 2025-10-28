@@ -6,7 +6,7 @@
 
 # Interface: CompanyData
 
-Defined in: [lib/companies-house/cache.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/cache.ts#L14)
+Defined in: [lib/companies-house/cache.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/cache.ts#L14)
 
 Companies House API cache layer
 
@@ -19,7 +19,7 @@ and improve response times for frequently accessed company data.
 
 > **company**: [`CompanyDetails`](../../client/interfaces/CompanyDetails.md)
 
-Defined in: [lib/companies-house/cache.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/cache.ts#L15)
+Defined in: [lib/companies-house/cache.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/cache.ts#L15)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: [lib/companies-house/cache.ts:15](https://github.com/JoeInnsp23/prac
 
 > **officers**: [`Officer`](../../client/interfaces/Officer.md)[]
 
-Defined in: [lib/companies-house/cache.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/cache.ts#L16)
+Defined in: [lib/companies-house/cache.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/cache.ts#L16)
 
 ***
 
@@ -35,4 +35,4 @@ Defined in: [lib/companies-house/cache.ts:16](https://github.com/JoeInnsp23/prac
 
 > **pscs**: [`PSC`](../../client/interfaces/PSC.md)[]
 
-Defined in: [lib/companies-house/cache.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/companies-house/cache.ts#L17)
+Defined in: [lib/companies-house/cache.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/companies-house/cache.ts#L17)
