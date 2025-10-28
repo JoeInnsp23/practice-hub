@@ -6,7 +6,7 @@
 
 # Interface: RowValidationResult
 
-Defined in: [lib/services/csv-parser.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L22)
+Defined in: [lib/services/csv-parser.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L22)
 
 Validation result for a single row
 
@@ -16,7 +16,7 @@ Validation result for a single row
 
 > **errors**: `string`[]
 
-Defined in: [lib/services/csv-parser.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L24)
+Defined in: [lib/services/csv-parser.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L24)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [lib/services/csv-parser.ts:24](https://github.com/JoeInnsp23/practi
 
 > **valid**: `boolean`
 
-Defined in: [lib/services/csv-parser.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L23)
+Defined in: [lib/services/csv-parser.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L23)

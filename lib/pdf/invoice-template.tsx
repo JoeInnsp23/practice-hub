@@ -325,8 +325,11 @@ export const InvoiceDocument = ({
           </View>
 
           {/* Table Rows */}
-          {lineItems.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
+          {lineItems.map((item) => (
+            <View
+              key={`${item.description}-${item.amount}`}
+              style={styles.tableRow}
+            >
               <Text style={styles.tableCol1}>{item.description}</Text>
               <Text style={styles.tableCol2}>{item.quantity}</Text>
               <Text style={styles.tableCol3}>{formatCurrency(item.rate)}</Text>

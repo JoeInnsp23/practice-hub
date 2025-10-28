@@ -6,7 +6,7 @@
 
 # Interface: CSVParseOptions\<T\>
 
-Defined in: [lib/services/csv-parser.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L44)
+Defined in: [lib/services/csv-parser.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L44)
 
 Options for CSV parsing
 
@@ -22,7 +22,7 @@ Options for CSV parsing
 
 > `optional` **skipEmptyLines**: `boolean`
 
-Defined in: [lib/services/csv-parser.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L50)
+Defined in: [lib/services/csv-parser.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L50)
 
 Skip empty lines (default: true)
 
@@ -32,7 +32,7 @@ Skip empty lines (default: true)
 
 > `optional` **transform**: (`row`) => `T`
 
-Defined in: [lib/services/csv-parser.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L48)
+Defined in: [lib/services/csv-parser.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L48)
 
 Transform function to convert validated row to typed object (optional)
 
@@ -52,7 +52,7 @@ Transform function to convert validated row to typed object (optional)
 
 > `optional` **trimValues**: `boolean`
 
-Defined in: [lib/services/csv-parser.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L52)
+Defined in: [lib/services/csv-parser.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L52)
 
 Trim whitespace from values (default: true)
 
@@ -62,7 +62,7 @@ Trim whitespace from values (default: true)
 
 > **validator**: (`row`) => [`RowValidationResult`](RowValidationResult.md)
 
-Defined in: [lib/services/csv-parser.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/e059937d61d3f0e96a8f73dacfebfa9ce61a962f/lib/services/csv-parser.ts#L46)
+Defined in: [lib/services/csv-parser.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-parser.ts#L46)
 
 Validator function for each row
 

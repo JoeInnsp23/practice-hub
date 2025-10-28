@@ -380,8 +380,8 @@ export function ProposalDocument({
             </View>
 
             {/* Services */}
-            {services.map((service, index) => (
-              <View key={index} style={styles.tableRow}>
+            {services.map((service) => (
+              <View key={service.componentCode} style={styles.tableRow}>
                 <View style={styles.col1}>
                   <Text style={[styles.tableCell, { fontWeight: "bold" }]}>
                     {service.componentName}
