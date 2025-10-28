@@ -1,0 +1,479 @@
+[
+  {
+    "id": "src001",
+    "title": "1st Cloud Accountants - Current Price List",
+    "url": "https://www.1stcloudaccountants.co.uk/wp-content/uploads/2024/04/CurrentPriceList.pdf",
+    "date": "2025-03-10",
+    "type": "firm_pricing",
+    "region": "UK",
+    "notes": "PDF price list (extraction limited)"
+  },
+  {
+    "id": "src002",
+    "title": "Penney's Accountancy - Pricing",
+    "url": "https://www.penneysaccountancy.co.uk/prices/",
+    "date": "2025-04",
+    "type": "firm_pricing",
+    "region": "UK",
+    "notes": "Detailed turnover-based pricing for companies, payroll, VAT, self-assessment"
+  },
+  {
+    "id": "src003",
+    "title": "RJ Accountancy Limited - Fees",
+    "url": "https://rjaccountancy.co.uk/fees/",
+    "date": "2025",
+    "type": "firm_pricing",
+    "region": "UK",
+    "notes": "Granular turnover bands £0-£500k for company accounts, VAT, payroll"
+  },
+  {
+    "id": "src004",
+    "title": "GoForma - How Much Do Limited Company Accountants Cost in UK - 2025 Guide",
+    "url": "https://www.goforma.com/small-business-accounting/how-much-should-accounting-cost",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Monthly package pricing £79+, annual cost ranges £300-£2000"
+  },
+  {
+    "id": "src005",
+    "title": "Heights Accountancy - How Much Does an Accountant Cost in the UK (2025)?",
+    "url": "https://heightsaccountancy.co.uk/2025/10/06/how-much-does-an-accountant-cost-uk-2025/",
+    "date": "2025-10-06",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Ltd companies £2430-£7430+/year, sole traders £300-£3700+/year, partnerships £800-£3800+/year"
+  },
+  {
+    "id": "src006",
+    "title": "Pro Tax Accountant - Accountant Prices for Small Business",
+    "url": "https://www.protaxaccountant.co.uk/post/accountant-prices-for-small-business",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "General market overview of small business pricing"
+  },
+  {
+    "id": "src007",
+    "title": "Simplex Accounting - Bookkeeping Charges Per Transaction",
+    "url": "https://simplex-accounting.co.uk/bookkeeping-charges-per-transaction/",
+    "date": "2025",
+    "type": "pricing_model",
+    "region": "UK",
+    "notes": "Per-transaction model: £0.50-£2.00 per transaction, tiered 1-100, 101-150, etc."
+  },
+  {
+    "id": "src008",
+    "title": "Audit Consulting Group - Bookkeeping Prices UK",
+    "url": "https://auditconsultinggroup.co.uk/services/accounting-reporting-services/bookkeeping/bookkeeping-cost/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Average bookkeeping costs £100-£300/month"
+  },
+  {
+    "id": "src009",
+    "title": "TAJ Accountants - Payroll Bureau Costs in the UK (2025 Guide)",
+    "url": "https://tajaccountants.co.uk/payroll-bureau-costs-in-the-uk-2025-guide/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Per-employee pricing £4-£10/month, pension auto-enrol £1.50-£2/employee"
+  },
+  {
+    "id": "src010",
+    "title": "Payroll Prices - Payroll Prices In 2025",
+    "url": "https://www.payrollprices.com/en/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Fully managed £4-£6/payslip, part-managed £2-£3/payslip"
+  },
+  {
+    "id": "src011",
+    "title": "Global FPO - VAT Return Costs: Accountant Charges in the UK",
+    "url": "https://www.globalfpo.com/blog/understanding-vat-return-costs-accountant-charges-in-uk",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "VAT returns £100-£500/return, typically £120-£150/quarter"
+  },
+  {
+    "id": "src012",
+    "title": "Sleek UK - How Much Do Accountants Charge for Self Assessment",
+    "url": "https://sleek.com/uk/resources/how-much-do-accountants-charge-for-self-assessment/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Self-assessment £150-£350 standard, £150-£500 range with complexity"
+  },
+  {
+    "id": "src013",
+    "title": "Accountancy Cloud - How Much Should Annual Accounts Cost UK?",
+    "url": "https://accountancycloud.com/blogs/how-much-should-annual-accounts-cost-uk",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Annual accounts £750-£3000/year, with payroll/VAT £1000-£5000"
+  },
+  {
+    "id": "src014",
+    "title": "Mazuma - Monthly Management Accounts",
+    "url": "https://www.mazumamoney.co.uk/monthly-management-accounts/",
+    "date": "2025",
+    "type": "firm_pricing",
+    "region": "UK",
+    "notes": "Management accounts from £38+VAT/month"
+  },
+  {
+    "id": "src015",
+    "title": "Xero UK - Xero Partner Programme & Pricing",
+    "url": "https://www.xero.com/uk/partner-programme/",
+    "date": "2025",
+    "type": "software_pricing",
+    "region": "UK",
+    "notes": "Xero Ledger £2.50/month for partners, Gold partner 30% client discount"
+  },
+  {
+    "id": "src016",
+    "title": "QuickBooks UK - Pricing & Accountants Plans",
+    "url": "https://quickbooks.intuit.com/uk/pricing/",
+    "date": "2025",
+    "type": "software_pricing",
+    "region": "UK",
+    "notes": "Sole Trader £10/month, Plus £47/month, Advanced £115/month, Payroll £5/month + £1.30/employee"
+  },
+  {
+    "id": "src017",
+    "title": "Tax Cloud - R&D Tax Credits Pricing",
+    "url": "https://www.taxcloud.co.uk/pricing",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "R&D fees: 5% up to £200k savings, 2.5% above, minimum £2750+VAT for <£55k savings"
+  },
+  {
+    "id": "src018",
+    "title": "Accountant Connector - Accountant's Hourly Cost in the UK",
+    "url": "https://accountantconnector.com/blog/how-much-does-an-accountant-cost-per-hour-uk",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Hourly rates £75-£250, specialist £125-£250, chartered £80-£500"
+  },
+  {
+    "id": "src019",
+    "title": "Limited Company Help - How much do limited company accountants cost?",
+    "url": "https://www.limitedcompanyhelp.com/limited-company-accountants-cost/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Monthly £70-£180, annual £800-£2000 for small limited companies"
+  },
+  {
+    "id": "src020",
+    "title": "Contractor Eye - Top 10 Contractor Accountants (2025)",
+    "url": "https://contracteye.co.uk/contractor-accountants-list.shtml",
+    "date": "2025",
+    "type": "market_comparison",
+    "region": "UK",
+    "notes": "Contractor packages £89-£165/month, includes IR35 support"
+  },
+  {
+    "id": "src021",
+    "title": "IT Contracting - Contractor Accountants Fees",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Fixed monthly fees £50-£150/month, typical £100-£150 reasonable"
+  },
+  {
+    "id": "src022",
+    "title": "The Accountancy - CIS Returns Service",
+    "url": "https://www.theaccountancy.co.uk/services/cis-returns",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "CIS returns £30 minimum, £36/month for 6 subcontractors (£6 each)"
+  },
+  {
+    "id": "src023",
+    "title": "Making Tax Digital - MTD Implementation Costs",
+    "url": "https://www.protaxaccountant.co.uk/post/mtd-for-income-tax-in-the-uk",
+    "date": "2025",
+    "type": "compliance_guide",
+    "region": "UK",
+    "notes": "Software subscription fees, training costs, initial setup (no specific prices)"
+  },
+  {
+    "id": "src024",
+    "title": "Auto Enrolment Pension - Setup & Fees",
+    "url": "https://www.taxassist.co.uk/resources/articles/your-guide-to-auto-enrolment-pensions",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "£30/employee/year for NEST reporting (RJ Accountancy)"
+  },
+  {
+    "id": "src025",
+    "title": "GoForma - What are Year-End Accounts",
+    "url": "https://www.goforma.com/small-business-accounting/what-are-year-end-accounts",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Year-end accounts £750-£3000/year, small limited companies £200-£1500/year"
+  },
+  {
+    "id": "src026",
+    "title": "Link My Books - 15 Best eCommerce Accountants in the UK (2025)",
+    "url": "https://linkmybooks.com/blog/best-ecommerce-accountants-uk",
+    "date": "2025",
+    "type": "market_comparison",
+    "region": "UK",
+    "notes": "Ecommerce accounting from £29/month, Sterlinx £139/month"
+  },
+  {
+    "id": "src027",
+    "title": "Business Accounting - Accountant Cost for Carpenters",
+    "url": "https://www.business-accounting.co.uk/blog/accountant-cost-carpenters",
+    "date": "2025",
+    "type": "industry_guide",
+    "region": "UK",
+    "notes": "Sole traders £150-£350, limited companies £1200-£3000/year, CIS adds £200-£500"
+  },
+  {
+    "id": "src028",
+    "title": "The Accountancy Partnership - Property Accountants",
+    "url": "https://www.theaccountancy.co.uk/property-accountants",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Property accountants from £24.50/month, based on portfolio size"
+  },
+  {
+    "id": "src029",
+    "title": "A Wise - Accounting for Startups",
+    "url": "https://a-wise.co.uk/who-we-help/accounting-for-startups/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Startup packages from £10/month, tax accountant from £85/month"
+  },
+  {
+    "id": "src030",
+    "title": "Carter Collins & Myer - Startup Accounting Cost Guide",
+    "url": "https://www.uk-ccm.com/start-up-entrepreneurs/startup-accounting-cost-guide",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Simple bookkeeping £150-£500/month, extensive accounting £500-£1500/month"
+  },
+  {
+    "id": "src031",
+    "title": "Charity Accountant - Fees and Extras",
+    "url": "https://charityaccountant.co.uk/fees-and-extras/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Fixed fees designed for small charities, 10% discount for eligible charities"
+  },
+  {
+    "id": "src032",
+    "title": "4Fold Accountants - Charities Pricing",
+    "url": "https://www.4foldaccountants.co.uk/charities/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Charity accounting from £15/month with flat fee packages"
+  },
+  {
+    "id": "src033",
+    "title": "JF Financial - Fixed Price Accounting",
+    "url": "https://jf-financial.co.uk/prices/",
+    "date": "2025",
+    "type": "firm_pricing",
+    "region": "UK",
+    "notes": "Fixed-fee monthly retainer packages"
+  },
+  {
+    "id": "src034",
+    "title": "Pro Tax Accountant - Cost of Accountant for Limited Company",
+    "url": "https://www.protaxaccountant.co.uk/post/cost-of-accountant-for-limited-company",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Entry-level packages from £29/month for sole traders/small limited companies"
+  },
+  {
+    "id": "src035",
+    "title": "ICAEW - Pricing, Fees and Charge Out Rates",
+    "url": "https://www.icaew.com/technical/practice-resources/run-and-grow/pricing-fees-and-charge-out-rates",
+    "date": "2025",
+    "type": "professional_guidance",
+    "region": "UK",
+    "notes": "Fee transparency guidance, ethical pricing practices, value pricing resources"
+  },
+  {
+    "id": "src036",
+    "title": "ACCA - Fees and Charges",
+    "url": "https://www.accaglobal.com/gb/en/qualifications/accountancy-career/fees/fees-charges.html",
+    "date": "2025",
+    "type": "professional_guidance",
+    "region": "UK",
+    "notes": "ACCA registration £89, annual subscription £137, exam fees £98-£143"
+  },
+  {
+    "id": "src037",
+    "title": "ACCA Salary UK - Kanan",
+    "url": "https://www.kanan.co/blog/acca-salary-in-uk/",
+    "date": "2025",
+    "type": "salary_guide",
+    "region": "UK",
+    "notes": "ACCA qualified £40k-£60k/year, part-qualified £45k average"
+  },
+  {
+    "id": "src038",
+    "title": "1st Formations - Dormant Company Accounts",
+    "url": "https://www.1stformations.co.uk/dormant-company-accounts/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Dormant accounts filing FREE via Companies House WebFiling, service providers £9-£60"
+  },
+  {
+    "id": "src039",
+    "title": "TAJ Accountants - London Accountant Pricing vs Regional",
+    "url": "https://www.tajaccountants.co.uk/how-much-does-an-accountant-cost-per-month-in-the-uk-a-complete-guide/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "London: basic tax return £350-£800, complex £800+; Regional: £200-£250"
+  },
+  {
+    "id": "src040",
+    "title": "Native Teams - Freelancing in the UK 2025",
+    "url": "https://nativeteams.com/blog/freelancing-in-the-uk",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Freelancer accountant services from £35/month, IPSE survey: 12.2% day rate increase expected 2025"
+  },
+  {
+    "id": "src041",
+    "title": "A Wise - Accounting for Freelancers",
+    "url": "https://a-wise.co.uk/accounting-pricing-for-freelancers/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Freelancer accounting from £35/month"
+  },
+  {
+    "id": "src042",
+    "title": "Business Accounting - Accountant Cost for Amazon Sellers",
+    "url": "https://www.business-accounting.co.uk/blog/accountant-cost-amazon-sellers",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Amazon seller accounting £800-£3500+/year, varies by structure and marketplace count"
+  },
+  {
+    "id": "src043",
+    "title": "Sterlinx Global - Amazon FBA Accountants",
+    "url": "https://sterlinxglobal.com/amazon-accounting/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Amazon FBA accounting from £139/month"
+  },
+  {
+    "id": "src044",
+    "title": "Business Accounting - Accountant Cost for Shopify Sellers",
+    "url": "https://www.business-accounting.co.uk/blog/accountant-cost-shopify-sellers",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Fixed fee £120-£300+/month depending on complexity, transaction volume key factor"
+  },
+  {
+    "id": "src045",
+    "title": "Caldwell Penn - How much does a company audit cost in the UK?",
+    "url": "https://caldwellpenn.com/news/how-much-does-a-company-audit-cost-in-the-uk",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Audit fees: few thousand for small companies, £7k+VAT minimum mentioned, £6k for £10m revenue"
+  },
+  {
+    "id": "src046",
+    "title": "Accountancy Age - Audit Cost Time Analysis",
+    "url": "https://www.accountancyage.com/2019/11/13/what-is-the-cost-to-do-an-audit-and-how-much-time-does-it-take-to-complete-an-audit/",
+    "date": "2025",
+    "type": "industry_analysis",
+    "region": "UK",
+    "notes": "Revenue bands: £5m-£10m = 0.25% of revenue, £10m-£25m = 0.19% of revenue"
+  },
+  {
+    "id": "src047",
+    "title": "Expert Market - International Tax Specialist Fees",
+    "url": "https://www.expertmarket.com/uk/accounting-services/how-much-accountant-cost",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "International tax work from £1200+VAT, specialist hourly £125-£250"
+  },
+  {
+    "id": "src048",
+    "title": "A Wise - Crypto Accountants UK",
+    "url": "https://a-wise.co.uk/crypto-accountants/",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Crypto accounting from £10/month"
+  },
+  {
+    "id": "src049",
+    "title": "GoForma - UK Crypto Tax Accountants",
+    "url": "https://www.goforma.com/uk-crypto-tax-accountants",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "Crypto tax returns from £220"
+  },
+  {
+    "id": "src050",
+    "title": "Eddisons - Business Rates Appeals",
+    "url": "https://www.eddisons.com/valuations-and-advisory/business-rates/business-rating-appeals",
+    "date": "2025",
+    "type": "specialist_pricing",
+    "region": "UK",
+    "notes": "No-win no-fee basis, percentage of savings achieved, Valuation Tribunal fee £150-£300"
+  },
+  {
+    "id": "src051",
+    "title": "Crowe UK - Transfer Pricing Documentation Rules",
+    "url": "https://www.crowe.com/uk/insights/transfer-pricing-documentation-rules",
+    "date": "2025",
+    "type": "compliance_guide",
+    "region": "UK",
+    "notes": "Master File + Local File required for groups >€750m revenue, penalty up to £3000 for non-compliance"
+  },
+  {
+    "id": "src052",
+    "title": "Xact Accountants - Annual Accounts Cost",
+    "url": "https://xactaccountants.co.uk/blog/annual-accounts-cost/",
+    "date": "2025",
+    "type": "market_guide",
+    "region": "UK",
+    "notes": "Hourly £30-£150, specialist services £125-£250/hour, small business annual accounts £150-£1500"
+  },
+  {
+    "id": "src053",
+    "title": "Consultancy.uk - Consultancy Fees & Rates",
+    "url": "https://www.consultancy.uk/consulting-industry/fees-rates",
+    "date": "2025",
+    "type": "professional_guidance",
+    "region": "UK",
+    "notes": "Consulting hourly rates: £50 operational level to £300+ strategy firm, 55% plan 5-10% fee increases"
+  }
+]

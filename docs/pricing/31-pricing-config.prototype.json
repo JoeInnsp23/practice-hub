@@ -1,0 +1,899 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "version": "1.0",
+  "lastUpdated": "2025-10-28",
+  "description": "Practice Hub Pricing Configuration - Production-Ready Prototype",
+  "currency": "GBP",
+  "taxInclusive": false,
+  "defaultFrequency": "monthly",
+
+  "services": [
+    {
+      "id": "COMP_ACCOUNTS",
+      "code": "COMP_ACCOUNTS",
+      "name": "Annual Accounts & Corporation Tax",
+      "category": "compliance",
+      "description": "Limited company annual accounts preparation and corporation tax return",
+      "pricingDrivers": ["turnover_band", "complexity_level", "industry"],
+      "defaultFrequency": "annual",
+      "models": ["A", "B"],
+      "baseRateSource": "turnover_band_rules",
+      "modifiers": ["complexity", "industry"],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "SATR_SINGLE",
+      "code": "SATR_SINGLE",
+      "name": "Self-Assessment Tax Return (Single Income)",
+      "category": "compliance",
+      "description": "Personal tax return for single income stream (employment or dividends)",
+      "pricingDrivers": ["income_streams"],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRate": 180,
+      "modifiers": [],
+      "addons": ["ADDON_RENTAL", "ADDON_CAPITAL_GAINS"],
+      "dependencies": []
+    },
+    {
+      "id": "SATR_MULTI",
+      "code": "SATR_MULTI",
+      "name": "Self-Assessment Tax Return (Multiple Incomes)",
+      "category": "compliance",
+      "description": "Personal tax return for multiple income streams",
+      "pricingDrivers": ["income_streams"],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRate": 250,
+      "modifiers": ["complexity"],
+      "addons": ["ADDON_RENTAL", "ADDON_CAPITAL_GAINS"],
+      "dependencies": []
+    },
+    {
+      "id": "CONF_STATEMENT",
+      "code": "CONF_STATEMENT",
+      "name": "Confirmation Statement",
+      "category": "compliance",
+      "description": "Annual confirmation statement filing",
+      "pricingDrivers": [],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRate": 50,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "VAT_RETURNS",
+      "code": "VAT_RETURNS",
+      "name": "VAT Returns (Quarterly)",
+      "category": "vat",
+      "description": "Quarterly VAT return preparation and submission",
+      "pricingDrivers": ["turnover_band"],
+      "defaultFrequency": "quarterly",
+      "models": ["A"],
+      "baseRateSource": "vat_turnover_rules",
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "VAT_MONTHLY",
+      "code": "VAT_MONTHLY",
+      "name": "VAT Returns (Monthly)",
+      "category": "vat",
+      "description": "Monthly VAT return preparation and submission",
+      "pricingDrivers": ["turnover_band"],
+      "defaultFrequency": "monthly",
+      "models": ["A"],
+      "baseRateSource": "vat_monthly_rules",
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "BOOK_BASIC",
+      "code": "BOOK_BASIC",
+      "name": "Basic Bookkeeping",
+      "category": "bookkeeping",
+      "description": "Monthly bookkeeping for low transaction volume",
+      "pricingDrivers": ["monthly_transactions", "bank_accounts", "complexity_level"],
+      "defaultFrequency": "monthly",
+      "models": ["A", "B"],
+      "baseRateSource": "transaction_band_rules",
+      "modifiers": ["complexity", "industry"],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "BOOK_FULL",
+      "code": "BOOK_FULL",
+      "name": "Full Bookkeeping Service",
+      "category": "bookkeeping",
+      "description": "Comprehensive monthly bookkeeping with reconciliation",
+      "pricingDrivers": ["monthly_transactions", "bank_accounts", "complexity_level", "industry"],
+      "defaultFrequency": "monthly",
+      "models": ["A", "B"],
+      "baseRateSource": "transaction_band_rules",
+      "modifiers": ["complexity", "industry"],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "PAYROLL_STANDARD",
+      "code": "PAYROLL_STANDARD",
+      "name": "Standard Payroll Processing",
+      "category": "payroll",
+      "description": "Monthly payroll processing including RTI submissions",
+      "pricingDrivers": ["employee_count", "payroll_frequency"],
+      "defaultFrequency": "monthly",
+      "models": ["A"],
+      "baseRateSource": "payroll_employee_tiers",
+      "modifiers": ["payroll_frequency"],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "PAYROLL_SETUP",
+      "code": "PAYROLL_SETUP",
+      "name": "Payroll Setup (One-Off)",
+      "category": "payroll",
+      "description": "Initial PAYE scheme setup and registration",
+      "pricingDrivers": [],
+      "defaultFrequency": "one_off",
+      "models": ["A"],
+      "baseRate": 150,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "MGMT_MONTHLY",
+      "code": "MGMT_MONTHLY",
+      "name": "Monthly Management Accounts",
+      "category": "management",
+      "description": "Monthly management reporting with P&L and balance sheet",
+      "pricingDrivers": ["turnover_band", "complexity_level"],
+      "defaultFrequency": "monthly",
+      "models": ["A"],
+      "baseRateSource": "mgmt_accounts_rules",
+      "modifiers": ["complexity"],
+      "addons": [],
+      "dependencies": ["BOOK_FULL"]
+    },
+    {
+      "id": "MGMT_QUARTERLY",
+      "code": "MGMT_QUARTERLY",
+      "name": "Quarterly Management Accounts",
+      "category": "management",
+      "description": "Quarterly management reporting",
+      "pricingDrivers": ["turnover_band", "complexity_level"],
+      "defaultFrequency": "quarterly",
+      "models": ["A"],
+      "baseRateSource": "mgmt_accounts_rules",
+      "modifiers": ["complexity"],
+      "addons": [],
+      "dependencies": ["BOOK_FULL"]
+    },
+    {
+      "id": "REGISTERED_OFFICE",
+      "code": "REGISTERED_OFFICE",
+      "name": "Registered Office Address",
+      "category": "secretarial",
+      "description": "Provision of registered office address",
+      "pricingDrivers": [],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRate": 60,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "COMPANY_SETUP",
+      "code": "COMPANY_SETUP",
+      "name": "Company Formation & Setup",
+      "category": "secretarial",
+      "description": "Limited company incorporation and initial setup",
+      "pricingDrivers": [],
+      "defaultFrequency": "one_off",
+      "models": ["A"],
+      "baseRate": 200,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "TAX_PLANNING",
+      "code": "TAX_PLANNING",
+      "name": "Tax Planning Consultation",
+      "category": "tax_planning",
+      "description": "Annual tax planning and optimization review",
+      "pricingDrivers": [],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRate": 300,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "RD_TAX_CREDITS",
+      "code": "RD_TAX_CREDITS",
+      "name": "R&D Tax Credits",
+      "category": "tax_planning",
+      "description": "R&D tax relief claim preparation (percentage of savings)",
+      "pricingDrivers": ["savings_achieved"],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRateSource": "rd_percentage_rules",
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "ADDON_RENTAL",
+      "code": "ADDON_RENTAL",
+      "name": "Rental Property Income",
+      "category": "addon",
+      "description": "Additional rental property handling (per property)",
+      "pricingDrivers": ["property_count"],
+      "defaultFrequency": "annual",
+      "models": ["A"],
+      "baseRate": 30,
+      "ratePerUnit": 30,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    },
+    {
+      "id": "ADDON_CIS",
+      "code": "ADDON_CIS",
+      "name": "CIS Returns (Construction Industry Scheme)",
+      "category": "addon",
+      "description": "Monthly CIS return preparation",
+      "pricingDrivers": ["subcontractor_count"],
+      "defaultFrequency": "monthly",
+      "models": ["A"],
+      "baseRate": 30,
+      "ratePerUnit": 6,
+      "modifiers": [],
+      "addons": [],
+      "dependencies": []
+    }
+  ],
+
+  "pricingRules": {
+    "turnover_band_rules": {
+      "description": "Model A turnover-based pricing for annual accounts",
+      "driver": "turnover_band",
+      "bands": [
+        {
+          "label": "0-89k",
+          "minValue": 0,
+          "maxValue": 89999,
+          "basePrice": {
+            "clean": 300,
+            "average": 600,
+            "complex": 660,
+            "disaster": 840
+          }
+        },
+        {
+          "label": "90k-149k",
+          "minValue": 90000,
+          "maxValue": 149999,
+          "basePrice": {
+            "clean": 660,
+            "average": 780,
+            "complex": 840,
+            "disaster": 1092
+          }
+        },
+        {
+          "label": "150k-249k",
+          "minValue": 150000,
+          "maxValue": 249999,
+          "basePrice": {
+            "clean": 840,
+            "average": 900,
+            "complex": 1020,
+            "disaster": 1260
+          }
+        },
+        {
+          "label": "250k-499k",
+          "minValue": 250000,
+          "maxValue": 499999,
+          "basePrice": {
+            "clean": 900,
+            "average": 1080,
+            "complex": 1260,
+            "disaster": 1512
+          }
+        },
+        {
+          "label": "500k-749k",
+          "minValue": 500000,
+          "maxValue": 749999,
+          "basePrice": {
+            "clean": 1260,
+            "average": 1365,
+            "complex": 1470,
+            "disaster": 1764
+          }
+        },
+        {
+          "label": "750k-999k",
+          "minValue": 750000,
+          "maxValue": 999999,
+          "basePrice": {
+            "clean": 1470,
+            "average": 1680,
+            "complex": 2000,
+            "disaster": 2400
+          }
+        },
+        {
+          "label": "1m+",
+          "minValue": 1000000,
+          "maxValue": null,
+          "basePrice": {
+            "clean": 2000,
+            "average": 3750,
+            "complex": 5625,
+            "disaster": 7500
+          }
+        }
+      ]
+    },
+
+    "transaction_band_rules": {
+      "description": "Model B transaction-based pricing for bookkeeping",
+      "driver": "monthly_transactions",
+      "bands": [
+        {
+          "label": "Low (0-100)",
+          "minValue": 0,
+          "maxValue": 100,
+          "basePrice": 100,
+          "ratePerTransaction": 0.50
+        },
+        {
+          "label": "Medium (101-300)",
+          "minValue": 101,
+          "maxValue": 300,
+          "basePrice": 150,
+          "ratePerTransaction": 0.75
+        },
+        {
+          "label": "High (301-500)",
+          "minValue": 301,
+          "maxValue": 500,
+          "basePrice": 250,
+          "ratePerTransaction": 1.00
+        },
+        {
+          "label": "Very High (501+)",
+          "minValue": 501,
+          "maxValue": null,
+          "basePrice": 350,
+          "ratePerTransaction": 1.25
+        }
+      ]
+    },
+
+    "payroll_employee_tiers": {
+      "description": "Payroll pricing based on employee count (monthly base)",
+      "driver": "employee_count",
+      "tiers": [
+        {
+          "label": "Director Only (0-2)",
+          "minEmployees": 0,
+          "maxEmployees": 2,
+          "basePrice": 18
+        },
+        {
+          "label": "Small Team (3-5)",
+          "minEmployees": 3,
+          "maxEmployees": 5,
+          "basePrice": 50
+        },
+        {
+          "label": "Medium Team (6-10)",
+          "minEmployees": 6,
+          "maxEmployees": 10,
+          "basePrice": 70
+        },
+        {
+          "label": "Large Team (11-15)",
+          "minEmployees": 11,
+          "maxEmployees": 15,
+          "basePrice": 90
+        },
+        {
+          "label": "Very Large Team (16-20)",
+          "minEmployees": 16,
+          "maxEmployees": 20,
+          "basePrice": 110
+        },
+        {
+          "label": "Enterprise (21+)",
+          "minEmployees": 21,
+          "maxEmployees": null,
+          "basePrice": 130,
+          "ratePerAdditionalEmployee": 2
+        }
+      ]
+    },
+
+    "vat_turnover_rules": {
+      "description": "Quarterly VAT return pricing based on turnover",
+      "driver": "turnover_band",
+      "bands": [
+        {
+          "label": "0-100k",
+          "minValue": 0,
+          "maxValue": 100000,
+          "basePrice": 120
+        },
+        {
+          "label": "100k-200k",
+          "minValue": 100001,
+          "maxValue": 200000,
+          "basePrice": 180
+        },
+        {
+          "label": "200k-400k",
+          "minValue": 200001,
+          "maxValue": 400000,
+          "basePrice": 240
+        },
+        {
+          "label": "400k+",
+          "minValue": 400001,
+          "maxValue": null,
+          "basePrice": 300
+        }
+      ]
+    },
+
+    "vat_monthly_rules": {
+      "description": "Monthly VAT return pricing (40% of quarterly rate)",
+      "driver": "turnover_band",
+      "basedOn": "vat_turnover_rules",
+      "multiplier": 0.4
+    },
+
+    "mgmt_accounts_rules": {
+      "description": "Management accounts pricing based on turnover",
+      "driver": "turnover_band",
+      "bands": [
+        {
+          "label": "0-249k",
+          "minValue": 0,
+          "maxValue": 249999,
+          "basePrice": 150
+        },
+        {
+          "label": "250k-499k",
+          "minValue": 250000,
+          "maxValue": 499999,
+          "basePrice": 200
+        },
+        {
+          "label": "500k-999k",
+          "minValue": 500000,
+          "maxValue": 999999,
+          "basePrice": 300
+        },
+        {
+          "label": "1m+",
+          "minValue": 1000000,
+          "maxValue": null,
+          "basePrice": 450
+        }
+      ]
+    },
+
+    "rd_percentage_rules": {
+      "description": "R&D tax credits pricing (percentage of savings achieved)",
+      "driver": "savings_achieved",
+      "tiers": [
+        {
+          "label": "Minimum (up to £55k savings)",
+          "minValue": 0,
+          "maxValue": 55000,
+          "fixedFee": 2750
+        },
+        {
+          "label": "Standard (£55k-£200k savings)",
+          "minValue": 55001,
+          "maxValue": 200000,
+          "percentage": 5.0
+        },
+        {
+          "label": "Large (£200k+ savings)",
+          "minValue": 200001,
+          "maxValue": null,
+          "baseAmount": 10000,
+          "percentage": 2.5,
+          "note": "5% up to £200k, then 2.5% on remainder"
+        }
+      ]
+    }
+  },
+
+  "modifiers": {
+    "complexity": {
+      "description": "Pricing adjustment based on books condition and complexity",
+      "modelA": {
+        "clean": 0.95,
+        "average": 1.0,
+        "complex": 1.15,
+        "disaster": 1.4
+      },
+      "modelB": {
+        "clean": 0.98,
+        "average": 1.0,
+        "complex": 1.08,
+        "disaster": 1.2
+      },
+      "rationale": "Model B multipliers are lower because transaction-based pricing already captures volume complexity"
+    },
+
+    "industry": {
+      "description": "Industry-specific complexity adjustments",
+      "multipliers": {
+        "simple": 0.95,
+        "standard": 1.0,
+        "complex": 1.15,
+        "regulated": 1.3
+      },
+      "industryMapping": {
+        "consulting": "simple",
+        "sole_trader_services": "simple",
+        "retail": "standard",
+        "services": "standard",
+        "construction": "complex",
+        "ecommerce": "complex",
+        "property": "complex",
+        "financial_services": "regulated",
+        "legal": "regulated",
+        "healthcare": "regulated"
+      }
+    },
+
+    "payroll_frequency": {
+      "description": "Payroll frequency multiplier applied to monthly base",
+      "multipliers": {
+        "weekly": 3.0,
+        "fortnightly": 2.0,
+        "4weekly": 2.0,
+        "monthly": 1.0
+      }
+    },
+
+    "time_based": {
+      "description": "Time-based pricing adjustments",
+      "rush_fee": {
+        "multiplier": 1.25,
+        "description": "25% premium for expedited service (within 48 hours)",
+        "conditions": "Requires approval, capacity-dependent"
+      },
+      "year_end_premium": {
+        "multiplier": 1.1,
+        "description": "10% premium during January-March peak season",
+        "applyTo": ["COMP_ACCOUNTS", "SATR_SINGLE", "SATR_MULTI"],
+        "active": false,
+        "note": "Optional - consider for capacity management"
+      }
+    }
+  },
+
+  "surcharges": {
+    "multi_currency": {
+      "description": "Additional charge for multi-currency bookkeeping",
+      "monthlyFee": 25,
+      "applyTo": ["BOOK_BASIC", "BOOK_FULL"],
+      "justification": "Exchange rate tracking, additional reconciliation complexity"
+    },
+
+    "multi_entity": {
+      "description": "Group structure surcharges",
+      "bands": [
+        {
+          "entities": 2,
+          "monthlyFee": 40,
+          "description": "2 entities (inter-company eliminations)"
+        },
+        {
+          "entities": "3-5",
+          "monthlyFee": 90,
+          "description": "3-5 entities (group consolidation)"
+        },
+        {
+          "entities": "6+",
+          "monthlyFee": 150,
+          "description": "6+ entities (complex group structures)"
+        }
+      ]
+    }
+  },
+
+  "discounts": {
+    "volume": {
+      "description": "Volume discounts based on total monthly fees",
+      "tiers": [
+        {
+          "minMonthlyFees": 500,
+          "maxMonthlyFees": 999,
+          "discount": 0.05,
+          "description": "5% off for £500-£999/month"
+        },
+        {
+          "minMonthlyFees": 1000,
+          "maxMonthlyFees": null,
+          "discount": 0.08,
+          "description": "8% off for £1000+/month"
+        }
+      ]
+    },
+
+    "new_client": {
+      "description": "First year discount for new clients",
+      "discount": 0.10,
+      "duration": "12 months",
+      "applyTo": "all_services",
+      "excludes": ["one_off"],
+      "note": "Marketing acquisition strategy"
+    },
+
+    "annual_payment": {
+      "description": "Discount for annual prepayment",
+      "discount": 0.10,
+      "applyTo": "annual_services",
+      "cashFlowBenefit": true,
+      "recommendation": "Implement (DEC-003)"
+    },
+
+    "referral": {
+      "description": "Referral program discount",
+      "discount": 0.05,
+      "duration": "6 months",
+      "applyTo": "all_services",
+      "note": "Optional - consider for client acquisition"
+    }
+  },
+
+  "packageTiers": {
+    "description": "Pre-defined service packages (Alternative to dual-model pricing - DEC-002)",
+    "enabled": false,
+    "tiers": [
+      {
+        "id": "ESSENTIALS",
+        "name": "Essentials Package",
+        "description": "For solo directors and micro businesses",
+        "monthlyPrice": {
+          "min": 60,
+          "max": 80
+        },
+        "annualPrice": {
+          "min": 720,
+          "max": 960
+        },
+        "includedServices": [
+          "COMP_ACCOUNTS",
+          "CONF_STATEMENT",
+          "SATR_SINGLE"
+        ],
+        "targetMarket": "Solo directors, no employees (60% of market)"
+      },
+      {
+        "id": "STANDARD",
+        "name": "Standard Package",
+        "description": "For small teams with basic compliance",
+        "monthlyPrice": {
+          "min": 100,
+          "max": 150
+        },
+        "annualPrice": {
+          "min": 1200,
+          "max": 1800
+        },
+        "includedServices": [
+          "COMP_ACCOUNTS",
+          "CONF_STATEMENT",
+          "SATR_SINGLE",
+          "PAYROLL_STANDARD",
+          "VAT_RETURNS"
+        ],
+        "targetMarket": "Small teams 1-5 employees (30% of market)"
+      },
+      {
+        "id": "PLUS",
+        "name": "Plus Package",
+        "description": "For growing businesses with advisory needs",
+        "monthlyPrice": {
+          "min": 200,
+          "max": 300
+        },
+        "annualPrice": {
+          "min": 2400,
+          "max": 3600
+        },
+        "includedServices": [
+          "COMP_ACCOUNTS",
+          "CONF_STATEMENT",
+          "SATR_SINGLE",
+          "PAYROLL_STANDARD",
+          "VAT_RETURNS",
+          "BOOK_FULL",
+          "MGMT_MONTHLY"
+        ],
+        "targetMarket": "Growing businesses with advisory needs (10% of market)"
+      }
+    ],
+    "tradeOff": "Simpler to market but less flexible than dual-model pricing"
+  },
+
+  "validation": {
+    "turnover": {
+      "min": 0,
+      "max": 100000000,
+      "errorMessage": "Turnover must be between £0 and £100m"
+    },
+    "monthlyTransactions": {
+      "min": 0,
+      "max": 100000,
+      "errorMessage": "Monthly transactions must be between 0 and 100,000"
+    },
+    "employees": {
+      "min": 0,
+      "max": 10000,
+      "errorMessage": "Employee count must be between 0 and 10,000"
+    },
+    "propertyCount": {
+      "min": 0,
+      "max": 1000,
+      "errorMessage": "Property count must be between 0 and 1,000"
+    },
+    "bankAccounts": {
+      "min": 0,
+      "max": 100,
+      "errorMessage": "Bank account count must be between 0 and 100"
+    },
+    "entityCount": {
+      "min": 1,
+      "max": 100,
+      "errorMessage": "Entity count must be between 1 and 100"
+    }
+  },
+
+  "featureFlags": {
+    "modelB": {
+      "enabled": false,
+      "description": "Enable Model B (transaction-based) pricing",
+      "rolloutStrategy": "Gradual rollout - start with 10% of leads, monitor accuracy",
+      "requirements": ["monthlyTransactions field in leads", "transaction estimation logic"]
+    },
+    "autoServiceConfig": {
+      "enabled": false,
+      "description": "Automatic service configuration from lead data",
+      "rolloutStrategy": "Staff override available, feature flag per tenant",
+      "requirements": ["GAP-004 implementation", "pricing preview UI"]
+    },
+    "pricingPreview": {
+      "enabled": false,
+      "description": "Show pricing estimates in lead capture flow",
+      "rolloutStrategy": "A/B test with 50% of traffic",
+      "requirements": ["Lead capture field additions", "pricing calculator component"]
+    },
+    "roundingToNearest5": {
+      "enabled": true,
+      "description": "Round all prices to nearest £5 (DEC-004)",
+      "rule": "Math.round(price / 5) * 5"
+    },
+    "minimumEngagement": {
+      "enabled": true,
+      "monthlyMinimum": 60,
+      "description": "Minimum monthly fee (DEC-005)",
+      "exceptions": ["dormant_companies", "one_off_services"]
+    }
+  },
+
+  "calculationEngine": {
+    "description": "Pricing calculation workflow",
+    "steps": [
+      {
+        "step": 1,
+        "action": "mapInputsToDrivers",
+        "description": "Map lead/proposal fields to pricing drivers using 22-mappings.json",
+        "output": "Structured pricing driver object"
+      },
+      {
+        "step": 2,
+        "action": "selectServices",
+        "description": "Auto-select services based on lead data (if autoServiceConfig enabled)",
+        "output": "Array of service IDs with configuration"
+      },
+      {
+        "step": 3,
+        "action": "calculateBasePrice",
+        "description": "For each service, calculate base price using appropriate model",
+        "models": {
+          "modelA": "Lookup turnover band, apply complexity/industry multipliers",
+          "modelB": "Calculate from transaction count, apply lower multipliers"
+        },
+        "output": "Base prices for Model A and Model B (where applicable)"
+      },
+      {
+        "step": 4,
+        "action": "applyModifiers",
+        "description": "Apply complexity, industry, frequency, and time-based modifiers",
+        "output": "Modified prices"
+      },
+      {
+        "step": 5,
+        "action": "addSurcharges",
+        "description": "Add multi-currency, multi-entity, or other surcharges",
+        "output": "Prices with surcharges"
+      },
+      {
+        "step": 6,
+        "action": "applyDiscounts",
+        "description": "Apply volume, new client, annual payment, or custom discounts",
+        "output": "Discounted prices"
+      },
+      {
+        "step": 7,
+        "action": "roundPrices",
+        "description": "Apply rounding rules (if roundingToNearest5 enabled)",
+        "output": "Final rounded prices"
+      },
+      {
+        "step": 8,
+        "action": "compareModels",
+        "description": "Compare Model A vs Model B, recommend best option",
+        "logic": "If difference < 10%, recommend Model A (simpler). Otherwise recommend cheaper model.",
+        "output": "Recommended model with justification"
+      },
+      {
+        "step": 9,
+        "action": "enforceMinimum",
+        "description": "Apply minimum engagement fee (if minimumEngagement enabled)",
+        "output": "Final price (not less than minimum)"
+      },
+      {
+        "step": 10,
+        "action": "generateLineItems",
+        "description": "Create proposal line items with quantities, rates, totals",
+        "output": "Array of quote line items ready for proposal"
+      }
+    ]
+  },
+
+  "implementationNotes": [
+    "This prototype demonstrates production-ready structure for /config/pricing/",
+    "All pricing rules are data-driven for easy updates without code changes",
+    "Feature flags enable gradual rollout and A/B testing",
+    "Validation rules ensure data quality at input boundaries",
+    "Calculation engine is deterministic and auditable",
+    "Package tiers are included but disabled (dual-model preferred - DEC-002)",
+    "All prices in GBP ex-VAT for UK market",
+    "Schema follows JSON Schema draft-07 for tooling compatibility",
+    "Can be validated against schema with ajv or similar validators"
+  ],
+
+  "references": {
+    "schema": "lib/db/schema.ts (services, pricing_rules, proposals, proposal_services tables)",
+    "router": "app/server/routers/pricing.ts (calculation logic)",
+    "marketData": "docs/pricing/21-market-data.csv",
+    "mappings": "docs/pricing/22-mappings.json",
+    "pricingModel": "docs/pricing/30-pricing-model.md",
+    "serviceAlignment": "docs/pricing/15-service-alignment-matrix.md",
+    "gaps": "docs/pricing/55-gaps.md",
+    "decisions": "docs/pricing/60-decisions.md"
+  }
+}

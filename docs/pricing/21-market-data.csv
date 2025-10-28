@@ -1,0 +1,136 @@
+service,driver_turnover_band,driver_txn_band,bank_accounts,employees,properties,base_price_min,base_price_median,base_price_max,frequency,notes,source_id
+Annual Accounts + Corporation Tax,£0-£10k,,,,,300,300,300,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£10k-£20k,,,,,360,360,360,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£20k-£30k,,,,,420,420,420,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£30k-£40k,,,,,480,480,480,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£40k-£55k,,,,,540,540,540,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£55k-£70k,,,,,600,600,600,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£70k-£100k,,,,,660,660,660,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£100k-£130k,,,,,720,720,720,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£130k-£160k,,,,,780,780,780,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£160k-£200k,,,,,840,840,840,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£200k-£250k,,,,,900,900,900,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£250k-£300k,,,,,960,960,960,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£300k-£400k,,,,,1020,1020,1020,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£400k-£500k,,,,,1080,1080,1080,annual,RJ Accountancy fixed price,src003
+Annual Accounts + Corporation Tax,£0-£250k,,,,,1154,1154,1154,annual,Penney's starting price,src002
+Annual Accounts + Corporation Tax,£250k-£500k,,,,,1260,1260,1260,annual,Penney's,src002
+Annual Accounts + Corporation Tax,£500k-£999k,,,,,1470,1470,1470,annual,Penney's,src002
+Annual Accounts + Corporation Tax,£1m+,,,,,4200,4200,4200,annual,Penney's,src002
+Annual Accounts + Corporation Tax,any,,,,,750,1500,3000,annual,Market average,src013
+Annual Accounts + Corporation Tax,any,,,,,200,600,1500,annual,Small limited companies,src025
+Dormant Company Accounts,,,,,,250,250,250,annual,Penney's,src002
+Dormant Company Accounts,,,,,,0,5,60,annual,Free via WebFiling or service providers,src038
+Confirmation Statement,,,,,,50,50,50,annual,Companies House filing fee + admin,src003
+Confirmation Statement,,,,,,34,55,150,annual,£34 CH fee + £17-£50 accountant fee,src019
+Group Company Accounts,,,,,,3150,3150,3150,annual,Per company in group,src002
+Self-Assessment Tax Return,sole trader basic,,,,,150,250,350,annual,Standard market rate,src012
+Self-Assessment Tax Return,sole trader basic,,,,,341,341,341,annual,Penney's,src002
+Self-Assessment Tax Return,sole trader basic,,,,,179,179,179,annual,RJ Accountancy basic,src003
+Self-Assessment Tax Return,director,,,,,150,250,350,annual,Standard market rate,src012
+Self-Assessment Tax Return,director,,,,,312,312,312,annual,Penney's,src002
+Self-Assessment Tax Return,director,,,,,179,179,179,annual,RJ Accountancy basic,src003
+Self-Assessment Tax Return,with property/investment,,,1+,,450,450,450,annual,Penney's per property addon,src002
+Self-Assessment Tax Return,with property,,,1,,30,30,30,annual,RJ Accountancy per property addon,src003
+Self-Assessment Tax Return,partnership,,,,,150,150,150,annual,RJ Accountancy partnership return,src003
+Sole Trader Annual Accounts,£0-£10k,,,,,50,50,50,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,£10k-£20k,,,,,60,60,60,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,£20k-£30k,,,,,80,80,80,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,£30k-£55k,,,,,100,100,100,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,£55k-£100k,,,,,150,150,150,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,£100k-£160k,,,,,300,300,300,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,£160k-£200k,,,,,500,500,500,annual,RJ Accountancy,src003
+Sole Trader Annual Accounts,any,,,,,200,300,600,annual,Market average with self-assessment,src014
+Partnership Accounts,any,,,,,300,600,600,annual,Plus partnership return,src015
+Partnership Accounts,any,,,,,400,600,2000,annual,Turnover/complexity dependent,src015
+Bookkeeping - Monthly,,0-100,1-2,,,100,150,200,monthly,Low transaction volume,src008
+Bookkeeping - Monthly,,100-300,2-3,,,150,200,250,monthly,Medium transaction volume,src008
+Bookkeeping - Monthly,,300+,3+,,,200,250,300,monthly,High transaction volume,src008
+Bookkeeping - Monthly,any,any,,,,100,200,300,monthly,Market average,src004
+Bookkeeping - Per Transaction,,1,,,,0.50,1.00,2.00,per_txn,Typical per-transaction rate,src007
+Bookkeeping - Hourly,,any,,,,25,35,50,hourly,Hourly bookkeeping rate,src007
+Bookkeeping - Hourly (VAT inclusive),,any,,,,44,44,44,hourly,Penney's rate,src002
+Payroll - Director Only,,,,,0-2,18,18,18,monthly,Practice Hub current rate,code
+Payroll - Director Only,,,,,0-2,58,71,84,monthly,Penney's per run,src002
+Payroll - Small,,,,,1-5,50,50,50,monthly,Practice Hub current rate,code
+Payroll - Small,,,,,1-5,97,111,126,monthly,Penney's per run,src002
+Payroll - Medium,,,,,6-10,70,70,70,monthly,Practice Hub current rate,code
+Payroll - Medium,,,,,6-10,139,173,207,monthly,Penney's per run,src002
+Payroll - Large,,,,,11-15,90,90,90,monthly,Practice Hub current rate,code
+Payroll - Large,,,,,11-15,207,241,275,monthly,Penney's per run,src002
+Payroll - Extra Large,,,,,16-20,110,110,110,monthly,Practice Hub current rate,code
+Payroll - Extra Large,,,,,16-25,284,360,437,monthly,Penney's per run,src002
+Payroll - Per Employee,,,,,1,4,7,10,monthly,Market average per employee,src009
+Payroll - Per Employee,,,,,1,120,120,120,annual,RJ Accountancy annual per employee,src003
+Payroll - Per Payslip,,,,,1,2,5,10,per_payslip,Fully managed per payslip,src010
+Payroll - Part Managed,,,,,1,2,3,5,per_payslip,Part-managed per payslip,src010
+Payroll - Weekly,,,,,1,2,3,5,weekly,Weekly payroll per employee,src009
+Payroll - Bureau Setup,,,,,any,100,300,1000,one_off,Initial setup fee,src009
+Payroll - Pension Auto-Enrol,,,,,1,1.50,2,2,monthly,Per employee pension reporting,src009
+Payroll - Pension NEST,,,,,1,30,30,30,annual,RJ Accountancy NEST per employee,src003
+Payroll - New Starter/Leaver,,,,,1,25,31,37,one_off,Penney's admin fee,src002
+VAT Returns - Quarterly,£0-£100k,,,,,,120,120,120,quarterly,RJ Accountancy,src003
+VAT Returns - Quarterly,£100k-£200k,,,,,,180,180,180,quarterly,RJ Accountancy,src003
+VAT Returns - Quarterly,£200k-£400k,,,,,,240,240,240,quarterly,RJ Accountancy,src003
+VAT Returns - Quarterly,any,,,,,,100,200,500,per_return,Market average per return,src011
+VAT Returns - Quarterly,any,,,,,,120,150,150,quarterly,Typical quarterly rate,src011
+VAT Returns - Quarterly,any,20 txn/month,,,,150,150,150,quarterly,Penney's minimum rate,src011
+VAT Registration,,,,,,,156,156,156,one_off,Penney's,src002
+CIS Returns - Monthly,,,,,,,30,36,52,monthly,£30 minimum Accountancy firms,src022
+CIS Returns - Monthly,,,,,6 subcontractors,36,36,36,monthly,£6 per subcontractor,src022
+Company Formation,,,,,,,50,125,250,one_off,Basic formation,src002
+Company Formation,,,,,,,200,200,200,one_off,Penney's with filing fee,src002
+Company Secretarial,,,,,,,89,89,89,annual,Penney's basic,src002
+Registered Office Address,,,,,,,180,180,180,annual,1st Cloud inc 2 persons + trading name,src001
+Management Accounts - Monthly,any,,,,,,38,100,250,monthly,Mazuma to market average,src014
+Management Accounts - Monthly,any,,,,,,250,375,500,monthly,Premium monthly management accounts,src005
+Management Accounts - Setup,any,,,,,,1575,1575,1575,one_off,Penney's cash flow forecasting,src002
+Management Accounts - Ongoing,any,,,,,,499,499,499,monthly,Penney's ongoing,src002
+Accountant Monthly Package - Solo,£0-£50k,,,,0,60,80,100,monthly,Solo director no employees,src004
+Accountant Monthly Package - Solo,£0-£50k,,,,0,89,89,89,monthly,Contractor complete service,src020
+Accountant Monthly Package - Small,£50k-£150k,,,,1-5,100,138,175,monthly,Small business with employees,src004
+Accountant Monthly Package - Small,£50k-£150k,,,,1-5,105,135,165,monthly,Bronze/Silver/Gold packages,src019
+Accountant Monthly Package - Growing,£150k+,,,,5+,200,225,250,monthly,Growing business complex needs,src004
+Accountant Annual Package - Limited Company,£0-£50k,,,,any,300,800,1200,annual,Small limited company,src019
+Accountant Annual Package - Limited Company,£50k-£100k,,,,any,700,1000,1500,annual,Mid-sized limited company,src019
+Accountant Annual Package - Limited Company,£100k-£150k,,,,any,1200,1500,2000,annual,Larger limited company,src019
+Accountant Annual Package - Sole Trader,any,,,,0,300,550,3700,annual,Sole trader annual costs,src005
+Accountant Annual Package - Partnership,any,,,,2+,800,1300,3800,annual,Partnership annual costs,src005
+Startup Package - Basic,£0-£30k,,,,0,10,50,100,monthly,Basic startup package,src029
+Startup Package - Basic,£0-£30k,,,,0,29,29,29,monthly,Pro Tax Accountant,src034
+Startup Package - Standard,£30k-£100k,,,,0-5,85,200,350,monthly,Standard startup with payroll,src029
+Startup Package - Comprehensive,£100k+,,,,5+,300,650,1500,monthly,Comprehensive incl advisory,src030
+Ecommerce Accountant,any,any,any,any,,29,100,300,monthly,Basic to comprehensive,src026
+Ecommerce Accountant - Amazon FBA,any,any,any,any,,800,1650,3500,annual,Annual cost range,src042
+Ecommerce Accountant - Amazon FBA,any,any,any,any,,139,139,139,monthly,Sterlinx Global,src043
+Ecommerce Accountant - Shopify,any,any,any,any,,120,210,300,monthly,Transaction volume dependent,src044
+Contractor Accountant - IR35 Support,any,,,,0-2,50,120,165,monthly,Fixed monthly fee incl IR35,src021
+Contractor Accountant - Limited Company,any,,,,0-2,100,110,150,monthly,Reasonable fixed fee,src021
+Charity Accountant,any,,,,any,15,15,15,monthly,4Fold Accountants,src032
+Charity Accountant - Hourly,any,,,,any,35,35,35,hourly,Fair freelance rate,src031
+Property/Landlord Accountant,any,,,,,24.50,24.50,24.50,monthly,The Accountancy Partnership,src028
+Freelancer Accountant,any,,,,0,35,60,100,monthly,Freelancer-specific service,src041
+Crypto Accountant,any,,,,any,10,115,220,monthly,Accounting Wise to crypto tax return,src048
+Crypto Tax Return,any,,,,any,220,220,220,annual,GoForma crypto tax return,src049
+Medical/Healthcare Accountant,any,,,,any,,,,,Bespoke quotes - no standard pricing,src047
+Franchise Accountant,any,,,,any,,,,,No data found,
+SaaS/Subscription Accountant,any,,,,any,,,,,Bespoke quotes - no standard pricing,src045
+Construction/Trades - Sole Trader,£30k-£50k,,,,any,150,250,350,annual,Self-assessment,src027
+Construction/Trades - Sole Trader,£100k+,,,,any,,,,,Towards higher end,src027
+Construction/Trades - Limited Company,any,,,,any,1200,2100,3000,annual,Comprehensive services,src027
+Construction/Trades - CIS Addon,any,,,,any,200,350,500,annual,CIS compliance support,src027
+R&D Tax Credits - Small Claims,any,,,,any,2750,2750,2750,one_off,Tax Cloud <£55k savings fixed,src017
+R&D Tax Credits - Percentage,any,,,,any,,,,,5% up to £200k savings,src017
+R&D Tax Credits - Large,any,,,,any,,,,,2.5% above £200k savings,src017
+International Tax - Basic,any,,,,any,1200,1200,1200,one_off,Lovewell Blake starting price,src047
+International Tax - Hourly,any,,,,any,125,188,250,hourly,Specialist hourly rate,src047
+Statutory Audit - Small Company,any,,,,any,3000,5000,7000,annual,Minimum audit fees,src045
+Statutory Audit - Medium Company,£5m-£10m,,,,any,,,,,0.25% of revenue,src046
+Statutory Audit - Medium Company,£10m-£25m,,,,any,,,,,0.19% of revenue,src046
+Accountant Hourly - General,any,,,,any,30,75,150,hourly,General hourly rate,src018
+Accountant Hourly - Specialist,any,,,,any,125,188,250,hourly,Specialist/advisory,src018
+Accountant Hourly - Chartered,any,,,,any,80,290,500,hourly,Chartered accountant range,src018
+Accountant Hourly - London,any,,,,any,150,250,350,hourly,London premium,src039
+Accountant Hourly - Regional,any,,,,any,50,125,200,hourly,Regional UK,src039
+Consulting - Operational,any,,,,any,50,75,100,hourly,Operational level consultant,src053
+Consulting - Strategy,any,,,,any,200,250,300,hourly,Strategy firm consultant,src053

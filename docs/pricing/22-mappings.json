@@ -1,0 +1,418 @@
+{
+  "version": "1.0",
+  "description": "Field mappings from lead/proposal forms to pricing drivers",
+  "lastUpdated": "2025-10-28",
+
+  "leadToPricingDrivers": {
+    "estimatedTurnover": {
+      "pricingDriver": "turnover_band",
+      "type": "number",
+      "transform": "mapTurnoverBand",
+      "bands": [
+        { "label": "£0-£89k", "min": 0, "max": 89999 },
+        { "label": "£90k-£149k", "min": 90000, "max": 149999 },
+        { "label": "£150k-£249k", "min": 150000, "max": 249999 },
+        { "label": "£250k-£499k", "min": 250000, "max": 499999 },
+        { "label": "£500k-£749k", "min": 500000, "max": 749999 },
+        { "label": "£750k-£999k", "min": 750000, "max": 999999 },
+        { "label": "£1m+", "min": 1000000, "max": null }
+      ],
+      "status": "implemented",
+      "location": "app/server/routers/pricing.ts:589-622"
+    },
+
+    "industry": {
+      "pricingDriver": "industry_multiplier",
+      "type": "enum",
+      "values": ["simple", "standard", "complex", "regulated"],
+      "multipliers": {
+        "simple": 0.95,
+        "standard": 1.0,
+        "complex": 1.15,
+        "regulated": 1.3
+      },
+      "status": "implemented",
+      "location": "app/server/routers/pricing.ts:102-110"
+    },
+
+    "monthlyTransactions": {
+      "pricingDriver": "transaction_count",
+      "type": "number",
+      "optional": true,
+      "fallback": "estimateFromTurnover",
+      "status": "missing_in_lead_schema",
+      "priority": "HIGH",
+      "gap": "GAP-001"
+    },
+
+    "estimatedEmployees": {
+      "pricingDriver": "employee_count",
+      "type": "number",
+      "usage": "payroll_pricing",
+      "status": "implemented",
+      "location": "lib/db/schema.ts:1742"
+    },
+
+    "vatRegistered": {
+      "pricingDriver": "vat_registered_flag",
+      "type": "boolean",
+      "usage": ["transaction_estimation_multiplier", "auto_add_vat_service"],
+      "multiplier": 1.2,
+      "status": "missing_in_lead_schema",
+      "note": "Exists in clients table (line 612) but not in leads",
+      "priority": "HIGH",
+      "gap": "GAP-002"
+    },
+
+    "propertyCount": {
+      "pricingDriver": "rental_properties_count",
+      "type": "number",
+      "optional": true,
+      "usage": "rental_addon",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-006"
+    },
+
+    "bankAccountsCount": {
+      "pricingDriver": "bank_accounts",
+      "type": "number",
+      "optional": true,
+      "usage": "bookkeeping_complexity",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-007"
+    },
+
+    "booksCondition": {
+      "pricingDriver": "complexity_level",
+      "type": "enum",
+      "values": ["clean", "average", "complex", "disaster_recovery", "unknown"],
+      "multipliers": {
+        "clean": 0.95,
+        "average": 1.0,
+        "complex": 1.15,
+        "disaster": 1.4
+      },
+      "status": "missing_in_lead_schema",
+      "priority": "HIGH",
+      "gap": "GAP-003",
+      "location_multipliers": "app/server/routers/pricing.ts:81-100"
+    },
+
+    "currentAccountingSoftware": {
+      "pricingDriver": "software_integration",
+      "type": "enum",
+      "values": ["xero", "quickbooks", "sage", "freeagent", "excel", "none", "other"],
+      "usage": "complexity_estimation",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-008"
+    },
+
+    "hasMultipleCurrencies": {
+      "pricingDriver": "multi_currency_flag",
+      "type": "boolean",
+      "usage": "complexity_surcharge",
+      "surcharge": 25,
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-009"
+    },
+
+    "hasMultipleEntities": {
+      "pricingDriver": "multi_entity_flag",
+      "type": "boolean",
+      "usage": "group_accounts_service",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-010"
+    },
+
+    "entityCount": {
+      "pricingDriver": "entity_count",
+      "type": "number",
+      "optional": true,
+      "usage": "group_surcharge",
+      "bandedSurcharge": {
+        "2": 40,
+        "3-5": 90,
+        "6+": 150
+      },
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-010"
+    },
+
+    "payrollFrequency": {
+      "pricingDriver": "payroll_frequency",
+      "type": "enum",
+      "values": ["weekly", "fortnightly", "4weekly", "monthly"],
+      "multipliers": {
+        "weekly": 3,
+        "fortnightly": 2,
+        "4weekly": 2,
+        "monthly": 1
+      },
+      "status": "missing_in_lead_schema",
+      "priority": "LOW",
+      "gap": "GAP-011",
+      "location_multipliers": "app/server/routers/pricing.ts:112-132"
+    },
+
+    "cisRegistered": {
+      "pricingDriver": "cis_registration_flag",
+      "type": "boolean",
+      "usage": "auto_add_cis_service",
+      "status": "missing_in_lead_schema",
+      "priority": "LOW",
+      "gap": "GAP-013"
+    },
+
+    "incomeStreamsCount": {
+      "pricingDriver": "income_streams",
+      "type": "number",
+      "optional": true,
+      "usage": "self_assessment_complexity",
+      "status": "missing_in_lead_schema",
+      "priority": "LOW",
+      "gap": "GAP-012"
+    }
+  },
+
+  "proposalFieldMappings": {
+    "turnover": {
+      "source": "lead.estimatedTurnover",
+      "type": "varchar(100)",
+      "transform": "mapTurnoverBand",
+      "status": "implemented"
+    },
+
+    "industry": {
+      "source": "lead.industry",
+      "type": "varchar(100)",
+      "status": "implemented"
+    },
+
+    "monthlyTransactions": {
+      "source": "lead.monthlyTransactions",
+      "type": "integer",
+      "fallback": "estimateTransactions(lead.estimatedTurnover, lead.industry, lead.vatRegistered)",
+      "status": "partial_implementation"
+    }
+  },
+
+  "serviceAutoConfiguration": {
+    "description": "Mapping from lead fields to automatic service configuration",
+    "rules": [
+      {
+        "condition": "lead.interestedServices.includes('COMP_ACCOUNTS')",
+        "action": "addService",
+        "service": "COMP_ACCOUNTS",
+        "config": {
+          "complexity": "estimateComplexity(lead)"
+        }
+      },
+      {
+        "condition": "lead.estimatedEmployees > 0",
+        "action": "addService",
+        "service": "PAYROLL_STANDARD",
+        "config": {
+          "employees": "lead.estimatedEmployees",
+          "frequency": "lead.payrollFrequency || 'monthly'"
+        }
+      },
+      {
+        "condition": "lead.propertyCount > 0",
+        "action": "addService",
+        "service": "ADDON_RENTAL",
+        "config": {
+          "properties": "lead.propertyCount"
+        }
+      },
+      {
+        "condition": "lead.vatRegistered === true",
+        "action": "addService",
+        "service": "VAT_RETURNS"
+      },
+      {
+        "condition": "lead.cisRegistered === true",
+        "action": "addService",
+        "service": "ADDON_CIS"
+      },
+      {
+        "condition": "lead.interestedServices.includes('BOOK_BASIC') || lead.interestedServices.includes('BOOK_FULL')",
+        "action": "addService",
+        "service": "estimateBookkeepingLevel(lead)",
+        "config": {
+          "complexity": "estimateComplexity(lead)",
+          "transactionsPerMonth": "lead.monthlyTransactions || estimateTransactions(lead)"
+        }
+      },
+      {
+        "condition": "lead.interestedServices.includes('MGMT_MONTHLY')",
+        "action": "addService",
+        "service": "MGMT_MONTHLY"
+      },
+      {
+        "condition": "lead.hasMultipleEntities === true && lead.entityCount > 1",
+        "action": "addService",
+        "service": "GROUP_ACCOUNTS",
+        "config": {
+          "entityCount": "lead.entityCount"
+        }
+      }
+    ],
+    "status": "design_phase",
+    "priority": "CRITICAL",
+    "gap": "GAP-004"
+  },
+
+  "complexityEstimationLogic": {
+    "description": "Auto-estimate complexity level from lead data",
+    "factors": [
+      {
+        "field": "booksCondition",
+        "weight": 0.5,
+        "directMap": true
+      },
+      {
+        "field": "currentAccountingSoftware",
+        "weight": 0.2,
+        "mapping": {
+          "xero": "clean",
+          "quickbooks": "average",
+          "sage": "average",
+          "excel": "complex",
+          "none": "disaster"
+        }
+      },
+      {
+        "field": "monthlyTransactions",
+        "weight": 0.15,
+        "bands": {
+          "0-50": "clean",
+          "51-150": "average",
+          "151-300": "complex",
+          "301+": "disaster"
+        }
+      },
+      {
+        "field": "hasMultipleCurrencies",
+        "weight": 0.1,
+        "mapping": {
+          "true": "+1 complexity level",
+          "false": "no change"
+        }
+      },
+      {
+        "field": "hasMultipleEntities",
+        "weight": 0.05,
+        "mapping": {
+          "true": "+1 complexity level",
+          "false": "no change"
+        }
+      }
+    ],
+    "status": "design_phase",
+    "priority": "HIGH",
+    "gap": "GAP-003"
+  },
+
+  "marketDataMappings": {
+    "description": "Mapping market research data to pricing driver structure",
+    "turnoverBands": {
+      "source": "21-market-data.csv column: driver_turnover_band",
+      "format": "£0-£10k, £10k-£20k, etc.",
+      "normalized": "minValue and maxValue in pricing_rules table"
+    },
+    "transactionBands": {
+      "source": "21-market-data.csv column: driver_txn_band",
+      "format": "0-100, 100-300, 300+",
+      "normalized": "minValue and maxValue for transaction rules"
+    },
+    "employeeBands": {
+      "source": "21-market-data.csv column: employees",
+      "format": "0-2, 1-5, 6-10, etc.",
+      "usage": "payroll pricing tiers"
+    }
+  },
+
+  "transformFunctions": {
+    "mapTurnoverBand": {
+      "input": "number (annual turnover)",
+      "output": "string (band label, e.g., '£90k-£149k')",
+      "location": "app/server/routers/pricing.ts (to be extracted into utility)"
+    },
+
+    "estimateTransactions": {
+      "input": "{ turnover: number, industry: string, vatRegistered: boolean }",
+      "output": "number (estimated monthly transactions)",
+      "location": "app/server/routers/pricing.ts:589-622",
+      "status": "implemented"
+    },
+
+    "estimateComplexity": {
+      "input": "Lead object with booksCondition, software, transactions, etc.",
+      "output": "'clean' | 'average' | 'complex' | 'disaster'",
+      "location": "not yet implemented",
+      "status": "design_phase",
+      "gap": "GAP-003"
+    },
+
+    "estimateBookkeepingLevel": {
+      "input": "Lead object with transactions, accounts, software",
+      "output": "'BOOK_BASIC' | 'BOOK_FULL'",
+      "logic": "if (transactions < 100 && accounts <= 2) return 'BOOK_BASIC'; else return 'BOOK_FULL';",
+      "status": "design_phase"
+    }
+  },
+
+  "validationRules": {
+    "estimatedTurnover": {
+      "required": true,
+      "min": 0,
+      "max": 100000000,
+      "errorMessage": "Turnover must be between £0 and £100m"
+    },
+
+    "monthlyTransactions": {
+      "required": false,
+      "min": 0,
+      "max": 100000,
+      "errorMessage": "Monthly transactions must be between 0 and 100,000"
+    },
+
+    "estimatedEmployees": {
+      "required": true,
+      "min": 0,
+      "max": 10000,
+      "errorMessage": "Employee count must be between 0 and 10,000"
+    },
+
+    "propertyCount": {
+      "required": false,
+      "min": 0,
+      "max": 1000,
+      "errorMessage": "Property count must be between 0 and 1,000"
+    },
+
+    "bankAccountsCount": {
+      "required": false,
+      "min": 0,
+      "max": 100,
+      "errorMessage": "Bank account count must be between 0 and 100"
+    }
+  },
+
+  "implementationNotes": [
+    "Priority 1: Add missing fields to lead schema (GAP-001, GAP-002, GAP-003)",
+    "Priority 2: Implement auto-service configuration logic (GAP-004)",
+    "Priority 3: Build complexity estimation function (GAP-003)",
+    "Priority 4: Update lead capture form UI with new fields",
+    "Priority 5: Add pricing preview component (GAP-005)",
+    "All transforms should be pure functions for testability",
+    "Validation should happen at both client and server",
+    "Feature flags recommended for gradual rollout (see DEC-010)"
+  ]
+}
