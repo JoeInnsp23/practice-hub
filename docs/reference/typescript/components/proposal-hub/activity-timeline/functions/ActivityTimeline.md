@@ -8,7 +8,7 @@
 
 > **ActivityTimeline**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/activity-timeline.tsx:135](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/components/proposal-hub/activity-timeline.tsx#L135)
+Defined in: [components/proposal-hub/activity-timeline.tsx:135](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/proposal-hub/activity-timeline.tsx#L135)
 
 ## Parameters
 

@@ -10,9 +10,9 @@ import { DocuSealSigningModal } from "./docuseal-signing-modal";
 interface Document {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   createdAt: Date | string;
-  size?: number;
+  size?: number | null;
   uploadedBy?: {
     firstName: string | null;
     lastName: string | null;
@@ -107,10 +107,7 @@ export function DocumentsToSignList({ clientId }: DocumentsToSignListProps) {
               </div>
             </div>
 
-            <Button
-              onClick={() => handleSignClick(doc as any)}
-              className="ml-4"
-            >
+            <Button onClick={() => handleSignClick(doc)} className="ml-4">
               <FileSignature className="h-4 w-4 mr-2" />
               Sign Document
             </Button>

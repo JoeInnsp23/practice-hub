@@ -124,7 +124,13 @@ export function ServicePopularityChart({
               border: "1px solid rgb(var(--border))",
               borderRadius: "8px",
             }}
-            formatter={(value: number, name: string, entry: any) => {
+            formatter={(
+              value: number,
+              name: string,
+              entry: {
+                payload?: { count?: number };
+              },
+            ) => {
               if (name === "percentage") {
                 return [
                   `${value.toFixed(1)}% (${entry?.payload?.count || 0} proposals)`,
@@ -133,8 +139,13 @@ export function ServicePopularityChart({
               }
               return [value, name];
             }}
-            labelFormatter={(label: any, payload?: any) => {
-              if (payload?.[0]) {
+            labelFormatter={(
+              label: string,
+              payload?: ReadonlyArray<{
+                payload?: { fullName: string };
+              }>,
+            ) => {
+              if (payload?.[0]?.payload?.fullName) {
                 return payload[0].payload.fullName;
               }
               return label;

@@ -8,7 +8,7 @@
 
 > **default**(): `Promise`\<`Element` \| `null`\>
 
-Defined in: [app/admin/feedback/page.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/app/admin/feedback/page.tsx#L7)
+Defined in: [app/admin/feedback/page.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/app/admin/feedback/page.tsx#L7)
 
 ## Returns
 

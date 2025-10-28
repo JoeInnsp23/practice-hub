@@ -372,12 +372,15 @@ function ImportLogDetailsDialog({ log }: { log: ImportLog }) {
   const handleDownloadErrors = () => {
     if (!log.errors || log.errors.length === 0) return;
 
-    const csv = dataToCSV(log.errors as any, [
-      "row",
-      "field",
-      "message",
-      "value",
-    ]);
+    // Convert ImportLogError[] to Record<string, string | number | undefined>[]
+    const errorRecords = log.errors.map((error) => ({
+      row: error.row,
+      field: error.field,
+      message: error.message,
+      value: error.value,
+    }));
+
+    const csv = dataToCSV(errorRecords, ["row", "field", "message", "value"]);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

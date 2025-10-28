@@ -8,4 +8,4 @@
 
 > `const` **SALES\_STAGES**: `Record`\<[`SalesStage`](../type-aliases/SalesStage.md), [`SalesStageConfig`](../interfaces/SalesStageConfig.md)\>
 
-Defined in: [lib/constants/sales-stages.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/constants/sales-stages.ts#L36)
+Defined in: [lib/constants/sales-stages.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/constants/sales-stages.ts#L36)

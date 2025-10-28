@@ -8,7 +8,7 @@
 
 > **getAuthorizationUrl**(`state`): `string`
 
-Defined in: [lib/xero/client.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/xero/client.ts#L69)
+Defined in: [lib/xero/client.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/xero/client.ts#L69)
 
 Generate OAuth authorization URL
 

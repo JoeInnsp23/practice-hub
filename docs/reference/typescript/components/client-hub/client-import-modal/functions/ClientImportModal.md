@@ -8,7 +8,7 @@
 
 > **ClientImportModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/client-import-modal.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/components/client-hub/client-import-modal.tsx#L48)
+Defined in: [components/client-hub/client-import-modal.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/client-hub/client-import-modal.tsx#L48)
 
 ## Parameters
 

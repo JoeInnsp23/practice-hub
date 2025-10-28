@@ -8,7 +8,7 @@
 
 > **UserAccessDrawer**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/client-admin/user-access-drawer.tsx:69](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/components/client-admin/user-access-drawer.tsx#L69)
+Defined in: [components/client-admin/user-access-drawer.tsx:69](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/client-admin/user-access-drawer.tsx#L69)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **formatDate**(`date`): `string`
 
-Defined in: [lib/utils/format.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/utils/format.ts#L10)
+Defined in: [lib/utils/format.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/utils/format.ts#L10)
 
 ## Parameters
 
