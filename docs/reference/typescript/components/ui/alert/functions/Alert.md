@@ -8,7 +8,7 @@
 
 > **Alert**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/alert.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/ui/alert.tsx#L22)
+Defined in: [components/ui/alert.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/ui/alert.tsx#L22)
 
 ## Parameters
 

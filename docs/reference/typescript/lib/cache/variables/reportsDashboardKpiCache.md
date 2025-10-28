@@ -8,7 +8,7 @@
 
 > `const` **reportsDashboardKpiCache**: `SimpleCache`\<\{ `activeClients`: `number`; `activeTasks`: `number`; `billableHours30d`: `number`; `collectedRevenue`: `number`; `collectionRate`: `number`; `newClients30d`: `number`; `outstandingRevenue`: `number`; `overdueTasks`: `number`; `totalHours30d`: `number`; `totalRevenue`: `number`; `utilizationRate`: `number`; \}\>
 
-Defined in: [lib/cache.ts:124](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/cache.ts#L124)
+Defined in: [lib/cache.ts:124](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/cache.ts#L124)
 
 Cache for reports dashboard KPIs
 

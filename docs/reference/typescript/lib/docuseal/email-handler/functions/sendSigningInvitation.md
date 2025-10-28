@@ -8,7 +8,7 @@
 
 > **sendSigningInvitation**(`params`): `Promise`\<`void`\>
 
-Defined in: [lib/docuseal/email-handler.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/docuseal/email-handler.ts#L34)
+Defined in: [lib/docuseal/email-handler.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/docuseal/email-handler.ts#L34)
 
 Send signing invitation email via Resend
 Includes UK SES compliance information

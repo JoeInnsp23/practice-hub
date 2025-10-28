@@ -8,7 +8,7 @@
 
 > **LegalVersionHistoryDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/legal/legal-version-history-dialog.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/legal/legal-version-history-dialog.tsx#L29)
+Defined in: [components/legal/legal-version-history-dialog.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/legal/legal-version-history-dialog.tsx#L29)
 
 Legal Version History Dialog Component
 Displays version history for legal pages via activity logs

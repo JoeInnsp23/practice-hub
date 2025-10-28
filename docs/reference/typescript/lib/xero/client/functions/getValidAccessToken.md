@@ -8,7 +8,7 @@
 
 > **getValidAccessToken**(`clientId`): `Promise`\<\{ `accessToken`: `string`; `xeroTenantId`: `string`; \}\>
 
-Defined in: [lib/xero/client.ts:171](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/xero/client.ts#L171)
+Defined in: [lib/xero/client.ts:171](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/xero/client.ts#L171)
 
 Get or refresh access token for a client
 

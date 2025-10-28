@@ -8,7 +8,7 @@
 
 > **incrementRateLimit**(): `Promise`\<`void`\>
 
-Defined in: [lib/companies-house/rate-limit.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/companies-house/rate-limit.ts#L61)
+Defined in: [lib/companies-house/rate-limit.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/companies-house/rate-limit.ts#L61)
 
 Increment the rate limit counter after making an API request
 

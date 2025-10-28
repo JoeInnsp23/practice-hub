@@ -8,7 +8,7 @@
 
 > **default**(): `Promise`\<`void`\>
 
-Defined in: [app/page.tsx:4](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/app/page.tsx#L4)
+Defined in: [app/page.tsx:4](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/app/page.tsx#L4)
 
 ## Returns
 

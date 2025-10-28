@@ -44,7 +44,7 @@ export interface PrefilledQuestionnaireResponse {
   fields: Record<
     string,
     {
-      value: any;
+      value: unknown;
       extractedFromAi: boolean;
       verifiedByUser: boolean;
       fieldDefinition: QuestionnaireField;
@@ -291,7 +291,7 @@ export async function getPrefilledQuestionnaire(
   const fields: Record<
     string,
     {
-      value: any;
+      value: unknown;
       extractedFromAi: boolean;
       verifiedByUser: boolean;
       fieldDefinition: QuestionnaireField;

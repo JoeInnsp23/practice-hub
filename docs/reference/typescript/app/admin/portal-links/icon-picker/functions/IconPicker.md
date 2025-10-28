@@ -8,7 +8,7 @@
 
 > **IconPicker**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/portal-links/icon-picker.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/app/admin/portal-links/icon-picker.tsx#L21)
+Defined in: [app/admin/portal-links/icon-picker.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/app/admin/portal-links/icon-picker.tsx#L21)
 
 ## Parameters
 

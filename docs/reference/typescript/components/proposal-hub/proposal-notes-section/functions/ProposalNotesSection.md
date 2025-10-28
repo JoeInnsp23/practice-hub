@@ -8,7 +8,7 @@
 
 > **ProposalNotesSection**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/proposal-notes-section.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/proposal-hub/proposal-notes-section.tsx#L29)
+Defined in: [components/proposal-hub/proposal-notes-section.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/proposal-hub/proposal-notes-section.tsx#L29)
 
 ## Parameters
 

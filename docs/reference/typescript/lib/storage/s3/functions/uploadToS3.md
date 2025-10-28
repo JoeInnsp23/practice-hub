@@ -8,7 +8,7 @@
 
 > **uploadToS3**(`options`): `Promise`\<`string`\>
 
-Defined in: [lib/storage/s3.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/storage/s3.ts#L34)
+Defined in: [lib/storage/s3.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/storage/s3.ts#L34)
 
 Upload a file to Hetzner S3
 

@@ -8,7 +8,7 @@
 
 > **ConnectionStatus**(`__namedParameters`): `Element`
 
-Defined in: [components/shared/connection-status.tsx:30](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/shared/connection-status.tsx#L30)
+Defined in: [components/shared/connection-status.tsx:30](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/shared/connection-status.tsx#L30)
 
 Connection Status Indicator
 

@@ -8,7 +8,7 @@
 
 > **SubscriptionCallback**\<`T`\> = (`event`) => `void`
 
-Defined in: [lib/realtime/client.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/realtime/client.ts#L48)
+Defined in: [lib/realtime/client.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/realtime/client.ts#L48)
 
 Subscription callback
 

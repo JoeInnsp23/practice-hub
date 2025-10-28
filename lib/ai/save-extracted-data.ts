@@ -198,7 +198,7 @@ export async function getOnboardingResponses(
 
   for (const response of responses) {
     responsesMap[response.questionKey] = {
-      value: response.answerValue as any,
+      value: response.answerValue as QuestionnaireValue,
       extractedFromAi: response.extractedFromAi || false,
       verifiedByUser: response.verifiedByUser || false,
     };

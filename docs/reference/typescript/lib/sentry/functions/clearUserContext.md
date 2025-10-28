@@ -8,7 +8,7 @@
 
 > **clearUserContext**(): `void`
 
-Defined in: [lib/sentry.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/sentry.ts#L81)
+Defined in: [lib/sentry.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/sentry.ts#L81)
 
 Clear user context (on logout)
 

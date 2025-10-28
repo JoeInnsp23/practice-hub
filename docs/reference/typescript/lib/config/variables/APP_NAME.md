@@ -8,7 +8,7 @@
 
 > `const` **APP\_NAME**: `string`
 
-Defined in: [lib/config.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/config.ts#L26)
+Defined in: [lib/config.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/config.ts#L26)
 
 Application name
 Used in email templates and branding

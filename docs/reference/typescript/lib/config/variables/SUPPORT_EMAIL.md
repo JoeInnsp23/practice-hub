@@ -8,7 +8,7 @@
 
 > `const` **SUPPORT\_EMAIL**: `string`
 
-Defined in: [lib/config.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/config.ts#L19)
+Defined in: [lib/config.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/config.ts#L19)
 
 Support email address for client communications
 

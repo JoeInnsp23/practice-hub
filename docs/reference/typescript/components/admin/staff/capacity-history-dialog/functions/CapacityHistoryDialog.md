@@ -8,7 +8,7 @@
 
 > **CapacityHistoryDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/admin/staff/capacity-history-dialog.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/admin/staff/capacity-history-dialog.tsx#L29)
+Defined in: [components/admin/staff/capacity-history-dialog.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/admin/staff/capacity-history-dialog.tsx#L29)
 
 ## Parameters
 

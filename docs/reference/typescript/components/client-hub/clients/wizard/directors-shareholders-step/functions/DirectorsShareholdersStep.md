@@ -8,7 +8,7 @@
 
 > **DirectorsShareholdersStep**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/wizard/directors-shareholders-step.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/client-hub/clients/wizard/directors-shareholders-step.tsx#L17)
+Defined in: [components/client-hub/clients/wizard/directors-shareholders-step.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/client-hub/clients/wizard/directors-shareholders-step.tsx#L17)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **ModeToggle**(): `Element`
 
-Defined in: [components/mode-toggle.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/mode-toggle.tsx#L7)
+Defined in: [components/mode-toggle.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/mode-toggle.tsx#L7)
 
 ## Returns
 

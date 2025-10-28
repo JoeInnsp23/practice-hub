@@ -8,7 +8,7 @@
 
 > **getPSCs**(`companyNumber`): `Promise`\<[`PSC`](../interfaces/PSC.md)[]\>
 
-Defined in: [lib/companies-house/client.ts:312](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/companies-house/client.ts#L312)
+Defined in: [lib/companies-house/client.ts:312](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/companies-house/client.ts#L312)
 
 Get Persons with Significant Control (PSC) for a company
 

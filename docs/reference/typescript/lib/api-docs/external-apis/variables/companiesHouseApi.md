@@ -8,6 +8,6 @@
 
 > `const` **companiesHouseApi**: [`ExternalApiDoc`](../interfaces/ExternalApiDoc.md)
 
-Defined in: [lib/api-docs/external-apis.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/lib/api-docs/external-apis.ts#L50)
+Defined in: [lib/api-docs/external-apis.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/api-docs/external-apis.ts#L50)
 
 Companies House API Documentation

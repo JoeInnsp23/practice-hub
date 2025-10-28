@@ -8,7 +8,7 @@
 
 > **BulkActionBar**(`__namedParameters`): `Element`
 
-Defined in: [components/admin-panel/users/bulk-action-bar.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/2134b7d84e9ea0b2fafa4fc72904258cfbae4a7c/components/admin-panel/users/bulk-action-bar.tsx#L35)
+Defined in: [components/admin-panel/users/bulk-action-bar.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/admin-panel/users/bulk-action-bar.tsx#L35)
 
 ## Parameters
 
