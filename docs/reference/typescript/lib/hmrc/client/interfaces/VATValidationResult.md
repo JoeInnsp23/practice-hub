@@ -6,7 +6,7 @@
 
 # Interface: VATValidationResult
 
-Defined in: [lib/hmrc/client.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/hmrc/client.ts#L17)
+Defined in: [lib/hmrc/client.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/hmrc/client.ts#L17)
 
 HMRC VAT API Client
 
@@ -24,7 +24,7 @@ Authentication: OAuth 2.0 Server-to-Server (Client Credentials Grant)
 
 > `optional` **businessAddress**: `object`
 
-Defined in: [lib/hmrc/client.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/hmrc/client.ts#L21)
+Defined in: [lib/hmrc/client.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/hmrc/client.ts#L21)
 
 #### countryCode?
 
@@ -60,7 +60,7 @@ Defined in: [lib/hmrc/client.ts:21](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **businessName**: `string`
 
-Defined in: [lib/hmrc/client.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/hmrc/client.ts#L20)
+Defined in: [lib/hmrc/client.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/hmrc/client.ts#L20)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [lib/hmrc/client.ts:20](https://github.com/JoeInnsp23/practice-hub/b
 
 > **isValid**: `boolean`
 
-Defined in: [lib/hmrc/client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/hmrc/client.ts#L18)
+Defined in: [lib/hmrc/client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/hmrc/client.ts#L18)
 
 ***
 
@@ -76,4 +76,4 @@ Defined in: [lib/hmrc/client.ts:18](https://github.com/JoeInnsp23/practice-hub/b
 
 > **vatNumber**: `string`
 
-Defined in: [lib/hmrc/client.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/hmrc/client.ts#L19)
+Defined in: [lib/hmrc/client.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/hmrc/client.ts#L19)

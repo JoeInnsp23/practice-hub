@@ -1,0 +1,76 @@
+# Test Failure Analysis After Drizzle API Fixes
+# Date: 2025-10-28
+# Branch: chore/quality-sweep-20251028
+
+## Summary
+- **Baseline**: 218 test failures
+- **After Drizzle fixes**: 207 test failures
+- **Auto-resolved**: 11 tests ✅
+- **Remaining**: 207 failures across 21 test files
+
+## Failure Pattern Categories
+
+### Pattern 1: Array Method Errors (PRIMARY ROOT CAUSE)
+**Errors:** ".map is not a function", ".reduce is not a function", ".find is not a function", "is not iterable"
+
+**Affected Files:**
+- analytics.test.ts (~30 failures)
+- activities.test.ts 
+- admin-kyc.test.ts (~6 failures)
+- calendar.test.ts (~10 failures)
+
+**Root Cause Analysis:**
+When we removed `.limit(1)` from queries, we kept array destructuring `const [result] = await query`.
+This works for getting first element, BUT some queries were meant to return arrays for .map/.reduce operations.
+
+**Example Problem:**
+```typescript
+// Current code (WRONG for queries that need arrays):
+const [activities] = await db.select().from(activities).where(...);
+// activities is now a single object, not an array!
+return activities.map(...); // ERROR: .map is not a function
+
+// Should be (for queries that need full array):
+const activities = await db.select().from(activities).where(...);
+// activities is an array as expected
+return activities.map(...); // Works!
+```
+
+**Fix Strategy:** 
+Review each failing query:
+- If query needs ONE record: Keep `const [result] = await ...` 
+- If query needs ALL records: Remove destructuring, use `const results = await ...`
+
+### Pattern 2: Client Portal Authentication (~2 failures)
+**Errors:** "Client portal authentication required"
+
+**Affected Files:**
+- clientPortal.test.ts
+
+**Root Cause:** Authentication context mocking issue in tests
+
+### Pattern 3: Drizzle Query Result Issues (~remaining failures)
+Similar to Pattern 1 but in different contexts
+
+## Recommended Approach
+
+**Option A - Systematic Fix (3-4 hours):**
+1. Review each failing router file completely
+2. Identify which queries should return arrays vs single records
+3. Fix destructuring patterns accordingly
+4. Commit per file (21 files)
+
+**Option B - High-Impact Batch (1-2 hours):**
+1. Fix analytics.ts first (~30 failures)
+2. Fix admin-kyc.ts, calendar.ts (~16 failures)
+3. Reassess remaining ~161 failures
+4. Batch similar patterns
+
+**Option C - Defer Test Fixes, Proceed with Quality Sweep:**
+1. Document known test failure patterns
+2. Continue with PASS 1-8 (format/lint/typecheck/build validation)
+3. Return to test fixes as separate sprint
+
+## Recommendation
+**Option A** - Systematic fix is cleanest. Pattern is clear, fixes are mechanical.
+Most failures will resolve once array destructuring is corrected.

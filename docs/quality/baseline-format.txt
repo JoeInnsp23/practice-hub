@@ -1,0 +1,5 @@
+
+> practice-hub@0.1.0 format:check /root/projects/practice-hub
+> biome format
+
+Checked 655 files in 802ms. No fixes applied.

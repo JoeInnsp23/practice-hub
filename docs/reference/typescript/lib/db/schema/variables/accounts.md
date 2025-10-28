@@ -8,4 +8,4 @@
 
 > `const` **accounts**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:137](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/lib/db/schema.ts#L137)
+Defined in: [lib/db/schema.ts:137](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/db/schema.ts#L137)

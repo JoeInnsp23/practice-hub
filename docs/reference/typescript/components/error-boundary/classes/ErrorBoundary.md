@@ -6,7 +6,7 @@
 
 # Class: ErrorBoundary
 
-Defined in: [components/error-boundary.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L25)
+Defined in: [components/error-boundary.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L25)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [components/error-boundary.tsx:25](https://github.com/JoeInnsp23/pra
 
 > **new ErrorBoundary**(`props`): `ErrorBoundary`
 
-Defined in: [components/error-boundary.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L29)
+Defined in: [components/error-boundary.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L29)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [components/error-boundary.tsx:29](https://github.com/JoeInnsp23/pra
 
 > **componentDidCatch**(`error`, `errorInfo`): `void`
 
-Defined in: [components/error-boundary.tsx:42](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L42)
+Defined in: [components/error-boundary.tsx:42](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L42)
 
 Catches exceptions generated in descendant components. Unhandled exceptions will cause
 the entire component tree to unmount.
@@ -69,7 +69,7 @@ the entire component tree to unmount.
 
 > **render**(): `string` \| `number` \| `bigint` \| `boolean` \| `Iterable`\<`ReactNode`, `any`, `any`\> \| `Promise`\<`AwaitedReactNode`\> \| `Element` \| `null` \| `undefined`
 
-Defined in: [components/error-boundary.tsx:87](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L87)
+Defined in: [components/error-boundary.tsx:87](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L87)
 
 #### Returns
 
@@ -85,7 +85,7 @@ Defined in: [components/error-boundary.tsx:87](https://github.com/JoeInnsp23/pra
 
 > **reportError**(`error`, `errorInfo`): `void`
 
-Defined in: [components/error-boundary.tsx:61](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L61)
+Defined in: [components/error-boundary.tsx:61](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L61)
 
 #### Parameters
 
@@ -107,7 +107,7 @@ Defined in: [components/error-boundary.tsx:61](https://github.com/JoeInnsp23/pra
 
 > **reset**(): `void`
 
-Defined in: [components/error-boundary.tsx:79](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L79)
+Defined in: [components/error-boundary.tsx:79](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L79)
 
 #### Returns
 
@@ -119,7 +119,7 @@ Defined in: [components/error-boundary.tsx:79](https://github.com/JoeInnsp23/pra
 
 > `static` **getDerivedStateFromError**(`error`): `Partial`\<`ErrorBoundaryState`\>
 
-Defined in: [components/error-boundary.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/ab454c4914c3e8f2a637d145d17a135b79d2779e/components/error-boundary.tsx#L38)
+Defined in: [components/error-boundary.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/components/error-boundary.tsx#L38)
 
 #### Parameters
 

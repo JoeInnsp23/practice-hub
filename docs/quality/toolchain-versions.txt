@@ -1,0 +1,29 @@
+=== TOOLCHAIN VERSIONS ===
+Legend: production dependency, optional only, dev only
+
+practice-hub@0.1.0 /root/projects/practice-hub (PRIVATE)
+
+devDependencies:
+prettier 3.6.2
+typescript 5.9.2
+vitest 3.2.4
+
+=== LOCKFILE VERSIONS ===
+
+=== BIOME VERSION ===
+Version: 2.2.0
+
+
+=== PACKAGE.JSON VERSIONS ===
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+--
+    "@biomejs/biome": "2.2.0",
+    "@playwright/test": "^1.56.1",
+--
+    "prettier": "^3.6.2",
+    "supertest": "^7.1.4",
+--
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  }

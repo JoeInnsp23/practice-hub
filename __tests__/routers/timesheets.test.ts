@@ -851,9 +851,15 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       });
 
       expect(result).toHaveLength(2);
-      expect(result.map((e: typeof timeEntries.$inferSelect) => e.id)).toContain(entry1.id);
-      expect(result.map((e: typeof timeEntries.$inferSelect) => e.id)).toContain(entry2.id);
-      expect(result.map((e: typeof timeEntries.$inferSelect) => e.id)).not.toContain(entry3.id);
+      expect(
+        result.map((e: typeof timeEntries.$inferSelect) => e.id),
+      ).toContain(entry1.id);
+      expect(
+        result.map((e: typeof timeEntries.$inferSelect) => e.id),
+      ).toContain(entry2.id);
+      expect(
+        result.map((e: typeof timeEntries.$inferSelect) => e.id),
+      ).not.toContain(entry3.id);
     });
 
     it("should enforce tenant isolation when querying week", async () => {
