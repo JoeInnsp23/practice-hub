@@ -7,8 +7,8 @@
  * Usage: pnpm docs:generate:code-index
  */
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 interface CodeEntry {
   name: string;
@@ -121,7 +121,7 @@ function buildYaml(entries: CodeEntry[]): string {
   const lines: string[] = [
     "# Practice Hub Code Index v1.0",
     "# Auto-generated from JSDoc comments in TypeScript files",
-    "# Generated: " + new Date().toISOString(),
+    `# Generated: ${new Date().toISOString()}`,
     "",
     "functions:",
   ];

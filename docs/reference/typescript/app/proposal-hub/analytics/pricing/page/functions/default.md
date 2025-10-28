@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/proposal-hub/analytics/pricing/page.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/app/proposal-hub/analytics/pricing/page.tsx#L27)
+Defined in: [app/proposal-hub/analytics/pricing/page.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/app/proposal-hub/analytics/pricing/page.tsx#L27)
 
 ## Returns
 

@@ -6,7 +6,7 @@
 
 # Interface: ExtractedAddressData
 
-Defined in: [lib/ai/extract-client-data.ts:78](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/ai/extract-client-data.ts#L78)
+Defined in: [lib/ai/extract-client-data.ts:78](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/lib/ai/extract-client-data.ts#L78)
 
 Extracted proof of address data
 
@@ -16,7 +16,7 @@ Extracted proof of address data
 
 > `optional` **accountHolder**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/ai/extract-client-data.ts#L88)
+Defined in: [lib/ai/extract-client-data.ts:88](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/lib/ai/extract-client-data.ts#L88)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [lib/ai/extract-client-data.ts:88](https://github.com/JoeInnsp23/pra
 
 > `optional` **address**: `object`
 
-Defined in: [lib/ai/extract-client-data.ts:79](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/ai/extract-client-data.ts#L79)
+Defined in: [lib/ai/extract-client-data.ts:79](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/lib/ai/extract-client-data.ts#L79)
 
 #### city?
 
@@ -52,7 +52,7 @@ Defined in: [lib/ai/extract-client-data.ts:79](https://github.com/JoeInnsp23/pra
 
 > `optional` **documentDate**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:87](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/ai/extract-client-data.ts#L87)
+Defined in: [lib/ai/extract-client-data.ts:87](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/lib/ai/extract-client-data.ts#L87)
 
 ***
 
@@ -60,4 +60,4 @@ Defined in: [lib/ai/extract-client-data.ts:87](https://github.com/JoeInnsp23/pra
 
 > `optional` **documentType**: `"other"` \| `"utility_bill"` \| `"bank_statement"` \| `"council_tax"`
 
-Defined in: [lib/ai/extract-client-data.ts:86](https://github.com/JoeInnsp23/practice-hub/blob/e9a2eaf56b3cb77274a3615a2896a70e33ba4a33/lib/ai/extract-client-data.ts#L86)
+Defined in: [lib/ai/extract-client-data.ts:86](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/lib/ai/extract-client-data.ts#L86)

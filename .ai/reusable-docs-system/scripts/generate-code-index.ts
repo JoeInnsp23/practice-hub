@@ -7,9 +7,8 @@
  * Usage: ts-node scripts/generate-code-index.ts
  */
 
-import { execSync } from "child_process";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 interface CodeEntry {
   description: string;
@@ -150,7 +149,7 @@ function buildYaml(entries: CodeEntry[]): string {
   const lines: string[] = [
     "# Eagle Education Code Index v2.2",
     "# Auto-generated from JSDoc and docstrings",
-    "# Generated: " + new Date().toISOString(),
+    `# Generated: ${new Date().toISOString()}`,
     "",
     "functions:",
   ];
@@ -238,7 +237,7 @@ function main() {
   console.log(`Found ${webFiles.length} React files`);
   console.log(`Found ${pyFiles.length} Python files`);
 
-  const allFiles = [...tsFiles, ...webFiles, ...pyFiles];
+  const _allFiles = [...tsFiles, ...webFiles, ...pyFiles];
   const entries: CodeEntry[] = [];
 
   // Extract from TypeScript/React files
