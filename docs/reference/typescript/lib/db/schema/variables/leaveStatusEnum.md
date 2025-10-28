@@ -8,4 +8,4 @@
 
 > `const` **leaveStatusEnum**: `PgEnum`\<\[`"pending"`, `"approved"`, `"rejected"`, `"cancelled"`\]\>
 
-Defined in: [lib/db/schema.ts:275](https://github.com/JoeInnsp23/practice-hub/blob/8c030e75712305d72d974d9770acc789b4e5297d/lib/db/schema.ts#L275)
+Defined in: [lib/db/schema.ts:275](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/db/schema.ts#L275)

@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Check, Trash2, User, X } from "lucide-react";
+import { Check, Trash2, User, X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
