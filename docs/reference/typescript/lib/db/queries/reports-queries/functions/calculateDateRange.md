@@ -8,7 +8,7 @@
 
 > **calculateDateRange**(`period`): `object`
 
-Defined in: [lib/db/queries/reports-queries.ts:224](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/db/queries/reports-queries.ts#L224)
+Defined in: [lib/db/queries/reports-queries.ts:224](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/db/queries/reports-queries.ts#L224)
 
 Calculate date ranges for common periods
 

@@ -8,7 +8,7 @@
 
 > **AssignLeadDialog**(`__namedParameters`): `Element`
 
-Defined in: [app/proposal-hub/leads/components/assign-lead-dialog.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/app/proposal-hub/leads/components/assign-lead-dialog.tsx#L49)
+Defined in: [app/proposal-hub/leads/components/assign-lead-dialog.tsx:49](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/app/proposal-hub/leads/components/assign-lead-dialog.tsx#L49)
 
 ## Parameters
 

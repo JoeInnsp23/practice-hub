@@ -212,7 +212,15 @@ export default function ProposalDetailPage({
             proposalTitle={proposalData.title}
             currentNotes={proposalData.notes}
             currentTerms={proposalData.termsAndConditions}
-            currentServices={proposalData.services as any}
+            currentServices={
+              proposalData.services as Array<{
+                id: string;
+                componentCode: string;
+                componentName: string;
+                price: string;
+                calculation?: string | null;
+              }>
+            }
             onSuccess={() => {
               utils.proposals.getById.invalidate(id);
             }}

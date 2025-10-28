@@ -8,4 +8,4 @@
 
 > `const` **workflowEmailRules**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:3608](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/db/schema.ts#L3608)
+Defined in: [lib/db/schema.ts:3608](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/db/schema.ts#L3608)

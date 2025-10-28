@@ -8,7 +8,7 @@
 
 > **GlobalSidebar**(`__namedParameters`): `Element`
 
-Defined in: [components/shared/GlobalSidebar.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/shared/GlobalSidebar.tsx#L27)
+Defined in: [components/shared/GlobalSidebar.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/components/shared/GlobalSidebar.tsx#L27)
 
 ## Parameters
 

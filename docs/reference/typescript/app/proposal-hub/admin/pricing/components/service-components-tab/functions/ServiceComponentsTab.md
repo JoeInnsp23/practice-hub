@@ -8,7 +8,7 @@
 
 > **ServiceComponentsTab**(): `Element`
 
-Defined in: [app/proposal-hub/admin/pricing/components/service-components-tab.tsx:84](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/app/proposal-hub/admin/pricing/components/service-components-tab.tsx#L84)
+Defined in: [app/proposal-hub/admin/pricing/components/service-components-tab.tsx:84](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/app/proposal-hub/admin/pricing/components/service-components-tab.tsx#L84)
 
 ## Returns
 

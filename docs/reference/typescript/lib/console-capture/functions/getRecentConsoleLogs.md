@@ -8,7 +8,7 @@
 
 > **getRecentConsoleLogs**(`count?`): `string`
 
-Defined in: [lib/console-capture.ts:126](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/lib/console-capture.ts#L126)
+Defined in: [lib/console-capture.ts:126](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/console-capture.ts#L126)
 
 ## Parameters
 

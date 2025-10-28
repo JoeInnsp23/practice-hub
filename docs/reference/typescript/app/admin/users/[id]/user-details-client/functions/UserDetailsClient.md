@@ -8,7 +8,7 @@
 
 > **UserDetailsClient**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/users/\[id\]/user-details-client.tsx:69](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/app/admin/users/[id]/user-details-client.tsx#L69)
+Defined in: [app/admin/users/\[id\]/user-details-client.tsx:69](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/app/admin/users/[id]/user-details-client.tsx#L69)
 
 ## Parameters
 

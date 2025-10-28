@@ -8,7 +8,7 @@
 
 > **ComplexityChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/charts/complexity-chart.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/f56158e9ae095e727c514d12c67bb056248dea5f/components/proposal-hub/charts/complexity-chart.tsx#L34)
+Defined in: [components/proposal-hub/charts/complexity-chart.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/components/proposal-hub/charts/complexity-chart.tsx#L34)
 
 ## Parameters
 
