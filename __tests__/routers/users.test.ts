@@ -549,6 +549,7 @@ describe("app/server/routers/users.ts", () => {
         await expect(
           integrationCaller.bulkChangeRole({
             userIds: [user1Id],
+            // biome-ignore lint/suspicious/noExplicitAny: Testing invalid role value
             role: "invalid_role" as any,
           }),
         ).rejects.toThrow();

@@ -6,7 +6,7 @@
 
 # Interface: RealtimeEvent\<T\>
 
-Defined in: [lib/realtime/client.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/realtime/client.ts#L34)
+Defined in: [lib/realtime/client.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/realtime/client.ts#L34)
 
 Realtime event structure
 
@@ -22,7 +22,7 @@ Realtime event structure
 
 > **data**: `T`
 
-Defined in: [lib/realtime/client.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/realtime/client.ts#L38)
+Defined in: [lib/realtime/client.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/realtime/client.ts#L38)
 
 Event payload
 
@@ -32,7 +32,7 @@ Event payload
 
 > `optional` **id**: `string`
 
-Defined in: [lib/realtime/client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/realtime/client.ts#L42)
+Defined in: [lib/realtime/client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/realtime/client.ts#L42)
 
 Event ID (for deduplication)
 
@@ -42,7 +42,7 @@ Event ID (for deduplication)
 
 > `optional` **timestamp**: `number`
 
-Defined in: [lib/realtime/client.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/realtime/client.ts#L40)
+Defined in: [lib/realtime/client.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/realtime/client.ts#L40)
 
 Event timestamp
 
@@ -52,6 +52,6 @@ Event timestamp
 
 > **type**: `string`
 
-Defined in: [lib/realtime/client.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/realtime/client.ts#L36)
+Defined in: [lib/realtime/client.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/realtime/client.ts#L36)
 
 Event type (e.g., 'activity:new', 'notification:new', 'ping')

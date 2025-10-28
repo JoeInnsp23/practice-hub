@@ -8,7 +8,7 @@
 
 > **PracticeHubClient**(`__namedParameters`): `Element`
 
-Defined in: [app/practice-hub/practice-hub-client.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/app/practice-hub/practice-hub-client.tsx#L27)
+Defined in: [app/practice-hub/practice-hub-client.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/app/practice-hub/practice-hub-client.tsx#L27)
 
 ## Parameters
 

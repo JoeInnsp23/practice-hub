@@ -8,7 +8,7 @@
 
 > **getClientPortalAuthContext**(`selectedClientId?`): `Promise`\<[`ClientPortalAuthContext`](../interfaces/ClientPortalAuthContext.md) \| `null`\>
 
-Defined in: [lib/client-portal-auth.ts:73](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/client-portal-auth.ts#L73)
+Defined in: [lib/client-portal-auth.ts:73](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/client-portal-auth.ts#L73)
 
 ## Parameters
 

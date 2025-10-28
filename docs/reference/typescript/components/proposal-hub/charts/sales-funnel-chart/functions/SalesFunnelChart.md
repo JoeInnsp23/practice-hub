@@ -8,7 +8,7 @@
 
 > **SalesFunnelChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/charts/sales-funnel-chart.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/components/proposal-hub/charts/sales-funnel-chart.tsx#L37)
+Defined in: [components/proposal-hub/charts/sales-funnel-chart.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/components/proposal-hub/charts/sales-funnel-chart.tsx#L37)
 
 ## Parameters
 

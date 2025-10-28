@@ -8,7 +8,7 @@
 
 > **OnboardingRiskForm**(`__namedParameters`): `Element`
 
-Defined in: [app/client-portal/onboarding/components/risk-form.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/app/client-portal/onboarding/components/risk-form.tsx#L14)
+Defined in: [app/client-portal/onboarding/components/risk-form.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/app/client-portal/onboarding/components/risk-form.tsx#L14)
 
 ## Parameters
 

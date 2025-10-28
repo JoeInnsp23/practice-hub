@@ -8,4 +8,4 @@
 
 > **WorkflowWithRelations** = [`RouterOutputs`](RouterOutputs.md)\[`"workflows"`\]\[`"getById"`\]
 
-Defined in: [lib/trpc/types.ts:176](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/trpc/types.ts#L176)
+Defined in: [lib/trpc/types.ts:176](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/trpc/types.ts#L176)

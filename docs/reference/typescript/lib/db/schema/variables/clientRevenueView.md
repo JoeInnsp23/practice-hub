@@ -8,4 +8,4 @@
 
 > `const` **clientRevenueView**: `PgViewWithSelection`\<`"client_revenue_view"`, `true`, \{ `clientCode`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `clientId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `clientName`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `firstInvoiceDate`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `invoiceCount`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `lastInvoiceDate`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `outstanding`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `tenantId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `totalInvoiced`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `totalPaid`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; \}\>
 
-Defined in: [lib/db/schema.ts:2785](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/db/schema.ts#L2785)
+Defined in: [lib/db/schema.ts:2785](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/db/schema.ts#L2785)

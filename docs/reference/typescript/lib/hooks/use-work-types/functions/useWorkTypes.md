@@ -8,7 +8,7 @@
 
 > **useWorkTypes**(): `UseTRPCQueryResult`\<\{ `workTypes`: `object`[]; \}, `TRPCClientErrorLike`\<\{ \}\>\>
 
-Defined in: [lib/hooks/use-work-types.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/hooks/use-work-types.ts#L7)
+Defined in: [lib/hooks/use-work-types.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/bad373ef102abb2130396baaa06b92bd59b74626/lib/hooks/use-work-types.ts#L7)
 
 Hook to fetch work types from database
 
