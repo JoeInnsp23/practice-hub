@@ -468,8 +468,8 @@ function ImportLogDetailsDialog({ log }: { log: ImportLog }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {log.errors.map((error, index) => (
-                      <TableRow key={index}>
+                    {log.errors.map((error) => (
+                      <TableRow key={`error-${error.row}-${error.field}`}>
                         <TableCell>{error.row}</TableCell>
                         <TableCell className="font-mono text-sm">
                           {error.field}

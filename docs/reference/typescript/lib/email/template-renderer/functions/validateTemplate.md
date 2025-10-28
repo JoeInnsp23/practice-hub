@@ -8,7 +8,7 @@
 
 > **validateTemplate**(`template`, `supportedVariables`): `object`
 
-Defined in: [lib/email/template-renderer.ts:158](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/email/template-renderer.ts#L158)
+Defined in: [lib/email/template-renderer.ts:158](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/email/template-renderer.ts#L158)
 
 Validates that a template only uses supported variables
 

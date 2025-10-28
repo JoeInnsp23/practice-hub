@@ -6,7 +6,7 @@
 
 # Interface: PlaceholderData
 
-Defined in: [lib/services/template-placeholders.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L15)
+Defined in: [lib/services/template-placeholders.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L15)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/services/template-placeholders.ts:15](https://github.com/JoeInn
 
 > `optional` **activationDate**: `Date`
 
-Defined in: [lib/services/template-placeholders.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L22)
+Defined in: [lib/services/template-placeholders.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L22)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/services/template-placeholders.ts:22](https://github.com/JoeInn
 
 > `optional` **clientName**: `string`
 
-Defined in: [lib/services/template-placeholders.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L16)
+Defined in: [lib/services/template-placeholders.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L16)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/services/template-placeholders.ts:16](https://github.com/JoeInn
 
 > `optional` **companyNumber**: `string`
 
-Defined in: [lib/services/template-placeholders.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L21)
+Defined in: [lib/services/template-placeholders.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L21)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/services/template-placeholders.ts:21](https://github.com/JoeInn
 
 > `optional` **period**: `string`
 
-Defined in: [lib/services/template-placeholders.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L18)
+Defined in: [lib/services/template-placeholders.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L18)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/services/template-placeholders.ts:18](https://github.com/JoeInn
 
 > `optional` **periodEndDate**: `Date`
 
-Defined in: [lib/services/template-placeholders.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L19)
+Defined in: [lib/services/template-placeholders.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L19)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/services/template-placeholders.ts:19](https://github.com/JoeInn
 
 > `optional` **serviceName**: `string`
 
-Defined in: [lib/services/template-placeholders.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L17)
+Defined in: [lib/services/template-placeholders.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L17)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [lib/services/template-placeholders.ts:17](https://github.com/JoeInn
 
 > `optional` **taxYear**: `string`
 
-Defined in: [lib/services/template-placeholders.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/template-placeholders.ts#L20)
+Defined in: [lib/services/template-placeholders.ts:20](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/services/template-placeholders.ts#L20)

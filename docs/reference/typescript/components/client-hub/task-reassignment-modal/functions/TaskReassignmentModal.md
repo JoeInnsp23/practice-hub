@@ -8,7 +8,7 @@
 
 > **TaskReassignmentModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/task-reassignment-modal.tsx:59](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/client-hub/task-reassignment-modal.tsx#L59)
+Defined in: [components/client-hub/task-reassignment-modal.tsx:59](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/components/client-hub/task-reassignment-modal.tsx#L59)
 
 ## Parameters
 

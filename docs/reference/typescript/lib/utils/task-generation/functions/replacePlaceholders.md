@@ -8,7 +8,7 @@
 
 > **replacePlaceholders**(`template`, `data`): `string`
 
-Defined in: [lib/utils/task-generation.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/utils/task-generation.ts#L33)
+Defined in: [lib/utils/task-generation.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/54f5035264e4959e30e66735bafe0dd45318ed48/lib/utils/task-generation.ts#L33)
 
 Replace placeholders in template strings with actual values
 
