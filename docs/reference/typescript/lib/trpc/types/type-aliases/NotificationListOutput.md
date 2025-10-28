@@ -8,6 +8,6 @@
 
 > **NotificationListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"notifications"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/trpc/types.ts#L75)
+Defined in: [lib/trpc/types.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/lib/trpc/types.ts#L75)
 
 Notification Types

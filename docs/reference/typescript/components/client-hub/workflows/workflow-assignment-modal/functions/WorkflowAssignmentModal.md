@@ -8,7 +8,7 @@
 
 > **WorkflowAssignmentModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/workflows/workflow-assignment-modal.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/components/client-hub/workflows/workflow-assignment-modal.tsx#L28)
+Defined in: [components/client-hub/workflows/workflow-assignment-modal.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/components/client-hub/workflows/workflow-assignment-modal.tsx#L28)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **resetRateLimitWindow**(): `Promise`\<`void`\>
 
-Defined in: [lib/companies-house/rate-limit.ts:111](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/rate-limit.ts#L111)
+Defined in: [lib/companies-house/rate-limit.ts:111](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/lib/companies-house/rate-limit.ts#L111)
 
 Reset the rate limit window and counter
 

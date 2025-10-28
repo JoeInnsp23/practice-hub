@@ -40,9 +40,15 @@ export async function getTasksList(
     conditions.push(eq(taskDetailsView.priority, filters.priority));
   }
 
-  // Assignee filter
+  // Assignee filter (checks assignedTo, preparer, and reviewer)
   if (filters.assigneeId) {
-    conditions.push(eq(taskDetailsView.assignedToId, filters.assigneeId));
+    conditions.push(
+      or(
+        eq(taskDetailsView.assignedToId, filters.assigneeId),
+        eq(taskDetailsView.preparerId, filters.assigneeId),
+        eq(taskDetailsView.reviewerId, filters.assigneeId),
+      )!,
+    );
   }
 
   // Client filter

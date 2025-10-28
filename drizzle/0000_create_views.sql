@@ -23,14 +23,17 @@ SELECT
     u1.email AS assignee_email,
     CONCAT(u2.first_name, ' ', u2.last_name) AS reviewer_name,
     u2.email AS reviewer_email,
-    CONCAT(u3.first_name, ' ', u3.last_name) AS creator_name,
+    CONCAT(u3.first_name, ' ', u3.last_name) AS preparer_name,
+    u3.email AS preparer_email,
+    CONCAT(u4.first_name, ' ', u4.last_name) AS creator_name,
     w.name AS workflow_name,
     pt.title AS parent_task_title
 FROM tasks t
 LEFT JOIN clients c ON t.client_id = c.id
 LEFT JOIN users u1 ON t.assigned_to_id = u1.id
 LEFT JOIN users u2 ON t.reviewer_id = u2.id
-LEFT JOIN users u3 ON t.created_by_id = u3.id
+LEFT JOIN users u3 ON t.preparer_id = u3.id
+LEFT JOIN users u4 ON t.created_by_id = u4.id
 LEFT JOIN workflows w ON t.workflow_id = w.id
 LEFT JOIN tasks pt ON t.parent_task_id = pt.id;
 --> statement-breakpoint

@@ -8,4 +8,4 @@
 
 > `const` **clientPortalInvitations**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:3049](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/db/schema.ts#L3049)
+Defined in: [lib/db/schema.ts:3052](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/lib/db/schema.ts#L3052)

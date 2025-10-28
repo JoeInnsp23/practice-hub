@@ -8,7 +8,7 @@
 
 > **KanbanBoard**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/kanban/kanban-board.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/components/proposal-hub/kanban/kanban-board.tsx#L25)
+Defined in: [components/proposal-hub/kanban/kanban-board.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/components/proposal-hub/kanban/kanban-board.tsx#L25)
 
 ## Parameters
 
