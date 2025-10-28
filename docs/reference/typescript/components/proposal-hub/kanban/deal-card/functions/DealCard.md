@@ -8,7 +8,7 @@
 
 > **DealCard**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/kanban/deal-card.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/components/proposal-hub/kanban/deal-card.tsx#L24)
+Defined in: [components/proposal-hub/kanban/deal-card.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/components/proposal-hub/kanban/deal-card.tsx#L24)
 
 ## Parameters
 

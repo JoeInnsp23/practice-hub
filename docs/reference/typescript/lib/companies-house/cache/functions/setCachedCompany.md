@@ -8,7 +8,7 @@
 
 > **setCachedCompany**(`companyNumber`, `data`): `Promise`\<`void`\>
 
-Defined in: [lib/companies-house/cache.ts:64](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/companies-house/cache.ts#L64)
+Defined in: [lib/companies-house/cache.ts:64](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/cache.ts#L64)
 
 Store company data in cache with 24-hour TTL
 

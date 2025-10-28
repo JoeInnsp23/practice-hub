@@ -8,7 +8,7 @@
 
 > **TimeEntryModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/time/time-entry-modal.tsx:76](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/components/client-hub/time/time-entry-modal.tsx#L76)
+Defined in: [components/client-hub/time/time-entry-modal.tsx:76](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/components/client-hub/time/time-entry-modal.tsx#L76)
 
 ## Parameters
 

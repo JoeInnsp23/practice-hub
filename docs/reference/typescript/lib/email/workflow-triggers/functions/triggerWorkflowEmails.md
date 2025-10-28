@@ -8,7 +8,7 @@
 
 > **triggerWorkflowEmails**(`workflowId`, `stageId`, `tenantId`, `taskId`): `Promise`\<`void`\>
 
-Defined in: [lib/email/workflow-triggers.ts:400](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/email/workflow-triggers.ts#L400)
+Defined in: [lib/email/workflow-triggers.ts:400](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/email/workflow-triggers.ts#L400)
 
 Triggers workflow email rules when a stage completes
 

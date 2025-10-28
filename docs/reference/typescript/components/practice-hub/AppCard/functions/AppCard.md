@@ -8,7 +8,7 @@
 
 > **AppCard**(`__namedParameters`): `Element`
 
-Defined in: [components/practice-hub/AppCard.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/components/practice-hub/AppCard.tsx#L17)
+Defined in: [components/practice-hub/AppCard.tsx:17](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/components/practice-hub/AppCard.tsx#L17)
 
 ## Parameters
 

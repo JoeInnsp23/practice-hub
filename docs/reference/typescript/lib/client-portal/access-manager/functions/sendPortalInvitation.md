@@ -8,7 +8,7 @@
 
 > **sendPortalInvitation**(`portalUserId`, `clientId`, `_isNewUser`, `invitedBy`, `customMessage?`): `Promise`\<`void`\>
 
-Defined in: [lib/client-portal/access-manager.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/client-portal/access-manager.ts#L140)
+Defined in: [lib/client-portal/access-manager.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/client-portal/access-manager.ts#L140)
 
 Send portal invitation email to user
 

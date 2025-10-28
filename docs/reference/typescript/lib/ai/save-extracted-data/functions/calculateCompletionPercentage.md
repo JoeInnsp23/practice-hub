@@ -8,7 +8,7 @@
 
 > **calculateCompletionPercentage**(`responses`, `requiredFields`): `number`
 
-Defined in: [lib/ai/save-extracted-data.ts:215](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/ai/save-extracted-data.ts#L215)
+Defined in: [lib/ai/save-extracted-data.ts:215](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/ai/save-extracted-data.ts#L215)
 
 Calculate onboarding completion percentage
 

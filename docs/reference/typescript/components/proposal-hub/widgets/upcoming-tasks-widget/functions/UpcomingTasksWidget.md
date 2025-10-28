@@ -8,7 +8,7 @@
 
 > **UpcomingTasksWidget**(): `Element`
 
-Defined in: [components/proposal-hub/widgets/upcoming-tasks-widget.tsx:9](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/components/proposal-hub/widgets/upcoming-tasks-widget.tsx#L9)
+Defined in: [components/proposal-hub/widgets/upcoming-tasks-widget.tsx:9](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/components/proposal-hub/widgets/upcoming-tasks-widget.tsx#L9)
 
 ## Returns
 

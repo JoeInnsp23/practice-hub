@@ -8,6 +8,6 @@
 
 > **LeaveHistoryOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"leave"`\]\[`"getHistory"`\]
 
-Defined in: [lib/trpc/types.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/trpc/types.ts#L96)
+Defined in: [lib/trpc/types.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/trpc/types.ts#L96)
 
 Leave Management Types

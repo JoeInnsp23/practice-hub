@@ -6,7 +6,7 @@
 
 # Interface: Officer
 
-Defined in: [lib/companies-house/client.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/companies-house/client.ts#L33)
+Defined in: [lib/companies-house/client.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/client.ts#L33)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/companies-house/client.ts:33](https://github.com/JoeInnsp23/pra
 
 > **appointedOn**: `string`
 
-Defined in: [lib/companies-house/client.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/companies-house/client.ts#L36)
+Defined in: [lib/companies-house/client.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/client.ts#L36)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/companies-house/client.ts:36](https://github.com/JoeInnsp23/pra
 
 > **name**: `string`
 
-Defined in: [lib/companies-house/client.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/companies-house/client.ts#L34)
+Defined in: [lib/companies-house/client.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/client.ts#L34)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/companies-house/client.ts:34](https://github.com/JoeInnsp23/pra
 
 > `optional` **resignedOn**: `string`
 
-Defined in: [lib/companies-house/client.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/companies-house/client.ts#L37)
+Defined in: [lib/companies-house/client.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/client.ts#L37)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/companies-house/client.ts:37](https://github.com/JoeInnsp23/pra
 
 > **role**: `string`
 
-Defined in: [lib/companies-house/client.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/5d4322447384b89f39b384bac26420ef5e4b2843/lib/companies-house/client.ts#L35)
+Defined in: [lib/companies-house/client.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/739e003b58036a40f8386fec9007b193ffe02d1f/lib/companies-house/client.ts#L35)
