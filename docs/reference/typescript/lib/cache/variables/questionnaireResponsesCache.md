@@ -8,7 +8,7 @@
 
 > `const` **questionnaireResponsesCache**: `SimpleCache`\<`Record`\<`string`, \{ `extractedFromAi`: `boolean`; `value`: `unknown`; `verifiedByUser`: `boolean`; \}\>\>
 
-Defined in: [lib/cache.ts:101](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/cache.ts#L101)
+Defined in: [lib/cache.ts:101](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/cache.ts#L101)
 
 Cache for onboarding questionnaire responses
 

@@ -8,7 +8,7 @@
 
 > **ConfigurationTab**(): `Element`
 
-Defined in: [app/proposal-hub/admin/pricing/components/configuration-tab.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/app/proposal-hub/admin/pricing/components/configuration-tab.tsx#L32)
+Defined in: [app/proposal-hub/admin/pricing/components/configuration-tab.tsx:32](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/app/proposal-hub/admin/pricing/components/configuration-tab.tsx#L32)
 
 ## Returns
 

@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/practice-hub/notifications/page.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/app/practice-hub/notifications/page.tsx#L22)
+Defined in: [app/practice-hub/notifications/page.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/app/practice-hub/notifications/page.tsx#L22)
 
 ## Returns
 

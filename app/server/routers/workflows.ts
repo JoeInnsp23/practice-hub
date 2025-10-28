@@ -597,8 +597,7 @@ export const workflowsRouter = router({
               eq(workflowVersions.id, input.newVersionId),
               eq(workflowVersions.tenantId, tenantId),
             ),
-          )
-          .limit(1);
+          );
 
         if (!newVersion) {
           throw new TRPCError({
@@ -821,8 +820,7 @@ export const workflowsRouter = router({
                 eq(workflows.id, input.workflowId),
                 eq(workflows.tenantId, tenantId),
               ),
-            )
-            .limit(1),
+            ),
           tx
             .select()
             .from(workflowVersions)
@@ -832,8 +830,7 @@ export const workflowsRouter = router({
                 eq(workflowVersions.workflowId, input.workflowId),
                 eq(workflowVersions.tenantId, tenantId),
               ),
-            )
-            .limit(1),
+            ),
         ]);
 
         if (!workflow[0]) {

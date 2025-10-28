@@ -843,8 +843,7 @@ export const tasksRouter = router({
         const [task] = await tx
           .select()
           .from(tasks)
-          .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)))
-          .limit(1);
+          .where(and(eq(tasks.id, input.taskId), eq(tasks.tenantId, tenantId)));
 
         if (!task) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
@@ -859,8 +858,7 @@ export const tasksRouter = router({
               eq(workflows.id, input.workflowId),
               eq(workflows.tenantId, tenantId),
             ),
-          )
-          .limit(1);
+          );
 
         if (!workflow) {
           throw new TRPCError({

@@ -8,7 +8,7 @@
 
 > `const` **clientPortalAuthClient**: `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object`
 
-Defined in: [lib/client-portal-auth-client.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/client-portal-auth-client.ts#L7)
+Defined in: [lib/client-portal-auth-client.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/lib/client-portal-auth-client.ts#L7)
 
 ## Type Declaration
 

@@ -8,7 +8,7 @@
 
 > **DocuSealSigningModal**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/client-portal/documents/docuseal-signing-modal.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/components/client-portal/documents/docuseal-signing-modal.tsx#L27)
+Defined in: [components/client-portal/documents/docuseal-signing-modal.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/f19574fdcc74913938e57bae869dc258ba0f207d/components/client-portal/documents/docuseal-signing-modal.tsx#L27)
 
 ## Parameters
 
