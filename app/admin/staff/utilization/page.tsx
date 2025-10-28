@@ -190,11 +190,15 @@ export default function StaffUtilizationPage() {
           <CardContent>
             {utilizationLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={`skeleton-${i}`}
-                    className="border rounded-lg p-4 space-y-3"
-                  >
+                {[
+                  "skeleton-0",
+                  "skeleton-1",
+                  "skeleton-2",
+                  "skeleton-3",
+                  "skeleton-4",
+                  "skeleton-5",
+                ].map((key) => (
+                  <div key={key} className="border rounded-lg p-4 space-y-3">
                     <Skeleton className="h-4 w-32" />
                     <Skeleton className="h-2 w-full" />
                     <Skeleton className="h-4 w-24" />

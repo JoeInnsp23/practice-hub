@@ -193,8 +193,13 @@ export default function StaffCapacityPage() {
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                      <TableRow key={`skeleton-${i}`}>
+                    [
+                      "skeleton-0",
+                      "skeleton-1",
+                      "skeleton-2",
+                      "skeleton-3",
+                    ].map((key) => (
+                      <TableRow key={key}>
                         <TableCell>
                           <Skeleton className="h-4 w-32" />
                         </TableCell>

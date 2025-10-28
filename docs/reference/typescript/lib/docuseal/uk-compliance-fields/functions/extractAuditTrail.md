@@ -8,7 +8,7 @@
 
 > **extractAuditTrail**(`submission`): `object`
 
-Defined in: [lib/docuseal/uk-compliance-fields.ts:128](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/docuseal/uk-compliance-fields.ts#L128)
+Defined in: [lib/docuseal/uk-compliance-fields.ts:128](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/docuseal/uk-compliance-fields.ts#L128)
 
 Extract audit trail data from DocuSeal submission
 

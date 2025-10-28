@@ -8,7 +8,7 @@
 
 > **extractUserIds**(`mentionedNames`, `availableUsers`): `string`[]
 
-Defined in: [lib/services/mention-parser.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/services/mention-parser.ts#L103)
+Defined in: [lib/services/mention-parser.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/services/mention-parser.ts#L103)
 
 Extract user IDs from an array of user objects based on mentioned names
 

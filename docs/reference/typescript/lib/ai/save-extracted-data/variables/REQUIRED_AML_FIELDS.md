@@ -8,7 +8,7 @@
 
 > `const` **REQUIRED\_AML\_FIELDS**: `string`[]
 
-Defined in: [lib/ai/save-extracted-data.ts:234](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/ai/save-extracted-data.ts#L234)
+Defined in: [lib/ai/save-extracted-data.ts:234](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/ai/save-extracted-data.ts#L234)
 
 Get list of required fields for AML compliance
 

@@ -8,7 +8,7 @@
 
 > **default**(): `Promise`\<`Element`\>
 
-Defined in: [app/practice-hub/page.tsx:4](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/app/practice-hub/page.tsx#L4)
+Defined in: [app/practice-hub/page.tsx:4](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/app/practice-hub/page.tsx#L4)
 
 ## Returns
 

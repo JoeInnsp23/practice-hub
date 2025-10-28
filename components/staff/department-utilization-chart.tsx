@@ -23,8 +23,8 @@ export function DepartmentUtilizationChart({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={`skeleton-${i}`} className="space-y-2">
+        {["skeleton-0", "skeleton-1", "skeleton-2"].map((key) => (
+          <div key={key} className="space-y-2">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-6 w-full" />
           </div>

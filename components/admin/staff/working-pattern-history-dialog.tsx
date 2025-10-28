@@ -129,11 +129,8 @@ export function WorkingPatternHistoryDialog({
           {isLoading ? (
             // Loading skeleton
             <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={`skeleton-${i}`}
-                  className="space-y-2 rounded-lg border p-4"
-                >
+              {["skeleton-0", "skeleton-1", "skeleton-2"].map((key) => (
+                <div key={key} className="space-y-2 rounded-lg border p-4">
                   <Skeleton className="h-4 w-32" />
                   <Skeleton className="h-4 w-64" />
                   <Skeleton className="h-4 w-48" />

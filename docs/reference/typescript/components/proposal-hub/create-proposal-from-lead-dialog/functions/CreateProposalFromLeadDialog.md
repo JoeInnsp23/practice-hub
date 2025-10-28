@@ -8,7 +8,7 @@
 
 > **CreateProposalFromLeadDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/create-proposal-from-lead-dialog.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/components/proposal-hub/create-proposal-from-lead-dialog.tsx#L25)
+Defined in: [components/proposal-hub/create-proposal-from-lead-dialog.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/components/proposal-hub/create-proposal-from-lead-dialog.tsx#L25)
 
 ## Parameters
 

@@ -460,10 +460,14 @@ export default function ReportsPage() {
             <CardContent>
               {servicesLoading ? (
                 <div className="space-y-3">
-                  {/* Loading skeleton pattern follows shadcn/ui docs: https://ui.shadcn.com/docs/components/sidebar#loading-state
-                      Index keys are acceptable for temporary, stateless loading placeholders that are replaced with real data */}
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Skeleton key={`skeleton-${i}`} className="h-12 w-full" />
+                  {[
+                    "skeleton-0",
+                    "skeleton-1",
+                    "skeleton-2",
+                    "skeleton-3",
+                    "skeleton-4",
+                  ].map((key) => (
+                    <Skeleton key={key} className="h-12 w-full" />
                   ))}
                 </div>
               ) : !serviceData || serviceData.length === 0 ? (

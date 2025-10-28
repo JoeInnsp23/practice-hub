@@ -60,8 +60,8 @@ export function CapacityHistoryDialog({
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <TableRow key={`skeleton-${i}`}>
+                  ["skeleton-0", "skeleton-1", "skeleton-2"].map((key) => (
+                    <TableRow key={key}>
                       <TableCell>
                         <Skeleton className="h-4 w-24" />
                       </TableCell>

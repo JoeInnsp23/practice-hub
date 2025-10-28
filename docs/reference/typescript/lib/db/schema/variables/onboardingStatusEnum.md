@@ -8,4 +8,4 @@
 
 > `const` **onboardingStatusEnum**: `PgEnum`\<\[`"not_started"`, `"in_progress"`, `"pending_questionnaire"`, `"pending_approval"`, `"approved"`, `"rejected"`, `"completed"`\]\>
 
-Defined in: [lib/db/schema.ts:2138](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/db/schema.ts#L2138)
+Defined in: [lib/db/schema.ts:2138](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/db/schema.ts#L2138)

@@ -8,7 +8,7 @@
 
 > **hasWorkingDays**(`startDate`, `endDate`): `boolean`
 
-Defined in: [lib/leave/working-days.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/leave/working-days.ts#L103)
+Defined in: [lib/leave/working-days.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/leave/working-days.ts#L103)
 
 Validate that a leave request doesn't include only weekends/holidays
 Returns true if the request includes at least one working day

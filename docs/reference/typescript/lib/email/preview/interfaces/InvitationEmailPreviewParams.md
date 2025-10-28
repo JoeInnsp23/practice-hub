@@ -6,7 +6,7 @@
 
 # Interface: InvitationEmailPreviewParams
 
-Defined in: [lib/email/preview.ts:5](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/email/preview.ts#L5)
+Defined in: [lib/email/preview.ts:5](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/email/preview.ts#L5)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/email/preview.ts:5](https://github.com/JoeInnsp23/practice-hub/
 
 > `optional` **customMessage**: `string`
 
-Defined in: [lib/email/preview.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/email/preview.ts#L9)
+Defined in: [lib/email/preview.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/email/preview.ts#L9)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/email/preview.ts:9](https://github.com/JoeInnsp23/practice-hub/
 
 > **email**: `string`
 
-Defined in: [lib/email/preview.ts:6](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/email/preview.ts#L6)
+Defined in: [lib/email/preview.ts:6](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/email/preview.ts#L6)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/email/preview.ts:6](https://github.com/JoeInnsp23/practice-hub/
 
 > **invitedByName**: `string`
 
-Defined in: [lib/email/preview.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/email/preview.ts#L7)
+Defined in: [lib/email/preview.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/email/preview.ts#L7)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/email/preview.ts:7](https://github.com/JoeInnsp23/practice-hub/
 
 > **organizationName**: `string`
 
-Defined in: [lib/email/preview.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/c7331d8617255f822b036bbd622602d5253a5e80/lib/email/preview.ts#L8)
+Defined in: [lib/email/preview.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/55bd3b546d1b7512932ac05d86981f2c5cc8e1c7/lib/email/preview.ts#L8)
