@@ -6,6 +6,8 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { proposalsRouter } from "@/app/server/routers/proposals";
+import { db } from "@/lib/db";
+import { leads } from "@/lib/db/schema";
 import {
   createCaller,
   createMockContext,
@@ -475,6 +477,332 @@ describe("app/server/routers/proposals.ts", () => {
     });
   });
 
+  describe("Proposal Notes (GAP-003)", () => {
+    describe("createNote", () => {
+      it("should create a note for a proposal", async () => {
+        // First create a proposal
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Note",
+            lastName: "Tester",
+            email: "note.tester@test.com",
+            phone: "+44 7700 900000",
+            companyName: "Note Test Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Test Proposal with Notes",
+          monthlyTotal: "100.00",
+          annualTotal: "1200.00",
+          services: [],
+        });
+
+        // Create note
+        const note = await caller.createNote({
+          proposalId: proposal.proposal.id,
+          note: "This is a test note about the proposal",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        expect(note.id).toBeDefined();
+        expect(note.note).toBe("This is a test note about the proposal");
+        expect(note.isInternal).toBe(false);
+        expect(note.proposalId).toBe(proposal.proposal.id);
+        expect(note.userId).toBe(ctx.authContext.userId);
+      });
+
+      it("should create an internal note", async () => {
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Internal",
+            lastName: "Note",
+            email: "internal.note@test.com",
+            phone: "+44 7700 900001",
+            companyName: "Internal Note Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Proposal for Internal Notes",
+          monthlyTotal: "150.00",
+          annualTotal: "1800.00",
+          services: [],
+        });
+
+        const note = await caller.createNote({
+          proposalId: proposal.proposal.id,
+          note: "Internal staff-only note",
+          isInternal: true,
+          mentionedUsers: [],
+        });
+
+        expect(note.isInternal).toBe(true);
+      });
+
+      it("should reject note for non-existent proposal", async () => {
+        await expect(
+          caller.createNote({
+            proposalId: "00000000-0000-0000-0000-000000000000",
+            note: "Note for missing proposal",
+            isInternal: false,
+            mentionedUsers: [],
+          }),
+        ).rejects.toThrow("Proposal not found");
+      });
+    });
+
+    describe("getNotes", () => {
+      it("should retrieve notes for a proposal", async () => {
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Get",
+            lastName: "Notes",
+            email: "get.notes@test.com",
+            phone: "+44 7700 900002",
+            companyName: "Get Notes Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Proposal with Multiple Notes",
+          monthlyTotal: "200.00",
+          annualTotal: "2400.00",
+          services: [],
+        });
+
+        // Create multiple notes
+        await caller.createNote({
+          proposalId: proposal.proposal.id,
+          note: "First note",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        await caller.createNote({
+          proposalId: proposal.proposal.id,
+          note: "Second note",
+          isInternal: true,
+          mentionedUsers: [],
+        });
+
+        const notes = await caller.getNotes({
+          proposalId: proposal.proposal.id,
+        });
+
+        expect(notes.length).toBe(2);
+        expect(notes[0].note).toBe("Second note"); // Most recent first
+        expect(notes[1].note).toBe("First note");
+        expect(notes[0].author).toBeDefined();
+        expect(notes[0].author.firstName).toBe(ctx.authContext.firstName);
+      });
+
+      it("should support pagination", async () => {
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Pagination",
+            lastName: "Test",
+            email: "pagination@test.com",
+            phone: "+44 7700 900003",
+            companyName: "Pagination Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Pagination Test Proposal",
+          monthlyTotal: "250.00",
+          annualTotal: "3000.00",
+          services: [],
+        });
+
+        // Create 3 notes
+        for (let i = 0; i < 3; i++) {
+          await caller.createNote({
+            proposalId: proposal.proposal.id,
+            note: `Note ${i + 1}`,
+            isInternal: false,
+            mentionedUsers: [],
+          });
+        }
+
+        const firstPage = await caller.getNotes({
+          proposalId: proposal.proposal.id,
+          limit: 2,
+          offset: 0,
+        });
+
+        const secondPage = await caller.getNotes({
+          proposalId: proposal.proposal.id,
+          limit: 2,
+          offset: 2,
+        });
+
+        expect(firstPage.length).toBe(2);
+        expect(secondPage.length).toBe(1);
+      });
+    });
+
+    describe("updateNote", () => {
+      it("should allow author to update their note", async () => {
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Update",
+            lastName: "Note",
+            email: "update.note@test.com",
+            phone: "+44 7700 900004",
+            companyName: "Update Note Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Update Note Test",
+          monthlyTotal: "300.00",
+          annualTotal: "3600.00",
+          services: [],
+        });
+
+        const note = await caller.createNote({
+          proposalId: proposal.proposal.id,
+          note: "Original note text",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        const updated = await caller.updateNote({
+          noteId: note.id,
+          note: "Updated note text",
+        });
+
+        expect(updated.note).toBe("Updated note text");
+        expect(updated.id).toBe(note.id);
+      });
+
+      it("should reject update for non-existent note", async () => {
+        await expect(
+          caller.updateNote({
+            noteId: "00000000-0000-0000-0000-000000000000",
+            note: "Updated text",
+          }),
+        ).rejects.toThrow("Note not found");
+      });
+    });
+
+    describe("deleteNote", () => {
+      it("should allow author to delete their note", async () => {
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Delete",
+            lastName: "Note",
+            email: "delete.note@test.com",
+            phone: "+44 7700 900005",
+            companyName: "Delete Note Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Delete Note Test",
+          monthlyTotal: "350.00",
+          annualTotal: "4200.00",
+          services: [],
+        });
+
+        const note = await caller.createNote({
+          proposalId: proposal.proposal.id,
+          note: "Note to be deleted",
+          isInternal: false,
+          mentionedUsers: [],
+        });
+
+        const result = await caller.deleteNote({
+          noteId: note.id,
+        });
+
+        expect(result.success).toBe(true);
+
+        // Verify note is soft-deleted
+        const notes = await caller.getNotes({
+          proposalId: proposal.proposal.id,
+        });
+
+        expect(notes.length).toBe(0); // Soft-deleted notes don't appear
+      });
+
+      it("should reject delete for non-existent note", async () => {
+        await expect(
+          caller.deleteNote({
+            noteId: "00000000-0000-0000-0000-000000000000",
+          }),
+        ).rejects.toThrow("Note not found");
+      });
+    });
+
+    describe("getNoteCount", () => {
+      it("should count notes for a proposal", async () => {
+        const [lead] = await db
+          .insert(leads)
+          .values({
+            tenantId: ctx.authContext.tenantId,
+            firstName: "Count",
+            lastName: "Notes",
+            email: "count.notes@test.com",
+            phone: "+44 7700 900006",
+            companyName: "Count Notes Ltd",
+            source: "referral",
+          })
+          .returning();
+
+        const proposal = await caller.createFromLead({
+          leadId: lead.id,
+          title: "Count Notes Test",
+          monthlyTotal: "400.00",
+          annualTotal: "4800.00",
+          services: [],
+        });
+
+        // Create 3 notes
+        for (let i = 0; i < 3; i++) {
+          await caller.createNote({
+            proposalId: proposal.proposal.id,
+            note: `Note ${i + 1}`,
+            isInternal: false,
+            mentionedUsers: [],
+          });
+        }
+
+        const count = await caller.getNoteCount({
+          proposalId: proposal.proposal.id,
+        });
+
+        expect(count).toBe(3);
+      });
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
@@ -492,12 +820,17 @@ describe("app/server/routers/proposals.ts", () => {
       expect(procedures).toContain("addSignature");
       expect(procedures).toContain("getStats");
       expect(procedures).toContain("generatePdf");
+      expect(procedures).toContain("createNote");
+      expect(procedures).toContain("getNotes");
+      expect(procedures).toContain("getNoteCount");
+      expect(procedures).toContain("updateNote");
+      expect(procedures).toContain("deleteNote");
     });
 
-    it("should have 20 procedures total", () => {
+    it("should have 25 procedures total", () => {
       const procedures = Object.keys(proposalsRouter._def.procedures);
-      // 16 protected + 2 public + listByStage + updateSalesStage
-      expect(procedures.length).toBeGreaterThanOrEqual(19);
+      // Previous 19-20 + 5 notes procedures
+      expect(procedures.length).toBeGreaterThanOrEqual(24);
     });
   });
 });

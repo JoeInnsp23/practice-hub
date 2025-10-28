@@ -268,6 +268,7 @@
 - [components/proposal-hub/kanban/proposal-card](components/proposal-hub/kanban/proposal-card/README.md)
 - [components/proposal-hub/kanban/sales-kanban-board](components/proposal-hub/kanban/sales-kanban-board/README.md)
 - [components/proposal-hub/kanban/sales-kanban-column](components/proposal-hub/kanban/sales-kanban-column/README.md)
+- [components/proposal-hub/proposal-notes-section](components/proposal-hub/proposal-notes-section/README.md)
 - [components/proposal-hub/sales-stage-history](components/proposal-hub/sales-stage-history/README.md)
 - [components/proposal-hub/send-proposal-dialog](components/proposal-hub/send-proposal-dialog/README.md)
 - [components/proposal-hub/signature-pad](components/proposal-hub/signature-pad/README.md)

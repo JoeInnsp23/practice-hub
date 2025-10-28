@@ -8,7 +8,7 @@
 
 > **OnboardingBusinessForm**(`__namedParameters`): `Element`
 
-Defined in: [app/client-portal/onboarding/components/business-form.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/app/client-portal/onboarding/components/business-form.tsx#L20)
+Defined in: [app/client-portal/onboarding/components/business-form.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/app/client-portal/onboarding/components/business-form.tsx#L20)
 
 ## Parameters
 

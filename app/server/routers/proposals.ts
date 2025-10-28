@@ -8,6 +8,7 @@ import {
   activityLogs,
   clients,
   leads,
+  proposalNotes,
   proposalServices,
   proposalSignatures,
   proposals,
@@ -1783,5 +1784,237 @@ export const proposalsRouter = router({
         url: presignedUrl,
         expiresAt: new Date(Date.now() + ttlSeconds * 1000),
       };
+    }),
+
+  // ==========================================
+  // PROPOSAL NOTES PROCEDURES (GAP-003)
+  // ==========================================
+
+  createNote: protectedProcedure
+    .input(
+      z.object({
+        proposalId: z.string().uuid(),
+        note: z.string().min(1).max(10000),
+        isInternal: z.boolean().default(false),
+        mentionedUsers: z.array(z.string()).default([]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Verify proposal exists and belongs to tenant
+      const [proposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Create proposal note
+      const [proposalNote] = await db
+        .insert(proposalNotes)
+        .values({
+          tenantId,
+          proposalId: input.proposalId,
+          userId,
+          note: input.note,
+          isInternal: input.isInternal,
+          mentionedUsers: input.mentionedUsers,
+        })
+        .returning();
+
+      // Log activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "proposal",
+        entityId: input.proposalId,
+        action: "note_added",
+        description: `${firstName} ${lastName} added a ${input.isInternal ? "staff-only " : ""}note`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: { noteId: proposalNote.id, isInternal: input.isInternal },
+      });
+
+      return proposalNote;
+    }),
+
+  getNotes: protectedProcedure
+    .input(
+      z.object({
+        proposalId: z.string().uuid(),
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      // Verify proposal exists and belongs to tenant
+      const [proposal] = await db
+        .select()
+        .from(proposals)
+        .where(
+          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+        )
+        .limit(1);
+
+      if (!proposal) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Proposal not found",
+        });
+      }
+
+      // Get notes with author information
+      const notes = await db
+        .select({
+          id: proposalNotes.id,
+          note: proposalNotes.note,
+          isInternal: proposalNotes.isInternal,
+          mentionedUsers: proposalNotes.mentionedUsers,
+          createdAt: proposalNotes.createdAt,
+          updatedAt: proposalNotes.updatedAt,
+          author: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          },
+        })
+        .from(proposalNotes)
+        .innerJoin(users, eq(proposalNotes.userId, users.id))
+        .where(
+          and(
+            eq(proposalNotes.tenantId, tenantId),
+            eq(proposalNotes.proposalId, input.proposalId),
+            sql`${proposalNotes.deletedAt} IS NULL`, // Exclude soft-deleted notes
+          ),
+        )
+        .orderBy(desc(proposalNotes.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return notes;
+    }),
+
+  getNoteCount: protectedProcedure
+    .input(z.object({ proposalId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+
+      const [result] = await db
+        .select({ count: sql<number>`COUNT(*)::int` })
+        .from(proposalNotes)
+        .where(
+          and(
+            eq(proposalNotes.tenantId, tenantId),
+            eq(proposalNotes.proposalId, input.proposalId),
+            sql`${proposalNotes.deletedAt} IS NULL`,
+          ),
+        );
+
+      return result.count;
+    }),
+
+  updateNote: protectedProcedure
+    .input(
+      z.object({
+        noteId: z.string().uuid(),
+        note: z.string().min(1).max(10000),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, role } = ctx.authContext;
+
+      // Verify note exists and belongs to tenant
+      const [existingNote] = await db
+        .select()
+        .from(proposalNotes)
+        .where(
+          and(
+            eq(proposalNotes.id, input.noteId),
+            eq(proposalNotes.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!existingNote) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Note not found",
+        });
+      }
+
+      // Check authorization (owner or admin)
+      const isOwner = existingNote.userId === userId;
+      const isAdmin = role === "admin" || role === "org:admin";
+
+      if (!isOwner && !isAdmin) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to update this note",
+        });
+      }
+
+      // Update note
+      const [updatedNote] = await db
+        .update(proposalNotes)
+        .set({ note: input.note, updatedAt: new Date() })
+        .where(eq(proposalNotes.id, input.noteId))
+        .returning();
+
+      return updatedNote;
+    }),
+
+  deleteNote: protectedProcedure
+    .input(z.object({ noteId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, role } = ctx.authContext;
+
+      // Verify note exists and belongs to tenant
+      const [existingNote] = await db
+        .select()
+        .from(proposalNotes)
+        .where(
+          and(
+            eq(proposalNotes.id, input.noteId),
+            eq(proposalNotes.tenantId, tenantId),
+          ),
+        )
+        .limit(1);
+
+      if (!existingNote) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Note not found",
+        });
+      }
+
+      // Check authorization (owner or admin)
+      const isOwner = existingNote.userId === userId;
+      const isAdmin = role === "admin" || role === "org:admin";
+
+      if (!isOwner && !isAdmin) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You do not have permission to delete this note",
+        });
+      }
+
+      // Soft delete
+      await db
+        .update(proposalNotes)
+        .set({ deletedAt: new Date() })
+        .where(eq(proposalNotes.id, input.noteId));
+
+      return { success: true };
     }),
 });

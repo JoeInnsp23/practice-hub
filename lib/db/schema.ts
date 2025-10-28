@@ -1969,6 +1969,38 @@ export const proposalVersions = pgTable(
   }),
 );
 
+// Proposal Notes table - comments and internal notes for proposals
+export const proposalNotes = pgTable(
+  "proposal_notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    proposalId: uuid("proposal_id")
+      .references(() => proposals.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    note: text("note").notNull(),
+    isInternal: boolean("is_internal").default(false).notNull(),
+    mentionedUsers: text("mentioned_users").array().default([]).notNull(), // PostgreSQL text[] for user IDs
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: timestamp("deleted_at"), // Soft delete
+  },
+  (table) => ({
+    // Indexes for query performance
+    proposalIdIdx: index("proposal_notes_proposal_id_idx").on(table.proposalId),
+    tenantIdIdx: index("proposal_notes_tenant_id_idx").on(table.tenantId),
+    userIdIdx: index("proposal_notes_user_id_idx").on(table.userId),
+  }),
+);
+
 // Proposal Templates table - reusable templates for creating proposals
 export const proposalTemplates = pgTable(
   "proposal_templates",

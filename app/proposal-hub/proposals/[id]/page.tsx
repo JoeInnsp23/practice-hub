@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { ActivityTimeline } from "@/components/proposal-hub/activity-timeline";
 import { EditProposalDialog } from "@/components/proposal-hub/edit-proposal-dialog";
+import { ProposalNotesSection } from "@/components/proposal-hub/proposal-notes-section";
 import { SalesStageHistory } from "@/components/proposal-hub/sales-stage-history";
 import { SendProposalDialog } from "@/components/proposal-hub/send-proposal-dialog";
 import { VersionHistoryDialog } from "@/components/proposal-hub/version-history-dialog";
@@ -329,6 +330,7 @@ export default function ProposalDetailPage({
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -619,6 +621,13 @@ export default function ProposalDetailPage({
               entityId={id}
               showAddActivity={true}
             />
+          </Card>
+        </TabsContent>
+
+        {/* Notes Tab */}
+        <TabsContent value="notes" className="space-y-6">
+          <Card className="p-6">
+            <ProposalNotesSection proposalId={id} />
           </Card>
         </TabsContent>
       </Tabs>

@@ -6,7 +6,7 @@
 
 # Interface: DocumentExtractionResult
 
-Defined in: [lib/ai/extract-client-data.ts:94](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L94)
+Defined in: [lib/ai/extract-client-data.ts:94](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L94)
 
 Combined extraction result (UK-specific document types)
 
@@ -16,7 +16,7 @@ Combined extraction result (UK-specific document types)
 
 > `optional` **addressData**: [`ExtractedAddressData`](ExtractedAddressData.md)
 
-Defined in: [lib/ai/extract-client-data.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L103)
+Defined in: [lib/ai/extract-client-data.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L103)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [lib/ai/extract-client-data.ts:103](https://github.com/JoeInnsp23/pr
 
 > `optional` **companyData**: [`ExtractedCompanyData`](ExtractedCompanyData.md)
 
-Defined in: [lib/ai/extract-client-data.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L102)
+Defined in: [lib/ai/extract-client-data.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L102)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [lib/ai/extract-client-data.ts:102](https://github.com/JoeInnsp23/pr
 
 > **confidence**: `"medium"` \| `"low"` \| `"high"`
 
-Defined in: [lib/ai/extract-client-data.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L100)
+Defined in: [lib/ai/extract-client-data.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L100)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [lib/ai/extract-client-data.ts:100](https://github.com/JoeInnsp23/pr
 
 > **documentType**: `"unknown"` \| `"individual_id"` \| `"company_certificate"` \| `"address_proof"`
 
-Defined in: [lib/ai/extract-client-data.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L95)
+Defined in: [lib/ai/extract-client-data.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L95)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [lib/ai/extract-client-data.ts:95](https://github.com/JoeInnsp23/pra
 
 > `optional` **individualData**: [`ExtractedIndividualData`](ExtractedIndividualData.md)
 
-Defined in: [lib/ai/extract-client-data.ts:101](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L101)
+Defined in: [lib/ai/extract-client-data.ts:101](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L101)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [lib/ai/extract-client-data.ts:101](https://github.com/JoeInnsp23/pr
 
 > `optional` **rawText**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:104](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L104)
+Defined in: [lib/ai/extract-client-data.ts:104](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L104)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [lib/ai/extract-client-data.ts:104](https://github.com/JoeInnsp23/pr
 
 > `optional` **warnings**: `string`[]
 
-Defined in: [lib/ai/extract-client-data.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/b8e2c559faed2a4c4eeb581a05691698dea77c60/lib/ai/extract-client-data.ts#L105)
+Defined in: [lib/ai/extract-client-data.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/ai/extract-client-data.ts#L105)

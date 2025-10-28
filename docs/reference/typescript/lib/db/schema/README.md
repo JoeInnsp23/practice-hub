@@ -77,6 +77,7 @@
 - [pricingModelEnum](variables/pricingModelEnum.md)
 - [pricingRules](variables/pricingRules.md)
 - [pricingRuleTypeEnum](variables/pricingRuleTypeEnum.md)
+- [proposalNotes](variables/proposalNotes.md)
 - [proposals](variables/proposals.md)
 - [proposalServices](variables/proposalServices.md)
 - [proposalSignatures](variables/proposalSignatures.md)
