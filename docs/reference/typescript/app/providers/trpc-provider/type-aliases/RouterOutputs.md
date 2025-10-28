@@ -8,7 +8,7 @@
 
 > **RouterOutputs** = `inferRouterOutputs`\<`AppRouter`\>
 
-Defined in: [app/providers/trpc-provider.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/app/providers/trpc-provider.tsx#L19)
+Defined in: [app/providers/trpc-provider.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/app/providers/trpc-provider.tsx#L19)
 
 Router output types have been centralized to @/lib/trpc/types
 Import from there instead of using this provider's types.

@@ -8,7 +8,7 @@
 
 > **getClientRevenue**(`tenantId`, `options`): `Promise`\<`object`[] \| `object`[]\>
 
-Defined in: [lib/db/queries/reports-queries.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/db/queries/reports-queries.ts#L67)
+Defined in: [lib/db/queries/reports-queries.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/db/queries/reports-queries.ts#L67)
 
 Fetch client revenue breakdown for charts
 Returns top N clients by revenue

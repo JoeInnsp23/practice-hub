@@ -8,7 +8,7 @@
 
 > **useTenant**(): `UseQueryResult`\<\{ `tenant`: \{ `createdAt`: `Date`; `id`: `string`; `metadata`: `unknown`; `name`: `string`; `slug`: `string`; `updatedAt`: `Date`; \}; `user`: \{ `createdAt`: `Date`; `departmentId`: `string` \| `null`; `email`: `string`; `emailVerified`: `boolean`; `firstName`: `string` \| `null`; `hourlyRate`: `string` \| `null`; `id`: `string`; `image`: `string` \| `null`; `isActive`: `boolean`; `lastName`: `string` \| `null`; `name`: `string` \| `null`; `role`: `string`; `status`: `string`; `tenantId`: `string`; `timesheetDailyTargetHours`: `number` \| `null`; `timesheetMinWeeklyHours`: `number` \| `null`; `updatedAt`: `Date`; \}; \} \| `null`, `Error`\>
 
-Defined in: [lib/hooks/use-tenant.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/hooks/use-tenant.ts#L7)
+Defined in: [lib/hooks/use-tenant.ts:7](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/hooks/use-tenant.ts#L7)
 
 ## Returns
 

@@ -228,7 +228,7 @@ export default function WorkingPatternsPage() {
                 {isLoading ? (
                   // Loading skeleton
                   Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
+                    <TableRow key={`skeleton-${i}`}>
                       <TableCell>
                         <Skeleton className="h-4 w-32" />
                       </TableCell>

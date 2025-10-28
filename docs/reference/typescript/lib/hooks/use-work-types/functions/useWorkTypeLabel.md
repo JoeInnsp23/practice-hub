@@ -8,7 +8,7 @@
 
 > **useWorkTypeLabel**(`code`): `string`
 
-Defined in: [lib/hooks/use-work-types.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/hooks/use-work-types.ts#L42)
+Defined in: [lib/hooks/use-work-types.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/hooks/use-work-types.ts#L42)
 
 Hook to get label for a work type
 

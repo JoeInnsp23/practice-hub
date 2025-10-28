@@ -8,7 +8,7 @@
 
 > **validateCsvHeaders**(`file`, `expectedFields`): `Promise`\<\{ `extraFields`: `string`[]; `headers`: `string`[]; `missingFields`: `string`[]; `valid`: `boolean`; \}\>
 
-Defined in: [lib/services/csv-import.ts:267](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/services/csv-import.ts#L267)
+Defined in: [lib/services/csv-import.ts:267](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/services/csv-import.ts#L267)
 
 Validate CSV headers against expected fields
 

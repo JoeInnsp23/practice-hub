@@ -6,7 +6,7 @@
 
 # Class: CompaniesHouseError
 
-Defined in: [lib/companies-house/client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/companies-house/client.ts#L51)
+Defined in: [lib/companies-house/client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/companies-house/client.ts#L51)
 
 ## Extends
 
@@ -25,7 +25,7 @@ Defined in: [lib/companies-house/client.ts:51](https://github.com/JoeInnsp23/pra
 
 > **new CompaniesHouseError**(`message`, `statusCode?`, `companyNumber?`): `CompaniesHouseError`
 
-Defined in: [lib/companies-house/client.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/companies-house/client.ts#L52)
+Defined in: [lib/companies-house/client.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/companies-house/client.ts#L52)
 
 #### Parameters
 
@@ -55,7 +55,7 @@ Defined in: [lib/companies-house/client.ts:52](https://github.com/JoeInnsp23/pra
 
 > `optional` **companyNumber**: `string`
 
-Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/companies-house/client.ts#L55)
+Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/companies-house/client.ts#L55)
 
 ***
 
@@ -63,4 +63,4 @@ Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/pra
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/companies-house/client.ts#L54)
+Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/companies-house/client.ts#L54)

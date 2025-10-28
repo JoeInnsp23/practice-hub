@@ -8,7 +8,7 @@
 
 > **sendVerificationEmail**(`params`): `Promise`\<`CreateEmailResponseSuccess`\>
 
-Defined in: [lib/email/index.ts:73](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/lib/email/index.ts#L73)
+Defined in: [lib/email/index.ts:73](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/lib/email/index.ts#L73)
 
 ## Parameters
 

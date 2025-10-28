@@ -541,21 +541,19 @@ export default function AdminKYCDetailPage({
                   Array.isArray(verification.documentsUrl) && (
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Uploaded Documents:</p>
-                      {(verification.documentsUrl as string[]).map(
-                        (url, index) => (
-                          <a
-                            key={index}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-primary hover:underline text-sm"
-                          >
-                            <FileText className="h-3 w-3" />
-                            Document {index + 1}
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        ),
-                      )}
+                      {(verification.documentsUrl as string[]).map((url) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-primary hover:underline text-sm"
+                        >
+                          <FileText className="h-3 w-3" />
+                          Document
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ))}
                     </div>
                   )}
               </CardContent>

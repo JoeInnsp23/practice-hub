@@ -8,7 +8,7 @@
 
 > **SalesStageHistory**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/sales-stage-history.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/187ff0364e4e6bbfe8c3d262140a678e354e4593/components/proposal-hub/sales-stage-history.tsx#L14)
+Defined in: [components/proposal-hub/sales-stage-history.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/96e5a8086382bfbabc21e606dd26df6ef63e02dd/components/proposal-hub/sales-stage-history.tsx#L14)
 
 ## Parameters
 
