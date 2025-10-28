@@ -11,8 +11,10 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
   accounts,
+  clients,
   portalCategories,
   portalLinks,
+  tasks,
   tenants,
   users,
 } from "../lib/db/schema";
@@ -33,8 +35,13 @@ const db = drizzle(connection);
 
 async function seedTestDatabase() {
   try {
-    // Step 1: Clean existing test data
+    // Step 1: Clean existing test data (in correct order - children first)
     console.log("🧹 Cleaning existing test data...");
+    await db.delete(tasks).where(sql`tenant_id = 'tenant_e2e_test'`);
+    await db.delete(clients).where(sql`tenant_id = 'tenant_e2e_test'`);
+    await db.delete(portalLinks).where(sql`tenant_id = 'tenant_e2e_test'`);
+    await db.delete(portalCategories).where(sql`tenant_id = 'tenant_e2e_test'`);
+    await db.delete(accounts).where(sql`account_id LIKE 'e2e-%@test.com'`);
     await db.delete(users).where(sql`email LIKE 'e2e-%@test.com'`);
     await db.delete(tenants).where(sql`id = 'tenant_e2e_test'`);
     console.log("✅ Existing test data cleaned");
@@ -253,6 +260,76 @@ async function seedTestDatabase() {
       })),
     );
     console.log(`✅ Created ${practiceHubLinks.length} Practice Hub links`);
+
+    // Step 8: Create test client for tasks
+    console.log("🏢 Creating test client...");
+    const [testClient] = await db
+      .insert(clients)
+      .values({
+        tenantId: testTenant.id,
+        clientCode: "TEST001",
+        name: "Test Client Ltd",
+        email: "test@client.com",
+        status: "active",
+        clientType: "limited_company",
+        accountManagerId: adminUser.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    console.log(`✅ Test client created: ${testClient.name}`);
+
+    // Step 9: Create test tasks with different assignment types
+    console.log("📋 Creating test tasks for My Tasks filter validation...");
+
+    const tasksData = [
+      {
+        title: "Task assigned to member (assignedTo)",
+        description: "This task should appear in member's My Tasks (assignedTo field)",
+        assignedToId: memberUser.id,
+        preparerId: null,
+        reviewerId: null,
+      },
+      {
+        title: "Task with member as preparer",
+        description: "This task should appear in member's My Tasks (preparer field)",
+        assignedToId: adminUser.id,
+        preparerId: memberUser.id,
+        reviewerId: null,
+      },
+      {
+        title: "Task with member as reviewer",
+        description: "This task should appear in member's My Tasks (reviewer field)",
+        assignedToId: adminUser.id,
+        preparerId: null,
+        reviewerId: memberUser.id,
+      },
+      {
+        title: "Task NOT assigned to member",
+        description: "This task should NOT appear in member's My Tasks",
+        assignedToId: adminUser.id,
+        preparerId: null,
+        reviewerId: null,
+      },
+    ];
+
+    for (const taskData of tasksData) {
+      await db.insert(tasks).values({
+        tenantId: testTenant.id,
+        clientId: testClient.id,
+        title: taskData.title,
+        description: taskData.description,
+        status: "pending",
+        priority: "medium",
+        assignedToId: taskData.assignedToId,
+        preparerId: taskData.preparerId,
+        reviewerId: taskData.reviewerId,
+        createdById: adminUser.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+    console.log(`✅ Created ${tasksData.length} test tasks for filter validation`);
 
     console.log("\n✨ E2E test database seeded successfully!");
     console.log("\n📋 Test Credentials:");

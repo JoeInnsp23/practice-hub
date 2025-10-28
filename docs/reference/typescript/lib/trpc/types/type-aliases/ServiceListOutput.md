@@ -8,6 +8,6 @@
 
 > **ServiceListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"services"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:161](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/lib/trpc/types.ts#L161)
+Defined in: [lib/trpc/types.ts:161](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/lib/trpc/types.ts#L161)
 
 Service Types

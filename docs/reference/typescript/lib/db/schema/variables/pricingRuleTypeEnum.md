@@ -8,4 +8,4 @@
 
 > `const` **pricingRuleTypeEnum**: `PgEnum`\<\[`"turnover_band"`, `"transaction_band"`, `"employee_band"`, `"per_unit"`, `"fixed"`\]\>
 
-Defined in: [lib/db/schema.ts:1616](https://github.com/JoeInnsp23/practice-hub/blob/e0eeb99bc1dd61707be1ca896330969c20a59d27/lib/db/schema.ts#L1616)
+Defined in: [lib/db/schema.ts:1616](https://github.com/JoeInnsp23/practice-hub/blob/24af76c1233083d0f9a21113d933ee4e33865f41/lib/db/schema.ts#L1616)
