@@ -8,7 +8,7 @@
 
 > **getTableDocs**(`tableName`): `Promise`\<[`SchemaTable`](../interfaces/SchemaTable.md) \| `null`\>
 
-Defined in: [lib/api-docs/schema-docs.ts:246](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/api-docs/schema-docs.ts#L246)
+Defined in: [lib/api-docs/schema-docs.ts:246](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/api-docs/schema-docs.ts#L246)
 
 Get schema documentation for a specific table
 

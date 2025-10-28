@@ -6,7 +6,7 @@
 
 # Interface: SignaturePadProps
 
-Defined in: [components/proposal-hub/signature-pad.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/proposal-hub/signature-pad.tsx#L8)
+Defined in: [components/proposal-hub/signature-pad.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/proposal-hub/signature-pad.tsx#L8)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [components/proposal-hub/signature-pad.tsx:8](https://github.com/Joe
 
 > `optional` **disabled**: `boolean`
 
-Defined in: [components/proposal-hub/signature-pad.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/proposal-hub/signature-pad.tsx#L10)
+Defined in: [components/proposal-hub/signature-pad.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/proposal-hub/signature-pad.tsx#L10)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [components/proposal-hub/signature-pad.tsx:10](https://github.com/Jo
 
 > **onSave**: (`signatureData`) => `void`
 
-Defined in: [components/proposal-hub/signature-pad.tsx:9](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/proposal-hub/signature-pad.tsx#L9)
+Defined in: [components/proposal-hub/signature-pad.tsx:9](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/proposal-hub/signature-pad.tsx#L9)
 
 #### Parameters
 

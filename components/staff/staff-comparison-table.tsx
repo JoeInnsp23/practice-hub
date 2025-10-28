@@ -122,7 +122,7 @@ export function StaffComparisonTable({
         </div>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
+            <Skeleton key={`skeleton-${i}`} className="h-12 w-full" />
           ))}
         </div>
       </div>

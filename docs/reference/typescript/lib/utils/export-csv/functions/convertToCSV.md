@@ -8,7 +8,7 @@
 
 > **convertToCSV**\<`T`\>(`data`, `headers?`): `string`
 
-Defined in: [lib/utils/export-csv.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/utils/export-csv.ts#L12)
+Defined in: [lib/utils/export-csv.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/utils/export-csv.ts#L12)
 
 Convert array of objects to CSV string
 

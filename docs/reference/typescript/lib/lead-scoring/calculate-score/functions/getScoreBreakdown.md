@@ -8,7 +8,7 @@
 
 > **getScoreBreakdown**(`input`): `object`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:159](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/lead-scoring/calculate-score.ts#L159)
+Defined in: [lib/lead-scoring/calculate-score.ts:159](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/lead-scoring/calculate-score.ts#L159)
 
 Get scoring breakdown for debugging/transparency
 

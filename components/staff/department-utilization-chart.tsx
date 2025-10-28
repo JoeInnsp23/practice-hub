@@ -24,7 +24,7 @@ export function DepartmentUtilizationChart({
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="space-y-2">
+          <div key={`skeleton-${i}`} className="space-y-2">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-6 w-full" />
           </div>

@@ -8,7 +8,7 @@
 
 > **calculateDueDate**(`activationDate`, `offsetDays?`, `offsetMonths?`): `Date`
 
-Defined in: [lib/utils/task-generation.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/utils/task-generation.ts#L59)
+Defined in: [lib/utils/task-generation.ts:59](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/utils/task-generation.ts#L59)
 
 Calculate due date by adding offset months and days to activation date
 

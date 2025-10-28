@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/portal/proposals/\[id\]/page.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/app/portal/proposals/[id]/page.tsx#L35)
+Defined in: [app/portal/proposals/\[id\]/page.tsx:35](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/app/portal/proposals/[id]/page.tsx#L35)
 
 ## Returns
 

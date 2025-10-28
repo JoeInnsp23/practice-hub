@@ -8,7 +8,7 @@
 
 > **SheetTrigger**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/sheet.tsx:13](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/ui/sheet.tsx#L13)
+Defined in: [components/ui/sheet.tsx:13](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/ui/sheet.tsx#L13)
 
 ## Parameters
 

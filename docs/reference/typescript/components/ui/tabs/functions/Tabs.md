@@ -8,7 +8,7 @@
 
 > **Tabs**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/tabs.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/ui/tabs.tsx#L8)
+Defined in: [components/ui/tabs.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/ui/tabs.tsx#L8)
 
 ## Parameters
 

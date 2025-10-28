@@ -8,4 +8,4 @@
 
 > **ClientImportRow** = `z.infer`\<*typeof* [`clientImportRowSchema`](../variables/clientImportRowSchema.md)\>
 
-Defined in: [lib/services/client-import-validator.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/client-import-validator.ts#L38)
+Defined in: [lib/services/client-import-validator.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/services/client-import-validator.ts#L38)

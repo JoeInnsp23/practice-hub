@@ -8,7 +8,7 @@
 
 > **getClientsList**(`tenantId`, `filters`): `Promise`\<`object`[]\>
 
-Defined in: [lib/db/queries/client-queries.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/db/queries/client-queries.ts#L9)
+Defined in: [lib/db/queries/client-queries.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/db/queries/client-queries.ts#L9)
 
 Fetch clients list with filters
 Uses client_details_view for joined data

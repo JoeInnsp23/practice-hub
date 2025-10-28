@@ -8,7 +8,7 @@
 
 > **TRPCProvider**(`__namedParameters`): `Element`
 
-Defined in: [app/providers/trpc-provider.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/app/providers/trpc-provider.tsx#L34)
+Defined in: [app/providers/trpc-provider.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/app/providers/trpc-provider.tsx#L34)
 
 ## Parameters
 

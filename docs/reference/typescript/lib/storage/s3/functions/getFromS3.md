@@ -8,7 +8,7 @@
 
 > **getFromS3**(`fileName`): `Promise`\<`Buffer`\<`ArrayBufferLike`\>\>
 
-Defined in: [lib/storage/s3.ts:119](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/storage/s3.ts#L119)
+Defined in: [lib/storage/s3.ts:119](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/storage/s3.ts#L119)
 
 Get a file buffer from S3
 

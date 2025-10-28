@@ -8,7 +8,7 @@
 
 > **ClientHubDashboard**(`__namedParameters`): `Element`
 
-Defined in: [app/client-hub/client-hub-dashboard.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/app/client-hub/client-hub-dashboard.tsx#L27)
+Defined in: [app/client-hub/client-hub-dashboard.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/app/client-hub/client-hub-dashboard.tsx#L27)
 
 ## Parameters
 

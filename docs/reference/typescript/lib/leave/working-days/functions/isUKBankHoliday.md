@@ -8,7 +8,7 @@
 
 > **isUKBankHoliday**(`date`): `boolean`
 
-Defined in: [lib/leave/working-days.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/leave/working-days.ts#L43)
+Defined in: [lib/leave/working-days.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/leave/working-days.ts#L43)
 
 Check if a date is a UK bank holiday
 

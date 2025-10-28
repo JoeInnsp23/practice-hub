@@ -6,7 +6,7 @@
 
 # Interface: RateLimitConfig
 
-Defined in: [lib/rate-limit.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/rate-limit.ts#L69)
+Defined in: [lib/rate-limit.ts:69](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/rate-limit.ts#L69)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/rate-limit.ts:69](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **maxRequests**: `number`
 
-Defined in: [lib/rate-limit.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/rate-limit.ts#L70)
+Defined in: [lib/rate-limit.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/rate-limit.ts#L70)
 
 ***
 
@@ -22,4 +22,4 @@ Defined in: [lib/rate-limit.ts:70](https://github.com/JoeInnsp23/practice-hub/bl
 
 > **windowMs**: `number`
 
-Defined in: [lib/rate-limit.ts:71](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/rate-limit.ts#L71)
+Defined in: [lib/rate-limit.ts:71](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/rate-limit.ts#L71)

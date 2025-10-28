@@ -45,7 +45,7 @@ export function UtilizationHeatmap({
     return (
       <div className="space-y-2">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex gap-2">
+          <div key={`skeleton-${i}`} className="flex gap-2">
             <Skeleton className="h-12 w-32" />
             <Skeleton className="h-12 flex-1" />
           </div>

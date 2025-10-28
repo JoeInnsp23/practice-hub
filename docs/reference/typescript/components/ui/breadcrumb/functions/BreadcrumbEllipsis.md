@@ -8,7 +8,7 @@
 
 > **BreadcrumbEllipsis**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/breadcrumb.tsx:81](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/ui/breadcrumb.tsx#L81)
+Defined in: [components/ui/breadcrumb.tsx:81](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/ui/breadcrumb.tsx#L81)
 
 ## Parameters
 

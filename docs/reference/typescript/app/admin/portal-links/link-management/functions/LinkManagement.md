@@ -8,7 +8,7 @@
 
 > **LinkManagement**(): `Element`
 
-Defined in: [app/admin/portal-links/link-management.tsx:111](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/app/admin/portal-links/link-management.tsx#L111)
+Defined in: [app/admin/portal-links/link-management.tsx:111](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/app/admin/portal-links/link-management.tsx#L111)
 
 ## Returns
 

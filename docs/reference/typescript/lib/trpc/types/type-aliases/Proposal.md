@@ -8,4 +8,4 @@
 
 > **Proposal** = [`ProposalListOutput`](ProposalListOutput.md)\[`"proposals"`\]\[`number`\]
 
-Defined in: [lib/trpc/types.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/trpc/types.ts#L57)
+Defined in: [lib/trpc/types.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/trpc/types.ts#L57)

@@ -8,7 +8,7 @@
 
 > `const` **badgeVariants**: (`props?`) => `string`
 
-Defined in: [components/ui/badge.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/ui/badge.tsx#L7)
+Defined in: [components/ui/badge.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/components/ui/badge.tsx#L7)
 
 ## Parameters
 

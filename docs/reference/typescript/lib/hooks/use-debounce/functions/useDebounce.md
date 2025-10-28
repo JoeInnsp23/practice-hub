@@ -8,7 +8,7 @@
 
 > **useDebounce**\<`T`\>(`value`, `delay?`): `T`
 
-Defined in: [lib/hooks/use-debounce.ts:3](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/hooks/use-debounce.ts#L3)
+Defined in: [lib/hooks/use-debounce.ts:3](https://github.com/JoeInnsp23/practice-hub/blob/e18fd5da4ebede5923d71409411ddf8b7d748253/lib/hooks/use-debounce.ts#L3)
 
 ## Type Parameters
 
