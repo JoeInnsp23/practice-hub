@@ -42,13 +42,14 @@ export async function getTasksList(
 
   // Assignee filter (checks assignedTo, preparer, and reviewer)
   if (filters.assigneeId) {
-    conditions.push(
-      or(
-        eq(taskDetailsView.assignedToId, filters.assigneeId),
-        eq(taskDetailsView.preparerId, filters.assigneeId),
-        eq(taskDetailsView.reviewerId, filters.assigneeId),
-      )!,
+    const assigneeCondition = or(
+      eq(taskDetailsView.assignedToId, filters.assigneeId),
+      eq(taskDetailsView.preparerId, filters.assigneeId),
+      eq(taskDetailsView.reviewerId, filters.assigneeId),
     );
+    if (assigneeCondition) {
+      conditions.push(assigneeCondition);
+    }
   }
 
   // Client filter

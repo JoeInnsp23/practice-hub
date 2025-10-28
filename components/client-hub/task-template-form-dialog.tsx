@@ -74,7 +74,7 @@ export function TaskTemplateFormDialog({
 
   // Fetch template data if editing
   const { data: template, isLoading: isLoadingTemplate } =
-    trpc.taskTemplates.getById.useQuery(templateId!, {
+    trpc.taskTemplates.getById.useQuery(templateId ?? "", {
       enabled: !!templateId,
     });
 

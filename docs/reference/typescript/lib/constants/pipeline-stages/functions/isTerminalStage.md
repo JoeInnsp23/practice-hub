@@ -8,7 +8,7 @@
 
 > **isTerminalStage**(`stage`): `boolean`
 
-Defined in: [lib/constants/pipeline-stages.ts:141](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/constants/pipeline-stages.ts#L141)
+Defined in: [lib/constants/pipeline-stages.ts:141](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/constants/pipeline-stages.ts#L141)
 
 Check if a stage is terminal (final state)
 

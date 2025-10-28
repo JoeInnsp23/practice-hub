@@ -8,7 +8,7 @@
 
 > **DropdownMenuCheckboxItem**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/dropdown-menu.tsx:85](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/components/ui/dropdown-menu.tsx#L85)
+Defined in: [components/ui/dropdown-menu.tsx:85](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/components/ui/dropdown-menu.tsx#L85)
 
 ## Parameters
 

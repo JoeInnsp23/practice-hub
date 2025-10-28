@@ -6,7 +6,7 @@
 
 # Interface: XeroTokenResponse
 
-Defined in: [lib/xero/client.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/xero/client.ts#L38)
+Defined in: [lib/xero/client.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/xero/client.ts#L38)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/xero/client.ts:38](https://github.com/JoeInnsp23/practice-hub/b
 
 > **access\_token**: `string`
 
-Defined in: [lib/xero/client.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/xero/client.ts#L39)
+Defined in: [lib/xero/client.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/xero/client.ts#L39)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/xero/client.ts:39](https://github.com/JoeInnsp23/practice-hub/b
 
 > **expires\_in**: `number`
 
-Defined in: [lib/xero/client.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/xero/client.ts#L41)
+Defined in: [lib/xero/client.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/xero/client.ts#L41)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/xero/client.ts:41](https://github.com/JoeInnsp23/practice-hub/b
 
 > **refresh\_token**: `string`
 
-Defined in: [lib/xero/client.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/xero/client.ts#L40)
+Defined in: [lib/xero/client.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/xero/client.ts#L40)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/xero/client.ts:40](https://github.com/JoeInnsp23/practice-hub/b
 
 > **token\_type**: `string`
 
-Defined in: [lib/xero/client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/xero/client.ts#L42)
+Defined in: [lib/xero/client.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/xero/client.ts#L42)

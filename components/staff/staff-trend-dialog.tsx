@@ -37,7 +37,7 @@ export function StaffTrendDialog({
   // Only fetch when dialog is open and userId is set
   const { data: trend, isLoading } =
     trpc.staffStatistics.getStaffUtilizationTrend.useQuery(
-      { userId: userId!, weeks: 12 },
+      { userId: userId ?? "", weeks: 12 },
       { enabled: open && !!userId },
     );
 

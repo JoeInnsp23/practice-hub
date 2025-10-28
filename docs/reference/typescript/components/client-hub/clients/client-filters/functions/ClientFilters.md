@@ -8,7 +8,7 @@
 
 > **ClientFilters**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/client-filters.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/components/client-hub/clients/client-filters.tsx#L24)
+Defined in: [components/client-hub/clients/client-filters.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/components/client-hub/clients/client-filters.tsx#L24)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **UtilizationAlerts**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/staff/utilization-alerts.tsx:18](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/components/staff/utilization-alerts.tsx#L18)
+Defined in: [components/staff/utilization-alerts.tsx:18](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/components/staff/utilization-alerts.tsx#L18)
 
 ## Parameters
 

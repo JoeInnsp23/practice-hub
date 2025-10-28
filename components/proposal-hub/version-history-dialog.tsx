@@ -45,7 +45,7 @@ export function VersionHistoryDialog({
 
   // Fetch selected version details
   const { data: versionData } = trpc.proposals.getVersionById.useQuery(
-    selectedVersionId!,
+    selectedVersionId ?? "",
     {
       enabled: !!selectedVersionId,
     },

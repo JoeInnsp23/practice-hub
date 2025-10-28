@@ -335,14 +335,15 @@ export const leadsRouter = router({
         conditions.push(eq(leads.assignedToId, input.assignedToId));
       }
       if (input?.search) {
-        conditions.push(
-          or(
-            ilike(leads.firstName, `%${input.search}%`),
-            ilike(leads.lastName, `%${input.search}%`),
-            ilike(leads.email, `%${input.search}%`),
-            ilike(leads.companyName, `%${input.search}%`),
-          )!,
+        const searchCondition = or(
+          ilike(leads.firstName, `%${input.search}%`),
+          ilike(leads.lastName, `%${input.search}%`),
+          ilike(leads.email, `%${input.search}%`),
+          ilike(leads.companyName, `%${input.search}%`),
         );
+        if (searchCondition) {
+          conditions.push(searchCondition);
+        }
       }
 
       const leadsList = await db

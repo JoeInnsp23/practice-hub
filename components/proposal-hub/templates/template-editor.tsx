@@ -51,7 +51,7 @@ export function TemplateEditor({
 
   // Fetch template if editing
   const { data: templateData } = trpc.proposalTemplates.getById.useQuery(
-    templateId!,
+    templateId ?? "",
     { enabled: !!templateId },
   );
 

@@ -147,6 +147,12 @@ export class XeroApiClient {
     credentials: XeroCredentials,
   ): Promise<XeroCredentials> {
     try {
+      if (!process.env.XERO_CLIENT_ID || !process.env.XERO_CLIENT_SECRET) {
+        throw new Error(
+          "Xero credentials not configured (XERO_CLIENT_ID or XERO_CLIENT_SECRET missing)",
+        );
+      }
+
       const response = await fetch("https://identity.xero.com/connect/token", {
         method: "POST",
         headers: {
@@ -155,8 +161,8 @@ export class XeroApiClient {
         body: new URLSearchParams({
           grant_type: "refresh_token",
           refresh_token: credentials.refreshToken,
-          client_id: process.env.XERO_CLIENT_ID!,
-          client_secret: process.env.XERO_CLIENT_SECRET!,
+          client_id: process.env.XERO_CLIENT_ID,
+          client_secret: process.env.XERO_CLIENT_SECRET,
         }),
       });
 

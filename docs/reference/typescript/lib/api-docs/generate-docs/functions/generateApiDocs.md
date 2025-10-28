@@ -8,7 +8,7 @@
 
 > **generateApiDocs**(): `Promise`\<[`ApiDocumentation`](../interfaces/ApiDocumentation.md)\>
 
-Defined in: [lib/api-docs/generate-docs.ts:251](https://github.com/JoeInnsp23/practice-hub/blob/4fe03302d31fda58a2d1c027a01e2406bc41c750/lib/api-docs/generate-docs.ts#L251)
+Defined in: [lib/api-docs/generate-docs.ts:251](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/api-docs/generate-docs.ts#L251)
 
 Generate complete API documentation from tRPC app router
 

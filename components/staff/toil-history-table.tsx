@@ -113,9 +113,9 @@ export function ToilHistoryTable({
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      if (onViewTimesheet) {
-                        onViewTimesheet(record.timesheetId!);
-                      } else {
+                      if (onViewTimesheet && record.timesheetId) {
+                        onViewTimesheet(record.timesheetId);
+                      } else if (record.timesheetId) {
                         router.push(
                           `/practice-hub/timesheets/${record.timesheetId}`,
                         );
