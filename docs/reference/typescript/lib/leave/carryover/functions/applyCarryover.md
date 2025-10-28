@@ -8,7 +8,7 @@
 
 > **applyCarryover**(`userId`, `tenantId`, `fromYear`): `Promise`\<\{ `carriedDays?`: `number`; `error?`: `string`; `success`: `boolean`; \}\>
 
-Defined in: [lib/leave/carryover.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/leave/carryover.ts#L28)
+Defined in: [lib/leave/carryover.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/leave/carryover.ts#L28)
 
 Apply carryover for a specific user from one year to the next
 

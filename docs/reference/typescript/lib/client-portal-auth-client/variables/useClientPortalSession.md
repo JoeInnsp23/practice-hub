@@ -8,7 +8,7 @@
 
 > **useClientPortalSession**: () => `object`
 
-Defined in: [lib/client-portal-auth-client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/client-portal-auth-client.ts#L18)
+Defined in: [lib/client-portal-auth-client.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/client-portal-auth-client.ts#L18)
 
 ## Returns
 

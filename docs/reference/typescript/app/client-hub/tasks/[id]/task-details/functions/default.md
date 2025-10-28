@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/client-hub/tasks/\[id\]/task-details.tsx:128](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/app/client-hub/tasks/[id]/task-details.tsx#L128)
+Defined in: [app/client-hub/tasks/\[id\]/task-details.tsx:128](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/app/client-hub/tasks/[id]/task-details.tsx#L128)
 
 ## Parameters
 

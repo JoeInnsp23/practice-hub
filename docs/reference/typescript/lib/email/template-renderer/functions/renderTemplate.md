@@ -8,7 +8,7 @@
 
 > **renderTemplate**(`template`, `variables`, `options?`): `string`
 
-Defined in: [lib/email/template-renderer.ts:83](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/email/template-renderer.ts#L83)
+Defined in: [lib/email/template-renderer.ts:83](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/email/template-renderer.ts#L83)
 
 Renders an email template by substituting variables with actual values
 

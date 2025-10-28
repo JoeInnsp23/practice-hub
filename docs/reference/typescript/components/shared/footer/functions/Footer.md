@@ -8,7 +8,7 @@
 
 > **Footer**(): `Element`
 
-Defined in: [components/shared/footer.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/components/shared/footer.tsx#L8)
+Defined in: [components/shared/footer.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/shared/footer.tsx#L8)
 
 Global Footer Component
 Displays legal links and copyright information

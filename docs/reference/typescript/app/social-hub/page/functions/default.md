@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/social-hub/page.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/app/social-hub/page.tsx#L3)
+Defined in: [app/social-hub/page.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/app/social-hub/page.tsx#L3)
 
 ## Returns
 

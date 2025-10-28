@@ -193,96 +193,99 @@ export function EditProposalDialog({
                   No services added. Click "Add Service" to get started.
                 </p>
               ) : (
-                services.map((service, index) => (
-                  <div
-                    key={index}
-                    className="border rounded-lg p-3 space-y-2 bg-muted/30"
-                  >
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs">Component Code</Label>
-                        <Input
-                          value={service.componentCode}
-                          onChange={(e) =>
-                            handleUpdateService(
-                              index,
-                              "componentCode",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="e.g., BOOKKEEPING"
-                          className="h-8 text-sm"
-                        />
+                services.map((service) => {
+                  const serviceIndex = services.indexOf(service);
+                  return (
+                    <div
+                      key={`${service.componentCode}-${service.componentName}`}
+                      className="border rounded-lg p-3 space-y-2 bg-muted/30"
+                    >
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Component Code</Label>
+                          <Input
+                            value={service.componentCode}
+                            onChange={(e) =>
+                              handleUpdateService(
+                                serviceIndex,
+                                "componentCode",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="e.g., BOOKKEEPING"
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Component Name</Label>
+                          <Input
+                            value={service.componentName}
+                            onChange={(e) =>
+                              handleUpdateService(
+                                serviceIndex,
+                                "componentName",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="e.g., Monthly Bookkeeping"
+                            className="h-8 text-sm"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs">Component Name</Label>
-                        <Input
-                          value={service.componentName}
-                          onChange={(e) =>
-                            handleUpdateService(
-                              index,
-                              "componentName",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="e.g., Monthly Bookkeeping"
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs">Price (£/month)</Label>
-                        <Input
-                          type="number"
-                          value={service.price}
-                          onChange={(e) =>
-                            handleUpdateService(
-                              index,
-                              "price",
-                              Number(e.target.value),
-                            )
-                          }
-                          placeholder="0.00"
-                          step="0.01"
-                          min="0"
-                          className="h-8 text-sm"
-                        />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Price (£/month)</Label>
+                          <Input
+                            type="number"
+                            value={service.price}
+                            onChange={(e) =>
+                              handleUpdateService(
+                                serviceIndex,
+                                "price",
+                                Number(e.target.value),
+                              )
+                            }
+                            placeholder="0.00"
+                            step="0.01"
+                            min="0"
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">
+                            Calculation (optional)
+                          </Label>
+                          <Input
+                            value={service.calculation || ""}
+                            onChange={(e) =>
+                              handleUpdateService(
+                                serviceIndex,
+                                "calculation",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="e.g., Base + Transactions"
+                            className="h-8 text-sm"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs">
-                          Calculation (optional)
-                        </Label>
-                        <Input
-                          value={service.calculation || ""}
-                          onChange={(e) =>
-                            handleUpdateService(
-                              index,
-                              "calculation",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="e.g., Base + Transactions"
-                          className="h-8 text-sm"
-                        />
-                      </div>
-                    </div>
 
-                    <div className="flex justify-end pt-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveService(index)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Remove
-                      </Button>
+                      <div className="flex justify-end pt-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveService(serviceIndex)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Remove
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 

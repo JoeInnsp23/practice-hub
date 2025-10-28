@@ -282,16 +282,16 @@ export function VersionHistoryDialog({
                     {Array.isArray(versionData.version.services) &&
                     versionData.version.services.length > 0 ? (
                       versionData.version.services.map(
-                        (
-                          service: {
-                            componentName: string;
-                            componentCode: string;
-                            calculation?: string;
-                            price: number | string;
-                          },
-                          index: number,
-                        ) => (
-                          <div key={index} className="p-3 space-y-1">
+                        (service: {
+                          componentName: string;
+                          componentCode: string;
+                          calculation?: string;
+                          price: number | string;
+                        }) => (
+                          <div
+                            key={`${service.componentCode}-${service.componentName}`}
+                            className="p-3 space-y-1"
+                          >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <p className="font-medium text-sm">

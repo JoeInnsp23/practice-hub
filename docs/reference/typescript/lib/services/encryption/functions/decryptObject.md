@@ -8,7 +8,7 @@
 
 > **decryptObject**\<`T`\>(`encryptedText`): `T`
 
-Defined in: [lib/services/encryption.ts:180](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/encryption.ts#L180)
+Defined in: [lib/services/encryption.ts:180](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/encryption.ts#L180)
 
 Decrypt a string back to an object
 

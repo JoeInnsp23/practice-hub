@@ -81,8 +81,8 @@ export function LossReasonsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.reasons.map((reason, index) => (
-                <TableRow key={index}>
+              {data.reasons.map((reason) => (
+                <TableRow key={reason.reason}>
                   <TableCell className="font-medium">{reason.reason}</TableCell>
                   <TableCell className="text-right">{reason.count}</TableCell>
                   <TableCell className="text-right font-semibold">

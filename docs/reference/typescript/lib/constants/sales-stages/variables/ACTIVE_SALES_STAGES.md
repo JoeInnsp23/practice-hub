@@ -8,6 +8,6 @@
 
 > `const` **ACTIVE\_SALES\_STAGES**: [`SalesStage`](../type-aliases/SalesStage.md)[]
 
-Defined in: [lib/constants/sales-stages.ts:118](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/constants/sales-stages.ts#L118)
+Defined in: [lib/constants/sales-stages.ts:118](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/constants/sales-stages.ts#L118)
 
 Active stages (not terminal states)

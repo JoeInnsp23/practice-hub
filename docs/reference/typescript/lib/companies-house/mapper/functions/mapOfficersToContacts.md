@@ -8,7 +8,7 @@
 
 > **mapOfficersToContacts**(`officers`): `object`[]
 
-Defined in: [lib/companies-house/mapper.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/companies-house/mapper.ts#L153)
+Defined in: [lib/companies-house/mapper.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/companies-house/mapper.ts#L153)
 
 Map Companies House officers to Practice Hub client contacts
 

@@ -6,7 +6,7 @@
 
 # Interface: CsvParseOptions
 
-Defined in: [lib/services/csv-import.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L38)
+Defined in: [lib/services/csv-import.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L38)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/services/csv-import.ts:38](https://github.com/JoeInnsp23/practi
 
 > `optional` **autoDetectDelimiter**: `boolean`
 
-Defined in: [lib/services/csv-import.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L43)
+Defined in: [lib/services/csv-import.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L43)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/services/csv-import.ts:43](https://github.com/JoeInnsp23/practi
 
 > `optional` **delimiter**: [`Delimiter`](../../../utils/csv-parser-enhanced/type-aliases/Delimiter.md)
 
-Defined in: [lib/services/csv-import.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L44)
+Defined in: [lib/services/csv-import.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L44)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/services/csv-import.ts:44](https://github.com/JoeInnsp23/practi
 
 > `optional` **dynamicTyping**: `boolean`
 
-Defined in: [lib/services/csv-import.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L42)
+Defined in: [lib/services/csv-import.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L42)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/services/csv-import.ts:42](https://github.com/JoeInnsp23/practi
 
 > `optional` **skipEmptyLines**: `boolean`
 
-Defined in: [lib/services/csv-import.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L39)
+Defined in: [lib/services/csv-import.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L39)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/services/csv-import.ts:39](https://github.com/JoeInnsp23/practi
 
 > `optional` **stripBOM**: `boolean`
 
-Defined in: [lib/services/csv-import.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L45)
+Defined in: [lib/services/csv-import.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L45)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/services/csv-import.ts:45](https://github.com/JoeInnsp23/practi
 
 > `optional` **trimHeaders**: `boolean`
 
-Defined in: [lib/services/csv-import.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L40)
+Defined in: [lib/services/csv-import.ts:40](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L40)
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: [lib/services/csv-import.ts:40](https://github.com/JoeInnsp23/practi
 
 > `optional` **trimValues**: `boolean`
 
-Defined in: [lib/services/csv-import.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/lib/services/csv-import.ts#L41)
+Defined in: [lib/services/csv-import.ts:41](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/lib/services/csv-import.ts#L41)

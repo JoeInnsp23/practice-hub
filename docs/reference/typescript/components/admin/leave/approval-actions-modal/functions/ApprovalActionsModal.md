@@ -8,7 +8,7 @@
 
 > **ApprovalActionsModal**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/admin/leave/approval-actions-modal.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/2dd1774a2a0171454a0dddefeb7a93f757f1da46/components/admin/leave/approval-actions-modal.tsx#L65)
+Defined in: [components/admin/leave/approval-actions-modal.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/e0ef571226578854c741d6e06926dc89b19fe27e/components/admin/leave/approval-actions-modal.tsx#L65)
 
 ## Parameters
 
