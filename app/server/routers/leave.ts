@@ -1,19 +1,17 @@
+import * as Sentry from "@sentry/nextjs";
+import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 import { db } from "@/lib/db";
-import { leaveRequests, leaveBalances, users } from "@/lib/db/schema";
-import { adminProcedure, protectedProcedure, router } from "../trpc";
+import { leaveBalances, leaveRequests, users } from "@/lib/db/schema";
 import {
-  calculateWorkingDays,
-  hasWorkingDays,
-} from "@/lib/leave/working-days";
-import {
-  sendLeaveRequestSubmitted,
   sendLeaveRequestApproved,
   sendLeaveRequestRejected,
+  sendLeaveRequestSubmitted,
 } from "@/lib/email/leave-notifications";
 import { applyCarryover } from "@/lib/leave/carryover";
+import { calculateWorkingDays, hasWorkingDays } from "@/lib/leave/working-days";
+import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 export const leaveRouter = router({
   /**
@@ -40,6 +38,8 @@ export const leaveRouter = router({
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
       const now = new Date();
+      // Reset time portion for fair date comparison
+      now.setHours(0, 0, 0, 0);
 
       // Validation 1: Prevent past dates
       if (startDate < now) {
@@ -125,9 +125,9 @@ export const leaveRouter = router({
 
         if (balance) {
           const available =
-            balance.annualEntitlement +
-            balance.carriedOver -
-            balance.annualUsed;
+            (balance.annualEntitlement ?? 0) +
+            (balance.carriedOver ?? 0) -
+            (balance.annualUsed ?? 0);
           if (daysCount > available) {
             throw new TRPCError({
               code: "PRECONDITION_FAILED",
@@ -172,20 +172,23 @@ export const leaveRouter = router({
             ),
           );
 
-        if (!balance || balance.toilBalance === 0) {
+        const toilBalance = balance?.toilBalance ?? 0;
+
+        if (!balance || toilBalance === 0) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
-            message: "You have no TOIL balance available. TOIL is earned through approved overtime hours.",
+            message:
+              "You have no TOIL balance available. TOIL is earned through approved overtime hours.",
           });
         }
 
         // Convert days to hours (assuming 7.5 hour workdays)
         const hoursRequired = daysCount * 7.5;
 
-        if (hoursRequired > balance.toilBalance) {
+        if (hoursRequired > toilBalance) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
-            message: `Insufficient TOIL balance. You have ${balance.toilBalance} hours (${(balance.toilBalance / 7.5).toFixed(1)} days) available, but are requesting ${hoursRequired} hours (${daysCount} days).`,
+            message: `Insufficient TOIL balance. You have ${toilBalance} hours (${(toilBalance / 7.5).toFixed(1)} days) available, but are requesting ${hoursRequired} hours (${daysCount} days).`,
           });
         }
       }
@@ -207,7 +210,9 @@ export const leaveRouter = router({
         .returning();
 
       // Send email notification (non-blocking)
-      const userName = `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() || ctx.authContext.email;
+      const userName =
+        `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() ||
+        ctx.authContext.email;
       sendLeaveRequestSubmitted({
         to: ctx.authContext.email,
         userName,
@@ -216,7 +221,14 @@ export const leaveRouter = router({
         endDate: input.endDate,
         daysCount,
       }).catch((error) => {
-        console.error("Failed to send leave request submitted email:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "sendLeaveRequestSubmitted" },
+          extra: {
+            userId: ctx.authContext.userId,
+            leaveType: input.leaveType,
+            startDate: input.startDate,
+          },
+        });
       });
 
       return { success: true, request };
@@ -337,8 +349,11 @@ export const leaveRouter = router({
 
       if (user) {
         // Send email notification (non-blocking)
-        const userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
-        const approverName = `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() || ctx.authContext.email;
+        const userName =
+          `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+        const approverName =
+          `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() ||
+          ctx.authContext.email;
 
         sendLeaveRequestApproved({
           to: user.email,
@@ -349,7 +364,13 @@ export const leaveRouter = router({
           daysCount: request.daysCount,
           approverName,
         }).catch((error) => {
-          console.error("Failed to send leave request approved email:", error);
+          Sentry.captureException(error, {
+            tags: { operation: "sendLeaveRequestApproved" },
+            extra: {
+              requestId: input.requestId,
+              approverUserId: userId,
+            },
+          });
         });
       }
 
@@ -418,8 +439,11 @@ export const leaveRouter = router({
 
       if (user) {
         // Send email notification (non-blocking)
-        const userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
-        const approverName = `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() || ctx.authContext.email;
+        const userName =
+          `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+        const approverName =
+          `${ctx.authContext.firstName || ""} ${ctx.authContext.lastName || ""}`.trim() ||
+          ctx.authContext.email;
 
         sendLeaveRequestRejected({
           to: user.email,
@@ -431,7 +455,13 @@ export const leaveRouter = router({
           approverName,
           comments: input.reviewerComments,
         }).catch((error) => {
-          console.error("Failed to send leave request rejected email:", error);
+          Sentry.captureException(error, {
+            tags: { operation: "sendLeaveRequestRejected" },
+            extra: {
+              requestId: input.requestId,
+              reviewerUserId: userId,
+            },
+          });
         });
       }
 
@@ -585,7 +615,9 @@ export const leaveRouter = router({
       }
 
       const annualRemaining =
-        balance.annualEntitlement + balance.carriedOver - balance.annualUsed;
+        (balance.annualEntitlement ?? 0) +
+        (balance.carriedOver ?? 0) -
+        (balance.annualUsed ?? 0);
 
       return {
         balance,
@@ -634,6 +666,7 @@ export const leaveRouter = router({
           startDate: leaveRequests.startDate,
           endDate: leaveRequests.endDate,
           daysCount: leaveRequests.daysCount,
+          status: leaveRequests.status,
           notes: leaveRequests.notes,
         })
         .from(leaveRequests)
@@ -672,9 +705,26 @@ export const leaveRouter = router({
         );
       }
 
+      // Create alias for reviewer users to avoid table name collision
+      const reviewerUsers = users;
+
       const requests = await db
-        .select()
+        .select({
+          id: leaveRequests.id,
+          leaveType: leaveRequests.leaveType,
+          startDate: leaveRequests.startDate,
+          endDate: leaveRequests.endDate,
+          daysCount: leaveRequests.daysCount,
+          status: leaveRequests.status,
+          notes: leaveRequests.notes,
+          requestedAt: leaveRequests.requestedAt,
+          reviewedBy: leaveRequests.reviewedBy,
+          reviewedAt: leaveRequests.reviewedAt,
+          reviewerComments: leaveRequests.reviewerComments,
+          reviewerName: reviewerUsers.name,
+        })
         .from(leaveRequests)
+        .leftJoin(reviewerUsers, eq(leaveRequests.reviewedBy, reviewerUsers.id))
         .where(and(...whereConditions))
         .orderBy(desc(leaveRequests.requestedAt))
         .limit(input.limit);
@@ -706,21 +756,20 @@ export const leaveRouter = router({
 
       // Date range filter
       if (input.startDate && input.endDate) {
-        whereConditions.push(
-          or(
-            and(
-              lte(leaveRequests.startDate, input.endDate),
-              gte(leaveRequests.endDate, input.startDate),
-            ),
+        const dateRangeCondition = or(
+          and(
+            lte(leaveRequests.startDate, input.endDate),
+            gte(leaveRequests.endDate, input.startDate),
           ),
         );
+        if (dateRangeCondition) whereConditions.push(dateRangeCondition);
       }
 
       const requests = await db
         .select({
           id: leaveRequests.id,
           userId: leaveRequests.userId,
-          userName: users.name,
+          userName: sql<string>`COALESCE(${users.name}, CONCAT(${users.firstName}, ' ', ${users.lastName}), 'Unknown User')`,
           userFirstName: users.firstName,
           userLastName: users.lastName,
           userEmail: users.email,
@@ -774,7 +823,7 @@ export const leaveRouter = router({
 
       if (input.excludeUserId) {
         whereConditions.push(
-          db.sql`${leaveRequests.userId} != ${input.excludeUserId}`,
+          sql`${leaveRequests.userId} != ${input.excludeUserId}`,
         );
       }
 
@@ -919,12 +968,14 @@ export const leaveRouter = router({
 
       if (existingBalance) {
         // Update existing balance
-        const entitlementDiff = input.carriedOver - existingBalance.carriedOver;
+        const entitlementDiff =
+          input.carriedOver - (existingBalance.carriedOver ?? 0);
         const [updated] = await db
           .update(leaveBalances)
           .set({
             carriedOver: input.carriedOver,
-            annualEntitlement: existingBalance.annualEntitlement + entitlementDiff,
+            annualEntitlement:
+              (existingBalance.annualEntitlement ?? 0) + entitlementDiff,
           })
           .where(
             and(
@@ -984,7 +1035,11 @@ export const leaveRouter = router({
         });
       }
 
-      const result = await applyCarryover(input.userId, tenantId, input.fromYear);
+      const result = await applyCarryover(
+        input.userId,
+        tenantId,
+        input.fromYear,
+      );
 
       if (!result.success) {
         throw new TRPCError({

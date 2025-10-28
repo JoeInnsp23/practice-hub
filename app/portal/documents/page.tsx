@@ -53,7 +53,7 @@ export default function DocumentsPage() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as any)}
+        onValueChange={(v) => setActiveTab(v as "signed" | "to-sign")}
         className="space-y-6"
       >
         <TabsList className="grid w-full max-w-md grid-cols-2">

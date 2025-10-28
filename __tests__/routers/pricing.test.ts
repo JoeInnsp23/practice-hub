@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { pricingRouter } from "@/app/server/routers/pricing";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -21,7 +24,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/pricing.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof pricingRouter>>;
 
   beforeEach(() => {
@@ -31,19 +34,15 @@ describe("app/server/routers/pricing.ts", () => {
   });
 
   describe("calculate", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing turnover, industry, services
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.calculate._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.calculate(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid calculation input", () => {
+    it("should accept valid calculation input", async () => {
       const validInput = {
         turnover: "90k-149k",
         industry: "standard",
@@ -54,14 +53,10 @@ describe("app/server/routers/pricing.ts", () => {
         ],
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.calculate._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept service with configuration", () => {
+    it("should accept service with configuration", async () => {
       const validInput = {
         turnover: "150k-249k",
         industry: "complex",
@@ -76,14 +71,10 @@ describe("app/server/routers/pricing.ts", () => {
         ],
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.calculate._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept transaction data", () => {
+    it("should accept transaction data", async () => {
       const validInput = {
         turnover: "500k-749k",
         industry: "regulated",
@@ -98,14 +89,10 @@ describe("app/server/routers/pricing.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.calculate._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept modifiers", () => {
+    it("should accept modifiers", async () => {
       const validInput = {
         turnover: "1m+",
         industry: "standard",
@@ -121,38 +108,30 @@ describe("app/server/routers/pricing.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.calculate._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.calculate(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate industry enum values", () => {
+    it("should validate industry enum values", async () => {
       const invalidInput = {
         turnover: "90k-149k",
         industry: "invalid",
         services: [],
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.calculate._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.calculate(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept all valid industry values", () => {
+    it("should accept all valid industry values", async () => {
       const validIndustries = ["simple", "standard", "complex", "regulated"];
 
       for (const industry of validIndustries) {
-        expect(() => {
-          pricingRouter._def.procedures.calculate._def.inputs[0]?.parse({
+        await expect(
+          caller.calculate({
             turnover: "90k-149k",
             industry,
             services: [],
-          });
-        }).not.toThrow();
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });
@@ -168,59 +147,45 @@ describe("app/server/routers/pricing.ts", () => {
   });
 
   describe("getRules", () => {
-    it("should validate required componentId field", () => {
+    it("should validate required componentId field", async () => {
       const invalidInput = {
         // Missing componentId
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.getRules._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.getRules(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid component ID", () => {
+    it("should accept valid component ID", async () => {
       const validInput = {
         componentId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.getRules._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.getRules(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("estimateTransactions", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing turnover, industry, vatRegistered
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.estimateTransactions._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.estimateTransactions(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid estimation input", () => {
+    it("should accept valid estimation input", async () => {
       const validInput = {
         turnover: "250k-499k",
         industry: "standard",
         vatRegistered: true,
       };
 
-      expect(() => {
-        pricingRouter._def.procedures.estimateTransactions._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.estimateTransactions(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept all valid turnover bands", () => {
+    it("should accept all valid turnover bands", async () => {
       const validTurnoverBands = [
         "0-89k",
         "90k-149k",
@@ -232,15 +197,13 @@ describe("app/server/routers/pricing.ts", () => {
       ];
 
       for (const turnover of validTurnoverBands) {
-        expect(() => {
-          pricingRouter._def.procedures.estimateTransactions._def.inputs[0]?.parse(
-            {
-              turnover,
-              industry: "standard",
-              vatRegistered: false,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          caller.estimateTransactions({
+            turnover,
+            industry: "standard",
+            vatRegistered: false,
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });

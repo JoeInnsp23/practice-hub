@@ -25,7 +25,7 @@ interface GlobalSidebarProps {
 }
 
 export function GlobalSidebar({
-  moduleName,
+  moduleName: _moduleName,
   baseHref,
   navigation,
   sections,

@@ -40,7 +40,15 @@ const timeEntrySchema = z.object({
 type TimeEntryFormValues = z.infer<typeof timeEntrySchema>;
 
 interface QuickTimeEntryProps {
-  onSave?: (data: any) => void;
+  onSave?: (data: {
+    client: string;
+    task?: string;
+    description: string;
+    hours: number;
+    date: Date;
+    billable: boolean;
+    createdAt: Date;
+  }) => void;
 }
 
 export function QuickTimeEntry({ onSave }: QuickTimeEntryProps) {

@@ -37,6 +37,15 @@ export const userSettingsSchema = z.object({
   emailNotifications: z.boolean().default(true),
   inAppNotifications: z.boolean().default(true),
   digestEmail: z.enum(["daily", "weekly", "never"]).default("daily"),
+
+  // Granular notification preferences (FR31)
+  notifTaskAssigned: z.boolean().default(true),
+  notifTaskMention: z.boolean().default(true),
+  notifTaskReassigned: z.boolean().default(true),
+  notifDeadlineApproaching: z.boolean().default(true),
+  notifApprovalNeeded: z.boolean().default(true),
+  notifClientMessage: z.boolean().default(true),
+
   theme: z.enum(["light", "dark", "system"]).default("system"),
   language: z.enum(["en", "es", "fr", "de"]).default("en"),
   timezone: z.string().default("Europe/London"),

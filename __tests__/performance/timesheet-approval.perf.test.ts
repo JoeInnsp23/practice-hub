@@ -9,7 +9,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { Context } from "@/app/server/context";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
 import { db } from "@/lib/db";
-import { staffCapacity, timeEntries, timesheetSubmissions } from "@/lib/db/schema";
+import {
+  staffCapacity,
+  timeEntries,
+  timesheetSubmissions,
+} from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
@@ -25,9 +29,9 @@ vi.mock("@/lib/email/timesheet-notifications", () => ({
 }));
 
 describe("Timesheet Approval Performance Tests (AC17)", () => {
-  let ctx: Context;
-  let managerCtx: Context;
-  let caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
+  let _ctx: Context;
+  let _managerCtx: Context;
+  let _caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   let managerCaller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -55,7 +59,7 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
     tracker.users?.push(testManagerId);
 
     // 3. Create manager context
-    managerCtx = createMockContext({
+    const mockManagerCtx = createMockContext({
       authContext: {
         userId: testManagerId,
         tenantId: testTenantId,
@@ -66,11 +70,14 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
         lastName: "Perf",
       },
     });
+    _managerCtx = mockManagerCtx;
 
-    managerCaller = createCaller(timesheetsRouter, managerCtx);
+    managerCaller = createCaller(timesheetsRouter, mockManagerCtx);
 
     // 4. Create 100 staff users
-    console.log("⏳ Creating 100 staff members with pending timesheet submissions...");
+    console.log(
+      "⏳ Creating 100 staff members with pending timesheet submissions...",
+    );
     for (let i = 0; i < 100; i++) {
       const userId = await createTestUser(testTenantId, {
         role: "staff",
@@ -109,13 +116,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
       const [submission] = await db
         .insert(timesheetSubmissions)
         .values({
-          id: crypto.randomUUID(),
           tenantId: testTenantId,
           userId,
           weekStartDate: "2025-01-06",
           weekEndDate: "2025-01-12",
           status: "pending",
-          totalHours: 37.5,
+          totalHours: "37.5",
           submittedAt: new Date(),
         })
         .returning();
@@ -160,8 +166,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
     expect(executionTime).toBeLessThan(2.0); // AC17 requirement
 
     // Verify data structure
-    expect(result.every((s) => s.status === "pending")).toBe(true);
-    expect(result.every((s) => Number(s.totalHours) === 37.5)).toBe(true); // Handle string or number
+    expect(
+      result.every((s: (typeof result)[0]) => s.status === "pending"),
+    ).toBe(true);
+    expect(
+      result.every((s: (typeof result)[0]) => Number(s.totalHours) === 37.5),
+    ).toBe(true); // Handle string or number
   }, 15000); // 15 second timeout
 
   it("AC17.2: Should bulk approve 50 submissions in < 5 seconds", async () => {
@@ -201,10 +211,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
       where: (table, { inArray }) => inArray(table.id, submissionIdsToApprove),
     });
 
-    expect(approvedSubmissions.every((s) => s.status === "approved")).toBe(true);
-    expect(approvedSubmissions.every((s) => s.reviewedBy === testManagerId)).toBe(
+    expect(approvedSubmissions.every((s) => s.status === "approved")).toBe(
       true,
     );
+    expect(
+      approvedSubmissions.every((s) => s.reviewedBy === testManagerId),
+    ).toBe(true);
     expect(approvedSubmissions.every((s) => s.reviewedAt !== null)).toBe(true);
   }, 15000); // 15 second timeout
 
@@ -246,10 +258,12 @@ describe("Timesheet Approval Performance Tests (AC17)", () => {
       where: (table, { inArray }) => inArray(table.id, submissionIdsToReject),
     });
 
-    expect(rejectedSubmissions.every((s) => s.status === "rejected")).toBe(true);
-    expect(rejectedSubmissions.every((s) => s.reviewedBy === testManagerId)).toBe(
+    expect(rejectedSubmissions.every((s) => s.status === "rejected")).toBe(
       true,
     );
+    expect(
+      rejectedSubmissions.every((s) => s.reviewedBy === testManagerId),
+    ).toBe(true);
     expect(rejectedSubmissions.every((s) => s.reviewerComments !== null)).toBe(
       true,
     );

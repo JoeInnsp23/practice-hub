@@ -4,11 +4,13 @@
  * Tests for the transactionData tRPC router
  */
 
-import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { transactionDataRouter } from "@/app/server/routers/transactionData";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -36,7 +38,7 @@ vi.mock("@/lib/xero/client", () => ({
 }));
 
 describe("app/server/routers/transactionData.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof transactionDataRouter>>;
 
   beforeEach(() => {
@@ -46,41 +48,35 @@ describe("app/server/routers/transactionData.ts", () => {
   });
 
   describe("getByClient", () => {
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const clientId = "550e8400-e29b-41d4-a716-446655440000";
 
       // Should not throw on valid UUID
-      expect(() => {
-        transactionDataRouter._def.procedures.getByClient._def.inputs[0]?.parse(
-          clientId,
-        );
-      }).not.toThrow();
+      await expect(caller.getByClient(clientId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        transactionDataRouter._def.procedures.getByClient._def.inputs[0]?.parse(
-          123,
-        );
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(
+        caller.getByClient(123 as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
   describe("estimate", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         clientId: "test-id",
         // Missing required fields
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.estimate._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid estimate input", () => {
+    it("should accept valid estimate input", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         turnover: "150k-249k",
@@ -89,14 +85,10 @@ describe("app/server/routers/transactionData.ts", () => {
         saveEstimate: false,
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.estimate._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.estimate(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate turnover is a string", () => {
+    it("should validate turnover is a string", async () => {
       const invalidInput = {
         clientId: "test-id",
         turnover: 150000, // Should be string
@@ -104,14 +96,14 @@ describe("app/server/routers/transactionData.ts", () => {
         vatRegistered: true,
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.estimate._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
 
-    it("should validate industry is a string", () => {
+    it("should validate industry is a string", async () => {
       const invalidInput = {
         clientId: "test-id",
         turnover: "150k-249k",
@@ -119,14 +111,14 @@ describe("app/server/routers/transactionData.ts", () => {
         vatRegistered: true,
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.estimate._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
 
-    it("should validate vatRegistered is a boolean", () => {
+    it("should validate vatRegistered is a boolean", async () => {
       const invalidInput = {
         clientId: "test-id",
         turnover: "150k-249k",
@@ -134,31 +126,25 @@ describe("app/server/routers/transactionData.ts", () => {
         vatRegistered: "yes", // Should be boolean
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.estimate._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.estimate(
+          invalidInput as unknown as Parameters<typeof caller.estimate>[0],
+        ),
+      ).rejects.toThrow();
     });
   });
 
   describe("fetchFromXero", () => {
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const clientId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        transactionDataRouter._def.procedures.fetchFromXero._def.inputs[0]?.parse(
-          clientId,
-        );
-      }).not.toThrow();
+      await expect(caller.fetchFromXero(clientId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        transactionDataRouter._def.procedures.fetchFromXero._def.inputs[0]?.parse(
-          { invalid: "object" },
-        );
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(
+        caller.fetchFromXero({ invalid: "object" } as unknown as string),
+      ).rejects.toThrow();
     });
 
     describe("Implementation", () => {
@@ -179,13 +165,17 @@ describe("app/server/routers/transactionData.ts", () => {
               ]),
             }),
           }),
+          // biome-ignore lint/suspicious/noExplicitAny: Mock return type needs any to match db query builder chain
         } as any);
 
         // Mock insert for transaction data storage AND activity logs
         // The router calls insert twice: once for clientTransactionData, once for activityLogs
-        vi.mocked(db.insert).mockImplementation((table: any) => {
+        // biome-ignore lint/suspicious/noExplicitAny: Table parameter must be any to accept different table schemas
+        vi.mocked(db.insert).mockImplementation((_table: any) => {
           // Create a promise-like object that can handle both cases
-          const valuesResult = {
+          // Extend Promise to avoid noThenProperty violation
+          const basePromise = Promise.resolve(undefined);
+          const valuesResult = Object.assign(basePromise, {
             // For transaction data: has onConflictDoUpdate
             onConflictDoUpdate: vi.fn().mockReturnValue({
               returning: vi.fn().mockResolvedValue([
@@ -198,13 +188,11 @@ describe("app/server/routers/transactionData.ts", () => {
                 },
               ]),
             }),
-            // For activity logs: directly awaitable (no onConflictDoUpdate)
-            then: (resolve: any) => Promise.resolve(undefined).then(resolve),
-            catch: (reject: any) => Promise.resolve(undefined).catch(reject),
-          };
+          });
 
           return {
             values: vi.fn().mockReturnValue(valuesResult),
+            // biome-ignore lint/suspicious/noExplicitAny: Mock return type needs any to match db insert builder chain
           } as any;
         });
       });
@@ -427,61 +415,53 @@ describe("app/server/routers/transactionData.ts", () => {
   });
 
   describe("upsert", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing clientId and monthlyTransactions
         dataSource: "manual",
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.upsert._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.upsert(
+          invalidInput as unknown as Parameters<typeof caller.upsert>[0],
+        ),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid upsert input", () => {
+    it("should accept valid upsert input", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         monthlyTransactions: 150,
         dataSource: "manual" as const,
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.upsert._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.upsert(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate monthlyTransactions is a number", () => {
+    it("should validate monthlyTransactions is a number", async () => {
       const invalidInput = {
         clientId: "test-id",
         monthlyTransactions: "150", // Should be number
         dataSource: "manual",
       };
 
-      expect(() => {
-        transactionDataRouter._def.procedures.upsert._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.upsert(
+          invalidInput as unknown as Parameters<typeof caller.upsert>[0],
+        ),
+      ).rejects.toThrow();
     });
   });
 
   describe("delete", () => {
-    it("should accept valid transaction data ID", () => {
+    it("should accept valid transaction data ID", async () => {
       const id = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        transactionDataRouter._def.procedures.delete._def.inputs[0]?.parse(id);
-      }).not.toThrow();
+      await expect(caller.delete(id)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        transactionDataRouter._def.procedures.delete._def.inputs[0]?.parse(123);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(caller.delete(123 as unknown as string)).rejects.toThrow();
     });
   });
 
@@ -498,22 +478,16 @@ describe("app/server/routers/transactionData.ts", () => {
   });
 
   describe("getHistory", () => {
-    it("should accept valid client ID", () => {
+    it("should accept valid client ID", async () => {
       const clientId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        transactionDataRouter._def.procedures.getHistory._def.inputs[0]?.parse(
-          clientId,
-        );
-      }).not.toThrow();
+      await expect(caller.getHistory(clientId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        transactionDataRouter._def.procedures.getHistory._def.inputs[0]?.parse(
-          null,
-        );
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(
+        caller.getHistory(null as unknown as string),
+      ).rejects.toThrow();
     });
   });
 

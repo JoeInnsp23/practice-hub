@@ -2,8 +2,8 @@ import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   clientRevenueView,
-  clients,
   clientServices,
+  clients,
   dashboardKpiView,
   invoices,
   monthlyRevenueView,
@@ -97,9 +97,10 @@ export async function getClientRevenue(
       totalPaid: sql<number>`COALESCE(SUM(${invoices.amountPaid}), 0)`.as(
         "total_paid",
       ),
-      outstanding: sql<number>`COALESCE(SUM(${invoices.total} - ${invoices.amountPaid}), 0)`.as(
-        "outstanding",
-      ),
+      outstanding:
+        sql<number>`COALESCE(SUM(${invoices.total} - ${invoices.amountPaid}), 0)`.as(
+          "outstanding",
+        ),
       invoiceCount: sql<number>`COUNT(${invoices.id})`.as("invoice_count"),
       firstInvoiceDate: sql<Date | null>`MIN(${invoices.issueDate})`.as(
         "first_invoice_date",
@@ -118,13 +119,17 @@ export async function getClientRevenue(
     )
     .$dynamic();
 
-  // Apply date range filters
+  // Apply date range filters (convert Date to ISO date string for PgDateString comparison)
   if (options.startDate) {
-    query = query.where(gte(invoices.issueDate, options.startDate));
+    query = query.where(
+      gte(invoices.issueDate, options.startDate.toISOString().split("T")[0]),
+    );
   }
 
   if (options.endDate) {
-    query = query.where(lte(invoices.issueDate, options.endDate));
+    query = query.where(
+      lte(invoices.issueDate, options.endDate.toISOString().split("T")[0]),
+    );
   }
 
   // Group by client and order by revenue
@@ -156,7 +161,7 @@ export async function getServicePerformance(
 ) {
   // Build base query for service revenue from invoices
   // This aggregates invoice items by service
-  let query = db
+  const query = db
     .select({
       serviceId: clientServices.serviceId,
       serviceName: services.name,
@@ -164,7 +169,7 @@ export async function getServicePerformance(
       serviceCategory: services.category,
       totalRevenue: sql<number>`COALESCE(SUM(CASE
         WHEN ${invoices.status} = 'paid'
-        THEN ${clientServices.customRate} * ${clientServices.quantity}
+        THEN ${clientServices.customRate}
         ELSE 0
       END), 0)`.as("total_revenue"),
       activeClients: sql<number>`COUNT(DISTINCT ${clientServices.clientId})`.as(
@@ -182,16 +187,20 @@ export async function getServicePerformance(
   // Build where conditions
   const whereConditions = [
     eq(clientServices.tenantId, tenantId),
-    eq(clientServices.status, "active"),
+    eq(clientServices.isActive, true),
   ];
 
-  // Add date range filters if specified
+  // Add date range filters if specified (convert Date to ISO date string for PgDateString comparison)
   if (options?.startDate) {
-    whereConditions.push(gte(invoices.issueDate, options.startDate));
+    whereConditions.push(
+      gte(invoices.issueDate, options.startDate.toISOString().split("T")[0]),
+    );
   }
 
   if (options?.endDate) {
-    whereConditions.push(lte(invoices.issueDate, options.endDate));
+    whereConditions.push(
+      lte(invoices.issueDate, options.endDate.toISOString().split("T")[0]),
+    );
   }
 
   const serviceRevenueQuery = query

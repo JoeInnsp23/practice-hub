@@ -9,7 +9,7 @@
  * @param headers Optional custom headers (uses object keys if not provided)
  * @returns CSV formatted string
  */
-export function convertToCSV<T extends Record<string, any>>(
+export function convertToCSV<T extends Record<string, unknown>>(
   data: T[],
   headers?: string[],
 ): string {
@@ -97,23 +97,23 @@ export function downloadCSV(csvContent: string, filename: string): void {
  */
 export function formatReportData(
   reportType: string,
-  data: any[],
-): Record<string, any>[] {
+  data: Array<Record<string, unknown>>,
+): Array<Record<string, unknown>> {
   switch (reportType) {
     case "lead-source":
       return data.map((row) => ({
         Source: row.source || "Unknown",
         "Total Leads": row.totalLeads || 0,
         "Converted to Proposals": row.converted || 0,
-        "Conversion Rate": `${(row.conversionRate || 0).toFixed(1)}%`,
+        "Conversion Rate": `${(Number(row.conversionRate) || 0).toFixed(1)}%`,
       }));
 
     case "pipeline":
       return data.map((row) => ({
         Stage: row.stage,
         "Deal Count": row.count,
-        "Total Value": `£${(row.totalValue || 0).toLocaleString()}`,
-        "Avg Deal Size": `£${(row.avgDealSize || 0).toLocaleString()}`,
+        "Total Value": `£${Number(row.totalValue || 0).toLocaleString()}`,
+        "Avg Deal Size": `£${Number(row.avgDealSize || 0).toLocaleString()}`,
       }));
 
     case "proposal-success":
@@ -122,17 +122,17 @@ export function formatReportData(
         "Total Proposals": row.total,
         Signed: row.signed,
         Rejected: row.rejected,
-        "Success Rate": `${(row.successRate || 0).toFixed(1)}%`,
-        "Avg Time to Sign": `${(row.avgTimeToSign || 0).toFixed(0)} days`,
+        "Success Rate": `${(Number(row.successRate) || 0).toFixed(1)}%`,
+        "Avg Time to Sign": `${(Number(row.avgTimeToSign) || 0).toFixed(0)} days`,
       }));
 
     case "revenue-by-service":
       return data.map((row) => ({
         Service: row.serviceName,
         "Proposal Count": row.count,
-        "Total Revenue": `£${(row.totalRevenue || 0).toLocaleString()}`,
-        "Avg Price": `£${(row.avgPrice || 0).toLocaleString()}`,
-        "% of Total": `${(row.percentage || 0).toFixed(1)}%`,
+        "Total Revenue": `£${Number(row.totalRevenue || 0).toLocaleString()}`,
+        "Avg Price": `£${Number(row.avgPrice || 0).toLocaleString()}`,
+        "% of Total": `${(Number(row.percentage) || 0).toFixed(1)}%`,
       }));
 
     default:
@@ -148,7 +148,7 @@ export function formatReportData(
  */
 export function exportReport(
   reportType: string,
-  data: any[],
+  data: Array<Record<string, unknown>>,
   customFilename?: string,
 ): void {
   // Format data for report type

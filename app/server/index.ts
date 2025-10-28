@@ -9,13 +9,13 @@ import { complianceRouter } from "./routers/compliance";
 import { dashboardRouter } from "./routers/dashboard";
 import { departmentsRouter } from "./routers/departments";
 import { documentsRouter } from "./routers/documents";
+import { emailTemplatesRouter } from "./routers/email-templates";
 import { importLogsRouter } from "./routers/import-logs";
 import { integrationsRouter } from "./routers/integrations";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
 import { leadsRouter } from "./routers/leads";
 import { leaveRouter } from "./routers/leave";
-import { toilRouter } from "./routers/toil";
 import { legalRouter } from "./routers/legal";
 import { messagesRouter } from "./routers/messages";
 import { notificationsRouter } from "./routers/notifications";
@@ -32,14 +32,15 @@ import { servicesRouter } from "./routers/services";
 import { settingsRouter } from "./routers/settings";
 import { staffCapacityRouter } from "./routers/staffCapacity";
 import { staffStatisticsRouter } from "./routers/staffStatistics";
-import { workingPatternsRouter } from "./routers/workingPatterns";
 import { taskGenerationRouter } from "./routers/task-generation";
 import { tasksRouter } from "./routers/tasks";
 import { taskTemplatesRouter } from "./routers/taskTemplates";
 import { timesheetsRouter } from "./routers/timesheets";
+import { toilRouter } from "./routers/toil";
 import { transactionDataRouter } from "./routers/transactionData";
 import { usersRouter } from "./routers/users";
 import { workflowsRouter } from "./routers/workflows";
+import { workingPatternsRouter } from "./routers/workingPatterns";
 import { workTypesRouter } from "./routers/workTypes";
 import { router } from "./trpc";
 
@@ -84,6 +85,7 @@ export const appRouter = router({
   notifications: notificationsRouter,
   calendar: calendarRouter,
   documents: documentsRouter,
+  emailTemplates: emailTemplatesRouter,
   legal: legalRouter,
   importLogs: importLogsRouter,
   integrations: integrationsRouter,

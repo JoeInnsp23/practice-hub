@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { proposalsRouter } from "@/app/server/routers/proposals";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -22,7 +25,7 @@ vi.mock("@/lib/db", () => ({
     delete: vi.fn().mockReturnThis(),
     set: vi.fn().mockReturnThis(),
     values: vi.fn().mockReturnThis(),
-    returning: vi.fn(),
+    returning: vi.fn().mockResolvedValue([]),
     innerJoin: vi.fn().mockReturnThis(),
     leftJoin: vi.fn().mockReturnThis(),
   },
@@ -44,7 +47,7 @@ vi.mock("@/lib/email/proposal-email", () => ({
 }));
 
 describe("app/server/routers/proposals.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof proposalsRouter>>;
 
   beforeEach(() => {
@@ -54,68 +57,52 @@ describe("app/server/routers/proposals.ts", () => {
   });
 
   describe("list", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.list({})).resolves.not.toThrow();
     });
 
-    it("should accept status filter", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
-          status: "draft",
-        });
-      }).not.toThrow();
+    it("should accept status filter", async () => {
+      await expect(caller.list({ status: "draft" })).resolves.not.toThrow();
     });
 
-    it("should accept clientId filter", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
-          clientId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
+    it("should accept clientId filter", async () => {
+      await expect(
+        caller.list({ clientId: "550e8400-e29b-41d4-a716-446655440000" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept search parameter", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
-          search: "test proposal",
-        });
-      }).not.toThrow();
+    it("should accept search parameter", async () => {
+      await expect(
+        caller.list({ search: "test proposal" }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getById", () => {
-    it("should accept valid UUID", () => {
+    it("should accept valid UUID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        proposalsRouter._def.procedures.getById._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      await expect(caller.getById(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.getById._def.inputs[0]?.parse(123);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(caller.getById(123 as unknown as string)).rejects.toThrow();
     });
   });
 
   describe("create", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         title: "Test Proposal",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid proposal data", () => {
+    it("should accept valid proposal data", async () => {
       const validInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Accounting Services Proposal",
@@ -127,14 +114,10 @@ describe("app/server/routers/proposals.ts", () => {
         services: [],
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.create._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.create(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate totalAmount is a number", () => {
+    it("should validate totalAmount is a number", async () => {
       const invalidInput = {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Test",
@@ -142,53 +125,43 @@ describe("app/server/routers/proposals.ts", () => {
         services: [],
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.create._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("createFromLead", () => {
-    it("should accept valid lead ID", () => {
+    it("should accept valid lead ID", async () => {
       const validInput = {
         leadId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.createFromLead._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.createFromLead(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate required leadId field", () => {
+    it("should validate required leadId field", async () => {
       const invalidInput = {};
 
-      expect(() => {
-        proposalsRouter._def.procedures.createFromLead._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.createFromLead(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("update", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
         title: "Updated Title",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.update._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.update(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid update data", () => {
+    it("should accept valid update data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -197,14 +170,10 @@ describe("app/server/routers/proposals.ts", () => {
         },
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.update._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.update(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept partial updates", () => {
+    it("should accept partial updates", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -212,102 +181,84 @@ describe("app/server/routers/proposals.ts", () => {
         },
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.update._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.update(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("delete", () => {
-    it("should accept valid proposal ID", () => {
+    it("should accept valid proposal ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        proposalsRouter._def.procedures.delete._def.inputs[0]?.parse(validId);
-      }).not.toThrow();
+      await expect(caller.delete(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.delete._def.inputs[0]?.parse({});
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(
+        caller.delete({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("send", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing proposalId
         recipientEmail: "test@example.com",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.send._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.send(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid send data", () => {
+    it("should accept valid send data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         validUntil: "2025-12-31",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.send._def.inputs[0]?.parse(validInput);
-      }).not.toThrow();
+      await expect(caller.send(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         // Missing validUntil
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.send._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.send(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("trackView", () => {
-    it("should accept valid proposal ID", () => {
+    it("should accept valid proposal ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        proposalsRouter._def.procedures.trackView._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.trackView(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.trackView._def.inputs[0]?.parse(123);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(
+        caller.trackView(123 as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
   describe("addSignature", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         proposalId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.addSignature._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.addSignature(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid signature data", () => {
+    it("should accept valid signature data", async () => {
       const validInput = {
         proposalId: "550e8400-e29b-41d4-a716-446655440000",
         signerName: "John Doe",
@@ -315,14 +266,10 @@ describe("app/server/routers/proposals.ts", () => {
         signatureData: "base64-signature-data",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.addSignature._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.addSignature(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept any string as email", () => {
+    it("should accept any string as email", async () => {
       // Note: signerEmail is z.string() without .email() validation
       const validInput = {
         proposalId: "550e8400-e29b-41d4-a716-446655440000",
@@ -331,11 +278,7 @@ describe("app/server/routers/proposals.ts", () => {
         signatureData: "data",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.addSignature._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.addSignature(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -350,38 +293,30 @@ describe("app/server/routers/proposals.ts", () => {
   });
 
   describe("generatePdf", () => {
-    it("should accept valid proposal ID", () => {
+    it("should accept valid proposal ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        proposalsRouter._def.procedures.generatePdf._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.generatePdf(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.generatePdf._def.inputs[0]?.parse(null);
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(
+        caller.generatePdf(null as unknown as string),
+      ).rejects.toThrow();
     });
   });
 
   describe("updateSalesStage", () => {
-    it("should accept valid sales stage update", () => {
+    it("should accept valid sales stage update", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         salesStage: "qualified" as const,
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.updateSalesStage(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate all sales stage enum values", () => {
+    it("should validate all sales stage enum values", async () => {
       const validStages = [
         "enquiry",
         "qualified",
@@ -398,28 +333,22 @@ describe("app/server/routers/proposals.ts", () => {
           salesStage: stage,
         };
 
-        expect(() => {
-          proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-            input,
-          );
-        }).not.toThrow();
+        await expect(caller.updateSalesStage(input)).resolves.not.toThrow();
       }
     });
 
-    it("should reject invalid sales stage", () => {
+    it("should reject invalid sales stage", async () => {
       const invalidInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         salesStage: "invalid_stage",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateSalesStage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should require both id and salesStage", () => {
+    it("should require both id and salesStage", async () => {
       const missingId = {
         salesStage: "qualified",
       };
@@ -428,104 +357,73 @@ describe("app/server/routers/proposals.ts", () => {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-          missingId,
-        );
-      }).toThrow();
-
-      expect(() => {
-        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-          missingSalesStage,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateSalesStage(missingId as Record<string, unknown>),
+      ).rejects.toThrow();
+      await expect(
+        caller.updateSalesStage(missingSalesStage as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("list with salesStage filter", () => {
-    it("should accept salesStage filter", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
-          salesStage: "qualified",
-        });
-      }).not.toThrow();
+    it("should accept salesStage filter", async () => {
+      await expect(
+        caller.list({ salesStage: "qualified" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept salesStage with other filters", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
+    it("should accept salesStage with other filters", async () => {
+      await expect(
+        caller.list({
           salesStage: "won",
           status: "signed",
           clientId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should reject invalid salesStage values", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.list._def.inputs[0]?.parse({
-          salesStage: "invalid_value",
-        });
-      }).toThrow();
+    it("should reject invalid salesStage values", async () => {
+      await expect(
+        caller.list({ salesStage: "invalid_value" } as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("listByStage", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.listByStage({})).resolves.not.toThrow();
     });
 
-    it("should filter by assignedToId", () => {
+    it("should filter by assignedToId", async () => {
       const input = { assignedToId: "user-123" };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(caller.listByStage(input)).resolves.not.toThrow();
     });
 
-    it("should filter by date range", () => {
+    it("should filter by date range", async () => {
       const input = {
         dateFrom: "2025-01-01T00:00:00Z",
         dateTo: "2025-01-31T23:59:59Z",
       };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(caller.listByStage(input)).resolves.not.toThrow();
     });
 
-    it("should filter by value range", () => {
+    it("should filter by value range", async () => {
       const input = { minValue: 1000, maxValue: 5000 };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(caller.listByStage(input)).resolves.not.toThrow();
     });
 
-    it("should filter by specific stages", () => {
+    it("should filter by specific stages", async () => {
       const input = { stages: ["enquiry", "qualified", "won"] };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(caller.listByStage(input)).resolves.not.toThrow();
     });
 
-    it("should accept search parameter", () => {
+    it("should accept search parameter", async () => {
       const input = { search: "accounting services" };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(caller.listByStage(input)).resolves.not.toThrow();
     });
 
-    it("should accept all filters combined", () => {
+    it("should accept all filters combined", async () => {
       const input = {
         assignedToId: "user-123",
         dateFrom: "2025-01-01T00:00:00Z",
@@ -535,57 +433,45 @@ describe("app/server/routers/proposals.ts", () => {
         search: "proposal",
         stages: ["enquiry", "qualified"],
       };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).not.toThrow();
+      await expect(caller.listByStage(input)).resolves.not.toThrow();
     });
 
-    it("should reject invalid stage values", () => {
+    it("should reject invalid stage values", async () => {
       const input = { stages: ["invalid_stage"] };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          input,
-        );
-      }).toThrow();
+      await expect(
+        caller.listByStage(input as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should validate value range types", () => {
+    it("should validate value range types", async () => {
       const invalidInput = { minValue: "not a number" };
-      expect(() => {
-        proposalsRouter._def.procedures.listByStage._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.listByStage(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
   describe("updateSalesStage - Advanced Validation", () => {
-    it("should require both id and salesStage fields", () => {
+    it("should require both id and salesStage fields", async () => {
       const missingStageInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         // Missing salesStage
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-          missingStageInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateSalesStage(missingStageInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should validate salesStage is a valid enum value", () => {
+    it("should validate salesStage is a valid enum value", async () => {
       const invalidStageInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         salesStage: "invalid_stage_value",
       };
 
-      expect(() => {
-        proposalsRouter._def.procedures.updateSalesStage._def.inputs[0]?.parse(
-          invalidStageInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateSalesStage(invalidStageInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 

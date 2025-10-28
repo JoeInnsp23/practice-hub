@@ -28,7 +28,7 @@ interface ServiceConfig {
 }
 
 interface SelectedService {
-  componentCode: string;
+  serviceCode: string;
   quantity?: number;
   config?: ServiceConfig;
 }
@@ -82,24 +82,24 @@ export function ServiceSelector({
   };
 
   const isServiceSelected = (code: string) => {
-    return selectedServices.some((s) => s.componentCode === code);
+    return selectedServices.some((s) => s.serviceCode === code);
   };
 
   const getServiceConfig = (code: string): ServiceConfig | undefined => {
-    return selectedServices.find((s) => s.componentCode === code)?.config;
+    return selectedServices.find((s) => s.serviceCode === code)?.config;
   };
 
   const handleToggleService = (code: string) => {
     if (isServiceSelected(code)) {
-      onChange(selectedServices.filter((s) => s.componentCode !== code));
+      onChange(selectedServices.filter((s) => s.serviceCode !== code));
     } else {
-      onChange([...selectedServices, { componentCode: code }]);
+      onChange([...selectedServices, { serviceCode: code }]);
     }
   };
 
   const handleUpdateConfig = (code: string, config: ServiceConfig) => {
     const updated = selectedServices.map((s) =>
-      s.componentCode === code ? { ...s, config } : s,
+      s.serviceCode === code ? { ...s, config } : s,
     );
     onChange(updated);
   };

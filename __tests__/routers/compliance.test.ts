@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { complianceRouter } from "@/app/server/routers/compliance";
 import { db } from "@/lib/db";
 import { activityLogs, compliance } from "@/lib/db/schema";
@@ -21,10 +20,14 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("app/server/routers/compliance.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof complianceRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -217,7 +220,9 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
         description: "Missing required fields",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(
+        caller.create(invalidInput as Record<string, unknown>),
+      ).rejects.toThrow();
     });
   });
 
@@ -255,7 +260,9 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       }
 
       // Verify our test items are in the list
-      const itemIds = result.compliance.map((c) => c.id);
+      const itemIds = result.compliance.map(
+        (c: (typeof result.compliance)[0]) => c.id,
+      );
       expect(itemIds).toContain(item1Result.compliance.id);
       expect(itemIds).toContain(item2Result.compliance.id);
     });
@@ -285,8 +292,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       const result = await caller.list({ search: searchTerm });
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
-      const hasSearchable = result.compliance.some((c) =>
-        c.title.includes(searchTerm),
+      const hasSearchable = result.compliance.some(
+        (c: (typeof result.compliance)[0]) => c.title.includes(searchTerm),
       );
       expect(hasSearchable).toBe(true);
     });
@@ -456,7 +463,8 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
 
       expect(result.compliance.length).toBeGreaterThanOrEqual(1);
       const hasOverdueItem = result.compliance.some(
-        (c) => c.id === overdueResult.compliance.id,
+        (c: (typeof result.compliance)[0]) =>
+          c.id === overdueResult.compliance.id,
       );
       expect(hasOverdueItem).toBe(true);
     });
@@ -1035,6 +1043,326 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
     });
   });
 
+  describe("getUpcoming (Integration)", () => {
+    it("should return upcoming deadlines within default 30 days", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Create deadlines at various points in next 30 days
+      const now = new Date();
+      const in10Days = new Date(now);
+      in10Days.setDate(now.getDate() + 10);
+      const in20Days = new Date(now);
+      in20Days.setDate(now.getDate() + 20);
+
+      const result1 = await caller.create({
+        title: `Upcoming Test 1 ${Date.now()}`,
+        type: "vat_return",
+        dueDate: in10Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result1.compliance.id);
+
+      const result2 = await caller.create({
+        title: `Upcoming Test 2 ${Date.now()}`,
+        type: "tax_return",
+        dueDate: in20Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result2.compliance.id);
+
+      const result = await caller.getUpcoming({ days: 30 });
+
+      expect(result.deadlines.length).toBeGreaterThanOrEqual(2);
+      const ourDeadlines = result.deadlines.filter((d: any) =>
+        [result1.compliance.id, result2.compliance.id].includes(d.id),
+      );
+      expect(ourDeadlines).toHaveLength(2);
+    });
+
+    it("should return empty array when no deadlines exist", async () => {
+      // Use fresh tenant with no data
+      const result = await caller.getUpcoming({ days: 30 });
+
+      expect(result.deadlines).toEqual([]);
+    });
+
+    it("should filter by custom days parameter", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      const now = new Date();
+      const in5Days = new Date(now);
+      in5Days.setDate(now.getDate() + 5);
+      const in15Days = new Date(now);
+      in15Days.setDate(now.getDate() + 15);
+
+      const result1 = await caller.create({
+        title: `Within Range ${Date.now()}`,
+        type: "vat_return",
+        dueDate: in5Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result1.compliance.id);
+
+      const result2 = await caller.create({
+        title: `Outside Range ${Date.now()}`,
+        type: "tax_return",
+        dueDate: in15Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result2.compliance.id);
+
+      // Query for next 7 days
+      const result = await caller.getUpcoming({ days: 7 });
+
+      const foundIds = result.deadlines.map((d: any) => d.id);
+      expect(foundIds).toContain(result1.compliance.id);
+      expect(foundIds).not.toContain(result2.compliance.id);
+    });
+
+    it("should enforce tenant isolation", async () => {
+      // Create deadlines in first tenant
+      const client1 = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client1.id);
+
+      const now = new Date();
+      const in10Days = new Date(now);
+      in10Days.setDate(now.getDate() + 10);
+
+      const result1 = await caller.create({
+        title: `Tenant 1 Deadline ${Date.now()}`,
+        type: "vat_return",
+        dueDate: in10Days.toISOString().split("T")[0],
+        clientId: client1.id,
+      });
+      complianceIds.push(result1.compliance.id);
+
+      // Create second tenant with its own deadline
+      const tenant2Id = await createTestTenant();
+      const user2Id = await createTestUser(tenant2Id, { role: "admin" });
+      tracker.tenants?.push(tenant2Id);
+      tracker.users?.push(user2Id);
+
+      const client2 = await createTestClient(tenant2Id, user2Id);
+      tracker.clients?.push(client2.id);
+
+      const ctx2 = createMockContext({
+        authContext: {
+          tenantId: tenant2Id,
+          userId: user2Id,
+          role: "admin",
+          email: "test2@example.com",
+          firstName: "Test2",
+          lastName: "User2",
+        },
+      });
+      const caller2 = createCaller(complianceRouter, ctx2);
+
+      const result2 = await caller2.create({
+        title: `Tenant 2 Deadline ${Date.now()}`,
+        type: "tax_return",
+        dueDate: in10Days.toISOString().split("T")[0],
+        clientId: client2.id,
+      });
+      complianceIds.push(result2.compliance.id);
+
+      // Query from tenant 1 - should not see tenant 2 deadline
+      const tenant1Result = await caller.getUpcoming({ days: 30 });
+      const foundIds = tenant1Result.deadlines.map((d: any) => d.id);
+
+      expect(foundIds).toContain(result1.compliance.id);
+      expect(foundIds).not.toContain(result2.compliance.id);
+    });
+
+    it("should include client information via join", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      const now = new Date();
+      const in10Days = new Date(now);
+      in10Days.setDate(now.getDate() + 10);
+
+      const result1 = await caller.create({
+        title: `Client Join Test ${Date.now()}`,
+        type: "vat_return",
+        dueDate: in10Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result1.compliance.id);
+
+      const result = await caller.getUpcoming({ days: 30 });
+
+      const deadline = result.deadlines.find(
+        (d: any) => d.id === result1.compliance.id,
+      );
+      expect(deadline).toBeDefined();
+      expect(deadline?.clientName).toBe(client.name);
+      expect(deadline?.clientId).toBe(client.id);
+    });
+
+    it("should order results by dueDate ascending", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      const now = new Date();
+      const in5Days = new Date(now);
+      in5Days.setDate(now.getDate() + 5);
+      const in15Days = new Date(now);
+      in15Days.setDate(now.getDate() + 15);
+      const in25Days = new Date(now);
+      in25Days.setDate(now.getDate() + 25);
+
+      // Create out of order
+      const result2 = await caller.create({
+        title: `Middle ${Date.now()}`,
+        type: "vat_return",
+        dueDate: in15Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result2.compliance.id);
+
+      const result3 = await caller.create({
+        title: `Last ${Date.now()}`,
+        type: "tax_return",
+        dueDate: in25Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result3.compliance.id);
+
+      const result1 = await caller.create({
+        title: `First ${Date.now()}`,
+        type: "payroll_submission",
+        dueDate: in5Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(result1.compliance.id);
+
+      const result = await caller.getUpcoming({ days: 30 });
+
+      const ourDeadlines = result.deadlines.filter((d: any) =>
+        [
+          result1.compliance.id,
+          result2.compliance.id,
+          result3.compliance.id,
+        ].includes(d.id),
+      );
+
+      expect(ourDeadlines).toHaveLength(3);
+      // Verify ascending order
+      expect(ourDeadlines[0].id).toBe(result1.compliance.id);
+      expect(ourDeadlines[1].id).toBe(result2.compliance.id);
+      expect(ourDeadlines[2].id).toBe(result3.compliance.id);
+    });
+
+    it("should exclude past deadlines", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      const now = new Date();
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+
+      const pastResult = await caller.create({
+        title: `Past Deadline ${Date.now()}`,
+        type: "vat_return",
+        dueDate: yesterday.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(pastResult.compliance.id);
+
+      const result = await caller.getUpcoming({ days: 30 });
+
+      const foundIds = result.deadlines.map((d: any) => d.id);
+      expect(foundIds).not.toContain(pastResult.compliance.id);
+    });
+
+    it("should exclude deadlines beyond date range", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      const now = new Date();
+      const in40Days = new Date(now);
+      in40Days.setDate(now.getDate() + 40);
+
+      const farFutureResult = await caller.create({
+        title: `Far Future ${Date.now()}`,
+        type: "vat_return",
+        dueDate: in40Days.toISOString().split("T")[0],
+        clientId: client.id,
+      });
+      complianceIds.push(farFutureResult.compliance.id);
+
+      const result = await caller.getUpcoming({ days: 30 });
+
+      const foundIds = result.deadlines.map((d: any) => d.id);
+      expect(foundIds).not.toContain(farFutureResult.compliance.id);
+    });
+
+    it("should return correct deadline properties", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      const now = new Date();
+      const in10Days = new Date(now);
+      in10Days.setDate(now.getDate() + 10);
+
+      const result1 = await caller.create({
+        title: `Property Test ${Date.now()}`,
+        type: "vat_return",
+        description: "Test description",
+        dueDate: in10Days.toISOString().split("T")[0],
+        clientId: client.id,
+        status: "pending" as const,
+        priority: "high" as const,
+        assignedToId: ctx.authContext.userId,
+      });
+      complianceIds.push(result1.compliance.id);
+
+      const result = await caller.getUpcoming({ days: 30 });
+
+      const deadline = result.deadlines.find(
+        (d: any) => d.id === result1.compliance.id,
+      );
+
+      expect(deadline).toBeDefined();
+      expect(deadline?.id).toBe(result1.compliance.id);
+      expect(deadline?.title).toBe(result1.compliance.title);
+      expect(deadline?.type).toBe("vat_return");
+      expect(deadline?.description).toBe("Test description");
+      expect(deadline?.status).toBe("pending");
+      expect(deadline?.priority).toBe("high");
+      expect(deadline?.clientId).toBe(client.id);
+      expect(deadline?.clientName).toBe(client.name);
+      expect(deadline?.assignedToId).toBe(ctx.authContext.userId);
+      expect(deadline?.dueDate).toBeDefined();
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(complianceRouter._def.procedures);
@@ -1045,11 +1373,12 @@ describe("app/server/routers/compliance.ts (Integration)", () => {
       expect(procedures).toContain("update");
       expect(procedures).toContain("delete");
       expect(procedures).toContain("updateStatus");
+      expect(procedures).toContain("getUpcoming");
     });
 
-    it("should have 6 procedures total", () => {
+    it("should have 7 procedures total", () => {
       const procedures = Object.keys(complianceRouter._def.procedures);
-      expect(procedures).toHaveLength(6);
+      expect(procedures).toHaveLength(7);
     });
   });
 });

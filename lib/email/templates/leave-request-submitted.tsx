@@ -37,7 +37,8 @@ export function LeaveRequestSubmittedEmail({
           <Text style={text}>Hi {userName},</Text>
 
           <Text style={text}>
-            Your leave request has been successfully submitted and is now pending approval.
+            Your leave request has been successfully submitted and is now
+            pending approval.
           </Text>
 
           <Section style={detailsSection}>
@@ -51,16 +52,16 @@ export function LeaveRequestSubmittedEmail({
             <Text style={detailValue}>{formatDate(endDate)}</Text>
 
             <Text style={detailLabel}>Days:</Text>
-            <Text style={detailValue}>{daysCount} {daysCount === 1 ? "day" : "days"}</Text>
+            <Text style={detailValue}>
+              {daysCount} {daysCount === 1 ? "day" : "days"}
+            </Text>
           </Section>
 
           <Text style={text}>
             You will receive a notification once your request has been reviewed.
           </Text>
 
-          <Text style={footer}>
-            Practice Hub Leave Management System
-          </Text>
+          <Text style={footer}>Practice Hub Leave Management System</Text>
         </Container>
       </Body>
     </Html>

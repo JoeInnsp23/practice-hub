@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Calculator, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { type Resolver, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,63 +25,113 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import type { Invoice, InvoiceLineItem } from "@/lib/trpc/types";
 import { formatCurrency } from "@/lib/utils/format";
 
 const invoiceSchema = z.object({
-  client: z.string().min(1, "Client is required"),
+  clientId: z.string().min(1, "Client is required"),
   invoiceNumber: z.string().min(1, "Invoice number is required"),
   issueDate: z.string(),
   dueDate: z.string(),
-  status: z.enum(["draft", "sent", "paid", "overdue"]),
-  paymentTerms: z.string(),
+  status: z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+  subtotal: z.number().min(0, "Subtotal must be 0 or greater"),
+  taxRate: z.number().min(0).max(100, "Tax rate must be between 0 and 100"),
+  taxAmount: z.number().min(0, "Tax amount must be 0 or greater"),
+  discount: z.number().min(0, "Discount must be 0 or greater").default(0),
+  total: z.number().min(0, "Total must be 0 or greater"),
+  amountPaid: z.number().min(0, "Amount paid must be 0 or greater").default(0),
+  currency: z.string().default("GBP"),
+  terms: z.string().optional(),
   notes: z.string().optional(),
+  items: z
+    .array(
+      z.object({
+        description: z.string().min(1, "Description is required"),
+        quantity: z.number().min(0.01, "Quantity must be greater than 0"),
+        rate: z.number().min(0, "Rate must be 0 or greater"),
+        amount: z.number().min(0, "Amount must be 0 or greater"),
+        sortOrder: z.number().default(0),
+      }),
+    )
+    .optional(),
 });
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 
-interface LineItem {
+// Form-specific types (numbers instead of decimal strings for form inputs)
+interface LocalLineItem {
   id: string;
   description: string;
   quantity: number;
   rate: number;
-  tax: number;
+  amount: number;
+  sortOrder: number;
+}
+
+interface InvoiceFormData {
+  clientId: string;
+  invoiceNumber: string;
+  issueDate: string;
+  dueDate: string;
+  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  discount: number;
   total: number;
+  amountPaid: number;
+  currency: string;
+  terms?: string;
+  notes?: string;
+  lineItems?: LocalLineItem[];
 }
 
 interface InvoiceFormProps {
-  invoice?: any;
-  onSave: (data: any) => void;
+  invoice?: InvoiceFormData;
+  onSave: (data: InvoiceFormData) => void;
   onCancel: () => void;
 }
 
 export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
-  const [lineItems, setLineItems] = useState<LineItem[]>(
+  const [lineItems, setLineItems] = useState<LocalLineItem[]>(
     invoice?.lineItems || [
       {
         id: "1",
         description: "",
         quantity: 1,
         rate: 0,
-        tax: 0,
-        total: 0,
+        amount: 0,
+        sortOrder: 0,
       },
     ],
   );
+  const [taxRate, setTaxRate] = useState<number>(invoice?.taxRate || 0);
 
   const form = useForm<InvoiceFormValues>({
-    resolver: zodResolver(invoiceSchema),
+    resolver: zodResolver(
+      invoiceSchema,
+    ) as unknown as Resolver<InvoiceFormValues>,
     defaultValues: {
-      client: invoice?.client || "",
+      clientId: invoice?.clientId || "",
       invoiceNumber: invoice?.invoiceNumber || `INV-${Date.now()}`,
       issueDate: invoice?.issueDate || new Date().toISOString().split("T")[0],
       dueDate: invoice?.dueDate || "",
       status: invoice?.status || "draft",
-      paymentTerms: invoice?.paymentTerms || "Net 30",
+      subtotal: invoice?.subtotal || 0,
+      taxRate: invoice?.taxRate || 0,
+      taxAmount: invoice?.taxAmount || 0,
+      discount: invoice?.discount || 0,
+      total: invoice?.total || 0,
+      amountPaid: invoice?.amountPaid || 0,
+      currency: invoice?.currency || "GBP",
+      terms: invoice?.terms || "",
       notes: invoice?.notes || "",
+      items: invoice?.lineItems || [],
     },
   });
 
   const addLineItem = () => {
+    const newSortOrder = lineItems.length;
     setLineItems([
       ...lineItems,
       {
@@ -89,8 +139,8 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
         description: "",
         quantity: 1,
         rate: 0,
-        tax: 0,
-        total: 0,
+        amount: 0,
+        sortOrder: newSortOrder,
       },
     ]);
   };
@@ -99,15 +149,17 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
     setLineItems(lineItems.filter((item) => item.id !== id));
   };
 
-  const updateLineItem = (id: string, field: keyof LineItem, value: any) => {
+  const updateLineItem = (
+    id: string,
+    field: keyof LocalLineItem,
+    value: string | number,
+  ) => {
     setLineItems(
       lineItems.map((item) => {
         if (item.id === id) {
           const updated = { ...item, [field]: value };
-          // Calculate total
-          const subtotal = updated.quantity * updated.rate;
-          const taxAmount = (subtotal * updated.tax) / 100;
-          updated.total = subtotal + taxAmount;
+          // Calculate line amount (quantity * rate)
+          updated.amount = updated.quantity * updated.rate;
           return updated;
         }
         return item;
@@ -116,29 +168,30 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
   };
 
   const calculateTotals = () => {
-    const subtotal = lineItems.reduce(
-      (sum, item) => sum + item.quantity * item.rate,
-      0,
-    );
-    const taxTotal = lineItems.reduce((sum, item) => {
-      const itemSubtotal = item.quantity * item.rate;
-      return sum + (itemSubtotal * item.tax) / 100;
-    }, 0);
-    const total = subtotal + taxTotal;
+    const subtotal = lineItems.reduce((sum, item) => sum + item.amount, 0);
+    const taxAmount = (subtotal * taxRate) / 100;
+    const total = subtotal + taxAmount;
 
-    return { subtotal, taxTotal, total };
+    return { subtotal, taxAmount, total };
   };
 
   const onSubmit = (data: InvoiceFormValues) => {
     const totals = calculateTotals();
-    onSave({
+
+    // Build final invoice data with calculated totals
+    const invoiceData: InvoiceFormData = {
       ...data,
-      lineItems,
       ...totals,
-    });
+      lineItems: lineItems.map((item, index) => ({
+        ...item,
+        sortOrder: index,
+      })),
+    };
+
+    onSave(invoiceData);
   };
 
-  const { subtotal, taxTotal, total } = calculateTotals();
+  const { subtotal, taxAmount, total } = calculateTotals();
 
   return (
     <Form {...form}>
@@ -153,7 +206,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="client"
+                name="clientId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Client</FormLabel>
@@ -241,6 +294,7 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                         <SelectItem value="sent">Sent</SelectItem>
                         <SelectItem value="paid">Paid</SelectItem>
                         <SelectItem value="overdue">Overdue</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -250,30 +304,47 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
 
               <FormField
                 control={form.control}
-                name="paymentTerms"
+                name="taxRate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Payment Terms</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Net 30">Net 30</SelectItem>
-                        <SelectItem value="Net 15">Net 15</SelectItem>
-                        <SelectItem value="Due on receipt">
-                          Due on receipt
-                        </SelectItem>
-                        <SelectItem value="Net 60">Net 60</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Tax Rate (%)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value) || 0;
+                          field.onChange(value);
+                          setTaxRate(value);
+                        }}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="terms"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Payment Terms</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g., Net 30, Due on receipt"
+                      className="min-h-[60px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -314,18 +385,17 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                 <div className="space-y-2">
                   {/* Header */}
                   <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground">
-                    <div className="col-span-5">Description</div>
+                    <div className="col-span-6">Description</div>
                     <div className="col-span-2 text-right">Quantity</div>
                     <div className="col-span-2 text-right">Rate</div>
-                    <div className="col-span-1 text-right">Tax %</div>
-                    <div className="col-span-1 text-right">Total</div>
+                    <div className="col-span-1 text-right">Amount</div>
                     <div className="col-span-1"></div>
                   </div>
 
                   {/* Line Items */}
                   {lineItems.map((item) => (
                     <div key={item.id} className="grid grid-cols-12 gap-2">
-                      <div className="col-span-5">
+                      <div className="col-span-6">
                         <Input
                           value={item.description}
                           onChange={(e) =>
@@ -370,25 +440,8 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                           className="text-right"
                         />
                       </div>
-                      <div className="col-span-1">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          value={item.tax}
-                          onChange={(e) =>
-                            updateLineItem(
-                              item.id,
-                              "tax",
-                              parseFloat(e.target.value) || 0,
-                            )
-                          }
-                          className="text-right"
-                        />
-                      </div>
                       <div className="col-span-1 flex items-center justify-end font-medium">
-                        {formatCurrency(item.total)}
+                        {formatCurrency(item.amount)}
                       </div>
                       <div className="col-span-1 flex justify-end">
                         <Button
@@ -420,10 +473,10 @@ export function InvoiceForm({ invoice, onSave, onCancel }: InvoiceFormProps) {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">
-                          Tax:
+                          Tax ({taxRate}%):
                         </span>
                         <span className="font-medium">
-                          {formatCurrency(taxTotal)}
+                          {formatCurrency(taxAmount)}
                         </span>
                       </div>
                       <div className="flex justify-between text-lg font-bold pt-2 border-t">

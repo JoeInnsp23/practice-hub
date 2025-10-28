@@ -43,7 +43,7 @@ interface TimeEntryAPIResponse {
   endTime?: string;
 }
 
-interface TimeEntryInput {
+export interface TimeEntryInput {
   date: Date;
   clientId?: string;
   taskId?: string;

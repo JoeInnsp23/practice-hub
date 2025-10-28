@@ -6,6 +6,26 @@ import { db } from "@/lib/db";
 import { activityLogs, clients, clientTransactionData } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
+// Type definition for transaction data JSON structure
+interface TransactionDataJson {
+  id: string;
+  clientId: string;
+  tenantId: string;
+  source: string | null;
+  monthlyTransactions: number | null;
+  bankAccounts: number | null;
+  invoicesPerYear: number | null;
+  transactionTypes: unknown;
+  averageTransactionValue: string | null;
+  seasonalVariation: boolean | null;
+  reconciliationComplexity: string | null;
+  integrationMethod: string | null;
+  externalId: string | null;
+  externalMetadata: unknown;
+  lastUpdated: string | Date;
+  createdAt: string | Date;
+}
+
 // Generate schema from Drizzle table definition
 const insertTransactionDataSchema = createInsertSchema(clientTransactionData);
 
@@ -459,7 +479,7 @@ export const transactionDataRouter = router({
         clientCode: clients.clientCode,
         type: clients.type,
         status: clients.status,
-        transactionData: sql<any>`(
+        transactionData: sql<TransactionDataJson | null>`(
           SELECT json_build_object(
             'id', ctd.id,
             'clientId', ctd.client_id,

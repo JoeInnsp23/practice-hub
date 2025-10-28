@@ -29,7 +29,7 @@ import {
 import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/task-generation.ts (Integration)", () => {
-  let ctx: Context;
+  let _ctx: Context;
   let caller: ReturnType<typeof createCaller<typeof taskGenerationRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -55,7 +55,7 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
     tracker.users?.push(testUserId);
 
     // Create mock context
-    ctx = createMockContext({
+    const mockCtx = createMockContext({
       authContext: {
         userId: testUserId,
         tenantId: testTenantId,
@@ -66,8 +66,9 @@ describe("app/server/routers/task-generation.ts (Integration)", () => {
         lastName: "User",
       },
     });
+    _ctx = mockCtx;
 
-    caller = createCaller(taskGenerationRouter, ctx);
+    caller = createCaller(taskGenerationRouter, mockCtx);
 
     // Create test client
     const client = await createTestClient(testTenantId, testUserId);

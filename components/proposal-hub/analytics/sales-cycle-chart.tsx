@@ -2,7 +2,6 @@
 
 import {
   Bar,
-  BarChart,
   CartesianGrid,
   ComposedChart,
   Legend,

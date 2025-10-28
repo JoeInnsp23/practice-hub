@@ -6,6 +6,16 @@
 
 import type { Context } from "@/app/server/context";
 import type { AuthContext } from "@/lib/auth";
+import type { ClientPortalAuthContext } from "@/lib/client-portal-auth";
+
+/**
+ * Minimal interface for tRPC routers with createCaller method.
+ * Used for type-safe test helpers without depending on tRPC's complex internal types.
+ */
+interface RouterWithCaller {
+  // biome-ignore lint/suspicious/noExplicitAny: Return type varies by router definition - proper typing would require full tRPC generic inference
+  createCaller(context: Context): any;
+}
 
 /**
  * Create a mock auth context for testing
@@ -37,17 +47,48 @@ export function createMockAdminContext(
 }
 
 /**
- * Create a mock tRPC context for testing
+ * Create a mock client portal auth context for testing
  */
-export function createMockContext(overrides: Partial<Context> = {}): Context {
-  const authContext = overrides.authContext || createMockAuthContext();
+export function createMockClientPortalAuthContext(
+  overrides: Partial<ClientPortalAuthContext> = {},
+): ClientPortalAuthContext {
+  return {
+    portalUserId: overrides.portalUserId || "test-portal-user-id",
+    tenantId: overrides.tenantId || "test-tenant-id",
+    email: overrides.email || "portal@example.com",
+    firstName: overrides.firstName || "Portal",
+    lastName: overrides.lastName || "User",
+    clientAccess: overrides.clientAccess || [
+      {
+        clientId: "test-client-id",
+        clientName: "Test Client",
+        role: "viewer",
+        isActive: true,
+      },
+    ],
+    currentClientId: overrides.currentClientId || "test-client-id",
+  };
+}
+
+/**
+ * Create a mock tRPC context for testing
+ * Always returns a context with non-null authContext
+ */
+export function createMockContext(
+  overrides: Partial<Context> = {},
+): TestContextWithAuth {
+  const authContext = overrides.authContext ?? createMockAuthContext();
 
   return {
-    session: overrides.session || {
+    session: overrides.session ?? {
       user: {
         id: authContext.userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         email: authContext.email,
+        emailVerified: true,
         name: `${authContext.firstName} ${authContext.lastName}`,
+        image: null,
       },
       session: {
         id: "test-session-id",
@@ -61,6 +102,8 @@ export function createMockContext(overrides: Partial<Context> = {}): Context {
       },
     },
     authContext,
+    clientPortalSession: overrides.clientPortalSession ?? null,
+    clientPortalAuthContext: overrides.clientPortalAuthContext ?? null,
   };
 }
 
@@ -73,9 +116,9 @@ export function createMockContext(overrides: Partial<Context> = {}): Context {
  * const result = await caller.list({ search: "test" });
  * ```
  */
-export function createCaller<TRouter extends Record<string, any>>(
+export function createCaller<TRouter extends RouterWithCaller>(
   router: TRouter,
-  context: Context = createMockContext(),
+  context: TestContextWithAuth = createMockContext(),
 ) {
   return router.createCaller(context);
 }
@@ -83,13 +126,31 @@ export function createCaller<TRouter extends Record<string, any>>(
 /**
  * Create a test caller with admin context
  */
-export function createAdminCaller<TRouter extends Record<string, any>>(
+export function createAdminCaller<TRouter extends RouterWithCaller>(
   router: TRouter,
   overrides: Partial<Context> = {},
 ) {
-  const adminContext = createMockContext({
+  const adminContext: TestContextWithAuth = createMockContext({
     ...overrides,
-    authContext: createMockAdminContext(overrides.authContext),
+    authContext: createMockAdminContext(overrides.authContext ?? undefined),
   });
   return router.createCaller(adminContext);
 }
+
+/**
+ * Type helper for test contexts with guaranteed non-null authContext
+ * Use this type for test context variables to eliminate null checks
+ *
+ * @example
+ * ```ts
+ * let ctx: TestContextWithAuth;
+ *
+ * beforeEach(() => {
+ *   ctx = createMockContext({ authContext: { ... } });
+ *   // TypeScript knows ctx.authContext is non-null
+ * });
+ * ```
+ */
+export type TestContextWithAuth = Context & {
+  authContext: NonNullable<Context["authContext"]>;
+};

@@ -6,10 +6,16 @@
  * - Validates data using Zod schemas
  * - Provides row-level error reporting
  * - Supports dry-run mode for validation-only
+ * - Enhanced with multi-delimiter support, BOM handling, and advanced date parsing
  */
 
 import Papa from "papaparse";
 import type { ZodSchema } from "zod";
+import {
+  type Delimiter,
+  detectDelimiterRobust,
+  stripBOM,
+} from "../utils/csv-parser-enhanced";
 
 export interface ImportError {
   row: number;
@@ -34,6 +40,9 @@ export interface CsvParseOptions {
   trimHeaders?: boolean;
   trimValues?: boolean;
   dynamicTyping?: boolean;
+  autoDetectDelimiter?: boolean; // Auto-detect CSV delimiter (AC2)
+  delimiter?: Delimiter; // Explicit delimiter override
+  stripBOM?: boolean; // Remove UTF-8 BOM if present (AC5, default: true)
 }
 
 /**
@@ -54,18 +63,62 @@ export async function parseCsvFile<T>(
     trimHeaders = true,
     trimValues = true,
     dynamicTyping = false, // Disabled: schemas expect strings and handle their own transformations
+    autoDetectDelimiter = false,
+    delimiter,
+    stripBOM: shouldStripBOM = true,
   } = options;
 
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     const validData: T[] = [];
     const errors: ImportError[] = [];
     let totalRows = 0;
     let skippedRows = 0;
 
-    Papa.parse(file, {
+    // Pre-process file content if needed (BOM stripping, delimiter detection)
+    let fileToParse: File | string = file;
+    let detectedDelimiter: Delimiter | undefined = delimiter;
+
+    // Handle string content
+    if (typeof file === "string") {
+      let content = file;
+
+      // Strip BOM if enabled (AC5)
+      if (shouldStripBOM) {
+        content = stripBOM(content);
+      }
+
+      // Auto-detect delimiter if enabled (AC2)
+      if (autoDetectDelimiter && !delimiter) {
+        detectedDelimiter = detectDelimiterRobust(content);
+      }
+
+      fileToParse = content;
+    }
+
+    // Handle File objects
+    if (file instanceof File) {
+      // Read file content for BOM stripping and delimiter detection
+      if (shouldStripBOM || autoDetectDelimiter) {
+        const text = await file.text();
+        let content = text;
+
+        if (shouldStripBOM) {
+          content = stripBOM(content);
+        }
+
+        if (autoDetectDelimiter && !delimiter) {
+          detectedDelimiter = detectDelimiterRobust(content);
+        }
+
+        fileToParse = content;
+      }
+    }
+
+    Papa.parse(fileToParse, {
       header: true,
       skipEmptyLines: false, // Get all rows so we can count skipped ones
       dynamicTyping,
+      delimiter: detectedDelimiter, // Use detected or explicit delimiter (AC1)
       transformHeader: (header: string) => {
         return trimHeaders ? header.trim() : header;
       },
@@ -74,23 +127,29 @@ export async function parseCsvFile<T>(
       },
       complete: (results) => {
         // Process all rows and manually handle empty row skipping
-        const rowsToProcess: Array<{ row: any; rowNumber: number }> = [];
+        const rowsToProcess: Array<{
+          row: Record<string, unknown>;
+          rowNumber: number;
+        }> = [];
         let currentRowNumber = 1; // Start after header
         const headers = results.meta.fields || [];
 
-        results.data.forEach((row: any) => {
+        results.data.forEach((row: unknown) => {
+          const rowRecord = row as Record<string, unknown>;
           currentRowNumber++;
 
           // Check if this is a blank line vs a row with empty values
           // Blank lines have MISSING fields (undefined), rows with commas have empty string values
-          const isTrulyBlankLine = headers.some((field) => !(field in row));
+          const isTrulyBlankLine = headers.some(
+            (field) => !(field in rowRecord),
+          );
 
           if (isTrulyBlankLine && skipEmptyLines) {
             // Skip truly blank lines (missing fields) if option is enabled
             skippedRows++;
           } else {
             // Keep all other rows (including rows with empty values to be validated)
-            rowsToProcess.push({ row, rowNumber: currentRowNumber });
+            rowsToProcess.push({ row: rowRecord, rowNumber: currentRowNumber });
           }
         });
 

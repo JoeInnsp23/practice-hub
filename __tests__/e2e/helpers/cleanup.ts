@@ -18,6 +18,11 @@ if (!DATABASE_URL) {
  * Deletes records with "E2E-Test-" prefix in their names
  */
 export async function cleanupTestData(): Promise<void> {
+  if (!DATABASE_URL) {
+    throw new Error(
+      "DATABASE_URL environment variable is required for cleanup",
+    );
+  }
   const connection = postgres(DATABASE_URL);
   const db = drizzle(connection);
 
@@ -50,6 +55,11 @@ export async function cleanupTestData(): Promise<void> {
  * Returns count of remaining E2E test records
  */
 export async function verifyCleanup(): Promise<number> {
+  if (!DATABASE_URL) {
+    throw new Error(
+      "DATABASE_URL environment variable is required for cleanup",
+    );
+  }
   const connection = postgres(DATABASE_URL);
   const db = drizzle(connection);
 

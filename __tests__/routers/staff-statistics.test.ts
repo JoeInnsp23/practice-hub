@@ -1,22 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import {
-  departments,
-  staffCapacity,
-  timeEntries,
-} from "@/lib/db/schema";
 import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
-import type { Context } from "@/app/server/context";
+import { db } from "@/lib/db";
+import { departments, staffCapacity, timeEntries } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("Staff Statistics Router", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof staffStatisticsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -233,7 +232,11 @@ describe("Staff Statistics Router", () => {
       });
 
       expect(result.staff.length).toBe(2);
-      expect(result.staff.every((s) => s.departmentId === testDeptId)).toBe(true);
+      expect(
+        result.staff.every(
+          (s: (typeof result.staff)[0]) => s.departmentId === testDeptId,
+        ),
+      ).toBe(true);
     });
 
     it("should calculate correct averages in summary", async () => {
@@ -325,7 +328,7 @@ describe("Staff Statistics Router", () => {
       expect(result.weeks.length).toBe(12);
 
       // Verify structure of weeks
-      result.weeks.forEach((week) => {
+      result.weeks.forEach((week: (typeof result.weeks)[0]) => {
         expect(week).toHaveProperty("weekStartDate");
         expect(week).toHaveProperty("weekEndDate");
         expect(week).toHaveProperty("loggedHours");

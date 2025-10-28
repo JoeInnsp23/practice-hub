@@ -5,9 +5,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
 interface OnboardingRiskFormProps {
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   aiExtractedFields: Set<string>;
-  onFieldChange: (key: string, value: any) => void;
+  onFieldChange: (key: string, value: unknown) => void;
   onVerifyAiField: (key: string) => void;
 }
 
@@ -30,7 +30,7 @@ export function OnboardingRiskForm({
             jurisdictions?
           </Label>
           <RadioGroup
-            value={formData.high_risk_jurisdictions || ""}
+            value={String(formData.high_risk_jurisdictions || "")}
             onValueChange={(value) =>
               onFieldChange("high_risk_jurisdictions", value)
             }
@@ -58,7 +58,7 @@ export function OnboardingRiskForm({
           {formData.high_risk_jurisdictions === "yes" && (
             <Textarea
               id="high_risk_jurisdictions_details"
-              value={formData.high_risk_jurisdictions_details || ""}
+              value={String(formData.high_risk_jurisdictions_details || "")}
               onChange={(e) =>
                 onFieldChange("high_risk_jurisdictions_details", e.target.value)
               }
@@ -72,7 +72,7 @@ export function OnboardingRiskForm({
         <div className="space-y-3">
           <Label>Is your business cash-intensive?</Label>
           <RadioGroup
-            value={formData.cash_intensive_business || ""}
+            value={String(formData.cash_intensive_business || "")}
             onValueChange={(value) =>
               onFieldChange("cash_intensive_business", value)
             }
@@ -98,7 +98,7 @@ export function OnboardingRiskForm({
             Are you or any beneficial owners a Politically Exposed Person (PEP)?
           </Label>
           <RadioGroup
-            value={formData.politically_exposed_person || ""}
+            value={String(formData.politically_exposed_person || "")}
             onValueChange={(value) =>
               onFieldChange("politically_exposed_person", value)
             }
@@ -120,7 +120,7 @@ export function OnboardingRiskForm({
           {formData.politically_exposed_person === "yes" && (
             <Textarea
               id="pep_details"
-              value={formData.pep_details || ""}
+              value={String(formData.pep_details || "")}
               onChange={(e) => onFieldChange("pep_details", e.target.value)}
               placeholder="Please provide details of the position and when it was held..."
               rows={3}

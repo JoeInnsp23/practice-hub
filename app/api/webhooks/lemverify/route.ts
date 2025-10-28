@@ -46,7 +46,7 @@ interface LemVerifyWebhookEvent {
   documentVerification?: {
     verified: boolean;
     documentType: "passport" | "driving_licence";
-    extractedData?: Record<string, any>;
+    extractedData?: Record<string, unknown>;
   };
 
   // Biometric verification
@@ -117,17 +117,17 @@ async function handleVerificationCompleted(
       facematchScore: event.facematch?.score.toString(),
       livenessResult: event.liveness?.result,
       livenessScore: event.liveness?.score.toString(),
-      amlResult: event.amlScreening as any,
+      amlResult: event.amlScreening as unknown,
       amlStatus: event.amlScreening?.status,
       pepMatch: event.amlScreening?.pepMatch || false,
       sanctionsMatch: event.amlScreening?.sanctionsMatch || false,
       watchlistMatch: event.amlScreening?.watchlistMatch || false,
       adverseMediaMatch: event.amlScreening?.adverseMediaMatch || false,
       reportUrl: event.reportUrl,
-      documentsUrl: event.documentUrls as any,
+      documentsUrl: event.documentUrls as unknown,
       completedAt: event.completedAt ? new Date(event.completedAt) : new Date(),
       updatedAt: new Date(),
-      metadata: event as any,
+      metadata: event as unknown,
     })
     .where(eq(kycVerifications.id, verification.id));
 
@@ -317,14 +317,26 @@ export async function POST(request: Request) {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       console.error("Database error processing webhook:", dbError);
 
       // Check if it's a critical database error (connection, etc.) vs constraint violation
+      const errorCode =
+        dbError && typeof dbError === "object" && "code" in dbError
+          ? dbError.code
+          : undefined;
+      const errorMessage =
+        dbError &&
+        typeof dbError === "object" &&
+        "message" in dbError &&
+        typeof dbError.message === "string"
+          ? dbError.message
+          : undefined;
+
       const isCriticalError =
-        dbError.code === "ECONNREFUSED" ||
-        dbError.code === "ETIMEDOUT" ||
-        dbError.message?.includes("Connection");
+        errorCode === "ECONNREFUSED" ||
+        errorCode === "ETIMEDOUT" ||
+        errorMessage?.includes("Connection");
 
       if (isCriticalError) {
         // 500 Internal Server Error: Database connection issue (should retry)
@@ -350,11 +362,11 @@ export async function POST(request: Request) {
               entityType: "system",
               entityId: event.id,
               action: "webhook_processing_error",
-              description: `Failed to process LEM Verify webhook: ${dbError.message}`,
+              description: `Failed to process LEM Verify webhook: ${errorMessage || "Unknown error"}`,
               userId: null,
               userName: "System",
               metadata: {
-                error: dbError.message,
+                error: errorMessage || "Unknown error",
                 verificationId: event.id,
                 eventStatus: event.status,
               },
@@ -376,7 +388,7 @@ export async function POST(request: Request) {
         );
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Unexpected webhook error:", error);
 
     // 500 Internal Server Error: Unexpected error (should retry)

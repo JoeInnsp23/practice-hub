@@ -66,7 +66,7 @@ export function EditUserDialog({
   const updateMutation = trpc.users.update.useMutation({
     onSuccess: (data) => {
       toast.success("User updated successfully");
-      onSuccess(data.user);
+      onSuccess(data.user as UserData);
       onClose();
     },
     onError: (error) => {

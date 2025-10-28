@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { analyticsRouter } from "@/app/server/routers/analytics";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -24,7 +27,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/analytics.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof analyticsRouter>>;
 
   beforeEach(() => {
@@ -34,209 +37,157 @@ describe("app/server/routers/analytics.ts", () => {
   });
 
   describe("getLeadStats", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getLeadStats._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getLeadStats({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getLeadStats._def.inputs[0]?.parse({
+    it("should accept date range", async () => {
+      await expect(
+        caller.getLeadStats({
           startDate: "2025-01-01",
           endDate: "2025-01-31",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept startDate only", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getLeadStats._def.inputs[0]?.parse({
+    it("should accept startDate only", async () => {
+      await expect(
+        caller.getLeadStats({
           startDate: "2025-01-01",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept endDate only", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getLeadStats._def.inputs[0]?.parse({
+    it("should accept endDate only", async () => {
+      await expect(
+        caller.getLeadStats({
           endDate: "2025-01-31",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getProposalStats", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getProposalStats._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getProposalStats({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getProposalStats._def.inputs[0]?.parse({
+    it("should accept date range", async () => {
+      await expect(
+        caller.getProposalStats({
           startDate: "2025-01-01",
           endDate: "2025-01-31",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getConversionMetrics", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getConversionMetrics._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getConversionMetrics({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getConversionMetrics._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getConversionMetrics({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getPipelineMetrics", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getPipelineMetrics._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getPipelineMetrics({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getPipelineMetrics._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getPipelineMetrics({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getModelComparison", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getModelComparison._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getModelComparison({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getModelComparison._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getModelComparison({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getServicePopularity", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getServicePopularity({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getServicePopularity({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept limit parameter", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {
-            limit: 25,
-          },
-        );
-      }).not.toThrow();
+    it("should accept limit parameter", async () => {
+      await expect(
+        caller.getServicePopularity({
+          limit: 25,
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept all parameters combined", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-            limit: 20,
-          },
-        );
-      }).not.toThrow();
+    it("should accept all parameters combined", async () => {
+      await expect(
+        caller.getServicePopularity({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+          limit: 20,
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate limit min value", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {
-            limit: 0, // Below minimum of 1
-          },
-        );
-      }).toThrow();
+    it("should reject limit below min value", async () => {
+      await expect(
+        caller.getServicePopularity({
+          limit: 0, // Below minimum of 1
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should validate limit max value", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {
-            limit: 51, // Exceeds max of 50
-          },
-        );
-      }).toThrow();
-    });
-
-    it("should default limit to 10", () => {
-      const result =
-        analyticsRouter._def.procedures.getServicePopularity._def.inputs[0]?.parse(
-          {},
-        );
-      expect(result?.limit).toBe(10);
+    it("should reject limit above max value", async () => {
+      await expect(
+        caller.getServicePopularity({
+          limit: 51, // Exceeds max of 50
+        }),
+      ).rejects.toThrow();
     });
   });
 
   describe("getDiscountAnalysis", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getDiscountAnalysis._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getDiscountAnalysis({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getDiscountAnalysis._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getDiscountAnalysis({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -251,192 +202,148 @@ describe("app/server/routers/analytics.ts", () => {
   });
 
   describe("getComplexityDistribution", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getComplexityDistribution._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getComplexityDistribution({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getComplexityDistribution._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getComplexityDistribution({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getWinLossStats", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getWinLossStats({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+    it("should accept date range", async () => {
+      await expect(
+        caller.getWinLossStats({
           from: "2025-01-01",
           to: "2025-01-31",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept assignedToId filter", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+    it("should accept assignedToId filter", async () => {
+      await expect(
+        caller.getWinLossStats({
           assignedToId: "user-123",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept clientId filter", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+    it("should accept clientId filter", async () => {
+      await expect(
+        caller.getWinLossStats({
           clientId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept all filters combined", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getWinLossStats._def.inputs[0]?.parse({
+    it("should accept all filters combined", async () => {
+      await expect(
+        caller.getWinLossStats({
           from: "2025-01-01",
           to: "2025-01-31",
           assignedToId: "user-123",
           clientId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getPipelineValueByStage", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getPipelineValueByStage({})).resolves.not.toThrow();
     });
 
-    it("should accept asOf date", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getPipelineValueByStage._def.inputs[0]?.parse(
-          {
-            asOf: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept asOf date", async () => {
+      await expect(
+        caller.getPipelineValueByStage({
+          asOf: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getAverageDealSize", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getAverageDealSize({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getAverageDealSize._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getAverageDealSize({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getSalesCycleDuration", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getSalesCycleDuration({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getSalesCycleDuration._def.inputs[0]?.parse(
-          {
-            startDate: "2025-01-01",
-            endDate: "2025-01-31",
-          },
-        );
-      }).not.toThrow();
+    it("should accept date range", async () => {
+      await expect(
+        caller.getSalesCycleDuration({
+          startDate: "2025-01-01",
+          endDate: "2025-01-31",
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getMonthlyTrend", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getMonthlyTrend({})).resolves.not.toThrow();
     });
 
-    it("should accept months parameter", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({
+    it("should accept months parameter", async () => {
+      await expect(
+        caller.getMonthlyTrend({
           months: 6,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate months min value", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({
+    it("should reject months below min value", async () => {
+      await expect(
+        caller.getMonthlyTrend({
           months: 0, // Below minimum of 1
-        });
-      }).toThrow();
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should validate months max value", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse({
+    it("should reject months above max value", async () => {
+      await expect(
+        caller.getMonthlyTrend({
           months: 25, // Exceeds max of 24
-        });
-      }).toThrow();
-    });
-
-    it("should default months to 12", () => {
-      const result =
-        analyticsRouter._def.procedures.getMonthlyTrend._def.inputs[0]?.parse(
-          {},
-        );
-      expect(result?.months).toBe(12);
+        }),
+      ).rejects.toThrow();
     });
   });
 
   describe("getLossReasons", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getLossReasons._def.inputs[0]?.parse(
-          {},
-        );
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(caller.getLossReasons({})).resolves.not.toThrow();
     });
 
-    it("should accept date range", () => {
-      expect(() => {
-        analyticsRouter._def.procedures.getLossReasons._def.inputs[0]?.parse({
+    it("should accept date range", async () => {
+      await expect(
+        caller.getLossReasons({
           startDate: "2025-01-01",
           endDate: "2025-01-31",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 

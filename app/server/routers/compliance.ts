@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, compliance } from "@/lib/db/schema";
+import { activityLogs, clients, compliance } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 // Status enum for filtering
@@ -31,6 +31,48 @@ const complianceSchema = insertComplianceSchema.omit({
 });
 
 export const complianceRouter = router({
+  getUpcoming: protectedProcedure
+    .input(
+      z.object({
+        days: z.number().default(30),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { tenantId } = ctx.authContext;
+      const { days } = input;
+
+      const now = new Date();
+      const futureDate = new Date();
+      futureDate.setDate(now.getDate() + days);
+
+      // Query upcoming deadlines with client information
+      const upcomingDeadlines = await db
+        .select({
+          id: compliance.id,
+          title: compliance.title,
+          type: compliance.type,
+          description: compliance.description,
+          dueDate: compliance.dueDate,
+          status: compliance.status,
+          priority: compliance.priority,
+          clientId: compliance.clientId,
+          clientName: clients.name,
+          assignedToId: compliance.assignedToId,
+        })
+        .from(compliance)
+        .leftJoin(clients, eq(compliance.clientId, clients.id))
+        .where(
+          and(
+            eq(compliance.tenantId, tenantId),
+            gte(compliance.dueDate, now),
+            lte(compliance.dueDate, futureDate),
+          ),
+        )
+        .orderBy(asc(compliance.dueDate));
+
+      return { deadlines: upcomingDeadlines };
+    }),
+
   list: protectedProcedure
     .input(
       z.object({

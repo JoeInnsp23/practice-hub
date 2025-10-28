@@ -57,7 +57,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { SalesStage } from "@/lib/constants/sales-stages";
 
 export default function ProposalsPipelinePage() {
   const router = useRouter();
@@ -92,7 +91,7 @@ export default function ProposalsPipelinePage() {
 
   // Fetch pipeline velocity metrics
   const { data: velocityData } =
-    trpc.analytics.getPipelineVelocityMetrics.useQuery();
+    trpc.analytics.getPipelineVelocityMetrics.useQuery({});
 
   const proposalsByStage = data?.proposalsByStage || {
     enquiry: [],

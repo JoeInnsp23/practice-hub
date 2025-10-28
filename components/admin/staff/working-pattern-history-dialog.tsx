@@ -30,6 +30,21 @@ const PATTERN_TYPE_LABELS: Record<string, string> = {
   custom: "Custom",
 };
 
+interface WorkingPattern {
+  id: string;
+  patternType: string;
+  contractedHours: number;
+  mondayHours: number;
+  tuesdayHours: number;
+  wednesdayHours: number;
+  thursdayHours: number;
+  fridayHours: number;
+  saturdayHours: number;
+  sundayHours: number;
+  effectiveFrom: string;
+  notes?: string | null;
+}
+
 interface WorkingPatternHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,7 +62,7 @@ export function WorkingPatternHistoryDialog({
   });
 
   // Format working pattern summary
-  const formatPatternSummary = (pattern: any): string => {
+  const formatPatternSummary = (pattern: WorkingPattern): string => {
     const days = [
       { name: "Mon", hours: pattern.mondayHours },
       { name: "Tue", hours: pattern.tuesdayHours },
@@ -130,7 +145,9 @@ export function WorkingPatternHistoryDialog({
                     <TableHead>Effective From</TableHead>
                     <TableHead>Pattern Type</TableHead>
                     <TableHead>Weekly Schedule</TableHead>
-                    <TableHead className="text-right">Contracted Hours</TableHead>
+                    <TableHead className="text-right">
+                      Contracted Hours
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -148,9 +165,7 @@ export function WorkingPatternHistoryDialog({
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>
-                              {format(patternDate, "MMM d, yyyy")}
-                            </span>
+                            <span>{format(patternDate, "MMM d, yyyy")}</span>
                             {isCurrentPattern && !isFuture && (
                               <Badge variant="default">Current</Badge>
                             )}

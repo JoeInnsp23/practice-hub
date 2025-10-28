@@ -1,6 +1,6 @@
 "use client";
 
-import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import type { inferRouterInputs } from "@trpc/server";
 import {
   Activity,
   Copy,
@@ -33,10 +33,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Workflow } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
-type WorkflowTemplate =
-  inferRouterOutputs<AppRouter>["workflows"]["list"][number];
+type WorkflowTemplate = Workflow;
 type WorkflowCreateInput = inferRouterInputs<AppRouter>["workflows"]["create"];
 type WorkflowUpdateArgs = inferRouterInputs<AppRouter>["workflows"]["update"];
 type WorkflowUpdateInput = WorkflowUpdateArgs["data"];
@@ -56,7 +56,7 @@ export default function WorkflowsPage() {
 
   // Fetch workflows from database
   const { data: workflowTemplates = [], refetch } =
-    trpc.workflows.list.useQuery();
+    trpc.workflows.list.useQuery({});
   const utils = trpc.useUtils();
   const toggleActiveMutation = trpc.workflows.toggleActive.useMutation();
   const deleteWorkflowMutation = trpc.workflows.delete.useMutation();
@@ -107,7 +107,7 @@ export default function WorkflowsPage() {
           type: template.type,
           config: {},
           trigger: template.trigger,
-          serviceComponentId: template.serviceComponentId,
+          serviceId: template.serviceId,
           isActive: template.isActive,
           estimatedDays: template.estimatedDays,
         });

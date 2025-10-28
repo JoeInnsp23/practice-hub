@@ -1,11 +1,21 @@
 "use client";
 
 import { addDays, endOfWeek, format, startOfWeek } from "date-fns";
-import { CheckCircle2, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Send,
+} from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { DatePickerButton } from "@/components/client-hub/time/date-picker-button";
+import { WeeklySummaryCard } from "@/components/client-hub/time/weekly-summary-card";
+import { WeeklyTimesheetGrid } from "@/components/client-hub/time/weekly-timesheet-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc/client";
 
 export default function TimePage() {
@@ -29,6 +39,17 @@ export default function TimePage() {
     endDate: weekEndStr,
   });
 
+  const { data: weeklySummary } = trpc.timesheets.getWeeklySummary.useQuery({
+    weekStartDate: weekStartStr,
+    weekEndDate: weekEndStr,
+  });
+
+  const { data: leaveBalance } = trpc.leave.getBalance.useQuery({});
+
+  // Fetch user timesheet settings (Story 6.3)
+  const { data: timesheetSettings } =
+    trpc.settings.getTimesheetSettings.useQuery();
+
   const submitMutation = trpc.timesheets.submit.useMutation({
     onSuccess: () => {
       toast.success("Timesheet submitted for approval");
@@ -38,6 +59,26 @@ export default function TimePage() {
       toast.error(error.message || "Failed to submit timesheet");
     },
   });
+
+  const copyPreviousWeekMutation = trpc.timesheets.copyPreviousWeek.useMutation(
+    {
+      onSuccess: (result) => {
+        if (result.entriesCopied === 0) {
+          toast.error("Previous week is empty. Nothing to copy.");
+        } else {
+          toast.success(
+            `Copied ${result.entriesCopied} entries from previous week`,
+          );
+          utils.timesheets.getWeek.invalidate();
+          utils.timesheets.summary.invalidate();
+          utils.timesheets.getWeeklySummary.invalidate();
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to copy previous week");
+      },
+    },
+  );
 
   const handlePreviousWeek = () => {
     setCurrentWeekStart(addDays(currentWeekStart, -7));
@@ -58,11 +99,26 @@ export default function TimePage() {
     });
   };
 
+  const handleCopyPreviousWeek = () => {
+    copyPreviousWeekMutation.mutate({
+      currentWeekStartDate: weekStartStr,
+      currentWeekEndDate: weekEndStr,
+    });
+  };
+
   const isSubmitted = submissionStatus !== null;
   const isReadOnly = isSubmitted && submissionStatus?.status === "pending";
   const totalHours = summary?.totalHours || 0;
-  const minimumHours = 37.5;
+  // Use user's configured minimum weekly hours (default 37.5)
+  const minimumHours = timesheetSettings?.minWeeklyHours ?? 37.5;
   const canSubmit = totalHours >= minimumHours && !isSubmitted;
+
+  // Calculate TOIL balance in days
+  const toilBalanceHours = leaveBalance?.balance?.toilBalance || 0;
+  const toilBalanceDays = (toilBalanceHours / 7.5).toFixed(1);
+
+  // Calculate holiday balance
+  const annualRemaining = leaveBalance?.annualRemaining || 0;
 
   const getStatusBadge = () => {
     if (!submissionStatus) return null;
@@ -116,7 +172,47 @@ export default function TimePage() {
           <Button variant="outline" size="sm" onClick={handleNextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
+          {/* Enhanced Date Picker (AC12) */}
+          <DatePickerButton
+            selectedWeekStart={currentWeekStart}
+            onWeekChange={setCurrentWeekStart}
+            displayFormat="short"
+          />
         </div>
+      </div>
+
+      {/* TOIL & Holiday Balance Widgets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="glass-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">
+              TOIL Balance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">
+              {toilBalanceHours.toFixed(1)} hours
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              ({toilBalanceDays} days)
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="glass-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">
+              Leave Remaining
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{annualRemaining} days</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {leaveBalance?.balance
+                ? `${leaveBalance.balance.annualEntitlement} - ${leaveBalance.balance.annualUsed} used`
+                : "Not yet configured"}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="bg-card rounded-lg shadow dark:shadow-slate-900/50 p-6">
@@ -146,18 +242,32 @@ export default function TimePage() {
             </div>
           </div>
 
-          {!isSubmitted && (
-            <Button
-              onClick={handleSubmit}
-              disabled={!canSubmit || submitMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
-            >
-              <Send className="h-4 w-4 mr-2" />
-              {submitMutation.isPending
-                ? "Submitting..."
-                : "Submit Week for Approval"}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {!isSubmitted && (
+              <>
+                <Button
+                  onClick={handleCopyPreviousWeek}
+                  disabled={copyPreviousWeekMutation.isPending || isReadOnly}
+                  variant="outline"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  {copyPreviousWeekMutation.isPending
+                    ? "Copying..."
+                    : "Copy Last Week"}
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canSubmit || submitMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  {submitMutation.isPending
+                    ? "Submitting..."
+                    : "Submit Week for Approval"}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {submissionStatus?.status === "rejected" &&
@@ -184,39 +294,26 @@ export default function TimePage() {
           </div>
         )}
 
-        <div className="border-t pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            <p className="text-lg mb-2">Time entry interface coming soon</p>
-            <p className="text-sm">
-              This will display your time entries for the week with the ability
-              to add, edit, and delete entries
-            </p>
-          </div>
-        </div>
+        {/* Weekly Timesheet Grid (AC1-AC4, AC11, AC14) */}
+        <WeeklyTimesheetGrid
+          weekStartDate={currentWeekStart}
+          isReadOnly={isReadOnly}
+          dailyTargetHours={timesheetSettings?.dailyTargetHours ?? 7.5}
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-1">
-            Billable Hours
-          </h3>
-          <p className="text-2xl font-bold">{summary?.billableHours || 0}h</p>
-        </div>
-        <div className="glass-card p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-1">
-            Non-Billable Hours
-          </h3>
-          <p className="text-2xl font-bold">
-            {summary?.nonBillableHours || 0}h
-          </p>
-        </div>
-        <div className="glass-card p-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-1">
-            Days Worked
-          </h3>
-          <p className="text-2xl font-bold">{summary?.daysWorked || 0}</p>
-        </div>
-      </div>
+      {/* Weekly Summary Card with Pie Chart */}
+      {weeklySummary && (
+        <WeeklySummaryCard
+          summary={{
+            totalHours: weeklySummary.totalHours,
+            billableHours: weeklySummary.billableHours,
+            nonBillableHours: weeklySummary.nonBillableHours,
+            billablePercentage: weeklySummary.billablePercentage,
+            workTypeBreakdown: weeklySummary.workTypeBreakdown,
+          }}
+        />
+      )}
     </div>
   );
 }

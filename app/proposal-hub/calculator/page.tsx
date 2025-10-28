@@ -39,7 +39,7 @@ export default function CalculatorPage() {
   } | null>(null);
   const [selectedServices, setSelectedServices] = useState<
     Array<{
-      componentCode: string;
+      serviceCode: string;
       quantity?: number;
       config?: Record<string, unknown>;
     }>
@@ -58,7 +58,7 @@ export default function CalculatorPage() {
 
   // Fetch selected template
   const { data: templateData } = trpc.proposalTemplates.getById.useQuery(
-    selectedTemplateId!,
+    selectedTemplateId || "",
     { enabled: !!selectedTemplateId },
   );
 
@@ -66,7 +66,18 @@ export default function CalculatorPage() {
   useEffect(() => {
     if (templateData?.template) {
       const services = Array.isArray(templateData.template.defaultServices)
-        ? templateData.template.defaultServices
+        ? (
+            templateData.template.defaultServices as Array<{
+              componentCode?: string;
+              serviceCode?: string;
+              quantity?: number;
+              config?: Record<string, unknown>;
+            }>
+          ).map((s) => ({
+            serviceCode: s.componentCode || s.serviceCode || "",
+            quantity: s.quantity,
+            config: s.config,
+          }))
         : [];
       setSelectedServices(services);
     }
@@ -129,7 +140,7 @@ export default function CalculatorPage() {
 
   const handleServiceSelectionChange = (
     services: Array<{
-      componentCode: string;
+      serviceCode: string;
       quantity?: number;
       config?: Record<string, unknown>;
     }>,
@@ -170,7 +181,7 @@ export default function CalculatorPage() {
       monthlyTotal: recommendedModel.monthlyTotal.toString(),
       annualTotal: recommendedModel.annualTotal.toString(),
       services: recommendedModel.services.map((service) => ({
-        componentCode: service.componentCode,
+        componentCode: service.serviceCode,
         componentName: service.componentName,
         calculation: service.calculation,
         price: service.finalPrice,
@@ -211,7 +222,7 @@ export default function CalculatorPage() {
       monthlyTotal: recommendedModel.monthlyTotal.toString(),
       annualTotal: recommendedModel.annualTotal.toString(),
       services: recommendedModel.services.map((service) => ({
-        componentCode: service.componentCode,
+        componentCode: service.serviceCode,
         componentName: service.componentName,
         calculation: service.calculation,
         price: service.finalPrice,

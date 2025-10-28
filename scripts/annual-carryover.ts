@@ -22,7 +22,9 @@ import { runGlobalCarryover } from "@/lib/leave/carryover";
 
 async function main() {
   const args = process.argv.slice(2);
-  const fromYear = args[0] ? Number.parseInt(args[0], 10) : new Date().getFullYear();
+  const fromYear = args[0]
+    ? Number.parseInt(args[0], 10)
+    : new Date().getFullYear();
 
   if (Number.isNaN(fromYear)) {
     console.error("Error: Invalid year provided");
@@ -52,7 +54,9 @@ async function main() {
   console.log("========================================\n");
 
   if (result.totalUsersFailed > 0) {
-    console.warn(`⚠️  ${result.totalUsersFailed} users failed processing. Check logs for details.`);
+    console.warn(
+      `⚠️  ${result.totalUsersFailed} users failed processing. Check logs for details.`,
+    );
     process.exit(1);
   }
 

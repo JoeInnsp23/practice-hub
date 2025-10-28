@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   Activity,
   BarChart3,
@@ -11,7 +12,6 @@ import {
 } from "lucide-react";
 import Papa from "papaparse";
 import { useMemo, useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { ClientBreakdown } from "@/components/client-hub/reports/client-breakdown";
 import { RevenueChart } from "@/components/client-hub/reports/revenue-chart";
@@ -45,6 +45,23 @@ type PeriodType =
   | "this_year"
   | "last_year"
   | "custom";
+
+// Accepted period values for Select; used to safely convert string -> PeriodType
+const PERIOD_OPTIONS = [
+  "this_month",
+  "last_month",
+  "this_quarter",
+  "last_quarter",
+  "this_year",
+  "last_year",
+  "custom",
+] as const;
+
+function toPeriodType(value: string): PeriodType {
+  return (PERIOD_OPTIONS as readonly string[]).includes(value)
+    ? (value as PeriodType)
+    : "this_year";
+}
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState<PeriodType>("this_year");
@@ -266,7 +283,10 @@ export default function ReportsPage() {
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="productivity">Productivity</TabsTrigger>
           </TabsList>
-          <Select value={period} onValueChange={setPeriod}>
+          <Select
+            value={period}
+            onValueChange={(v) => setPeriod(toPeriodType(v))}
+          >
             <SelectTrigger className="w-40" data-testid="date-range-selector">
               <SelectValue />
             </SelectTrigger>
@@ -411,7 +431,7 @@ export default function ReportsPage() {
                       0,
                     );
                     return {
-                      clientId: client.clientId,
+                      clientId: client.clientId ?? undefined,
                       name: client.clientName,
                       revenue: client.totalPaid,
                       percentage:
@@ -440,7 +460,9 @@ export default function ReportsPage() {
             <CardContent>
               {servicesLoading ? (
                 <div className="space-y-3">
-                  {[...Array(5)].map((_, i) => (
+                  {/* Loading skeleton pattern follows shadcn/ui docs: https://ui.shadcn.com/docs/components/sidebar#loading-state
+                      Index keys are acceptable for temporary, stateless loading placeholders that are replaced with real data */}
+                  {Array.from({ length: 5 }, (_, i) => (
                     <Skeleton key={`skeleton-${i}`} className="h-12 w-full" />
                   ))}
                 </div>
@@ -579,7 +601,7 @@ export default function ReportsPage() {
                     0,
                   );
                   return {
-                    clientId: client.clientId,
+                    clientId: client.clientId ?? undefined,
                     name: client.clientName,
                     revenue: client.totalPaid,
                     percentage:

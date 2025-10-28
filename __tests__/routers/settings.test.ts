@@ -5,9 +5,16 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
+import type { z } from "zod";
 import { settingsRouter } from "@/app/server/routers/settings";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
+
+// Type helper to extract Zod schema from tRPC procedure inputs
+type ZodSchema = z.ZodTypeAny;
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -25,12 +32,12 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/settings.ts", () => {
-  let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof settingsRouter>>;
+  let ctx: TestContextWithAuth;
+  let _caller: ReturnType<typeof createCaller<typeof settingsRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(settingsRouter, ctx);
+    _caller = createCaller(settingsRouter, ctx);
     vi.clearAllMocks();
   });
 
@@ -47,13 +54,19 @@ describe("app/server/routers/settings.ts", () => {
   describe("updateTenant", () => {
     it("should accept empty input (partial schema)", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateTenant._def.inputs[0]?.parse({});
+        (
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept name update", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateTenant._def.inputs[0]?.parse({
+        (
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
+        )?.parse({
           name: "Updated Organization Name",
         });
       }).not.toThrow();
@@ -61,7 +74,10 @@ describe("app/server/routers/settings.ts", () => {
 
     it("should accept slug update", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateTenant._def.inputs[0]?.parse({
+        (
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
+        )?.parse({
           slug: "updated-org-slug",
         });
       }).not.toThrow();
@@ -69,7 +85,10 @@ describe("app/server/routers/settings.ts", () => {
 
     it("should accept multiple fields", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateTenant._def.inputs[0]?.parse({
+        (
+          settingsRouter._def.procedures.updateTenant._def
+            .inputs[0] as ZodSchema
+        )?.parse({
           name: "New Organization",
           slug: "new-org",
         });
@@ -87,112 +106,96 @@ describe("app/server/routers/settings.ts", () => {
     });
   });
 
-  describe("updateNotificationSettings", () => {
-    it("should accept empty input", () => {
+  describe("updateNotificationSettings (FR31)", () => {
+    it("should accept empty input (partial schema)", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-          {},
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({});
       }).not.toThrow();
     });
 
-    it("should accept email notifications update", () => {
+    it("should accept global toggles (emailNotifications, inAppNotifications)", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-          {
-            emailNotifications: {
-              taskAssigned: true,
-              taskCompleted: false,
-              invoiceCreated: true,
-            },
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          emailNotifications: true,
+          inAppNotifications: false,
+        });
       }).not.toThrow();
     });
 
-    it("should accept in-app notifications update", () => {
+    it("should accept digestEmail string", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-          {
-            inAppNotifications: {
-              taskOverdue: true,
-              clientAdded: false,
-            },
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          digestEmail: "weekly",
+        });
       }).not.toThrow();
     });
 
-    it("should accept digest email settings", () => {
+    it("should accept individual notification preferences (FR31)", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-          {
-            digestEmail: {
-              enabled: true,
-              frequency: "weekly",
-            },
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          notifTaskAssigned: true,
+          notifTaskMention: false,
+          notifTaskReassigned: true,
+        });
       }).not.toThrow();
     });
 
-    it("should accept all settings combined", () => {
+    it("should accept all 6 granular notification preferences (FR31)", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-          {
-            emailNotifications: {
-              taskAssigned: true,
-              taskCompleted: true,
-              taskOverdue: true,
-              invoiceCreated: true,
-              invoicePaid: true,
-              clientAdded: true,
-              reportGenerated: true,
-            },
-            inAppNotifications: {
-              taskAssigned: false,
-              taskCompleted: false,
-              taskOverdue: true,
-              invoiceCreated: false,
-              invoicePaid: true,
-              clientAdded: false,
-              reportGenerated: false,
-            },
-            digestEmail: {
-              enabled: true,
-              frequency: "daily",
-            },
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          notifTaskAssigned: true,
+          notifTaskMention: false,
+          notifTaskReassigned: true,
+          notifDeadlineApproaching: false,
+          notifApprovalNeeded: true,
+          notifClientMessage: false,
+        });
       }).not.toThrow();
     });
 
-    it("should validate digest frequency enum values", () => {
+    it("should accept combined global toggles and granular preferences (FR31)", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-          {
-            digestEmail: {
-              frequency: "invalid",
-            },
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          emailNotifications: true,
+          inAppNotifications: true,
+          digestEmail: "daily",
+          notifTaskAssigned: true,
+          notifTaskMention: true,
+          notifTaskReassigned: false,
+          notifDeadlineApproaching: true,
+          notifApprovalNeeded: false,
+          notifClientMessage: true,
+        });
+      }).not.toThrow();
+    });
+
+    it("should validate boolean types for notification preferences", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateNotificationSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          notifTaskAssigned: "invalid",
+        });
       }).toThrow();
-    });
-
-    it("should accept all valid frequency values", () => {
-      const validFrequencies = ["daily", "weekly", "monthly"];
-
-      for (const frequency of validFrequencies) {
-        expect(() => {
-          settingsRouter._def.procedures.updateNotificationSettings._def.inputs[0]?.parse(
-            {
-              digestEmail: {
-                frequency,
-              },
-            },
-          );
-        }).not.toThrow();
-      }
     });
   });
 
@@ -206,50 +209,60 @@ describe("app/server/routers/settings.ts", () => {
     });
   });
 
-  describe("updateUserSettings", () => {
-    it("should accept valid user settings", () => {
+  describe("updateUserSettings (includes FR31 fields)", () => {
+    it("should accept valid user settings with notification preferences", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
-          {
-            emailNotifications: true,
-            inAppNotifications: false,
-            digestEmail: "weekly",
-            theme: "dark",
-            language: "en",
-            timezone: "Europe/London",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          emailNotifications: true,
+          inAppNotifications: false,
+          digestEmail: "weekly",
+          notifTaskAssigned: true,
+          notifTaskMention: false,
+          notifTaskReassigned: true,
+          notifDeadlineApproaching: false,
+          notifApprovalNeeded: true,
+          notifClientMessage: false,
+          theme: "dark",
+          language: "en",
+          timezone: "Europe/London",
+        });
       }).not.toThrow();
     });
 
     it("should accept partial settings", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
-          {
-            emailNotifications: false,
-            theme: "light",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          emailNotifications: false,
+          theme: "light",
+        });
       }).not.toThrow();
     });
 
     it("should validate theme enum", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
-          {
-            theme: "invalid",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          theme: "invalid",
+        });
       }).toThrow();
     });
 
     it("should validate digestEmail enum", () => {
       expect(() => {
-        settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
-          {
-            digestEmail: "invalid",
-          },
-        );
+        (
+          settingsRouter._def.procedures.updateUserSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          digestEmail: "invalid",
+        });
       }).toThrow();
     });
 
@@ -258,11 +271,12 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const theme of validThemes) {
         expect(() => {
-          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
-            {
-              theme,
-            },
-          );
+          (
+            settingsRouter._def.procedures.updateUserSettings._def
+              .inputs[0] as ZodSchema
+          )?.parse({
+            theme,
+          });
         }).not.toThrow();
       }
     });
@@ -272,13 +286,135 @@ describe("app/server/routers/settings.ts", () => {
 
       for (const digestEmail of validDigests) {
         expect(() => {
-          settingsRouter._def.procedures.updateUserSettings._def.inputs[0]?.parse(
-            {
-              digestEmail,
-            },
-          );
+          (
+            settingsRouter._def.procedures.updateUserSettings._def
+              .inputs[0] as ZodSchema
+          )?.parse({
+            digestEmail,
+          });
         }).not.toThrow();
       }
+    });
+  });
+
+  describe("getTimesheetSettings (Story 6.3)", () => {
+    it("should have no required input", () => {
+      const procedure = settingsRouter._def.procedures.getTimesheetSettings;
+
+      expect(!procedure._def.inputs || procedure._def.inputs.length === 0).toBe(
+        true,
+      );
+    });
+  });
+
+  describe("updateTimesheetSettings (Story 6.3)", () => {
+    it("should accept empty input (partial schema)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({});
+      }).not.toThrow();
+    });
+
+    it("should accept minWeeklyHours only", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 40,
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept dailyTargetHours only", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          dailyTargetHours: 8,
+        });
+      }).not.toThrow();
+    });
+
+    it("should accept both fields together", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 35,
+          dailyTargetHours: 7,
+        });
+      }).not.toThrow();
+    });
+
+    it("should validate minWeeklyHours minimum (0)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: -1,
+        });
+      }).toThrow();
+    });
+
+    it("should validate minWeeklyHours maximum (168)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 169,
+        });
+      }).toThrow();
+    });
+
+    it("should validate dailyTargetHours minimum (0)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          dailyTargetHours: -1,
+        });
+      }).toThrow();
+    });
+
+    it("should validate dailyTargetHours maximum (24)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          dailyTargetHours: 25,
+        });
+      }).toThrow();
+    });
+
+    it("should accept boundary values (0 and maximums)", () => {
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 0,
+          dailyTargetHours: 24,
+        });
+      }).not.toThrow();
+
+      expect(() => {
+        (
+          settingsRouter._def.procedures.updateTimesheetSettings._def
+            .inputs[0] as ZodSchema
+        )?.parse({
+          minWeeklyHours: 168,
+          dailyTargetHours: 0,
+        });
+      }).not.toThrow();
     });
   });
 
@@ -292,11 +428,13 @@ describe("app/server/routers/settings.ts", () => {
       expect(procedures).toContain("updateNotificationSettings");
       expect(procedures).toContain("getUserSettings");
       expect(procedures).toContain("updateUserSettings");
+      expect(procedures).toContain("getTimesheetSettings");
+      expect(procedures).toContain("updateTimesheetSettings");
     });
 
-    it("should have 6 procedures total", () => {
+    it("should have 8 procedures total", () => {
       const procedures = Object.keys(settingsRouter._def.procedures);
-      expect(procedures).toHaveLength(6);
+      expect(procedures).toHaveLength(8);
     });
   });
 });

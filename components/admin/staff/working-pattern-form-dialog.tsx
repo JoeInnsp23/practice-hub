@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc/client";
+import type { WorkingPattern } from "@/lib/trpc/types";
 
 // Pattern templates
 const PATTERN_TEMPLATES = {
@@ -108,35 +109,35 @@ const formSchema = z
       "job_share",
       "custom",
     ]),
-    contractedHours: z.coerce
+    contractedHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(168, "Cannot exceed 168 hours per week"),
-    mondayHours: z.coerce
+    mondayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    tuesdayHours: z.coerce
+    tuesdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    wednesdayHours: z.coerce
+    wednesdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    thursdayHours: z.coerce
+    thursdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    fridayHours: z.coerce
+    fridayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    saturdayHours: z.coerce
+    saturdayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
-    sundayHours: z.coerce
+    sundayHours: z
       .number()
       .min(0, "Must be at least 0")
       .max(24, "Cannot exceed 24 hours"),
@@ -167,7 +168,7 @@ interface WorkingPatternFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  editingPattern?: any | null;
+  editingPattern?: WorkingPattern | null;
 }
 
 export function WorkingPatternFormDialog({
@@ -208,7 +209,12 @@ export function WorkingPatternFormDialog({
     if (editingPattern) {
       form.reset({
         userId: editingPattern.userId,
-        patternType: editingPattern.patternType,
+        patternType: editingPattern.patternType as
+          | "full_time"
+          | "part_time"
+          | "compressed_hours"
+          | "job_share"
+          | "custom",
         contractedHours: editingPattern.contractedHours,
         mondayHours: editingPattern.mondayHours,
         tuesdayHours: editingPattern.tuesdayHours,
@@ -240,7 +246,8 @@ export function WorkingPatternFormDialog({
 
   // Apply template
   const applyTemplate = (templateKey: string) => {
-    const template = PATTERN_TEMPLATES[templateKey as keyof typeof PATTERN_TEMPLATES];
+    const template =
+      PATTERN_TEMPLATES[templateKey as keyof typeof PATTERN_TEMPLATES];
     if (template) {
       form.setValue("patternType", template.patternType);
       form.setValue("contractedHours", template.contractedHours);
@@ -267,8 +274,12 @@ export function WorkingPatternFormDialog({
         toast.success("Working pattern created successfully");
       }
       onSuccess();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save working pattern");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to save working pattern",
+      );
     }
   };
 
@@ -282,7 +293,8 @@ export function WorkingPatternFormDialog({
     (form.watch("saturdayHours") || 0) +
     (form.watch("sundayHours") || 0);
 
-  const isValid = Math.abs(totalHours - (form.watch("contractedHours") || 0)) < 0.01;
+  const isValid =
+    Math.abs(totalHours - (form.watch("contractedHours") || 0)) < 0.01;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -302,19 +314,24 @@ export function WorkingPatternFormDialog({
             {!editingPattern && (
               <div className="space-y-2">
                 <FormLabel>Quick Templates</FormLabel>
-                <Select value={selectedTemplate} onValueChange={(value) => {
-                  setSelectedTemplate(value);
-                  applyTemplate(value);
-                }}>
+                <Select
+                  value={selectedTemplate}
+                  onValueChange={(value) => {
+                    setSelectedTemplate(value);
+                    applyTemplate(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a template..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(PATTERN_TEMPLATES).map(([key, template]) => (
-                      <SelectItem key={key} value={key}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
+                    {Object.entries(PATTERN_TEMPLATES).map(
+                      ([key, template]) => (
+                        <SelectItem key={key} value={key}>
+                          {template.name}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
                 <FormDescription>
@@ -362,7 +379,10 @@ export function WorkingPatternFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pattern Type *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select pattern type" />
@@ -391,7 +411,13 @@ export function WorkingPatternFormDialog({
                 <FormItem>
                   <FormLabel>Contracted Hours (per week) *</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.5" {...field} />
+                    <Input
+                      type="number"
+                      step="0.5"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormDescription>
                     Total contracted hours per week
@@ -417,7 +443,7 @@ export function WorkingPatternFormDialog({
                   <FormField
                     key={name}
                     control={form.control}
-                    name={name as any}
+                    name={name as keyof FormData}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{label}</FormLabel>
@@ -427,6 +453,10 @@ export function WorkingPatternFormDialog({
                             step="0.5"
                             placeholder="0"
                             {...field}
+                            value={field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -437,7 +467,8 @@ export function WorkingPatternFormDialog({
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  Total: {totalHours.toFixed(1)}h / {form.watch("contractedHours")}h
+                  Total: {totalHours.toFixed(1)}h /{" "}
+                  {form.watch("contractedHours")}h
                 </span>
                 {!isValid && (
                   <span className="text-destructive">

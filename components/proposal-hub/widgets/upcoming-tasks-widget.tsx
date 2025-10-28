@@ -20,8 +20,10 @@ export function UpcomingTasksWidget() {
       toast.success("Task completed");
       utils.tasks.list.invalidate();
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to complete task");
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to complete task",
+      );
     },
   });
 

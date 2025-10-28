@@ -39,11 +39,26 @@ export const servicesRouter = router({
           ilike(services.code, `%${search}%`),
           ilike(services.description, `%${search}%`),
         );
-        if (searchCondition) conditions.push(searchCondition);
+        if (searchCondition) {
+          conditions.push(searchCondition);
+        }
       }
 
       if (category && category !== "all") {
-        conditions.push(eq(services.category, category));
+        conditions.push(
+          eq(
+            services.category,
+            category as
+              | "compliance"
+              | "vat"
+              | "bookkeeping"
+              | "payroll"
+              | "management"
+              | "secretarial"
+              | "tax_planning"
+              | "addon",
+          ),
+        );
       }
 
       if (isActive !== undefined) {

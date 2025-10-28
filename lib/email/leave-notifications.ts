@@ -1,7 +1,7 @@
 import { Resend } from "resend";
-import { LeaveRequestSubmittedEmail } from "./templates/leave-request-submitted";
 import { LeaveRequestApprovedEmail } from "./templates/leave-request-approved";
 import { LeaveRequestRejectedEmail } from "./templates/leave-request-rejected";
+import { LeaveRequestSubmittedEmail } from "./templates/leave-request-submitted";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -19,7 +19,9 @@ export interface LeaveNotificationData {
 /**
  * Send email notification when a leave request is submitted
  */
-export async function sendLeaveRequestSubmitted(data: Omit<LeaveNotificationData, "approverName" | "comments">) {
+export async function sendLeaveRequestSubmitted(
+  data: Omit<LeaveNotificationData, "approverName" | "comments">,
+) {
   if (!process.env.RESEND_API_KEY) {
     console.warn("RESEND_API_KEY not configured - skipping email notification");
     return { success: false, error: "Email service not configured" };

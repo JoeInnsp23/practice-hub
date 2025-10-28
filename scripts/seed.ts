@@ -19,12 +19,16 @@ import {
   compliance,
   departments,
   documents,
+  emailQueue,
+  emailTemplates,
   importLogs,
   integrationSettings,
   invitations,
   invoiceItems,
   invoices,
   leads,
+  leaveBalances,
+  leaveRequests,
   legalPages,
   messages,
   messageThreadParticipants,
@@ -37,13 +41,8 @@ import {
   pricingRules,
   proposalServices,
   proposals,
-  proposalVersions,
   services,
   staffCapacity,
-  workingPatterns,
-  leaveRequests,
-  leaveBalances,
-  toilAccrualHistory,
   taskAssignmentHistory,
   taskNotes,
   tasks,
@@ -52,12 +51,15 @@ import {
   tenants,
   timeEntries,
   timesheetSubmissions,
+  toilAccrualHistory,
   userSettings,
   users,
+  workflowEmailRules,
   workflowStages,
   workflows,
   workflowTemplates,
   workflowVersions,
+  workingPatterns,
   workTypes,
   xeroWebhookEvents,
 } from "../lib/db/schema";
@@ -78,7 +80,10 @@ async function clearDatabase() {
   await db.delete(workflowVersions);
   await db.delete(workflowStages);
   await db.delete(workflowTemplates);
+  await db.delete(emailQueue);
+  await db.delete(workflowEmailRules);
   await db.delete(workflows);
+  await db.delete(emailTemplates);
   await db.delete(documents);
   await db.delete(compliance);
   await db.delete(clientServices);
@@ -190,7 +195,7 @@ async function seedDatabase() {
     },
   ];
 
-  const createdDepartments = await db
+  const createdDepartments = (await db
     .insert(departments)
     .values(
       departmentList.map((dept) => ({
@@ -199,7 +204,7 @@ async function seedDatabase() {
         isActive: true,
       })),
     )
-    .returning();
+    .returning()) as (typeof departments.$inferSelect)[];
 
   const [taxDept, auditDept, advisoryDept, adminDept] = createdDepartments;
 
@@ -307,7 +312,7 @@ async function seedDatabase() {
     },
   ];
 
-  const createdUsers = await db
+  const createdUsers = (await db
     .insert(users)
     .values(
       userList.map((user) => ({
@@ -317,7 +322,7 @@ async function seedDatabase() {
         isActive: true,
       })),
     )
-    .returning();
+    .returning()) as (typeof users.$inferSelect)[];
 
   const [adminUser, sarahUser, mikeUser, emilyUser] = createdUsers;
 
@@ -352,6 +357,15 @@ async function seedDatabase() {
       emailNotifications: true,
       inAppNotifications: true,
       digestEmail: user.role === "admin" ? "daily" : "weekly",
+
+      // Granular notification preferences (FR31) - all enabled by default
+      notifTaskAssigned: true,
+      notifTaskMention: true,
+      notifTaskReassigned: true,
+      notifDeadlineApproaching: true,
+      notifApprovalNeeded: true,
+      notifClientMessage: true,
+
       theme: "system",
       language: "en",
       timezone: "Europe/London",
@@ -550,6 +564,8 @@ async function seedDatabase() {
       timesheetId: null, // No timesheet system yet (Epic 2)
       weekEnding: twoWeeksAgo.toISOString().split("T")[0],
       hoursAccrued: 2.0, // 2 hours overtime
+      loggedHours: 39.5, // 37.5 contracted + 2 overtime
+      contractedHours: 37.5, // Standard UK full-time work week
       accrualDate: twoWeeksAgo,
       expiryDate: sixMonthsFromNow.toISOString().split("T")[0],
       expired: false,
@@ -562,6 +578,8 @@ async function seedDatabase() {
       timesheetId: null,
       weekEnding: oneWeekAgoDate.toISOString().split("T")[0],
       hoursAccrued: 3.5, // 3.5 hours overtime (already used/redeemed)
+      loggedHours: 41.0, // 37.5 contracted + 3.5 overtime
+      contractedHours: 37.5, // Standard UK full-time work week
       accrualDate: oneWeekAgoDate,
       expiryDate: sixMonthsFromNow.toISOString().split("T")[0],
       expired: false,
@@ -1583,7 +1601,7 @@ For more information, visit the ICO website: https://ico.org.uk
   const accountsPrices = [49, 59, 79, 99, 119, 139, 159];
   turnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("COMP_ACCOUNTS").id,
+      componentId: getService("COMP_ACCOUNTS").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1594,7 +1612,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // COMP_ACCOUNTS - Transaction-based pricing (Model B)
   // Base £30 + £0.15 per transaction
   pricingRulesList.push({
-    serviceId: getService("COMP_ACCOUNTS").id,
+    componentId: getService("COMP_ACCOUNTS").id,
     ruleType: "per_unit" as const,
     price: "0.15",
     metadata: { basePrice: 30, description: "Per transaction" },
@@ -1610,7 +1628,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   vatTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("VAT_STANDARD").id,
+      componentId: getService("VAT_STANDARD").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1621,7 +1639,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // VAT_STANDARD - Transaction-based pricing (Model B)
   // £0.10 per transaction (minimum £20)
   pricingRulesList.push({
-    serviceId: getService("VAT_STANDARD").id,
+    componentId: getService("VAT_STANDARD").id,
     ruleType: "per_unit" as const,
     price: "0.10",
     metadata: { minimumPrice: 20, description: "Per transaction" },
@@ -1638,7 +1656,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   bookBasicTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("BOOK_BASIC").id,
+      componentId: getService("BOOK_BASIC").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1660,7 +1678,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   bookBasicTransactionBands.forEach((band) => {
     pricingRulesList.push({
-      serviceId: getService("BOOK_BASIC").id,
+      componentId: getService("BOOK_BASIC").id,
       ruleType: "transaction_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1670,7 +1688,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   // BOOK_BASIC - High volume transaction pricing (500+)
   pricingRulesList.push({
-    serviceId: getService("BOOK_BASIC").id,
+    componentId: getService("BOOK_BASIC").id,
     ruleType: "per_unit" as const,
     minValue: "501",
     price: "0.60",
@@ -1688,7 +1706,7 @@ For more information, visit the ICO website: https://ico.org.uk
   Object.entries(bookFullPrices).forEach(([complexity, prices]) => {
     turnoverBands.forEach((band, index) => {
       pricingRulesList.push({
-        serviceId: getService("BOOK_FULL").id,
+        componentId: getService("BOOK_FULL").id,
         ruleType: "turnover_band" as const,
         minValue: band.min.toString(),
         maxValue: band.max.toString(),
@@ -1749,7 +1767,7 @@ For more information, visit the ICO website: https://ico.org.uk
   Object.entries(bookFullTransactionBands).forEach(([complexity, bands]) => {
     bands.forEach((band) => {
       pricingRulesList.push({
-        serviceId: getService("BOOK_FULL").id,
+        componentId: getService("BOOK_FULL").id,
         ruleType: "transaction_band" as const,
         minValue: band.min.toString(),
         maxValue: band.max.toString(),
@@ -1768,7 +1786,7 @@ For more information, visit the ICO website: https://ico.org.uk
   };
   Object.entries(bookFullHighVolumeRates).forEach(([complexity, rate]) => {
     pricingRulesList.push({
-      serviceId: getService("BOOK_FULL").id,
+      componentId: getService("BOOK_FULL").id,
       ruleType: "per_unit" as const,
       minValue: "501",
       price: rate.toString(),
@@ -1788,7 +1806,7 @@ For more information, visit the ICO website: https://ico.org.uk
   ];
   mgmtMonthlyTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("MGMT_MONTHLY").id,
+      componentId: getService("MGMT_MONTHLY").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1799,7 +1817,7 @@ For more information, visit the ICO website: https://ico.org.uk
   // MGMT_QUARTERLY - Turnover-based pricing (50% of monthly)
   mgmtMonthlyTurnoverBands.forEach((band, index) => {
     pricingRulesList.push({
-      serviceId: getService("MGMT_QUARTERLY").id,
+      componentId: getService("MGMT_QUARTERLY").id,
       ruleType: "turnover_band" as const,
       minValue: band.min.toString(),
       maxValue: band.max.toString(),
@@ -1846,7 +1864,7 @@ For more information, visit the ICO website: https://ico.org.uk
   payrollEmployeeBands.forEach((band) => {
     // Monthly (base rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1856,7 +1874,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // Weekly (3x monthly rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1866,7 +1884,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // Fortnightly (2x monthly rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1876,7 +1894,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
     // 4-Weekly (2x monthly rate)
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "employee_band" as const,
       minValue: band.minEmployees.toString(),
       maxValue: band.maxEmployees.toString(),
@@ -1895,7 +1913,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   payrollPerEmployeePricing.forEach((pricing) => {
     pricingRulesList.push({
-      serviceId: getService("PAYROLL_STANDARD").id,
+      componentId: getService("PAYROLL_STANDARD").id,
       ruleType: "per_unit" as const,
       minValue: "21",
       price: pricing.pricePerEmployee.toString(),
@@ -2226,7 +2244,7 @@ For more information, visit the ICO website: https://ico.org.uk
     });
   }
 
-  const createdClients = await db
+  const createdClients = (await db
     .insert(clients)
     .values(
       clientList.map((client) => ({
@@ -2235,7 +2253,7 @@ For more information, visit the ICO website: https://ico.org.uk
         createdBy: adminUser.id,
       })),
     )
-    .returning();
+    .returning()) as (typeof clients.$inferSelect)[];
 
   // 5. Create Client Contacts
   console.log("Creating client contacts...");
@@ -2508,7 +2526,7 @@ For more information, visit the ICO website: https://ico.org.uk
     "rejected",
   ] as const;
 
-  const proposalsList: any[] = [];
+  const proposalsList: Array<typeof proposals.$inferSelect> = [];
 
   // Create 20 proposals across different stages
   for (let i = 0; i < 20; i++) {
@@ -2552,7 +2570,8 @@ For more information, visit the ICO website: https://ico.org.uk
           "1M+",
         ]),
         industry:
-          randomClient.industry ||
+          (randomClient as typeof randomClient & { industry?: string })
+            .industry ||
           faker.helpers.arrayElement([
             "Technology",
             "Retail",
@@ -2988,8 +3007,8 @@ For more information, visit the ICO website: https://ico.org.uk
         clientId: assignedClient.id,
         serviceId: clientService.serviceId,
         assignedToId:
-          assignedClient.assignedToId ||
-          faker.helpers.arrayElement(createdUsers).id,
+          (assignedClient as typeof assignedClient & { assignedToId?: string })
+            .assignedToId || faker.helpers.arrayElement(createdUsers).id,
         createdById: faker.helpers.arrayElement(createdUsers).id,
         dueDate,
         targetDate: new Date(dueDate.getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days before due
@@ -3000,8 +3019,8 @@ For more information, visit the ICO website: https://ico.org.uk
           status === "completed"
             ? String(
                 faker.number.float({
-                  min: template.estimatedHours - 2,
-                  max: template.estimatedHours + 5,
+                  min: (template.estimatedHours ?? 8) - 2,
+                  max: (template.estimatedHours ?? 8) + 5,
                 }),
               )
             : null,
@@ -3207,7 +3226,7 @@ For more information, visit the ICO website: https://ico.org.uk
 
   // 9.5 Create Timesheet Submissions
   console.log("Creating timesheet submissions...");
-  const submissionStatuses = [
+  const _submissionStatuses = [
     "pending",
     "approved",
     "rejected",
@@ -3243,7 +3262,9 @@ For more information, visit the ICO website: https://ico.org.uk
            AND date <= '${weekEndStr}'`,
       );
 
-      const totalHours = Number((result.rows[0] as any).total_hours || 0);
+      const totalHours = Number(
+        (result.rows[0] as { total_hours?: number }).total_hours || 0,
+      );
 
       if (totalHours < 37.5) continue; // Skip if not enough hours
 
@@ -3961,7 +3982,8 @@ For more information, visit the ICO website: https://ico.org.uk
             isRequired: true,
           })),
           autoComplete: false,
-          requiresApproval: stage.requiresApproval || false,
+          requiresApproval:
+            (stage as { requiresApproval?: boolean }).requiresApproval ?? false,
         })
         .returning();
       createdStages.push(createdStage);
@@ -3978,7 +4000,12 @@ For more information, visit the ICO website: https://ico.org.uk
         estimatedHours: stage.estimatedHours || "0",
         autoComplete: stage.autoComplete,
         requiresApproval: stage.requiresApproval,
-        checklistItems: (stage.checklistItems as any) || [],
+        checklistItems:
+          (stage.checklistItems as Array<{
+            id: string;
+            text: string;
+            isRequired: boolean;
+          }>) || [],
       })),
     };
 
@@ -4127,7 +4154,9 @@ For more information, visit the ICO website: https://ico.org.uk
 
       if (activeVersion) {
         // Extract first stage ID from snapshot
-        const stagesSnapshot = activeVersion.stagesSnapshot as any;
+        const stagesSnapshot = activeVersion.stagesSnapshot as {
+          stages?: Array<{ id?: string }>;
+        };
         const firstStageId = stagesSnapshot?.stages?.[0]?.id || null;
 
         // Create workflow instance with version snapshot
@@ -4961,6 +4990,224 @@ For more information, visit the ICO website: https://ico.org.uk
     "✓ Created integration settings, import logs, and sample webhook events",
   );
 
+  // Create Email Templates
+  console.log("Creating email templates...");
+  const emailTemplatesList = await db
+    .insert(emailTemplates)
+    .values([
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Task Assigned Notification",
+        templateType: "task_assigned",
+        subject: "New task assigned: {task_name}",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>You have been assigned a new task:</p>
+<p><strong>{task_name}</strong></p>
+<p>Due date: {due_date}</p>
+<p>Client: {client_name}</p>
+<p>Please log in to Practice Hub to view the task details.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, You have been assigned a new task: {task_name}. Due date: {due_date}. Client: {client_name}. Please log in to Practice Hub to view the task details.",
+        variables: [
+          "staff_name",
+          "task_name",
+          "due_date",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Task Due Soon Reminder",
+        templateType: "task_due_soon",
+        subject: "Reminder: {task_name} is due soon",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>This is a reminder that the following task is due soon:</p>
+<p><strong>{task_name}</strong></p>
+<p>Due date: {due_date}</p>
+<p>Client: {client_name}</p>
+<p>Please ensure this task is completed on time.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, This is a reminder that the following task is due soon: {task_name}. Due date: {due_date}. Client: {client_name}. Please ensure this task is completed on time.",
+        variables: [
+          "staff_name",
+          "task_name",
+          "due_date",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Task Overdue Alert",
+        templateType: "task_overdue",
+        subject: "URGENT: {task_name} is overdue",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p><strong style="color: #dc2626;">URGENT:</strong> The following task is now overdue:</p>
+<p><strong>{task_name}</strong></p>
+<p>Due date: {due_date}</p>
+<p>Client: {client_name}</p>
+<p>Please complete this task as soon as possible.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, URGENT: The following task is now overdue: {task_name}. Due date: {due_date}. Client: {client_name}. Please complete this task as soon as possible.",
+        variables: [
+          "staff_name",
+          "task_name",
+          "due_date",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "Workflow Stage Completed",
+        templateType: "workflow_stage_complete",
+        subject: "Workflow stage completed: {stage_name}",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>The following workflow stage has been completed:</p>
+<p><strong>Workflow:</strong> {workflow_name}</p>
+<p><strong>Stage:</strong> {stage_name}</p>
+<p><strong>Client:</strong> {client_name}</p>
+<p>You can now proceed to the next stage.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, The following workflow stage has been completed: Workflow: {workflow_name}, Stage: {stage_name}, Client: {client_name}. You can now proceed to the next stage.",
+        variables: [
+          "staff_name",
+          "workflow_name",
+          "stage_name",
+          "client_name",
+          "company_name",
+        ],
+        isActive: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        templateName: "New Client Created",
+        templateType: "client_created",
+        subject: "New client added: {client_name}",
+        bodyHtml: `<p>Hi {staff_name},</p>
+<p>A new client has been added to Practice Hub:</p>
+<p><strong>{client_name}</strong></p>
+<p>Please review the client details and complete any required onboarding tasks.</p>
+<p>Best regards,<br>{company_name}</p>`,
+        bodyText:
+          "Hi {staff_name}, A new client has been added to Practice Hub: {client_name}. Please review the client details and complete any required onboarding tasks.",
+        variables: ["staff_name", "client_name", "company_name"],
+        isActive: true,
+      },
+    ])
+    .returning();
+
+  console.log(`✓ Created ${emailTemplatesList.length} email templates`);
+
+  // Create Workflow Email Rules (FR32: AC3)
+  console.log("Creating workflow email rules...");
+
+  // Get first workflow and its stages for testing
+  const firstWorkflow = createdWorkflows[0];
+  if (firstWorkflow) {
+    // Get stages for this workflow
+    const workflowStagesList = await db
+      .select()
+      .from(workflowStages)
+      .where(eq(workflowStages.workflowId, firstWorkflow.id));
+
+    // Get the "Workflow Stage Completed" email template
+    const workflowStageTemplate = emailTemplatesList.find(
+      (t) => t.templateType === "workflow_stage_complete",
+    );
+
+    // Get the "Task Assigned" email template
+    const taskAssignedTemplate = emailTemplatesList.find(
+      (t) => t.templateType === "task_assigned",
+    );
+
+    if (workflowStageTemplate && workflowStagesList.length > 0) {
+      const workflowEmailRulesList = await db
+        .insert(workflowEmailRules)
+        .values(
+          [
+            // Rule 1: Send to assigned staff when first stage completes (no delay)
+            {
+              id: crypto.randomUUID(),
+              tenantId: tenant.id,
+              workflowId: firstWorkflow.id,
+              stageId: workflowStagesList[0].id, // First stage
+              emailTemplateId: workflowStageTemplate.id,
+              recipientType: "assigned_staff",
+              customRecipientEmail: null,
+              sendDelayHours: 0, // Send immediately
+              isActive: true,
+            },
+            // Rule 2: Send to client when second stage completes (2 hour delay)
+            workflowStagesList.length > 1
+              ? {
+                  id: crypto.randomUUID(),
+                  tenantId: tenant.id,
+                  workflowId: firstWorkflow.id,
+                  stageId: workflowStagesList[1].id, // Second stage
+                  emailTemplateId: workflowStageTemplate.id,
+                  recipientType: "client",
+                  customRecipientEmail: null,
+                  sendDelayHours: 2, // 2 hour delay
+                  isActive: true,
+                }
+              : null,
+            // Rule 3: Send to custom email on any stage completion (24 hour delay)
+            {
+              id: crypto.randomUUID(),
+              tenantId: tenant.id,
+              workflowId: firstWorkflow.id,
+              stageId: null, // Any stage (null = trigger on all stages)
+              emailTemplateId:
+                taskAssignedTemplate?.id || workflowStageTemplate.id,
+              recipientType: "custom_email",
+              customRecipientEmail: "compliance@example.com",
+              sendDelayHours: 24, // 24 hour delay
+              isActive: true,
+            },
+            // Rule 4: Send to client manager when workflow complete
+            workflowStagesList.length > 2
+              ? {
+                  id: crypto.randomUUID(),
+                  tenantId: tenant.id,
+                  workflowId: firstWorkflow.id,
+                  stageId: workflowStagesList[workflowStagesList.length - 1].id, // Last stage
+                  emailTemplateId: workflowStageTemplate.id,
+                  recipientType: "client_manager",
+                  customRecipientEmail: null,
+                  sendDelayHours: 0,
+                  isActive: true,
+                }
+              : null,
+          ].filter(Boolean),
+        ) // Filter out null values
+        .returning();
+
+      console.log(
+        `✓ Created ${workflowEmailRulesList.length} workflow email rules for workflow "${firstWorkflow.name}"`,
+      );
+    } else {
+      console.log(
+        "⚠ Skipped workflow email rules (no workflow stages or template found)",
+      );
+    }
+  } else {
+    console.log("⚠ Skipped workflow email rules (no workflows found)");
+  }
+
   console.log("✅ Database seeding completed!");
 
   // Print summary
@@ -4979,6 +5226,8 @@ For more information, visit the ICO website: https://ico.org.uk
   console.log(`✓ Compliance items created`);
   console.log(`✓ Document structure created`);
   console.log(`✓ ${workflowTemplates.length} Workflow templates created`);
+  console.log(`✓ ${emailTemplatesList.length} Email templates created`);
+  console.log(`✓ Workflow email rules created (workflow triggers)`);
   console.log(`✓ 100 Activity logs created`);
 
   console.log("\n👤 Test Users:");

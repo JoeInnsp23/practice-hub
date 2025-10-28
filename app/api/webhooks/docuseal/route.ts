@@ -27,6 +27,50 @@ import { uploadToS3 } from "@/lib/s3/upload";
 export const runtime = "nodejs";
 
 /**
+ * DocuSeal webhook submission metadata
+ */
+interface DocusealSubmissionMetadata {
+  tenant_id?: string;
+  proposal_id?: string;
+  document_id?: string;
+  proposal_number?: string;
+  signer_email?: string;
+}
+
+/**
+ * DocuSeal webhook submitter information
+ */
+interface DocusealSubmitter {
+  name?: string;
+  email?: string;
+  completed_at?: string;
+  opened_at?: string;
+  ip?: string;
+  user_agent?: string;
+  values?: Record<string, unknown>;
+}
+
+/**
+ * DocuSeal webhook submission data
+ */
+interface DocusealSubmissionData {
+  id: string;
+  template_id: string;
+  status: string;
+  completed_at?: string;
+  metadata?: DocusealSubmissionMetadata;
+  submitters?: DocusealSubmitter[];
+}
+
+/**
+ * DocuSeal webhook event payload
+ */
+interface DocusealWebhookEvent {
+  event: "submission.completed" | "submission.declined" | "submission.expired";
+  data?: DocusealSubmissionData;
+}
+
+/**
  * Helper for consistent Sentry context in DocuSeal webhooks
  */
 function sentryCtx(
@@ -122,7 +166,7 @@ export async function POST(request: Request) {
         new Error("Invalid DocuSeal webhook signature"),
         sentryCtx(
           { operation: "webhook_signature_invalid" },
-          { providedSignature: signature.substring(0, 10) + "..." },
+          { providedSignature: `${signature.substring(0, 10)}...` },
         ),
       );
       return new Response("Invalid signature", { status: 401 });
@@ -177,7 +221,7 @@ export async function POST(request: Request) {
     }
 
     // Parse webhook event
-    const event = JSON.parse(body);
+    const event = JSON.parse(body) as DocusealWebhookEvent;
 
     // ✅ RATE LIMITING: Extract identifiers early
     const metadata = event.data?.metadata || {};
@@ -373,6 +417,17 @@ export async function POST(request: Request) {
     }
 
     // Handle different submission events
+    if (!event.data) {
+      Sentry.captureException(
+        new Error("Missing submission data in webhook event"),
+        sentryCtx(
+          { operation: "webhook_missing_data" },
+          { eventType: event.event },
+        ),
+      );
+      return new Response("Missing submission data", { status: 400 });
+    }
+
     if (event.event === "submission.completed") {
       await handleSubmissionCompleted(event.data);
     } else if (event.event === "submission.declined") {
@@ -384,7 +439,7 @@ export async function POST(request: Request) {
         "Unsupported DocuSeal webhook event",
         sentryCtx(
           { operation: "webhook_unsupported_event" },
-          { eventType: event.event, submissionId: event.data?.id },
+          { eventType: event.event, submissionId: event.data.id },
         ),
       );
     }
@@ -405,7 +460,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function handleSubmissionCompleted(submission: any) {
+async function handleSubmissionCompleted(submission: DocusealSubmissionData) {
   const submissionId = submission.id;
   const metadata = submission.metadata || {};
 
@@ -440,13 +495,13 @@ async function handleSubmissionCompleted(submission: any) {
 }
 
 async function handleProposalSigning(
-  submission: any,
-  metadata: any,
+  submission: DocusealSubmissionData,
+  metadata: DocusealSubmissionMetadata,
   proposalId: string,
   tenantId: string,
 ) {
   const submissionId = submission.id;
-  const proposalNumber = metadata.proposal_number;
+  const proposalNumber = metadata.proposal_number ?? "Unknown";
 
   // Get proposal details (including leadId for auto-conversion)
   const [proposalDetails] = await db
@@ -502,7 +557,9 @@ async function handleProposalSigning(
       .update(proposals)
       .set({
         status: "signed",
-        signedAt: new Date(auditTrail.signedAt),
+        signedAt: auditTrail.signedAt
+          ? new Date(auditTrail.signedAt)
+          : new Date(),
         docusealSignedPdfKey: s3Key, // Store S3 key for secure presigned URL access
         documentHash,
         updatedAt: new Date(),
@@ -518,7 +575,8 @@ async function handleProposalSigning(
       signatureMethod: "docuseal",
       signerName: auditTrail.signerName,
       signerEmail: auditTrail.signerEmail,
-      signingCapacity: auditTrail.signingCapacity || null,
+      signingCapacity:
+        (auditTrail.signingCapacity as string | null | undefined) ?? null,
       companyInfo: {
         name: auditTrail.companyName,
         number: auditTrail.companyNumber,
@@ -530,10 +588,12 @@ async function handleProposalSigning(
       },
       documentHash,
       signatureData: submissionId, // Store submission ID as signature data reference
-      ipAddress: auditTrail.ipAddress || null,
-      userAgent: auditTrail.userAgent || null,
+      ipAddress: auditTrail.ipAddress ?? null,
+      userAgent: auditTrail.userAgent ?? null,
       viewedAt: auditTrail.viewedAt ? new Date(auditTrail.viewedAt) : null,
-      signedAt: new Date(auditTrail.signedAt),
+      signedAt: auditTrail.signedAt
+        ? new Date(auditTrail.signedAt)
+        : new Date(),
     });
 
     // Log activity
@@ -590,8 +650,8 @@ async function handleProposalSigning(
       proposalId, // Pass proposalId instead of URL for secure presigned URL generation
       auditTrailSummary: {
         signerName: auditTrail.signerName,
-        signedAt: auditTrail.signedAt,
-        ipAddress: auditTrail.ipAddress || "Unknown",
+        signedAt: auditTrail.signedAt ?? new Date().toISOString(),
+        ipAddress: auditTrail.ipAddress ?? "Unknown",
         documentHash,
       },
     });
@@ -608,8 +668,8 @@ async function handleProposalSigning(
 }
 
 async function handleDocumentSigning(
-  submission: any,
-  _metadata: any,
+  submission: DocusealSubmissionData,
+  _metadata: DocusealSubmissionMetadata,
   documentId: string,
   tenantId: string,
 ) {
@@ -658,7 +718,9 @@ async function handleDocumentSigning(
       .set({
         signatureStatus: "signed",
         signedPdfKey: s3Key, // Store S3 key for secure presigned URL access
-        signedAt: new Date(auditTrail.signedAt),
+        signedAt: auditTrail.signedAt
+          ? new Date(auditTrail.signedAt)
+          : new Date(),
         signedBy: auditTrail.signerName,
       })
       .where(eq(documents.id, documentId));
@@ -673,7 +735,9 @@ async function handleDocumentSigning(
       auditTrail,
       documentHash,
       signedPdfUrl: null, // No longer storing public URL
-      signedAt: new Date(auditTrail.signedAt),
+      signedAt: auditTrail.signedAt
+        ? new Date(auditTrail.signedAt)
+        : new Date(),
     });
 
     // Create activity log
@@ -683,7 +747,7 @@ async function handleDocumentSigning(
       action: "Document Signed",
       entityType: "document",
       entityId: documentId,
-      details: `Document "${doc.name}" signed by ${auditTrail.signerName}`,
+      description: `Document "${doc.name}" signed by ${auditTrail.signerName}`,
       metadata: {
         documentId,
         submissionId,
@@ -694,7 +758,7 @@ async function handleDocumentSigning(
   });
 }
 
-async function handleSubmissionDeclined(submission: any) {
+async function handleSubmissionDeclined(submission: DocusealSubmissionData) {
   const submissionId = submission.id;
   const metadata = submission.metadata || {};
   const proposalId = metadata.proposal_id;
@@ -782,7 +846,7 @@ async function handleSubmissionDeclined(submission: any) {
   );
 }
 
-async function handleSubmissionExpired(submission: any) {
+async function handleSubmissionExpired(submission: DocusealSubmissionData) {
   const submissionId = submission.id;
   const metadata = submission.metadata || {};
   const proposalId = metadata.proposal_id;

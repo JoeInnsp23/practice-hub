@@ -4,25 +4,8 @@ import { Clock, DollarSign, Edit, Tag, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Service } from "@/lib/trpc/types";
 import { formatCurrency } from "@/lib/utils/format";
-
-interface Service {
-  id: string;
-  tenantId: string;
-  code: string;
-  name: string;
-  description: string | null;
-  category: string | null;
-  defaultRate: string | null;
-  price: string | null;
-  priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
-  duration: number | null;
-  tags: any;
-  isActive: boolean;
-  metadata: any;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 interface ServiceCardProps {
   service: Service;

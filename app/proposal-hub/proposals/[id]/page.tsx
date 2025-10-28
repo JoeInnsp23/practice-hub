@@ -6,10 +6,8 @@ import {
   Building2,
   Calendar,
   Download,
-  Edit,
   FileText,
   Mail,
-  RotateCcw,
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -213,7 +211,7 @@ export default function ProposalDetailPage({
             proposalTitle={proposalData.title}
             currentNotes={proposalData.notes}
             currentTerms={proposalData.termsAndConditions}
-            currentServices={proposalData.services}
+            currentServices={proposalData.services as any}
             onSuccess={() => {
               utils.proposals.getById.invalidate(id);
             }}
@@ -292,7 +290,14 @@ export default function ProposalDetailPage({
             onValueChange={(value) => {
               updateSalesStage({
                 id: proposalData.id,
-                salesStage: value as any,
+                salesStage: value as
+                  | "qualified"
+                  | "proposal_sent"
+                  | "lost"
+                  | "enquiry"
+                  | "follow_up"
+                  | "won"
+                  | "dormant",
               });
             }}
             disabled={isUpdatingSalesStage}

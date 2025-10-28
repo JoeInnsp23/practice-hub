@@ -22,42 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { DocumentListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 
-interface DocumentData {
-  document: {
-    id: string;
-    name: string;
-    type: "folder" | "file";
-    mimeType: string | null;
-    size: number | null;
-    parentId: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    tags: unknown;
-    clientId: string | null;
-    url: string | null;
-    path: string;
-    isPublic: boolean;
-    requiresSignature?: boolean;
-    signatureStatus?: string | null;
-    signedAt?: Date | null;
-    signedBy?: string | null;
-  };
-  uploader: {
-    id: string;
-    firstName: string | null;
-    lastName: string | null;
-    email: string;
-  } | null;
-  client: {
-    id: string;
-    name: string;
-    companyName: string | null;
-    email: string;
-  } | null;
-}
+type DocumentData = DocumentListOutput["documents"][number];
 
 interface DocumentGridProps {
   documents: DocumentData[];
@@ -267,7 +236,7 @@ export function DocumentGrid({
                   </div>
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
-                  {doc.client?.companyName || doc.client?.name || "-"}
+                  {doc.client?.name || "-"}
                 </td>
                 <td className="p-4 text-sm text-muted-foreground">
                   {doc.uploader

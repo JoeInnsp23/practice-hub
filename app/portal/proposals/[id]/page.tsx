@@ -36,6 +36,7 @@ export default function ProposalDetailPage() {
   const params = useParams();
   const router = useRouter();
   const proposalId = params.id as string;
+  const utils = trpc.useUtils();
 
   const { data: proposal, isLoading } =
     trpc.clientPortal.getProposalById.useQuery({
@@ -151,7 +152,7 @@ export default function ProposalDetailPage() {
               onClick={async () => {
                 try {
                   const result =
-                    await trpc.clientPortal.getSignedProposalPdf.query({
+                    await utils.clientPortal.getSignedProposalPdf.fetch({
                       proposalId: proposal.id,
                     });
                   if (result.url) {
@@ -159,7 +160,7 @@ export default function ProposalDetailPage() {
                   } else {
                     toast.error("Signed PDF not available");
                   }
-                } catch (error) {
+                } catch (_error) {
                   toast.error("Failed to load signed PDF");
                 }
               }}
@@ -236,7 +237,7 @@ export default function ProposalDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {proposal.services.map((service: any) => (
+                  {proposal.services.map((service) => (
                     <TableRow key={service.id}>
                       <TableCell className="font-medium">
                         {service.name}

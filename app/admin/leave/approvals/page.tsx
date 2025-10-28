@@ -96,7 +96,9 @@ export default function LeaveApprovalsPage() {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    const pending = teamLeave.requests.filter((r) => r.status === "pending").length;
+    const pending = teamLeave.requests.filter(
+      (r) => r.status === "pending",
+    ).length;
 
     const approvedThisMonth = teamLeave.requests.filter(
       (r) =>

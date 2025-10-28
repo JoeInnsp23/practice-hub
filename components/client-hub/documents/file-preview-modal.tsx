@@ -1,6 +1,7 @@
 "use client";
 
 import { Download, X } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,11 +61,15 @@ export function FilePreviewModal({
           {canPreview ? (
             <div className="w-full h-full min-h-[400px] flex items-center justify-center bg-muted/20 rounded-lg">
               {isImage && url && (
-                <img
-                  src={url}
-                  alt={name}
-                  className="max-w-full max-h-[600px] object-contain rounded-lg"
-                />
+                <div className="relative w-full h-[600px]">
+                  <Image
+                    src={url}
+                    alt={name}
+                    fill
+                    className="object-contain rounded-lg"
+                    unoptimized
+                  />
+                </div>
               )}
               {isPDF && url && (
                 <iframe

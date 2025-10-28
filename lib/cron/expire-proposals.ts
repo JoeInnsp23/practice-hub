@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { and, eq, lt, ne, sql } from "drizzle-orm";
+import { and, eq, lt, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { activityLogs, clients, proposals } from "@/lib/db/schema";
 import { sendProposalExpiredTeamEmail } from "@/lib/email/send-proposal-email";

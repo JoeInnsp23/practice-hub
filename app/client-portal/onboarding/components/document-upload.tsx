@@ -15,7 +15,7 @@ import { Card } from "@/components/ui/card";
 
 interface OnboardingDocumentUploadProps {
   sessionId: string;
-  onDocumentsUploaded: (extractedData: Record<string, any>) => void;
+  onDocumentsUploaded: (extractedData: Record<string, unknown>) => void;
 }
 
 interface UploadedFile {
@@ -135,9 +135,11 @@ export function OnboardingDocumentUpload({
           </span>
         </div>,
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error("Upload error:", error);
-      toast.error(error.message || "Failed to upload documents");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to upload documents";
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }

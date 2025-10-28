@@ -41,7 +41,8 @@ export function LeaveRequestRejectedEmail({
           <Text style={text}>Hi {userName},</Text>
 
           <Text style={text}>
-            Unfortunately, your leave request has not been approved{approverName ? ` by ${approverName}` : ""}.
+            Unfortunately, your leave request has not been approved
+            {approverName ? ` by ${approverName}` : ""}.
           </Text>
 
           <Section style={detailsSection}>
@@ -55,7 +56,9 @@ export function LeaveRequestRejectedEmail({
             <Text style={detailValue}>{formatDate(endDate)}</Text>
 
             <Text style={detailLabel}>Days:</Text>
-            <Text style={detailValue}>{daysCount} {daysCount === 1 ? "day" : "days"}</Text>
+            <Text style={detailValue}>
+              {daysCount} {daysCount === 1 ? "day" : "days"}
+            </Text>
           </Section>
 
           {comments && (
@@ -66,12 +69,11 @@ export function LeaveRequestRejectedEmail({
           )}
 
           <Text style={text}>
-            If you have any questions or would like to discuss this decision, please contact your manager.
+            If you have any questions or would like to discuss this decision,
+            please contact your manager.
           </Text>
 
-          <Text style={footer}>
-            Practice Hub Leave Management System
-          </Text>
+          <Text style={footer}>Practice Hub Leave Management System</Text>
         </Container>
       </Body>
     </Html>

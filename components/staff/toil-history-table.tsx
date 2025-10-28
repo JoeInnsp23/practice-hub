@@ -21,7 +21,7 @@ interface ToilHistoryRecord {
   contractedHours: number;
   expiryDate: string;
   expired: boolean;
-  timesheetId?: string;
+  timesheetId: string | null;
 }
 
 interface ToilHistoryTableProps {
@@ -116,7 +116,9 @@ export function ToilHistoryTable({
                       if (onViewTimesheet) {
                         onViewTimesheet(record.timesheetId!);
                       } else {
-                        router.push(`/practice-hub/timesheets/${record.timesheetId}`);
+                        router.push(
+                          `/practice-hub/timesheets/${record.timesheetId}`,
+                        );
                       }
                     }}
                   >

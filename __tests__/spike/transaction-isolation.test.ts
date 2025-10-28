@@ -15,9 +15,8 @@
  *           If any fail → use unique test IDs + afterEach cleanup
  */
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { clientsRouter } from "@/app/server/routers/clients";
 import { db } from "@/lib/db";
 import { clients, tenants, users } from "@/lib/db/schema";
@@ -63,7 +62,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
     it("should support db.transaction() wrapper", async () => {
       // Verify Drizzle supports transaction syntax
       await expect(
-        db.transaction(async (tx) => {
+        db.transaction(async (_tx) => {
           return { success: true };
         }),
       ).resolves.toEqual({ success: true });
@@ -165,7 +164,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
           shouldRollback = true;
           throw new Error("Rollback");
         });
-      } catch (error) {
+      } catch (_error) {
         // Expected error
         expect(shouldRollback).toBe(true);
       }
@@ -182,14 +181,14 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
 
   describe("Test 3: Integration with tRPC Router Procedures", () => {
     it("should work with tRPC router.createCaller pattern", async () => {
-      const clientId = crypto.randomUUID();
+      const _clientId = crypto.randomUUID();
       let procedureCalled = false;
 
       await expect(
-        db.transaction(async (tx) => {
+        db.transaction(async (_tx) => {
           // Create tRPC context with transaction-aware database
           // Note: This is a limitation test - tRPC routers use global db import
-          const ctx: Context = createMockContext({
+          const mockCtx = createMockContext({
             authContext: {
               userId: testUserId,
               tenantId: testTenantId,
@@ -202,7 +201,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
           });
 
           // Create caller
-          const caller = createCaller(clientsRouter, ctx);
+          const caller = createCaller(clientsRouter, mockCtx);
 
           // Call create procedure
           const result = await caller.create({
@@ -217,7 +216,7 @@ describe("SPIKE: Transaction-Based Test Isolation", () => {
           expect(result.client.name).toBe("tRPC Transaction Test");
 
           // Store client ID for verification
-          const createdId = result.client.id;
+          const _createdId = result.client.id;
 
           // Throw to rollback
           throw new Error("Testing tRPC rollback");

@@ -12,6 +12,8 @@ interface SignedDocumentsListProps {
 }
 
 export function SignedDocumentsList({ clientId }: SignedDocumentsListProps) {
+  const utils = trpc.useUtils();
+
   // Fetch signed documents
   const { data: documents, isLoading } =
     trpc.clientPortal.getSignedDocuments.useQuery(
@@ -21,7 +23,7 @@ export function SignedDocumentsList({ clientId }: SignedDocumentsListProps) {
 
   const handleDownload = async (documentId: string, _name: string) => {
     try {
-      const result = await trpc.clientPortal.getSignedDocumentPdf.query({
+      const result = await utils.clientPortal.getSignedDocumentPdf.fetch({
         documentId,
       });
       if (result.url) {

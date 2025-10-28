@@ -67,7 +67,7 @@ async function getTenantIdFromXeroTenantId(
           if (config?.selectedTenantId === xeroTenantId) {
             return setting.tenantId;
           }
-        } catch (error) {}
+        } catch (_error) {}
       }
     }
 

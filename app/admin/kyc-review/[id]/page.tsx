@@ -67,8 +67,12 @@ export default function AdminKYCDetailPage({
       setShowApproveDialog(false);
       refetch();
       router.push("/admin/kyc-review");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to approve verification");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to approve verification";
+      toast.error(message);
     }
   };
 
@@ -90,8 +94,12 @@ export default function AdminKYCDetailPage({
       setShowRejectDialog(false);
       refetch();
       router.push("/admin/kyc-review");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to reject verification");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to reject verification";
+      toast.error(message);
     }
   };
 

@@ -1,9 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import { staffCapacity, timeEntries, toilAccrualHistory } from "@/lib/db/schema";
-import { toilRouter } from "@/app/server/routers/toil";
 import { and, eq } from "drizzle-orm";
-import type { Context } from "@/app/server/context";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { toilRouter } from "@/app/server/routers/toil";
+import { db } from "@/lib/db";
+import {
+  staffCapacity,
+  timeEntries,
+  toilAccrualHistory,
+} from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
@@ -141,6 +144,8 @@ describe("TOIL Multi-Tenant Isolation", () => {
       userId: userAId,
       weekEnding: "2025-01-12",
       hoursAccrued: 15,
+      contractedHours: 37.5,
+      loggedHours: 52.5,
       expiryDate: "2026-01-12",
       expired: false,
     });
@@ -183,6 +188,8 @@ describe("TOIL Multi-Tenant Isolation", () => {
         userId: userAId,
         weekEnding: "2024-12-01",
         hoursAccrued: 10,
+        contractedHours: 37.5,
+        loggedHours: 47.5,
         expiryDate: pastDate.toISOString().split("T")[0],
         expired: false,
       },
@@ -192,6 +199,8 @@ describe("TOIL Multi-Tenant Isolation", () => {
         userId: userBId,
         weekEnding: "2024-12-01",
         hoursAccrued: 15,
+        contractedHours: 40,
+        loggedHours: 55,
         expiryDate: pastDate.toISOString().split("T")[0],
         expired: false,
       },
@@ -276,6 +285,8 @@ describe("TOIL Multi-Tenant Isolation", () => {
         userId: userAId,
         weekEnding: "2025-01-01",
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         expiryDate: futureDate.toISOString().split("T")[0],
         expired: false,
       },
@@ -285,6 +296,8 @@ describe("TOIL Multi-Tenant Isolation", () => {
         userId: userBId,
         weekEnding: "2025-01-01",
         hoursAccrued: 10,
+        contractedHours: 40,
+        loggedHours: 50,
         expiryDate: futureDate.toISOString().split("T")[0],
         expired: false,
       },

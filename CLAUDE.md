@@ -115,6 +115,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - **Pre-commit verification**: Run `grep -rn "= ANY(" app/server/routers/` before committing router changes
    - **Historical context**: 3 critical ANY() bugs discovered during Story 2.2 testing (2025-01-24) - see `/docs/audits/2025-01-24-router-sql-audit.md`
 
+17. **Form Decimal/Numeric Handling Policy** - Forms with decimal/numeric fields must follow industry-standard patterns (see Story 7.2 architectural decision):
+   - **ALWAYS use number types in forms** - Better UX with HTML number inputs, simpler validation (min/max vs regex)
+   - **ALWAYS use type-safe conversions at boundaries** - Convert numbers to strings when passing to database (decimal fields)
+   - **Drizzle ORM Design:** PostgreSQL `decimal`/`numeric` types are **INTENTIONALLY** represented as `string` in TypeScript (preserves precision beyond JavaScript number limits)
+   - **Accepted Pattern:**
+     ```typescript
+     // ✅ CORRECT - Form uses numbers
+     const invoiceSchema = z.object({
+       subtotal: z.number().min(0, "Subtotal must be 0 or greater"),
+       taxRate: z.number().min(0).max(100, "Tax rate must be between 0 and 100"),
+     });
+
+     // ✅ CORRECT - Type-safe conversion at boundary
+     const handleSave = (data: InvoiceFormData) => {
+       mutation.mutate({
+         subtotal: data.subtotal.toString(), // number → string for DB
+         taxRate: data.taxRate.toString(),
+       });
+     };
+
+     // OR use tRPC transform:
+     .input(z.object({
+       subtotal: z.number().transform(n => n.toString()),
+       taxRate: z.number().transform(n => n.toString()),
+     }))
+     ```
+   - **Why This Pattern:**
+     - HTML `<input type="number">` works with JavaScript numbers, not strings
+     - PostgreSQL decimals require string representation for precision
+     - React Hook Form, Zod, and tRPC all support and encourage transform patterns
+     - Industry standard approach validated by 2025 research
+   - **Research Sources:** Zod transforms, React Hook Form valueAsNumber, tRPC input transforms, Drizzle ORM decimal design
+   - **Historical Context:** Story 7.2 architectural pivot (2025-10-26) - see `/docs/stories/7.2.story.md` for complete rationale
+
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**

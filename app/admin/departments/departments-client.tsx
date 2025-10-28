@@ -16,7 +16,7 @@ interface DepartmentsClientProps {
 }
 
 export default function DepartmentsClient({
-  tenantId,
+  tenantId: _tenantId,
 }: DepartmentsClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showInactive, setShowInactive] = useState(false);

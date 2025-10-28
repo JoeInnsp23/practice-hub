@@ -34,24 +34,66 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import type { Service } from "@/lib/trpc/types";
 
 const serviceSchema = z.object({
+  code: z.string().min(1, "Service code is required"),
   name: z.string().min(1, "Service name is required"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  category: z.string().min(1, "Category is required"),
-  price: z.string().min(0, "Price is required"),
-  priceType: z.enum(["fixed", "hourly", "monthly", "project"]),
-  duration: z.string().optional(),
+  category: z.enum([
+    "compliance",
+    "vat",
+    "bookkeeping",
+    "payroll",
+    "management",
+    "secretarial",
+    "tax_planning",
+    "addon",
+  ]),
+  description: z.string().optional(),
+  pricingModel: z.enum(["turnover", "transaction", "both", "fixed"]),
+  basePrice: z.number().min(0, "Base price must be 0 or greater").optional(),
+  defaultRate: z
+    .number()
+    .min(0, "Default rate must be 0 or greater")
+    .optional(),
+  priceType: z.enum(["hourly", "fixed", "retainer", "project", "percentage"]),
+  duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
+  supportsComplexity: z.boolean(),
+  tags: z.array(z.string()).optional(),
   isActive: z.boolean(),
 });
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;
 
+// Form data type for service (used for form input/output)
+interface ServiceFormData {
+  code: string;
+  name: string;
+  category:
+    | "compliance"
+    | "vat"
+    | "bookkeeping"
+    | "payroll"
+    | "management"
+    | "secretarial"
+    | "tax_planning"
+    | "addon";
+  description?: string;
+  pricingModel: "turnover" | "transaction" | "both" | "fixed";
+  basePrice?: number;
+  defaultRate?: number;
+  priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage";
+  duration?: number;
+  supportsComplexity: boolean;
+  tags?: string[];
+  isActive: boolean;
+}
+
 interface ServiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
-  service?: any;
+  onSave: (data: ServiceFormData) => void;
+  service?: Partial<ServiceFormData & { price?: number | string }>;
 }
 
 export function ServiceModal({
@@ -60,34 +102,26 @@ export function ServiceModal({
   onSave,
   service,
 }: ServiceModalProps) {
-  const [features, setFeatures] = useState<string[]>(service?.features || []);
   const [tags, setTags] = useState<string[]>(service?.tags || []);
-  const [newFeature, setNewFeature] = useState("");
   const [newTag, setNewTag] = useState("");
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
+      code: service?.code || "",
       name: service?.name || "",
+      category: service?.category || "compliance",
       description: service?.description || "",
-      category: service?.category || "",
-      price: service?.price?.toString() || "",
+      pricingModel: service?.pricingModel || "fixed",
+      basePrice: service?.basePrice || undefined,
+      defaultRate: service?.defaultRate || undefined,
       priceType: service?.priceType || "fixed",
-      duration: service?.duration || "",
+      duration: service?.duration || undefined,
+      supportsComplexity: service?.supportsComplexity || false,
+      tags: service?.tags || [],
       isActive: service?.isActive !== undefined ? service.isActive : true,
     },
   });
-
-  const addFeature = () => {
-    if (newFeature.trim()) {
-      setFeatures([...features, newFeature.trim()]);
-      setNewFeature("");
-    }
-  };
-
-  const removeFeature = (index: number) => {
-    setFeatures(features.filter((_, i) => i !== index));
-  };
 
   const addTag = () => {
     if (newTag.trim()) {
@@ -103,12 +137,9 @@ export function ServiceModal({
   const onSubmit = (data: ServiceFormValues) => {
     onSave({
       ...data,
-      price: parseFloat(data.price),
-      features,
       tags,
     });
     form.reset();
-    setFeatures([]);
     setTags([]);
     toast.success(service ? "Service updated" : "Service created");
   };
@@ -132,16 +163,16 @@ export function ServiceModal({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="name"
+                name="code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Service Name</FormLabel>
+                    <FormLabel>Service Code</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g., Tax Return Preparation"
-                        {...field}
-                      />
+                      <Input placeholder="e.g., COMP_ACCOUNTS" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      Unique identifier for this service
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -149,36 +180,46 @@ export function ServiceModal({
 
               <FormField
                 control={form.control}
-                name="category"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Tax Services">
-                          Tax Services
-                        </SelectItem>
-                        <SelectItem value="Accounting">Accounting</SelectItem>
-                        <SelectItem value="Bookkeeping">Bookkeeping</SelectItem>
-                        <SelectItem value="Consulting">Consulting</SelectItem>
-                        <SelectItem value="Payroll">Payroll</SelectItem>
-                        <SelectItem value="Company Formation">
-                          Company Formation
-                        </SelectItem>
-                        <SelectItem value="Compliance">Compliance</SelectItem>
-                        <SelectItem value="Advisory">Advisory</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Service Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Company Accounts" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="compliance">Compliance</SelectItem>
+                      <SelectItem value="vat">VAT</SelectItem>
+                      <SelectItem value="bookkeeping">Bookkeeping</SelectItem>
+                      <SelectItem value="payroll">Payroll</SelectItem>
+                      <SelectItem value="management">Management</SelectItem>
+                      <SelectItem value="secretarial">Secretarial</SelectItem>
+                      <SelectItem value="tax_planning">Tax Planning</SelectItem>
+                      <SelectItem value="addon">Add-on</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -198,21 +239,26 @@ export function ServiceModal({
               )}
             />
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="price"
+                name="pricingModel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (£)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        {...field}
-                      />
-                    </FormControl>
+                    <FormLabel>Pricing Model</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="turnover">Turnover</SelectItem>
+                        <SelectItem value="transaction">Transaction</SelectItem>
+                        <SelectItem value="both">Both</SelectItem>
+                        <SelectItem value="fixed">Fixed</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -231,12 +277,67 @@ export function ServiceModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="fixed">Fixed Price</SelectItem>
-                        <SelectItem value="hourly">Hourly Rate</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="project">Per Project</SelectItem>
+                        <SelectItem value="hourly">Hourly</SelectItem>
+                        <SelectItem value="fixed">Fixed</SelectItem>
+                        <SelectItem value="retainer">Retainer</SelectItem>
+                        <SelectItem value="project">Project</SelectItem>
+                        <SelectItem value="percentage">Percentage</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="basePrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Base Price (£)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                              ? parseFloat(e.target.value)
+                              : undefined,
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="defaultRate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Default Rate (£)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                              ? parseFloat(e.target.value)
+                              : undefined,
+                          )
+                        }
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -247,9 +348,20 @@ export function ServiceModal({
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duration (Optional)</FormLabel>
+                    <FormLabel>Duration (mins)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 2-3 days" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="60"
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value
+                              ? parseInt(e.target.value)
+                              : undefined,
+                          )
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -257,45 +369,28 @@ export function ServiceModal({
               />
             </div>
 
-            {/* Features */}
-            <div className="space-y-2">
-              <FormLabel>Features</FormLabel>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add a feature"
-                  value={newFeature}
-                  onChange={(e) => setNewFeature(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addFeature();
-                    }
-                  }}
-                />
-                <Button type="button" variant="outline" onClick={addFeature}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {features.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {features.map((feature, index) => (
-                    <div
-                      key={feature}
-                      className="flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm"
-                    >
-                      {feature}
-                      <button
-                        type="button"
-                        onClick={() => removeFeature(index)}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+            <FormField
+              control={form.control}
+              name="supportsComplexity"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Supports Complexity Pricing
+                    </FormLabel>
+                    <FormDescription>
+                      Enable complexity-based pricing for this service
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
               )}
-            </div>
+            />
 
             {/* Tags */}
             <div className="space-y-2">

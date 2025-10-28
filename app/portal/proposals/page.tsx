@@ -28,13 +28,14 @@ import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export default function ProposalsPage() {
   const { currentClientId } = useClientPortalContext();
+  const utils = trpc.useUtils();
   const [selectedStatus, setSelectedStatus] = useState<
     "sent" | "viewed" | "signed" | "expired" | undefined
   >();
 
   const { data: proposals, isLoading } =
     trpc.clientPortal.getProposals.useQuery(
-      { clientId: currentClientId!, status: selectedStatus },
+      { clientId: currentClientId || "", status: selectedStatus },
       { enabled: !!currentClientId },
     );
 
@@ -111,11 +112,15 @@ export default function ProposalsPage() {
         <CardContent>
           <Tabs
             value={selectedStatus}
-            onValueChange={(v) => setSelectedStatus(v as any)}
+            onValueChange={(v) =>
+              setSelectedStatus(
+                v as "sent" | "expired" | "viewed" | "signed" | undefined,
+              )
+            }
           >
             <TabsList>
               <TabsTrigger
-                value={undefined as any}
+                value="all"
                 onClick={() => setSelectedStatus(undefined)}
               >
                 All
@@ -191,7 +196,7 @@ export default function ProposalsPage() {
                                   onClick={async () => {
                                     try {
                                       const result =
-                                        await trpc.clientPortal.getSignedProposalPdf.query(
+                                        await utils.clientPortal.getSignedProposalPdf.fetch(
                                           {
                                             proposalId: proposal.id,
                                           },
@@ -201,7 +206,7 @@ export default function ProposalsPage() {
                                       } else {
                                         toast.error("Signed PDF not available");
                                       }
-                                    } catch (error) {
+                                    } catch (_error) {
                                       toast.error("Failed to load signed PDF");
                                     }
                                   }}

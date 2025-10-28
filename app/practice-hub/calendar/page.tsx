@@ -33,16 +33,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { CalendarEventListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
 type EventType = "meeting" | "deadline" | "event" | "out_of_office";
+type CalendarEvent = CalendarEventListOutput[number];
 
 export default function CalendarPage() {
   const _utils = trpc.useUtils();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [_viewMode, _setViewMode] = useState<"month" | "week" | "day">("month");
   const [isNewEventOpen, setIsNewEventOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null,
+  );
 
   // Calculate date range based on selected date
   const startOfMonth = new Date(
@@ -70,7 +74,7 @@ export default function CalendarPage() {
   const events = eventsData || [];
 
   // Get events for selected date
-  const selectedDateEvents = events.filter((event: any) => {
+  const selectedDateEvents = events.filter((event) => {
     const eventDate = new Date(event.event.startTime);
     return (
       eventDate.getDate() === selectedDate.getDate() &&
@@ -159,7 +163,7 @@ export default function CalendarPage() {
             onMonthChange={setSelectedDate}
             className="rounded-md border"
             modifiers={{
-              hasEvents: events.map((e: any) => new Date(e.event.startTime)),
+              hasEvents: events.map((e) => new Date(e.event.startTime)),
             }}
             modifiersClassNames={{
               hasEvents: "bg-primary/10 font-semibold",
@@ -194,7 +198,7 @@ export default function CalendarPage() {
                 </p>
               </div>
             ) : (
-              selectedDateEvents.map((event: any) => (
+              selectedDateEvents.map((event) => (
                 <EventCard
                   key={event.event.id}
                   event={event}
@@ -222,7 +226,13 @@ export default function CalendarPage() {
 }
 
 // Event Card Component
-function EventCard({ event, onClick }: { event: any; onClick: () => void }) {
+function EventCard({
+  event,
+  onClick,
+}: {
+  event: CalendarEvent;
+  onClick: () => void;
+}) {
   const eventData = event.event;
   const typeColors: Record<EventType, string> = {
     meeting: "bg-blue-500",
@@ -467,7 +477,7 @@ function EventDetailsDialog({
   open,
   onOpenChange,
 }: {
-  event: any;
+  event: CalendarEvent;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {

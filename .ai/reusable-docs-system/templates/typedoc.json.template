@@ -1,0 +1,36 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPointStrategy": "expand",
+  "entryPoints": [
+    "packages/*/src/**/*.ts",
+    "apps/web/src/**/*.tsx"
+  ],
+  "out": "docs/reference/typescript",
+  "plugin": ["typedoc-plugin-markdown"],
+  "excludePrivate": false,
+  "excludeInternal": false,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "excludeNotDocumented": false,
+  "hideGenerator": true,
+  "readme": "none",
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Functions",
+    "Types",
+    "Interfaces",
+    "Classes",
+    "Variables"
+  ],
+  "sort": ["source-order"],
+  "pretty": true,
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  }
+}

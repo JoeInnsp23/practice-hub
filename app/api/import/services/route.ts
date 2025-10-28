@@ -10,7 +10,6 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -160,18 +159,18 @@ export async function POST(request: NextRequest) {
             basePrice: row.price?.toString() || null, // Add basePrice to match schema
             price: row.price?.toString() || null,
             priceType: (row.price_type || "fixed") as
-              | "fixed"
               | "hourly"
-              | "monthly"
-              | "annual"
-              | "custom",
+              | "fixed"
+              | "retainer"
+              | "project"
+              | "percentage",
             defaultRate: row.price?.toString() || null, // Use price as default rate
             duration: row.estimated_hours
               ? Math.round(row.estimated_hours * 60)
               : null, // Convert hours to minutes
             supportsComplexity: false,
             tags: null, // Add tags field to match schema
-            isActive: row.is_active !== undefined ? row.is_active : true,
+            isActive: row.is_active !== false,
             metadata: row.notes
               ? {
                   notes: row.notes,
@@ -183,11 +182,13 @@ export async function POST(request: NextRequest) {
               : null,
           };
         })
-        .filter((service): service is NonNullable<typeof service> => service !== null);
+        .filter(
+          (service): service is NonNullable<typeof service> => service !== null,
+        );
 
       // Insert batch
       if (servicesData.length > 0) {
-        await db.insert(services).values(servicesData as any);
+        await db.insert(services).values(servicesData);
         processedCount += servicesData.length;
       }
 

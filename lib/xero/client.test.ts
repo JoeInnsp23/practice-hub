@@ -24,15 +24,22 @@ vi.stubEnv("XERO_CLIENT_SECRET", "test-client-secret");
 vi.stubEnv("XERO_REDIRECT_URI", "http://localhost:3000/api/xero/callback");
 
 // Mock database - create a proper mock chain
-const mockQueryChain = {
-  from: vi.fn(function (this: any) {
+interface MockQueryChain {
+  from: ReturnType<typeof vi.fn>;
+  where: ReturnType<typeof vi.fn>;
+  limit: ReturnType<typeof vi.fn>;
+  set: ReturnType<typeof vi.fn>;
+}
+
+const mockQueryChain: MockQueryChain = {
+  from: vi.fn(function (this: MockQueryChain) {
     return this; // Return mockQueryChain itself to continue the chain
   }),
-  where: vi.fn(function (this: any) {
+  where: vi.fn(function (this: MockQueryChain) {
     return this; // Return mockQueryChain itself to continue the chain
   }),
   limit: vi.fn(),
-  set: vi.fn(function (this: any) {
+  set: vi.fn(function (this: MockQueryChain) {
     return this; // Return mockQueryChain itself to continue the chain
   }),
 };
@@ -566,7 +573,7 @@ describe("lib/xero/client.ts", () => {
           json: async () => {
             throw new Error("Unexpected token in JSON");
           },
-        } as Response);
+        } as Partial<Response>);
 
         await expect(getAccessToken("test-code")).rejects.toThrow(
           "Unexpected token in JSON",
@@ -579,7 +586,7 @@ describe("lib/xero/client.ts", () => {
           json: async () => {
             throw new Error("Invalid JSON response");
           },
-        } as Response);
+        } as Partial<Response>);
 
         await expect(
           fetchBankTransactions(

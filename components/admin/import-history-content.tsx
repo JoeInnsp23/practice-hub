@@ -210,7 +210,7 @@ export function ImportHistoryContent() {
                         {format(new Date(log.startedAt), "MMM d, yyyy HH:mm")}
                       </TableCell>
                       <TableCell className="text-right">
-                        <ImportLogDetailsDialog log={log} />
+                        <ImportLogDetailsDialog log={log as ImportLog} />
                       </TableCell>
                     </TableRow>
                   ))
@@ -346,11 +346,38 @@ function StatusBadge({ status }: { status: ImportStatus }) {
 }
 
 // Import log details dialog
-function ImportLogDetailsDialog({ log }: { log: any }) {
+interface ImportLogError {
+  row: number;
+  field: string;
+  message: string;
+  value?: string;
+}
+
+interface ImportLog {
+  id: string;
+  fileName: string;
+  entityType: EntityType;
+  status: ImportStatus;
+  totalRows: number;
+  processedRows: number;
+  failedRows: number;
+  skippedRows: number;
+  dryRun: boolean;
+  startedAt: Date | string;
+  completedAt: Date | string | null;
+  errors?: ImportLogError[];
+}
+
+function ImportLogDetailsDialog({ log }: { log: ImportLog }) {
   const handleDownloadErrors = () => {
     if (!log.errors || log.errors.length === 0) return;
 
-    const csv = dataToCSV(log.errors, ["row", "field", "message", "value"]);
+    const csv = dataToCSV(log.errors as any, [
+      "row",
+      "field",
+      "message",
+      "value",
+    ]);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -441,7 +468,7 @@ function ImportLogDetailsDialog({ log }: { log: any }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {log.errors.map((error: any, index: number) => (
+                    {log.errors.map((error, index) => (
                       <TableRow key={index}>
                         <TableCell>{error.row}</TableCell>
                         <TableCell className="font-mono text-sm">

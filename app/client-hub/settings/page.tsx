@@ -4,6 +4,7 @@ import {
   Bell,
   Building,
   CheckCircle2,
+  Clock,
   Loader2,
   Save,
   Settings,
@@ -41,19 +42,26 @@ import {
 import { trpc } from "@/lib/trpc/client";
 
 export default function SettingsPage() {
-  // Fetch tenant and user settings from backend
+  // Fetch tenant, user, and timesheet settings from backend
   const { data: tenant, isLoading: tenantLoading } =
     trpc.settings.getTenant.useQuery();
   const { data: userSettings, isLoading: userLoading } =
     trpc.settings.getUserSettings.useQuery();
+  const { data: timesheetSettings, isLoading: timesheetLoading } =
+    trpc.settings.getTimesheetSettings.useQuery();
 
   const utils = trpc.useUtils();
 
   // Local state for form fields
   const [companyForm, setCompanyForm] = useState<Partial<CompanySettings>>({});
   const [userForm, setUserForm] = useState<Partial<UserSettings>>({});
+  const [timesheetForm, setTimesheetForm] = useState({
+    minWeeklyHours: 37.5,
+    dailyTargetHours: 7.5,
+  });
   const [showCompanySaved, setShowCompanySaved] = useState(false);
   const [showUserSaved, setShowUserSaved] = useState(false);
+  const [showTimesheetSaved, setShowTimesheetSaved] = useState(false);
 
   // Initialize form state when data loads
   useEffect(() => {
@@ -92,6 +100,15 @@ export default function SettingsPage() {
     }
   }, [userSettings]);
 
+  useEffect(() => {
+    if (timesheetSettings) {
+      setTimesheetForm({
+        minWeeklyHours: timesheetSettings.minWeeklyHours ?? 37.5,
+        dailyTargetHours: timesheetSettings.dailyTargetHours ?? 7.5,
+      });
+    }
+  }, [timesheetSettings]);
+
   // Update tenant settings mutation
   const updateTenant = trpc.settings.updateTenant.useMutation({
     onMutate: async (newData) => {
@@ -102,7 +119,7 @@ export default function SettingsPage() {
       const previousTenant = utils.settings.getTenant.getData();
 
       // Optimistically update to new value
-      if (previousTenant) {
+      if (previousTenant && newData?.metadata) {
         utils.settings.getTenant.setData(undefined, {
           ...previousTenant,
           metadata: newData.metadata,
@@ -165,6 +182,45 @@ export default function SettingsPage() {
     },
   });
 
+  // Update timesheet settings mutation (Story 6.3)
+  const updateTimesheetSettings =
+    trpc.settings.updateTimesheetSettings.useMutation({
+      onMutate: async (newData) => {
+        // Cancel outgoing refetches
+        await utils.settings.getTimesheetSettings.cancel();
+
+        // Snapshot previous value
+        const previousSettings = utils.settings.getTimesheetSettings.getData();
+
+        // Optimistically update to new value
+        if (previousSettings) {
+          utils.settings.getTimesheetSettings.setData(undefined, {
+            ...previousSettings,
+            ...newData,
+          });
+        }
+
+        // Return context with snapshot
+        return { previousSettings };
+      },
+      onSuccess: () => {
+        utils.settings.getTimesheetSettings.invalidate();
+        setShowTimesheetSaved(true);
+        toast.success("Timesheet settings saved successfully");
+        setTimeout(() => setShowTimesheetSaved(false), 2000);
+      },
+      onError: (error, _newData, context) => {
+        // Rollback to previous value on error
+        if (context?.previousSettings) {
+          utils.settings.getTimesheetSettings.setData(
+            undefined,
+            context.previousSettings,
+          );
+        }
+        toast.error(error.message || "Failed to save timesheet settings");
+      },
+    });
+
   const handleSaveCompanySettings = () => {
     // Client-side validation with Zod
     try {
@@ -174,7 +230,7 @@ export default function SettingsPage() {
       });
     } catch (error) {
       if (error instanceof ZodError) {
-        const firstError = error.errors[0];
+        const firstError = error.issues[0];
         toast.error(
           `Validation error: ${firstError.message} (${firstError.path.join(".")})`,
         );
@@ -191,7 +247,7 @@ export default function SettingsPage() {
       updateUserSettings.mutate(userForm as UserSettings);
     } catch (error) {
       if (error instanceof ZodError) {
-        const firstError = error.errors[0];
+        const firstError = error.issues[0];
         toast.error(
           `Validation error: ${firstError.message} (${firstError.path.join(".")})`,
         );
@@ -201,7 +257,30 @@ export default function SettingsPage() {
     }
   };
 
-  if (tenantLoading || userLoading) {
+  const handleSaveTimesheetSettings = () => {
+    // Basic validation
+    if (
+      timesheetForm.minWeeklyHours < 0 ||
+      timesheetForm.minWeeklyHours > 168
+    ) {
+      toast.error("Minimum weekly hours must be between 0 and 168");
+      return;
+    }
+    if (
+      timesheetForm.dailyTargetHours < 0 ||
+      timesheetForm.dailyTargetHours > 24
+    ) {
+      toast.error("Daily target hours must be between 0 and 24");
+      return;
+    }
+
+    updateTimesheetSettings.mutate({
+      minWeeklyHours: timesheetForm.minWeeklyHours,
+      dailyTargetHours: timesheetForm.dailyTargetHours,
+    });
+  };
+
+  if (tenantLoading || userLoading || timesheetLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-screen">
         <div className="flex items-center gap-2">
@@ -228,9 +307,10 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
         </TabsList>
 
         {/* General Settings */}
@@ -252,15 +332,20 @@ export default function SettingsPage() {
                   <Input
                     id="companyName"
                     value={companyForm.company?.name || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           name: e.target.value,
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -270,15 +355,20 @@ export default function SettingsPage() {
                     id="companyEmail"
                     type="email"
                     value={companyForm.company?.email || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           email: e.target.value,
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -287,15 +377,20 @@ export default function SettingsPage() {
                   <Input
                     id="companyPhone"
                     value={companyForm.company?.phone || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           phone: e.target.value,
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -307,69 +402,101 @@ export default function SettingsPage() {
                   <Input
                     placeholder="Street"
                     value={companyForm.company?.address?.street || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             street: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                   <Input
                     placeholder="City"
                     value={companyForm.company?.address?.city || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             city: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                   <Input
                     placeholder="Postcode"
                     value={companyForm.company?.address?.postcode || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             postcode: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                   <Input
                     placeholder="Country"
                     value={companyForm.company?.address?.country || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const currentCompany = companyForm.company || {
+                        name: "",
+                        email: "",
+                        address: { country: "United Kingdom" },
+                      };
+                      const currentAddress = currentCompany.address || {
+                        country: "United Kingdom",
+                      };
                       setCompanyForm({
                         ...companyForm,
                         company: {
-                          ...companyForm.company!,
+                          ...currentCompany,
                           address: {
-                            ...companyForm.company?.address!,
+                            ...currentAddress,
                             country: e.target.value,
                           },
                         },
-                      })
-                    }
+                      });
+                    }}
                     disabled={updateTenant.isPending}
                   />
                 </div>
@@ -382,15 +509,20 @@ export default function SettingsPage() {
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select
                       value={companyForm.regional?.timezone || "Europe/London"}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
+                        const currentRegional = companyForm.regional || {
+                          currency: "GBP",
+                          dateFormat: "DD/MM/YYYY",
+                          timezone: "Europe/London",
+                        };
                         setCompanyForm({
                           ...companyForm,
                           regional: {
-                            ...companyForm.regional!,
+                            ...currentRegional,
                             timezone: value,
                           },
-                        })
-                      }
+                        });
+                      }}
                       disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="timezone">
@@ -416,18 +548,23 @@ export default function SettingsPage() {
                     <Label htmlFor="dateFormat">Date Format</Label>
                     <Select
                       value={companyForm.regional?.dateFormat || "DD/MM/YYYY"}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
+                        const currentRegional = companyForm.regional || {
+                          currency: "GBP",
+                          dateFormat: "DD/MM/YYYY",
+                          timezone: "Europe/London",
+                        };
                         setCompanyForm({
                           ...companyForm,
                           regional: {
-                            ...companyForm.regional!,
+                            ...currentRegional,
                             dateFormat: value as
                               | "DD/MM/YYYY"
                               | "MM/DD/YYYY"
                               | "YYYY-MM-DD",
                           },
-                        })
-                      }
+                        });
+                      }}
                       disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="dateFormat">
@@ -465,15 +602,20 @@ export default function SettingsPage() {
                     <Label htmlFor="currency">Currency</Label>
                     <Select
                       value={companyForm.regional?.currency || "GBP"}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
+                        const currentRegional = companyForm.regional || {
+                          currency: "GBP",
+                          dateFormat: "DD/MM/YYYY",
+                          timezone: "Europe/London",
+                        };
                         setCompanyForm({
                           ...companyForm,
                           regional: {
-                            ...companyForm.regional!,
+                            ...currentRegional,
                             currency: value as "GBP" | "USD" | "EUR",
                           },
-                        })
-                      }
+                        });
+                      }}
                       disabled={updateTenant.isPending}
                     >
                       <SelectTrigger id="currency">
@@ -501,7 +643,7 @@ export default function SettingsPage() {
                       setCompanyForm({
                         ...companyForm,
                         fiscal: {
-                          ...companyForm.fiscal!,
+                          ...(companyForm.fiscal || {}),
                           fiscalYearStart: e.target.value,
                         },
                       })
@@ -597,6 +739,138 @@ export default function SettingsPage() {
               </div>
 
               <div className="pt-4 border-t">
+                <h4 className="text-sm font-medium mb-4">
+                  Granular Notification Controls
+                </h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifTaskAssigned">Task Assigned</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a task is assigned to you
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifTaskAssigned"
+                      checked={userForm.notifTaskAssigned ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifTaskAssigned: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifTaskMention">
+                        Task Mention/Comment
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when you're mentioned in a task
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifTaskMention"
+                      checked={userForm.notifTaskMention ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifTaskMention: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifTaskReassigned">
+                        Task Reassigned
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a task is reassigned to/from you
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifTaskReassigned"
+                      checked={userForm.notifTaskReassigned ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifTaskReassigned: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifDeadlineApproaching">
+                        Deadline Approaching
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a task/compliance deadline is near
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifDeadlineApproaching"
+                      checked={userForm.notifDeadlineApproaching ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifDeadlineApproaching: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifApprovalNeeded">
+                        Approval Required
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when your approval is needed
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifApprovalNeeded"
+                      checked={userForm.notifApprovalNeeded ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifApprovalNeeded: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifClientMessage">
+                        Client Messages
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notify when a client sends you a message
+                      </p>
+                    </div>
+                    <Switch
+                      id="notifClientMessage"
+                      checked={userForm.notifClientMessage ?? true}
+                      onCheckedChange={(checked) =>
+                        setUserForm({
+                          ...userForm,
+                          notifClientMessage: checked,
+                        })
+                      }
+                      disabled={updateUserSettings.isPending}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="digestEmail">Digest Email</Label>
@@ -657,6 +931,101 @@ export default function SettingsPage() {
                   disabled={updateUserSettings.isPending}
                 >
                   {updateUserSettings.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Timesheet Settings (Story 6.3) */}
+        <TabsContent value="timesheet">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Timesheet Preferences
+              </CardTitle>
+              <CardDescription>
+                Configure your timesheet tracking and validation preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="minWeeklyHours">Minimum Weekly Hours</Label>
+                  <Input
+                    id="minWeeklyHours"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="168"
+                    value={timesheetForm.minWeeklyHours}
+                    onChange={(e) =>
+                      setTimesheetForm({
+                        ...timesheetForm,
+                        minWeeklyHours: Number.parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    disabled={updateTimesheetSettings.isPending}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    The minimum number of hours required before you can submit
+                    your timesheet for approval (0-168 hours). Default: 37.5
+                    hours.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dailyTargetHours">Daily Target Hours</Label>
+                  <Input
+                    id="dailyTargetHours"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="24"
+                    value={timesheetForm.dailyTargetHours}
+                    onChange={(e) =>
+                      setTimesheetForm({
+                        ...timesheetForm,
+                        dailyTargetHours:
+                          Number.parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    disabled={updateTimesheetSettings.isPending}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    The target number of hours for each day. Days with hours
+                    below this threshold will be highlighted in orange (0-24
+                    hours). Default: 7.5 hours.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  Changes will take effect immediately after saving.
+                </p>
+                <Button
+                  onClick={handleSaveTimesheetSettings}
+                  disabled={updateTimesheetSettings.isPending}
+                  className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
+                >
+                  {showTimesheetSaved ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Saved!
+                    </>
+                  ) : updateTimesheetSettings.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Saving...

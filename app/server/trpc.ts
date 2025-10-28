@@ -25,7 +25,7 @@ const t = initTRPC.context<Context>().create({
 });
 
 // Middleware for rate limiting (applies to all procedures)
-const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
+const rateLimitMiddleware = t.middleware(async ({ ctx: _ctx, next }) => {
   // Skip rate limiting if Upstash not configured (development)
   if (!trpcRateLimit) {
     return next();
@@ -35,8 +35,7 @@ const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
   const headers = await import("next/headers").then((mod) => mod.headers());
   const clientId = getClientId(headers);
 
-  const { success, limit, reset, remaining } =
-    await trpcRateLimit.limit(clientId);
+  const { success, reset } = await trpcRateLimit.limit(clientId);
 
   if (!success) {
     throw new TRPCError({

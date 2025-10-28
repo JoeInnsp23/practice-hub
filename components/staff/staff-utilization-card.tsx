@@ -36,9 +36,11 @@ export function StaffUtilizationCard({
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-semibold">
-            {staff.firstName} {staff.lastName}
+            {staff.firstName ?? ""} {staff.lastName ?? ""}
           </h3>
-          <p className="text-sm text-muted-foreground">{staff.role}</p>
+          <p className="text-sm text-muted-foreground">
+            {staff.role ?? "No Role"}
+          </p>
           <p className="text-xs text-muted-foreground">
             {staff.departmentName || "No Department"}
           </p>
@@ -60,8 +62,8 @@ export function StaffUtilizationCard({
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Logged Hours</span>
           <span className="font-medium">
-            {staff.totalLoggedHours.toFixed(1)} / {staff.capacityHours.toFixed(1)}{" "}
-            hrs
+            {staff.totalLoggedHours.toFixed(1)} /{" "}
+            {staff.capacityHours.toFixed(1)} hrs
           </span>
         </div>
         <div className="flex justify-between text-sm">

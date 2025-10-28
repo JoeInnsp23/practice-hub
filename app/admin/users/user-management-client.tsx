@@ -93,20 +93,20 @@ export function UserManagementClient({
     includeInactive: false,
   });
 
-  const users = usersData?.users || initialUsers;
+  const users: User[] = (usersData?.users || initialUsers) as User[];
   const departments = departmentsData?.departments || [];
 
   // Calculate stats from users
   const stats = useMemo(() => {
     return {
       total: users.length,
-      active: users.filter((u: User) => u.isActive).length,
-      admins: users.filter((u: User) => u.role === "admin").length,
+      active: users.filter((u) => u.isActive).length,
+      admins: users.filter((u) => u.role === "admin").length,
       accountants: users.filter(
-        (u: User) => u.role === "accountant" || u.role === "org:accountant",
+        (u) => u.role === "accountant" || u.role === "org:accountant",
       ).length,
       members: users.filter(
-        (u: User) => u.role === "member" || u.role === "org:member",
+        (u) => u.role === "member" || u.role === "org:member",
       ).length,
     };
   }, [users]);
@@ -117,7 +117,7 @@ export function UserManagementClient({
 
     const query = searchQuery.toLowerCase();
     return users.filter(
-      (user: User) =>
+      (user) =>
         user.email.toLowerCase().includes(query) ||
         user.firstName?.toLowerCase().includes(query) ||
         user.lastName?.toLowerCase().includes(query) ||
@@ -147,7 +147,7 @@ export function UserManagementClient({
   });
 
   const handleDeleteUser = async (userId: string) => {
-    const user = users.find((u: User) => u.id === userId);
+    const user = users.find((u) => u.id === userId);
     if (!user) return;
 
     if (
@@ -162,7 +162,7 @@ export function UserManagementClient({
   };
 
   const handleSendPasswordReset = (userId: string) => {
-    const user = users.find((u: User) => u.id === userId);
+    const user = users.find((u) => u.id === userId);
     if (!user) return;
 
     if (
@@ -321,7 +321,7 @@ export function UserManagementClient({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user: User) => (
+              {filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">

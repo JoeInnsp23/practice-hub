@@ -8,13 +8,11 @@ import { StaffTrendDialog } from "@/components/staff/staff-trend-dialog";
 import { StaffUtilizationCard } from "@/components/staff/staff-utilization-card";
 import { UtilizationAlerts } from "@/components/staff/utilization-alerts";
 import { UtilizationHeatmap } from "@/components/staff/utilization-heatmap";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { exportStaffUtilizationToCSV } from "@/lib/utils/export-csv";
 import { trpc } from "@/lib/trpc/client";
+import { exportStaffUtilizationToCSV } from "@/lib/utils/export-csv";
 
 export default function StaffStatisticsPage() {
   // Date range state - default to current week
@@ -33,11 +31,11 @@ export default function StaffStatisticsPage() {
     return endDate.toISOString().split("T")[0];
   };
 
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, _setDateRange] = useState({
     startDate: getStartOfWeek(),
     endDate: getEndOfWeek(),
   });
-  const [selectedDepartment, setSelectedDepartment] = useState<
+  const [selectedDepartment, _setSelectedDepartment] = useState<
     string | undefined
   >();
   const [trendDialogUserId, setTrendDialogUserId] = useState<string | null>(
@@ -77,7 +75,8 @@ export default function StaffStatisticsPage() {
             Staff Statistics Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
-            Track staff utilization and identify resource allocation opportunities
+            Track staff utilization and identify resource allocation
+            opportunities
           </p>
         </div>
 
@@ -92,7 +91,9 @@ export default function StaffStatisticsPage() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">{teamStats.totalStaff}</span>
+                <span className="text-2xl font-bold">
+                  {teamStats.totalStaff}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -206,7 +207,22 @@ export default function StaffStatisticsPage() {
                 <StaffComparisonTable
                   startDate={dateRange.startDate}
                   endDate={dateRange.endDate}
-                  onExport={exportStaffUtilizationToCSV}
+                  onExport={(data) => {
+                    exportStaffUtilizationToCSV(
+                      data.map((staff) => ({
+                        userId: staff.userId,
+                        firstName: staff.firstName,
+                        lastName: staff.lastName,
+                        role: staff.role || null,
+                        departmentName: staff.departmentName ?? null,
+                        totalLoggedHours: staff.totalLoggedHours,
+                        capacityHours: staff.capacityHours,
+                        utilization: staff.utilization,
+                        billablePercentage: staff.billablePercentage,
+                        status: staff.status as string,
+                      })),
+                    );
+                  }}
                 />
               </TabsContent>
             </Tabs>

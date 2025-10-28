@@ -16,7 +16,7 @@ import {
 import { useClientPortalContext } from "@/contexts/client-portal-context";
 
 export function ClientSwitcher() {
-  const { currentClientId, clientAccess, setCurrentClientId, setClientAccess } =
+  const { currentClientId, setCurrentClientId, setClientAccess } =
     useClientPortalContext();
 
   // Fetch user's client access list

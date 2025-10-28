@@ -174,46 +174,46 @@ export async function autoConvertLeadToClient(
         // Create standard onboarding tasks (will be accessible after AML approval)
         const tasks = [
           {
-            title: "Complete AML Questionnaire",
+            taskName: "Complete AML Questionnaire",
             description:
               "Complete the client information and compliance questionnaire",
-            category: "compliance",
-            sortOrder: 1,
-            isRequired: true,
-            estimatedDuration: 15,
+            sequence: 1,
+            required: true,
+            days: 0,
+            progressWeight: 10, // High priority
           },
           {
-            title: "Upload ID Documents",
+            taskName: "Upload ID Documents",
             description: "Upload proof of identity and address documents",
-            category: "compliance",
-            sortOrder: 2,
-            isRequired: true,
-            estimatedDuration: 10,
+            sequence: 2,
+            required: true,
+            days: 1,
+            progressWeight: 10, // High priority
           },
           {
-            title: "Review & Sign Engagement Letter",
+            taskName: "Review & Sign Engagement Letter",
             description: "Review and electronically sign the engagement letter",
-            category: "legal",
-            sortOrder: 3,
-            isRequired: true,
-            estimatedDuration: 10,
+            sequence: 3,
+            required: true,
+            days: 2,
+            progressWeight: 8,
           },
           {
-            title: "Provide Bank Details",
+            taskName: "Provide Bank Details",
             description: "Securely provide bank account details for payments",
-            category: "finance",
-            sortOrder: 4,
-            isRequired: true,
-            estimatedDuration: 5,
+            sequence: 4,
+            required: true,
+            days: 3,
+            progressWeight: 6,
           },
           {
-            title: "Grant Accounting Software Access",
+            taskName: "Grant Accounting Software Access",
             description:
               "Provide access to your accounting software (Xero/QuickBooks)",
-            category: "technical",
-            sortOrder: 5,
-            isRequired: false,
-            estimatedDuration: 15,
+            sequence: 5,
+            required: false,
+            days: 5,
+            progressWeight: 4,
           },
         ];
 
@@ -221,9 +221,8 @@ export async function autoConvertLeadToClient(
           await tx.insert(onboardingTasks).values({
             tenantId,
             sessionId: onboardingSession.id,
-            clientId: newClient.id,
             ...task,
-            status: "not_started",
+            done: false,
           });
         }
 

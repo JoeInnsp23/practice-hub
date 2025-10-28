@@ -1,7 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { db } from "@/lib/db";
-import { eq } from "drizzle-orm";
-import { leaveBalances, toilAccrualHistory } from "@/lib/db/schema";
 
 test.describe("TOIL Complete Workflow (E2E)", () => {
   test.beforeEach(async ({ page }) => {
@@ -46,8 +43,8 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
 
     // 5. Approve timesheet
     await page.goto("/admin/timesheets/pending");
-    await page.click('button:has-text("Approve")').first();
-    await page.click('button:has-text("Confirm")');
+    await page.locator('button:has-text("Approve")').first().click();
+    await page.locator('button:has-text("Confirm")').click();
 
     // Verify approval success
     await expect(page.locator('text="Timesheet approved"')).toBeVisible();
@@ -65,7 +62,9 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
     await page.goto("/client-hub/leave");
 
     // Check TOIL balance widget shows 5 hours
-    const toilBalanceWidget = page.locator('[data-testid="toil-balance-widget"]');
+    const toilBalanceWidget = page.locator(
+      '[data-testid="toil-balance-widget"]',
+    );
     await expect(toilBalanceWidget.locator('text="5.0 hrs"')).toBeVisible();
 
     // 7. Check TOIL history shows accrual record
@@ -106,9 +105,9 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
     await page.click('button[type="submit"]');
 
     await page.goto("/admin/leave/pending");
-    await page.click('button:has-text("Approve")').first();
+    await page.locator('button:has-text("Approve")').first().click();
     await page.fill('textarea[name="comments"]', "Approved");
-    await page.click('button:has-text("Confirm")');
+    await page.locator('button:has-text("Confirm")').click();
 
     // 4. Verify TOIL balance decreased by 15 hours
     // Login back as staff
@@ -122,7 +121,9 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
     await page.goto("/client-hub/leave");
 
     // Balance should now be 0 (15 - 15)
-    const toilBalanceWidget = page.locator('[data-testid="toil-balance-widget"]');
+    const toilBalanceWidget = page.locator(
+      '[data-testid="toil-balance-widget"]',
+    );
     await expect(toilBalanceWidget.locator('text="0.0 hrs"')).toBeVisible();
   });
 
@@ -149,12 +150,12 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
     await expect(
       page.locator('text="Insufficient TOIL balance"'),
     ).toBeVisible();
-    await expect(
-      page.locator('text="You have 7.5 hours"'),
-    ).toBeVisible();
+    await expect(page.locator('text="You have 7.5 hours"')).toBeVisible();
 
     // 4. Verify balance unchanged
-    const toilBalanceWidget = page.locator('[data-testid="toil-balance-widget"]');
+    const toilBalanceWidget = page.locator(
+      '[data-testid="toil-balance-widget"]',
+    );
     await expect(toilBalanceWidget.locator('text="7.5 hrs"')).toBeVisible();
   });
 
@@ -169,10 +170,11 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
 
     // 2. Navigate to TOIL management (if such a page exists)
     // Or trigger the cron endpoint directly
+    await page.setExtraHTTPHeaders({
+      Authorization: `Bearer ${process.env.CRON_SECRET || ""}`,
+    });
     await page.goto("/api/cron/expire-toil", {
-      headers: {
-        Authorization: `Bearer ${process.env.CRON_SECRET}`,
-      },
+      waitUntil: "networkidle",
     });
 
     // 3. Verify response indicates TOIL was expired

@@ -1,0 +1,185 @@
+# Documentation Index Template
+# Complete knowledge graph mapping concepts to documentation files
+#
+# CUSTOMIZATION INSTRUCTIONS:
+# 1. Replace PROJECT_NAME with your project name
+# 2. Add your project's concepts (features, components, modules)
+# 3. Map concepts to your documentation files
+# 4. Remove unused domains (prd, stories, qa-gates if not applicable)
+# 5. Add keywords for better search
+
+concepts:
+  # ============================================================================
+  # EXAMPLE: CORE FEATURES (customize for your project)
+  # ============================================================================
+
+  authentication:
+    description: "User authentication, sessions, authorization"
+    # API reference documentation
+    api:
+      - path: "docs/reference/typescript/modules/auth.md"
+        description: "Auth module TypeScript API"
+      - path: "docs/reference/python/src/auth/"
+        description: "Auth service Python API"
+    # Architecture documentation
+    architecture:
+      - path: "docs/architecture/auth-system.md"
+        description: "Authentication system design"
+      - path: "docs/architecture/security.md"
+        section: "Authentication"
+    # Coding patterns
+    patterns:
+      - path: "docs/patterns/auth-patterns.md"
+        description: "Authentication implementation patterns"
+    # Keywords for search
+    keywords: ["auth", "authentication", "login", "session", "oauth", "jwt", "security"]
+
+  database-models:
+    description: "Database schema, ORM models, migrations"
+    api:
+      - path: "docs/reference/python/src/models/"
+        description: "ORM models"
+      - path: "docs/reference/typescript/modules/types.md"
+        description: "Type definitions"
+    architecture:
+      - path: "docs/architecture/database-schema.md"
+        description: "Database design"
+      - path: "docs/architecture/data-models.md"
+        description: "Entity-relationship model"
+    keywords: ["database", "model", "schema", "migration", "ORM", "SQL"]
+
+  api-endpoints:
+    description: "REST API endpoints, request/response"
+    api:
+      - path: "docs/reference/python/src/routes/"
+        description: "API route handlers"
+      - path: "docs/reference/typescript/modules/api-client.md"
+        description: "API client"
+    architecture:
+      - path: "docs/architecture/api-specification.md"
+        description: "REST API design"
+    keywords: ["API", "endpoint", "REST", "route", "request", "response"]
+
+  # ============================================================================
+  # EXAMPLE: ARCHITECTURAL CONCEPTS (customize for your project)
+  # ============================================================================
+
+  tech-stack:
+    description: "Technology selections, frameworks, libraries"
+    architecture:
+      - path: "docs/architecture/tech-stack.md"
+        description: "Complete technology stack"
+    keywords: ["tech", "technology", "stack", "framework", "library"]
+
+  coding-standards:
+    description: "Code style, conventions, best practices"
+    patterns:
+      - path: "docs/patterns/coding-standards.md"
+        description: "Coding conventions"
+      - path: "docs/patterns/best-practices.md"
+        description: "Best practices guide"
+    keywords: ["coding", "standard", "convention", "style", "best-practice"]
+
+  # ============================================================================
+  # OPTIONAL: PRD & REQUIREMENTS (remove if not applicable)
+  # ============================================================================
+
+  # Uncomment if you have PRD documentation
+  # mvp-scope:
+  #   description: "MVP features and scope"
+  #   prd:
+  #     - path: "docs/prd/mvp.md"
+  #       description: "MVP requirements"
+  #     - path: "docs/prd/roadmap.md"
+  #       description: "Product roadmap"
+  #   keywords: ["MVP", "scope", "roadmap", "requirements"]
+
+  # ============================================================================
+  # OPTIONAL: STORIES (remove if not applicable)
+  # ============================================================================
+
+  # Uncomment if you have user stories
+  # story-1:
+  #   description: "Story 1: [Story Name]"
+  #   stories:
+  #     - path: "docs/stories/1.story.md"
+  #       title: "Story 1: [Story Name]"
+  #   keywords: ["story", "task", "acceptance"]
+
+  # ============================================================================
+  # OPTIONAL: QA GATES (remove if not applicable)
+  # ============================================================================
+
+  # Uncomment if you have QA gates
+  # qa-process:
+  #   description: "Quality gates and testing"
+  #   qa-gates:
+  #     - path: "docs/qa/gates/"
+  #       description: "QA gate decisions"
+  #   keywords: ["QA", "quality", "testing", "gate"]
+
+# ============================================================================
+# BY-DOMAIN QUICK REFERENCE
+# ============================================================================
+
+by-domain:
+  # TypeScript API reference
+  API-TypeScript:
+    - docs/reference/typescript/
+
+  # Python API reference
+  API-Python:
+    - docs/reference/python/
+
+  # Architecture documentation
+  Architecture:
+    - docs/architecture/tech-stack.md
+    - docs/architecture/components.md
+    - docs/architecture/database-schema.md
+
+  # Coding patterns
+  Patterns:
+    - docs/patterns/coding-standards.md
+    - docs/patterns/best-practices.md
+
+  # PRD (optional - remove if not applicable)
+  # PRD:
+  #   - docs/prd/
+
+  # Stories (optional - remove if not applicable)
+  # Stories:
+  #   - docs/stories/
+
+  # QA Gates (optional - remove if not applicable)
+  # QA-Gates:
+  #   - docs/qa/gates/
+
+# ============================================================================
+# COMMON SEARCH PATTERNS
+# ============================================================================
+
+search-patterns:
+  "How do I implement X?":
+    - Path 1: Check docs/reference/ for API signatures + examples
+    - Path 2: Check docs/patterns/ for implementation patterns
+    - Path 3: Check docs/architecture/ for system design
+
+  "Why did we choose X?":
+    - Path 1: Check docs/architecture/tech-stack.md
+    - Path 2: Check docs/architecture/ for design decisions
+
+  "What's the API for X?":
+    - Path 1: Check docs/reference/ for function signatures
+    - Path 2: Check docs/architecture/ for API specification
+
+# ============================================================================
+# CUSTOMIZATION CHECKLIST
+# ============================================================================
+
+# [ ] Replace PROJECT_NAME in SKILL.md
+# [ ] Add your project's concepts (features, components, modules)
+# [ ] Map concepts to your documentation file paths
+# [ ] Remove unused domains (prd, stories, qa-gates if not applicable)
+# [ ] Add keywords for each concept
+# [ ] Update by-domain section with your documentation structure
+# [ ] Update search-patterns with common queries for your project

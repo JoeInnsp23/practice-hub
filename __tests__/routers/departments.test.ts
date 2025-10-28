@@ -35,12 +35,15 @@ describe("departments router", () => {
   let taxDeptId: string;
   let auditDeptId: string;
   let tenant2DeptId: string;
-  let admin1: any;
-  let accountant1: any;
-  let member1: any;
-  let admin2: any;
+  let admin1: typeof users.$inferSelect;
+  let accountant1: typeof users.$inferSelect;
+  let member1: typeof users.$inferSelect;
+  let admin2: typeof users.$inferSelect;
 
-  const tracker: TestDataTracker = {
+  const tracker: Required<
+    Pick<TestDataTracker, "tenants" | "users" | "clients">
+  > &
+    TestDataTracker = {
     tenants: [],
     users: [],
     clients: [],

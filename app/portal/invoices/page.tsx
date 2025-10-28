@@ -32,7 +32,7 @@ export default function InvoicesPage() {
   >();
 
   const { data: invoices, isLoading } = trpc.clientPortal.getInvoices.useQuery(
-    { clientId: currentClientId!, status: selectedStatus },
+    { clientId: currentClientId || "", status: selectedStatus },
     { enabled: !!currentClientId },
   );
 
@@ -109,11 +109,15 @@ export default function InvoicesPage() {
         <CardContent>
           <Tabs
             value={selectedStatus}
-            onValueChange={(v) => setSelectedStatus(v as any)}
+            onValueChange={(v) =>
+              setSelectedStatus(
+                v as "sent" | "paid" | "overdue" | "cancelled" | undefined,
+              )
+            }
           >
             <TabsList>
               <TabsTrigger
-                value={undefined as any}
+                value="all"
                 onClick={() => setSelectedStatus(undefined)}
               >
                 All

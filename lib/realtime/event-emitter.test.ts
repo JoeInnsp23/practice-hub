@@ -321,7 +321,9 @@ describe("ServerEventEmitter", () => {
       }
 
       // Cleanup
-      cleanups.forEach((cleanup) => cleanup());
+      cleanups.forEach((cleanup) => {
+        cleanup();
+      });
       expect(emitter.getTotalSubscriberCount()).toBe(0);
     });
 

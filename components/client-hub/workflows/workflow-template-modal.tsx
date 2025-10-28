@@ -1,9 +1,7 @@
 "use client";
 
 import { GripVertical, Plus, X } from "lucide-react";
-import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
-import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -36,18 +34,35 @@ interface WorkflowStage {
   name: string;
   description: string;
   stageOrder: number;
-  isRequired: boolean;
-  estimatedHours: string;
-  checklistItems: ChecklistItem[];
-  autoComplete: boolean;
-  requiresApproval: boolean;
+  isRequired?: boolean;
+  estimatedHours?: string;
+  checklistItems?: ChecklistItem[];
+  checklist?: string[];
+  autoComplete?: boolean;
+  requiresApproval?: boolean;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface WorkflowTemplateData {
+  name: string;
+  description: string;
+  service: Service | null;
+  estimatedDays: number;
+  is_active: boolean;
+  stages: WorkflowStage[];
 }
 
 interface WorkflowTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
-  template?: any;
+  onSave: (data: WorkflowTemplateData) => void;
+  // Accept any template-like object (from router output or input) - we'll extract what we need
+  template?: Record<string, unknown> | null;
 }
 
 // Mock services data
@@ -68,7 +83,7 @@ export function WorkflowTemplateModal({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    service: null as any,
+    service: null as Service | null,
     estimatedDays: 1,
     is_active: true,
     stages: [] as WorkflowStage[],
@@ -92,18 +107,39 @@ export function WorkflowTemplateModal({
 
   useEffect(() => {
     if (template) {
-      // Ensure all stages have a checklist array
-      const stagesWithChecklist = (template.stages || []).map((stage: any) => ({
+      // Type-safe extraction of template properties
+      const stages = Array.isArray(template.stages)
+        ? (template.stages as WorkflowStage[])
+        : [];
+      const stagesWithChecklist = stages.map((stage) => ({
         ...stage,
         checklist: stage.checklist || [],
       }));
 
+      // Extract only the core service fields (id, name, code) from the potentially extended service object
+      const templateService = template.service as
+        | { id: string; name: string; code: string; [key: string]: unknown }
+        | null
+        | undefined;
+      const serviceData = templateService
+        ? {
+            id: templateService.id,
+            name: templateService.name,
+            code: templateService.code,
+          }
+        : null;
+
       setFormData({
-        name: template.name || "",
-        description: template.description || "",
-        service: template.service || null,
-        estimatedDays: template.estimatedDays || 1,
-        is_active: template.is_active !== undefined ? template.is_active : true,
+        name: typeof template.name === "string" ? template.name : "",
+        description:
+          typeof template.description === "string" ? template.description : "",
+        service: serviceData,
+        estimatedDays:
+          typeof template.estimatedDays === "number"
+            ? template.estimatedDays
+            : 1,
+        is_active:
+          typeof template.is_active === "boolean" ? template.is_active : true,
         stages: stagesWithChecklist,
       });
     } else {
@@ -134,7 +170,7 @@ export function WorkflowTemplateModal({
       id: Date.now().toString(),
       name: newStageName,
       description: newStageDescription,
-      order: formData.stages.length + 1,
+      stageOrder: formData.stages.length + 1,
       checklist: [],
     };
 
@@ -146,14 +182,14 @@ export function WorkflowTemplateModal({
     setNewStageDescription("");
   };
 
-  const removeStage = (stageId: string) => {
+  const removeStage = (stageId: string | undefined) => {
     const updatedStages = formData.stages
       .filter((s) => s.id !== stageId)
-      .map((stage, index) => ({ ...stage, order: index + 1 }));
+      .map((stage, index) => ({ ...stage, stageOrder: index + 1 }));
     setFormData({ ...formData, stages: updatedStages });
   };
 
-  const addChecklistItem = (stageId: string, item: string) => {
+  const addChecklistItem = (stageId: string | undefined, item: string) => {
     if (!item) return;
 
     const updatedStages = formData.stages.map((stage) =>
@@ -164,7 +200,10 @@ export function WorkflowTemplateModal({
     setFormData({ ...formData, stages: updatedStages });
   };
 
-  const removeChecklistItem = (stageId: string, itemIndex: number) => {
+  const removeChecklistItem = (
+    stageId: string | undefined,
+    itemIndex: number,
+  ) => {
     const updatedStages = formData.stages.map((stage) =>
       stage.id === stageId
         ? {
@@ -181,12 +220,14 @@ export function WorkflowTemplateModal({
   const _moveStage = (fromIndex: number, toIndex: number) => {
     const newStages = [...formData.stages];
     const [movedStage] = newStages.splice(fromIndex, 1);
-    newStages.splice(toIndex, 0, movedStage);
+    if (movedStage) {
+      newStages.splice(toIndex, 0, movedStage);
+    }
 
     // Update order numbers
     const updatedStages = newStages.map((stage, index) => ({
       ...stage,
-      order: index + 1,
+      stageOrder: index + 1,
     }));
 
     setFormData({ ...formData, stages: updatedStages });
@@ -332,7 +373,7 @@ export function WorkflowTemplateModal({
                       <div className="flex items-center gap-2">
                         <GripVertical className="h-4 w-4 text-muted-foreground" />
                         <CardTitle className="text-sm">
-                          {stage.order}. {stage.name}
+                          {stage.stageOrder}. {stage.name}
                         </CardTitle>
                       </div>
                       <Button

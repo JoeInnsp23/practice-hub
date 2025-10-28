@@ -1,13 +1,8 @@
-import { beforeAll, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import {
-  leaveBalances,
-  leaveRequests,
-  tenants,
-  users,
-} from "@/lib/db/schema";
-import { appRouter } from "@/app/server";
 import { eq, sql } from "drizzle-orm";
+import { beforeAll, describe, expect, it } from "vitest";
+import { appRouter } from "@/app/server";
+import { db } from "@/lib/db";
+import { leaveBalances, leaveRequests, tenants, users } from "@/lib/db/schema";
 import { createMockContext } from "../helpers/trpc";
 
 describe("Leave-TOIL Redemption Integration", () => {
@@ -23,7 +18,6 @@ describe("Leave-TOIL Redemption Integration", () => {
         id: crypto.randomUUID(),
         name: "Test Tenant - Leave TOIL",
         slug: `test-leave-toil-${Date.now()}`,
-        industry: "Accounting",
       })
       .returning();
     testTenantId = tenant.id;

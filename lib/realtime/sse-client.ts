@@ -44,14 +44,13 @@ export class SSEClient implements RealtimeClient {
   private subscriptionManager = new EventSubscriptionManager();
   private state: ConnectionState = "disconnected";
   private reconnectAttempts = 0;
-  private options: Required<ConnectionOptions> = {
+  private options: ConnectionOptions = {
     maxReconnectAttempts: 3,
     reconnectDelay: 1000,
     maxReconnectDelay: 30000,
     heartbeatTimeout: 60000,
     enablePollingFallback: true,
     pollingInterval: 30000,
-    authToken: undefined,
   };
   private url = "";
   private reconnectTimeoutId: NodeJS.Timeout | null = null;
@@ -178,19 +177,23 @@ export class SSEClient implements RealtimeClient {
       };
 
       // Listen for ping (heartbeat)
-      this.eventSource.addEventListener("ping", () => {
+      this.eventSource.addEventListener("ping", (() => {
         this.handleHeartbeat();
-      });
+      }) as EventListener);
 
       // Listen for activity events
-      this.eventSource.addEventListener("activity:new", (event) => {
+      this.eventSource.addEventListener("activity:new", ((
+        event: MessageEvent,
+      ) => {
         this.handleMessage(event);
-      });
+      }) as EventListener);
 
       // Listen for notification events
-      this.eventSource.addEventListener("notification:new", (event) => {
+      this.eventSource.addEventListener("notification:new", ((
+        event: MessageEvent,
+      ) => {
         this.handleMessage(event);
-      });
+      }) as EventListener);
     } catch (error) {
       console.error("[SSE] Failed to create EventSource:", error);
       this.handleError();
@@ -254,18 +257,19 @@ export class SSEClient implements RealtimeClient {
     this.cleanup();
 
     // Check if we should attempt reconnection
-    if (this.reconnectAttempts < this.options.maxReconnectAttempts) {
+    if (this.reconnectAttempts < (this.options.maxReconnectAttempts ?? 3)) {
       this.reconnectAttempts++;
       this.setState("reconnecting");
 
       // Exponential backoff: 1s, 2s, 4s, 8s...
       const delay = Math.min(
-        this.options.reconnectDelay * 2 ** (this.reconnectAttempts - 1),
-        this.options.maxReconnectDelay,
+        (this.options.reconnectDelay ?? 1000) *
+          2 ** (this.reconnectAttempts - 1),
+        this.options.maxReconnectDelay ?? 30000,
       );
 
       console.log(
-        `[SSE] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.options.maxReconnectAttempts})`,
+        `[SSE] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.options.maxReconnectAttempts ?? 3})`,
       );
 
       this.reconnectTimeoutId = setTimeout(() => {
@@ -291,20 +295,19 @@ export class SSEClient implements RealtimeClient {
     if (this.isPolling) return;
 
     this.isPolling = true;
-    console.log(
-      `[SSE] Starting polling (interval: ${this.options.pollingInterval}ms)`,
-    );
+    const pollingInterval = this.options.pollingInterval ?? 30000;
+    console.log(`[SSE] Starting polling (interval: ${pollingInterval}ms)`);
 
     // Emit polling started event
     this.subscriptionManager.emit({
       type: "polling:started",
-      data: { interval: this.options.pollingInterval },
+      data: { interval: pollingInterval },
       timestamp: Date.now(),
     });
 
     this.pollingIntervalId = setInterval(() => {
       this.poll();
-    }, this.options.pollingInterval);
+    }, pollingInterval);
 
     // Initial poll
     this.poll();

@@ -13,11 +13,10 @@ interface SalesStageHistoryProps {
 
 export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
   // Fetch activity logs for this proposal (sales stage changes only)
-  const { data: activitiesData, isLoading } =
-    trpc.activityLogs.getByEntity.useQuery({
-      entityType: "proposal",
-      entityId: proposalId,
-    });
+  const { data: activitiesData, isLoading } = trpc.activities.list.useQuery({
+    entityType: "proposal",
+    entityId: proposalId,
+  });
 
   if (isLoading) {
     return (
@@ -84,8 +83,12 @@ export function SalesStageHistory({ proposalId }: SalesStageHistoryProps) {
       {/* Timeline */}
       <div className="space-y-4">
         {activitiesWithDuration.map((activity) => {
-          const oldStage = activity.oldValues?.salesStage as string | undefined;
-          const newStage = activity.newValues?.salesStage as string | undefined;
+          const oldStage = (
+            activity.oldValues as { salesStage?: string } | null
+          )?.salesStage;
+          const newStage = (
+            activity.newValues as { salesStage?: string } | null
+          )?.salesStage;
           const isAutomated = activity.action === "sales_stage_automated";
 
           const oldStageConfig = oldStage

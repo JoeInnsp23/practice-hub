@@ -19,6 +19,11 @@ import { DocumentGrid } from "@/components/client-hub/documents/document-grid";
 import { FilePreviewModal } from "@/components/client-hub/documents/file-preview-modal";
 import { SignatureUploadModal } from "@/components/client-hub/documents/signature-upload-modal";
 import { UploadModal } from "@/components/client-hub/documents/upload-modal";
+import type { DocumentListOutput } from "@/lib/trpc/types";
+
+// Type for a single document item from the list query
+type DocumentItem = DocumentListOutput["documents"][number];
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -50,7 +55,9 @@ export default function DocumentsClient() {
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(
+    null,
+  );
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -121,12 +128,12 @@ export default function DocumentsClient() {
 
   // Build breadcrumb path
   const breadcrumbPath = useMemo(() => {
-    const path: any[] = [];
+    const path: DocumentItem[] = [];
     let folderId = currentFolder;
 
     while (folderId) {
       const folder = documents.find(
-        (d: any) => d.document.id === folderId && d.document.type === "folder",
+        (d) => d.document.id === folderId && d.document.type === "folder",
       );
       if (folder) {
         path.unshift(folder);
@@ -172,7 +179,7 @@ export default function DocumentsClient() {
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "upload_document" },
-        extra: { fileName: file.name, fileSize: file.size },
+        extra: { fileCount: files.length },
       });
       throw error;
     }
@@ -190,11 +197,11 @@ export default function DocumentsClient() {
     });
   };
 
-  const handleDownload = (doc: any) => {
+  const handleDownload = (doc: DocumentItem) => {
     window.open(`/api/documents/${doc.document.id}/download`, "_blank");
   };
 
-  const handleDelete = (doc: any) => {
+  const handleDelete = (doc: DocumentItem) => {
     if (
       confirm(
         `Are you sure you want to delete "${doc.document.name}"?${doc.document.type === "folder" ? " This will only work if the folder is empty." : ""}`,
@@ -204,7 +211,7 @@ export default function DocumentsClient() {
     }
   };
 
-  const handleShare = (doc: any) => {
+  const handleShare = (doc: DocumentItem) => {
     setSelectedDocument(doc);
     setIsShareDialogOpen(true);
   };
@@ -218,7 +225,7 @@ export default function DocumentsClient() {
     });
   };
 
-  const handleRename = (doc: any) => {
+  const handleRename = (doc: DocumentItem) => {
     setSelectedDocument(doc);
     setNewName(doc.document.name);
     setIsRenameOpen(true);
@@ -236,7 +243,7 @@ export default function DocumentsClient() {
     });
   };
 
-  const _handlePreview = (doc: any) => {
+  const _handlePreview = (doc: DocumentItem) => {
     setSelectedDocument(doc);
     setIsPreviewOpen(true);
   };
@@ -380,7 +387,10 @@ export default function DocumentsClient() {
               />
             </div>
 
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as "grid" | "list")}
+            >
               <TabsList>
                 <TabsTrigger value="grid">
                   <Grid className="h-4 w-4" />

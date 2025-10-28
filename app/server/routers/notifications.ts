@@ -162,7 +162,7 @@ export const notificationsRouter = router({
         actionUrl: z.string().optional(),
         entityType: z.string().optional(),
         entityId: z.string().uuid().optional(),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

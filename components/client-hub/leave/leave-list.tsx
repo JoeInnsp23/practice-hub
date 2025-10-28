@@ -33,23 +33,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { LeaveRequest } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
-
-interface LeaveRequest {
-  id: string;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  daysCount: number;
-  status: string;
-  notes: string | null;
-  requestedAt: Date;
-  reviewedBy: string | null;
-  reviewedAt: Date | null;
-  reviewerComments: string | null;
-  reviewerName?: string | null;
-}
 
 interface LeaveListProps {
   requests: LeaveRequest[];
@@ -118,27 +104,29 @@ const statusConfig = {
 export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
   const utils = trpc.useUtils();
 
-  const cancelMutation = trpc.leave.cancel.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request cancelled");
-      utils.leave.getHistory.invalidate();
-      utils.leave.getBalance.invalidate();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "cancel_leave" },
-      });
-      toast.error(error.message || "Failed to cancel leave request");
-    },
-  });
+  const cancelMutation = trpc.leave.cancel.useMutation();
 
-  const handleCancel = (request: LeaveRequest) => {
+  const handleCancel = async (request: LeaveRequest) => {
     if (
       window.confirm(
         "Are you sure you want to cancel this leave request? This action cannot be undone.",
       )
     ) {
-      cancelMutation.mutate({ requestId: request.id });
+      try {
+        await cancelMutation.mutateAsync({ requestId: request.id });
+        toast.success("Leave request cancelled");
+        utils.leave.getHistory.invalidate();
+        utils.leave.getBalance.invalidate();
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { operation: "cancel_leave" },
+        });
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to cancel leave request",
+        );
+      }
     }
   };
 

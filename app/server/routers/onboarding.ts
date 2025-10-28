@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -838,7 +839,13 @@ export const onboardingRouter = router({
             verificationUrl: verificationRequest.verificationUrl,
           });
         } catch (emailError) {
-          console.error("Failed to send verification email:", emailError);
+          Sentry.captureException(emailError, {
+            tags: { operation: "sendKYCVerificationEmail" },
+            extra: {
+              clientId: client.id,
+              email: client.email,
+            },
+          });
           emailSent = false;
 
           // Log email failure
@@ -871,7 +878,13 @@ export const onboardingRouter = router({
           emailSent, // Flag to show warning in UI
         };
       } catch (error) {
-        console.error("Failed to initiate KYC verification:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "initiateKYCVerification" },
+          extra: {
+            sessionId: input.sessionId,
+            clientId: client.id,
+          },
+        });
 
         // Update session with error status
         await db
@@ -1085,7 +1098,13 @@ export const onboardingRouter = router({
             verificationUrl: verificationRequest.verificationUrl,
           });
         } catch (emailError) {
-          console.error("Failed to send re-verification email:", emailError);
+          Sentry.captureException(emailError, {
+            tags: { operation: "sendKYCReVerificationEmail" },
+            extra: {
+              clientId: client.id,
+              email: client.email,
+            },
+          });
           emailSent = false;
         }
 
@@ -1098,7 +1117,12 @@ export const onboardingRouter = router({
           emailSent,
         };
       } catch (error) {
-        console.error("Failed to request re-verification:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "requestKYCReVerification" },
+          extra: {
+            clientId: input.clientId,
+          },
+        });
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

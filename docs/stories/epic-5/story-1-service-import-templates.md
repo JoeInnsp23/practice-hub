@@ -86,6 +86,24 @@ function generateTemplate(type: string) {
 
 ---
 
+## Known Limitations
+
+1. **pricingModel Hardcoded to "turnover"**
+   - **Issue:** Service imports always set `pricingModel: "turnover"` regardless of service type
+   - **Location:** `app/api/import/services/route.ts:159`
+   - **Impact:** Users cannot specify pricing model via CSV import
+   - **Reason:** Complexity of exposing pricing model logic in CSV schema + validation requirements
+   - **Workaround:** Update service after import via Admin → Services UI
+   - **Future Enhancement:** Consider adding `pricing_model` column to CSV schema in Epic 6 with proper validation
+
+2. **UUID Generation Fixed (Production Bug)**
+   - **Previous Bug:** Used `nanoid()` instead of `crypto.randomUUID()` causing 100% import failure
+   - **Fixed:** 2025-10-24 - Changed to `crypto.randomUUID()` (route.ts:52, 145)
+   - **Also Fixed:** tasks/route.ts and clients/route.ts had same bug
+   - **Impact:** All import endpoints now generate proper UUIDs compatible with PostgreSQL
+
+---
+
 ## Dev Agent Record
 
 **Agent Model Used:** Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)

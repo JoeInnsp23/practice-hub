@@ -69,7 +69,7 @@ export function getAutoSalesStage(
  * @returns true if the stage change was automated
  */
 export function wasStageChangeAutomated(
-  oldStatus: ProposalStatus,
+  _oldStatus: ProposalStatus,
   newStatus: ProposalStatus,
   oldStage: SalesStage,
   newStage: SalesStage,

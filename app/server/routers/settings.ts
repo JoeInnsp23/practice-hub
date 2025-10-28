@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { activityLogs, tenants, userSettings } from "@/lib/db/schema";
+import { activityLogs, tenants, userSettings, users } from "@/lib/db/schema";
 import {
   companySettingsSchema,
   userSettingsSchema,
@@ -14,7 +14,7 @@ import { adminProcedure, protectedProcedure, router } from "../trpc";
 const insertTenantSchema = createInsertSchema(tenants);
 
 // Schema for tenant settings (omit auto-generated fields)
-const tenantSettingsSchema = insertTenantSchema.omit({
+const _tenantSettingsSchema = insertTenantSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -141,41 +141,91 @@ export const settingsRouter = router({
   updateNotificationSettings: protectedProcedure
     .input(
       z.object({
-        emailNotifications: z
-          .object({
-            taskAssigned: z.boolean().optional(),
-            taskCompleted: z.boolean().optional(),
-            taskOverdue: z.boolean().optional(),
-            invoiceCreated: z.boolean().optional(),
-            invoicePaid: z.boolean().optional(),
-            clientAdded: z.boolean().optional(),
-            reportGenerated: z.boolean().optional(),
-          })
-          .optional(),
-        inAppNotifications: z
-          .object({
-            taskAssigned: z.boolean().optional(),
-            taskCompleted: z.boolean().optional(),
-            taskOverdue: z.boolean().optional(),
-            invoiceCreated: z.boolean().optional(),
-            invoicePaid: z.boolean().optional(),
-            clientAdded: z.boolean().optional(),
-            reportGenerated: z.boolean().optional(),
-          })
-          .optional(),
-        digestEmail: z
-          .object({
-            enabled: z.boolean().optional(),
-            frequency: z.enum(["daily", "weekly", "monthly"]).optional(),
-          })
-          .optional(),
+        // Global toggles
+        emailNotifications: z.boolean().optional(),
+        inAppNotifications: z.boolean().optional(),
+        digestEmail: z.string().optional(),
+
+        // Granular notification preferences (FR31)
+        notifTaskAssigned: z.boolean().optional(),
+        notifTaskMention: z.boolean().optional(),
+        notifTaskReassigned: z.boolean().optional(),
+        notifDeadlineApproaching: z.boolean().optional(),
+        notifApprovalNeeded: z.boolean().optional(),
+        notifClientMessage: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-      // In production, update user_settings table
-      // For now, just log and return success
+      // Check if user settings exist
+      const existingSettings = await db
+        .select()
+        .from(userSettings)
+        .where(eq(userSettings.userId, userId))
+        .limit(1);
+
+      const updateData: {
+        emailNotifications?: boolean;
+        inAppNotifications?: boolean;
+        digestEmail?: string;
+        notifTaskAssigned?: boolean;
+        notifTaskMention?: boolean;
+        notifTaskReassigned?: boolean;
+        notifDeadlineApproaching?: boolean;
+        notifApprovalNeeded?: boolean;
+        notifClientMessage?: boolean;
+        updatedAt: Date;
+      } = {
+        updatedAt: new Date(),
+      };
+
+      // Add provided fields to update
+      if (input.emailNotifications !== undefined)
+        updateData.emailNotifications = input.emailNotifications;
+      if (input.inAppNotifications !== undefined)
+        updateData.inAppNotifications = input.inAppNotifications;
+      if (input.digestEmail !== undefined)
+        updateData.digestEmail = input.digestEmail;
+      if (input.notifTaskAssigned !== undefined)
+        updateData.notifTaskAssigned = input.notifTaskAssigned;
+      if (input.notifTaskMention !== undefined)
+        updateData.notifTaskMention = input.notifTaskMention;
+      if (input.notifTaskReassigned !== undefined)
+        updateData.notifTaskReassigned = input.notifTaskReassigned;
+      if (input.notifDeadlineApproaching !== undefined)
+        updateData.notifDeadlineApproaching = input.notifDeadlineApproaching;
+      if (input.notifApprovalNeeded !== undefined)
+        updateData.notifApprovalNeeded = input.notifApprovalNeeded;
+      if (input.notifClientMessage !== undefined)
+        updateData.notifClientMessage = input.notifClientMessage;
+
+      // Update or insert user settings
+      if (existingSettings.length === 0) {
+        // Create new settings with defaults
+        await db.insert(userSettings).values({
+          id: crypto.randomUUID(),
+          userId,
+          emailNotifications: input.emailNotifications ?? true,
+          inAppNotifications: input.inAppNotifications ?? true,
+          digestEmail: input.digestEmail ?? "daily",
+          notifTaskAssigned: input.notifTaskAssigned ?? true,
+          notifTaskMention: input.notifTaskMention ?? true,
+          notifTaskReassigned: input.notifTaskReassigned ?? true,
+          notifDeadlineApproaching: input.notifDeadlineApproaching ?? true,
+          notifApprovalNeeded: input.notifApprovalNeeded ?? true,
+          notifClientMessage: input.notifClientMessage ?? true,
+          theme: "system",
+          language: "en",
+          timezone: "Europe/London",
+        });
+      } else {
+        // Update existing settings
+        await db
+          .update(userSettings)
+          .set(updateData)
+          .where(eq(userSettings.userId, userId));
+      }
 
       // Log the activity
       await db.insert(activityLogs).values({
@@ -206,6 +256,12 @@ export const settingsRouter = router({
         emailNotifications: true,
         inAppNotifications: true,
         digestEmail: "daily" as const,
+        notifTaskAssigned: true,
+        notifTaskMention: true,
+        notifTaskReassigned: true,
+        notifDeadlineApproaching: true,
+        notifApprovalNeeded: true,
+        notifClientMessage: true,
         theme: "system" as const,
         language: "en" as const,
         timezone: "Europe/London",
@@ -219,6 +275,12 @@ export const settingsRouter = router({
         | "daily"
         | "weekly"
         | "never",
+      notifTaskAssigned: userSetting[0].notifTaskAssigned ?? true,
+      notifTaskMention: userSetting[0].notifTaskMention ?? true,
+      notifTaskReassigned: userSetting[0].notifTaskReassigned ?? true,
+      notifDeadlineApproaching: userSetting[0].notifDeadlineApproaching ?? true,
+      notifApprovalNeeded: userSetting[0].notifApprovalNeeded ?? true,
+      notifClientMessage: userSetting[0].notifClientMessage ?? true,
       theme: (userSetting[0].theme ?? "system") as "light" | "dark" | "system",
       language: (userSetting[0].language ?? "en") as "en" | "es" | "fr" | "de",
       timezone: userSetting[0].timezone ?? "Europe/London",
@@ -255,6 +317,85 @@ export const settingsRouter = router({
         entityId: userId,
         action: "updated",
         description: `Updated user settings`,
+        userId,
+        userName: `${firstName} ${lastName}`,
+        newValues: input,
+      });
+
+      return { success: true };
+    }),
+
+  // Get timesheet settings (Story 6.3)
+  getTimesheetSettings: protectedProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx.authContext;
+
+    const userRecord = await db
+      .select({
+        timesheetMinWeeklyHours: users.timesheetMinWeeklyHours,
+        timesheetDailyTargetHours: users.timesheetDailyTargetHours,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (userRecord.length === 0) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+    }
+
+    return {
+      minWeeklyHours: userRecord[0].timesheetMinWeeklyHours ?? 37.5,
+      dailyTargetHours: userRecord[0].timesheetDailyTargetHours ?? 7.5,
+    };
+  }),
+
+  // Update timesheet settings (Story 6.3)
+  updateTimesheetSettings: protectedProcedure
+    .input(
+      z.object({
+        minWeeklyHours: z
+          .number()
+          .min(0, "Minimum weekly hours must be 0 or greater")
+          .max(168, "Cannot exceed 168 hours per week")
+          .optional(),
+        dailyTargetHours: z
+          .number()
+          .min(0, "Daily target hours must be 0 or greater")
+          .max(24, "Cannot exceed 24 hours per day")
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+
+      // Build update object
+      const updateData: {
+        timesheetMinWeeklyHours?: number;
+        timesheetDailyTargetHours?: number;
+        updatedAt: Date;
+      } = {
+        updatedAt: new Date(),
+      };
+
+      if (input.minWeeklyHours !== undefined) {
+        updateData.timesheetMinWeeklyHours = input.minWeeklyHours;
+      }
+      if (input.dailyTargetHours !== undefined) {
+        updateData.timesheetDailyTargetHours = input.dailyTargetHours;
+      }
+
+      // Update user timesheet settings
+      await db.update(users).set(updateData).where(eq(users.id, userId));
+
+      // Log the activity
+      await db.insert(activityLogs).values({
+        tenantId,
+        entityType: "settings",
+        entityId: userId,
+        action: "updated",
+        description: `Updated timesheet settings`,
         userId,
         userName: `${firstName} ${lastName}`,
         newValues: input,

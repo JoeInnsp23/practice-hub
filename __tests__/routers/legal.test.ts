@@ -5,11 +5,13 @@
  * Validates multi-tenant isolation, version tracking, and admin authorization
  */
 
-import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { legalRouter } from "@/app/server/routers/legal";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -28,95 +30,83 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/legal.ts", () => {
-  let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof legalRouter>>;
+  let ctx: TestContextWithAuth;
+  let _caller: ReturnType<typeof createCaller<typeof legalRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(legalRouter, ctx);
+    _caller = createCaller(legalRouter, ctx);
     vi.clearAllMocks();
   });
 
   describe("getByType", () => {
-    it("should require pageType input", () => {
-      const procedure = legalRouter._def.procedures.getByType;
-
-      expect(() => {
-        procedure._def.inputs[0]?.parse({});
-      }).toThrow();
+    it("should require pageType input", async () => {
+      await expect(
+        _caller.getByType({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid pageType: privacy", () => {
-      expect(() => {
-        legalRouter._def.procedures.getByType._def.inputs[0]?.parse({
-          pageType: "privacy",
-        });
-      }).not.toThrow();
+    it("should accept valid pageType: privacy", async () => {
+      await expect(
+        _caller.getByType({ pageType: "privacy" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept valid pageType: terms", () => {
-      expect(() => {
-        legalRouter._def.procedures.getByType._def.inputs[0]?.parse({
-          pageType: "terms",
-        });
-      }).not.toThrow();
+    it("should accept valid pageType: terms", async () => {
+      await expect(
+        _caller.getByType({ pageType: "terms" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept valid pageType: cookie_policy", () => {
-      expect(() => {
-        legalRouter._def.procedures.getByType._def.inputs[0]?.parse({
-          pageType: "cookie_policy",
-        });
-      }).not.toThrow();
+    it("should accept valid pageType: cookie_policy", async () => {
+      await expect(
+        _caller.getByType({ pageType: "cookie_policy" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should reject invalid pageType", () => {
-      expect(() => {
-        legalRouter._def.procedures.getByType._def.inputs[0]?.parse({
-          pageType: "invalid_type",
-        });
-      }).toThrow();
+    it("should reject invalid pageType", async () => {
+      await expect(
+        _caller.getByType({
+          pageType: "invalid_type" as unknown as "privacy",
+        }),
+      ).rejects.toThrow();
     });
   });
 
   describe("update", () => {
-    it("should require both pageType and content", () => {
-      const procedure = legalRouter._def.procedures.update;
-
-      expect(() => {
-        procedure._def.inputs[0]?.parse({});
-      }).toThrow();
-
-      expect(() => {
-        procedure._def.inputs[0]?.parse({ pageType: "privacy" });
-      }).toThrow();
-
-      expect(() => {
-        procedure._def.inputs[0]?.parse({ content: "Test content" });
-      }).toThrow();
+    it("should require both pageType and content", async () => {
+      await expect(
+        _caller.update({} as Record<string, unknown>),
+      ).rejects.toThrow();
+      await expect(
+        _caller.update({ pageType: "privacy" } as Record<string, unknown>),
+      ).rejects.toThrow();
+      await expect(
+        _caller.update({ content: "Test content" } as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid input with pageType and content", () => {
-      expect(() => {
-        legalRouter._def.procedures.update._def.inputs[0]?.parse({
+    it("should accept valid input with pageType and content", async () => {
+      await expect(
+        _caller.update({
           pageType: "privacy",
           content: "# Privacy Policy\n\nThis is the privacy policy content.",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should reject empty content", () => {
-      expect(() => {
-        legalRouter._def.procedures.update._def.inputs[0]?.parse({
+    it("should reject empty content", async () => {
+      await expect(
+        _caller.update({
           pageType: "privacy",
           content: "",
-        });
-      }).toThrow();
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept markdown formatted content", () => {
-      expect(() => {
-        legalRouter._def.procedures.update._def.inputs[0]?.parse({
+    it("should accept markdown formatted content", async () => {
+      await expect(
+        _caller.update({
           pageType: "terms",
           content: `# Terms of Service
 
@@ -125,34 +115,30 @@ describe("app/server/routers/legal.ts", () => {
 - Item 2
 
 **Bold text** and *italic text*`,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 
   describe("getVersionHistory", () => {
-    it("should require pageType input", () => {
-      const procedure = legalRouter._def.procedures.getVersionHistory;
-
-      expect(() => {
-        procedure._def.inputs[0]?.parse({});
-      }).toThrow();
+    it("should require pageType input", async () => {
+      await expect(
+        _caller.getVersionHistory({} as Record<string, unknown>),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid pageType", () => {
-      expect(() => {
-        legalRouter._def.procedures.getVersionHistory._def.inputs[0]?.parse({
-          pageType: "privacy",
-        });
-      }).not.toThrow();
+    it("should accept valid pageType", async () => {
+      await expect(
+        _caller.getVersionHistory({ pageType: "privacy" }),
+      ).resolves.not.toThrow();
     });
 
-    it("should reject invalid pageType", () => {
-      expect(() => {
-        legalRouter._def.procedures.getVersionHistory._def.inputs[0]?.parse({
-          pageType: "invalid",
-        });
-      }).toThrow();
+    it("should reject invalid pageType", async () => {
+      await expect(
+        _caller.getVersionHistory({
+          pageType: "invalid" as unknown as "privacy",
+        }),
+      ).rejects.toThrow();
     });
   });
 
@@ -190,57 +176,51 @@ describe("app/server/routers/legal.ts", () => {
   });
 
   describe("version tracking", () => {
-    it("update input should accept content that will be versioned", () => {
+    it("update input should accept content that will be versioned", async () => {
       const input = {
         pageType: "privacy" as const,
         content: "Updated privacy policy content",
       };
 
-      expect(() => {
-        legalRouter._def.procedures.update._def.inputs[0]?.parse(input);
-      }).not.toThrow();
+      await expect(_caller.update(input)).resolves.not.toThrow();
     });
   });
 
   describe("input validation edge cases", () => {
-    it("should reject null pageType", () => {
-      expect(() => {
-        legalRouter._def.procedures.getByType._def.inputs[0]?.parse({
-          pageType: null,
-        });
-      }).toThrow();
+    it("should reject null pageType", async () => {
+      await expect(
+        _caller.getByType({ pageType: null as unknown as "privacy" }),
+      ).rejects.toThrow();
     });
 
-    it("should reject undefined pageType", () => {
-      expect(() => {
-        legalRouter._def.procedures.getByType._def.inputs[0]?.parse({
-          pageType: undefined,
-        });
-      }).toThrow();
+    it("should reject undefined pageType", async () => {
+      await expect(
+        _caller.getByType({ pageType: undefined as unknown as "privacy" }),
+      ).rejects.toThrow();
     });
 
-    it("should accept long content for update", () => {
+    it("should accept long content for update", async () => {
       const longContent = "A".repeat(10000); // 10K characters
-      expect(() => {
-        legalRouter._def.procedures.update._def.inputs[0]?.parse({
+      await expect(
+        _caller.update({
           pageType: "terms",
           content: longContent,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should handle special characters in content", () => {
+    it("should handle special characters in content", async () => {
       const specialContent = `# Privacy Policy
 
 Special characters: !@#$%^&*()_+-=[]{}|;':",./<>?
 Unicode: 你好 مرحبا Здравствуйте`;
 
-      expect(() => {
-        legalRouter._def.procedures.update._def.inputs[0]?.parse({
+      await expect(
+        _caller.update({
           pageType: "privacy",
           content: specialContent,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 });

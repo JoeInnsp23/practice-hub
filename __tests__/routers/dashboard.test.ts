@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { dashboardRouter } from "@/app/server/routers/dashboard";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock dashboard queries
 vi.mock("@/lib/db/queries/dashboard-queries", () => ({
@@ -43,12 +46,12 @@ vi.mock("@/lib/db/queries/dashboard-queries", () => ({
 }));
 
 describe("app/server/routers/dashboard.ts", () => {
-  let ctx: Context;
-  let caller: ReturnType<typeof createCaller<typeof dashboardRouter>>;
+  let ctx: TestContextWithAuth;
+  let _caller: ReturnType<typeof createCaller<typeof dashboardRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
-    caller = createCaller(dashboardRouter, ctx);
+    _caller = createCaller(dashboardRouter, ctx);
     vi.clearAllMocks();
   });
 
@@ -63,53 +66,51 @@ describe("app/server/routers/dashboard.ts", () => {
   });
 
   describe("activity", () => {
-    it("should accept empty input", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({});
-      }).not.toThrow();
+    it("should accept empty input", async () => {
+      await expect(_caller.activity({})).resolves.not.toThrow();
     });
 
-    it("should accept pagination parameters", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
+    it("should accept pagination parameters", async () => {
+      await expect(
+        _caller.activity({
           limit: 50,
           offset: 100,
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept entityType filter", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
+    it("should accept entityType filter", async () => {
+      await expect(
+        _caller.activity({
           entityType: "client",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate limit max value", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
+    it("should validate limit max value", async () => {
+      await expect(
+        _caller.activity({
           limit: 150, // Exceeds max of 100
-        });
-      }).toThrow();
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should validate limit min value", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
+    it("should validate limit min value", async () => {
+      await expect(
+        _caller.activity({
           limit: 0, // Below minimum of 1
-        });
-      }).toThrow();
+        }),
+      ).rejects.toThrow();
     });
 
-    it("should accept all filters combined", () => {
-      expect(() => {
-        dashboardRouter._def.procedures.activity._def.inputs[0]?.parse({
+    it("should accept all filters combined", async () => {
+      await expect(
+        _caller.activity({
           limit: 25,
           offset: 50,
           entityType: "task",
-        });
-      }).not.toThrow();
+        }),
+      ).resolves.not.toThrow();
     });
   });
 

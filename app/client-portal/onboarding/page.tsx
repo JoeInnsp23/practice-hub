@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import type { QuestionnaireData } from "@/lib/trpc/types";
 import { OnboardingBusinessForm } from "./components/business-form";
 import { OnboardingCompanyForm } from "./components/company-form";
 import { OnboardingDocumentUpload } from "./components/document-upload";
@@ -81,13 +82,13 @@ export default function OnboardingQuestionnairePage() {
   const sessionId = searchParams.get("sessionId");
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [aiExtractedFields, setAiExtractedFields] = useState<Set<string>>(
     new Set(),
   );
 
   // Get onboarding session with pre-filled data
-  const { data: sessionData, isLoading } =
+  const { data: sessionData, isPending } =
     trpc.onboarding.getQuestionnaireSession.useQuery(
       { sessionId: sessionId || "" },
       { enabled: !!sessionId },
@@ -96,7 +97,7 @@ export default function OnboardingQuestionnairePage() {
   // Initialize form data from pre-filled questionnaire
   useEffect(() => {
     if (sessionData?.questionnaire) {
-      const initialData: Record<string, any> = {};
+      const initialData: Record<string, unknown> = {};
       const aiFields = new Set<string>();
 
       for (const [key, field] of Object.entries(
@@ -123,7 +124,7 @@ export default function OnboardingQuestionnairePage() {
   const submitQuestionnaireMutation =
     trpc.onboarding.submitQuestionnaire.useMutation();
 
-  const handleFieldChange = async (key: string, value: any) => {
+  const handleFieldChange = async (key: string, value: unknown) => {
     // Update local state
     setFormData((prev) => ({ ...prev, [key]: value }));
 
@@ -172,7 +173,7 @@ export default function OnboardingQuestionnairePage() {
     }
   };
 
-  const handleDocumentsUploaded = (extractedData: Record<string, any>) => {
+  const handleDocumentsUploaded = (extractedData: Record<string, unknown>) => {
     // Merge extracted data into form
     setFormData((prev) => ({ ...prev, ...extractedData }));
 
@@ -229,8 +230,12 @@ export default function OnboardingQuestionnairePage() {
       router.push(
         `/client-portal/onboarding/pending?clientId=${result.clientId}`,
       );
-    } catch (error: any) {
-      toast.error(error.message || "Failed to submit questionnaire");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to submit questionnaire";
+      toast.error(errorMessage);
     }
   };
 
@@ -248,7 +253,7 @@ export default function OnboardingQuestionnairePage() {
     );
   }
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8 flex items-center justify-center">
         <div className="text-center">

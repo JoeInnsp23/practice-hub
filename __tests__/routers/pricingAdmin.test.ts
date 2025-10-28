@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { pricingAdminRouter } from "@/app/server/routers/pricingAdmin";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -30,11 +33,21 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/pricingAdmin.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof pricingAdminRouter>>;
 
   beforeEach(() => {
-    ctx = createMockContext();
+    ctx = createMockContext({
+      authContext: {
+        userId: crypto.randomUUID(),
+        tenantId: crypto.randomUUID(),
+        organizationName: "Test Organization",
+        role: "admin",
+        email: "admin@example.com",
+        firstName: "Admin",
+        lastName: "User",
+      },
+    });
     caller = createCaller(pricingAdminRouter, ctx);
     vi.clearAllMocks();
   });
@@ -50,40 +63,28 @@ describe("app/server/routers/pricingAdmin.ts", () => {
   });
 
   describe("getComponent", () => {
-    it("should accept valid component ID", () => {
+    it("should accept valid component ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.getComponent._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.getComponent(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        pricingAdminRouter._def.procedures.getComponent._def.inputs[0]?.parse(
-          123,
-        );
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(caller.getComponent(123)).rejects.toThrow();
     });
   });
 
   describe("createComponent", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         category: "tax_compliance",
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.createComponent._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.createComponent(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid component data", () => {
+    it("should accept valid component data", async () => {
       const validInput = {
         code: "corp_tax",
         name: "Corporation Tax Return",
@@ -93,16 +94,12 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         isActive: true,
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.createComponent._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.createComponent(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("updateComponent", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
         data: {
@@ -110,14 +107,10 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.updateComponent._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateComponent(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid update data", () => {
+    it("should accept valid update data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -126,14 +119,10 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.updateComponent._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.updateComponent(validInput)).resolves.not.toThrow();
     });
 
-    it("should accept partial updates", () => {
+    it("should accept partial updates", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -141,78 +130,54 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.updateComponent._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.updateComponent(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("deleteComponent", () => {
-    it("should accept valid component ID", () => {
+    it("should accept valid component ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.deleteComponent._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.deleteComponent(validId)).resolves.not.toThrow();
     });
 
-    it("should validate input is a string", () => {
-      expect(() => {
-        pricingAdminRouter._def.procedures.deleteComponent._def.inputs[0]?.parse(
-          null,
-        );
-      }).toThrow();
+    it("should validate input is a string", async () => {
+      await expect(caller.deleteComponent(null)).rejects.toThrow();
     });
   });
 
   describe("cloneComponent", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing newCode and newName
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.cloneComponent._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.cloneComponent(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid clone data", () => {
+    it("should accept valid clone data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         newCode: "corp_tax_v2",
         newName: "Corporation Tax Return V2",
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.cloneComponent._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.cloneComponent(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("bulkUpdateComponents", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing isActive
         ids: ["550e8400-e29b-41d4-a716-446655440000"],
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.bulkUpdateComponents._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.bulkUpdateComponents(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid bulk update data", () => {
+    it("should accept valid bulk update data", async () => {
       const validInput = {
         ids: [
           "550e8400-e29b-41d4-a716-446655440000",
@@ -221,24 +186,18 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         isActive: true,
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.bulkUpdateComponents._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.bulkUpdateComponents(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate ids is an array", () => {
+    it("should validate ids is an array", async () => {
       const invalidInput = {
         ids: "not-an-array",
         isActive: true,
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.bulkUpdateComponents._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.bulkUpdateComponents(invalidInput)).rejects.toThrow();
     });
   });
 
@@ -253,32 +212,24 @@ describe("app/server/routers/pricingAdmin.ts", () => {
   });
 
   describe("getRulesByComponent", () => {
-    it("should accept valid component ID", () => {
+    it("should accept valid component ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.getRulesByComponent._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.getRulesByComponent(validId)).resolves.not.toThrow();
     });
   });
 
   describe("createRule", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         ruleType: "base_price",
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.createRule._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.createRule(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid rule data", () => {
+    it("should accept valid rule data", async () => {
       const validInput = {
         serviceId: "550e8400-e29b-41d4-a716-446655440000",
         ruleType: "turnover_band",
@@ -288,16 +239,12 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         isActive: true,
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.createRule._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.createRule(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("updateRule", () => {
-    it("should validate required id field", () => {
+    it("should validate required id field", async () => {
       const invalidInput = {
         // Missing id
         data: {
@@ -305,14 +252,10 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.updateRule._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateRule(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid update data", () => {
+    it("should accept valid update data", async () => {
       const validInput = {
         id: "550e8400-e29b-41d4-a716-446655440000",
         data: {
@@ -321,28 +264,20 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.updateRule._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.updateRule(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("deleteRule", () => {
-    it("should accept valid rule ID", () => {
+    it("should accept valid rule ID", async () => {
       const validId = "550e8400-e29b-41d4-a716-446655440000";
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.deleteRule._def.inputs[0]?.parse(
-          validId,
-        );
-      }).not.toThrow();
+      await expect(caller.deleteRule(validId)).resolves.not.toThrow();
     });
   });
 
   describe("bulkCreateRules", () => {
-    it("should accept array of valid rules", () => {
+    it("should accept array of valid rules", async () => {
       const validInput = [
         {
           serviceId: "550e8400-e29b-41d4-a716-446655440000",
@@ -362,24 +297,16 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       ];
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.bulkCreateRules._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.bulkCreateRules(validInput)).resolves.not.toThrow();
     });
 
-    it("should validate input is an array", () => {
+    it("should validate input is an array", async () => {
       const invalidInput = {
         componentId: "550e8400-e29b-41d4-a716-446655440000",
         ruleType: "base_price",
       };
 
-      expect(() => {
-        pricingAdminRouter._def.procedures.bulkCreateRules._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.bulkCreateRules(invalidInput)).rejects.toThrow();
     });
   });
 

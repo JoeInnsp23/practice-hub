@@ -11,7 +11,7 @@ import {
 import { Card } from "@/components/ui/card";
 
 interface ModelData {
-  model: string;
+  model: string | null;
   count: number;
   avgMonthly: number;
   totalRevenue: number;
@@ -118,7 +118,7 @@ export function ModelComparisonChart({
             {chartData.map((entry) => (
               <Cell
                 key={`cell-${entry.name}`}
-                fill={MODEL_COLORS[entry.name] || "#64748b"}
+                fill={(entry.name && MODEL_COLORS[entry.name]) || "#64748b"}
               />
             ))}
           </Pie>
@@ -128,7 +128,7 @@ export function ModelComparisonChart({
               border: "1px solid rgb(var(--border))",
               borderRadius: "8px",
             }}
-            formatter={(value: number, name: string, _entry: any) => {
+            formatter={(value: number, name: string) => {
               if (name === "value") {
                 return [`${value} proposals`, "Count"];
               }

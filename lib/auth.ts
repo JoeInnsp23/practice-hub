@@ -47,15 +47,33 @@ export const auth = betterAuth({
     },
     autoSignInAfterVerification: true,
   },
-  socialProviders: {
-    microsoft: {
-      clientId: process.env.MICROSOFT_CLIENT_ID as string,
-      clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
-      tenantId: "common", // Allows personal + work/school Microsoft accounts
-      authority: "https://login.microsoftonline.com",
-      prompt: "select_account", // Forces account selection every time
-    },
-  },
+  socialProviders: (() => {
+    const { MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, NODE_ENV } =
+      process.env;
+
+    // Only register Microsoft OAuth if credentials are present
+    if (MICROSOFT_CLIENT_ID && MICROSOFT_CLIENT_SECRET) {
+      return {
+        microsoft: {
+          clientId: MICROSOFT_CLIENT_ID,
+          clientSecret: MICROSOFT_CLIENT_SECRET,
+          tenantId: "common", // Allows personal + work/school Microsoft accounts
+          authority: "https://login.microsoftonline.com",
+          prompt: "select_account", // Forces account selection every time
+        },
+      };
+    }
+
+    // In production, Microsoft OAuth is required
+    if (NODE_ENV === "production") {
+      throw new Error(
+        "Microsoft OAuth credentials (MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET) are required in production",
+      );
+    }
+
+    // In development/test, OAuth is optional (allows testing without OAuth)
+    return {};
+  })(),
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day (update session if older than this)

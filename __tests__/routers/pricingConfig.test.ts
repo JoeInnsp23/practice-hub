@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { pricingConfigRouter } from "@/app/server/routers/pricingConfig";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock the database
 vi.mock("@/lib/db", () => ({
@@ -24,7 +27,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 describe("app/server/routers/pricingConfig.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof pricingConfigRouter>>;
 
   beforeEach(() => {
@@ -44,20 +47,18 @@ describe("app/server/routers/pricingConfig.ts", () => {
   });
 
   describe("updateComplexityMultipliers", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing multipliers
         model: "modelA",
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateComplexityMultipliers._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateComplexityMultipliers(invalidInput),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid Model A multipliers", () => {
+    it("should accept valid Model A multipliers", async () => {
       const validInput = {
         model: "modelA" as const,
         multipliers: {
@@ -68,14 +69,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateComplexityMultipliers._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.updateComplexityMultipliers(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should accept valid Model B multipliers", () => {
+    it("should accept valid Model B multipliers", async () => {
       const validInput = {
         model: "modelB" as const,
         multipliers: {
@@ -86,14 +85,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateComplexityMultipliers._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.updateComplexityMultipliers(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate model enum values", () => {
+    it("should validate model enum values", async () => {
       const invalidInput = {
         model: "modelC",
         multipliers: {
@@ -104,14 +101,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateComplexityMultipliers._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateComplexityMultipliers(invalidInput),
+      ).rejects.toThrow();
     });
 
-    it("should validate multiplier min value", () => {
+    it("should validate multiplier min value", async () => {
       const invalidInput = {
         model: "modelA",
         multipliers: {
@@ -122,14 +117,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateComplexityMultipliers._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateComplexityMultipliers(invalidInput),
+      ).rejects.toThrow();
     });
 
-    it("should validate multiplier max value", () => {
+    it("should validate multiplier max value", async () => {
       const invalidInput = {
         model: "modelA",
         multipliers: {
@@ -140,16 +133,14 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateComplexityMultipliers._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateComplexityMultipliers(invalidInput),
+      ).rejects.toThrow();
     });
   });
 
   describe("updateIndustryMultipliers", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing regulated
         simple: 0.95,
@@ -157,14 +148,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         complex: 1.15,
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateIndustryMultipliers._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateIndustryMultipliers(invalidInput),
+      ).rejects.toThrow();
     });
 
-    it("should accept valid industry multipliers", () => {
+    it("should accept valid industry multipliers", async () => {
       const validInput = {
         simple: 0.95,
         standard: 1.0,
@@ -172,14 +161,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         regulated: 1.3,
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateIndustryMultipliers._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.updateIndustryMultipliers(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate multiplier ranges", () => {
+    it("should validate multiplier ranges", async () => {
       const invalidInput = {
         simple: 0.3, // Below minimum
         standard: 1.0,
@@ -187,16 +174,14 @@ describe("app/server/routers/pricingConfig.ts", () => {
         regulated: 1.3,
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateIndustryMultipliers._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(
+        caller.updateIndustryMultipliers(invalidInput),
+      ).rejects.toThrow();
     });
   });
 
   describe("updateDiscountRules", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required nested fields
         volumeTier1: {
@@ -204,14 +189,10 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateDiscountRules._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid discount rules", () => {
+    it("should accept valid discount rules", async () => {
       const validInput = {
         volumeTier1: {
           threshold: 500,
@@ -239,14 +220,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateDiscountRules._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.updateDiscountRules(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate percentage ranges", () => {
+    it("should validate percentage ranges", async () => {
       const invalidInput = {
         volumeTier1: {
           threshold: 500,
@@ -274,14 +253,10 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateDiscountRules._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate duration ranges", () => {
+    it("should validate duration ranges", async () => {
       const invalidInput = {
         volumeTier1: {
           threshold: 500,
@@ -309,29 +284,21 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateDiscountRules._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
     });
   });
 
   describe("updateGlobalSettings", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing required fields
         defaultTurnoverBand: "90k-149k",
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateGlobalSettings._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid global settings", () => {
+    it("should accept valid global settings", async () => {
       const validInput = {
         defaultTurnoverBand: "90k-149k",
         defaultIndustry: "standard" as const,
@@ -340,14 +307,12 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 20,
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateGlobalSettings._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(
+        caller.updateGlobalSettings(validInput),
+      ).resolves.not.toThrow();
     });
 
-    it("should validate industry enum values", () => {
+    it("should validate industry enum values", async () => {
       const invalidInput = {
         defaultTurnoverBand: "90k-149k",
         defaultIndustry: "invalid",
@@ -356,14 +321,10 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 0,
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateGlobalSettings._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
     });
 
-    it("should validate rounding rule enum values", () => {
+    it("should validate rounding rule enum values", async () => {
       const invalidInput = {
         defaultTurnoverBand: "90k-149k",
         defaultIndustry: "standard",
@@ -372,46 +333,38 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 0,
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.updateGlobalSettings._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept all valid industry values", () => {
+    it("should accept all valid industry values", async () => {
       const validIndustries = ["simple", "standard", "complex", "regulated"];
 
       for (const industry of validIndustries) {
-        expect(() => {
-          pricingConfigRouter._def.procedures.updateGlobalSettings._def.inputs[0]?.parse(
-            {
-              defaultTurnoverBand: "90k-149k",
-              defaultIndustry: industry,
-              roundingRule: "nearest_1",
-              currencySymbol: "£",
-              taxRate: 0,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          caller.updateGlobalSettings({
+            defaultTurnoverBand: "90k-149k",
+            defaultIndustry: industry,
+            roundingRule: "nearest_1",
+            currencySymbol: "£",
+            taxRate: 0,
+          }),
+        ).resolves.not.toThrow();
       }
     });
 
-    it("should accept all valid rounding rules", () => {
+    it("should accept all valid rounding rules", async () => {
       const validRules = ["nearest_1", "nearest_5", "nearest_10", "none"];
 
       for (const rule of validRules) {
-        expect(() => {
-          pricingConfigRouter._def.procedures.updateGlobalSettings._def.inputs[0]?.parse(
-            {
-              defaultTurnoverBand: "90k-149k",
-              defaultIndustry: "standard",
-              roundingRule: rule,
-              currencySymbol: "£",
-              taxRate: 0,
-            },
-          );
-        }).not.toThrow();
+        await expect(
+          caller.updateGlobalSettings({
+            defaultTurnoverBand: "90k-149k",
+            defaultIndustry: "standard",
+            roundingRule: rule,
+            currencySymbol: "£",
+            taxRate: 0,
+          }),
+        ).resolves.not.toThrow();
       }
     });
   });
@@ -437,19 +390,15 @@ describe("app/server/routers/pricingConfig.ts", () => {
   });
 
   describe("importConfig", () => {
-    it("should validate required fields", () => {
+    it("should validate required fields", async () => {
       const invalidInput = {
         // Missing config
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.importConfig._def.inputs[0]?.parse(
-          invalidInput,
-        );
-      }).toThrow();
+      await expect(caller.importConfig(invalidInput)).rejects.toThrow();
     });
 
-    it("should accept valid configuration import", () => {
+    it("should accept valid configuration import", async () => {
       const validInput = {
         config: {
           complexityMultipliers: {
@@ -508,11 +457,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      expect(() => {
-        pricingConfigRouter._def.procedures.importConfig._def.inputs[0]?.parse(
-          validInput,
-        );
-      }).not.toThrow();
+      await expect(caller.importConfig(validInput)).resolves.not.toThrow();
     });
   });
 

@@ -32,32 +32,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import type { Invoice } from "@/lib/trpc/types";
 import { formatCurrency } from "@/lib/utils/format";
 
-type Invoice = {
-  id: string;
-  tenantId: string;
-  invoiceNumber: string;
+// Form data type (subset of Invoice without DB-generated fields)
+interface InvoiceFormData {
   clientId: string;
-  issueDate: string | Date;
-  dueDate: string | Date;
-  paidDate: string | Date | null;
-  subtotal: string;
-  taxRate: string | null;
-  taxAmount: string | null;
-  discount: string | null;
-  total: string;
-  amountPaid: string | null;
+  invoiceNumber: string;
+  issueDate: string;
+  dueDate: string;
+  paidDate?: string;
   status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
-  currency: string | null;
-  notes: string | null;
-  terms: string | null;
-  purchaseOrderNumber: string | null;
-  metadata: unknown;
-  createdAt: Date;
-  updatedAt: Date;
-  createdById: string | null;
-};
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  discount: number;
+  total: number;
+  amountPaid: number;
+  currency: string;
+  notes?: string;
+  terms?: string;
+  purchaseOrderNumber?: string;
+  lineItems?: Array<{
+    description: string;
+    quantity: number;
+    rate: number;
+    amount: number;
+    sortOrder: number;
+  }>;
+}
 
 export default function InvoicesPage() {
   const router = useRouter();
@@ -168,42 +171,30 @@ export default function InvoicesPage() {
     setIsFormOpen(true);
   };
 
-  const handleSaveInvoice = (data: Partial<Invoice>) => {
-    // Transform null values to undefined and Dates to strings for API compatibility
-    const transformedData = {
-      ...data,
-      issueDate:
-        data.issueDate instanceof Date
-          ? data.issueDate.toISOString()
-          : data.issueDate,
-      dueDate:
-        data.dueDate instanceof Date
-          ? data.dueDate.toISOString()
-          : data.dueDate,
-      paidDate:
-        data.paidDate instanceof Date
-          ? data.paidDate.toISOString()
-          : (data.paidDate ?? undefined),
-      taxRate: data.taxRate ?? undefined,
-      taxAmount: data.taxAmount ?? undefined,
-      discount: data.discount ?? undefined,
-      currency: data.currency ?? undefined,
-      notes: data.notes ?? undefined,
-      terms: data.terms ?? undefined,
-      purchaseOrderNumber: data.purchaseOrderNumber ?? undefined,
-      amountPaid: data.amountPaid ?? undefined,
-      metadata: data.metadata ?? undefined,
-    };
-
+  const handleSaveInvoice = (data: InvoiceFormData) => {
     if (editingInvoice) {
       updateMutation.mutate({
         id: editingInvoice.id,
-        // biome-ignore lint/suspicious/noExplicitAny: Transforming null to undefined for API compatibility
-        data: transformedData as any,
+        data: {
+          ...data,
+          subtotal: data.subtotal.toString(),
+          taxRate: data.taxRate?.toString() || null,
+          taxAmount: data.taxAmount?.toString() || null,
+          discount: data.discount?.toString() || null,
+          total: data.total.toString(),
+          amountPaid: data.amountPaid?.toString() || null,
+        },
       });
     } else {
-      // biome-ignore lint/suspicious/noExplicitAny: Transforming null to undefined for API compatibility
-      createMutation.mutate(transformedData as any);
+      createMutation.mutate({
+        ...data,
+        subtotal: data.subtotal.toString(),
+        taxRate: data.taxRate?.toString() || null,
+        taxAmount: data.taxAmount?.toString() || null,
+        discount: data.discount?.toString() || null,
+        total: data.total.toString(),
+        amountPaid: data.amountPaid?.toString() || null,
+      });
     }
   };
 
@@ -391,7 +382,30 @@ export default function InvoicesPage() {
             </DialogTitle>
           </DialogHeader>
           <InvoiceForm
-            invoice={editingInvoice}
+            invoice={
+              editingInvoice
+                ? {
+                    ...editingInvoice,
+                    subtotal: parseFloat(editingInvoice.subtotal),
+                    taxRate: editingInvoice.taxRate
+                      ? parseFloat(editingInvoice.taxRate)
+                      : 0,
+                    taxAmount: editingInvoice.taxAmount
+                      ? parseFloat(editingInvoice.taxAmount)
+                      : 0,
+                    discount: editingInvoice.discount
+                      ? parseFloat(editingInvoice.discount)
+                      : 0,
+                    total: parseFloat(editingInvoice.total),
+                    amountPaid: editingInvoice.amountPaid
+                      ? parseFloat(editingInvoice.amountPaid)
+                      : 0,
+                    currency: editingInvoice.currency || "GBP",
+                    terms: editingInvoice.terms || undefined,
+                    notes: editingInvoice.notes || undefined,
+                  }
+                : undefined
+            }
             onSave={handleSaveInvoice}
             onCancel={() => setIsFormOpen(false)}
           />

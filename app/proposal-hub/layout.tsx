@@ -6,7 +6,6 @@ import {
   Home,
   Settings,
   Target,
-  TrendingUp,
   UserPlus,
   Users,
 } from "lucide-react";

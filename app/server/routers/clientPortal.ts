@@ -56,8 +56,7 @@ export const clientPortalRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -109,8 +108,7 @@ export const clientPortalRouter = router({
   getProposalById: clientPortalProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       const proposal = await db
         .select({
@@ -199,8 +197,7 @@ export const clientPortalRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -250,8 +247,7 @@ export const clientPortalRouter = router({
   getInvoiceById: clientPortalProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       const invoice = await db
         .select({
@@ -312,8 +308,7 @@ export const clientPortalRouter = router({
   getDocuments: clientPortalProcedure
     .input(z.object({ clientId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -349,8 +344,7 @@ export const clientPortalRouter = router({
   getDocumentsToSign: clientPortalProcedure
     .input(z.object({ clientId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -416,8 +410,7 @@ export const clientPortalRouter = router({
   getSignedDocuments: clientPortalProcedure
     .input(z.object({ clientId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const { portalUserId, tenantId, clientAccess } =
-        ctx.clientPortalAuthContext;
+      const { tenantId, clientAccess } = ctx.clientPortalAuthContext;
 
       // Verify user has access to this client
       const hasAccess = clientAccess.find((c) => c.clientId === input.clientId);
@@ -716,7 +709,7 @@ export const clientPortalRouter = router({
         clientId: z.string().uuid(),
         content: z.string().min(1).max(5000),
         type: z.enum(["text", "file"]).default("text"),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

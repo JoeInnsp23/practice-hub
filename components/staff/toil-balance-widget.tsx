@@ -57,8 +57,7 @@ export function ToilBalanceWidget({
               className="w-full justify-center bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400"
             >
               <AlertCircle className="h-3 w-3 mr-1" />
-              {balance.expiringHours.toFixed(1)} hrs (
-              {balance.expiringDays} day
+              {balance.expiringHours.toFixed(1)} hrs ({balance.expiringDays} day
               {balance.expiringDays !== 1 ? "s" : ""}) expiring soon
             </Badge>
             {balance.expiryDate && (
@@ -94,8 +93,8 @@ export function ToilBalanceWidget({
         {balance.totalHours === 0 && (
           <div className="pt-4 border-t">
             <p className="text-xs text-center text-muted-foreground">
-              TOIL is earned when you work overtime. Submit timesheets with hours
-              exceeding your weekly capacity to accrue TOIL.
+              TOIL is earned when you work overtime. Submit timesheets with
+              hours exceeding your weekly capacity to accrue TOIL.
             </p>
           </div>
         )}

@@ -148,7 +148,7 @@ export default function InvitationsPage() {
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
             <TabsList>
               <TabsTrigger
-                value={undefined as any}
+                value="all"
                 onClick={() => setSelectedTab(undefined)}
               >
                 All

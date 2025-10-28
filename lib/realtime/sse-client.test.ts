@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionState } from "./client";
 import { SSEClient } from "./sse-client";
 
@@ -8,20 +8,20 @@ class MockEventSource {
   onopen: ((event: Event) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
-  private eventListeners = new Map<string, ((event: MessageEvent) => void)[]>();
+  private eventListeners = new Map<string, EventListener[]>();
 
   constructor(url: string) {
     this.url = url;
   }
 
-  addEventListener(type: string, listener: (event: MessageEvent) => void) {
+  addEventListener(type: string, listener: EventListener) {
     if (!this.eventListeners.has(type)) {
       this.eventListeners.set(type, []);
     }
     this.eventListeners.get(type)?.push(listener);
   }
 
-  removeEventListener(type: string, listener: (event: MessageEvent) => void) {
+  removeEventListener(type: string, listener: EventListener) {
     const listeners = this.eventListeners.get(type);
     if (listeners) {
       const index = listeners.indexOf(listener);
@@ -45,7 +45,19 @@ class MockEventSource {
       data: JSON.stringify(data),
     });
     const listeners = this.eventListeners.get(type);
-    listeners?.forEach((listener) => listener(event));
+    listeners?.forEach((listener) => {
+      if (typeof listener === "function") {
+        listener(event);
+      } else if (
+        typeof listener === "object" &&
+        listener !== null &&
+        "handleEvent" in listener
+      ) {
+        (listener as { handleEvent: (event: Event) => void }).handleEvent(
+          event,
+        );
+      }
+    });
   }
 
   simulateError() {
@@ -89,7 +101,8 @@ describe("SSEClient", () => {
       client.connect("/api/activity/stream");
 
       // Get the mock EventSource instance
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
 
       const stateChanges: ConnectionState[] = [];
       client.subscribe("connection:state", (event) => {
@@ -106,7 +119,8 @@ describe("SSEClient", () => {
 
     it("should handle disconnection", () => {
       client.connect("/api/activity/stream");
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       expect(client.isConnected()).toBe(true);
@@ -123,7 +137,8 @@ describe("SSEClient", () => {
       const receivedEvents: unknown[] = [];
 
       client.connect("/api/activity/stream");
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       const unsubscribe = client.subscribe("activity:new", (event) => {
@@ -151,7 +166,8 @@ describe("SSEClient", () => {
       const notificationEvents: unknown[] = [];
 
       client.connect("/api/activity/stream");
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       client.subscribe("activity:new", (event) => {
@@ -174,7 +190,8 @@ describe("SSEClient", () => {
       const events: unknown[] = [];
 
       client.connect("/api/activity/stream");
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       const unsubscribe = client.subscribe("activity:new", (event) => {
@@ -202,7 +219,8 @@ describe("SSEClient", () => {
         reconnectDelay: 1000,
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
 
       // Simulate error
       mockEventSource.simulateError();
@@ -224,7 +242,8 @@ describe("SSEClient", () => {
         maxReconnectDelay: 30000,
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
 
       // First error - 1s delay
       mockEventSource.simulateError();
@@ -232,12 +251,14 @@ describe("SSEClient", () => {
 
       // Second error - 2s delay
       vi.advanceTimersByTime(1000);
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateError();
 
       // Third error - 4s delay
       vi.advanceTimersByTime(2000);
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateError();
 
       expect(client.getStats().reconnectAttempts).toBe(3);
@@ -256,13 +277,16 @@ describe("SSEClient", () => {
         pollingEvents.push(event.data);
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
 
       // Fail 4 times (initial + 3 reconnect attempts)
       for (let i = 0; i < 4; i++) {
         mockEventSource.simulateError();
         vi.advanceTimersByTime(1000 * 2 ** i);
-        mockEventSource = (client as never).eventSource as MockEventSource;
+        mockEventSource = (
+          client as unknown as { eventSource: MockEventSource }
+        ).eventSource;
       }
 
       expect(client.getState()).toBe("failed");
@@ -276,7 +300,8 @@ describe("SSEClient", () => {
         heartbeatTimeout: 60000,
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       const stats = client.getStats();
@@ -294,7 +319,8 @@ describe("SSEClient", () => {
         heartbeatTimeout: 60000,
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       // Advance 30s
@@ -325,15 +351,18 @@ describe("SSEClient", () => {
         pollingEvents.push(event.data);
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
 
       // Fail 3 times (initial + 2 reconnect attempts)
       mockEventSource.simulateError();
       vi.advanceTimersByTime(1000);
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateError();
       vi.advanceTimersByTime(2000);
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateError();
       vi.advanceTimersByTime(4000);
 
@@ -347,11 +376,13 @@ describe("SSEClient", () => {
         enablePollingFallback: true,
       });
 
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       // Fail 2 times (initial + 1 reconnect attempt)
       mockEventSource.simulateError();
       vi.advanceTimersByTime(1000);
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateError();
       vi.advanceTimersByTime(2000);
 
@@ -367,7 +398,8 @@ describe("SSEClient", () => {
   describe("Connection Stats", () => {
     it("should track connection statistics", () => {
       client.connect("/api/activity/stream");
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
       mockEventSource.simulateOpen();
 
       const stats = client.getStats();
@@ -382,7 +414,8 @@ describe("SSEClient", () => {
 
     it("should update reconnect attempts", () => {
       client.connect("/api/activity/stream");
-      mockEventSource = (client as never).eventSource as MockEventSource;
+      mockEventSource = (client as unknown as { eventSource: MockEventSource })
+        .eventSource;
 
       mockEventSource.simulateError();
       vi.advanceTimersByTime(1000);

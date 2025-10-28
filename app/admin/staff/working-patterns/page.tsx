@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc/client";
+import type { WorkingPattern } from "@/lib/trpc/types";
 
 // Pattern type labels
 const PATTERN_TYPE_LABELS: Record<string, string> = {
@@ -50,7 +51,9 @@ export default function WorkingPatternsPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
-  const [editingPattern, setEditingPattern] = useState<any | null>(null);
+  const [editingPattern, setEditingPattern] = useState<WorkingPattern | null>(
+    null,
+  );
 
   // Fetch all working patterns
   const { data, isLoading, refetch } = trpc.workingPatterns.list.useQuery({});
@@ -61,7 +64,7 @@ export default function WorkingPatternsPage() {
     refetch();
   };
 
-  const handleEdit = (pattern: any) => {
+  const handleEdit = (pattern: WorkingPattern) => {
     setEditingPattern(pattern);
     setShowCreateDialog(true);
   };
@@ -72,7 +75,7 @@ export default function WorkingPatternsPage() {
   };
 
   // Format working pattern summary (e.g., "Mon-Thu 9h, Fri off (36h/week)")
-  const formatPatternSummary = (pattern: any): string => {
+  const formatPatternSummary = (pattern: WorkingPattern): string => {
     const days = [
       { name: "Mon", hours: pattern.mondayHours },
       { name: "Tue", hours: pattern.tuesdayHours },
@@ -148,7 +151,9 @@ export default function WorkingPatternsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Patterns</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Patterns
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -170,8 +175,9 @@ export default function WorkingPatternsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {data?.workingPatterns?.filter((p) => p.patternType === "full_time")
-                .length || 0}
+              {data?.workingPatterns?.filter(
+                (p) => p.patternType === "full_time",
+              ).length || 0}
             </div>
             <p className="text-xs text-muted-foreground">Standard patterns</p>
           </CardContent>
@@ -254,7 +260,8 @@ export default function WorkingPatternsPage() {
                       <TableCell>
                         <Badge
                           variant={
-                            PATTERN_TYPE_COLORS[pattern.patternType] || "outline"
+                            PATTERN_TYPE_COLORS[pattern.patternType] ||
+                            "outline"
                           }
                         >
                           {PATTERN_TYPE_LABELS[pattern.patternType] ||
@@ -274,7 +281,10 @@ export default function WorkingPatternsPage() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {format(new Date(pattern.effectiveFrom), "MMM d, yyyy")}
+                          {format(
+                            new Date(pattern.effectiveFrom),
+                            "MMM d, yyyy",
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -299,8 +309,12 @@ export default function WorkingPatternsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
-                      No working patterns found. Create your first pattern to get started.
+                    <TableCell
+                      colSpan={5}
+                      className="text-center text-muted-foreground"
+                    >
+                      No working patterns found. Create your first pattern to
+                      get started.
                     </TableCell>
                   </TableRow>
                 )}

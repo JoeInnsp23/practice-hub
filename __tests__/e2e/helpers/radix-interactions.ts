@@ -6,7 +6,7 @@
  * and focus management that cause brittleness in E2E tests.
  */
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 /**
  * Interact with Radix Select component
@@ -87,7 +87,7 @@ export async function selectRadixOption(
       // (Playwright's actionability checks handle focus automatically)
       try {
         await trigger.click();
-      } catch (error) {
+      } catch (_error) {
         // If regular click fails, try with force
         await trigger.click({ force: true });
       }
@@ -121,12 +121,14 @@ export async function selectRadixOption(
 
       // Success - exit retry loop
       return;
-    } catch (error: any) {
+    } catch (error: unknown) {
       retries--;
       if (retries === 0) {
         // If all retries exhausted, throw the error
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         throw new Error(
-          `Failed to select option "${optionText}" after 3 attempts: ${error.message}`,
+          `Failed to select option "${optionText}" after 3 attempts: ${errorMessage}`,
         );
       }
       // Wait before retry

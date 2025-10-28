@@ -89,7 +89,6 @@ export async function parseCSV<T>(
     Papa.parse<Record<string, string>>(file, {
       header: true, // First row is header
       skipEmptyLines: skipEmptyLines ? "greedy" : false, // Skip empty lines
-      trimHeaders: true, // Trim whitespace from headers
       dynamicTyping: false, // Keep all values as strings for validation
       transformHeader: (header: string) => {
         // Normalize header names (lowercase, replace spaces with underscores)
@@ -181,7 +180,6 @@ export async function parseCSVFromText<T>(
     Papa.parse<Record<string, string>>(csvText, {
       header: true,
       skipEmptyLines: skipEmptyLines ? "greedy" : false,
-      trimHeaders: true,
       dynamicTyping: false,
       transformHeader: (header: string) => {
         return header.trim().toLowerCase().replace(/\s+/g, "_");

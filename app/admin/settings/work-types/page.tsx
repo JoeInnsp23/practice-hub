@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -19,6 +17,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,9 +30,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/app/providers/trpc-provider";
-import { toast } from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -41,10 +41,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import type { WorkType } from "@/lib/trpc/types";
 
 interface SortableWorkTypeItemProps {
-  workType: any;
-  onEdit: (workType: any) => void;
+  workType: WorkType;
+  onEdit: (workType: WorkType) => void;
   onDelete: (id: string) => void;
 }
 
@@ -53,8 +54,14 @@ function SortableWorkTypeItem({
   onEdit,
   onDelete,
 }: SortableWorkTypeItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: workType.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: workType.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -113,7 +120,7 @@ function SortableWorkTypeItem({
 
 export default function WorkTypesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingWorkType, setEditingWorkType] = useState<any>(null);
+  const [editingWorkType, setEditingWorkType] = useState<WorkType | null>(null);
   const [formData, setFormData] = useState({
     code: "",
     label: "",
@@ -203,7 +210,7 @@ export default function WorkTypesPage() {
     });
   };
 
-  const handleEdit = (workType: any) => {
+  const handleEdit = (workType: WorkType) => {
     setEditingWorkType(workType);
     setFormData({
       code: workType.code,
@@ -318,7 +325,10 @@ export default function WorkTypesPage() {
                 placeholder="WORK"
                 value={formData.code}
                 onChange={(e) =>
-                  setFormData({ ...formData, code: e.target.value.toUpperCase() })
+                  setFormData({
+                    ...formData,
+                    code: e.target.value.toUpperCase(),
+                  })
                 }
               />
               <p className="text-sm text-muted-foreground">
@@ -372,10 +382,7 @@ export default function WorkTypesPage() {
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={createMutation.isPending}
-            >
+            <Button onClick={handleCreate} disabled={createMutation.isPending}>
               {createMutation.isPending ? "Creating..." : "Create"}
             </Button>
           </DialogFooter>
@@ -444,16 +451,10 @@ export default function WorkTypesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditingWorkType(null)}
-            >
+            <Button variant="outline" onClick={() => setEditingWorkType(null)}>
               Cancel
             </Button>
-            <Button
-              onClick={handleUpdate}
-              disabled={updateMutation.isPending}
-            >
+            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
               {updateMutation.isPending ? "Updating..." : "Update"}
             </Button>
           </DialogFooter>

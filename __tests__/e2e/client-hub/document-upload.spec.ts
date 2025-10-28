@@ -1,5 +1,5 @@
+import path from "node:path";
 import { expect, test } from "@playwright/test";
-import path from "path";
 import { clickButton, waitForDialogOpen } from "../helpers/radix-interactions";
 
 // Tests now use shared authenticated state from global-setup.ts
@@ -217,7 +217,7 @@ test.describe("Document Upload", () => {
             console.log(`Download started: ${download.suggestedFilename()}`);
             expect(true).toBeTruthy();
           }
-        } catch (error) {
+        } catch (_error) {
           // Download might not trigger an event if it opens in new tab/window
           console.log(
             "Download functionality available but couldn't capture event",
@@ -232,7 +232,10 @@ test.describe("Document Upload", () => {
         expect(true).toBeTruthy(); // Soft pass since upload works
       }
     } catch (error) {
-      console.log("Download test encountered an error:", error.message);
+      console.log(
+        "Download test encountered an error:",
+        error instanceof Error ? error.message : String(error),
+      );
       // Pass the test anyway to prevent false negatives
       expect(true).toBeTruthy();
     }

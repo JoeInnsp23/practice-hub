@@ -1,0 +1,998 @@
+{
+  "meta": {
+    "planVersion": "1.0",
+    "createdAt": "2025-10-27",
+    "sourceFile": "docs/plan/agents/explore-output.json",
+    "readinessScore": 95,
+    "totalDuration": "3 weeks (15 business days)",
+    "targetProductionDate": "2025-11-15"
+  },
+  "backlog": [
+    {
+      "id": "GAP-001",
+      "title": "My Tasks Filter (Client Hub / Task Management)",
+      "priority": "P0",
+      "status": "PARTIAL",
+      "severity": "HIGH",
+      "effort": "S",
+      "estimatedHours": 0.5,
+      "confidence": 0.85,
+      "owner": "Backend Developer",
+      "problem": "Legacy app uses OR filter across 3 assignment fields (assignedTo, preparer, reviewer). Current app only checks assignedToId. Users assigned as preparer or reviewer won't see their tasks in My Tasks filter.",
+      "acceptanceCriteria": [
+        "Filter shows tasks where user is assignedTo",
+        "Filter shows tasks where user is preparer",
+        "Filter shows tasks where user is reviewer",
+        "No duplicate tasks shown when user has multiple roles on same task",
+        "E2E test (TEST-001) validates all 3 role scenarios"
+      ],
+      "implementation": {
+        "files": [
+          "lib/db/schema.ts:2788-2826 - Add preparerId to taskDetailsView",
+          "lib/db/queries/task-queries.ts:44-46 - Change filter to OR logic",
+          "app/server/routers/tasks.ts:313+ - Verify router uses updated query"
+        ],
+        "sqlChange": "ALTER VIEW taskDetailsView ADD COLUMN preparerId uuid;"
+      },
+      "tests": ["TEST-001 (E2E): tests/e2e/regression/client-hub.spec.ts"],
+      "dependencies": [],
+      "blocksProduction": true
+    },
+    {
+      "id": "GAP-002",
+      "title": "Quotes Module (Proposal Hub / Quote Management)",
+      "priority": "P1",
+      "status": "MISSING",
+      "severity": "MEDIUM",
+      "effort": "M",
+      "estimatedHours": 4,
+      "confidence": 0.70,
+      "owner": "Backend Developer + Frontend Developer",
+      "problem": "Legacy app has /quotes page. Current app has no quotes router. Unclear if quotes are proposal variants (type='quote') or separate entity.",
+      "acceptanceCriteria": [
+        "Verify quote data model (separate table vs proposal type)",
+        "If separate: create quotes router with CRUD operations",
+        "If type variant: document in architecture docs",
+        "E2E test validates quote creation/editing"
+      ],
+      "implementation": {
+        "optionA": "Quotes are proposal variants (1 hour)",
+        "optionB": "Quotes are separate entity (4 hours)"
+      },
+      "tests": [
+        "If Option B: tests/routers/quotes.test.ts - CRUD operations",
+        "E2E: Quote creation/editing flow"
+      ],
+      "dependencies": ["DEC-002 (product clarification required)"],
+      "blocksProduction": false
+    },
+    {
+      "id": "GAP-003",
+      "title": "Proposal Activities/Notes (Proposal Hub / Activities)",
+      "priority": "P1",
+      "status": "PARTIAL",
+      "severity": "MEDIUM",
+      "effort": "S",
+      "estimatedHours": 3,
+      "confidence": 0.65,
+      "owner": "Backend Developer",
+      "problem": "Legacy has /api/v1/proposals/:id/activities endpoint tracking proposal audit trail. Current app may not track these events explicitly.",
+      "acceptanceCriteria": [
+        "Proposal creation events logged",
+        "Status change events tracked (draft → sent → signed → converted)",
+        "Notes tracked with timestamps",
+        "Signature events captured (via DocuSeal webhook)",
+        "Audit trail visible in UI"
+      ],
+      "implementation": {
+        "optionA": "Use existing notes system",
+        "optionB": "Create separate activities table"
+      },
+      "tests": [
+        "tests/routers/proposal-activities.test.ts - Activity audit trail",
+        "E2E: Verify activity timeline in proposal detail page"
+      ],
+      "dependencies": ["GAP-001 complete"],
+      "blocksProduction": false
+    },
+    {
+      "id": "GAP-004",
+      "title": "Invoice PDF Generation (Invoice Management)",
+      "priority": "P1",
+      "status": "PARTIAL",
+      "severity": "MEDIUM",
+      "effort": "S",
+      "estimatedHours": 3,
+      "confidence": 0.60,
+      "owner": "Backend Developer",
+      "problem": "Invoices router exists but no generatePdf mutation visible. Unclear if PDF generation is linked to documents system or missing.",
+      "acceptanceCriteria": [
+        "Generate invoice PDF from invoice data",
+        "Store PDF in S3/MinIO",
+        "Return presigned URL with TTL (24 hours)",
+        "Track PDF generation timestamp in invoices table",
+        "E2E test validates PDF generation"
+      ],
+      "implementation": {
+        "files": [
+          "app/server/routers/invoices.ts - Add generatePdf mutation",
+          "Create PDF template (similar to proposal PDFs)",
+          "Use existing S3 upload helper from lib/s3.ts"
+        ]
+      },
+      "tests": [
+        "tests/routers/invoices.test.ts - PDF generation mutation",
+        "E2E: Generate PDF, verify download URL works"
+      ],
+      "dependencies": ["S3/MinIO configured (already done)"],
+      "blocksProduction": false
+    },
+    {
+      "id": "GAP-005",
+      "title": "Custom Report Builder (Reporting / Analytics)",
+      "priority": "P2",
+      "status": "PARTIAL",
+      "severity": "LOW",
+      "effort": "L",
+      "estimatedHours": 8,
+      "confidence": 0.60,
+      "owner": "Backend Developer + Product Manager",
+      "problem": "Reports page exists but feature scope may be limited vs legacy ad-hoc reporting.",
+      "acceptanceCriteria": [
+        "Define supported report types",
+        "Document report parameters in docs/features/reports.md",
+        "If ad-hoc SQL needed: add SQL query builder with safety constraints"
+      ],
+      "implementation": {
+        "recommendation": "Defer to post-MVP"
+      },
+      "tests": [],
+      "dependencies": [],
+      "blocksProduction": false
+    }
+  ],
+  "testGaps": [
+    {
+      "id": "TEST-001",
+      "title": "My Tasks Filter E2E",
+      "priority": "P0",
+      "scope": "e2e",
+      "file": "tests/e2e/regression/client-hub.spec.ts",
+      "estimatedHours": 1,
+      "description": "Validates OR logic across preparer/reviewer/assignedTo fields",
+      "suite": "Client Hub - Task Management",
+      "testData": {
+        "tenants": 3,
+        "tasksPerTenant": 10,
+        "userRoles": ["assignedTo", "preparer", "reviewer", "multi-role"]
+      },
+      "blocksProduction": true
+    },
+    {
+      "id": "TEST-002",
+      "title": "Proposal Signing Flow E2E",
+      "priority": "P1",
+      "scope": "e2e",
+      "file": "tests/e2e/regression/proposal-hub.spec.ts",
+      "estimatedHours": 2,
+      "description": "Full proposal flow (create → send → sign → convert to invoice)",
+      "suite": "Proposal Hub - DocuSeal Integration",
+      "blocksProduction": false
+    },
+    {
+      "id": "TEST-003",
+      "title": "Client Portal Onboarding E2E",
+      "priority": "P1",
+      "scope": "e2e",
+      "file": "tests/e2e/regression/client-portal.spec.ts",
+      "estimatedHours": 1,
+      "description": "Client portal onboarding checklist flow",
+      "suite": "Client Portal - Onboarding",
+      "blocksProduction": false
+    },
+    {
+      "id": "TEST-004",
+      "title": "Timesheet Approval Workflow E2E",
+      "priority": "P1",
+      "scope": "e2e",
+      "file": "tests/e2e/regression/timesheet-approval.spec.ts",
+      "estimatedHours": 1,
+      "description": "Timesheet submission → approval → rejection workflow",
+      "suite": "Client Hub - Time Tracking",
+      "blocksProduction": false
+    },
+    {
+      "id": "TEST-005",
+      "title": "Bulk Operations E2E",
+      "priority": "P2",
+      "scope": "e2e",
+      "file": "tests/e2e/regression/bulk-operations.spec.ts",
+      "estimatedHours": 1,
+      "description": "Bulk assign, bulk status update UI",
+      "suite": "Client Hub - Task Management",
+      "blocksProduction": false
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-001",
+      "title": "Social Hub Deprecation",
+      "context": "Social Hub (11 pages) not migrated to current app",
+      "priority": "HIGH",
+      "targetDate": "Week 1 Day 1",
+      "owner": "Product Manager",
+      "inputNeeded": "Confirm Social Hub is not required for launch",
+      "options": [
+        {
+          "label": "A) Migrate Social Hub",
+          "effort": "120-160 hours",
+          "pros": ["Feature parity with legacy", "Complete offering"],
+          "cons": [
+            "Out of MVP scope",
+            "3-4 weeks effort",
+            "Requires BullMQ, Redis infrastructure"
+          ]
+        },
+        {
+          "label": "B) Deprecate Social Hub",
+          "effort": "0 hours",
+          "pros": ["Focus on core features", "Reduced complexity"],
+          "cons": ["Lose social media management capability"]
+        },
+        {
+          "label": "C) External integration",
+          "effort": "80-120 hours",
+          "pros": ["Use specialized tools", "Best-in-class features"],
+          "cons": ["Integration complexity", "Additional vendor dependency"]
+        }
+      ],
+      "recommended": "B",
+      "rationale": "Social Hub is out of scope for practice management MVP. Can be added post-MVP as separate Story."
+    },
+    {
+      "id": "DEC-002",
+      "title": "Quote Management Data Model",
+      "context": "Quote management unclear (may be missing or merged with proposals)",
+      "priority": "MEDIUM",
+      "targetDate": "Week 1 Day 1",
+      "owner": "Product Manager + Backend Developer",
+      "inputNeeded": "Verify quote requirements and data model with product team",
+      "options": [
+        {
+          "label": "A) Quotes are proposal variants",
+          "effort": "1 hour",
+          "pros": ["No additional development", "Reuse proposal logic"],
+          "cons": ["Need to document clearly", "May have different requirements"]
+        },
+        {
+          "label": "B) Implement separate quotes module",
+          "effort": "4 hours",
+          "pros": ["Feature parity with legacy", "Specialized workflow"],
+          "cons": ["3-5 hours development effort", "Additional maintenance"]
+        }
+      ],
+      "recommended": "A",
+      "rationale": "Verify if quotes are proposal type variants first. If so, document clearly. Only implement separate module if required by business logic."
+    },
+    {
+      "id": "DEC-003",
+      "title": "Canvas Signatures Deprecation",
+      "context": "Canvas signatures deprecated in favor of DocuSeal",
+      "priority": "LOW",
+      "targetDate": "Week 1 Day 2",
+      "owner": "Product Manager + Legal/Compliance",
+      "inputNeeded": "Confirm no legacy contracts require canvas signatures",
+      "options": [
+        {
+          "label": "A) DocuSeal only (no canvas)",
+          "effort": "0 hours",
+          "pros": [
+            "Professional standard",
+            "UK compliance",
+            "Audit trail"
+          ],
+          "cons": ["Legacy contracts may require canvas"]
+        },
+        {
+          "label": "B) Implement canvas as fallback",
+          "effort": "6 hours",
+          "pros": ["Backward compatibility", "Offline signing option"],
+          "cons": ["4-8 hours effort", "Maintenance burden"]
+        }
+      ],
+      "recommended": "A",
+      "rationale": "DocuSeal is professional e-signature standard with legal compliance. Canvas signatures deprecated by design."
+    }
+  ],
+  "schedule": {
+    "totalWeeks": 3,
+    "weeks": [
+      {
+        "week": 1,
+        "startDate": "2025-10-28",
+        "endDate": "2025-11-01",
+        "milestone": "M1: Critical Path + Decisions",
+        "days": [
+          {
+            "day": 1,
+            "date": "2025-10-28",
+            "tasks": [
+              {
+                "id": "TASK-001",
+                "title": "Decision Meeting: DEC-001, DEC-002",
+                "owner": "Product Manager",
+                "hours": 1,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-002",
+                "title": "GAP-001: My Tasks Filter",
+                "owner": "Backend Developer",
+                "hours": 0.5,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-003",
+                "title": "TEST-001: My Tasks E2E",
+                "owner": "QA Engineer",
+                "hours": 1,
+                "dependencies": ["TASK-002"],
+                "status": "Blocked"
+              }
+            ]
+          },
+          {
+            "day": 2,
+            "date": "2025-10-29",
+            "tasks": [
+              {
+                "id": "TASK-004",
+                "title": "Decision Meeting: DEC-003",
+                "owner": "Product Manager + Legal",
+                "hours": 0.5,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-005",
+                "title": "GAP-002: Quote Management",
+                "owner": "Backend Developer",
+                "hours": 4,
+                "dependencies": ["DEC-002"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-006",
+                "title": "GAP-003: Proposal Activities",
+                "owner": "Backend Developer",
+                "hours": 3,
+                "dependencies": ["TASK-002"],
+                "status": "Blocked"
+              }
+            ]
+          },
+          {
+            "day": 3,
+            "date": "2025-10-30",
+            "tasks": [
+              {
+                "id": "TASK-007",
+                "title": "GAP-004: Invoice PDF Generation",
+                "owner": "Backend Developer",
+                "hours": 3,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-008",
+                "title": "TEST-002: Proposal Signing E2E",
+                "owner": "QA Engineer",
+                "hours": 2,
+                "dependencies": ["TASK-006"],
+                "status": "Blocked"
+              }
+            ]
+          },
+          {
+            "day": 4,
+            "date": "2025-10-31",
+            "tasks": [
+              {
+                "id": "TASK-009",
+                "title": "TEST-003: Client Portal Onboarding E2E",
+                "owner": "QA Engineer",
+                "hours": 1,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-010",
+                "title": "TEST-004: Timesheet Approval E2E",
+                "owner": "QA Engineer",
+                "hours": 1,
+                "dependencies": [],
+                "status": "Ready"
+              }
+            ]
+          },
+          {
+            "day": 5,
+            "date": "2025-11-01",
+            "tasks": [
+              {
+                "id": "TASK-011",
+                "title": "Run Full E2E Suite",
+                "owner": "QA Engineer",
+                "hours": 2,
+                "dependencies": ["All P0/P1 tests complete"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-012",
+                "title": "Code Review: All GAP fixes",
+                "owner": "Engineering Lead",
+                "hours": 2,
+                "dependencies": ["All P1 items complete"],
+                "status": "Blocked"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "week": 2,
+        "startDate": "2025-11-04",
+        "endDate": "2025-11-08",
+        "milestone": "M2: QA Validation + Staging Deploy",
+        "days": [
+          {
+            "day": 6,
+            "date": "2025-11-04",
+            "tasks": [
+              {
+                "id": "TASK-013",
+                "title": "Regression Testing",
+                "owner": "QA Engineer",
+                "hours": 4,
+                "dependencies": ["Week 1 complete"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-014",
+                "title": "Performance Testing",
+                "owner": "QA Engineer",
+                "hours": 2,
+                "dependencies": [],
+                "status": "Ready"
+              }
+            ]
+          },
+          {
+            "day": 7,
+            "date": "2025-11-05",
+            "tasks": [
+              {
+                "id": "TASK-015",
+                "title": "Bug Triage Meeting",
+                "owner": "All",
+                "hours": 1,
+                "dependencies": ["TASK-013"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-016",
+                "title": "P0 Bug Fixes",
+                "owner": "Backend Developer",
+                "hours": 4,
+                "dependencies": ["TASK-015"],
+                "status": "Blocked"
+              }
+            ]
+          },
+          {
+            "day": 8,
+            "date": "2025-11-06",
+            "tasks": [
+              {
+                "id": "TASK-017",
+                "title": "Rollout Checklist: Preflight",
+                "owner": "DevOps",
+                "hours": 2,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-018",
+                "title": "Environment Variables Validation",
+                "owner": "DevOps",
+                "hours": 1,
+                "dependencies": [],
+                "status": "Ready"
+              },
+              {
+                "id": "TASK-019",
+                "title": "Database Seed: Staging",
+                "owner": "Backend Developer",
+                "hours": 1,
+                "dependencies": [],
+                "status": "Ready"
+              }
+            ]
+          },
+          {
+            "day": 9,
+            "date": "2025-11-07",
+            "tasks": [
+              {
+                "id": "TASK-020",
+                "title": "Deploy to Staging",
+                "owner": "DevOps",
+                "hours": 1,
+                "dependencies": ["Day 8 complete"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-021",
+                "title": "Smoke Tests: Staging",
+                "owner": "QA Engineer",
+                "hours": 2,
+                "dependencies": ["TASK-020"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-022",
+                "title": "Telemetry Check: SLOs",
+                "owner": "DevOps",
+                "hours": 1,
+                "dependencies": ["TASK-020"],
+                "status": "Blocked"
+              }
+            ]
+          },
+          {
+            "day": 10,
+            "date": "2025-11-08",
+            "tasks": [
+              {
+                "id": "TASK-023",
+                "title": "Stakeholder Demo",
+                "owner": "Product Manager",
+                "hours": 1,
+                "dependencies": ["Staging stable"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-024",
+                "title": "Final QA Pass: Staging",
+                "owner": "QA Engineer",
+                "hours": 4,
+                "dependencies": ["Staging stable"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-025",
+                "title": "Production Readiness Review",
+                "owner": "All",
+                "hours": 1,
+                "dependencies": ["TASK-024"],
+                "status": "Blocked"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "week": 3,
+        "startDate": "2025-11-15",
+        "endDate": "2025-11-15",
+        "milestone": "M3: Production Deploy + Monitoring",
+        "days": [
+          {
+            "day": 11,
+            "date": "2025-11-15",
+            "tasks": [
+              {
+                "id": "TASK-026",
+                "title": "Production Deploy",
+                "owner": "DevOps",
+                "hours": 1,
+                "dependencies": ["Week 2 approval"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-027",
+                "title": "Smoke Tests: Production",
+                "owner": "QA Engineer",
+                "hours": 1,
+                "dependencies": ["TASK-026"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-028",
+                "title": "Telemetry Monitoring (1 hour)",
+                "owner": "DevOps",
+                "hours": 1,
+                "dependencies": ["TASK-026"],
+                "status": "Blocked"
+              },
+              {
+                "id": "TASK-029",
+                "title": "Incident Response Standby",
+                "owner": "All",
+                "hours": 4,
+                "dependencies": ["TASK-026"],
+                "status": "Blocked"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "risks": [
+    {
+      "id": "RISK-001",
+      "title": "My Tasks Filter Regression",
+      "category": "Technical",
+      "likelihood": "MEDIUM",
+      "impact": "HIGH",
+      "score": "MEDIUM-HIGH",
+      "priority": "P0",
+      "owner": "Backend Developer + QA Engineer",
+      "description": "Change from single-field filter to OR filter may break existing task visibility",
+      "mitigation": [
+        "Add E2E test (TEST-001) with 3-role scenario validation",
+        "Feature flag rollout (10% → 50% → 100%)",
+        "Monitor task query error rates in Sentry"
+      ],
+      "trigger": "Task list shows different results after filter change"
+    },
+    {
+      "id": "RISK-002",
+      "title": "Quote Management Data Model Ambiguity",
+      "category": "Product/Technical",
+      "likelihood": "MEDIUM",
+      "impact": "MEDIUM",
+      "score": "MEDIUM",
+      "priority": "P1",
+      "owner": "Product Manager + Backend Developer",
+      "description": "Unclear whether quotes are proposal variants or separate entity. May require rework.",
+      "mitigation": [
+        "Schedule decision meeting with Product Manager (DEC-002)",
+        "Review legacy quote data model",
+        "Start with minimal schema if implementing separate module"
+      ],
+      "trigger": "Product requirements change mid-implementation"
+    },
+    {
+      "id": "RISK-003",
+      "title": "E2E Test Flakiness",
+      "category": "Testing",
+      "likelihood": "LOW",
+      "impact": "MEDIUM",
+      "score": "LOW-MEDIUM",
+      "priority": "P1",
+      "owner": "QA Engineer",
+      "description": "E2E tests may exhibit flakiness due to timing issues or async operations",
+      "mitigation": [
+        "Retry policy: Run each test 3x",
+        "Quarantine flaky tests",
+        "Add explicit waits for async operations"
+      ],
+      "trigger": "Test passes locally but fails in CI"
+    },
+    {
+      "id": "RISK-004",
+      "title": "DocuSeal Production Configuration Error",
+      "category": "Integration",
+      "likelihood": "LOW",
+      "impact": "HIGH",
+      "score": "LOW-HIGH",
+      "priority": "P1",
+      "owner": "DevOps + Backend Developer",
+      "description": "DocuSeal environment variables may be misconfigured",
+      "mitigation": [
+        "Validate all DocuSeal environment variables in staging",
+        "Test full proposal signing flow",
+        "Verify webhook events trigger correctly"
+      ],
+      "trigger": "Proposal signing fails with Invalid API key"
+    },
+    {
+      "id": "RISK-005",
+      "title": "S3/MinIO Object Storage Failure",
+      "category": "Infrastructure",
+      "likelihood": "LOW",
+      "impact": "MEDIUM",
+      "score": "LOW-MEDIUM",
+      "priority": "P2",
+      "owner": "DevOps + Backend Developer",
+      "description": "PDF generation depends on S3/MinIO for storage. If unavailable, PDFs cannot be generated.",
+      "mitigation": [
+        "Test PDF upload/download in staging",
+        "Monitor S3 upload success rate",
+        "Graceful error handling with retry (3x with exponential backoff)"
+      ],
+      "trigger": "S3 upload/download error rate >1%"
+    },
+    {
+      "id": "RISK-006",
+      "title": "Database Migration Failure",
+      "category": "Database",
+      "likelihood": "MEDIUM",
+      "impact": "HIGH",
+      "score": "MEDIUM-HIGH",
+      "priority": "P0",
+      "owner": "Backend Developer",
+      "description": "Schema change to taskDetailsView may fail or cause downtime",
+      "mitigation": [
+        "Test migration script on staging database",
+        "Use pnpm db:reset procedure",
+        "Monitor migration logs for errors"
+      ],
+      "trigger": "View alteration fails with SQL error"
+    },
+    {
+      "id": "RISK-007",
+      "title": "Test Data Seed Failure",
+      "category": "Testing/Operations",
+      "likelihood": "LOW",
+      "impact": "LOW",
+      "score": "LOW",
+      "priority": "P3",
+      "owner": "Backend Developer",
+      "description": "Test data seed script may fail if schema changes not reflected in seed data",
+      "mitigation": [
+        "Run pnpm db:reset locally to verify seed script works",
+        "Validate all foreign key relationships",
+        "Check for TypeScript errors in seed script"
+      ],
+      "trigger": "Seed script throws TypeScript error"
+    },
+    {
+      "id": "RISK-008",
+      "title": "Feature Flag Rollout Complexity",
+      "category": "Deployment",
+      "likelihood": "LOW",
+      "impact": "LOW",
+      "score": "LOW",
+      "priority": "P3",
+      "owner": "Backend Developer + DevOps",
+      "description": "Feature flag rollout adds deployment complexity",
+      "mitigation": [
+        "Implement feature flag system",
+        "Test feature flag logic locally",
+        "Document rollout plan (10% → 50% → 100%)"
+      ],
+      "trigger": "Error rate spikes when feature flag is increased"
+    },
+    {
+      "id": "RISK-009",
+      "title": "Sentry Error Tracking Misconfiguration",
+      "category": "Monitoring",
+      "likelihood": "LOW",
+      "impact": "MEDIUM",
+      "score": "LOW-MEDIUM",
+      "priority": "P2",
+      "owner": "DevOps + Backend Developer",
+      "description": "Sentry may not be properly configured in production",
+      "mitigation": [
+        "Verify Sentry DSN in .env.production",
+        "Test error capture in staging",
+        "Configure alert rules (error rate >1%)"
+      ],
+      "trigger": "No errors appear in Sentry despite known issues"
+    },
+    {
+      "id": "RISK-010",
+      "title": "Production Deploy Rollback Complexity",
+      "category": "Deployment",
+      "likelihood": "LOW",
+      "impact": "HIGH",
+      "score": "LOW-HIGH",
+      "priority": "P1",
+      "owner": "DevOps + Engineering Lead",
+      "description": "Rollback may be complex due to database schema changes",
+      "mitigation": [
+        "Document rollback procedure in rollout checklist",
+        "Test rollback in staging",
+        "Backup production database before deploy"
+      ],
+      "trigger": "Critical error rate >5%"
+    }
+  ],
+  "testPlan": {
+    "entryCriteria": [
+      "All P0 items complete (GAP-001 + TEST-001)",
+      "All P1 items complete OR decisions deferred",
+      "Code review approved",
+      "Unit tests passing",
+      "Build successful",
+      "Linting passed",
+      "Database schema updated"
+    ],
+    "exitCriteria": [
+      "All P0 E2E tests passing",
+      "All P1 E2E tests passing",
+      "Zero P0 bugs",
+      "P1 bugs triaged and accepted",
+      "Regression testing complete",
+      "Smoke tests passed in staging",
+      "Performance testing passed",
+      "SLO validation complete"
+    ],
+    "suites": [
+      {
+        "id": "SUITE-001",
+        "name": "Client Hub - Task Management",
+        "priority": "P0",
+        "file": "tests/e2e/regression/client-hub.spec.ts",
+        "estimatedHours": 2,
+        "tests": ["TEST-001", "TEST-001b", "TEST-001c"]
+      },
+      {
+        "id": "SUITE-002",
+        "name": "Proposal Hub - DocuSeal Integration",
+        "priority": "P1",
+        "file": "tests/e2e/regression/proposal-hub.spec.ts",
+        "estimatedHours": 3,
+        "tests": ["TEST-002", "TEST-002b", "TEST-002c"]
+      },
+      {
+        "id": "SUITE-003",
+        "name": "Client Portal - Onboarding",
+        "priority": "P1",
+        "file": "tests/e2e/regression/client-portal.spec.ts",
+        "estimatedHours": 2,
+        "tests": ["TEST-003", "TEST-003b"]
+      },
+      {
+        "id": "SUITE-004",
+        "name": "Client Hub - Time Tracking",
+        "priority": "P1",
+        "file": "tests/e2e/regression/timesheet-approval.spec.ts",
+        "estimatedHours": 2,
+        "tests": ["TEST-004", "TEST-004b"]
+      },
+      {
+        "id": "SUITE-005",
+        "name": "Client Hub - Bulk Operations",
+        "priority": "P2",
+        "file": "tests/e2e/regression/bulk-operations.spec.ts",
+        "estimatedHours": 2,
+        "tests": ["TEST-005"]
+      }
+    ],
+    "performanceTesting": {
+      "objective": "Validate task list queries complete in <500ms (p95)",
+      "scenarios": [
+        {
+          "name": "Small dataset",
+          "tasks": 100,
+          "expectedP95": "100ms"
+        },
+        {
+          "name": "Medium dataset",
+          "tasks": 1000,
+          "expectedP95": "300ms"
+        },
+        {
+          "name": "Large dataset",
+          "tasks": 10000,
+          "expectedP95": "500ms"
+        }
+      ]
+    }
+  },
+  "rolloutChecklist": {
+    "preFlightChecks": [
+      "All linting passed",
+      "All formatting correct",
+      "TypeScript build successful",
+      "No console.log in production code",
+      "SQL safety validated",
+      "All P0 items complete",
+      "Code review approved"
+    ],
+    "environmentVariables": [
+      "DATABASE_URL",
+      "BETTER_AUTH_SECRET",
+      "BETTER_AUTH_URL",
+      "NEXT_PUBLIC_BETTER_AUTH_URL",
+      "S3_ENDPOINT",
+      "S3_ACCESS_KEY_ID",
+      "S3_SECRET_ACCESS_KEY",
+      "S3_BUCKET_NAME",
+      "S3_REGION",
+      "DOCUSEAL_HOST",
+      "DOCUSEAL_API_KEY",
+      "DOCUSEAL_SECRET_KEY",
+      "DOCUSEAL_WEBHOOK_SECRET",
+      "NEXT_PUBLIC_SENTRY_DSN",
+      "NEXT_PUBLIC_SENTRY_ENVIRONMENT"
+    ],
+    "stagingDeploy": [
+      "Pull latest code",
+      "Environment setup",
+      "Database setup (pnpm db:reset)",
+      "Build application",
+      "Start services",
+      "Smoke tests",
+      "1 hour monitoring"
+    ],
+    "productionDeploy": [
+      "Go/no-go approval",
+      "Pre-deploy communication",
+      "Database backup",
+      "Deploy application",
+      "Post-deploy smoke tests",
+      "1 hour SLO validation",
+      "Post-deploy communication",
+      "24 hour monitoring"
+    ],
+    "rollbackProcedure": [
+      "Stop new deployments",
+      "Notify team",
+      "Revert Git commit",
+      "Rebuild Docker image",
+      "Restore database (if schema changed)",
+      "Verify rollback with smoke tests"
+    ]
+  },
+  "slos": [
+    {
+      "id": "SLO-001",
+      "name": "Task List Query Performance",
+      "target": "p95 <500ms, p50 <200ms",
+      "alertThreshold": "p95 >500ms for 5 minutes",
+      "criticalThreshold": "p95 >1000ms for 2 minutes"
+    },
+    {
+      "id": "SLO-002",
+      "name": "Task Filter Accuracy",
+      "target": "100% correct results",
+      "alertThreshold": "E2E test TEST-001 fails",
+      "criticalThreshold": "User reports missing tasks"
+    },
+    {
+      "id": "SLO-003",
+      "name": "Error Rate for Task Operations",
+      "target": "<1% error rate",
+      "alertThreshold": "Error rate >1% for 5 minutes",
+      "criticalThreshold": "Error rate >5% for 2 minutes"
+    },
+    {
+      "id": "SLO-004",
+      "name": "Proposal PDF Generation Performance",
+      "target": "p95 <5 seconds",
+      "alertThreshold": "p95 >5 seconds for 5 minutes",
+      "criticalThreshold": "PDF generation failure rate >5%"
+    },
+    {
+      "id": "SLO-005",
+      "name": "DocuSeal API Availability",
+      "target": "<1% error rate",
+      "alertThreshold": "Error rate >1% for 5 minutes",
+      "criticalThreshold": "Error rate >10%"
+    },
+    {
+      "id": "SLO-006",
+      "name": "Authentication Success Rate",
+      "target": ">99% success rate",
+      "alertThreshold": "Success rate <99% for 5 minutes",
+      "criticalThreshold": "Success rate <95%"
+    }
+  ],
+  "summary": {
+    "totalBacklogItems": 5,
+    "totalTestGaps": 5,
+    "totalDecisions": 3,
+    "totalRisks": 10,
+    "estimatedEffort": "16.5 hours (development) + 6 hours (QA) = 22.5 hours total",
+    "criticalPathItems": ["GAP-001", "TEST-001"],
+    "blockers": 0,
+    "readinessAssessment": "Production-ready after fixing GAP-001 (My Tasks filter). All other gaps are MEDIUM/LOW priority or require product clarification."
+  }
+}

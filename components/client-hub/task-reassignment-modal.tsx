@@ -35,7 +35,7 @@ import { trpc } from "@/lib/trpc/client";
 const reassignmentSchema = z.object({
   toUserId: z.string().min(1, "Please select a user"),
   assignmentType: z.enum(["preparer", "reviewer", "assigned_to"], {
-    required_error: "Please select an assignment type",
+    message: "Please select an assignment type",
   }),
   changeReason: z.string().max(500).optional(),
 });
@@ -76,25 +76,12 @@ export function TaskReassignmentModal({
   });
 
   // Fetch tenant users for selection
-  const { data: usersData } = trpc.users.list.useQuery(
-    { includeInactive: false },
-    { enabled: open },
-  );
+  const { data: usersData } = trpc.users.list.useQuery({}, { enabled: open });
 
   const users = usersData?.users || [];
 
   // Reassignment mutation
-  const reassignMutation = trpc.tasks.reassign.useMutation({
-    onSuccess: () => {
-      toast.success(`Task "${taskTitle}" reassigned successfully`);
-      form.reset();
-      onOpenChange(false);
-      onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to reassign task");
-    },
-  });
+  const reassignMutation = trpc.tasks.reassign.useMutation();
 
   const onSubmit = async (data: ReassignmentFormValues) => {
     try {
@@ -104,8 +91,14 @@ export function TaskReassignmentModal({
         assignmentType: data.assignmentType,
         changeReason: data.changeReason,
       });
-    } catch (_error) {
-      // Error handled by mutation onError
+      toast.success(`Task "${taskTitle}" reassigned successfully`);
+      form.reset();
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reassign task",
+      );
     }
   };
 

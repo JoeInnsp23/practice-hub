@@ -65,30 +65,30 @@ export function AddClientAccessDialog({
     },
   });
 
-  const grantAccessMutation = trpc.clientPortalAdmin.grantAccess.useMutation({
-    onSuccess: () => {
+  const grantAccessMutation = trpc.clientPortalAdmin.grantAccess.useMutation();
+
+  const onSubmit = async (data: AddClientAccessForm) => {
+    try {
+      await grantAccessMutation.mutateAsync({
+        portalUserId: userId,
+        clientId: data.clientId,
+        role: data.role as "viewer" | "editor" | "admin",
+      });
       toast.success("Client access granted");
       form.reset();
       utils.clientPortalAdmin.listPortalUsers.invalidate();
       onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to grant access");
-    },
-  });
-
-  const onSubmit = (data: AddClientAccessForm) => {
-    grantAccessMutation.mutate({
-      portalUserId: userId,
-      clientId: data.clientId,
-      role: data.role as "viewer" | "editor" | "admin",
-    });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to grant access",
+      );
+    }
   };
 
   // Filter out clients the user already has access to
   const allClients = allClientsData?.clients || [];
   const availableClients = allClients.filter(
-    (client: any) => !existingClientIds.includes(client.id),
+    (client) => !existingClientIds.includes(client.id),
   );
 
   return (

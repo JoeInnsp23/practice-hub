@@ -20,7 +20,7 @@ interface FloatingPriceWidgetProps {
   turnover: string;
   industry: "simple" | "standard" | "complex" | "regulated";
   services: Array<{
-    componentCode: string;
+    serviceCode: string;
     quantity?: number;
     config?: Record<string, unknown>;
   }>;

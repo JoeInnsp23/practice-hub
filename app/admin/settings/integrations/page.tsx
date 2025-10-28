@@ -145,7 +145,7 @@ export default function IntegrationsPage() {
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Connection test failed");
     } finally {
       setTestingConnection(null);
@@ -155,9 +155,16 @@ export default function IntegrationsPage() {
   const handleDisconnect = async () => {
     if (!selectedIntegration) return;
 
+    // Type guard: Only Xero is currently supported for disconnect
+    if (selectedIntegration.type !== "xero") {
+      toast.error("Disconnecting this integration is not yet supported");
+      setDisconnectModalOpen(false);
+      return;
+    }
+
     try {
       const result = await disconnectMutation.mutateAsync({
-        integrationType: selectedIntegration.type,
+        integrationType: selectedIntegration.type, // Now TypeScript knows this is "xero"
       });
 
       if (result.success) {
@@ -166,7 +173,7 @@ export default function IntegrationsPage() {
         setDisconnectModalOpen(false);
         setSelectedIntegration(null);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to disconnect integration");
     }
   };
@@ -182,9 +189,9 @@ export default function IntegrationsPage() {
 
   const getLastSyncText = (integrationType: string) => {
     const status = getIntegrationStatus(integrationType);
-    if (!status?.lastSyncedAt) return null;
+    if (!status?.lastSyncAt) return null;
 
-    return `Last synced ${formatDistanceToNow(new Date(status.lastSyncedAt), { addSuffix: true })}`;
+    return `Last synced ${formatDistanceToNow(new Date(status.lastSyncAt), { addSuffix: true })}`;
   };
 
   if (isLoading) {
@@ -273,71 +280,69 @@ export default function IntegrationsPage() {
                   {/* Action buttons */}
                   <div className="flex gap-2 pt-2">
                     {integration.available ? (
-                      <>
-                        {connected ? (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => {
-                                if (integration.type === "xero") {
-                                  handleTestConnection(integration.type);
-                                }
-                              }}
-                              disabled={
-                                integration.type !== "xero" ||
-                                testingConnection === integration.type
-                              }
-                            >
-                              {testingConnection === integration.type ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                  Testing...
-                                </>
-                              ) : (
-                                <>
-                                  <Zap className="h-4 w-4 mr-1" />
-                                  Test
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedIntegration(integration);
-                                setConfigModalOpen(true);
-                              }}
-                            >
-                              <SettingsIcon className="h-4 w-4 mr-1" />
-                              Configure
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedIntegration(integration);
-                                setDisconnectModalOpen(true);
-                              }}
-                            >
-                              <Unplug className="h-4 w-4" />
-                            </Button>
-                          </>
-                        ) : (
+                      connected ? (
+                        <>
                           <Button
-                            className="w-full"
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
                             onClick={() => {
                               if (integration.type === "xero") {
-                                handleConnectXero();
+                                handleTestConnection(integration.type);
                               }
                             }}
+                            disabled={
+                              integration.type !== "xero" ||
+                              testingConnection === integration.type
+                            }
                           >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Connect {integration.name}
+                            {testingConnection === integration.type ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                Testing...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-4 w-4 mr-1" />
+                                Test
+                              </>
+                            )}
                           </Button>
-                        )}
-                      </>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedIntegration(integration);
+                              setConfigModalOpen(true);
+                            }}
+                          >
+                            <SettingsIcon className="h-4 w-4 mr-1" />
+                            Configure
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedIntegration(integration);
+                              setDisconnectModalOpen(true);
+                            }}
+                          >
+                            <Unplug className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          className="w-full"
+                          onClick={() => {
+                            if (integration.type === "xero") {
+                              handleConnectXero();
+                            }
+                          }}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Connect {integration.name}
+                        </Button>
+                      )
                     ) : (
                       <Button className="w-full" disabled>
                         Coming Soon

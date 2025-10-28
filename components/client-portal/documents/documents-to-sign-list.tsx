@@ -7,12 +7,27 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils/format";
 import { DocuSealSigningModal } from "./docuseal-signing-modal";
 
+interface Document {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: Date | string;
+  size?: number;
+  uploadedBy?: {
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+  } | null;
+}
+
 interface DocumentsToSignListProps {
   clientId: string;
 }
 
 export function DocumentsToSignList({ clientId }: DocumentsToSignListProps) {
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null,
+  );
   const [isSigningModalOpen, setIsSigningModalOpen] = useState(false);
 
   // Fetch documents requiring signature
@@ -22,7 +37,7 @@ export function DocumentsToSignList({ clientId }: DocumentsToSignListProps) {
       { enabled: !!clientId },
     );
 
-  const handleSignClick = (doc: any) => {
+  const handleSignClick = (doc: Document) => {
     setSelectedDocument(doc);
     setIsSigningModalOpen(true);
   };
@@ -92,7 +107,10 @@ export function DocumentsToSignList({ clientId }: DocumentsToSignListProps) {
               </div>
             </div>
 
-            <Button onClick={() => handleSignClick(doc)} className="ml-4">
+            <Button
+              onClick={() => handleSignClick(doc as any)}
+              className="ml-4"
+            >
               <FileSignature className="h-4 w-4 mr-2" />
               Sign Document
             </Button>

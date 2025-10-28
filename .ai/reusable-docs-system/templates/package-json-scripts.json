@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "docs:generate": "typedoc && echo '✅ TypeScript API docs generated in docs/reference/typescript'",
+    "docs:generate:python": "cd apps/api && pdoc3 --output-dir ../../docs/reference/python --format markdown src/ 2>/dev/null || echo '⚠️ pdoc3 not installed. Run: pip install pdoc3'",
+    "docs:generate:code-index": "ts-node .claude/skills/PROJECT-docs-search/scripts/generate-code-index.ts && echo '✅ Code index generated in .claude/skills/PROJECT-docs-search/code-index.yaml'",
+    "docs:generate:all": "pnpm docs:generate && pnpm docs:generate:python && pnpm docs:generate:code-index"
+  },
+  "devDependencies": {
+    "typedoc": "^0.28.0",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "ts-node": "^10.9.2"
+  },
+  "_customization_notes": {
+    "docs:generate": "For single-repo, entry points are defined in typedoc.json",
+    "docs:generate:python": "Update 'apps/api' to your Python source directory path",
+    "docs:generate:code-index": "Replace 'PROJECT-docs-search' with your chosen skill name",
+    "python_deps": "Install separately: pip install pdoc3"
+  }
+}

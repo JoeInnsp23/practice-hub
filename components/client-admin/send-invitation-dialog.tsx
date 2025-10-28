@@ -72,20 +72,20 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
 
   // Send invitation mutation
   const sendInvitationMutation =
-    trpc.clientPortalAdmin.sendInvitation.useMutation({
-      onSuccess: () => {
-        toast.success("Invitation sent successfully!");
-        form.reset();
-        setOpen(false);
-        onSuccess?.();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to send invitation");
-      },
-    });
+    trpc.clientPortalAdmin.sendInvitation.useMutation();
 
-  const onSubmit = (data: InvitationForm) => {
-    sendInvitationMutation.mutate(data);
+  const onSubmit = async (data: InvitationForm) => {
+    try {
+      await sendInvitationMutation.mutateAsync(data);
+      toast.success("Invitation sent successfully!");
+      form.reset();
+      setOpen(false);
+      onSuccess?.();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send invitation",
+      );
+    }
   };
 
   return (

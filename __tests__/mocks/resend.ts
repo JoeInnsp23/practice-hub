@@ -4,6 +4,7 @@
  * Provides mock implementations of Resend API for testing.
  */
 
+import type { CreateEmailOptions } from "resend";
 import { vi } from "vitest";
 
 // Mock email send response
@@ -17,7 +18,7 @@ export const mockEmailResponse = {
 // Mock Resend class
 export class MockResend {
   emails = {
-    send: vi.fn(async (_params: any) => {
+    send: vi.fn(async (_params: CreateEmailOptions) => {
       // Simulate successful email send
       return {
         data: mockEmailResponse,

@@ -127,13 +127,13 @@ export function ServicePopularityChart({
             formatter={(value: number, name: string, entry: any) => {
               if (name === "percentage") {
                 return [
-                  `${value.toFixed(1)}% (${entry.payload.count} proposals)`,
+                  `${value.toFixed(1)}% (${entry?.payload?.count || 0} proposals)`,
                   "Selection Rate",
                 ];
               }
               return [value, name];
             }}
-            labelFormatter={(label, payload) => {
+            labelFormatter={(label: any, payload?: any) => {
               if (payload?.[0]) {
                 return payload[0].payload.fullName;
               }

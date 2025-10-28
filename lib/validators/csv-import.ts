@@ -8,6 +8,7 @@
  */
 
 import { z } from "zod";
+import { parseDateAuto, toISODateString } from "../utils/csv-parser-enhanced";
 
 // ============================================
 // Client Import Schema
@@ -111,16 +112,14 @@ export const taskImportSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  // Dates
+  // Dates (AC3, AC4: Enhanced date parsing with multiple format support)
   due_date: z
     .string()
     .optional()
     .transform((val) => {
       if (!val || val === "") return undefined;
-      const date = new Date(val);
-      return Number.isNaN(date.getTime())
-        ? undefined
-        : date.toISOString().split("T")[0];
+      const parsed = parseDateAuto(val);
+      return toISODateString(parsed) || undefined;
     })
     .or(z.literal("")),
   start_date: z
@@ -128,10 +127,8 @@ export const taskImportSchema = z.object({
     .optional()
     .transform((val) => {
       if (!val || val === "") return undefined;
-      const date = new Date(val);
-      return Number.isNaN(date.getTime())
-        ? undefined
-        : date.toISOString().split("T")[0];
+      const parsed = parseDateAuto(val);
+      return toISODateString(parsed) || undefined;
     })
     .or(z.literal("")),
 
@@ -165,6 +162,9 @@ export const taskImportSchema = z.object({
 
   // Type
   task_type: z.string().optional().or(z.literal("")),
+
+  // Service name (AC10 - optional field for future use)
+  service_name: z.string().optional().or(z.literal("")),
 
   // Notes
   notes: z.string().optional().or(z.literal("")),
@@ -313,6 +313,7 @@ export const TASK_CSV_FIELDS = [
   "estimated_hours",
   "actual_hours",
   "task_type",
+  "service_name", // AC10
   "notes",
 ];
 
@@ -378,6 +379,7 @@ export const TASK_EXAMPLE_DATA: Record<string, string> = {
   estimated_hours: "8",
   actual_hours: "",
   task_type: "accounts",
+  service_name: "Annual Accounts Preparation",
   notes: "Ensure all supporting documents are collected first",
 };
 

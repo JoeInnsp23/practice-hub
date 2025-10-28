@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, between, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -44,8 +44,9 @@ export const staffStatisticsRouter = router({
       // Calculate weeks in the date range
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
-      const weeksInRange =
-        Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const weeksInRange = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000),
+      );
 
       // Get staff with utilization data
       const staffData = await db
@@ -139,10 +140,12 @@ export const staffStatisticsRouter = router({
                     staffUtilization.length,
                 )
               : 0,
-          overallocated: staffUtilization.filter((s) => s.status === "overallocated")
-            .length,
-          underutilized: staffUtilization.filter((s) => s.status === "underutilized")
-            .length,
+          overallocated: staffUtilization.filter(
+            (s) => s.status === "overallocated",
+          ).length,
+          underutilized: staffUtilization.filter(
+            (s) => s.status === "underutilized",
+          ).length,
         },
       };
     }),
@@ -163,8 +166,9 @@ export const staffStatisticsRouter = router({
       // Calculate weeks in the date range
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
-      const weeksInRange =
-        Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const weeksInRange = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000),
+      );
 
       const departmentStats = await db
         .select({
@@ -199,7 +203,9 @@ export const staffStatisticsRouter = router({
         const capacityHours = Number(dept.totalCapacityHours) || 0;
         const loggedHours = Number(dept.totalLoggedHours);
         const utilization =
-          capacityHours > 0 ? Math.round((loggedHours / capacityHours) * 100) : 0;
+          capacityHours > 0
+            ? Math.round((loggedHours / capacityHours) * 100)
+            : 0;
 
         return {
           departmentId: dept.departmentId,
@@ -307,7 +313,9 @@ export const staffStatisticsRouter = router({
         startDate: z.string(),
         endDate: z.string(),
         departmentId: z.string().optional(),
-        status: z.enum(["all", "overallocated", "underutilized", "optimal"]).optional(),
+        status: z
+          .enum(["all", "overallocated", "underutilized", "optimal"])
+          .optional(),
         sortBy: z
           .enum(["name", "role", "department", "hours", "utilization"])
           .optional()
@@ -327,8 +335,9 @@ export const staffStatisticsRouter = router({
       // Calculate weeks in the date range
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
-      const weeksInRange =
-        Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const weeksInRange = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000),
+      );
 
       // Get staff with utilization data
       const staffData = await db

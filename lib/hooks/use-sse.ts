@@ -58,7 +58,6 @@ export function useSSE(
 ) {
   const {
     onMessage,
-    onError,
     onConnect,
     onDisconnect,
     reconnectDelay = 1000,
@@ -146,7 +145,7 @@ export function useSSE(
         return () => {};
       }
 
-      return clientRef.current.subscribe(eventType, (event) => {
+      return clientRef.current.subscribe<T>(eventType, (event) => {
         // Update last message state
         setLastMessage({
           type: event.type,
@@ -154,8 +153,8 @@ export function useSSE(
           timestamp: event.timestamp,
         });
 
-        // Call callback
-        callback(event);
+        // Call callback with proper typing
+        callback(event as RealtimeEvent<T>);
 
         // Call legacy onMessage handler
         onMessage?.({

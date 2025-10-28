@@ -87,14 +87,11 @@ export function UtilizationHeatmap({
       {/* Heatmap Grid */}
       <div className="space-y-2">
         {staff.map((member) => (
-          <div
-            key={member.userId}
-            className="flex items-center gap-2 group"
-          >
+          <div key={member.userId} className="flex items-center gap-2 group">
             {/* Staff Name Column */}
             <div className="w-48 flex-shrink-0">
               <div className="font-medium">
-                {member.firstName} {member.lastName}
+                {member.firstName ?? ""} {member.lastName ?? ""}
               </div>
               <div className="text-xs text-muted-foreground">
                 {member.departmentName || "No Department"}
@@ -108,7 +105,7 @@ export function UtilizationHeatmap({
                   "h-12 rounded transition-all cursor-pointer flex items-center justify-center text-white font-semibold",
                   getColorClass(member.utilization),
                 )}
-                title={`${member.firstName} ${member.lastName}: ${member.utilization}% - ${getStatusLabel(member.utilization)}`}
+                title={`${member.firstName ?? ""} ${member.lastName ?? ""}: ${member.utilization}% - ${getStatusLabel(member.utilization)}`}
               >
                 {member.utilization}%
               </div>

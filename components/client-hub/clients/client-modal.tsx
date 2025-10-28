@@ -399,11 +399,15 @@ export function ClientModal({
                       )}
                     />
                     {form.watch("vatNumber") &&
-                      form.watch("vatNumber").length >= 9 && (
+                      (form.watch("vatNumber")?.length ?? 0) >= 9 && (
                         <div className="mt-2">
                           <VATValidationIndicator
-                            vatNumber={form.watch("vatNumber")}
-                            clientId={client?.id}
+                            vatNumber={form.watch("vatNumber") ?? ""}
+                            clientId={
+                              client && "id" in client
+                                ? (client.id as string)
+                                : undefined
+                            }
                             onValidationComplete={(result) => {
                               if (result.isValid && result.businessName) {
                                 toast.success(

@@ -4,6 +4,12 @@ import { db } from "@/lib/db";
 import { activityLogs, tenants } from "@/lib/db/schema";
 import { adminProcedure, router } from "../trpc";
 
+// Type definition for tenant metadata with pricing config
+interface TenantMetadata {
+  pricingConfig?: typeof DEFAULT_CONFIG;
+  [key: string]: unknown;
+}
+
 // Default multipliers and configuration
 const DEFAULT_CONFIG = {
   complexityMultipliers: {
@@ -120,12 +126,13 @@ export const pricingConfigRouter = router({
       .where(eq(tenants.id, tenantId))
       .limit(1);
 
-    const config = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+    const config =
+      (tenant?.metadata as TenantMetadata)?.pricingConfig || DEFAULT_CONFIG;
 
     return {
       success: true,
       config,
-      isDefault: !(tenant?.metadata as any)?.pricingConfig,
+      isDefault: !(tenant?.metadata as TenantMetadata)?.pricingConfig,
     };
   }),
 
@@ -147,7 +154,7 @@ export const pricingConfigRouter = router({
         .limit(1);
 
       const currentConfig =
-        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+        (tenant?.metadata as TenantMetadata)?.pricingConfig || DEFAULT_CONFIG;
       const oldMultipliers = currentConfig.complexityMultipliers[input.model];
 
       const updatedConfig = {
@@ -197,7 +204,7 @@ export const pricingConfigRouter = router({
         .limit(1);
 
       const currentConfig =
-        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+        (tenant?.metadata as TenantMetadata)?.pricingConfig || DEFAULT_CONFIG;
       const oldMultipliers = currentConfig.industryMultipliers;
 
       const updatedConfig = {
@@ -244,7 +251,7 @@ export const pricingConfigRouter = router({
         .limit(1);
 
       const currentConfig =
-        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+        (tenant?.metadata as TenantMetadata)?.pricingConfig || DEFAULT_CONFIG;
       const oldRules = currentConfig.discountRules;
 
       const updatedConfig = {
@@ -291,7 +298,7 @@ export const pricingConfigRouter = router({
         .limit(1);
 
       const currentConfig =
-        (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+        (tenant?.metadata as TenantMetadata)?.pricingConfig || DEFAULT_CONFIG;
       const oldSettings = currentConfig.globalSettings;
 
       const updatedConfig = {
@@ -335,7 +342,7 @@ export const pricingConfigRouter = router({
       .where(eq(tenants.id, tenantId))
       .limit(1);
 
-    const oldConfig = (tenant?.metadata as any)?.pricingConfig;
+    const oldConfig = (tenant?.metadata as TenantMetadata)?.pricingConfig;
 
     await db
       .update(tenants)
@@ -373,7 +380,8 @@ export const pricingConfigRouter = router({
       .where(eq(tenants.id, tenantId))
       .limit(1);
 
-    const config = (tenant?.metadata as any)?.pricingConfig || DEFAULT_CONFIG;
+    const config =
+      (tenant?.metadata as TenantMetadata)?.pricingConfig || DEFAULT_CONFIG;
 
     return {
       success: true,
@@ -407,7 +415,7 @@ export const pricingConfigRouter = router({
         .where(eq(tenants.id, tenantId))
         .limit(1);
 
-      const oldConfig = (tenant?.metadata as any)?.pricingConfig;
+      const oldConfig = (tenant?.metadata as TenantMetadata)?.pricingConfig;
 
       await db
         .update(tenants)

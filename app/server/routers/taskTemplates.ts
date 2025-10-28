@@ -258,7 +258,7 @@ export const taskTemplatesRouter = router({
         return [];
       }
 
-      const serviceIds = clientServicesList.map((s) => s.serviceId);
+      const _serviceIds = clientServicesList.map((s) => s.serviceId);
 
       // Get all templates for these services
       const templatesData = await db

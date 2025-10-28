@@ -126,12 +126,18 @@ export class MockLemVerifyClient {
     };
   });
 
-  listVerifications = vi.fn(async (_params?: any) => {
-    return {
-      verifications: [mockVerificationStatusPassed],
-      total: 1,
-    };
-  });
+  listVerifications = vi.fn(
+    async (_params?: {
+      status?: "pending" | "completed" | "failed";
+      limit?: number;
+      offset?: number;
+    }) => {
+      return {
+        verifications: [mockVerificationStatusPassed],
+        total: 1,
+      };
+    },
+  );
 }
 
 // Export singleton mock instance

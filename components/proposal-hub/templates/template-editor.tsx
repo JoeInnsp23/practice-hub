@@ -42,7 +42,11 @@ export function TemplateEditor({
   const [notes, setNotes] = useState("");
   const [isDefault, setIsDefault] = useState(false);
   const [selectedServices, setSelectedServices] = useState<
-    Array<{ componentCode: string; config?: Record<string, unknown> }>
+    Array<{
+      serviceCode: string;
+      quantity?: number;
+      config?: Record<string, unknown>;
+    }>
   >([]);
 
   // Fetch template if editing
@@ -97,7 +101,7 @@ export function TemplateEditor({
       setIsDefault(false);
       setSelectedServices([]);
     }
-  }, [templateData, isOpen]);
+  }, [templateData]);
 
   const handleSave = () => {
     if (!name.trim()) {
@@ -112,16 +116,22 @@ export function TemplateEditor({
 
     const data = {
       name,
-      description: description || undefined,
-      category: category || undefined,
-      defaultServices: selectedServices,
-      termsAndConditions: termsAndConditions || undefined,
-      notes: notes || undefined,
+      description: description || null,
+      category: category || null,
+      defaultServices: selectedServices.map((s) => ({
+        componentCode: s.serviceCode,
+        config: s.config,
+      })),
+      termsAndConditions: termsAndConditions || null,
+      notes: notes || null,
       isDefault,
     };
 
     if (templateId) {
-      updateTemplate({ id: templateId, data });
+      updateTemplate({
+        id: templateId,
+        data,
+      });
     } else {
       createTemplate(data);
     }

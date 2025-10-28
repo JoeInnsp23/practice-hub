@@ -27,14 +27,11 @@
 import { inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
-  type Client,
   clients,
-  type Document,
+  departments,
   documents,
-  type Invoice,
   invoices,
   services,
-  type Task,
   tasks,
   taskTemplates,
   taskWorkflowInstances,
@@ -45,6 +42,12 @@ import {
   workflows,
   workflowVersions,
 } from "@/lib/db/schema";
+
+// Infer types from Drizzle schema
+type Client = typeof clients.$inferSelect;
+type Document = typeof documents.$inferSelect;
+type Invoice = typeof invoices.$inferSelect;
+type Task = typeof tasks.$inferSelect;
 
 /**
  * Tracking object for test data cleanup
@@ -63,6 +66,7 @@ export interface TestDataTracker {
   timeEntries?: string[];
   services?: string[];
   taskTemplates?: string[];
+  departments?: string[];
 }
 
 /**
@@ -369,6 +373,12 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
       await db.delete(users).where(inArray(users.id, tracker.users));
     }
 
+    if (tracker.departments && tracker.departments.length > 0) {
+      await db
+        .delete(departments)
+        .where(inArray(departments.id, tracker.departments));
+    }
+
     if (tracker.tenants && tracker.tenants.length > 0) {
       await db.delete(tenants).where(inArray(tenants.id, tracker.tenants));
     }
@@ -479,7 +489,7 @@ export async function createTestWorkflow(
       isActive: overrides.isActive ?? true,
       version: overrides.version || 1,
       estimatedDays: overrides.estimatedDays || null,
-      serviceComponentId: overrides.serviceComponentId || null,
+      serviceId: overrides.serviceId || null, // workflows schema uses serviceId, not serviceComponentId
       config: overrides.config || {},
       createdAt: new Date(),
       updatedAt: new Date(),

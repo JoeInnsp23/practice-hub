@@ -23,6 +23,7 @@ interface XeroCredentials {
   selectedTenantId: string;
   tokenType: string;
   scope: string;
+  [key: string]: unknown;
 }
 
 interface XeroContact {
@@ -226,7 +227,8 @@ export class XeroApiClient {
       }
 
       const data = await response.json();
-      return data.Contacts[0];
+      const contacts = data.Contacts as Array<{ ContactID: string }>;
+      return contacts[0] ?? null;
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "createOrUpdateXeroContact" },
@@ -266,7 +268,8 @@ export class XeroApiClient {
       }
 
       const data = await response.json();
-      return data.Invoices[0];
+      const invoices = data.Invoices as Array<{ InvoiceID: string }>;
+      return invoices[0] ?? null;
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "createOrUpdateXeroInvoice" },
@@ -306,7 +309,8 @@ export class XeroApiClient {
       }
 
       const data = await response.json();
-      return data.Payments[0];
+      const payments = data.Payments as Array<{ PaymentID: string }>;
+      return payments[0] ?? null;
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "createXeroPayment" },
@@ -347,7 +351,8 @@ export class XeroApiClient {
       }
 
       const data = await response.json();
-      return data.Contacts[0];
+      const contacts = data.Contacts as XeroContact[];
+      return contacts[0] ?? null;
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "getXeroContact" },
@@ -388,7 +393,8 @@ export class XeroApiClient {
       }
 
       const data = await response.json();
-      return data.Invoices[0];
+      const invoices = data.Invoices as XeroInvoice[];
+      return invoices[0] ?? null;
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "getXeroInvoice" },

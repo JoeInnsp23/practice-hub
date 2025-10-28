@@ -3,7 +3,6 @@ import {
   __resetTokenCache,
   AuthenticationError,
   RateLimitError,
-  VATNotFoundError,
   validateVAT,
 } from "./client";
 

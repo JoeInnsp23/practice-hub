@@ -24,6 +24,28 @@ import {
 import { PublishNotesDialog } from "./publish-notes-dialog";
 import { VersionComparisonModal } from "./version-comparison-modal";
 
+interface ChecklistItem {
+  id: string;
+  text: string;
+  isRequired?: boolean;
+}
+
+interface WorkflowStage {
+  id: string;
+  name: string;
+  description: string | null;
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string | null;
+  autoComplete: boolean | null;
+  requiresApproval: boolean | null;
+  checklistItems: ChecklistItem[];
+}
+
+interface StagesSnapshot {
+  stages?: WorkflowStage[];
+}
+
 interface VersionHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -197,7 +219,8 @@ export function VersionHistoryModal({
                       </div>
                       <div className="flex items-center gap-1">
                         <Layers className="h-3 w-3" />
-                        {(version.stagesSnapshot as any)?.stages?.length || 0}{" "}
+                        {(version.stagesSnapshot as StagesSnapshot)?.stages
+                          ?.length || 0}{" "}
                         stages
                       </div>
                     </div>

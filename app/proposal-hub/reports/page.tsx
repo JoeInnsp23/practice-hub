@@ -86,7 +86,7 @@ export default function ReportsPage() {
       return;
     }
 
-    const reportData = pipelineMetrics.leadsByStage.map((item: any) => ({
+    const reportData = pipelineMetrics.leadsByStage.map((item) => ({
       stage: item.stage,
       count: item.count,
       totalValue: item.totalValue || 0,
@@ -363,7 +363,7 @@ export default function ReportsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pipelineMetrics.leadsByStage.map((stage: any) => (
+                    {pipelineMetrics.leadsByStage.map((stage) => (
                       <TableRow key={stage.stage}>
                         <TableCell className="font-medium capitalize">
                           {stage.stage}
@@ -420,7 +420,7 @@ export default function ReportsPage() {
                   </p>
                   <p className="text-xl font-bold">
                     {pipelineMetrics.leadsByStage.reduce(
-                      (sum: number, s: any) => sum + s.count,
+                      (sum: number, s) => sum + s.count,
                       0,
                     )}
                   </p>

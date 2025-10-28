@@ -285,25 +285,10 @@ export function ClientWizardModal({
 
       // Flatten registration fields to top level
       incorporationDate: formData.incorporationDate,
-      yearEnd: formData.yearEndDate,
+      yearEndDate: formData.yearEndDate,
 
       // Notes as top-level field
       notes: formData.notes,
-
-      // Primary contact as structured object (matches router primaryContact schema)
-      primaryContact:
-        formData.primaryContactFirstName ||
-        formData.primaryContactLastName ||
-        formData.primaryContactEmail
-          ? {
-              firstName: formData.primaryContactFirstName || "",
-              lastName: formData.primaryContactLastName || "",
-              email: formData.primaryContactEmail || "",
-              phone: formData.primaryContactPhone,
-              mobile: undefined,
-              position: undefined,
-            }
-          : undefined,
 
       // Remove metadata wrapping - not expected by router schema
       metadata: undefined,

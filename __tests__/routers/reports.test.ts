@@ -5,9 +5,12 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { reportsRouter } from "@/app/server/routers/reports";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock cache
 vi.mock("@/lib/cache", () => ({
@@ -97,14 +100,14 @@ vi.mock("@/lib/db/queries/reports-queries", () => ({
       totalClients: 40,
     },
   ]),
-  calculateDateRange: vi.fn((period: string) => ({
+  calculateDateRange: vi.fn((_period: string) => ({
     startDate: new Date("2024-01-01"),
     endDate: new Date("2024-12-31"),
   })),
 }));
 
 describe("app/server/routers/reports.ts", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof reportsRouter>>;
 
   beforeEach(() => {
@@ -143,7 +146,22 @@ describe("app/server/routers/reports.ts", () => {
       const { getReportsDashboardKpis } = await import(
         "@/lib/db/queries/reports-queries"
       );
-      vi.mocked(getReportsDashboardKpis).mockResolvedValueOnce(null);
+      vi.mocked(getReportsDashboardKpis).mockResolvedValueOnce({
+        totalRevenue: null,
+        collectedRevenue: null,
+        outstandingRevenue: null,
+        activeClients: null,
+        newClients30d: null,
+        pendingTasks: null,
+        inProgressTasks: null,
+        completedTasks30d: null,
+        overdueTasks: null,
+        totalHours30d: null,
+        billableHours30d: null,
+        upcomingCompliance30d: null,
+        overdueCompliance: null,
+        tenantId: "test-tenant-id",
+      });
 
       const result = await caller.getDashboardKpis();
 
@@ -158,15 +176,19 @@ describe("app/server/routers/reports.ts", () => {
   describe("getMonthlyRevenue", () => {
     it("should accept default parameters", () => {
       expect(() => {
-        reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0]?.parse(
-          {},
-        );
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept months parameter", () => {
       expect(() => {
-        reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           months: 6,
         });
       }).not.toThrow();
@@ -174,7 +196,10 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should accept period parameter", () => {
       expect(() => {
-        reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           period: "this_year",
         });
       }).not.toThrow();
@@ -182,7 +207,10 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should accept custom date range", () => {
       expect(() => {
-        reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           period: "custom",
           startDate: "2024-01-01T00:00:00Z",
           endDate: "2024-12-31T23:59:59Z",
@@ -192,7 +220,10 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate months min value", () => {
       expect(() => {
-        reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           months: 0,
         });
       }).toThrow();
@@ -200,7 +231,10 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate months max value", () => {
       expect(() => {
-        reportsRouter._def.procedures.getMonthlyRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getMonthlyRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           months: 30,
         });
       }).toThrow();
@@ -222,15 +256,19 @@ describe("app/server/routers/reports.ts", () => {
   describe("getClientRevenue", () => {
     it("should accept default parameters", () => {
       expect(() => {
-        reportsRouter._def.procedures.getClientRevenue._def.inputs[0]?.parse(
-          {},
-        );
+        (
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept limit parameter", () => {
       expect(() => {
-        reportsRouter._def.procedures.getClientRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           limit: 20,
         });
       }).not.toThrow();
@@ -238,7 +276,10 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate limit min value", () => {
       expect(() => {
-        reportsRouter._def.procedures.getClientRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           limit: 0,
         });
       }).toThrow();
@@ -246,7 +287,10 @@ describe("app/server/routers/reports.ts", () => {
 
     it("should validate limit max value", () => {
       expect(() => {
-        reportsRouter._def.procedures.getClientRevenue._def.inputs[0]?.parse({
+        (
+          reportsRouter._def.procedures.getClientRevenue._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
           limit: 100,
         });
       }).toThrow();
@@ -268,19 +312,21 @@ describe("app/server/routers/reports.ts", () => {
   describe("getServicePerformance", () => {
     it("should accept empty input", () => {
       expect(() => {
-        reportsRouter._def.procedures.getServicePerformance._def.inputs[0]?.parse(
-          {},
-        );
+        (
+          reportsRouter._def.procedures.getServicePerformance._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({});
       }).not.toThrow();
     });
 
     it("should accept period parameter", () => {
       expect(() => {
-        reportsRouter._def.procedures.getServicePerformance._def.inputs[0]?.parse(
-          {
-            period: "this_year",
-          },
-        );
+        (
+          reportsRouter._def.procedures.getServicePerformance._def
+            .inputs[0] as unknown as { parse: (input: unknown) => unknown }
+        )?.parse({
+          period: "this_year",
+        });
       }).not.toThrow();
     });
 

@@ -4,9 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 interface OnboardingOwnershipFormProps {
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   aiExtractedFields: Set<string>;
-  onFieldChange: (key: string, value: any) => void;
+  onFieldChange: (key: string, value: unknown) => void;
   onVerifyAiField: (key: string) => void;
 }
 
@@ -57,7 +57,7 @@ export function OnboardingOwnershipForm({
           </Label>
           <Textarea
             id="beneficial_owners"
-            value={formData.beneficial_owners || ""}
+            value={String(formData.beneficial_owners || "")}
             onChange={(e) => onFieldChange("beneficial_owners", e.target.value)}
             placeholder="List any other beneficial owners not in the PSC register..."
             rows={4}

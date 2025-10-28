@@ -33,9 +33,12 @@ describe("workingPatterns router", () => {
   let user2Id: string;
   let admin2Id: string;
   let pattern1Id: string;
-  let pattern2Id: string;
+  let _pattern2Id: string;
 
-  const tracker: TestDataTracker = {
+  const tracker: Required<
+    Pick<TestDataTracker, "tenants" | "users" | "clients">
+  > &
+    TestDataTracker = {
     tenants: [],
     users: [],
     clients: [],
@@ -170,7 +173,7 @@ describe("workingPatterns router", () => {
       .returning();
 
     pattern1Id = pattern1.id;
-    pattern2Id = pattern2.id;
+    _pattern2Id = pattern2.id;
   });
 
   describe("list", () => {

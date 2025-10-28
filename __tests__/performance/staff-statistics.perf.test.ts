@@ -3,7 +3,6 @@
  * Validates performance requirements for staff utilization calculations
  */
 
-import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Context } from "@/app/server/context";
 import { staffStatisticsRouter } from "@/app/server/routers/staffStatistics";
@@ -18,7 +17,7 @@ import {
 import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Staff Statistics Performance Tests", () => {
-  let ctx: Context;
+  let _ctx: Context;
   let caller: ReturnType<typeof createCaller<typeof staffStatisticsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -40,7 +39,7 @@ describe("Staff Statistics Performance Tests", () => {
     tracker.users?.push(testAdminId);
 
     // 3. Create mock context
-    ctx = createMockContext({
+    const mockCtx = createMockContext({
       authContext: {
         userId: testAdminId,
         tenantId: testTenantId,
@@ -51,8 +50,9 @@ describe("Staff Statistics Performance Tests", () => {
         lastName: "Admin",
       },
     });
+    _ctx = mockCtx;
 
-    caller = createCaller(staffStatisticsRouter, ctx);
+    caller = createCaller(staffStatisticsRouter, mockCtx);
 
     // 4. Create test department
     const [dept] = await db
@@ -123,7 +123,9 @@ describe("Staff Statistics Performance Tests", () => {
     // Log results
     console.log(`\n📊 Staff Utilization Performance:`);
     console.log(`   Staff count: ${result.staff.length}`);
-    console.log(`   Average utilization: ${result.summary.averageUtilization}%`);
+    console.log(
+      `   Average utilization: ${result.summary.averageUtilization}%`,
+    );
     console.log(`   Overallocated: ${result.summary.overallocated}`);
     console.log(`   Underutilized: ${result.summary.underutilized}`);
     console.log(`   Execution time: ${executionTime.toFixed(3)}s`);
@@ -141,7 +143,9 @@ describe("Staff Statistics Performance Tests", () => {
     expect(executionTime).toBeLessThan(2.0); // Performance requirement
 
     // Verify calculations are correct
-    expect(result.staff.every((s) => s.utilization >= 0)).toBe(true);
+    expect(
+      result.staff.every((s: (typeof result.staff)[0]) => s.utilization >= 0),
+    ).toBe(true);
     expect(result.summary.averageUtilization).toBeGreaterThan(0);
   }, 10000); // 10 second timeout
 
@@ -183,7 +187,10 @@ describe("Staff Statistics Performance Tests", () => {
     const executionTime = (endTime - startTime) / 1000;
 
     // Log results
-    const totalHours = result.weeks.reduce((sum, w) => sum + w.loggedHours, 0);
+    const totalHours = result.weeks.reduce(
+      (sum: number, w: (typeof result.weeks)[0]) => sum + w.loggedHours,
+      0,
+    );
     console.log(`\n📈 52-Week Trend Performance:`);
     console.log(`   Weeks calculated: ${result.weeks.length}`);
     console.log(`   Staff capacity: ${result.weeklyCapacity} hrs/week`);
@@ -202,7 +209,9 @@ describe("Staff Statistics Performance Tests", () => {
     expect(executionTime).toBeLessThan(1.0); // Performance requirement
 
     // Verify data integrity
-    expect(result.weeks.every((w) => w.utilization >= 0)).toBe(true);
+    expect(
+      result.weeks.every((w: (typeof result.weeks)[0]) => w.utilization >= 0),
+    ).toBe(true);
     expect(totalHours).toBeGreaterThan(0);
   }, 15000); // 15 second timeout (includes data setup)
 
@@ -266,7 +275,7 @@ describe("Staff Statistics Performance Tests", () => {
 
     // Log results
     const totalStaff = result.departments.reduce(
-      (sum, d) => sum + d.staffCount,
+      (sum: number, d: (typeof result.departments)[0]) => sum + d.staffCount,
       0,
     );
     console.log(`\n🏢 Department Aggregation Performance:`);
@@ -286,8 +295,16 @@ describe("Staff Statistics Performance Tests", () => {
     expect(executionTime).toBeLessThan(1.0); // Performance requirement
 
     // Verify aggregation integrity
-    expect(result.departments.every((d) => d.staffCount > 0)).toBe(true);
-    expect(result.departments.every((d) => d.utilization >= 0)).toBe(true);
+    expect(
+      result.departments.every(
+        (d: (typeof result.departments)[0]) => d.staffCount > 0,
+      ),
+    ).toBe(true);
+    expect(
+      result.departments.every(
+        (d: (typeof result.departments)[0]) => d.utilization >= 0,
+      ),
+    ).toBe(true);
   }, 15000); // 15 second timeout
 
   it("should handle staff comparison with sorting in < 500ms", async () => {

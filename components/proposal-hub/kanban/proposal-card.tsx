@@ -3,7 +3,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { format } from "date-fns";
-import { Building2, Calendar, FileText, Mail } from "lucide-react";
+import { Building2, Calendar, FileText } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -83,9 +83,7 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      role="listitem"
       aria-label={`Proposal ${proposal.proposalNumber}: ${proposal.title}`}
-      tabIndex={0}
       onKeyDown={handleKeyDown}
       {...attributes}
       {...listeners}

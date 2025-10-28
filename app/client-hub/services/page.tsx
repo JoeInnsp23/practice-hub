@@ -29,25 +29,32 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import type { Service } from "@/lib/trpc/types";
 import { formatCurrency } from "@/lib/utils/format";
 
-type Service = {
-  id: string;
-  tenantId: string;
+// Form data type (matches ServiceModal output)
+interface ServiceFormData {
   code: string;
   name: string;
-  description: string | null;
-  category: string | null;
-  defaultRate: string | null;
-  price: string | null;
-  priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage" | null;
-  duration: number | null;
-  tags: string[] | null;
+  category:
+    | "compliance"
+    | "vat"
+    | "bookkeeping"
+    | "payroll"
+    | "management"
+    | "secretarial"
+    | "tax_planning"
+    | "addon";
+  description?: string;
+  pricingModel: "turnover" | "transaction" | "both" | "fixed";
+  basePrice?: number;
+  defaultRate?: number;
+  priceType: "hourly" | "fixed" | "retainer" | "project" | "percentage";
+  duration?: number;
+  supportsComplexity: boolean;
+  tags?: string[];
   isActive: boolean;
-  metadata: Record<string, unknown> | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
+}
 
 export default function ServicesPage() {
   const utils = trpc.useUtils();
@@ -108,11 +115,7 @@ export default function ServicesPage() {
 
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = [
-      ...new Set(
-        services.map((s) => s.category).filter((c): c is string => c !== null),
-      ),
-    ];
+    const cats = [...new Set(services.map((s) => s.category))];
     return cats.sort();
   }, [services]);
 
@@ -189,19 +192,23 @@ export default function ServicesPage() {
     }
   };
 
-  const handleSaveService = (data: Partial<Service>) => {
+  const handleSaveService = (data: ServiceFormData) => {
+    const convertedData = {
+      ...data,
+      basePrice: data.basePrice?.toString() || null,
+      defaultRate: data.defaultRate?.toString() || null,
+      duration: data.duration || null,
+      description: data.description || null,
+      tags: data.tags || null,
+    };
+
     if (editingService) {
       updateMutation.mutate({
         id: editingService.id,
-        data,
+        data: convertedData,
       });
     } else {
-      // Ensure required fields are present for creation
-      if (data.name && data.code) {
-        createMutation.mutate(
-          data as Required<Pick<Service, "name" | "code">> & Partial<Service>,
-        );
-      }
+      createMutation.mutate(convertedData);
     }
   };
 
@@ -328,7 +335,7 @@ export default function ServicesPage() {
               {filteredServices.map((service) => (
                 <ServiceCard
                   key={service.id}
-                  service={service}
+                  service={service as Service}
                   onEdit={handleEditService}
                   onDelete={handleDeleteService}
                 />
@@ -410,7 +417,30 @@ export default function ServicesPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveService}
-        service={editingService}
+        service={
+          editingService
+            ? {
+                code: editingService.code,
+                name: editingService.name,
+                category: editingService.category,
+                description: editingService.description || undefined,
+                pricingModel: editingService.pricingModel,
+                basePrice: editingService.basePrice
+                  ? parseFloat(editingService.basePrice)
+                  : undefined,
+                defaultRate: editingService.defaultRate
+                  ? parseFloat(editingService.defaultRate)
+                  : undefined,
+                priceType: editingService.priceType || "fixed",
+                duration: editingService.duration || undefined,
+                supportsComplexity: editingService.supportsComplexity,
+                tags: Array.isArray(editingService.tags)
+                  ? (editingService.tags as string[])
+                  : undefined,
+                isActive: editingService.isActive,
+              }
+            : undefined
+        }
       />
     </div>
   );

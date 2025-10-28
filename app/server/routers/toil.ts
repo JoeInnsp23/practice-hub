@@ -1,13 +1,7 @@
-import { and, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 import { db } from "@/lib/db";
-import {
-  toilAccrualHistory,
-  leaveBalances,
-  users,
-  staffCapacity,
-} from "@/lib/db/schema";
+import { leaveBalances, toilAccrualHistory } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
 
 export const toilRouter = router({
@@ -53,6 +47,8 @@ export const toilRouter = router({
           timesheetId: input.timesheetId ?? null,
           weekEnding: input.weekEnding,
           hoursAccrued: toilHours,
+          loggedHours: input.loggedHours,
+          contractedHours: input.contractedHours,
           accrualDate: new Date(),
           expiryDate: expiryDate.toISOString().split("T")[0],
           expired: false,
@@ -157,7 +153,8 @@ export const toilRouter = router({
           id: toilAccrualHistory.id,
           weekEnding: toilAccrualHistory.weekEnding,
           hoursAccrued: toilAccrualHistory.hoursAccrued,
-          accrualDate: toilAccrualHistory.accrualDate,
+          loggedHours: toilAccrualHistory.loggedHours,
+          contractedHours: toilAccrualHistory.contractedHours,
           expiryDate: toilAccrualHistory.expiryDate,
           expired: toilAccrualHistory.expired,
           timesheetId: toilAccrualHistory.timesheetId,

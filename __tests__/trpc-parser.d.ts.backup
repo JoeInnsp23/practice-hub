@@ -1,0 +1,11 @@
+/**
+ * Global type augmentation for tRPC Parser
+ * Ensures TypeScript recognizes Zod's .parse() method on tRPC procedure input schemas
+ */
+
+declare module "@trpc/server" {
+  interface Parser {
+    parse(data: unknown): unknown;
+    safeParse(data: unknown): { success: boolean; data?: unknown; error?: unknown };
+  }
+}

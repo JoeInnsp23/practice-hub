@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Edit, Eye, Filter, Plus, Search, Trash2 } from "lucide-react";
+import { Copy, Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { TaskTemplateFormDialog } from "@/components/client-hub/task-template-form-dialog";
@@ -331,7 +331,7 @@ export default function TaskTemplatesPage() {
                         size="sm"
                         onClick={() => handleClone(template.id)}
                         title="Clone"
-                        disabled={cloneMutation.isLoading}
+                        disabled={cloneMutation.isPending}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>

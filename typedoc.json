@@ -1,0 +1,21 @@
+{
+  "entryPoints": ["app/**/*.tsx", "lib/**/*.ts", "components/**/*.tsx"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "__tests__/**",
+    "node_modules/**",
+    ".archive/**",
+    ".next/**",
+    "dist/**"
+  ],
+  "out": "docs/reference/typescript",
+  "plugin": ["typedoc-plugin-markdown"],
+  "tsconfig": "./tsconfig.json",
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "skipErrorChecking": true,
+  "includeVersion": true,
+  "readme": "none"
+}

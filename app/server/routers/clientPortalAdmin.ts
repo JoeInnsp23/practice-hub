@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -12,6 +13,18 @@ import {
 } from "@/lib/db/schema";
 import { sendClientPortalInvitationEmail } from "@/lib/email/send-client-portal-invitation";
 import { adminProcedure, router } from "../trpc";
+
+// Type definition for client access JSON structure
+interface ClientAccessJson {
+  id: string;
+  clientId: string;
+  clientName: string;
+  role: string;
+  isActive: boolean;
+  expiresAt: Date | null;
+  grantedAt: Date;
+  grantedBy: string | null;
+}
 
 export const clientPortalAdminRouter = router({
   // ==================== INVITATIONS ====================
@@ -110,7 +123,14 @@ export const clientPortalAdminRouter = router({
           customMessage: input.message,
         });
       } catch (error) {
-        console.error("Failed to send invitation email:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "sendClientPortalInvitation" },
+          extra: {
+            email: input.email,
+            clientIds: input.clientIds,
+            role: input.role,
+          },
+        });
         // Don't throw - invitation is still created
       }
 
@@ -238,7 +258,13 @@ export const clientPortalAdminRouter = router({
           expiresAt: newExpiresAt,
         });
       } catch (error) {
-        console.error("Failed to resend invitation email:", error);
+        Sentry.captureException(error, {
+          tags: { operation: "resendClientPortalInvitation" },
+          extra: {
+            invitationId: input.invitationId,
+            email: invitation.email,
+          },
+        });
       }
 
       // Log activity
@@ -332,7 +358,7 @@ export const clientPortalAdminRouter = router({
         acceptedAt: clientPortalUsers.acceptedAt,
         createdAt: clientPortalUsers.createdAt,
         // Aggregate all client access into JSON array
-        clientAccess: sql<any>`
+        clientAccess: sql<ClientAccessJson[]>`
           COALESCE(
             json_agg(
               json_build_object(

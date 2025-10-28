@@ -24,7 +24,7 @@ import {
 import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Task Generation Performance Tests", () => {
-  let ctx: Context;
+  let _ctx: Context;
   let caller: ReturnType<typeof createCaller<typeof taskGenerationRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -51,7 +51,7 @@ describe("Task Generation Performance Tests", () => {
     tracker.users?.push(testUserId);
 
     // 3. Create mock context
-    ctx = createMockContext({
+    const mockCtx = createMockContext({
       authContext: {
         userId: testUserId,
         tenantId: testTenantId,
@@ -62,8 +62,9 @@ describe("Task Generation Performance Tests", () => {
         lastName: "Test",
       },
     });
+    _ctx = mockCtx;
 
-    caller = createCaller(taskGenerationRouter, ctx);
+    caller = createCaller(taskGenerationRouter, mockCtx);
 
     // 4. Create test service
     const [service] = await db

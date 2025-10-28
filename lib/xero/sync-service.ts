@@ -31,35 +31,34 @@ export async function syncClientToXero(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Fetch client from database
-    const client = await db
+    const clientResults = await db
       .select()
       .from(clients)
       .where(and(eq(clients.id, clientId), eq(clients.tenantId, tenantId)))
       .limit(1);
 
-    if (client.length === 0) {
+    if (clientResults.length === 0) {
       throw new Error(`Client ${clientId} not found`);
     }
 
-    const clientData = client[0];
+    const clientData = clientResults[0];
 
     // Map Practice Hub client to Xero Contact format
     const xeroContact = {
       ContactID: clientData.xeroContactId || undefined,
       Name: clientData.name,
       EmailAddress: clientData.email || undefined,
-      FirstName: clientData.firstName || undefined,
-      LastName: clientData.lastName || undefined,
       AccountNumber: clientData.clientCode || undefined, // Client code → Account number
       TaxNumber: clientData.vatNumber || undefined,
-      Addresses: clientData.address
+      Addresses: clientData.addressLine1
         ? [
             {
               AddressType: "STREET" as const,
-              AddressLine1: clientData.address,
+              AddressLine1: clientData.addressLine1,
+              AddressLine2: clientData.addressLine2 || undefined,
               City: clientData.city || undefined,
-              PostalCode: clientData.postcode || undefined,
-              Country: "GB", // Default to UK
+              PostalCode: clientData.postalCode || undefined,
+              Country: clientData.country || "GB",
             },
           ]
         : undefined,
@@ -136,7 +135,7 @@ export async function syncInvoiceToXero(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Fetch invoice with client data
-    const invoice = await db
+    const invoiceResults = await db
       .select({
         invoice: invoices,
         client: clients,
@@ -146,11 +145,11 @@ export async function syncInvoiceToXero(
       .where(and(eq(invoices.id, invoiceId), eq(invoices.tenantId, tenantId)))
       .limit(1);
 
-    if (invoice.length === 0) {
+    if (invoiceResults.length === 0) {
       throw new Error(`Invoice ${invoiceId} not found`);
     }
 
-    const { invoice: invoiceData, client: clientData } = invoice[0];
+    const { invoice: invoiceData, client: clientData } = invoiceResults[0];
 
     // Ensure client is synced to Xero first
     if (!clientData.xeroContactId) {
@@ -165,17 +164,20 @@ export async function syncInvoiceToXero(
       }
 
       // Re-fetch client to get Xero ID
-      const updatedClient = await db
+      const updatedClientResults = await db
         .select()
         .from(clients)
         .where(eq(clients.id, clientData.id))
         .limit(1);
 
-      if (updatedClient.length === 0 || !updatedClient[0].xeroContactId) {
+      if (
+        updatedClientResults.length === 0 ||
+        !updatedClientResults[0].xeroContactId
+      ) {
         throw new Error("Client sync failed - no Xero contact ID");
       }
 
-      clientData.xeroContactId = updatedClient[0].xeroContactId;
+      clientData.xeroContactId = updatedClientResults[0].xeroContactId;
     }
 
     // Map Practice Hub invoice to Xero Invoice format
@@ -185,14 +187,8 @@ export async function syncInvoiceToXero(
       Contact: {
         ContactID: clientData.xeroContactId,
       },
-      Date:
-        typeof invoiceData.issueDate === "string"
-          ? invoiceData.issueDate
-          : invoiceData.issueDate.toISOString().split("T")[0], // YYYY-MM-DD
-      DueDate:
-        typeof invoiceData.dueDate === "string"
-          ? invoiceData.dueDate
-          : invoiceData.dueDate.toISOString().split("T")[0],
+      Date: invoiceData.issueDate,
+      DueDate: invoiceData.dueDate,
       InvoiceNumber: invoiceData.invoiceNumber || undefined,
       Reference: undefined,
       Status:
@@ -279,17 +275,17 @@ export async function syncPaymentToXero(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Fetch invoice to ensure it's synced to Xero
-    const invoice = await db
+    const invoiceResults = await db
       .select()
       .from(invoices)
       .where(and(eq(invoices.id, invoiceId), eq(invoices.tenantId, tenantId)))
       .limit(1);
 
-    if (invoice.length === 0) {
+    if (invoiceResults.length === 0) {
       throw new Error(`Invoice ${invoiceId} not found`);
     }
 
-    const invoiceData = invoice[0];
+    const invoiceData = invoiceResults[0];
 
     // Ensure invoice is synced to Xero first
     if (!invoiceData.xeroInvoiceId) {
@@ -304,17 +300,20 @@ export async function syncPaymentToXero(
       }
 
       // Re-fetch invoice to get Xero ID
-      const updatedInvoice = await db
+      const updatedInvoiceResults = await db
         .select()
         .from(invoices)
         .where(eq(invoices.id, invoiceId))
         .limit(1);
 
-      if (updatedInvoice.length === 0 || !updatedInvoice[0].xeroInvoiceId) {
+      if (
+        updatedInvoiceResults.length === 0 ||
+        !updatedInvoiceResults[0].xeroInvoiceId
+      ) {
         throw new Error("Invoice sync failed - no Xero invoice ID");
       }
 
-      invoiceData.xeroInvoiceId = updatedInvoice[0].xeroInvoiceId;
+      invoiceData.xeroInvoiceId = updatedInvoiceResults[0].xeroInvoiceId;
     }
 
     // Create payment in Xero

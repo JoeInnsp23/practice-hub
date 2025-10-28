@@ -7,7 +7,6 @@
 
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { timesheetsRouter } from "@/app/server/routers/timesheets";
 import { db } from "@/lib/db";
 import { timeEntries, timesheetSubmissions } from "@/lib/db/schema";
@@ -17,7 +16,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock email notifications
 vi.mock("@/lib/email/timesheet-notifications", () => ({
@@ -26,8 +29,8 @@ vi.mock("@/lib/email/timesheet-notifications", () => ({
 }));
 
 describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
-  let ctx: Context;
-  let managerCtx: Context;
+  let ctx: TestContextWithAuth;
+  let managerCtx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   let managerCaller: ReturnType<typeof createCaller<typeof timesheetsRouter>>;
   const tracker: TestDataTracker = {
@@ -114,12 +117,15 @@ describe("app/server/routers/timesheets.ts - Submissions (Integration)", () => {
 
       expect(result.success).toBe(true);
       expect(result.submissionId).toBeDefined();
+      if (!result.submissionId) {
+        throw new Error("Expected submissionId to be defined");
+      }
 
       // Verify submission was created
       const [submission] = await db
         .select()
         .from(timesheetSubmissions)
-        .where(eq(timesheetSubmissions.id, result.submissionId!))
+        .where(eq(timesheetSubmissions.id, result.submissionId))
         .limit(1);
 
       expect(submission).toBeDefined();

@@ -1,0 +1,332 @@
+# Practice Hub Documentation Index
+# Maps concepts to documentation across 6 domains:
+# - prd: Product requirements (future)
+# - architecture: System design and patterns
+# - api: API reference and technical specs
+# - stories: User stories and feature specs
+# - qa: QA assessments and quality gates
+# - patterns: Implementation patterns and coding standards
+
+concepts:
+  # ============================================================================
+  # CORE ARCHITECTURE
+  # ============================================================================
+
+  multi-tenancy:
+    description: "Dual-level data isolation (tenantId + clientId), schema patterns, query examples, auth context"
+    architecture:
+      - path: "docs/architecture/multi-tenancy.md"
+        description: "Complete multi-tenancy architecture with dual isolation patterns"
+      - path: "docs/architecture/system-overview.md"
+        description: "Brownfield architecture with multi-tenant SaaS overview"
+    api:
+      - path: "docs/reference/database/schema.md"
+        description: "Database schema with tenantId patterns"
+      - path: "docs/reference/typescript/modules/lib_auth.md"
+        description: "getAuthContext() and getClientPortalAuthContext() helpers"
+    patterns:
+      - path: "lib/auth.ts"
+        description: "Auth context helpers with tenant isolation"
+    keywords: ["multi-tenant", "tenant", "tenantId", "clientId", "isolation", "dual isolation"]
+
+  authentication:
+    description: "Better Auth dual system (staff vs client portal), session management, OAuth, middleware"
+    architecture:
+      - path: "docs/architecture/authentication.md"
+        description: "Complete authentication architecture with dual Better Auth system"
+      - path: "docs/architecture/api-design.md"
+        description: "tRPC integration with auth context"
+    api:
+      - path: "docs/reference/typescript/modules/lib_auth.md"
+        description: "Better Auth configuration and helpers"
+      - path: "docs/reference/typescript/modules/lib_client_portal_auth.md"
+        description: "Client portal authentication system"
+    guides:
+      - path: "docs/guides/integrations/microsoft-oauth.md"
+        description: "Microsoft OAuth setup guide"
+    patterns:
+      - path: "lib/auth.ts"
+        description: "Staff authentication with Better Auth"
+      - path: "lib/client-portal-auth.ts"
+        description: "Client portal authentication"
+      - path: "middleware.ts"
+        description: "Route protection middleware"
+    keywords: ["auth", "authentication", "better-auth", "session", "oauth", "microsoft", "login", "sign-in", "middleware"]
+
+  trpc-api:
+    description: "Type-safe API design with tRPC, protected procedures, context creation, router patterns"
+    architecture:
+      - path: "docs/architecture/api-design.md"
+        description: "Complete tRPC architecture with patterns and examples"
+    api:
+      - path: "docs/reference/api/routers.md"
+        description: "All 29 tRPC routers documentation"
+      - path: "docs/reference/typescript/modules/app_server_trpc.md"
+        description: "tRPC setup and procedures"
+      - path: "docs/reference/typescript/modules/app_server_context.md"
+        description: "tRPC context with auth"
+    patterns:
+      - path: "app/server/trpc.ts"
+        description: "tRPC initialization with rate limiting"
+      - path: "app/server/context.ts"
+        description: "Context creation with Better Auth"
+      - path: "app/server/routers/clients.ts"
+        description: "Sample router with protected procedures"
+    keywords: ["trpc", "api", "router", "procedure", "protected", "mutation", "query", "context"]
+
+  database:
+    description: "PostgreSQL schema (50+ tables), views (14), indexes (5), Drizzle ORM, migration patterns"
+    architecture:
+      - path: "docs/architecture/system-overview.md"
+        description: "Database architecture overview"
+    api:
+      - path: "docs/reference/database/schema.md"
+        description: "Complete database schema documentation"
+      - path: "docs/reference/database/scripts.md"
+        description: "Database management scripts"
+      - path: "docs/reference/typescript/modules/lib_db_schema.md"
+        description: "Drizzle schema definitions"
+    guides:
+      - path: "docs/guides/sql-safety-checklist.md"
+        description: "SQL safety best practices"
+    patterns:
+      - path: "lib/db/schema.ts"
+        description: "Complete database schema"
+      - path: "lib/db/index.ts"
+        description: "Drizzle client setup"
+      - path: "drizzle/0000_create_views.sql"
+        description: "14 database views"
+      - path: "drizzle/0001_add_performance_indexes.sql"
+        description: "5 performance indexes"
+    keywords: ["database", "schema", "drizzle", "postgresql", "table", "view", "index", "migration"]
+
+  # ============================================================================
+  # INTEGRATIONS
+  # ============================================================================
+
+  lem-verify-kyc:
+    description: "LEM Verify KYC/AML integration (£1/verification), webhook handling, auto-approval workflow"
+    api:
+      - path: "docs/reference/typescript/modules/lib_kyc_lemverify_client.md"
+        description: "LEM Verify API client"
+    guides:
+      - path: "docs/guides/integrations/lemverify.md"
+        description: "LEM Verify integration setup"
+    patterns:
+      - path: "lib/kyc/lemverify-client.ts"
+        description: "LEM Verify API client"
+      - path: "app/api/webhooks/lemverify/route.ts"
+        description: "Webhook handler with HMAC verification"
+    keywords: ["kyc", "aml", "lemverify", "lem-verify", "verification", "identity", "compliance", "webhook"]
+
+  gemini-ai:
+    description: "Google Gemini AI document extraction, identity document processing, questionnaire pre-fill"
+    api:
+      - path: "docs/reference/typescript/modules/lib_ai_extract_client_data.md"
+        description: "Gemini AI document extraction"
+    patterns:
+      - path: "lib/ai/extract-client-data.ts"
+        description: "Gemini document extraction with structured output"
+      - path: "lib/ai/questionnaire-prefill.ts"
+        description: "Questionnaire pre-fill logic"
+    keywords: ["ai", "gemini", "google", "document", "extraction", "ocr", "identity"]
+
+  docuseal:
+    description: "DocuSeal e-signature integration, proposal signing, webhook handling, PDF generation"
+    api:
+      - path: "docs/reference/typescript/modules/lib_docuseal_client.md"
+        description: "DocuSeal API client"
+    guides:
+      - path: "docs/operations/deployment.md"
+        description: "DocuSeal production setup"
+    patterns:
+      - path: "lib/docuseal/client.ts"
+        description: "DocuSeal API client"
+      - path: "app/api/webhooks/docuseal/route.ts"
+        description: "Webhook handler for signature events"
+    keywords: ["docuseal", "e-signature", "signature", "pdf", "signing", "webhook"]
+
+  s3-storage:
+    description: "S3-compatible object storage (MinIO local, Hetzner production), file uploads, presigned URLs"
+    api:
+      - path: "docs/reference/typescript/modules/lib_s3_upload.md"
+        description: "S3 upload utilities"
+    guides:
+      - path: "docs/operations/deployment.md"
+        description: "MinIO and Hetzner S3 setup"
+    patterns:
+      - path: "lib/s3/upload.ts"
+        description: "S3-compatible upload with presigned URLs"
+      - path: "scripts/setup-minio.sh"
+        description: "MinIO bucket initialization"
+    keywords: ["s3", "storage", "minio", "hetzner", "upload", "file", "object-storage"]
+
+  sentry:
+    description: "Sentry error tracking, logging policy, console.log replacement, production monitoring"
+    api:
+      - path: "docs/reference/typescript/modules/lib_sentry.md"
+        description: "Sentry setup and utilities"
+    guides:
+      - path: "docs/guides/integrations/sentry.md"
+        description: "Complete Sentry setup guide with error tracking policy"
+    patterns:
+      - path: "lib/sentry.ts"
+        description: "Sentry configuration"
+    keywords: ["sentry", "error", "tracking", "logging", "monitoring", "console"]
+
+  # ============================================================================
+  # MODULES
+  # ============================================================================
+
+  client-hub:
+    description: "CRM module for client relationship management, contacts, directors, PSCs, services, compliance"
+    api:
+      - path: "docs/reference/api/routers.md"
+        description: "Client Hub routers (clients, contacts, directors, PSCs, services)"
+      - path: "docs/reference/typescript/modules/app_server_routers_clients.md"
+        description: "Clients router documentation"
+    patterns:
+      - path: "app/client-hub/"
+        description: "Client Hub module pages"
+      - path: "app/server/routers/clients.ts"
+        description: "Client CRUD router"
+      - path: "components/client-hub/"
+        description: "Client Hub components"
+    keywords: ["client-hub", "crm", "clients", "contacts", "directors", "pscs", "services", "compliance"]
+
+  proposal-hub:
+    description: "Proposal management, pricing calculator (28 services, 138+ rules), lead pipeline, analytics"
+    api:
+      - path: "docs/reference/api/routers.md"
+        description: "Proposal Hub routers (proposals, pricing, leads, pipeline)"
+      - path: "docs/reference/business-logic/proposals/CALCULATOR_LOGIC.md"
+        description: "Pricing calculator business logic"
+      - path: "docs/reference/business-logic/proposals/PRICING_STRUCTURE_2025.md"
+        description: "2025 pricing structure"
+    patterns:
+      - path: "app/proposal-hub/"
+        description: "Proposal Hub module pages"
+      - path: "app/proposal-hub/calculator/page.tsx"
+        description: "Interactive pricing calculator"
+      - path: "app/server/routers/proposals.ts"
+        description: "Proposals router"
+      - path: "app/server/routers/pricing.ts"
+        description: "Pricing calculator router"
+    keywords: ["proposal", "pricing", "calculator", "lead", "pipeline", "sales", "analytics"]
+
+  admin-panel:
+    description: "System administration, user management, KYC review queue, portal link management"
+    api:
+      - path: "docs/reference/api/routers.md"
+        description: "Admin routers (users, invitations, admin-kyc, portal)"
+      - path: "docs/reference/typescript/modules/app_server_routers_users.md"
+        description: "User management router"
+    patterns:
+      - path: "app/admin/"
+        description: "Admin Panel module pages"
+      - path: "app/server/routers/users.ts"
+        description: "User management router"
+      - path: "app/server/routers/admin-kyc.ts"
+        description: "KYC review queue router"
+    keywords: ["admin", "user", "management", "kyc", "review", "portal", "settings"]
+
+  client-portal:
+    description: "External client access, onboarding flow, dual isolation (tenantId + clientId), document access"
+    architecture:
+      - path: "docs/architecture/multi-tenancy.md"
+        description: "Dual isolation patterns for client portal"
+      - path: "docs/architecture/authentication.md"
+        description: "Client portal authentication system"
+    api:
+      - path: "docs/reference/api/routers.md"
+        description: "Client portal routers (clientPortal, clientPortalAdmin, onboarding)"
+      - path: "docs/reference/typescript/modules/app_server_routers_clientPortal.md"
+        description: "Client portal router"
+    patterns:
+      - path: "app/client-portal/"
+        description: "Client portal module pages"
+      - path: "app/client-portal/onboarding/"
+        description: "KYC/AML onboarding flow"
+      - path: "app/server/routers/clientPortal.ts"
+        description: "Client portal router with dual isolation"
+    keywords: ["client-portal", "portal", "onboarding", "kyc", "external", "client-access"]
+
+  # ============================================================================
+  # DESIGN & PATTERNS
+  # ============================================================================
+
+  design-system:
+    description: "Glass-card design system, shadcn/ui components, module styling, layout backgrounds"
+    architecture:
+      - path: "docs/architecture/design-system.md"
+        description: "Complete design system documentation"
+    patterns:
+      - path: "app/globals.css"
+        description: "Global styles with glass-card patterns"
+      - path: "components/global-header.tsx"
+        description: "GlobalHeader component"
+      - path: "components/global-sidebar.tsx"
+        description: "GlobalSidebar component"
+      - path: "components/ui/"
+        description: "shadcn/ui component library"
+    keywords: ["design", "ui", "components", "glass-card", "shadcn", "tailwind", "styling", "theme"]
+
+  coding-standards:
+    description: "Development rules, code conventions, quality gates, testing patterns"
+    architecture:
+      - path: "docs/architecture/coding-standards.md"
+        description: "Complete coding standards"
+    patterns:
+      - path: "CLAUDE.md"
+        description: "Critical development rules (MUST READ)"
+      - path: "biome.json"
+        description: "Biome linting configuration"
+    keywords: ["standards", "conventions", "best-practices", "quality", "linting", "formatting"]
+
+  # ============================================================================
+  # OPERATIONS
+  # ============================================================================
+
+  deployment:
+    description: "Production deployment, environment configuration, Docker setup, monitoring"
+    operations:
+      - path: "docs/operations/deployment.md"
+        description: "Complete deployment guide"
+      - path: "docs/operations/production-checklist.md"
+        description: "Pre-production validation checklist"
+      - path: "docs/operations/backup-recovery.md"
+        description: "Database backup and recovery procedures"
+      - path: "docs/operations/monitoring.md"
+        description: "Monitoring and alerting setup"
+    api:
+      - path: "docs/reference/configuration/environment.md"
+        description: "Environment variables reference"
+    keywords: ["deployment", "production", "docker", "environment", "configuration", "monitoring"]
+
+  testing:
+    description: "Vitest unit tests, Playwright e2e tests, multi-tenant validation, router tests"
+    guides:
+      - path: "docs/development/testing.md"
+        description: "Testing strategy and patterns"
+      - path: "docs/development/e2e-testing-guide.md"
+        description: "End-to-end testing guide"
+    patterns:
+      - path: "__tests__/"
+        description: "Vitest test suite"
+    keywords: ["testing", "test", "vitest", "playwright", "e2e", "unit", "integration"]
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2025-10-26"
+  total_concepts: 16
+  domains:
+    - architecture
+    - api
+    - guides
+    - operations
+    - patterns
+  maintained_by: "Development Team"

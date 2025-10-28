@@ -125,7 +125,21 @@ export function getProposalSignatureFields(proposalData: {
 /**
  * Extract audit trail data from DocuSeal submission
  */
-export function extractAuditTrail(submission: any) {
+export function extractAuditTrail(submission: {
+  id: string;
+  template_id: string;
+  status: string;
+  completed_at?: string;
+  submitters?: Array<{
+    name?: string;
+    email?: string;
+    completed_at?: string;
+    opened_at?: string;
+    ip?: string;
+    user_agent?: string;
+    values?: Record<string, unknown>;
+  }>;
+}) {
   const submitter = submission.submitters?.[0];
 
   return {

@@ -94,12 +94,22 @@ interface LeaveRequestModalProps {
     leaveType: string;
     startDate: string;
     endDate: string;
-    notes?: string | null;
+    daysCount: number;
+    status: string;
+    notes: string | null;
+    requestedAt: Date;
+    reviewedBy: string | null;
+    reviewedAt: Date | null;
+    reviewerComments: string | null;
+    reviewerName?: string | null;
   } | null;
   balance?: {
-    remaining: number;
     entitlement: number;
+    used: number;
+    remaining: number;
+    carriedOver: number;
     toilBalance: number;
+    sickUsed: number;
   };
 }
 
@@ -182,7 +192,7 @@ export function LeaveRequestModal({
   }, [startDate, endDate]);
 
   // Check for conflicts
-  const { data: conflicts } = trpc.leave.getConflicts.useQuery(
+  const { data: conflictsResponse } = trpc.leave.getConflicts.useQuery(
     {
       startDate: startDate || "",
       endDate: endDate || "",
@@ -191,6 +201,7 @@ export function LeaveRequestModal({
       enabled: !!(startDate && endDate),
     },
   );
+  const conflicts = conflictsResponse?.conflicts ?? [];
 
   // Balance validation
   const hasInsufficientBalance = useMemo(() => {
@@ -203,23 +214,7 @@ export function LeaveRequestModal({
     return false;
   }, [leaveType, calculatedDays, balance]);
 
-  const requestMutation = trpc.leave.request.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request submitted successfully");
-      utils.leave.getHistory.invalidate();
-      utils.leave.getBalance.invalidate();
-      utils.leave.getCalendar.invalidate();
-      onClose();
-      form.reset();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "leave_request" },
-        extra: { leaveType, startDate, endDate },
-      });
-      toast.error(error.message || "Failed to submit leave request");
-    },
-  });
+  const requestMutation = trpc.leave.request.useMutation();
 
   const onSubmit = async (data: LeaveRequestFormValues) => {
     if (hasInsufficientBalance) {
@@ -227,12 +222,34 @@ export function LeaveRequestModal({
       return;
     }
 
-    requestMutation.mutate({
-      leaveType: data.leaveType,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      notes: data.notes,
-    });
+    try {
+      await requestMutation.mutateAsync({
+        leaveType: data.leaveType,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        notes: data.notes,
+      });
+      toast.success("Leave request submitted successfully");
+      utils.leave.getHistory.invalidate();
+      utils.leave.getBalance.invalidate();
+      utils.leave.getCalendar.invalidate();
+      onClose();
+      form.reset();
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { operation: "leave_request" },
+        extra: {
+          leaveType: data.leaveType,
+          startDate: data.startDate,
+          endDate: data.endDate,
+        },
+      });
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit leave request",
+      );
+    }
   };
 
   useEffect(() => {

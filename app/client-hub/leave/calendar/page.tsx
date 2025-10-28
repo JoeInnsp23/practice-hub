@@ -17,19 +17,36 @@ import {
 export default function LeaveCalendarPage() {
   const [userFilter, setUserFilter] = useState("all");
 
+  // Calculate date range for calendar (current month + 3 months ahead)
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+    .toISOString()
+    .split("T")[0];
+  const endDate = new Date(now.getFullYear(), now.getMonth() + 3, 0)
+    .toISOString()
+    .split("T")[0];
+
   // Fetch calendar data
-  const { data: calendarData, isLoading } = trpc.leave.getCalendar.useQuery();
-  const { data: teamLeave } = trpc.leave.getTeamLeave.useQuery();
+  const { data: calendarResponse, isLoading } = trpc.leave.getCalendar.useQuery(
+    {
+      startDate,
+      endDate,
+    },
+  );
+  const { data: teamLeaveResponse } = trpc.leave.getTeamLeave.useQuery({});
+
+  const calendarData = calendarResponse?.requests ?? [];
+  const teamLeave = teamLeaveResponse?.requests ?? [];
 
   // Get unique team members
   const teamMembers = useMemo(() => {
-    if (!calendarData) return [];
+    if (!calendarData || calendarData.length === 0) return [];
     const uniqueUsers = new Map<string, { id: string; name: string }>();
     calendarData.forEach((leave) => {
       if (!uniqueUsers.has(leave.userId)) {
         uniqueUsers.set(leave.userId, {
           id: leave.userId,
-          name: leave.userName,
+          name: leave.userName || "Unknown",
         });
       }
     });
@@ -38,14 +55,14 @@ export default function LeaveCalendarPage() {
 
   // Filter calendar data by user
   const filteredCalendarData = useMemo(() => {
-    if (!calendarData) return [];
+    if (!calendarData || calendarData.length === 0) return [];
     if (userFilter === "all") return calendarData;
     return calendarData.filter((leave) => leave.userId === userFilter);
   }, [calendarData, userFilter]);
 
   // Calculate stats
   const stats = useMemo(() => {
-    if (!calendarData) {
+    if (!calendarData || calendarData.length === 0) {
       return {
         totalOnLeaveToday: 0,
         totalThisWeek: 0,
@@ -65,7 +82,7 @@ export default function LeaveCalendarPage() {
         .filter((leave) => {
           const start = new Date(leave.startDate);
           const end = new Date(leave.endDate);
-          return leave.status === "approved" && today >= start && today <= end;
+          return today >= start && today <= end;
         })
         .map((leave) => leave.userId),
     ).size;
@@ -76,18 +93,15 @@ export default function LeaveCalendarPage() {
           const start = new Date(leave.startDate);
           const end = new Date(leave.endDate);
           return (
-            leave.status === "approved" &&
-            ((start >= today && start <= weekFromNow) ||
-              (end >= today && end <= weekFromNow) ||
-              (start <= today && end >= weekFromNow))
+            (start >= today && start <= weekFromNow) ||
+            (end >= today && end <= weekFromNow) ||
+            (start <= today && end >= weekFromNow)
           );
         })
         .map((leave) => leave.userId),
     ).size;
 
-    const totalApproved = calendarData.filter(
-      (leave) => leave.status === "approved",
-    ).length;
+    const totalApproved = calendarData.length;
 
     return {
       totalOnLeaveToday: onLeaveToday,
@@ -137,7 +151,17 @@ export default function LeaveCalendarPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Calendar - Takes 3 columns */}
         <div className="lg:col-span-3">
-          <LeaveCalendar leaveRequests={filteredCalendarData} />
+          <LeaveCalendar
+            leaveRequests={filteredCalendarData.map((leave) => ({
+              id: leave.id,
+              userId: leave.userId,
+              userName: leave.userName || "Unknown",
+              leaveType: leave.leaveType,
+              startDate: leave.startDate,
+              endDate: leave.endDate,
+              status: leave.status,
+            }))}
+          />
         </div>
 
         {/* Sidebar - Filters */}

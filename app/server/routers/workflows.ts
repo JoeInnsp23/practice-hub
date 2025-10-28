@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
-import { nanoid } from "nanoid";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -13,6 +12,33 @@ import {
   workflowVersions,
 } from "@/lib/db/schema";
 import { protectedProcedure, router } from "../trpc";
+
+// Type definitions for workflow data structures
+type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+type WorkflowConfig = Record<string, unknown>;
+
+interface ChecklistItem {
+  id: string;
+  text: string;
+  isRequired?: boolean;
+}
+
+interface WorkflowStage {
+  id: string;
+  name: string;
+  description: string | null;
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string | null;
+  autoComplete: boolean | null;
+  requiresApproval: boolean | null;
+  checklistItems: ChecklistItem[];
+}
+
+interface StagesSnapshot {
+  stages?: WorkflowStage[];
+}
 
 // Generate schemas from Drizzle table definitions
 const insertWorkflowSchema = createInsertSchema(workflows);
@@ -45,7 +71,7 @@ const workflowSchema = insertWorkflowSchema
 
 // Helper: Create version snapshot
 async function createVersionSnapshot(
-  tx: any, // Transaction object
+  tx: DbTransaction,
   workflowId: string,
   version: number,
   data: {
@@ -54,8 +80,8 @@ async function createVersionSnapshot(
     type: string;
     trigger: string;
     estimatedDays: number | null;
-    serviceComponentId: string | null;
-    config: any;
+    serviceId: string | null;
+    config: WorkflowConfig;
   },
   changeDescription: string,
   changeType: string,
@@ -70,8 +96,8 @@ async function createVersionSnapshot(
     .orderBy(workflowStages.stageOrder);
 
   // Create snapshot with all stage data
-  const stagesSnapshot = {
-    stages: stages.map((stage: any) => ({
+  const stagesSnapshot: StagesSnapshot = {
+    stages: stages.map((stage) => ({
       id: stage.id,
       name: stage.name,
       description: stage.description,
@@ -80,7 +106,7 @@ async function createVersionSnapshot(
       estimatedHours: stage.estimatedHours || "0",
       autoComplete: stage.autoComplete,
       requiresApproval: stage.requiresApproval,
-      checklistItems: (stage.checklistItems as any[]) || [],
+      checklistItems: (stage.checklistItems as ChecklistItem[]) || [],
     })),
   };
 
@@ -95,7 +121,7 @@ async function createVersionSnapshot(
       type: data.type,
       trigger: data.trigger,
       estimatedDays: data.estimatedDays,
-      serviceComponentId: data.serviceComponentId,
+      serviceId: data.serviceId,
       config: data.config,
       stagesSnapshot,
       changeDescription,
@@ -176,11 +202,11 @@ export const workflowsRouter = router({
 
       // Get service if exists
       let service = null;
-      if (workflow[0].serviceComponentId) {
+      if (workflow[0].serviceId) {
         const serviceResult = await db
           .select()
           .from(services)
-          .where(eq(services.id, workflow[0].serviceComponentId))
+          .where(eq(services.id, workflow[0].serviceId))
           .limit(1);
         service = serviceResult[0];
       }
@@ -208,7 +234,7 @@ export const workflowsRouter = router({
             description: input.description,
             type: input.type,
             trigger: input.trigger || "manual",
-            serviceComponentId: input.serviceComponentId,
+            serviceId: input.serviceId,
             isActive: input.isActive,
             estimatedDays: input.estimatedDays,
             config: input.config || {},
@@ -240,12 +266,12 @@ export const workflowsRouter = router({
           1,
           {
             name: input.name,
-            description: input.description,
+            description: input.description ?? null,
             type: input.type,
             trigger: input.trigger || "manual",
-            estimatedDays: input.estimatedDays,
-            serviceComponentId: input.serviceComponentId,
-            config: input.config || {},
+            estimatedDays: input.estimatedDays ?? null,
+            serviceId: input.serviceId ?? null,
+            config: (input.config || {}) as WorkflowConfig,
           },
           "Initial version",
           "created",
@@ -341,9 +367,8 @@ export const workflowsRouter = router({
             type: input.data.type || workflow.type,
             trigger: input.data.trigger || workflow.trigger || "manual",
             estimatedDays: input.data.estimatedDays ?? workflow.estimatedDays,
-            serviceComponentId:
-              input.data.serviceComponentId ?? workflow.serviceComponentId,
-            config: input.data.config || workflow.config,
+            serviceId: input.data.serviceId ?? workflow.serviceId,
+            config: (input.data.config || workflow.config) as WorkflowConfig,
           },
           input.changeDescription || "Updated workflow",
           "updated",
@@ -657,18 +682,26 @@ export const workflowsRouter = router({
 
       // Helper to compare stages
       const compareStages = (
-        stages1: any[],
-        stages2: any[],
+        stages1: WorkflowStage[],
+        stages2: WorkflowStage[],
       ): {
-        added: any[];
-        removed: any[];
-        modified: Array<{ old: any; new: any; changes: string[] }>;
-        unchanged: any[];
+        added: WorkflowStage[];
+        removed: WorkflowStage[];
+        modified: Array<{
+          old: WorkflowStage;
+          new: WorkflowStage;
+          changes: string[];
+        }>;
+        unchanged: WorkflowStage[];
       } => {
-        const added: any[] = [];
-        const removed: any[] = [];
-        const modified: Array<{ old: any; new: any; changes: string[] }> = [];
-        const unchanged: any[] = [];
+        const added: WorkflowStage[] = [];
+        const removed: WorkflowStage[] = [];
+        const modified: Array<{
+          old: WorkflowStage;
+          new: WorkflowStage;
+          changes: string[];
+        }> = [];
+        const unchanged: WorkflowStage[] = [];
 
         const stages1Map = new Map(stages1.map((s) => [s.id, s]));
         const stages2Map = new Map(stages2.map((s) => [s.id, s]));
@@ -731,8 +764,10 @@ export const workflowsRouter = router({
         return { added, removed, modified, unchanged };
       };
 
-      const v1Stages = (version1[0].stagesSnapshot as any)?.stages || [];
-      const v2Stages = (version2[0].stagesSnapshot as any)?.stages || [];
+      const v1Stages =
+        (version1[0].stagesSnapshot as StagesSnapshot)?.stages || [];
+      const v2Stages =
+        (version2[0].stagesSnapshot as StagesSnapshot)?.stages || [];
 
       const stageDiff = compareStages(v1Stages, v2Stages);
 
@@ -745,7 +780,7 @@ export const workflowsRouter = router({
         metadataChanges.push("estimatedDays");
       if (version1[0].trigger !== version2[0].trigger)
         metadataChanges.push("trigger");
-      if (version1[0].serviceComponentId !== version2[0].serviceComponentId)
+      if (version1[0].serviceId !== version2[0].serviceId)
         metadataChanges.push("service");
 
       return {
@@ -826,7 +861,7 @@ export const workflowsRouter = router({
             type: targetVersion[0].type,
             trigger: targetVersion[0].trigger,
             estimatedDays: targetVersion[0].estimatedDays,
-            serviceComponentId: targetVersion[0].serviceComponentId,
+            serviceId: targetVersion[0].serviceId,
             config: targetVersion[0].config,
             version: newVersion,
             updatedAt: new Date(),
@@ -840,7 +875,7 @@ export const workflowsRouter = router({
           .where(eq(workflowStages.workflowId, input.workflowId));
 
         const targetStages =
-          (targetVersion[0].stagesSnapshot as any)?.stages || [];
+          (targetVersion[0].stagesSnapshot as StagesSnapshot)?.stages || [];
         for (const stage of targetStages) {
           await tx.insert(workflowStages).values({
             id: stage.id, // Keep original IDs for consistency
@@ -865,10 +900,10 @@ export const workflowsRouter = router({
             name: targetVersion[0].name,
             description: targetVersion[0].description,
             type: targetVersion[0].type,
-            trigger: targetVersion[0].trigger,
+            trigger: targetVersion[0].trigger || "manual",
             estimatedDays: targetVersion[0].estimatedDays,
-            serviceComponentId: targetVersion[0].serviceComponentId,
-            config: targetVersion[0].config,
+            serviceId: targetVersion[0].serviceId,
+            config: targetVersion[0].config as WorkflowConfig,
           },
           `Rolled back to version ${targetVersion[0].version}`,
           "rollback",

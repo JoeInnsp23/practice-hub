@@ -1,22 +1,22 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import {
-  leaveBalances,
-  toilAccrualHistory,
-} from "@/lib/db/schema";
-import { toilRouter } from "@/app/server/routers/toil";
 import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { toilRouter } from "@/app/server/routers/toil";
+import { db } from "@/lib/db";
+import { leaveBalances, toilAccrualHistory } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestTenant,
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
-import type { Context } from "@/app/server/context";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("TOIL Expiry Policy", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof toilRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -77,6 +77,8 @@ describe("TOIL Expiry Policy", () => {
       userId: testUserId,
       weekEnding: "2025-01-15",
       hoursAccrued: 7.5,
+      contractedHours: 37.5,
+      loggedHours: 45.0,
       expiryDate: expiryDate.toISOString().split("T")[0],
       expired: false,
     });
@@ -100,6 +102,8 @@ describe("TOIL Expiry Policy", () => {
       userId: testUserId,
       weekEnding: "2025-01-15",
       hoursAccrued: 7.5,
+      contractedHours: 37.5,
+      loggedHours: 45.0,
       expiryDate: expiryDate.toISOString().split("T")[0],
       expired: false,
     });
@@ -121,6 +125,8 @@ describe("TOIL Expiry Policy", () => {
       userId: testUserId,
       weekEnding: "2024-12-15",
       hoursAccrued: 10, // 10 hours expired
+      contractedHours: 37.5,
+      loggedHours: 47.5,
       expiryDate: pastDate.toISOString().split("T")[0],
       expired: false,
     });
@@ -166,6 +172,8 @@ describe("TOIL Expiry Policy", () => {
         userId: testUserId,
         weekEnding: "2024-12-01",
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         expiryDate: pastDate1.toISOString().split("T")[0],
         expired: false,
       },
@@ -175,6 +183,8 @@ describe("TOIL Expiry Policy", () => {
         userId: testUserId,
         weekEnding: "2024-11-15",
         hoursAccrued: 5.0,
+        contractedHours: 37.5,
+        loggedHours: 42.5,
         expiryDate: pastDate2.toISOString().split("T")[0],
         expired: false,
       },
@@ -213,6 +223,8 @@ describe("TOIL Expiry Policy", () => {
       userId: testUserId,
       weekEnding: "2024-12-15",
       hoursAccrued: 10,
+      contractedHours: 37.5,
+      loggedHours: 47.5,
       expiryDate: pastDate.toISOString().split("T")[0],
       expired: false,
     });
@@ -241,6 +253,8 @@ describe("TOIL Expiry Policy", () => {
       userId: testUserId,
       weekEnding: "2024-12-15",
       hoursAccrued: 10,
+      contractedHours: 37.5,
+      loggedHours: 47.5,
       expiryDate: pastDate.toISOString().split("T")[0],
       expired: true, // Already expired
     });
@@ -287,6 +301,8 @@ describe("TOIL Expiry Policy", () => {
         userId: testUserId,
         weekEnding: "2025-01-01",
         hoursAccrued: 5.0,
+        contractedHours: 37.5,
+        loggedHours: 42.5,
         expiryDate: expiry1.toISOString().split("T")[0],
         expired: false,
       },
@@ -296,6 +312,8 @@ describe("TOIL Expiry Policy", () => {
         userId: testUserId,
         weekEnding: "2025-01-08",
         hoursAccrued: 7.5,
+        contractedHours: 37.5,
+        loggedHours: 45.0,
         expiryDate: expiry2.toISOString().split("T")[0],
         expired: false,
       },
@@ -305,6 +323,8 @@ describe("TOIL Expiry Policy", () => {
         userId: testUserId,
         weekEnding: "2025-01-15",
         hoursAccrued: 10.0,
+        contractedHours: 37.5,
+        loggedHours: 47.5,
         expiryDate: expiry3.toISOString().split("T")[0],
         expired: false,
       },

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -31,6 +32,11 @@ import {
   workflowVersions,
 } from "@/lib/db/schema";
 import {
+  detectStageCompletion,
+  triggerWorkflowEmails,
+} from "@/lib/email/workflow-triggers";
+import { shouldSendNotification } from "@/lib/notifications/check-preferences";
+import {
   calculateDueDate,
   calculateNextPeriod,
   calculatePeriodEndDate,
@@ -60,6 +66,22 @@ interface StageProgress {
       [itemId: string]: StageProgressItem;
     };
   };
+}
+
+interface WorkflowStage {
+  id?: string;
+  name: string;
+  description: string | null;
+  stageOrder: number;
+  isRequired: boolean;
+  estimatedHours: string | null;
+  autoComplete: boolean;
+  requiresApproval: boolean;
+  checklistItems: ChecklistItem[];
+}
+
+interface StagesSnapshot {
+  stages?: WorkflowStage[];
 }
 
 // Helper function for task generation from template (STORY-3.2)
@@ -157,9 +179,9 @@ async function generateTaskFromTemplateInternal(params: {
     : undefined;
 
   const placeholderData: PlaceholderData = {
-    clientName: client[0].companyName,
+    clientName: client[0].name,
     serviceName: service[0].name,
-    companyNumber: client[0].companiesHouseNumber || undefined,
+    companyNumber: client[0].registrationNumber || undefined,
     period,
     periodEndDate,
     taxYear,
@@ -209,7 +231,7 @@ async function generateTaskFromTemplateInternal(params: {
   }
 
   // Determine assignee (client manager or null)
-  const assignedTo = client[0].assignedToId || null;
+  const assignedTo = client[0].accountManagerId || null;
 
   // Create task
   const taskId = crypto.randomUUID();
@@ -241,16 +263,25 @@ async function generateTaskFromTemplateInternal(params: {
 
   // Send notification to assignee if assigned
   if (assignedTo) {
-    await db.insert(notifications).values({
-      id: crypto.randomUUID(),
-      tenantId: params.tenantId,
-      userId: assignedTo,
-      type: "task_assigned",
-      title: "New task generated",
-      message: `Task "${taskName}" has been automatically assigned to you`,
-      link: `/client-hub/tasks/${taskId}`,
-      read: false,
-    });
+    const shouldNotify = await shouldSendNotification(
+      assignedTo,
+      "task_assigned",
+      "in_app",
+    );
+    if (shouldNotify) {
+      await db.insert(notifications).values({
+        id: crypto.randomUUID(),
+        tenantId: params.tenantId,
+        userId: assignedTo,
+        type: "task_assigned",
+        title: "New task generated",
+        message: `Task "${taskName}" has been automatically assigned to you`,
+        actionUrl: `/client-hub/tasks/${taskId}`,
+        entityType: "task",
+        entityId: taskId,
+        isRead: false,
+      });
+    }
   }
 
   return { success: true, taskId };
@@ -659,15 +690,17 @@ export const tasksRouter = router({
             updatedTask.recurringFrequency,
           );
 
-          // Generate next period's task
-          await generateTaskFromTemplateInternal({
-            templateId: updatedTask.templateId,
-            clientId: updatedTask.clientId!,
-            serviceId: updatedTask.serviceId || undefined,
-            activationDate: nextActivationDate,
-            tenantId,
-            userId,
-          });
+          // Generate next period's task (only if clientId exists)
+          if (updatedTask.clientId) {
+            await generateTaskFromTemplateInternal({
+              templateId: updatedTask.templateId,
+              clientId: updatedTask.clientId,
+              serviceId: updatedTask.serviceId || undefined,
+              activationDate: nextActivationDate,
+              tenantId,
+              userId,
+            });
+          }
 
           // Log auto-generation activity
           await db.insert(activityLogs).values({
@@ -681,7 +714,13 @@ export const tasksRouter = router({
           });
         } catch (error) {
           // Log error but don't fail the update
-          console.error("Failed to auto-generate next recurring task:", error);
+          Sentry.captureException(error, {
+            tags: { operation: "autoGenerateRecurringTask" },
+            extra: {
+              taskId: input.id,
+              recurringFrequency: updatedTask.recurringFrequency,
+            },
+          });
         }
       }
 
@@ -856,7 +895,7 @@ export const tasksRouter = router({
           .where(eq(tasks.id, input.taskId));
 
         // Create instance with version snapshot
-        const stagesSnapshot = activeVersion.stagesSnapshot as any;
+        const stagesSnapshot = activeVersion.stagesSnapshot as StagesSnapshot;
         const firstStageId = stagesSnapshot?.stages?.[0]?.id || null;
 
         const [instance] = await tx
@@ -978,6 +1017,46 @@ export const tasksRouter = router({
           updatedAt: new Date(),
         })
         .where(eq(taskWorkflowInstances.taskId, input.taskId));
+
+      // Check if stage just completed and trigger workflow emails (FR32: AC3)
+      // Get checklist items for the current stage
+      const currentStage = await db
+        .select()
+        .from(workflowStages)
+        .where(eq(workflowStages.id, input.stageId))
+        .limit(1);
+
+      if (currentStage[0]) {
+        const checklistItems =
+          (currentStage[0].checklistItems as ChecklistItem[]) || [];
+
+        const stageJustCompleted = detectStageCompletion(
+          stageProgress,
+          input.stageId,
+          checklistItems,
+        );
+
+        if (stageJustCompleted) {
+          // Trigger workflow email rules (don't await - run in background)
+          // Errors are caught and logged in triggerWorkflowEmails, won't block checklist update
+          triggerWorkflowEmails(
+            instance[0].workflowId,
+            input.stageId,
+            tenantId,
+            input.taskId,
+          ).catch((error) => {
+            // Extra safety: catch any unhandled errors
+            Sentry.captureException(error, {
+              tags: { operation: "workflow_email_trigger_background" },
+              extra: {
+                workflowId: instance[0].workflowId,
+                stageId: input.stageId,
+                taskId: input.taskId,
+              },
+            });
+          });
+        }
+      }
 
       // Calculate and update task progress
       const _workflow = await db
@@ -1258,17 +1337,24 @@ export const tasksRouter = router({
 
       // Create notifications for mentioned users
       for (const mentionedUserId of input.mentionedUsers) {
-        await db.insert(notifications).values({
-          tenantId,
-          userId: mentionedUserId,
-          type: "task_mention",
-          title: "You were mentioned in a task",
-          message: `${firstName || ""} ${lastName || ""} mentioned you in task comments`,
-          actionUrl: `/client-hub/tasks/${input.taskId}`,
-          entityType: "task",
-          entityId: task.id,
-          isRead: false,
-        });
+        const shouldNotify = await shouldSendNotification(
+          mentionedUserId,
+          "task_mention",
+          "in_app",
+        );
+        if (shouldNotify) {
+          await db.insert(notifications).values({
+            tenantId,
+            userId: mentionedUserId,
+            type: "task_mention",
+            title: "You were mentioned in a task",
+            message: `${firstName || ""} ${lastName || ""} mentioned you in task comments`,
+            actionUrl: `/client-hub/tasks/${input.taskId}`,
+            entityType: "task",
+            entityId: task.id,
+            isRead: false,
+          });
+        }
       }
 
       // Log activity
@@ -1547,29 +1633,43 @@ export const tasksRouter = router({
 
         // Send notification to old assignee
         if (currentAssigneeId) {
+          const shouldNotifyOld = await shouldSendNotification(
+            currentAssigneeId,
+            "task_reassigned",
+            "in_app",
+          );
+          if (shouldNotifyOld) {
+            await tx.insert(notifications).values({
+              tenantId,
+              userId: currentAssigneeId,
+              type: "task_reassigned",
+              title: "Task reassigned",
+              message: `Task "${task.title}" has been reassigned`,
+              actionUrl: `/client-hub/tasks/${input.taskId}`,
+              entityType: "task",
+              entityId: input.taskId,
+            });
+          }
+        }
+
+        // Send notification to new assignee
+        const shouldNotifyNew = await shouldSendNotification(
+          input.toUserId,
+          "task_assigned",
+          "in_app",
+        );
+        if (shouldNotifyNew) {
           await tx.insert(notifications).values({
             tenantId,
-            userId: currentAssigneeId,
-            type: "task_reassigned",
-            title: "Task reassigned",
-            message: `Task "${task.title}" has been reassigned`,
+            userId: input.toUserId,
+            type: "task_assigned",
+            title: "Task assigned to you",
+            message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
             actionUrl: `/client-hub/tasks/${input.taskId}`,
             entityType: "task",
             entityId: input.taskId,
           });
         }
-
-        // Send notification to new assignee
-        await tx.insert(notifications).values({
-          tenantId,
-          userId: input.toUserId,
-          type: "task_assigned",
-          title: "Task assigned to you",
-          message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
-          actionUrl: `/client-hub/tasks/${input.taskId}`,
-          entityType: "task",
-          entityId: input.taskId,
-        });
       });
 
       return { success: true };
@@ -1636,29 +1736,43 @@ export const tasksRouter = router({
 
           // Send notifications (old assignee)
           if (currentAssigneeId) {
+            const shouldNotifyOld = await shouldSendNotification(
+              currentAssigneeId,
+              "task_reassigned",
+              "in_app",
+            );
+            if (shouldNotifyOld) {
+              await tx.insert(notifications).values({
+                tenantId,
+                userId: currentAssigneeId,
+                type: "task_reassigned",
+                title: "Task reassigned",
+                message: `Task "${task.title}" has been reassigned`,
+                actionUrl: `/client-hub/tasks/${taskId}`,
+                entityType: "task",
+                entityId: taskId,
+              });
+            }
+          }
+
+          // Send notification (new assignee)
+          const shouldNotifyNew = await shouldSendNotification(
+            input.toUserId,
+            "task_assigned",
+            "in_app",
+          );
+          if (shouldNotifyNew) {
             await tx.insert(notifications).values({
               tenantId,
-              userId: currentAssigneeId,
-              type: "task_reassigned",
-              title: "Task reassigned",
-              message: `Task "${task.title}" has been reassigned`,
+              userId: input.toUserId,
+              type: "task_assigned",
+              title: "Task assigned to you",
+              message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
               actionUrl: `/client-hub/tasks/${taskId}`,
               entityType: "task",
               entityId: taskId,
             });
           }
-
-          // Send notification (new assignee)
-          await tx.insert(notifications).values({
-            tenantId,
-            userId: input.toUserId,
-            type: "task_assigned",
-            title: "Task assigned to you",
-            message: `Task "${task.title}" has been assigned to you by ${firstName} ${lastName}`,
-            actionUrl: `/client-hub/tasks/${taskId}`,
-            entityType: "task",
-            entityId: taskId,
-          });
         }
       });
 
@@ -1816,9 +1930,9 @@ export const tasksRouter = router({
       const period = `Q${quarter} ${activationDate.getFullYear()}`;
 
       const placeholderData: PlaceholderData = {
-        clientName: client[0].companyName,
+        clientName: client[0].name,
         serviceName: service[0].name,
-        companyNumber: client[0].companiesHouseNumber || undefined,
+        companyNumber: client[0].registrationNumber || undefined,
         period,
         taxYear,
         activationDate,

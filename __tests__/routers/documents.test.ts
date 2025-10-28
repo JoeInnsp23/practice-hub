@@ -10,10 +10,9 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "@/app/server/context";
 import { documentsRouter } from "@/app/server/routers/documents";
 import { db } from "@/lib/db";
-import { documents } from "@/lib/db/schema";
+import { activityLogs, documents } from "@/lib/db/schema";
 import {
   cleanupTestData,
   createTestClient,
@@ -22,7 +21,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock S3 storage to prevent actual S3 operations
 vi.mock("@/lib/storage/s3", () => ({
@@ -41,7 +44,7 @@ vi.mock("@/lib/docuseal/client", () => ({
 }));
 
 describe("app/server/routers/documents.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof documentsRouter>>;
   const tracker: TestDataTracker = {
     tenants: [],
@@ -247,7 +250,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       }
 
       // Verify our test documents are in the list
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: (typeof result.documents)[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc1.id);
       expect(docIds).toContain(doc2.id);
     });
@@ -285,7 +290,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       }
 
       // Verify client1 doc is present
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: (typeof result.documents)[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc1.id);
     });
 
@@ -339,7 +346,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
 
       // Search by name
       const result = await caller.list({ search: "Searchable" });
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: (typeof result.documents)[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc.id);
     });
 
@@ -369,7 +378,9 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const result = await caller.list({ parentId: parent.id });
 
       expect(result.documents.length).toBeGreaterThanOrEqual(1);
-      const docIds = result.documents.map((d) => d.document.id);
+      const docIds = result.documents.map(
+        (d: (typeof result.documents)[0]) => d.document.id,
+      );
       expect(docIds).toContain(doc.id);
     });
 
@@ -1206,7 +1217,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       const result = await caller.search({ query: "Searchable" });
 
       expect(result.length).toBeGreaterThanOrEqual(1);
-      const docIds = result.map((r) => r.document.id);
+      const docIds = result.map((r: (typeof result)[0]) => r.document.id);
       expect(docIds).toContain(doc.id);
     });
 
@@ -1270,7 +1281,7 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       // Search from our test tenant should not find tenantA's document
       const result = await caller.search({ query: "UNIQUE-TENANT-A" });
 
-      const docIds = result.map((r) => r.document.id);
+      const docIds = result.map((r: (typeof result)[0]) => r.document.id);
       expect(docIds).not.toContain(docA.id);
     });
   });
@@ -1350,6 +1361,388 @@ describe("app/server/routers/documents.ts (Integration)", () => {
     });
   });
 
+  describe("Bulk Operations (Integration)", () => {
+    let testClientId: string;
+
+    beforeEach(async () => {
+      // Create a test client for document tests
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      testClientId = client.id;
+      tracker.clients?.push(testClientId);
+    });
+
+    describe("bulkMove", () => {
+      it("should move multiple documents to folder", async () => {
+        // Create a folder
+        const folder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Test Folder" },
+        );
+        tracker.documents?.push(folder.id);
+
+        // Create 3 test documents
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc3 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id, doc3.id);
+
+        const result = await caller.bulkMove({
+          documentIds: [doc1.id, doc2.id, doc3.id],
+          parentId: folder.id,
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(3);
+
+        // Verify database state
+        const updatedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(updatedDocs[0].parentId).toBe(folder.id);
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherDoc = await createTestDocument(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+        );
+        tracker.documents?.push(otherDoc.id);
+
+        // Create a folder in current tenant
+        const currentFolder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Current Folder" },
+        );
+        tracker.documents?.push(currentFolder.id);
+
+        // Try to move document from different tenant
+        await expect(
+          caller.bulkMove({
+            documentIds: [otherDoc.id],
+            parentId: currentFolder.id,
+          }),
+        ).rejects.toThrow("One or more documents not found");
+      });
+
+      it("should log activity for bulk move (AC22)", async () => {
+        const folder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Test Folder" },
+        );
+        tracker.documents?.push(folder.id);
+
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        await caller.bulkMove({
+          documentIds: [doc1.id, doc2.id],
+          parentId: folder.id,
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_move"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk moved document");
+      });
+    });
+
+    describe("bulkChangeCategory", () => {
+      it("should change tags for multiple documents (replace mode - AC13)", async () => {
+        // Create documents with existing tags
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["old-tag-1", "old-tag-2"] },
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["old-tag-1"] },
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        const result = await caller.bulkChangeCategory({
+          documentIds: [doc1.id, doc2.id],
+          tags: ["new-tag-1", "new-tag-2"],
+          addTags: false, // Replace mode
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state - tags should be replaced
+        const updatedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(updatedDocs[0].tags).toEqual(["new-tag-1", "new-tag-2"]);
+      });
+
+      it("should add tags to existing tags (add mode - AC13)", async () => {
+        // Create documents with existing tags
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["existing-tag"] },
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { tags: ["existing-tag"] },
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        const result = await caller.bulkChangeCategory({
+          documentIds: [doc1.id, doc2.id],
+          tags: ["new-tag"],
+          addTags: true, // Add mode
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify database state - tags should be merged
+        const updatedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(updatedDocs[0].tags).toContain("existing-tag");
+        expect(updatedDocs[0].tags).toContain("new-tag");
+        expect(Array.isArray(updatedDocs[0].tags)).toBe(true);
+        expect((updatedDocs[0].tags as string[]).length).toBe(2);
+      });
+
+      it("should log activity for bulk category change (AC22)", async () => {
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        await caller.bulkChangeCategory({
+          documentIds: [doc1.id, doc2.id],
+          tags: ["test-tag"],
+          addTags: false,
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_change_category"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk changed tags for document");
+      });
+    });
+
+    describe("bulkDelete", () => {
+      it("should delete multiple documents", async () => {
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        const result = await caller.bulkDelete({
+          documentIds: [doc1.id, doc2.id],
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.count).toBe(2);
+
+        // Verify documents are deleted
+        const deletedDocs = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, doc1.id));
+
+        expect(deletedDocs.length).toBe(0);
+
+        // Remove from tracker since they're deleted
+        tracker.documents = tracker.documents?.filter(
+          (id) => id !== doc1.id && id !== doc2.id,
+        );
+      });
+
+      it("should enforce multi-tenant isolation", async () => {
+        // Create a different tenant
+        const otherTenantId = await createTestTenant();
+        const otherUserId = await createTestUser(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
+
+        const otherClient = await createTestClient(otherTenantId, otherUserId);
+        tracker.clients?.push(otherClient.id);
+
+        const otherDoc = await createTestDocument(
+          otherTenantId,
+          otherClient.id,
+          otherUserId,
+        );
+        tracker.documents?.push(otherDoc.id);
+
+        // Try to delete document from different tenant
+        await expect(
+          caller.bulkDelete({
+            documentIds: [otherDoc.id],
+          }),
+        ).rejects.toThrow("One or more documents not found");
+      });
+
+      it("should log activity for bulk delete (AC22)", async () => {
+        const doc1 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        const doc2 = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(doc1.id, doc2.id);
+
+        await caller.bulkDelete({
+          documentIds: [doc1.id, doc2.id],
+        });
+
+        // Verify activity logs (AC22 - Audit Logging)
+        const logs = await db
+          .select()
+          .from(activityLogs)
+          .where(
+            and(
+              eq(activityLogs.action, "bulk_delete"),
+              eq(activityLogs.tenantId, ctx.authContext.tenantId),
+            ),
+          );
+
+        expect(logs.length).toBeGreaterThanOrEqual(2);
+        expect(logs[0].description).toContain("Bulk deleted document");
+
+        // Remove from tracker since they're deleted
+        tracker.documents = tracker.documents?.filter(
+          (id) => id !== doc1.id && id !== doc2.id,
+        );
+      });
+    });
+
+    describe("Transaction Safety (AC23)", () => {
+      it("should rollback on partial failure - bulkMove", async () => {
+        // Create a folder
+        const folder = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+          { type: "folder", name: "Test Folder" },
+        );
+        tracker.documents?.push(folder.id);
+
+        // Create one valid document
+        const validDoc = await createTestDocument(
+          ctx.authContext.tenantId,
+          testClientId,
+          ctx.authContext.userId,
+        );
+        tracker.documents?.push(validDoc.id);
+
+        const nonExistentDocId = crypto.randomUUID();
+
+        // Try to move one valid and one non-existent document
+        await expect(
+          caller.bulkMove({
+            documentIds: [validDoc.id, nonExistentDocId],
+            parentId: folder.id,
+          }),
+        ).rejects.toThrow("One or more documents not found");
+
+        // Verify valid document was NOT moved (transaction rolled back)
+        const unchangedDoc = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.id, validDoc.id))
+          .limit(1);
+
+        expect(unchangedDoc[0].parentId).not.toBe(folder.id);
+      });
+    });
+  });
+
   describe("Router Structure", () => {
     it("should export all expected procedures", () => {
       const procedures = Object.keys(documentsRouter._def.procedures);
@@ -1367,11 +1760,14 @@ describe("app/server/routers/documents.ts (Integration)", () => {
       expect(procedures).toContain("search");
       expect(procedures).toContain("createSignatureDocument");
       expect(procedures).toContain("getSigningStatus");
+      expect(procedures).toContain("bulkMove");
+      expect(procedures).toContain("bulkChangeCategory");
+      expect(procedures).toContain("bulkDelete");
     });
 
-    it("should have 13 procedures total", () => {
+    it("should have 16 procedures total", () => {
       const procedures = Object.keys(documentsRouter._def.procedures);
-      expect(procedures).toHaveLength(13);
+      expect(procedures).toHaveLength(16);
     });
   });
 });

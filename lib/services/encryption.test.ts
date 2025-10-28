@@ -87,7 +87,7 @@ describe("Encryption Service", () => {
 
       // Tamper with the ciphertext
       const parts = encrypted.split(":");
-      parts[2] = parts[2].slice(0, -2) + "ff"; // Change last byte
+      parts[2] = `${parts[2].slice(0, -2)}ff`; // Change last byte
       const tampered = parts.join(":");
 
       expect(() => decrypt(tampered)).toThrow(

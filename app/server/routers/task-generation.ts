@@ -11,6 +11,7 @@ import {
   tasks,
   taskTemplates,
 } from "@/lib/db/schema";
+import { shouldSendNotification } from "@/lib/notifications/check-preferences";
 import {
   calculateDueDate,
   calculatePeriodInfo,
@@ -197,15 +198,22 @@ export const taskGenerationRouter = router({
 
         // 11. Create notification for assignee (AC11)
         if (assignedToId) {
-          await db.insert(notifications).values({
-            tenantId: ctx.authContext.tenantId,
-            userId: assignedToId,
-            type: "task_assigned",
-            title: "New task assigned",
-            message: `Task "${taskName}" has been automatically assigned to you`,
-            actionUrl: `/client-hub/tasks/${taskId}`,
-            isRead: false,
-          });
+          const shouldNotify = await shouldSendNotification(
+            assignedToId,
+            "task_assigned",
+            "in_app",
+          );
+          if (shouldNotify) {
+            await db.insert(notifications).values({
+              tenantId: ctx.authContext.tenantId,
+              userId: assignedToId,
+              type: "task_assigned",
+              title: "New task assigned",
+              message: `Task "${taskName}" has been automatically assigned to you`,
+              actionUrl: `/client-hub/tasks/${taskId}`,
+              isRead: false,
+            });
+          }
         }
 
         return {
@@ -410,15 +418,22 @@ export const taskGenerationRouter = router({
 
           // Create notification for assignee
           if (client.accountManagerId) {
-            await db.insert(notifications).values({
-              tenantId: ctx.authContext.tenantId,
-              userId: client.accountManagerId,
-              type: "task_assigned",
-              title: "New task assigned",
-              message: `Task "${taskName}" has been automatically assigned to you`,
-              actionUrl: `/client-hub/tasks/${taskId}`,
-              isRead: false,
-            });
+            const shouldNotify = await shouldSendNotification(
+              client.accountManagerId,
+              "task_assigned",
+              "in_app",
+            );
+            if (shouldNotify) {
+              await db.insert(notifications).values({
+                tenantId: ctx.authContext.tenantId,
+                userId: client.accountManagerId,
+                type: "task_assigned",
+                title: "New task assigned",
+                message: `Task "${taskName}" has been automatically assigned to you`,
+                actionUrl: `/client-hub/tasks/${taskId}`,
+                isRead: false,
+              });
+            }
           }
 
           generatedTasks.push(createdTask.id);
@@ -796,15 +811,22 @@ export const taskGenerationRouter = router({
 
               // Create notification for assignee
               if (clientData.accountManagerId) {
-                await tx.insert(notifications).values({
-                  tenantId: ctx.authContext.tenantId,
-                  userId: clientData.accountManagerId,
-                  type: "task_assigned",
-                  title: "New task assigned",
-                  message: `Task "${taskName}" has been automatically assigned to you`,
-                  actionUrl: `/client-hub/tasks/${taskId}`,
-                  isRead: false,
-                });
+                const shouldNotify = await shouldSendNotification(
+                  clientData.accountManagerId,
+                  "task_assigned",
+                  "in_app",
+                );
+                if (shouldNotify) {
+                  await tx.insert(notifications).values({
+                    tenantId: ctx.authContext.tenantId,
+                    userId: clientData.accountManagerId,
+                    type: "task_assigned",
+                    title: "New task assigned",
+                    message: `Task "${taskName}" has been automatically assigned to you`,
+                    actionUrl: `/client-hub/tasks/${taskId}`,
+                    isRead: false,
+                  });
+                }
               }
 
               totalGenerated++;

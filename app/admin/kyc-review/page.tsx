@@ -30,12 +30,11 @@ export default function AdminKYCReviewPage() {
   >(undefined);
 
   // Get verification list
-  const { data, isLoading, refetch } =
-    trpc.adminKyc.listPendingReviews.useQuery({
-      status: statusFilter,
-      limit: 50,
-      offset: 0,
-    });
+  const { data, isLoading } = trpc.adminKyc.listPendingReviews.useQuery({
+    status: statusFilter,
+    limit: 50,
+    offset: 0,
+  });
 
   // Get statistics
   const { data: stats } = trpc.adminKyc.getReviewStats.useQuery();
@@ -69,7 +68,12 @@ export default function AdminKYCReviewPage() {
     return <Badge variant="secondary">Pending</Badge>;
   };
 
-  const getRiskIndicators = (verification: any) => {
+  const getRiskIndicators = (verification: {
+    pepMatch: boolean | null;
+    sanctionsMatch: boolean | null;
+    watchlistMatch: boolean | null;
+    adverseMediaMatch: boolean | null;
+  }) => {
     const indicators = [];
 
     if (verification.pepMatch) {

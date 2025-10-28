@@ -158,7 +158,7 @@ export const calendarRouter = router({
         reminderMinutes: z.number().optional(),
         isRecurring: z.boolean().default(false),
         recurrenceRule: z.string().optional(),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
         attendeeIds: z.array(z.string()).optional(),
       }),
     )
@@ -230,7 +230,7 @@ export const calendarRouter = router({
         clientId: z.string().uuid().optional(),
         taskId: z.string().uuid().optional(),
         reminderMinutes: z.number().optional(),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -259,6 +259,18 @@ export const calendarRouter = router({
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Only the event creator can update this event",
+        });
+      }
+
+      // Validate date range if both dates provided
+      if (
+        input.startTime &&
+        input.endTime &&
+        input.endTime <= input.startTime
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "End time must be after start time",
         });
       }
 

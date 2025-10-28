@@ -10,7 +10,6 @@ import {
   CircleDot,
   Clock,
   Mail,
-  Target,
   Trophy,
   XCircle,
 } from "lucide-react";

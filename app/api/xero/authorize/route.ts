@@ -12,7 +12,7 @@ import { getAuthorizationUrl } from "@/lib/xero/client";
  *
  * Example: /api/xero/authorize
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const authContext = await getAuthContext();
 

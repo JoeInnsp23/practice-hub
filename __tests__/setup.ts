@@ -4,10 +4,10 @@
  * Runs before all tests to configure the test environment.
  */
 
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
 
-// Set test environment variables
-process.env.NODE_ENV = "test";
+// Note: NODE_ENV is already set by vitest.config.ts
+// No need to set it here as process.env.NODE_ENV is read-only in modules
 process.env.DATABASE_URL =
   process.env.TEST_DATABASE_URL ||
   process.env.DATABASE_URL ||

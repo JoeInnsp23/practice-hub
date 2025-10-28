@@ -10,7 +10,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { Context } from "@/app/server/context";
 import { servicesRouter } from "@/app/server/routers/services";
 import { db } from "@/lib/db";
 import { activityLogs, services } from "@/lib/db/schema";
@@ -20,7 +19,11 @@ import {
   createTestUser,
   type TestDataTracker,
 } from "../helpers/factories";
-import { createCaller, createMockContext } from "../helpers/trpc";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Helper function to create test service
 async function createTestService(
@@ -56,7 +59,7 @@ async function createTestService(
 }
 
 describe("app/server/routers/services.ts (Integration)", () => {
-  let ctx: Context;
+  let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof servicesRouter>>;
   const tracker: TestDataTracker & { services?: string[] } = {
     tenants: [],
@@ -238,7 +241,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
         name: "Incomplete Service",
       };
 
-      await expect(caller.create(invalidInput as any)).rejects.toThrow();
+      await expect(caller.create(invalidInput as unknown)).rejects.toThrow();
     });
   });
 
@@ -266,7 +269,9 @@ describe("app/server/routers/services.ts (Integration)", () => {
       }
 
       // Verify our test services are in the list
-      const serviceIds = result.services.map((s) => s.id);
+      const serviceIds = result.services.map(
+        (s: (typeof result.services)[0]) => s.id,
+      );
       expect(serviceIds).toContain(service1.id);
       expect(serviceIds).toContain(service2.id);
     });
@@ -283,8 +288,8 @@ describe("app/server/routers/services.ts (Integration)", () => {
       const result = await caller.list({ search: "Searchable" });
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
-      const hasSearchableService = result.services.some((s) =>
-        s.name.includes("Searchable"),
+      const hasSearchableService = result.services.some(
+        (s: (typeof result.services)[0]) => s.name.includes("Searchable"),
       );
       expect(hasSearchableService).toBe(true);
     });
@@ -301,7 +306,7 @@ describe("app/server/routers/services.ts (Integration)", () => {
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
       const hasSearchableService = result.services.some(
-        (s) => s.code === uniqueCode,
+        (s: (typeof result.services)[0]) => s.code === uniqueCode,
       );
       expect(hasSearchableService).toBe(true);
     });
@@ -359,7 +364,9 @@ describe("app/server/routers/services.ts (Integration)", () => {
       });
 
       expect(result.services.length).toBeGreaterThanOrEqual(1);
-      const foundService = result.services.find((s) => s.id === service1.id);
+      const foundService = result.services.find(
+        (s: (typeof result.services)[0]) => s.id === service1.id,
+      );
       expect(foundService).toBeDefined();
     });
   });

@@ -3,7 +3,7 @@ import { utils as XLSXUtils, write as XLSXWrite } from "xlsx";
 import type { TaskSummary } from "@/components/client-hub/tasks/types";
 
 export interface TaskExportColumn {
-  key: keyof TaskSummary | string;
+  key: string;
   label: string;
   enabled: boolean;
 }
@@ -73,7 +73,7 @@ export function exportTasksToCSV(
   const data = tasks.map((task) => {
     const row: Record<string, string> = {};
     for (const column of enabledColumns) {
-      row[column.label] = formatTaskValue(task, column.key);
+      row[column.label] = formatTaskValue(task, String(column.key));
     }
     return row;
   });
@@ -112,7 +112,7 @@ export function exportTasksToXLSX(
   const data = tasks.map((task) => {
     const row: Record<string, string> = {};
     for (const column of enabledColumns) {
-      row[column.label] = formatTaskValue(task, column.key);
+      row[column.label] = formatTaskValue(task, String(column.key));
     }
     return row;
   });

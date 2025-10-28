@@ -23,11 +23,11 @@ export default async function UserDetailsPage({ params }: PageProps) {
   const { id } = await params;
 
   // Fetch user details
-  const [user] = await db
+  const [user] = (await db
     .select()
     .from(users)
     .where(and(eq(users.id, id), eq(users.tenantId, authContext.tenantId)))
-    .limit(1);
+    .limit(1)) as (typeof users.$inferSelect)[];
 
   if (!user) {
     notFound();
