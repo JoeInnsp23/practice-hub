@@ -8,7 +8,7 @@
 
 > **deleteFromS3**(`fileName`): `Promise`\<`void`\>
 
-Defined in: [lib/storage/s3.ts:98](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/storage/s3.ts#L98)
+Defined in: [lib/storage/s3.ts:98](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/storage/s3.ts#L98)
 
 Delete a file from Hetzner S3
 

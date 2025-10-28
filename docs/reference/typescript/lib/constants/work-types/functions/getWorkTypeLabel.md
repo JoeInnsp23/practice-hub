@@ -8,7 +8,7 @@
 
 > **getWorkTypeLabel**(`code`): `string`
 
-Defined in: [lib/constants/work-types.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/constants/work-types.ts#L102)
+Defined in: [lib/constants/work-types.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/constants/work-types.ts#L102)
 
 ## Parameters
 

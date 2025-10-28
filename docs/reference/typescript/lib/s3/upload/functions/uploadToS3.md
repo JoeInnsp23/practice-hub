@@ -8,7 +8,7 @@
 
 > **uploadToS3**(`buffer`, `key`, `contentType`): `Promise`\<`string`\>
 
-Defined in: [lib/s3/upload.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/s3/upload.ts#L29)
+Defined in: [lib/s3/upload.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/s3/upload.ts#L29)
 
 Upload file to S3 (MinIO or Hetzner)
 

@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { Service } from "@/lib/trpc/types";
 
 const serviceSchema = z.object({
   code: z.string().min(1, "Service code is required"),
@@ -357,7 +356,7 @@ export function ServiceModal({
                         onChange={(e) =>
                           field.onChange(
                             e.target.value
-                              ? parseInt(e.target.value)
+                              ? parseInt(e.target.value, 10)
                               : undefined,
                           )
                         }

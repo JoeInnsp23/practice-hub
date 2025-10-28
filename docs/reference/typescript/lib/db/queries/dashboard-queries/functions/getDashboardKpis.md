@@ -8,7 +8,7 @@
 
 > **getDashboardKpis**(`tenantId`): `Promise`\<\{ `activeClients`: `number` \| `null`; `billableHours30d`: `string` \| `null`; `collectedRevenue`: `string` \| `null`; `completedTasks30d`: `number` \| `null`; `inProgressTasks`: `number` \| `null`; `newClients30d`: `number` \| `null`; `outstandingRevenue`: `string` \| `null`; `overdueCompliance`: `number` \| `null`; `overdueTasks`: `number` \| `null`; `pendingTasks`: `number` \| `null`; `tenantId`: `string`; `totalHours30d`: `string` \| `null`; `totalRevenue`: `string` \| `null`; `upcomingCompliance30d`: `number` \| `null`; \}\>
 
-Defined in: [lib/db/queries/dashboard-queries.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/db/queries/dashboard-queries.ts#L9)
+Defined in: [lib/db/queries/dashboard-queries.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/db/queries/dashboard-queries.ts#L9)
 
 Fetch dashboard KPIs for a given tenant
 Returns aggregated metrics from the dashboard_kpi_view

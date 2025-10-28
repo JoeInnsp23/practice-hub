@@ -8,7 +8,7 @@
 
 > **OnboardingDocumentUpload**(`__namedParameters`): `Element`
 
-Defined in: [app/client-portal/onboarding/components/document-upload.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/app/client-portal/onboarding/components/document-upload.tsx#L29)
+Defined in: [app/client-portal/onboarding/components/document-upload.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/app/client-portal/onboarding/components/document-upload.tsx#L29)
 
 ## Parameters
 

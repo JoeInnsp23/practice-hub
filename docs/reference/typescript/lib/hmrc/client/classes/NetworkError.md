@@ -6,7 +6,7 @@
 
 # Class: NetworkError
 
-Defined in: [lib/hmrc/client.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/hmrc/client.ts#L75)
+Defined in: [lib/hmrc/client.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/hmrc/client.ts#L75)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/hmrc/client.ts:75](https://github.com/JoeInnsp23/practice-hub/b
 
 > **new NetworkError**(`originalError`): `NetworkError`
 
-Defined in: [lib/hmrc/client.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/hmrc/client.ts#L76)
+Defined in: [lib/hmrc/client.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/hmrc/client.ts#L76)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [lib/hmrc/client.ts:76](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/hmrc/client.ts#L46)
+Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/hmrc/client.ts#L46)
 
 #### Inherited from
 
@@ -52,7 +52,7 @@ Defined in: [lib/hmrc/client.ts:46](https://github.com/JoeInnsp23/practice-hub/b
 
 > `optional` **vatNumber**: `string`
 
-Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/hmrc/client.ts#L47)
+Defined in: [lib/hmrc/client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/hmrc/client.ts#L47)
 
 #### Inherited from
 

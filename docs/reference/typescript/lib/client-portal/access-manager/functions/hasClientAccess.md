@@ -8,7 +8,7 @@
 
 > **hasClientAccess**(`portalUserId`, `clientId`): `Promise`\<`boolean`\>
 
-Defined in: [lib/client-portal/access-manager.ts:207](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/client-portal/access-manager.ts#L207)
+Defined in: [lib/client-portal/access-manager.ts:207](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/client-portal/access-manager.ts#L207)
 
 Check if a portal user has access to a specific client
 

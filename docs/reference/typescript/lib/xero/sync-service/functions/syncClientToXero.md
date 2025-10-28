@@ -8,7 +8,7 @@
 
 > **syncClientToXero**(`clientId`, `tenantId`): `Promise`\<\{ `error?`: `string`; `success`: `boolean`; \}\>
 
-Defined in: [lib/xero/sync-service.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/xero/sync-service.ts#L28)
+Defined in: [lib/xero/sync-service.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/xero/sync-service.ts#L28)
 
 Sync a client to Xero
 

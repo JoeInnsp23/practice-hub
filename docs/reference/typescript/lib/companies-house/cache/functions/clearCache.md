@@ -8,7 +8,7 @@
 
 > **clearCache**(`companyNumber?`): `Promise`\<`void`\>
 
-Defined in: [lib/companies-house/cache.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/companies-house/cache.ts#L105)
+Defined in: [lib/companies-house/cache.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/companies-house/cache.ts#L105)
 
 Clear cache entries
 

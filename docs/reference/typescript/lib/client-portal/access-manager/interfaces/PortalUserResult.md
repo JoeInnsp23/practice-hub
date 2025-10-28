@@ -6,7 +6,7 @@
 
 # Interface: PortalUserResult
 
-Defined in: [lib/client-portal/access-manager.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/client-portal/access-manager.ts#L21)
+Defined in: [lib/client-portal/access-manager.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/client-portal/access-manager.ts#L21)
 
 Multi-Client Portal Access Manager
 
@@ -21,7 +21,7 @@ Handles creation and management of client portal users with support for:
 
 > **email**: `string`
 
-Defined in: [lib/client-portal/access-manager.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/client-portal/access-manager.ts#L24)
+Defined in: [lib/client-portal/access-manager.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/client-portal/access-manager.ts#L24)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [lib/client-portal/access-manager.ts:24](https://github.com/JoeInnsp
 
 > **isNewUser**: `boolean`
 
-Defined in: [lib/client-portal/access-manager.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/client-portal/access-manager.ts#L23)
+Defined in: [lib/client-portal/access-manager.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/client-portal/access-manager.ts#L23)
 
 ***
 
@@ -37,4 +37,4 @@ Defined in: [lib/client-portal/access-manager.ts:23](https://github.com/JoeInnsp
 
 > **portalUserId**: `string`
 
-Defined in: [lib/client-portal/access-manager.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/client-portal/access-manager.ts#L22)
+Defined in: [lib/client-portal/access-manager.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/client-portal/access-manager.ts#L22)

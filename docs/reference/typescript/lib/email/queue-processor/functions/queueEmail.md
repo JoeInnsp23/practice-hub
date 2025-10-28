@@ -8,7 +8,7 @@
 
 > **queueEmail**(`params`): `Promise`\<\{ `attempts`: `number`; `bodyHtml`: `string`; `bodyText`: `string` \| `null`; `createdAt`: `Date`; `emailTemplateId`: `string` \| `null`; `errorMessage`: `string` \| `null`; `id`: `string`; `maxAttempts`: `number`; `recipientEmail`: `string`; `recipientName`: `string` \| `null`; `sendAt`: `Date`; `sentAt`: `Date` \| `null`; `status`: `string`; `subject`: `string`; `tenantId`: `string`; `updatedAt`: `Date`; `variables`: `unknown`; \}\>
 
-Defined in: [lib/email/queue-processor.ts:340](https://github.com/JoeInnsp23/practice-hub/blob/60c54d571f357c2f1e66d4f13987100e20807ca5/lib/email/queue-processor.ts#L340)
+Defined in: [lib/email/queue-processor.ts:340](https://github.com/JoeInnsp23/practice-hub/blob/e3ddd192f92eb8cdb5213c023342cf95c314a8fb/lib/email/queue-processor.ts#L340)
 
 Queues an email for sending
 
