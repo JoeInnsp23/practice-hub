@@ -8,7 +8,7 @@
 
 > **useCopyPreviousWeek**(): `object`
 
-Defined in: [lib/hooks/use-time-entries.ts:256](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/hooks/use-time-entries.ts#L256)
+Defined in: [lib/hooks/use-time-entries.ts:256](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/hooks/use-time-entries.ts#L256)
 
 ## Returns
 

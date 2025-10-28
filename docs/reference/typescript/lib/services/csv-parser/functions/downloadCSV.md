@@ -8,7 +8,7 @@
 
 > **downloadCSV**(`csv`, `filename`): `void`
 
-Defined in: [lib/services/csv-parser.ts:272](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/services/csv-parser.ts#L272)
+Defined in: [lib/services/csv-parser.ts:272](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/services/csv-parser.ts#L272)
 
 Download CSV file in browser
 

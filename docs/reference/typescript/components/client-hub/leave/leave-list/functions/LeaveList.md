@@ -8,7 +8,7 @@
 
 > **LeaveList**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/leave/leave-list.tsx:104](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/client-hub/leave/leave-list.tsx#L104)
+Defined in: [components/client-hub/leave/leave-list.tsx:104](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/client-hub/leave/leave-list.tsx#L104)
 
 ## Parameters
 

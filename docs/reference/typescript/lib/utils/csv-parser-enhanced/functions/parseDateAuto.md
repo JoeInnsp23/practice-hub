@@ -8,7 +8,7 @@
 
 > **parseDateAuto**(`value`): `Date` \| `null`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:283](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/utils/csv-parser-enhanced.ts#L283)
+Defined in: [lib/utils/csv-parser-enhanced.ts:283](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/utils/csv-parser-enhanced.ts#L283)
 
 Parse date with auto-format detection
 

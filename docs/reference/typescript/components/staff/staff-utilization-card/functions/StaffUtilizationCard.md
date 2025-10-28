@@ -8,7 +8,7 @@
 
 > **StaffUtilizationCard**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/staff-utilization-card.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/staff/staff-utilization-card.tsx#L22)
+Defined in: [components/staff/staff-utilization-card.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/staff/staff-utilization-card.tsx#L22)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **FormControl**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/form.tsx:106](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/ui/form.tsx#L106)
+Defined in: [components/ui/form.tsx:106](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/ui/form.tsx#L106)
 
 ## Parameters
 

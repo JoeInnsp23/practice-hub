@@ -8,7 +8,7 @@
 
 > **OnboardingOwnershipForm**(`__namedParameters`): `Element`
 
-Defined in: [app/client-portal/onboarding/components/ownership-form.tsx:13](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/app/client-portal/onboarding/components/ownership-form.tsx#L13)
+Defined in: [app/client-portal/onboarding/components/ownership-form.tsx:13](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/app/client-portal/onboarding/components/ownership-form.tsx#L13)
 
 ## Parameters
 

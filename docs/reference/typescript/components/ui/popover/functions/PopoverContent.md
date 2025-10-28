@@ -8,7 +8,7 @@
 
 > **PopoverContent**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/popover.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/ui/popover.tsx#L20)
+Defined in: [components/ui/popover.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/ui/popover.tsx#L20)
 
 ## Parameters
 

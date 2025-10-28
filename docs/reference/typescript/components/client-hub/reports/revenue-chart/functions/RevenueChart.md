@@ -8,7 +8,7 @@
 
 > **RevenueChart**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/reports/revenue-chart.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/client-hub/reports/revenue-chart.tsx#L20)
+Defined in: [components/client-hub/reports/revenue-chart.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/client-hub/reports/revenue-chart.tsx#L20)
 
 ## Parameters
 

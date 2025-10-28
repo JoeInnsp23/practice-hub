@@ -8,7 +8,7 @@
 
 > **getClientIdentifier**(`request`): `string`
 
-Defined in: [lib/rate-limit.ts:164](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/rate-limit.ts#L164)
+Defined in: [lib/rate-limit.ts:164](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/rate-limit.ts#L164)
 
 Get client identifier from request
 

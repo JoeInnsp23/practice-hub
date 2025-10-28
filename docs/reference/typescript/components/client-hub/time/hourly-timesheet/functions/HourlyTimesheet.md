@@ -8,7 +8,7 @@
 
 > **HourlyTimesheet**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/time/hourly-timesheet.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/client-hub/time/hourly-timesheet.tsx#L22)
+Defined in: [components/client-hub/time/hourly-timesheet.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/client-hub/time/hourly-timesheet.tsx#L22)
 
 ## Parameters
 

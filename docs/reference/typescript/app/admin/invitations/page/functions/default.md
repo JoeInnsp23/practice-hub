@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/invitations/page.tsx:70](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/app/admin/invitations/page.tsx#L70)
+Defined in: [app/admin/invitations/page.tsx:70](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/app/admin/invitations/page.tsx#L70)
 
 ## Returns
 

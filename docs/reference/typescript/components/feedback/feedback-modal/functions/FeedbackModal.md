@@ -8,7 +8,7 @@
 
 > **FeedbackModal**(`__namedParameters`): `Element`
 
-Defined in: [components/feedback/feedback-modal.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/feedback/feedback-modal.tsx#L34)
+Defined in: [components/feedback/feedback-modal.tsx:34](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/feedback/feedback-modal.tsx#L34)
 
 ## Parameters
 

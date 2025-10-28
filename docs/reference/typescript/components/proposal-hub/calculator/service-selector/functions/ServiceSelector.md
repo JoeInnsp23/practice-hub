@@ -8,7 +8,7 @@
 
 > **ServiceSelector**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/calculator/service-selector.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/components/proposal-hub/calculator/service-selector.tsx#L41)
+Defined in: [components/proposal-hub/calculator/service-selector.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/proposal-hub/calculator/service-selector.tsx#L41)
 
 ## Parameters
 

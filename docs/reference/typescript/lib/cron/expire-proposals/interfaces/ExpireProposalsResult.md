@@ -6,7 +6,7 @@
 
 # Interface: ExpireProposalsResult
 
-Defined in: [lib/cron/expire-proposals.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/cron/expire-proposals.ts#L30)
+Defined in: [lib/cron/expire-proposals.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/cron/expire-proposals.ts#L30)
 
 Proposal Expiration Cron Job - Core Logic
 
@@ -35,7 +35,7 @@ Error Handling:
 
 > **errors**: `string`[]
 
-Defined in: [lib/cron/expire-proposals.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/cron/expire-proposals.ts#L34)
+Defined in: [lib/cron/expire-proposals.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/cron/expire-proposals.ts#L34)
 
 ***
 
@@ -43,7 +43,7 @@ Defined in: [lib/cron/expire-proposals.ts:34](https://github.com/JoeInnsp23/prac
 
 > **expiredCount**: `number`
 
-Defined in: [lib/cron/expire-proposals.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/cron/expire-proposals.ts#L32)
+Defined in: [lib/cron/expire-proposals.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/cron/expire-proposals.ts#L32)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [lib/cron/expire-proposals.ts:32](https://github.com/JoeInnsp23/prac
 
 > **processedCount**: `number`
 
-Defined in: [lib/cron/expire-proposals.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/cron/expire-proposals.ts#L33)
+Defined in: [lib/cron/expire-proposals.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/cron/expire-proposals.ts#L33)
 
 ***
 
@@ -59,4 +59,4 @@ Defined in: [lib/cron/expire-proposals.ts:33](https://github.com/JoeInnsp23/prac
 
 > **success**: `boolean`
 
-Defined in: [lib/cron/expire-proposals.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/cron/expire-proposals.ts#L31)
+Defined in: [lib/cron/expire-proposals.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/cron/expire-proposals.ts#L31)

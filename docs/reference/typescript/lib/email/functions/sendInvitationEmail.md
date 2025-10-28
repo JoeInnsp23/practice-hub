@@ -8,7 +8,7 @@
 
 > **sendInvitationEmail**(`params`): `Promise`\<`CreateEmailResponseSuccess`\>
 
-Defined in: [lib/email/index.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/email/index.ts#L50)
+Defined in: [lib/email/index.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/email/index.ts#L50)
 
 ## Parameters
 

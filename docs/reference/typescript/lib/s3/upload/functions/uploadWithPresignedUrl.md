@@ -8,7 +8,7 @@
 
 > **uploadWithPresignedUrl**(`buffer`, `key`, `contentType`, `expiresIn`): `Promise`\<`string`\>
 
-Defined in: [lib/s3/upload.ts:132](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/s3/upload.ts#L132)
+Defined in: [lib/s3/upload.ts:132](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/s3/upload.ts#L132)
 
 Upload file and return presigned URL instead of public URL
 

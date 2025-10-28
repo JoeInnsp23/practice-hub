@@ -8,6 +8,6 @@
 
 > **WorkTypeListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"workTypes"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:125](https://github.com/JoeInnsp23/practice-hub/blob/5327cc3301b709b23bcb2085ea41b82007fa1eef/lib/trpc/types.ts#L125)
+Defined in: [lib/trpc/types.ts:125](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/trpc/types.ts#L125)
 
 Work Type Types
