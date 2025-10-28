@@ -8,7 +8,7 @@
 
 > **exportStaffUtilizationToCSV**(`data`): `void`
 
-Defined in: [lib/utils/export-csv.ts:170](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/utils/export-csv.ts#L170)
+Defined in: [lib/utils/export-csv.ts:170](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/utils/export-csv.ts#L170)
 
 Export staff utilization data to CSV
 

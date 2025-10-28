@@ -8,7 +8,7 @@
 
 > **ApiDocsClient**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/api-docs/api-docs-client.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/app/admin/api-docs/api-docs-client.tsx#L27)
+Defined in: [app/admin/api-docs/api-docs-client.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/app/admin/api-docs/api-docs-client.tsx#L27)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **QuestionnaireValue** = `string` \| `number` \| `boolean` \| `Date` \| \{ `city?`: `string`; `country?`: `string`; `line1?`: `string`; `line2?`: `string`; `postalCode?`: `string`; \} \| `object`[] \| `object`[] \| `string`[]
 
-Defined in: [lib/ai/extract-client-data.ts:112](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/ai/extract-client-data.ts#L112)
+Defined in: [lib/ai/extract-client-data.ts:112](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/ai/extract-client-data.ts#L112)
 
 Questionnaire response value type
 Represents all possible response types stored in the onboarding questionnaire

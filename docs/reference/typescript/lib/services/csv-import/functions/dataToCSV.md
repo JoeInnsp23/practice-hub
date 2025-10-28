@@ -8,7 +8,7 @@
 
 > **dataToCSV**\<`T`\>(`data`, `fields?`): `string`
 
-Defined in: [lib/services/csv-import.ts:244](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/services/csv-import.ts#L244)
+Defined in: [lib/services/csv-import.ts:244](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/services/csv-import.ts#L244)
 
 Convert data to CSV string
 

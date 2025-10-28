@@ -8,7 +8,7 @@
 
 > **runAnnualCarryover**(`tenantId`, `fromYear`): `Promise`\<\{ `failed`: `number`; `processed`: `number`; `results`: `object`[]; `success`: `boolean`; \}\>
 
-Defined in: [lib/leave/carryover.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/leave/carryover.ts#L131)
+Defined in: [lib/leave/carryover.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/leave/carryover.ts#L131)
 
 Run annual carryover for all users in a tenant
 

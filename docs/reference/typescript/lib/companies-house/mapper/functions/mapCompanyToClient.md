@@ -8,7 +8,7 @@
 
 > **mapCompanyToClient**(`company`): `object`
 
-Defined in: [lib/companies-house/mapper.ts:122](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/companies-house/mapper.ts#L122)
+Defined in: [lib/companies-house/mapper.ts:122](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/companies-house/mapper.ts#L122)
 
 Map Companies House company details to Practice Hub client schema
 

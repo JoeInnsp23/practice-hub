@@ -6,7 +6,7 @@
 
 # Interface: CSVParseResult\<T\>
 
-Defined in: [lib/services/csv-parser.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/services/csv-parser.ts#L30)
+Defined in: [lib/services/csv-parser.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/services/csv-parser.ts#L30)
 
 Result of CSV parsing operation
 
@@ -22,7 +22,7 @@ Result of CSV parsing operation
 
 > **data**: `T`[]
 
-Defined in: [lib/services/csv-parser.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/services/csv-parser.ts#L31)
+Defined in: [lib/services/csv-parser.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/services/csv-parser.ts#L31)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/services/csv-parser.ts:31](https://github.com/JoeInnsp23/practi
 
 > **errors**: [`CSVRowError`](CSVRowError.md)[]
 
-Defined in: [lib/services/csv-parser.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/services/csv-parser.ts#L32)
+Defined in: [lib/services/csv-parser.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/services/csv-parser.ts#L32)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/services/csv-parser.ts:32](https://github.com/JoeInnsp23/practi
 
 > **meta**: `object`
 
-Defined in: [lib/services/csv-parser.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/services/csv-parser.ts#L33)
+Defined in: [lib/services/csv-parser.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/services/csv-parser.ts#L33)
 
 #### fields
 

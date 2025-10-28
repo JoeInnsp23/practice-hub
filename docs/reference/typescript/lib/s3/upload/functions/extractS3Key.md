@@ -8,7 +8,7 @@
 
 > **extractS3Key**(`url`): `string`
 
-Defined in: [lib/s3/upload.ts:170](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/s3/upload.ts#L170)
+Defined in: [lib/s3/upload.ts:170](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/s3/upload.ts#L170)
 
 Extract S3 key from public URL or presigned URL
 

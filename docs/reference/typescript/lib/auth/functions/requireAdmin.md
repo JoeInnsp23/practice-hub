@@ -8,7 +8,7 @@
 
 > **requireAdmin**(): `Promise`\<[`AuthContext`](../interfaces/AuthContext.md)\>
 
-Defined in: [lib/auth.ts:163](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/auth.ts#L163)
+Defined in: [lib/auth.ts:163](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/auth.ts#L163)
 
 ## Returns
 

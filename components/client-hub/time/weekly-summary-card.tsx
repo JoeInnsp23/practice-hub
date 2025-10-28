@@ -93,8 +93,8 @@ export function WeeklySummaryCard({ summary }: WeeklySummaryCardProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={(entry: { name: string; percentage: number }) =>
-                    `${entry.name} (${entry.percentage.toFixed(0)}%)`
+                  label={(entry) =>
+                    `${entry.name} (${(Number(entry.percent || 0) * 100).toFixed(0)}%)`
                   }
                   outerRadius={70}
                   fill="#8884d8"

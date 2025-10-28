@@ -8,7 +8,7 @@
 
 > **WorkflowInstanceModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/workflows/workflow-instance-modal.tsx:102](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/components/client-hub/workflows/workflow-instance-modal.tsx#L102)
+Defined in: [components/client-hub/workflows/workflow-instance-modal.tsx:102](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/components/client-hub/workflows/workflow-instance-modal.tsx#L102)
 
 ## Parameters
 

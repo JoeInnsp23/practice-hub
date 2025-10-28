@@ -8,7 +8,7 @@
 
 > **fetchWithErrorHandling**\<`T`\>(`fetcher`, `options?`): `Promise`\<`T` \| `null`\>
 
-Defined in: [lib/api-client.ts:277](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/api-client.ts#L277)
+Defined in: [lib/api-client.ts:277](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/api-client.ts#L277)
 
 ## Type Parameters
 

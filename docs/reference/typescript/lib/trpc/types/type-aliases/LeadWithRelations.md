@@ -8,4 +8,4 @@
 
 > **LeadWithRelations** = [`RouterOutputs`](RouterOutputs.md)\[`"leads"`\]\[`"getById"`\]
 
-Defined in: [lib/trpc/types.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/babbde75bac22c244b15bf7eaae8f967352ca66a/lib/trpc/types.ts#L133)
+Defined in: [lib/trpc/types.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/acab0e17ea4a394fff6649c0803f80d93f290c0b/lib/trpc/types.ts#L133)
