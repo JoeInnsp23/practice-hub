@@ -8,7 +8,7 @@
 
 > **isTerminalSalesStage**(`stage`): `boolean`
 
-Defined in: [lib/constants/sales-stages.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/constants/sales-stages.ts#L140)
+Defined in: [lib/constants/sales-stages.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/constants/sales-stages.ts#L140)
 
 Check if a stage is terminal (final state)
 

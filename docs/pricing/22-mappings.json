@@ -103,7 +103,15 @@
     "currentAccountingSoftware": {
       "pricingDriver": "software_integration",
       "type": "enum",
-      "values": ["xero", "quickbooks", "sage", "freeagent", "excel", "none", "other"],
+      "values": [
+        "xero",
+        "quickbooks",
+        "sage",
+        "freeagent",
+        "excel",
+        "none",
+        "other"
+      ],
       "usage": "complexity_estimation",
       "status": "missing_in_lead_schema",
       "priority": "MEDIUM",

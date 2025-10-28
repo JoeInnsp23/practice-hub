@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
 /**
  * Proposal Hub E2E Regression Tests
@@ -7,8 +7,8 @@ import { test, expect } from '@playwright/test';
  * especially the DocuSeal e-signature integration.
  */
 
-test.describe('Proposal Hub - Proposal Lifecycle', () => {
-  test.skip('should create proposal from lead', async ({ page }) => {
+test.describe("Proposal Hub - Proposal Lifecycle", () => {
+  test.skip("should create proposal from lead", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/leads
     // 2. Click lead detail
@@ -18,7 +18,7 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 6. Verify lead status updated
   });
 
-  test.skip('should update proposal and create version', async ({ page }) => {
+  test.skip("should update proposal and create version", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to proposal detail page
     // 2. Edit proposal (change monthly total)
@@ -29,7 +29,7 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 7. Verify changeDescription stored
   });
 
-  test.skip('should generate proposal PDF', async ({ page }) => {
+  test.skip("should generate proposal PDF", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to proposal detail page
     // 2. Click "Generate PDF"
@@ -37,7 +37,9 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 4. Verify PDF accessible via presigned URL
   });
 
-  test.skip('should send proposal for signature (DocuSeal)', async ({ page }) => {
+  test.skip("should send proposal for signature (DocuSeal)", async ({
+    page,
+  }) => {
     // TODO: Implement test (CRITICAL - validates DocuSeal integration)
     // 1. Navigate to proposal detail page (status = draft)
     // 2. Click "Send for Signature"
@@ -50,7 +52,9 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 9. Verify signing invitation email sent
   });
 
-  test.skip('should complete signature flow (public page)', async ({ page }) => {
+  test.skip("should complete signature flow (public page)", async ({
+    page,
+  }) => {
     // TODO: Implement test
     // 1. Navigate to public signing page (/proposals/[id]/sign)
     // 2. Verify proposal data displayed
@@ -63,7 +67,7 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 9. Verify confirmation email sent
   });
 
-  test.skip('should handle declined signature', async ({ page }) => {
+  test.skip("should handle declined signature", async ({ page }) => {
     // TODO: Implement test
     // 1. Simulate DocuSeal webhook: submission.declined
     // 2. Verify proposal.status = "rejected"
@@ -71,7 +75,7 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 4. Verify team notification email sent
   });
 
-  test.skip('should handle expired signature', async ({ page }) => {
+  test.skip("should handle expired signature", async ({ page }) => {
     // TODO: Implement test
     // 1. Simulate DocuSeal webhook: submission.expired
     // 2. Verify proposal.status = "expired"
@@ -79,7 +83,7 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 4. Verify team notification email sent
   });
 
-  test.skip('should update sales stage', async ({ page }) => {
+  test.skip("should update sales stage", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to proposal detail page
     // 2. Drag proposal to different pipeline stage
@@ -87,7 +91,7 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
     // 4. Verify activity log created
   });
 
-  test.skip('should view proposal version history', async ({ page }) => {
+  test.skip("should view proposal version history", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to proposal detail page
     // 2. Click "Version History"
@@ -97,8 +101,8 @@ test.describe('Proposal Hub - Proposal Lifecycle', () => {
   });
 });
 
-test.describe('Proposal Hub - Pipeline Management', () => {
-  test.skip('should display proposals in Kanban view', async ({ page }) => {
+test.describe("Proposal Hub - Pipeline Management", () => {
+  test.skip("should display proposals in Kanban view", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/pipeline
     // 2. Verify 7 pipeline stages displayed
@@ -107,7 +111,7 @@ test.describe('Proposal Hub - Pipeline Management', () => {
     // 5. Verify proposal.salesStage updated
   });
 
-  test.skip('should filter pipeline by assignee', async ({ page }) => {
+  test.skip("should filter pipeline by assignee", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/pipeline
     // 2. Select assignee filter
@@ -115,8 +119,8 @@ test.describe('Proposal Hub - Pipeline Management', () => {
   });
 });
 
-test.describe('Proposal Hub - Analytics', () => {
-  test.skip('should display conversion metrics', async ({ page }) => {
+test.describe("Proposal Hub - Analytics", () => {
+  test.skip("should display conversion metrics", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/analytics
     // 2. Verify total proposals count
@@ -125,7 +129,7 @@ test.describe('Proposal Hub - Analytics', () => {
     // 5. Verify breakdown by source
   });
 
-  test.skip('should display pricing model performance', async ({ page }) => {
+  test.skip("should display pricing model performance", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/analytics/pricing
     // 2. Verify pricing model usage stats

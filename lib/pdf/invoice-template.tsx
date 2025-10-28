@@ -357,9 +357,7 @@ export const InvoiceDocument = ({
 
           {Number.parseFloat(invoice.taxAmount) > 0 && (
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>
-                Tax ({invoice.taxRate}%):
-              </Text>
+              <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%):</Text>
               <Text style={styles.totalValue}>
                 {formatCurrency(invoice.taxAmount)}
               </Text>

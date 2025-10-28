@@ -98,7 +98,11 @@
       "name": "Basic Bookkeeping",
       "category": "bookkeeping",
       "description": "Monthly bookkeeping for low transaction volume",
-      "pricingDrivers": ["monthly_transactions", "bank_accounts", "complexity_level"],
+      "pricingDrivers": [
+        "monthly_transactions",
+        "bank_accounts",
+        "complexity_level"
+      ],
       "defaultFrequency": "monthly",
       "models": ["A", "B"],
       "baseRateSource": "transaction_band_rules",
@@ -112,7 +116,12 @@
       "name": "Full Bookkeeping Service",
       "category": "bookkeeping",
       "description": "Comprehensive monthly bookkeeping with reconciliation",
-      "pricingDrivers": ["monthly_transactions", "bank_accounts", "complexity_level", "industry"],
+      "pricingDrivers": [
+        "monthly_transactions",
+        "bank_accounts",
+        "complexity_level",
+        "industry"
+      ],
       "defaultFrequency": "monthly",
       "models": ["A", "B"],
       "baseRateSource": "transaction_band_rules",
@@ -358,7 +367,7 @@
           "minValue": 0,
           "maxValue": 100,
           "basePrice": 100,
-          "ratePerTransaction": 0.50
+          "ratePerTransaction": 0.5
         },
         {
           "label": "Medium (101-300)",
@@ -372,7 +381,7 @@
           "minValue": 301,
           "maxValue": 500,
           "basePrice": 250,
-          "ratePerTransaction": 1.00
+          "ratePerTransaction": 1.0
         },
         {
           "label": "Very High (501+)",
@@ -643,7 +652,7 @@
 
     "new_client": {
       "description": "First year discount for new clients",
-      "discount": 0.10,
+      "discount": 0.1,
       "duration": "12 months",
       "applyTo": "all_services",
       "excludes": ["one_off"],
@@ -652,7 +661,7 @@
 
     "annual_payment": {
       "description": "Discount for annual prepayment",
-      "discount": 0.10,
+      "discount": 0.1,
       "applyTo": "annual_services",
       "cashFlowBenefit": true,
       "recommendation": "Implement (DEC-003)"
@@ -683,11 +692,7 @@
           "min": 720,
           "max": 960
         },
-        "includedServices": [
-          "COMP_ACCOUNTS",
-          "CONF_STATEMENT",
-          "SATR_SINGLE"
-        ],
+        "includedServices": ["COMP_ACCOUNTS", "CONF_STATEMENT", "SATR_SINGLE"],
         "targetMarket": "Solo directors, no employees (60% of market)"
       },
       {
@@ -776,7 +781,10 @@
       "enabled": false,
       "description": "Enable Model B (transaction-based) pricing",
       "rolloutStrategy": "Gradual rollout - start with 10% of leads, monitor accuracy",
-      "requirements": ["monthlyTransactions field in leads", "transaction estimation logic"]
+      "requirements": [
+        "monthlyTransactions field in leads",
+        "transaction estimation logic"
+      ]
     },
     "autoServiceConfig": {
       "enabled": false,
@@ -788,7 +796,10 @@
       "enabled": false,
       "description": "Show pricing estimates in lead capture flow",
       "rolloutStrategy": "A/B test with 50% of traffic",
-      "requirements": ["Lead capture field additions", "pricing calculator component"]
+      "requirements": [
+        "Lead capture field additions",
+        "pricing calculator component"
+      ]
     },
     "roundingToNearest5": {
       "enabled": true,

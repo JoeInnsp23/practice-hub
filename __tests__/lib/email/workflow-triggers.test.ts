@@ -9,8 +9,8 @@
  * - Multi-tenant isolation
  */
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
 import {
   clients,
@@ -20,8 +20,8 @@ import {
   tenants,
   users,
   workflowEmailRules,
-  workflows,
   workflowStages,
+  workflows,
 } from "@/lib/db/schema";
 import {
   detectStageCompletion,
@@ -533,10 +533,14 @@ describe("Workflow Email Triggers", () => {
 
       // Verify sendAt is ~2 hours in the future
       const sendAt = new Date(queuedEmails[0].sendAt);
-      const expectedSendAt = new Date(beforeTrigger.getTime() + 2 * 60 * 60 * 1000);
+      const expectedSendAt = new Date(
+        beforeTrigger.getTime() + 2 * 60 * 60 * 1000,
+      );
 
       // Allow 5 second tolerance for test execution time
-      expect(sendAt.getTime()).toBeGreaterThanOrEqual(expectedSendAt.getTime() - 5000);
+      expect(sendAt.getTime()).toBeGreaterThanOrEqual(
+        expectedSendAt.getTime() - 5000,
+      );
       expect(sendAt.getTime()).toBeLessThanOrEqual(
         new Date(afterTrigger.getTime() + 2 * 60 * 60 * 1000 + 5000).getTime(),
       );

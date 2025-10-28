@@ -3,8 +3,8 @@ import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { generateInvoicePdf } from "@/lib/pdf/generate-invoice-pdf";
 import { activityLogs, clients, invoiceItems, invoices } from "@/lib/db/schema";
+import { generateInvoicePdf } from "@/lib/pdf/generate-invoice-pdf";
 import { protectedProcedure, router } from "../trpc";
 
 // Status enum for filtering
@@ -604,10 +604,7 @@ export const invoicesRouter = router({
 
       // Verify invoice exists and belongs to tenant
       const invoice = await db.query.invoices.findFirst({
-        where: and(
-          eq(invoices.id, invoiceId),
-          eq(invoices.tenantId, tenantId),
-        ),
+        where: and(eq(invoices.id, invoiceId), eq(invoices.tenantId, tenantId)),
       });
 
       if (!invoice) {

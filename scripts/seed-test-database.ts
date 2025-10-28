@@ -285,21 +285,24 @@ async function seedTestDatabase() {
     const tasksData = [
       {
         title: "Task assigned to member (assignedTo)",
-        description: "This task should appear in member's My Tasks (assignedTo field)",
+        description:
+          "This task should appear in member's My Tasks (assignedTo field)",
         assignedToId: memberUser.id,
         preparerId: null,
         reviewerId: null,
       },
       {
         title: "Task with member as preparer",
-        description: "This task should appear in member's My Tasks (preparer field)",
+        description:
+          "This task should appear in member's My Tasks (preparer field)",
         assignedToId: adminUser.id,
         preparerId: memberUser.id,
         reviewerId: null,
       },
       {
         title: "Task with member as reviewer",
-        description: "This task should appear in member's My Tasks (reviewer field)",
+        description:
+          "This task should appear in member's My Tasks (reviewer field)",
         assignedToId: adminUser.id,
         preparerId: null,
         reviewerId: memberUser.id,
@@ -329,7 +332,9 @@ async function seedTestDatabase() {
         updatedAt: new Date(),
       });
     }
-    console.log(`✅ Created ${tasksData.length} test tasks for filter validation`);
+    console.log(
+      `✅ Created ${tasksData.length} test tasks for filter validation`,
+    );
 
     console.log("\n✨ E2E test database seeded successfully!");
     console.log("\n📋 Test Credentials:");

@@ -9,16 +9,11 @@
  * - Input validation
  */
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { emailTemplatesRouter } from "@/app/server/routers/email-templates";
 import { db } from "@/lib/db";
-import {
-  emailQueue,
-  emailTemplates,
-  tenants,
-  users,
-} from "@/lib/db/schema";
+import { emailQueue, emailTemplates, tenants, users } from "@/lib/db/schema";
 import {
   createCaller,
   createMockContext,
@@ -146,7 +141,9 @@ describe("Email Templates Router", () => {
         templateType: "task_assigned",
       });
       expect(taskAssignedTemplatesResult.templates).toHaveLength(1);
-      expect(taskAssignedTemplatesResult.templates[0].templateType).toBe("task_assigned");
+      expect(taskAssignedTemplatesResult.templates[0].templateType).toBe(
+        "task_assigned",
+      );
     });
 
     it("Test 3: should get template by ID with all fields", async () => {
@@ -191,7 +188,9 @@ describe("Email Templates Router", () => {
 
       expect(updated.template.id).toBe(created.template.id);
       expect(updated.template.subject).toBe("Updated subject");
-      expect(updated.template.bodyHtml).toBe("<p>Updated body with {client_name}</p>");
+      expect(updated.template.bodyHtml).toBe(
+        "<p>Updated body with {client_name}</p>",
+      );
       expect(updated.template.variables).toEqual(["task_name", "client_name"]);
       expect(updated.template.templateName).toBe("Original Template"); // Unchanged
     });
@@ -269,7 +268,9 @@ describe("Email Templates Router", () => {
       expect(templatesBForTenantB.templates).toHaveLength(0);
 
       // Tenant B cannot access Tenant A's template by ID
-      await expect(callerB.getById({ id: templateA.template.id })).rejects.toThrow();
+      await expect(
+        callerB.getById({ id: templateA.template.id }),
+      ).rejects.toThrow();
 
       // Cleanup Tenant B
       await db.delete(users).where(eq(users.tenantId, tenantB.id));

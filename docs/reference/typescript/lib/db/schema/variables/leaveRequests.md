@@ -8,4 +8,4 @@
 
 > `const` **leaveRequests**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:283](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/db/schema.ts#L283)
+Defined in: [lib/db/schema.ts:283](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/db/schema.ts#L283)

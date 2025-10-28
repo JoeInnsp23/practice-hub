@@ -1350,7 +1350,9 @@ describe("app/server/routers/invoices.ts (Integration)", () => {
     it("should enforce tenant isolation for PDF generation", async () => {
       // Create invoice in different tenant
       const otherTenantId = await createTestTenant();
-      const otherUserId = await createTestUser(otherTenantId, { role: "admin" });
+      const otherUserId = await createTestUser(otherTenantId, {
+        role: "admin",
+      });
       const otherClient = await createTestClient(otherTenantId, otherUserId);
       const otherInvoice = await createTestInvoice(
         otherTenantId,

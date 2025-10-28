@@ -26,7 +26,9 @@ interface ProposalNotesSectionProps {
   proposalId: string;
 }
 
-export function ProposalNotesSection({ proposalId }: ProposalNotesSectionProps) {
+export function ProposalNotesSection({
+  proposalId,
+}: ProposalNotesSectionProps) {
   const { data: session } = useSession();
   const utils = trpc.useUtils();
 

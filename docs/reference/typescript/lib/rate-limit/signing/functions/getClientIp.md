@@ -8,7 +8,7 @@
 
 > **getClientIp**(`headers`): `string`
 
-Defined in: [lib/rate-limit/signing.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/rate-limit/signing.ts#L95)
+Defined in: [lib/rate-limit/signing.ts:95](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/rate-limit/signing.ts#L95)
 
 Extract client IP from Next.js Headers
 

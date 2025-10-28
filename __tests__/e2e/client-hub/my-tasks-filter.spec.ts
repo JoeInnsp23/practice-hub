@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * TEST-001: My Tasks Filter Validation (GAP-001)
@@ -34,7 +34,10 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[name="email"]', "e2e-user@test.com");
-    await page.fill('input[name="password"]', process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!");
+    await page.fill(
+      'input[name="password"]',
+      process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!",
+    );
     await page.click('button[type="submit"]');
 
     // Wait for redirect to dashboard
@@ -45,7 +48,9 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     await page.waitForLoadState("networkidle", { timeout: 30000 });
 
     // Look for the task with title containing "assigned to member"
-    const assignedTask = page.locator('text="Task assigned to member (assignedTo)"');
+    const assignedTask = page.locator(
+      'text="Task assigned to member (assignedTo)"',
+    );
     await expect(assignedTask).toBeVisible({ timeout: 10000 });
   });
 
@@ -55,7 +60,10 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[name="email"]', "e2e-user@test.com");
-    await page.fill('input[name="password"]', process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!");
+    await page.fill(
+      'input[name="password"]',
+      process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!",
+    );
     await page.click('button[type="submit"]');
 
     await page.waitForURL("**/practice-hub", { timeout: 10000 });
@@ -75,7 +83,10 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[name="email"]', "e2e-user@test.com");
-    await page.fill('input[name="password"]', process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!");
+    await page.fill(
+      'input[name="password"]',
+      process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!",
+    );
     await page.click('button[type="submit"]');
 
     await page.waitForURL("**/practice-hub", { timeout: 10000 });
@@ -95,7 +106,10 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[name="email"]', "e2e-user@test.com");
-    await page.fill('input[name="password"]', process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!");
+    await page.fill(
+      'input[name="password"]',
+      process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!",
+    );
     await page.click('button[type="submit"]');
 
     await page.waitForURL("**/practice-hub", { timeout: 10000 });
@@ -109,13 +123,18 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     await expect(unassignedTask).not.toBeVisible({ timeout: 5000 });
   });
 
-  test("comprehensive: should show exactly 3 tasks for member user", async ({ page }) => {
+  test("comprehensive: should show exactly 3 tasks for member user", async ({
+    page,
+  }) => {
     // Login as e2e-user
     await page.goto("/sign-in");
     await page.waitForLoadState("networkidle");
 
     await page.fill('input[name="email"]', "e2e-user@test.com");
-    await page.fill('input[name="password"]', process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!");
+    await page.fill(
+      'input[name="password"]',
+      process.env.E2E_TEST_USER_PASSWORD || "E2ETestUser123!",
+    );
     await page.click('button[type="submit"]');
 
     await page.waitForURL("**/practice-hub", { timeout: 10000 });
@@ -140,6 +159,8 @@ test.describe("My Tasks Filter (GAP-001)", () => {
     const unassignedTask = page.locator('text="Task NOT assigned to member"');
     await expect(unassignedTask).not.toBeVisible({ timeout: 5000 });
 
-    console.log("✅ GAP-001 validated: My Tasks filter correctly shows tasks across assignedTo, preparer, and reviewer fields");
+    console.log(
+      "✅ GAP-001 validated: My Tasks filter correctly shows tasks across assignedTo, preparer, and reviewer fields",
+    );
   });
 });

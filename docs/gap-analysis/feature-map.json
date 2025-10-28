@@ -100,7 +100,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["User notification preferences from user_settings", "Transaction safety"],
+    "enhancements": [
+      "User notification preferences from user_settings",
+      "Transaction safety"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -163,7 +166,9 @@
       }
     ],
     "status": "PARTIAL",
-    "missing_features": ["Filter does not check preparerId or reviewerId when loading 'my tasks'"],
+    "missing_features": [
+      "Filter does not check preparerId or reviewerId when loading 'my tasks'"
+    ],
     "regression_details": "Users may not see tasks where they are preparer or reviewer, only where assigned_to matches their ID",
     "severity": "HIGH",
     "confidence": 85,
@@ -187,7 +192,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Better granularity with review/blocked states", "Workflow stage tracking"],
+    "enhancements": [
+      "Better granularity with review/blocked states",
+      "Workflow stage tracking"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -245,7 +253,11 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["User mentions support", "Soft-delete capability", "Permission isolation"],
+    "enhancements": [
+      "User mentions support",
+      "Soft-delete capability",
+      "Permission isolation"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -264,7 +276,12 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Placeholder substitution ({service_name}, {client_name})", "Configurable due dates (offset)", "Bulk generation", "Recurring patterns"],
+    "enhancements": [
+      "Placeholder substitution ({service_name}, {client_name})",
+      "Configurable due dates (offset)",
+      "Bulk generation",
+      "Recurring patterns"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -424,7 +441,9 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["7-stage sales pipeline (enquiry, qualified, proposal_sent, follow_up, won, lost, dormant)"],
+    "enhancements": [
+      "7-stage sales pipeline (enquiry, qualified, proposal_sent, follow_up, won, lost, dormant)"
+    ],
     "severity": null,
     "confidence": 95
   },
@@ -463,7 +482,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Full version history with snapshots", "Rollback capability"],
+    "enhancements": [
+      "Full version history with snapshots",
+      "Rollback capability"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -505,7 +527,13 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Professional e-signature platform", "Webhook verification", "Signed PDF generation", "Auditable signature trail", "UK compliance fields"],
+    "enhancements": [
+      "Professional e-signature platform",
+      "Webhook verification",
+      "Signed PDF generation",
+      "Auditable signature trail",
+      "UK compliance fields"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -585,7 +613,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Granular sales stage tracking", "Automated stage transitions"],
+    "enhancements": [
+      "Granular sales stage tracking",
+      "Automated stage transitions"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -761,7 +792,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Denormalized stageProgress for efficiency", "Automatic workflow email triggers (FR32:AC3)"],
+    "enhancements": [
+      "Denormalized stageProgress for efficiency",
+      "Automatic workflow email triggers (FR32:AC3)"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -779,7 +813,12 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Auto-complete stages", "Approval requirements", "Event-based triggers", "Action definitions"],
+    "enhancements": [
+      "Auto-complete stages",
+      "Approval requirements",
+      "Event-based triggers",
+      "Action definitions"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -871,7 +910,11 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Email notifications via Resend", "Signing invitation/confirmation emails", "Team notifications"],
+    "enhancements": [
+      "Email notifications via Resend",
+      "Signing invitation/confirmation emails",
+      "Team notifications"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -891,7 +934,11 @@
       }
     ],
     "status": "MISSING",
-    "missing_features": ["Social media posting", "Social calendar", "Social analytics"],
+    "missing_features": [
+      "Social media posting",
+      "Social calendar",
+      "Social analytics"
+    ],
     "regression_details": "Legacy social-app (9 pages, BullMQ, Redis) not migrated to current",
     "severity": "HIGH",
     "confidence": 90,
@@ -936,7 +983,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["Multi-stage approval (manager/admin)", "Rejection with feedback"],
+    "enhancements": [
+      "Multi-stage approval (manager/admin)",
+      "Rejection with feedback"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -955,7 +1005,11 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["TOIL accrual tracking", "Automatic expiry", "Leave integration"],
+    "enhancements": [
+      "TOIL accrual tracking",
+      "Automatic expiry",
+      "Leave integration"
+    ],
     "severity": null,
     "confidence": 100
   },
@@ -1126,7 +1180,10 @@
       }
     ],
     "status": "OK",
-    "enhancements": ["admin, staff, client role support", "Protected procedure patterns"],
+    "enhancements": [
+      "admin, staff, client role support",
+      "Protected procedure patterns"
+    ],
     "severity": null,
     "confidence": 100
   },

@@ -35,9 +35,7 @@
         "lib/db/queries/task-queries.ts:44-46",
         "app/server/routers/tasks.ts:313+"
       ],
-      "filesLegacy": [
-        ".archive/crm-app/src/hooks/useTasks.ts:76-79"
-      ],
+      "filesLegacy": [".archive/crm-app/src/hooks/useTasks.ts:76-79"],
       "evidence": [
         {
           "file": "docs/gap-analysis/fixes/my-tasks-filter-fix.md",
@@ -62,7 +60,7 @@
       "status": "MISSING",
       "severity": "MEDIUM",
       "effort": "M",
-      "confidence": 0.70,
+      "confidence": 0.7,
       "proposedFix": "Verify if quotes are proposal variants (type='quote') or separate entity. If separate, implement quotes router mirroring proposals.",
       "dependencies": [],
       "acceptanceCriteria": [
@@ -70,13 +68,9 @@
         "If separate: create quotes router with CRUD operations",
         "If type variant: document clearly in architecture docs"
       ],
-      "testsSuggested": [
-        "If separate: quotes.test.ts - CRUD operations"
-      ],
+      "testsSuggested": ["If separate: quotes.test.ts - CRUD operations"],
       "filesCurrent": [],
-      "filesLegacy": [
-        ".archive/proposal-app/main/src/App.tsx:32"
-      ],
+      "filesLegacy": [".archive/proposal-app/main/src/App.tsx:32"],
       "evidence": [
         {
           "file": "docs/gap-analysis/30-gap-table.md",
@@ -105,13 +99,9 @@
         "Notes tracked with timestamps",
         "Signature events captured"
       ],
-      "testsSuggested": [
-        "proposal-activities.test.ts - Activity audit trail"
-      ],
+      "testsSuggested": ["proposal-activities.test.ts - Activity audit trail"],
       "filesCurrent": [],
-      "filesLegacy": [
-        ".archive/proposal-app/main/server/server.js:279-327"
-      ],
+      "filesLegacy": [".archive/proposal-app/main/server/server.js:279-327"],
       "evidence": [
         {
           "file": "docs/gap-analysis/30-gap-table.md",
@@ -131,7 +121,7 @@
       "status": "PARTIAL",
       "severity": "MEDIUM",
       "effort": "S",
-      "confidence": 0.60,
+      "confidence": 0.6,
       "proposedFix": "Verify PDF generation capability via documents router. If missing, add invoices.generatePdf mutation similar to proposal PDFs.",
       "dependencies": [],
       "acceptanceCriteria": [
@@ -140,12 +130,8 @@
         "Return presigned URL with TTL",
         "Track PDF generation in invoices table"
       ],
-      "testsSuggested": [
-        "invoices.test.ts - PDF generation mutation"
-      ],
-      "filesCurrent": [
-        "app/server/routers/invoices.ts"
-      ],
+      "testsSuggested": ["invoices.test.ts - PDF generation mutation"],
+      "filesCurrent": ["app/server/routers/invoices.ts"],
       "filesLegacy": [],
       "evidence": [
         {
@@ -166,7 +152,7 @@
       "status": "PARTIAL",
       "severity": "LOW",
       "effort": "L",
-      "confidence": 0.60,
+      "confidence": 0.6,
       "proposedFix": "Verify custom report builder capability. If basic only, document scope. If ad-hoc SQL needed, add report parameters.",
       "dependencies": [],
       "acceptanceCriteria": [
@@ -179,9 +165,7 @@
         "app/client-hub/reports/page.tsx",
         "app/server/routers/reports.ts"
       ],
-      "filesLegacy": [
-        ".archive/crm-app/main/src/App.tsx - Reports.tsx"
-      ],
+      "filesLegacy": [".archive/crm-app/main/src/App.tsx - Reports.tsx"],
       "evidence": [
         {
           "file": "docs/gap-analysis/30-gap-table.md",
@@ -199,62 +183,42 @@
     {
       "id": "TEST-001",
       "scope": "e2e",
-      "files": [
-        "tests/e2e/regression/client-hub.spec.ts"
-      ],
+      "files": ["tests/e2e/regression/client-hub.spec.ts"],
       "priority": "P0",
       "description": "My Tasks filter - validates OR logic across preparer/reviewer/assignedTo",
-      "suites": [
-        "Client Hub - Task Management"
-      ]
+      "suites": ["Client Hub - Task Management"]
     },
     {
       "id": "TEST-002",
       "scope": "e2e",
-      "files": [
-        "tests/e2e/regression/proposal-hub.spec.ts"
-      ],
+      "files": ["tests/e2e/regression/proposal-hub.spec.ts"],
       "priority": "P1",
       "description": "Proposal signing flow - create → send → sign → convert",
-      "suites": [
-        "Proposal Hub - DocuSeal Integration"
-      ]
+      "suites": ["Proposal Hub - DocuSeal Integration"]
     },
     {
       "id": "TEST-003",
       "scope": "e2e",
-      "files": [
-        "tests/e2e/regression/client-portal.spec.ts"
-      ],
+      "files": ["tests/e2e/regression/client-portal.spec.ts"],
       "priority": "P1",
       "description": "Client portal onboarding flow",
-      "suites": [
-        "Client Portal - Onboarding"
-      ]
+      "suites": ["Client Portal - Onboarding"]
     },
     {
       "id": "TEST-004",
       "scope": "e2e",
-      "files": [
-        "tests/e2e/regression/timesheet-approval.spec.ts"
-      ],
+      "files": ["tests/e2e/regression/timesheet-approval.spec.ts"],
       "priority": "P1",
       "description": "Timesheet approval workflow",
-      "suites": [
-        "Client Hub - Time Tracking"
-      ]
+      "suites": ["Client Hub - Time Tracking"]
     },
     {
       "id": "TEST-005",
       "scope": "e2e",
-      "files": [
-        "tests/e2e/regression/bulk-operations.spec.ts"
-      ],
+      "files": ["tests/e2e/regression/bulk-operations.spec.ts"],
       "priority": "P2",
       "description": "Bulk operations UI (bulk assign, bulk status update)",
-      "suites": [
-        "Client Hub - Task Management"
-      ]
+      "suites": ["Client Hub - Task Management"]
     }
   ],
   "deprecations": [
@@ -270,7 +234,7 @@
       "recommended": "defer",
       "replacement": "None (out of MVP scope)",
       "rationale": "Social media management out of scope for practice management MVP. Can be added post-MVP as separate initiative.",
-      "confidence": 0.90
+      "confidence": 0.9
     },
     {
       "featureId": "Bookkeeping Module",
@@ -315,10 +279,7 @@
       "options": [
         {
           "label": "A) Migrate Social Hub",
-          "pros": [
-            "Feature parity with legacy",
-            "Complete offering"
-          ],
+          "pros": ["Feature parity with legacy", "Complete offering"],
           "cons": [
             "Out of MVP scope",
             "3-4 weeks effort",
@@ -327,24 +288,13 @@
         },
         {
           "label": "B) Deprecate Social Hub",
-          "pros": [
-            "Focus on core features",
-            "Reduced complexity"
-          ],
-          "cons": [
-            "Lose social media management capability"
-          ]
+          "pros": ["Focus on core features", "Reduced complexity"],
+          "cons": ["Lose social media management capability"]
         },
         {
           "label": "C) External integration",
-          "pros": [
-            "Use specialized tools",
-            "Best-in-class features"
-          ],
-          "cons": [
-            "Integration complexity",
-            "Additional vendor dependency"
-          ]
+          "pros": ["Use specialized tools", "Best-in-class features"],
+          "cons": ["Integration complexity", "Additional vendor dependency"]
         }
       ],
       "recommended": "B",
@@ -357,10 +307,7 @@
       "options": [
         {
           "label": "A) Quotes are proposal variants",
-          "pros": [
-            "No additional development",
-            "Reuse proposal logic"
-          ],
+          "pros": ["No additional development", "Reuse proposal logic"],
           "cons": [
             "Need to document clearly",
             "May have different requirements"
@@ -368,14 +315,8 @@
         },
         {
           "label": "B) Implement separate quotes module",
-          "pros": [
-            "Feature parity with legacy",
-            "Specialized workflow"
-          ],
-          "cons": [
-            "3-5 hours development effort",
-            "Additional maintenance"
-          ]
+          "pros": ["Feature parity with legacy", "Specialized workflow"],
+          "cons": ["3-5 hours development effort", "Additional maintenance"]
         }
       ],
       "recommended": "A",
@@ -388,25 +329,13 @@
       "options": [
         {
           "label": "A) DocuSeal only (no canvas)",
-          "pros": [
-            "Professional standard",
-            "UK compliance",
-            "Audit trail"
-          ],
-          "cons": [
-            "Legacy contracts may require canvas"
-          ]
+          "pros": ["Professional standard", "UK compliance", "Audit trail"],
+          "cons": ["Legacy contracts may require canvas"]
         },
         {
           "label": "B) Implement canvas as fallback",
-          "pros": [
-            "Backward compatibility",
-            "Offline signing option"
-          ],
-          "cons": [
-            "4-8 hours effort",
-            "Maintenance burden"
-          ]
+          "pros": ["Backward compatibility", "Offline signing option"],
+          "cons": ["4-8 hours effort", "Maintenance burden"]
         }
       ],
       "recommended": "A",
@@ -422,9 +351,7 @@
       "status": "RESOLVED",
       "severity": "CRITICAL",
       "effort": "30 minutes",
-      "files": [
-        ".env.production.example:31-33"
-      ],
+      "files": [".env.production.example:31-33"],
       "notes": "FIXED per gap analysis findings. Variable names corrected and webhook secret added."
     },
     {
@@ -434,9 +361,7 @@
       "status": "RESOLVED",
       "severity": "HIGH",
       "effort": "2-3 hours",
-      "files": [
-        "docs/guides/integrations/docuseal.md (DOES NOT EXIST)"
-      ],
+      "files": ["docs/guides/integrations/docuseal.md (DOES NOT EXIST)"],
       "notes": "FIXED per gap analysis findings. Comprehensive integration guide created."
     }
   ],

@@ -8,7 +8,7 @@
 
 > **useSSE**(`url`, `options`): `object`
 
-Defined in: [lib/hooks/use-sse.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/lib/hooks/use-sse.ts#L55)
+Defined in: [lib/hooks/use-sse.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/lib/hooks/use-sse.ts#L55)
 
 React hook for SSE connections
 

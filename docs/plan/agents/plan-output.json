@@ -46,7 +46,7 @@
       "severity": "MEDIUM",
       "effort": "M",
       "estimatedHours": 4,
-      "confidence": 0.70,
+      "confidence": 0.7,
       "owner": "Backend Developer + Frontend Developer",
       "problem": "Legacy app has /quotes page. Current app has no quotes router. Unclear if quotes are proposal variants (type='quote') or separate entity.",
       "acceptanceCriteria": [
@@ -103,7 +103,7 @@
       "severity": "MEDIUM",
       "effort": "S",
       "estimatedHours": 3,
-      "confidence": 0.60,
+      "confidence": 0.6,
       "owner": "Backend Developer",
       "problem": "Invoices router exists but no generatePdf mutation visible. Unclear if PDF generation is linked to documents system or missing.",
       "acceptanceCriteria": [
@@ -135,7 +135,7 @@
       "severity": "LOW",
       "effort": "L",
       "estimatedHours": 8,
-      "confidence": 0.60,
+      "confidence": 0.6,
       "owner": "Backend Developer + Product Manager",
       "problem": "Reports page exists but feature scope may be limited vs legacy ad-hoc reporting.",
       "acceptanceCriteria": [
@@ -262,7 +262,10 @@
           "label": "A) Quotes are proposal variants",
           "effort": "1 hour",
           "pros": ["No additional development", "Reuse proposal logic"],
-          "cons": ["Need to document clearly", "May have different requirements"]
+          "cons": [
+            "Need to document clearly",
+            "May have different requirements"
+          ]
         },
         {
           "label": "B) Implement separate quotes module",
@@ -286,11 +289,7 @@
         {
           "label": "A) DocuSeal only (no canvas)",
           "effort": "0 hours",
-          "pros": [
-            "Professional standard",
-            "UK compliance",
-            "Audit trail"
-          ],
+          "pros": ["Professional standard", "UK compliance", "Audit trail"],
           "cons": ["Legacy contracts may require canvas"]
         },
         {

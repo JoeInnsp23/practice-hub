@@ -8,7 +8,7 @@
 
 > **SendInvitationDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/client-admin/send-invitation-dialog.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/0b40fce16ca807036df389d30ed7173195078395/components/client-admin/send-invitation-dialog.tsx#L53)
+Defined in: [components/client-admin/send-invitation-dialog.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/1b8bd13aeadf8575f2cd867559ed019b2cd3640f/components/client-admin/send-invitation-dialog.tsx#L53)
 
 ## Parameters
 

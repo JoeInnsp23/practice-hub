@@ -1807,7 +1807,10 @@ export const proposalsRouter = router({
         .select()
         .from(proposals)
         .where(
-          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+          and(
+            eq(proposals.id, input.proposalId),
+            eq(proposals.tenantId, tenantId),
+          ),
         )
         .limit(1);
 
@@ -1862,7 +1865,10 @@ export const proposalsRouter = router({
         .select()
         .from(proposals)
         .where(
-          and(eq(proposals.id, input.proposalId), eq(proposals.tenantId, tenantId)),
+          and(
+            eq(proposals.id, input.proposalId),
+            eq(proposals.tenantId, tenantId),
+          ),
         )
         .limit(1);
 

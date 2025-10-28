@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
 /**
  * Client Hub E2E Regression Tests
@@ -7,8 +7,8 @@ import { test, expect } from '@playwright/test';
  * Currently marked as test.skip() - implement when E2E infrastructure is ready.
  */
 
-test.describe('Client Hub - Task Management', () => {
-  test.skip('should create a new task', async ({ page }) => {
+test.describe("Client Hub - Task Management", () => {
+  test.skip("should create a new task", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /client-hub/tasks
     // 2. Click "New Task" button
@@ -18,7 +18,7 @@ test.describe('Client Hub - Task Management', () => {
     // 6. Verify correct status (pending)
   });
 
-  test.skip('should assign task to preparer', async ({ page }) => {
+  test.skip("should assign task to preparer", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to task detail page
     // 2. Select preparer from dropdown
@@ -27,7 +27,7 @@ test.describe('Client Hub - Task Management', () => {
     // 5. Verify notification sent to preparer
   });
 
-  test.skip('should reassign task with reason', async ({ page }) => {
+  test.skip("should reassign task with reason", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to task detail page
     // 2. Click "Reassign"
@@ -48,7 +48,7 @@ test.describe('Client Hub - Task Management', () => {
     // 6. Verify tasks where user is NOT involved are hidden
   });
 
-  test.skip('should update task status', async ({ page }) => {
+  test.skip("should update task status", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to task detail page
     // 2. Change status to "in_progress"
@@ -57,7 +57,7 @@ test.describe('Client Hub - Task Management', () => {
     // 5. Verify completedAt timestamp set
   });
 
-  test.skip('should update workflow checklist item', async ({ page }) => {
+  test.skip("should update workflow checklist item", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to task with workflow
     // 2. Click checklist item to complete
@@ -66,7 +66,7 @@ test.describe('Client Hub - Task Management', () => {
     // 5. Verify overall task progress updated
   });
 
-  test.skip('should bulk assign tasks', async ({ page }) => {
+  test.skip("should bulk assign tasks", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /client-hub/tasks
     // 2. Select multiple tasks (checkboxes)
@@ -77,7 +77,7 @@ test.describe('Client Hub - Task Management', () => {
     // 7. Verify assignment history for each task
   });
 
-  test.skip('should add internal note with mention', async ({ page }) => {
+  test.skip("should add internal note with mention", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to task detail page
     // 2. Click "Add Note"
@@ -89,8 +89,8 @@ test.describe('Client Hub - Task Management', () => {
   });
 });
 
-test.describe('Client Hub - Client Management', () => {
-  test.skip('should create new client', async ({ page }) => {
+test.describe("Client Hub - Client Management", () => {
+  test.skip("should create new client", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /client-hub/clients
     // 2. Click "New Client"
@@ -100,7 +100,7 @@ test.describe('Client Hub - Client Management', () => {
     // 6. Verify client code generated
   });
 
-  test.skip('should validate VAT number', async ({ page }) => {
+  test.skip("should validate VAT number", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to client detail page
     // 2. Enter VAT number
@@ -110,7 +110,7 @@ test.describe('Client Hub - Client Management', () => {
     // 6. Verify validation timestamp set
   });
 
-  test.skip('should lookup Companies House data', async ({ page }) => {
+  test.skip("should lookup Companies House data", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to client detail page
     // 2. Enter company number
@@ -121,8 +121,8 @@ test.describe('Client Hub - Client Management', () => {
   });
 });
 
-test.describe('Client Hub - Invoice Management', () => {
-  test.skip('should create invoice', async ({ page }) => {
+test.describe("Client Hub - Invoice Management", () => {
+  test.skip("should create invoice", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /client-hub/invoices
     // 2. Click "New Invoice"
@@ -132,7 +132,7 @@ test.describe('Client Hub - Invoice Management', () => {
     // 6. Verify invoice created with correct totals
   });
 
-  test.skip('should filter invoices by overdue', async ({ page }) => {
+  test.skip("should filter invoices by overdue", async ({ page }) => {
     // TODO: Implement test
     // 1. Navigate to /client-hub/invoices
     // 2. Select "Overdue" filter
