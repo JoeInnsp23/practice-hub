@@ -8,7 +8,7 @@
 
 > **getServicePerformance**(`tenantId`, `options?`): `Promise`\<`object`[]\>
 
-Defined in: [lib/db/queries/reports-queries.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/db/queries/reports-queries.ts#L153)
+Defined in: [lib/db/queries/reports-queries.ts:153](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/db/queries/reports-queries.ts#L153)
 
 Fetch service performance data
 Returns revenue and client count by service

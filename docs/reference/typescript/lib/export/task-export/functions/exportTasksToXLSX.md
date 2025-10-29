@@ -8,7 +8,7 @@
 
 > **exportTasksToXLSX**(`tasks`, `columns`): `ArrayBuffer`
 
-Defined in: [lib/export/task-export.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/export/task-export.ts#L105)
+Defined in: [lib/export/task-export.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/export/task-export.ts#L105)
 
 Export tasks to XLSX format
 

@@ -8,7 +8,7 @@
 
 > `const` **metadata**: `object`
 
-Defined in: [app/(legal)/privacy/page.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/app/(legal)/privacy/page.tsx#L3)
+Defined in: [app/(legal)/privacy/page.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/app/(legal)/privacy/page.tsx#L3)
 
 ## Type Declaration
 

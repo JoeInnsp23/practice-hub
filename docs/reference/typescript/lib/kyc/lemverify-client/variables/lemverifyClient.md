@@ -8,4 +8,4 @@
 
 > `const` **lemverifyClient**: `LemVerifyAPIClient`
 
-Defined in: [lib/kyc/lemverify-client.ts:329](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/kyc/lemverify-client.ts#L329)
+Defined in: [lib/kyc/lemverify-client.ts:329](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/kyc/lemverify-client.ts#L329)

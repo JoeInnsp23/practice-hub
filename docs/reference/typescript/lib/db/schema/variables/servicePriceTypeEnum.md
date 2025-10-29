@@ -8,4 +8,4 @@
 
 > `const` **servicePriceTypeEnum**: `PgEnum`\<\[`"hourly"`, `"fixed"`, `"retainer"`, `"project"`, `"percentage"`\]\>
 
-Defined in: [lib/db/schema.ts:773](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/db/schema.ts#L773)
+Defined in: [lib/db/schema.ts:773](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/db/schema.ts#L773)

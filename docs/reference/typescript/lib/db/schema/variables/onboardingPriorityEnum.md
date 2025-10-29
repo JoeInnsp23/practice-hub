@@ -8,4 +8,4 @@
 
 > `const` **onboardingPriorityEnum**: `PgEnum`\<\[`"low"`, `"medium"`, `"high"`\]\>
 
-Defined in: [lib/db/schema.ts:2149](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/db/schema.ts#L2149)
+Defined in: [lib/db/schema.ts:2149](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/db/schema.ts#L2149)

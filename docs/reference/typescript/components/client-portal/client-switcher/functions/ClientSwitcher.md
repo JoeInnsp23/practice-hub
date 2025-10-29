@@ -8,7 +8,7 @@
 
 > **ClientSwitcher**(): `Element`
 
-Defined in: [components/client-portal/client-switcher.tsx:18](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/components/client-portal/client-switcher.tsx#L18)
+Defined in: [components/client-portal/client-switcher.tsx:18](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/components/client-portal/client-switcher.tsx#L18)
 
 ## Returns
 

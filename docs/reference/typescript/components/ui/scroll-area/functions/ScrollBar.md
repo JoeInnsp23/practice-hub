@@ -8,7 +8,7 @@
 
 > **ScrollBar**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/scroll-area.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/components/ui/scroll-area.tsx#L31)
+Defined in: [components/ui/scroll-area.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/components/ui/scroll-area.tsx#L31)
 
 ## Parameters
 

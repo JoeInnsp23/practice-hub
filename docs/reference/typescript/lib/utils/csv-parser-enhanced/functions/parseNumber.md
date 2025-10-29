@@ -8,7 +8,7 @@
 
 > **parseNumber**(`value`): `number` \| `null`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:318](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/utils/csv-parser-enhanced.ts#L318)
+Defined in: [lib/utils/csv-parser-enhanced.ts:318](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/utils/csv-parser-enhanced.ts#L318)
 
 Parse numeric string to number
 
