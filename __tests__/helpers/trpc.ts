@@ -13,7 +13,6 @@ import type { ClientPortalAuthContext } from "@/lib/client-portal-auth";
  * Used for type-safe test helpers without depending on tRPC's complex internal types.
  */
 interface RouterWithCaller {
-  // biome-ignore lint/suspicious/noExplicitAny: Return type varies by router definition - proper typing would require full tRPC generic inference
   createCaller(context: Context): any;
 }
 

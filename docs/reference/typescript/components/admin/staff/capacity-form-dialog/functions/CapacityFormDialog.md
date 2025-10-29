@@ -8,7 +8,7 @@
 
 > **CapacityFormDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/admin/staff/capacity-form-dialog.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/components/admin/staff/capacity-form-dialog.tsx#L65)
+Defined in: [components/admin/staff/capacity-form-dialog.tsx:65](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/components/admin/staff/capacity-form-dialog.tsx#L65)
 
 ## Parameters
 

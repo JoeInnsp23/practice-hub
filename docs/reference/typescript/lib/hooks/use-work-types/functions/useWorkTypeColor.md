@@ -8,7 +8,7 @@
 
 > **useWorkTypeColor**(`code`): `string`
 
-Defined in: [lib/hooks/use-work-types.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/hooks/use-work-types.ts#L32)
+Defined in: [lib/hooks/use-work-types.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/hooks/use-work-types.ts#L32)
 
 Hook to get color for a work type
 

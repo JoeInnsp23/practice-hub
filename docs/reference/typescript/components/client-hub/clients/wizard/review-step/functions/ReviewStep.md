@@ -8,7 +8,7 @@
 
 > **ReviewStep**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/wizard/review-step.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/components/client-hub/clients/wizard/review-step.tsx#L22)
+Defined in: [components/client-hub/clients/wizard/review-step.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/components/client-hub/clients/wizard/review-step.tsx#L22)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **sendPasswordResetEmail**(`params`): `Promise`\<`CreateEmailResponseSuccess`\>
 
-Defined in: [lib/email/index.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/email/index.ts#L96)
+Defined in: [lib/email/index.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/email/index.ts#L96)
 
 ## Parameters
 

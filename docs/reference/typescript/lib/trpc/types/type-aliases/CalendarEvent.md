@@ -8,4 +8,4 @@
 
 > **CalendarEvent** = `any`[]\[`number`\]
 
-Defined in: [lib/trpc/types.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/trpc/types.ts#L70)
+Defined in: [lib/trpc/types.ts:70](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/trpc/types.ts#L70)

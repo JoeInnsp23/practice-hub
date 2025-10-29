@@ -8,7 +8,7 @@
 
 > **calculateMonthlyTransactions**(`transactions`): `number`
 
-Defined in: [lib/xero/client.ts:260](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/xero/client.ts#L260)
+Defined in: [lib/xero/client.ts:260](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/xero/client.ts#L260)
 
 Calculate average monthly transactions from bank data
 

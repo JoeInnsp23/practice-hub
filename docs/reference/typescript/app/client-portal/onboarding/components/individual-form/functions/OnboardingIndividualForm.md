@@ -8,7 +8,7 @@
 
 > **OnboardingIndividualForm**(`__namedParameters`): `Element`
 
-Defined in: [app/client-portal/onboarding/components/individual-form.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/app/client-portal/onboarding/components/individual-form.tsx#L15)
+Defined in: [app/client-portal/onboarding/components/individual-form.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/app/client-portal/onboarding/components/individual-form.tsx#L15)
 
 ## Parameters
 

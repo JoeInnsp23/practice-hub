@@ -8,4 +8,4 @@
 
 > `const` **calendarEvents**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:3335](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/db/schema.ts#L3335)
+Defined in: [lib/db/schema.ts:3335](https://github.com/JoeInnsp23/practice-hub/blob/93900cabc5111305ba9339c6a3a6ee3c03d56be4/lib/db/schema.ts#L3335)
