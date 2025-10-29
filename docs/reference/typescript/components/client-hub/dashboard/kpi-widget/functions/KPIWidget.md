@@ -8,7 +8,7 @@
 
 > **KPIWidget**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/dashboard/kpi-widget.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/e67f2d7c2aef25e0a7c52e201483873b6d5f88c3/components/client-hub/dashboard/kpi-widget.tsx#L21)
+Defined in: [components/client-hub/dashboard/kpi-widget.tsx:21](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/components/client-hub/dashboard/kpi-widget.tsx#L21)
 
 ## Parameters
 
