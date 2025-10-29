@@ -8,7 +8,7 @@
 
 > **sendTeamSignedNotification**(`params`): `Promise`\<`void`\>
 
-Defined in: [lib/docuseal/email-handler.ts:254](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/docuseal/email-handler.ts#L254)
+Defined in: [lib/docuseal/email-handler.ts:254](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/docuseal/email-handler.ts#L254)
 
 Send internal team notification when proposal is signed
 

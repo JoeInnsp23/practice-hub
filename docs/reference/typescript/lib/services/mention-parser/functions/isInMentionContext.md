@@ -8,7 +8,7 @@
 
 > **isInMentionContext**(`text`, `cursorPosition`): `boolean`
 
-Defined in: [lib/services/mention-parser.ts:211](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/services/mention-parser.ts#L211)
+Defined in: [lib/services/mention-parser.ts:211](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/services/mention-parser.ts#L211)
 
 Check if cursor is in a mention context (after @ symbol)
 

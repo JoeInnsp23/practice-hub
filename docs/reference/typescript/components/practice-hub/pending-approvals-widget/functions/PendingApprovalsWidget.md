@@ -8,7 +8,7 @@
 
 > **PendingApprovalsWidget**(): `Element` \| `null`
 
-Defined in: [components/practice-hub/pending-approvals-widget.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/components/practice-hub/pending-approvals-widget.tsx#L10)
+Defined in: [components/practice-hub/pending-approvals-widget.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/components/practice-hub/pending-approvals-widget.tsx#L10)
 
 ## Returns
 

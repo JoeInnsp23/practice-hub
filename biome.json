@@ -27,6 +27,22 @@
       "react": "recommended"
     }
   },
+  "overrides": [
+    {
+      "includes": ["__tests__/helpers/**/*.ts", "tests/helpers/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noThenProperty": "off"
+          },
+          "correctness": {
+            "noInvalidUseBeforeDeclaration": "off"
+          }
+        }
+      }
+    }
+  ],
   "assist": {
     "actions": {
       "source": {

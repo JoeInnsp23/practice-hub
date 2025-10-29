@@ -8,4 +8,4 @@
 
 > `const` **default**: `ApiClient`
 
-Defined in: [lib/api-client.ts:274](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/api-client.ts#L274)
+Defined in: [lib/api-client.ts:274](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/api-client.ts#L274)

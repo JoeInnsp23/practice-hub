@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/settings/import-history/page.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/app/admin/settings/import-history/page.tsx#L19)
+Defined in: [app/admin/settings/import-history/page.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/app/admin/settings/import-history/page.tsx#L19)
 
 ## Returns
 

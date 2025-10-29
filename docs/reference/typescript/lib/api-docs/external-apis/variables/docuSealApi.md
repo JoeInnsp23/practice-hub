@@ -8,6 +8,6 @@
 
 > `const` **docuSealApi**: [`ExternalApiDoc`](../interfaces/ExternalApiDoc.md)
 
-Defined in: [lib/api-docs/external-apis.ts:330](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/api-docs/external-apis.ts#L330)
+Defined in: [lib/api-docs/external-apis.ts:330](https://github.com/JoeInnsp23/practice-hub/blob/d9d7460fcb6b561d38b20450aa8adfcdff6d9f93/lib/api-docs/external-apis.ts#L330)
 
 DocuSeal API Documentation
