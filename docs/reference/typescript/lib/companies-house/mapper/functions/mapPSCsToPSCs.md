@@ -8,7 +8,7 @@
 
 > **mapPSCsToPSCs**(`pscs`): `object`[]
 
-Defined in: [lib/companies-house/mapper.ts:180](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/companies-house/mapper.ts#L180)
+Defined in: [lib/companies-house/mapper.ts:180](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/companies-house/mapper.ts#L180)
 
 Map Companies House PSCs to Practice Hub client PSCs
 

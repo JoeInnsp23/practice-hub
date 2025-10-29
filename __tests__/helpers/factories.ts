@@ -27,10 +27,15 @@
 import { inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
+  calendarEvents,
   clients,
   departments,
   documents,
   invoices,
+  leads,
+  legalPages,
+  messages,
+  proposals,
   services,
   tasks,
   taskTemplates,
@@ -67,6 +72,11 @@ export interface TestDataTracker {
   services?: string[];
   taskTemplates?: string[];
   departments?: string[];
+  proposals?: string[];
+  leads?: string[];
+  calendarEvents?: string[];
+  messages?: string[];
+  legalPages?: string[];
 }
 
 /**
@@ -290,6 +300,159 @@ export async function createTestTimeEntry(
 }
 
 /**
+ * Create a test proposal
+ */
+export async function createTestProposal(
+  tenantId: string,
+  clientId: string,
+  overrides: Partial<typeof proposals.$inferInsert> = {},
+) {
+  const proposalId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [proposal] = await db
+    .insert(proposals)
+    .values({
+      id: proposalId,
+      tenantId,
+      clientId,
+      proposalNumber: overrides.proposalNumber || `PROP-TEST-${timestamp}`,
+      title: overrides.title || `Test Proposal ${timestamp}`,
+      status: overrides.status || "draft",
+      salesStage: overrides.salesStage || "enquiry",
+      monthlyTotal: overrides.monthlyTotal || "100.00",
+      annualTotal: overrides.annualTotal || "1200.00",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return proposal;
+}
+
+/**
+ * Create a test lead
+ */
+export async function createTestLead(
+  tenantId: string,
+  overrides: Partial<typeof leads.$inferInsert> = {},
+) {
+  const leadId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [lead] = await db
+    .insert(leads)
+    .values({
+      id: leadId,
+      tenantId,
+      firstName: overrides.firstName || "Jane",
+      lastName: overrides.lastName || "Smith",
+      email: overrides.email || `lead-${timestamp}@example.com`,
+      phone: overrides.phone || "555-0200",
+      companyName: overrides.companyName || `Test Lead ${timestamp}`,
+      status: overrides.status || "new",
+      source: overrides.source || "website",
+      assignedToId: overrides.assignedToId || null,
+      notes: overrides.notes || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return lead;
+}
+
+/**
+ * Create a test calendar event
+ */
+export async function createTestCalendarEvent(
+  tenantId: string,
+  createdBy: string,
+  overrides: Partial<typeof calendarEvents.$inferInsert> = {},
+) {
+  const eventId = crypto.randomUUID();
+  const timestamp = Date.now();
+  const startDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // Tomorrow
+  const endDate = new Date(Date.now() + 25 * 60 * 60 * 1000); // Tomorrow + 1 hour
+
+  const [event] = await db
+    .insert(calendarEvents)
+    .values({
+      id: eventId,
+      tenantId,
+      createdBy,
+      type: overrides.type || "meeting",
+      title: overrides.title || `Test Event ${timestamp}`,
+      description: overrides.description || "Test event description",
+      startTime: overrides.startTime || startDate,
+      endTime: overrides.endTime || endDate,
+      location: overrides.location || null,
+      clientId: overrides.clientId || null,
+      ...overrides,
+    })
+    .returning();
+
+  return event;
+}
+
+/**
+ * Create a test message (for messaging/threads)
+ */
+export async function createTestMessage(
+  senderId: string,
+  threadId: string,
+  overrides: Partial<typeof messages.$inferInsert> = {},
+) {
+  const messageId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [message] = await db
+    .insert(messages)
+    .values({
+      id: messageId,
+      senderId,
+      threadId,
+      senderType: overrides.senderType || "staff",
+      content: overrides.content || `Test message ${timestamp}`,
+      type: overrides.type || "text",
+      metadata: overrides.metadata || null,
+      ...overrides,
+    })
+    .returning();
+
+  return message;
+}
+
+/**
+ * Create a test legal page
+ */
+export async function createTestLegalPage(
+  tenantId: string,
+  overrides: Partial<typeof legalPages.$inferInsert> = {},
+) {
+  const pageId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [page] = await db
+    .insert(legalPages)
+    .values({
+      id: pageId,
+      tenantId,
+      pageType: overrides.pageType || "privacy",
+      content:
+        overrides.content || `# Test Legal Page\n\nContent for ${timestamp}`,
+      version: overrides.version || 1,
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return page;
+}
+
+/**
  * Cleanup test data by deleting all tracked IDs
  *
  * Usage:
@@ -306,6 +469,16 @@ export async function createTestTimeEntry(
 export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
   try {
     // Delete in reverse order of foreign key dependencies
+    if (tracker.messages && tracker.messages.length > 0) {
+      await db.delete(messages).where(inArray(messages.id, tracker.messages));
+    }
+
+    if (tracker.calendarEvents && tracker.calendarEvents.length > 0) {
+      await db
+        .delete(calendarEvents)
+        .where(inArray(calendarEvents.id, tracker.calendarEvents));
+    }
+
     if (
       tracker.taskWorkflowInstances &&
       tracker.taskWorkflowInstances.length > 0
@@ -347,6 +520,12 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
         .where(inArray(documents.id, tracker.documents));
     }
 
+    if (tracker.proposals && tracker.proposals.length > 0) {
+      await db
+        .delete(proposals)
+        .where(inArray(proposals.id, tracker.proposals));
+    }
+
     if (tracker.invoices && tracker.invoices.length > 0) {
       await db.delete(invoices).where(inArray(invoices.id, tracker.invoices));
     }
@@ -365,8 +544,18 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
       await db.delete(services).where(inArray(services.id, tracker.services));
     }
 
+    if (tracker.leads && tracker.leads.length > 0) {
+      await db.delete(leads).where(inArray(leads.id, tracker.leads));
+    }
+
     if (tracker.clients && tracker.clients.length > 0) {
       await db.delete(clients).where(inArray(clients.id, tracker.clients));
+    }
+
+    if (tracker.legalPages && tracker.legalPages.length > 0) {
+      await db
+        .delete(legalPages)
+        .where(inArray(legalPages.id, tracker.legalPages));
     }
 
     if (tracker.users && tracker.users.length > 0) {

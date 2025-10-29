@@ -6,7 +6,7 @@
 
 # Interface: CSVParserConfig
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L29)
+Defined in: [lib/utils/csv-parser-enhanced.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L29)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/utils/csv-parser-enhanced.ts:29](https://github.com/JoeInnsp23/
 
 > `optional` **dateFormats**: `string`[]
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L31)
+Defined in: [lib/utils/csv-parser-enhanced.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L31)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/utils/csv-parser-enhanced.ts:31](https://github.com/JoeInnsp23/
 
 > `optional` **delimiter**: [`Delimiter`](../type-aliases/Delimiter.md)
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L30)
+Defined in: [lib/utils/csv-parser-enhanced.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L30)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/utils/csv-parser-enhanced.ts:30](https://github.com/JoeInnsp23/
 
 > `optional` **encoding**: `string`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L32)
+Defined in: [lib/utils/csv-parser-enhanced.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L32)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/utils/csv-parser-enhanced.ts:32](https://github.com/JoeInnsp23/
 
 > `optional` **skipEmptyLines**: `boolean`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L33)
+Defined in: [lib/utils/csv-parser-enhanced.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L33)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/utils/csv-parser-enhanced.ts:33](https://github.com/JoeInnsp23/
 
 > `optional` **stripBOM**: `boolean`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L35)
+Defined in: [lib/utils/csv-parser-enhanced.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L35)
 
 ***
 
@@ -54,4 +54,4 @@ Defined in: [lib/utils/csv-parser-enhanced.ts:35](https://github.com/JoeInnsp23/
 
 > `optional` **trimFields**: `boolean`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/utils/csv-parser-enhanced.ts#L34)
+Defined in: [lib/utils/csv-parser-enhanced.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/utils/csv-parser-enhanced.ts#L34)
