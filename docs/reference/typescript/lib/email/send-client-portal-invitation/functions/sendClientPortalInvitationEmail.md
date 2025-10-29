@@ -8,7 +8,7 @@
 
 > **sendClientPortalInvitationEmail**(`__namedParameters`): `Promise`\<`void`\>
 
-Defined in: [lib/email/send-client-portal-invitation.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/email/send-client-portal-invitation.ts#L18)
+Defined in: [lib/email/send-client-portal-invitation.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email/send-client-portal-invitation.ts#L18)
 
 ## Parameters
 

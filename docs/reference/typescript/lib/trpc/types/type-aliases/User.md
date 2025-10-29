@@ -8,4 +8,4 @@
 
 > **User** = [`UserListOutput`](UserListOutput.md)\[`"users"`\]\[`number`\]
 
-Defined in: [lib/trpc/types.ts:90](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/trpc/types.ts#L90)
+Defined in: [lib/trpc/types.ts:90](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/trpc/types.ts#L90)

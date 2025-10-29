@@ -8,7 +8,7 @@
 
 > **generateSchemaDocs**(): `Promise`\<[`SchemaDocs`](../interfaces/SchemaDocs.md)\>
 
-Defined in: [lib/api-docs/schema-docs.ts:151](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/api-docs/schema-docs.ts#L151)
+Defined in: [lib/api-docs/schema-docs.ts:151](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/api-docs/schema-docs.ts#L151)
 
 Generate complete database schema documentation
 

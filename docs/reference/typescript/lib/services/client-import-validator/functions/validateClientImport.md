@@ -8,7 +8,7 @@
 
 > **validateClientImport**(`rows`, `tenantId`): `Promise`\<\{ `errorRows`: `number`; `errors`: `object`[]; `totalRows`: `number`; `valid`: `boolean`; `validatedData`: `object`[]; `validRows`: `number`; \}\>
 
-Defined in: [lib/services/client-import-validator.ts:193](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/services/client-import-validator.ts#L193)
+Defined in: [lib/services/client-import-validator.ts:193](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/services/client-import-validator.ts#L193)
 
 ## Parameters
 

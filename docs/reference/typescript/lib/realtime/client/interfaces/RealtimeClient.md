@@ -6,7 +6,7 @@
 
 # Interface: RealtimeClient
 
-Defined in: [lib/realtime/client.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L96)
+Defined in: [lib/realtime/client.ts:96](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L96)
 
 Abstract Realtime Client Interface
 
@@ -19,7 +19,7 @@ Both SSE and WebSocket implementations must conform to this interface.
 
 > **connect**(`url`, `options?`): `void`
 
-Defined in: [lib/realtime/client.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L102)
+Defined in: [lib/realtime/client.ts:102](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L102)
 
 Establish connection to realtime server
 
@@ -47,7 +47,7 @@ Connection options
 
 > **disconnect**(): `void`
 
-Defined in: [lib/realtime/client.ts:107](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L107)
+Defined in: [lib/realtime/client.ts:107](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L107)
 
 Disconnect from realtime server
 
@@ -61,7 +61,7 @@ Disconnect from realtime server
 
 > **getState**(): [`ConnectionState`](../type-aliases/ConnectionState.md)
 
-Defined in: [lib/realtime/client.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L131)
+Defined in: [lib/realtime/client.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L131)
 
 Get current connection state
 
@@ -77,7 +77,7 @@ Current connection state
 
 > **getStats**(): [`ConnectionStats`](ConnectionStats.md)
 
-Defined in: [lib/realtime/client.ts:137](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L137)
+Defined in: [lib/realtime/client.ts:137](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L137)
 
 Get connection statistics
 
@@ -93,7 +93,7 @@ Connection statistics
 
 > **isConnected**(): `boolean`
 
-Defined in: [lib/realtime/client.ts:148](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L148)
+Defined in: [lib/realtime/client.ts:148](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L148)
 
 Check if client is connected
 
@@ -109,7 +109,7 @@ True if connected, false otherwise
 
 > **reconnect**(): `void`
 
-Defined in: [lib/realtime/client.ts:142](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L142)
+Defined in: [lib/realtime/client.ts:142](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L142)
 
 Manually trigger reconnection
 
@@ -123,7 +123,7 @@ Manually trigger reconnection
 
 > **setPollingFallback**(`enabled`): `void`
 
-Defined in: [lib/realtime/client.ts:154](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L154)
+Defined in: [lib/realtime/client.ts:154](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L154)
 
 Enable/disable polling fallback
 
@@ -145,7 +145,7 @@ Enable or disable polling
 
 > **subscribe**\<`T`\>(`eventType`, `callback`): () => `void`
 
-Defined in: [lib/realtime/client.ts:115](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L115)
+Defined in: [lib/realtime/client.ts:115](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L115)
 
 Subscribe to a specific event type
 
@@ -185,7 +185,7 @@ Unsubscribe function
 
 > **unsubscribe**(`eventType`, `callback?`): `void`
 
-Defined in: [lib/realtime/client.ts:125](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/realtime/client.ts#L125)
+Defined in: [lib/realtime/client.ts:125](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/realtime/client.ts#L125)
 
 Unsubscribe from a specific event type
 

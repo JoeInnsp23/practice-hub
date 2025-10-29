@@ -8,7 +8,7 @@
 
 > **hasBOM**(`content`): `boolean`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:113](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/lib/utils/csv-parser-enhanced.ts#L113)
+Defined in: [lib/utils/csv-parser-enhanced.ts:113](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/utils/csv-parser-enhanced.ts#L113)
 
 Check if content starts with a BOM
 

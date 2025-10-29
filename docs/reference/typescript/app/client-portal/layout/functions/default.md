@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `ReactNode`
 
-Defined in: [app/client-portal/layout.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/a34b88d59620751d062dae9e1d1dc2d46ddb2496/app/client-portal/layout.tsx#L3)
+Defined in: [app/client-portal/layout.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/app/client-portal/layout.tsx#L3)
 
 ## Parameters
 
