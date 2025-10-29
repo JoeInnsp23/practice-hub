@@ -6,7 +6,7 @@
 
 # Class: EventSubscriptionManager
 
-Defined in: [lib/realtime/client.ts:160](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L160)
+Defined in: [lib/realtime/client.ts:160](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L160)
 
 Event emitter for managing subscriptions
 
@@ -26,7 +26,7 @@ Event emitter for managing subscriptions
 
 > **clear**(): `void`
 
-Defined in: [lib/realtime/client.ts:221](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L221)
+Defined in: [lib/realtime/client.ts:221](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L221)
 
 Clear all subscriptions
 
@@ -40,7 +40,7 @@ Clear all subscriptions
 
 > **emit**\<`T`\>(`event`): `void`
 
-Defined in: [lib/realtime/client.ts:205](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L205)
+Defined in: [lib/realtime/client.ts:205](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L205)
 
 Emit event to all subscribers
 
@@ -66,7 +66,7 @@ Emit event to all subscribers
 
 > **getActiveEventTypes**(): `string`[]
 
-Defined in: [lib/realtime/client.ts:235](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L235)
+Defined in: [lib/realtime/client.ts:235](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L235)
 
 Get all active event types
 
@@ -80,7 +80,7 @@ Get all active event types
 
 > **getSubscriptionCount**(`eventType`): `number`
 
-Defined in: [lib/realtime/client.ts:228](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L228)
+Defined in: [lib/realtime/client.ts:228](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L228)
 
 Get subscription count for an event type
 
@@ -100,7 +100,7 @@ Get subscription count for an event type
 
 > **subscribe**\<`T`\>(`eventType`, `callback`): () => `void`
 
-Defined in: [lib/realtime/client.ts:166](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L166)
+Defined in: [lib/realtime/client.ts:166](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L166)
 
 Add subscription
 
@@ -134,7 +134,7 @@ Add subscription
 
 > **unsubscribe**(`eventType`, `callback?`): `void`
 
-Defined in: [lib/realtime/client.ts:186](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/realtime/client.ts#L186)
+Defined in: [lib/realtime/client.ts:186](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/realtime/client.ts#L186)
 
 Remove subscription
 

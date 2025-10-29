@@ -6,11 +6,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clientPortalRouter } from "@/app/server/routers/clientPortal";
-import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
+import { createClientPortalCaller } from "../helpers/trpc";
 
 // Use vi.hoisted with dynamic import to create db mock before vi.mock processes
 const mockedDb = await vi.hoisted(async () => {
@@ -34,12 +30,12 @@ vi.mock("@/lib/docuseal/client", () => ({
 }));
 
 describe("app/server/routers/clientPortal.ts", () => {
-  let ctx: TestContextWithAuth;
-  let _caller: ReturnType<typeof createCaller<typeof clientPortalRouter>>;
+  let portalCaller: ReturnType<
+    typeof createClientPortalCaller<typeof clientPortalRouter>
+  >;
 
   beforeEach(() => {
-    ctx = createMockContext();
-    _caller = createCaller(clientPortalRouter, ctx);
+    portalCaller = createClientPortalCaller(clientPortalRouter);
     vi.clearAllMocks();
   });
 
@@ -61,7 +57,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getProposals(invalidInput as Record<string, unknown>),
+        portalCaller.getProposals(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -70,7 +66,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.getProposals(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.getProposals(validInput),
+      ).resolves.not.toThrow();
     });
 
     it("should accept valid input with status", async () => {
@@ -79,7 +77,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         status: "sent" as const,
       };
 
-      await expect(_caller.getProposals(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.getProposals(validInput),
+      ).resolves.not.toThrow();
     });
 
     it("should validate status enum values", async () => {
@@ -89,7 +89,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getProposals(invalidInput as Record<string, unknown>),
+        portalCaller.getProposals(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -98,7 +98,7 @@ describe("app/server/routers/clientPortal.ts", () => {
 
       for (const status of validStatuses) {
         await expect(
-          _caller.getProposals({
+          portalCaller.getProposals({
             clientId: "550e8400-e29b-41d4-a716-446655440000",
             status: status as unknown as "sent",
           }),
@@ -114,7 +114,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getProposalById(invalidInput as Record<string, unknown>),
+        portalCaller.getProposalById(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -123,7 +123,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.getProposalById(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.getProposalById(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -135,7 +137,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getInvoices(invalidInput as Record<string, unknown>),
+        portalCaller.getInvoices(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -144,7 +146,7 @@ describe("app/server/routers/clientPortal.ts", () => {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.getInvoices(validInput)).resolves.not.toThrow();
+      await expect(portalCaller.getInvoices(validInput)).resolves.not.toThrow();
     });
 
     it("should accept valid input with status", async () => {
@@ -153,7 +155,7 @@ describe("app/server/routers/clientPortal.ts", () => {
         status: "paid" as const,
       };
 
-      await expect(_caller.getInvoices(validInput)).resolves.not.toThrow();
+      await expect(portalCaller.getInvoices(validInput)).resolves.not.toThrow();
     });
 
     it("should validate status enum values", async () => {
@@ -163,7 +165,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getInvoices(invalidInput as Record<string, unknown>),
+        portalCaller.getInvoices(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -172,7 +174,7 @@ describe("app/server/routers/clientPortal.ts", () => {
 
       for (const status of validStatuses) {
         await expect(
-          _caller.getInvoices({
+          portalCaller.getInvoices({
             clientId: "550e8400-e29b-41d4-a716-446655440000",
             status: status as unknown as "sent",
           }),
@@ -188,7 +190,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getInvoiceById(invalidInput as Record<string, unknown>),
+        portalCaller.getInvoiceById(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -197,7 +199,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.getInvoiceById(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.getInvoiceById(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -208,7 +212,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getDocuments(invalidInput as Record<string, unknown>),
+        portalCaller.getDocuments(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -217,7 +221,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.getDocuments(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.getDocuments(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -228,7 +234,9 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getDocumentsToSign(invalidInput as Record<string, unknown>),
+        portalCaller.getDocumentsToSign(
+          invalidInput as Record<string, unknown>,
+        ),
       ).rejects.toThrow();
     });
 
@@ -238,7 +246,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getDocumentsToSign(validInput),
+        portalCaller.getDocumentsToSign(validInput),
       ).resolves.not.toThrow();
     });
   });
@@ -250,7 +258,9 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getSignedDocuments(invalidInput as Record<string, unknown>),
+        portalCaller.getSignedDocuments(
+          invalidInput as Record<string, unknown>,
+        ),
       ).rejects.toThrow();
     });
 
@@ -260,7 +270,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getSignedDocuments(validInput),
+        portalCaller.getSignedDocuments(validInput),
       ).resolves.not.toThrow();
     });
   });
@@ -272,7 +282,7 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.listMyThreads(invalidInput as Record<string, unknown>),
+        portalCaller.listMyThreads(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
@@ -281,7 +291,9 @@ describe("app/server/routers/clientPortal.ts", () => {
         clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.listMyThreads(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.listMyThreads(validInput),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -292,17 +304,17 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.getThread(invalidInput as Record<string, unknown>),
+        portalCaller.getThread(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
     it("should accept valid thread and client IDs", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.getThread(validInput)).resolves.not.toThrow();
+      await expect(portalCaller.getThread(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -314,47 +326,49 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.listMessages(invalidInput as Record<string, unknown>),
+        portalCaller.listMessages(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
     it("should accept valid input with defaults", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.listMessages(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.listMessages(validInput),
+      ).resolves.not.toThrow();
     });
 
     it("should validate limit min value", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         limit: 0, // Below minimum of 1
       };
 
-      await expect(_caller.listMessages(invalidInput)).rejects.toThrow();
+      await expect(portalCaller.listMessages(invalidInput)).rejects.toThrow();
     });
 
     it("should validate limit max value", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         limit: 101, // Exceeds max of 100
       };
 
-      await expect(_caller.listMessages(invalidInput)).rejects.toThrow();
+      await expect(portalCaller.listMessages(invalidInput)).rejects.toThrow();
     });
 
     it("should validate offset min value", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         offset: -1, // Below minimum of 0
       };
 
-      await expect(_caller.listMessages(invalidInput)).rejects.toThrow();
+      await expect(portalCaller.listMessages(invalidInput)).rejects.toThrow();
     });
   });
 
@@ -366,60 +380,60 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.sendMessage(invalidInput as Record<string, unknown>),
+        portalCaller.sendMessage(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
     it("should accept valid message data", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         content: "Hello from client portal",
       };
 
-      await expect(_caller.sendMessage(validInput)).resolves.not.toThrow();
+      await expect(portalCaller.sendMessage(validInput)).resolves.not.toThrow();
     });
 
     it("should validate content minimum length", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         content: "", // Empty string
       };
 
-      await expect(_caller.sendMessage(invalidInput)).rejects.toThrow();
+      await expect(portalCaller.sendMessage(invalidInput)).rejects.toThrow();
     });
 
     it("should validate content maximum length", async () => {
       const invalidInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         content: "a".repeat(5001), // Exceeds max of 5000
       };
 
-      await expect(_caller.sendMessage(invalidInput)).rejects.toThrow();
+      await expect(portalCaller.sendMessage(invalidInput)).rejects.toThrow();
     });
 
     it("should accept file type", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         content: "File attachment",
         type: "file" as const,
       };
 
-      await expect(_caller.sendMessage(validInput)).resolves.not.toThrow();
+      await expect(portalCaller.sendMessage(validInput)).resolves.not.toThrow();
     });
 
     it("should accept message without metadata", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         content: "Message without metadata",
         type: "text" as const,
       };
 
-      await expect(_caller.sendMessage(validInput)).resolves.not.toThrow();
+      await expect(portalCaller.sendMessage(validInput)).resolves.not.toThrow();
     });
   });
 
@@ -430,17 +444,19 @@ describe("app/server/routers/clientPortal.ts", () => {
       };
 
       await expect(
-        _caller.markThreadAsRead(invalidInput as Record<string, unknown>),
+        portalCaller.markThreadAsRead(invalidInput as Record<string, unknown>),
       ).rejects.toThrow();
     });
 
     it("should accept valid thread and client IDs", async () => {
       const validInput = {
         threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "660e8400-e29b-41d4-a716-446655440000",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
-      await expect(_caller.markThreadAsRead(validInput)).resolves.not.toThrow();
+      await expect(
+        portalCaller.markThreadAsRead(validInput),
+      ).resolves.not.toThrow();
     });
   });
 

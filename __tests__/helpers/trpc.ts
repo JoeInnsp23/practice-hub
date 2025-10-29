@@ -59,13 +59,14 @@ export function createMockClientPortalAuthContext(
     lastName: overrides.lastName || "User",
     clientAccess: overrides.clientAccess || [
       {
-        clientId: "test-client-id",
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         clientName: "Test Client",
         role: "viewer",
         isActive: true,
       },
     ],
-    currentClientId: overrides.currentClientId || "test-client-id",
+    currentClientId:
+      overrides.currentClientId || "550e8400-e29b-41d4-a716-446655440000",
   };
 }
 
@@ -134,6 +135,45 @@ export function createAdminCaller<TRouter extends RouterWithCaller>(
     authContext: createMockAdminContext(overrides.authContext ?? undefined),
   });
   return router.createCaller(adminContext);
+}
+
+/**
+ * Create a test caller with client portal context
+ */
+export function createClientPortalCaller<TRouter extends RouterWithCaller>(
+  router: TRouter,
+  overrides: Partial<Context> = {},
+) {
+  const clientPortalAuthContext =
+    overrides.clientPortalAuthContext ?? createMockClientPortalAuthContext();
+
+  const context: Context = {
+    ...createMockContext(overrides),
+    clientPortalSession: overrides.clientPortalSession ?? {
+      user: {
+        id: clientPortalAuthContext.portalUserId,
+        email: clientPortalAuthContext.email,
+        emailVerified: true,
+        name: `${clientPortalAuthContext.firstName} ${clientPortalAuthContext.lastName}`,
+        image: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      session: {
+        id: "test-portal-session-id",
+        userId: clientPortalAuthContext.portalUserId,
+        expiresAt: new Date(Date.now() + 86400000), // 24 hours
+        token: "test-portal-token",
+        ipAddress: "127.0.0.1",
+        userAgent: "test-portal-agent",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    },
+    clientPortalAuthContext,
+  };
+
+  return router.createCaller(context);
 }
 
 /**

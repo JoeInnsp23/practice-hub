@@ -8,7 +8,7 @@
 
 > **ContactInfoStep**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/wizard/contact-info-step.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/components/client-hub/clients/wizard/contact-info-step.tsx#L22)
+Defined in: [components/client-hub/clients/wizard/contact-info-step.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/components/client-hub/clients/wizard/contact-info-step.tsx#L22)
 
 ## Parameters
 

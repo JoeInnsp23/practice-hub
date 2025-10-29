@@ -8,7 +8,7 @@
 
 > **MonthlyTrendChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/analytics/monthly-trend-chart.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/components/proposal-hub/analytics/monthly-trend-chart.tsx#L28)
+Defined in: [components/proposal-hub/analytics/monthly-trend-chart.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/components/proposal-hub/analytics/monthly-trend-chart.tsx#L28)
 
 ## Parameters
 

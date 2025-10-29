@@ -8,7 +8,7 @@
 
 > **ThemeToggle**(): `Element`
 
-Defined in: [components/shared/theme-toggle.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/components/shared/theme-toggle.tsx#L8)
+Defined in: [components/shared/theme-toggle.tsx:8](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/components/shared/theme-toggle.tsx#L8)
 
 ## Returns
 

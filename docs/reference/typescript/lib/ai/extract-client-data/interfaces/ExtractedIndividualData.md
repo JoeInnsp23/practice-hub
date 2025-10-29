@@ -6,7 +6,7 @@
 
 # Interface: ExtractedIndividualData
 
-Defined in: [lib/ai/extract-client-data.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L28)
+Defined in: [lib/ai/extract-client-data.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L28)
 
 Extracted individual data from ID documents (UK-specific)
 
@@ -16,7 +16,7 @@ Extracted individual data from ID documents (UK-specific)
 
 > `optional` **address**: `object`
 
-Defined in: [lib/ai/extract-client-data.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L36)
+Defined in: [lib/ai/extract-client-data.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L36)
 
 #### city?
 
@@ -44,7 +44,7 @@ Defined in: [lib/ai/extract-client-data.ts:36](https://github.com/JoeInnsp23/pra
 
 > `optional` **dateOfBirth**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L31)
+Defined in: [lib/ai/extract-client-data.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L31)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [lib/ai/extract-client-data.ts:31](https://github.com/JoeInnsp23/pra
 
 > `optional` **documentNumber**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L33)
+Defined in: [lib/ai/extract-client-data.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L33)
 
 ***
 
@@ -60,7 +60,7 @@ Defined in: [lib/ai/extract-client-data.ts:33](https://github.com/JoeInnsp23/pra
 
 > `optional` **documentType**: `"passport"` \| `"driving_licence"`
 
-Defined in: [lib/ai/extract-client-data.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L34)
+Defined in: [lib/ai/extract-client-data.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L34)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [lib/ai/extract-client-data.ts:34](https://github.com/JoeInnsp23/pra
 
 > `optional` **expiryDate**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L35)
+Defined in: [lib/ai/extract-client-data.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L35)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [lib/ai/extract-client-data.ts:35](https://github.com/JoeInnsp23/pra
 
 > `optional` **firstName**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L29)
+Defined in: [lib/ai/extract-client-data.ts:29](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L29)
 
 ***
 
@@ -84,7 +84,7 @@ Defined in: [lib/ai/extract-client-data.ts:29](https://github.com/JoeInnsp23/pra
 
 > `optional` **lastName**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L30)
+Defined in: [lib/ai/extract-client-data.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L30)
 
 ***
 
@@ -92,4 +92,4 @@ Defined in: [lib/ai/extract-client-data.ts:30](https://github.com/JoeInnsp23/pra
 
 > `optional` **nationality**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/ai/extract-client-data.ts#L32)
+Defined in: [lib/ai/extract-client-data.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/2cc630b67eec00abeef98e9d5f6c2dd4917bf246/lib/ai/extract-client-data.ts#L32)
