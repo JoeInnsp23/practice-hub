@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Promise`\<`Element`\>
 
-Defined in: [app/admin/users/\[id\]/page.tsx:12](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/app/admin/users/[id]/page.tsx#L12)
+Defined in: [app/admin/users/\[id\]/page.tsx:12](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/app/admin/users/[id]/page.tsx#L12)
 
 ## Parameters
 

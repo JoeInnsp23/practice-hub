@@ -8,7 +8,7 @@
 
 > **detectStageCompletion**(`stageProgress`, `stageId`, `checklistItems`): `boolean`
 
-Defined in: [lib/email/workflow-triggers.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/email/workflow-triggers.ts#L67)
+Defined in: [lib/email/workflow-triggers.ts:67](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/email/workflow-triggers.ts#L67)
 
 Detects if a workflow stage has just been completed
 

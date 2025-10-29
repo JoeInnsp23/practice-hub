@@ -8,7 +8,7 @@
 
 > **highlightMentions**(`text`): `string`
 
-Defined in: [lib/services/mention-parser.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/services/mention-parser.ts#L76)
+Defined in: [lib/services/mention-parser.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/services/mention-parser.ts#L76)
 
 Highlight
 

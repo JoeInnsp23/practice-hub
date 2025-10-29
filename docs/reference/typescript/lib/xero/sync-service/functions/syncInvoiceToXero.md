@@ -8,7 +8,7 @@
 
 > **syncInvoiceToXero**(`invoiceId`, `tenantId`): `Promise`\<\{ `error?`: `string`; `success`: `boolean`; \}\>
 
-Defined in: [lib/xero/sync-service.ts:132](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/xero/sync-service.ts#L132)
+Defined in: [lib/xero/sync-service.ts:132](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/xero/sync-service.ts#L132)
 
 Sync an invoice to Xero
 

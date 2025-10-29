@@ -8,4 +8,4 @@
 
 > `const` **salesStageEnum**: `PgEnum`\<\[`"enquiry"`, `"qualified"`, `"proposal_sent"`, `"follow_up"`, `"won"`, `"lost"`, `"dormant"`\]\>
 
-Defined in: [lib/db/schema.ts:1646](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/db/schema.ts#L1646)
+Defined in: [lib/db/schema.ts:1646](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/db/schema.ts#L1646)

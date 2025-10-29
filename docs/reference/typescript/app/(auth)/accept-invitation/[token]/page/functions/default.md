@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/(auth)/accept-invitation/\[token\]/page.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/app/(auth)/accept-invitation/[token]/page.tsx#L38)
+Defined in: [app/(auth)/accept-invitation/\[token\]/page.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/app/(auth)/accept-invitation/[token]/page.tsx#L38)
 
 ## Returns
 

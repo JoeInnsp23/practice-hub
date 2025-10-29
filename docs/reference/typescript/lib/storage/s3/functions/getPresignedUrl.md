@@ -8,7 +8,7 @@
 
 > **getPresignedUrl**(`fileName`, `expiresIn`): `Promise`\<`string`\>
 
-Defined in: [lib/storage/s3.ts:74](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/storage/s3.ts#L74)
+Defined in: [lib/storage/s3.ts:74](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/storage/s3.ts#L74)
 
 Generate a presigned URL for temporary access to a private file
 

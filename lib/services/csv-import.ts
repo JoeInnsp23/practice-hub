@@ -68,145 +68,154 @@ export async function parseCsvFile<T>(
     stripBOM: shouldStripBOM = true,
   } = options;
 
-  return new Promise(async (resolve) => {
-    const validData: T[] = [];
-    const errors: ImportError[] = [];
-    let totalRows = 0;
-    let skippedRows = 0;
+  return (async () => {
+    return new Promise<ParseResult<T>>((resolve) => {
+      const validData: T[] = [];
+      const errors: ImportError[] = [];
+      let totalRows = 0;
+      let skippedRows = 0;
 
-    // Pre-process file content if needed (BOM stripping, delimiter detection)
-    let fileToParse: File | string = file;
-    let detectedDelimiter: Delimiter | undefined = delimiter;
+      // Pre-process file content if needed (BOM stripping, delimiter detection)
+      let fileToParse: File | string = file;
+      let detectedDelimiter: Delimiter | undefined = delimiter;
 
-    // Handle string content
-    if (typeof file === "string") {
-      let content = file;
+      // Use IIFE to handle async preprocessing
+      (async () => {
+        // Handle string content
+        if (typeof file === "string") {
+          let content = file;
 
-      // Strip BOM if enabled (AC5)
-      if (shouldStripBOM) {
-        content = stripBOM(content);
-      }
-
-      // Auto-detect delimiter if enabled (AC2)
-      if (autoDetectDelimiter && !delimiter) {
-        detectedDelimiter = detectDelimiterRobust(content);
-      }
-
-      fileToParse = content;
-    }
-
-    // Handle File objects
-    if (file instanceof File) {
-      // Read file content for BOM stripping and delimiter detection
-      if (shouldStripBOM || autoDetectDelimiter) {
-        const text = await file.text();
-        let content = text;
-
-        if (shouldStripBOM) {
-          content = stripBOM(content);
-        }
-
-        if (autoDetectDelimiter && !delimiter) {
-          detectedDelimiter = detectDelimiterRobust(content);
-        }
-
-        fileToParse = content;
-      }
-    }
-
-    Papa.parse(fileToParse, {
-      header: true,
-      skipEmptyLines: false, // Get all rows so we can count skipped ones
-      dynamicTyping,
-      delimiter: detectedDelimiter, // Use detected or explicit delimiter (AC1)
-      transformHeader: (header: string) => {
-        return trimHeaders ? header.trim() : header;
-      },
-      transform: (value: string) => {
-        return trimValues ? value.trim() : value;
-      },
-      complete: (results) => {
-        // Process all rows and manually handle empty row skipping
-        const rowsToProcess: Array<{
-          row: Record<string, unknown>;
-          rowNumber: number;
-        }> = [];
-        let currentRowNumber = 1; // Start after header
-        const headers = results.meta.fields || [];
-
-        results.data.forEach((row: unknown) => {
-          const rowRecord = row as Record<string, unknown>;
-          currentRowNumber++;
-
-          // Check if this is a blank line vs a row with empty values
-          // Blank lines have MISSING fields (undefined), rows with commas have empty string values
-          const isTrulyBlankLine = headers.some(
-            (field) => !(field in rowRecord),
-          );
-
-          if (isTrulyBlankLine && skipEmptyLines) {
-            // Skip truly blank lines (missing fields) if option is enabled
-            skippedRows++;
-          } else {
-            // Keep all other rows (including rows with empty values to be validated)
-            rowsToProcess.push({ row: rowRecord, rowNumber: currentRowNumber });
+          // Strip BOM if enabled (AC5)
+          if (shouldStripBOM) {
+            content = stripBOM(content);
           }
-        });
 
-        totalRows = rowsToProcess.length + skippedRows;
+          // Auto-detect delimiter if enabled (AC2)
+          if (autoDetectDelimiter && !delimiter) {
+            detectedDelimiter = detectDelimiterRobust(content);
+          }
 
-        // Validate each row (including rows with empty field values)
-        rowsToProcess.forEach(({ row, rowNumber }) => {
-          // Validate row against schema
-          const validation = schema.safeParse(row);
+          fileToParse = content;
+        }
 
-          if (validation.success) {
-            validData.push(validation.data);
-          } else {
-            // Collect validation errors
-            validation.error.issues.forEach((issue) => {
-              errors.push({
-                row: rowNumber,
-                field: issue.path.join("."),
-                message: issue.message,
-                value: row[issue.path[0] as string],
-              });
+        // Handle File objects
+        if (file instanceof File) {
+          // Read file content for BOM stripping and delimiter detection
+          if (shouldStripBOM || autoDetectDelimiter) {
+            const text = await file.text();
+            let content = text;
+
+            if (shouldStripBOM) {
+              content = stripBOM(content);
+            }
+
+            if (autoDetectDelimiter && !delimiter) {
+              detectedDelimiter = detectDelimiterRobust(content);
+            }
+
+            fileToParse = content;
+          }
+        }
+
+        // Parse CSV after preprocessing
+        Papa.parse(fileToParse, {
+          header: true,
+          skipEmptyLines: false, // Get all rows so we can count skipped ones
+          dynamicTyping,
+          delimiter: detectedDelimiter, // Use detected or explicit delimiter (AC1)
+          transformHeader: (header: string) => {
+            return trimHeaders ? header.trim() : header;
+          },
+          transform: (value: string) => {
+            return trimValues ? value.trim() : value;
+          },
+          complete: (results) => {
+            // Process all rows and manually handle empty row skipping
+            const rowsToProcess: Array<{
+              row: Record<string, unknown>;
+              rowNumber: number;
+            }> = [];
+            let currentRowNumber = 1; // Start after header
+            const headers = results.meta.fields || [];
+
+            results.data.forEach((row: unknown) => {
+              const rowRecord = row as Record<string, unknown>;
+              currentRowNumber++;
+
+              // Check if this is a blank line vs a row with empty values
+              // Blank lines have MISSING fields (undefined), rows with commas have empty string values
+              const isTrulyBlankLine = headers.some(
+                (field) => !(field in rowRecord),
+              );
+
+              if (isTrulyBlankLine && skipEmptyLines) {
+                // Skip truly blank lines (missing fields) if option is enabled
+                skippedRows++;
+              } else {
+                // Keep all other rows (including rows with empty values to be validated)
+                rowsToProcess.push({
+                  row: rowRecord,
+                  rowNumber: currentRowNumber,
+                });
+              }
             });
-          }
-        });
 
-        resolve({
-          data: validData,
-          errors,
-          meta: {
-            totalRows,
-            validRows: validData.length,
-            invalidRows: totalRows - validData.length - skippedRows,
-            skippedRows,
+            totalRows = rowsToProcess.length + skippedRows;
+
+            // Validate each row (including rows with empty field values)
+            rowsToProcess.forEach(({ row, rowNumber }) => {
+              // Validate row against schema
+              const validation = schema.safeParse(row);
+
+              if (validation.success) {
+                validData.push(validation.data);
+              } else {
+                // Collect validation errors
+                validation.error.issues.forEach((issue) => {
+                  errors.push({
+                    row: rowNumber,
+                    field: issue.path.join("."),
+                    message: issue.message,
+                    value: row[issue.path[0] as string],
+                  });
+                });
+              }
+            });
+
+            resolve({
+              data: validData,
+              errors,
+              meta: {
+                totalRows,
+                validRows: validData.length,
+                invalidRows: totalRows - validData.length - skippedRows,
+                skippedRows,
+              },
+            });
+          },
+          error: (error) => {
+            // Papa Parse parsing error
+            errors.push({
+              row: 0,
+              field: "file",
+              message: `CSV parsing error: ${error.message}`,
+            });
+
+            resolve({
+              data: [],
+              errors,
+              meta: {
+                totalRows: 0,
+                validRows: 0,
+                invalidRows: 0,
+                skippedRows: 0,
+              },
+            });
           },
         });
-      },
-      error: (error) => {
-        // Papa Parse parsing error
-        errors.push({
-          row: 0,
-          field: "file",
-          message: `CSV parsing error: ${error.message}`,
-        });
-
-        resolve({
-          data: [],
-          errors,
-          meta: {
-            totalRows: 0,
-            validRows: 0,
-            invalidRows: 0,
-            skippedRows: 0,
-          },
-        });
-      },
+      })(); // Execute async IIFE
     });
-  });
+  })();
 }
 
 /**

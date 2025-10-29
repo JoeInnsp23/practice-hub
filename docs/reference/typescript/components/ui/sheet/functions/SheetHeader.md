@@ -8,7 +8,7 @@
 
 > **SheetHeader**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/sheet.tsx:84](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/ui/sheet.tsx#L84)
+Defined in: [components/ui/sheet.tsx:84](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/components/ui/sheet.tsx#L84)
 
 ## Parameters
 

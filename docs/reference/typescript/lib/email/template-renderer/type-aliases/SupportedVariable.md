@@ -8,6 +8,6 @@
 
 > **SupportedVariable** = *typeof* [`SUPPORTED_VARIABLES`](../variables/SUPPORTED_VARIABLES.md)\[`number`\]
 
-Defined in: [lib/email/template-renderer.ts:193](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/email/template-renderer.ts#L193)
+Defined in: [lib/email/template-renderer.ts:193](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/email/template-renderer.ts#L193)
 
 Type-safe variable name

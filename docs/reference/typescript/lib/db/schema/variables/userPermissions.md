@@ -8,4 +8,4 @@
 
 > `const` **userPermissions**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:2598](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/db/schema.ts#L2598)
+Defined in: [lib/db/schema.ts:2598](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/db/schema.ts#L2598)

@@ -8,7 +8,7 @@
 
 > **PipelineValueBarChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/analytics/pipeline-value-bar-chart.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/proposal-hub/analytics/pipeline-value-bar-chart.tsx#L36)
+Defined in: [components/proposal-hub/analytics/pipeline-value-bar-chart.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/components/proposal-hub/analytics/pipeline-value-bar-chart.tsx#L36)
 
 ## Parameters
 

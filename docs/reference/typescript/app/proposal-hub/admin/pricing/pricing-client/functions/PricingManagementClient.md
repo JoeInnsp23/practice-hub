@@ -8,7 +8,7 @@
 
 > **PricingManagementClient**(): `Element`
 
-Defined in: [app/proposal-hub/admin/pricing/pricing-client.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/app/proposal-hub/admin/pricing/pricing-client.tsx#L10)
+Defined in: [app/proposal-hub/admin/pricing/pricing-client.tsx:10](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/app/proposal-hub/admin/pricing/pricing-client.tsx#L10)
 
 ## Returns
 
