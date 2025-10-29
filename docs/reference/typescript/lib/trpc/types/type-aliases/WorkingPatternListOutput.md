@@ -8,6 +8,6 @@
 
 > **WorkingPatternListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"workingPatterns"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/trpc/types.ts#L103)
+Defined in: [lib/trpc/types.ts:103](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/trpc/types.ts#L103)
 
 Working Pattern Types

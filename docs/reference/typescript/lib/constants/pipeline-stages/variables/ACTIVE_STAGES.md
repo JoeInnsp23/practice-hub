@@ -8,6 +8,6 @@
 
 > `const` **ACTIVE\_STAGES**: [`PipelineStage`](../type-aliases/PipelineStage.md)[]
 
-Defined in: [lib/constants/pipeline-stages.ts:118](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/constants/pipeline-stages.ts#L118)
+Defined in: [lib/constants/pipeline-stages.ts:118](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/constants/pipeline-stages.ts#L118)
 
 Active stages (not terminal states)

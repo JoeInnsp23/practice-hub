@@ -6,7 +6,7 @@
 
 # Interface: QueueProcessorOptions
 
-Defined in: [lib/email/queue-processor.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email/queue-processor.ts#L31)
+Defined in: [lib/email/queue-processor.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/email/queue-processor.ts#L31)
 
 Email queue processing options
 
@@ -16,7 +16,7 @@ Email queue processing options
 
 > `optional` **batchSize**: `number`
 
-Defined in: [lib/email/queue-processor.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email/queue-processor.ts#L33)
+Defined in: [lib/email/queue-processor.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/email/queue-processor.ts#L33)
 
 Maximum number of emails to process in one batch (default: 100)
 
@@ -26,7 +26,7 @@ Maximum number of emails to process in one batch (default: 100)
 
 > `optional` **respectNotificationPreferences**: `boolean`
 
-Defined in: [lib/email/queue-processor.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email/queue-processor.ts#L35)
+Defined in: [lib/email/queue-processor.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/email/queue-processor.ts#L35)
 
 Whether to respect user notification preferences (default: true)
 
@@ -36,6 +36,6 @@ Whether to respect user notification preferences (default: true)
 
 > `optional` **sendDelay**: `number`
 
-Defined in: [lib/email/queue-processor.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email/queue-processor.ts#L37)
+Defined in: [lib/email/queue-processor.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/email/queue-processor.ts#L37)
 
 Delay between emails in milliseconds to avoid rate limits (default: 100ms)

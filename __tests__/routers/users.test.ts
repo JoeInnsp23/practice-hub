@@ -173,7 +173,7 @@ describe("app/server/routers/users.ts", () => {
         },
       };
 
-      await expect(_caller.update(validInput)).resolves.not.toThrow();
+      await expect(_adminCaller.update(validInput)).resolves.not.toThrow();
     });
 
     it("should accept any string as email in updates", async () => {
@@ -185,7 +185,7 @@ describe("app/server/routers/users.ts", () => {
         },
       };
 
-      await expect(_caller.update(validInput)).resolves.not.toThrow();
+      await expect(_adminCaller.update(validInput)).resolves.not.toThrow();
     });
 
     it("should accept partial updates", async () => {
@@ -196,7 +196,7 @@ describe("app/server/routers/users.ts", () => {
         },
       };
 
-      await expect(_caller.update(validInput)).resolves.not.toThrow();
+      await expect(_adminCaller.update(validInput)).resolves.not.toThrow();
     });
   });
 

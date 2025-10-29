@@ -8,7 +8,7 @@
 
 > **TaskModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/tasks/task-modal.tsx:118](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/components/client-hub/tasks/task-modal.tsx#L118)
+Defined in: [components/client-hub/tasks/task-modal.tsx:118](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/components/client-hub/tasks/task-modal.tsx#L118)
 
 ## Parameters
 

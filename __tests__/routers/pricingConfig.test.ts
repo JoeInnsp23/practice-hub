@@ -6,11 +6,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { pricingConfigRouter } from "@/app/server/routers/pricingConfig";
-import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
+import { createAdminCaller } from "../helpers/trpc";
 
 // Use vi.hoisted with dynamic import to create db mock before vi.mock processes
 const mockedDb = await vi.hoisted(async () => {
@@ -23,13 +19,13 @@ vi.mock("@/lib/db", () => ({
   db: mockedDb,
 }));
 
-describe("app/server/routers/pricingConfig.ts", () => {
-  let ctx: TestContextWithAuth;
-  let caller: ReturnType<typeof createCaller<typeof pricingConfigRouter>>;
+describe("app/server/routers/pricingConfig.test.ts", () => {
+  let adminCaller: ReturnType<
+    typeof createAdminCaller<typeof pricingConfigRouter>
+  >;
 
   beforeEach(() => {
-    ctx = createMockContext();
-    caller = createCaller(pricingConfigRouter, ctx);
+    adminCaller = createAdminCaller(pricingConfigRouter);
     vi.clearAllMocks();
   });
 
@@ -51,7 +47,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateComplexityMultipliers(invalidInput),
+        adminCaller.updateComplexityMultipliers(invalidInput),
       ).rejects.toThrow();
     });
 
@@ -67,7 +63,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateComplexityMultipliers(validInput),
+        adminCaller.updateComplexityMultipliers(validInput),
       ).resolves.not.toThrow();
     });
 
@@ -83,7 +79,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateComplexityMultipliers(validInput),
+        adminCaller.updateComplexityMultipliers(validInput),
       ).resolves.not.toThrow();
     });
 
@@ -99,7 +95,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateComplexityMultipliers(invalidInput),
+        adminCaller.updateComplexityMultipliers(invalidInput),
       ).rejects.toThrow();
     });
 
@@ -115,7 +111,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateComplexityMultipliers(invalidInput),
+        adminCaller.updateComplexityMultipliers(invalidInput),
       ).rejects.toThrow();
     });
 
@@ -131,7 +127,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateComplexityMultipliers(invalidInput),
+        adminCaller.updateComplexityMultipliers(invalidInput),
       ).rejects.toThrow();
     });
   });
@@ -146,7 +142,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateIndustryMultipliers(invalidInput),
+        adminCaller.updateIndustryMultipliers(invalidInput),
       ).rejects.toThrow();
     });
 
@@ -159,7 +155,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateIndustryMultipliers(validInput),
+        adminCaller.updateIndustryMultipliers(validInput),
       ).resolves.not.toThrow();
     });
 
@@ -172,7 +168,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateIndustryMultipliers(invalidInput),
+        adminCaller.updateIndustryMultipliers(invalidInput),
       ).rejects.toThrow();
     });
   });
@@ -186,7 +182,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
+      await expect(
+        adminCaller.updateDiscountRules(invalidInput),
+      ).rejects.toThrow();
     });
 
     it("should accept valid discount rules", async () => {
@@ -218,7 +216,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateDiscountRules(validInput),
+        adminCaller.updateDiscountRules(validInput),
       ).resolves.not.toThrow();
     });
 
@@ -250,7 +248,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
+      await expect(
+        adminCaller.updateDiscountRules(invalidInput),
+      ).rejects.toThrow();
     });
 
     it("should validate duration ranges", async () => {
@@ -281,7 +281,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(caller.updateDiscountRules(invalidInput)).rejects.toThrow();
+      await expect(
+        adminCaller.updateDiscountRules(invalidInput),
+      ).rejects.toThrow();
     });
   });
 
@@ -292,7 +294,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
         defaultTurnoverBand: "90k-149k",
       };
 
-      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
+      await expect(
+        adminCaller.updateGlobalSettings(invalidInput),
+      ).rejects.toThrow();
     });
 
     it("should accept valid global settings", async () => {
@@ -305,7 +309,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
       };
 
       await expect(
-        caller.updateGlobalSettings(validInput),
+        adminCaller.updateGlobalSettings(validInput),
       ).resolves.not.toThrow();
     });
 
@@ -318,7 +322,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 0,
       };
 
-      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
+      await expect(
+        adminCaller.updateGlobalSettings(invalidInput),
+      ).rejects.toThrow();
     });
 
     it("should validate rounding rule enum values", async () => {
@@ -330,7 +336,9 @@ describe("app/server/routers/pricingConfig.ts", () => {
         taxRate: 0,
       };
 
-      await expect(caller.updateGlobalSettings(invalidInput)).rejects.toThrow();
+      await expect(
+        adminCaller.updateGlobalSettings(invalidInput),
+      ).rejects.toThrow();
     });
 
     it("should accept all valid industry values", async () => {
@@ -338,7 +346,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
 
       for (const industry of validIndustries) {
         await expect(
-          caller.updateGlobalSettings({
+          adminCaller.updateGlobalSettings({
             defaultTurnoverBand: "90k-149k",
             defaultIndustry: industry,
             roundingRule: "nearest_1",
@@ -354,7 +362,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
 
       for (const rule of validRules) {
         await expect(
-          caller.updateGlobalSettings({
+          adminCaller.updateGlobalSettings({
             defaultTurnoverBand: "90k-149k",
             defaultIndustry: "standard",
             roundingRule: rule,
@@ -392,7 +400,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         // Missing config
       };
 
-      await expect(caller.importConfig(invalidInput)).rejects.toThrow();
+      await expect(adminCaller.importConfig(invalidInput)).rejects.toThrow();
     });
 
     it("should accept valid configuration import", async () => {
@@ -454,7 +462,7 @@ describe("app/server/routers/pricingConfig.ts", () => {
         },
       };
 
-      await expect(caller.importConfig(validInput)).resolves.not.toThrow();
+      await expect(adminCaller.importConfig(validInput)).resolves.not.toThrow();
     });
   });
 

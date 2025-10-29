@@ -8,6 +8,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { legalRouter } from "@/app/server/routers/legal";
 import {
+  createAdminCaller,
   createCaller,
   createMockContext,
   type TestContextWithAuth,
@@ -27,10 +28,12 @@ vi.mock("@/lib/db", () => ({
 describe("app/server/routers/legal.ts", () => {
   let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof legalRouter>>;
+  let _adminCaller: ReturnType<typeof createAdminCaller<typeof legalRouter>>;
 
   beforeEach(() => {
     ctx = createMockContext();
     _caller = createCaller(legalRouter, ctx);
+    _adminCaller = createAdminCaller(legalRouter);
     vi.clearAllMocks();
   });
 
@@ -83,7 +86,7 @@ describe("app/server/routers/legal.ts", () => {
 
     it("should accept valid input with pageType and content", async () => {
       await expect(
-        _caller.update({
+        _adminCaller.update({
           pageType: "privacy",
           content: "# Privacy Policy\n\nThis is the privacy policy content.",
         }),
@@ -92,7 +95,7 @@ describe("app/server/routers/legal.ts", () => {
 
     it("should reject empty content", async () => {
       await expect(
-        _caller.update({
+        _adminCaller.update({
           pageType: "privacy",
           content: "",
         }),
@@ -101,7 +104,7 @@ describe("app/server/routers/legal.ts", () => {
 
     it("should accept markdown formatted content", async () => {
       await expect(
-        _caller.update({
+        _adminCaller.update({
           pageType: "terms",
           content: `# Terms of Service
 
@@ -124,7 +127,7 @@ describe("app/server/routers/legal.ts", () => {
 
     it("should accept valid pageType", async () => {
       await expect(
-        _caller.getVersionHistory({ pageType: "privacy" }),
+        _adminCaller.getVersionHistory({ pageType: "privacy" }),
       ).resolves.not.toThrow();
     });
 
@@ -177,7 +180,7 @@ describe("app/server/routers/legal.ts", () => {
         content: "Updated privacy policy content",
       };
 
-      await expect(_caller.update(input)).resolves.not.toThrow();
+      await expect(_adminCaller.update(input)).resolves.not.toThrow();
     });
   });
 
@@ -197,7 +200,7 @@ describe("app/server/routers/legal.ts", () => {
     it("should accept long content for update", async () => {
       const longContent = "A".repeat(10000); // 10K characters
       await expect(
-        _caller.update({
+        _adminCaller.update({
           pageType: "terms",
           content: longContent,
         }),
@@ -211,7 +214,7 @@ Special characters: !@#$%^&*()_+-=[]{}|;':",./<>?
 Unicode: 你好 مرحبا Здравствуйте`;
 
       await expect(
-        _caller.update({
+        _adminCaller.update({
           pageType: "privacy",
           content: specialContent,
         }),

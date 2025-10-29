@@ -9,7 +9,7 @@
 
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { invoicesRouter } from "@/app/server/routers/invoices";
 import { db } from "@/lib/db";
 import { activityLogs, invoiceItems, invoices } from "@/lib/db/schema";
@@ -26,6 +26,13 @@ import {
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
+
+// Mock PDF generation (React not available in Vitest environment)
+vi.mock("@/lib/pdf/generate-invoice-pdf", () => ({
+  generateInvoicePdf: vi
+    .fn()
+    .mockResolvedValue(Buffer.from("mock-pdf-content")),
+}));
 
 describe("app/server/routers/invoices.ts (Integration)", () => {
   let ctx: TestContextWithAuth;

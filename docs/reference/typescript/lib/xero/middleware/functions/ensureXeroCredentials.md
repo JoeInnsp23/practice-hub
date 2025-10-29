@@ -8,7 +8,7 @@
 
 > **ensureXeroCredentials**(`tenantId`): `Promise`\<`XeroCredentials`\>
 
-Defined in: [lib/xero/middleware.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/xero/middleware.ts#L100)
+Defined in: [lib/xero/middleware.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/xero/middleware.ts#L100)
 
 Ensure Xero credentials are valid before proceeding
 

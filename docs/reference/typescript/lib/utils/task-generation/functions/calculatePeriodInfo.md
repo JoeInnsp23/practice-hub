@@ -8,7 +8,7 @@
 
 > **calculatePeriodInfo**(`activationDate`, `periodOffset`, `frequency`): `object`
 
-Defined in: [lib/utils/task-generation.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/utils/task-generation.ts#L97)
+Defined in: [lib/utils/task-generation.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/utils/task-generation.ts#L97)
 
 Calculate period information for recurring tasks
 

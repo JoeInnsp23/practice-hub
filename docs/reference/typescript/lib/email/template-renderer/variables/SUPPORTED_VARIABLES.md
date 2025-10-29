@@ -8,6 +8,6 @@
 
 > `const` **SUPPORTED\_VARIABLES**: readonly \[`"client_name"`, `"task_name"`, `"due_date"`, `"staff_name"`, `"company_name"`, `"workflow_name"`, `"stage_name"`\]
 
-Defined in: [lib/email/template-renderer.ts:180](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email/template-renderer.ts#L180)
+Defined in: [lib/email/template-renderer.ts:180](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/email/template-renderer.ts#L180)
 
 Standard supported variables for Practice Hub email templates (FR32: AC5)

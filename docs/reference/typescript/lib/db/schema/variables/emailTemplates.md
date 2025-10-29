@@ -8,4 +8,4 @@
 
 > `const` **emailTemplates**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:3578](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/db/schema.ts#L3578)
+Defined in: [lib/db/schema.ts:3578](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/db/schema.ts#L3578)

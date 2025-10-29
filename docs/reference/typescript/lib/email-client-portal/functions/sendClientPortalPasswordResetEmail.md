@@ -8,7 +8,7 @@
 
 > **sendClientPortalPasswordResetEmail**(`__namedParameters`): `Promise`\<`void`\>
 
-Defined in: [lib/email-client-portal.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/email-client-portal.ts#L13)
+Defined in: [lib/email-client-portal.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/email-client-portal.ts#L13)
 
 ## Parameters
 

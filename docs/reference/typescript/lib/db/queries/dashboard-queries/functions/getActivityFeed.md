@@ -8,7 +8,7 @@
 
 > **getActivityFeed**(`tenantId`, `options`): `Promise`\<`object`[]\>
 
-Defined in: [lib/db/queries/dashboard-queries.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/258a32ea57b7584319db82afddb1d391c29a7fcb/lib/db/queries/dashboard-queries.ts#L23)
+Defined in: [lib/db/queries/dashboard-queries.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/82b4719db94150b76954d1f2eb067a3613980742/lib/db/queries/dashboard-queries.ts#L23)
 
 Fetch activity feed for a given tenant
 Supports filtering by entity type and pagination
