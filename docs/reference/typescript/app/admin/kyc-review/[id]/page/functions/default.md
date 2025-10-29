@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/kyc-review/\[id\]/page.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/app/admin/kyc-review/[id]/page.tsx#L36)
+Defined in: [app/admin/kyc-review/\[id\]/page.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/app/admin/kyc-review/[id]/page.tsx#L36)
 
 ## Parameters
 

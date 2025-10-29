@@ -49,11 +49,12 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Auto-select first client if none selected and we have access
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setCurrentClientId is stable and defined in parent scope
   useEffect(() => {
     if (!currentClientId && clientAccess.length > 0) {
       setCurrentClientId(clientAccess[0].clientId);
     }
-  }, [currentClientId, clientAccess, setCurrentClientId]);
+  }, [currentClientId, clientAccess]);
 
   return (
     <ClientPortalContext.Provider

@@ -8,7 +8,7 @@
 
 > **getAllExternalApis**(): [`ExternalApiDoc`](../interfaces/ExternalApiDoc.md)[]
 
-Defined in: [lib/api-docs/external-apis.ts:482](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/lib/api-docs/external-apis.ts#L482)
+Defined in: [lib/api-docs/external-apis.ts:482](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/api-docs/external-apis.ts#L482)
 
 Get all external API documentation
 

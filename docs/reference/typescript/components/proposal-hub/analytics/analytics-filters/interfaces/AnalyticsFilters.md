@@ -6,7 +6,7 @@
 
 # Interface: AnalyticsFilters
 
-Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/components/proposal-hub/analytics/analytics-filters.tsx#L22)
+Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:22](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/proposal-hub/analytics/analytics-filters.tsx#L22)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:22](https:/
 
 > `optional` **assignedToId**: `string`
 
-Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/components/proposal-hub/analytics/analytics-filters.tsx#L25)
+Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:25](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/proposal-hub/analytics/analytics-filters.tsx#L25)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:25](https:/
 
 > `optional` **clientId**: `string`
 
-Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:26](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/components/proposal-hub/analytics/analytics-filters.tsx#L26)
+Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:26](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/proposal-hub/analytics/analytics-filters.tsx#L26)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:26](https:/
 
 > `optional` **dateFrom**: `Date`
 
-Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:23](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/components/proposal-hub/analytics/analytics-filters.tsx#L23)
+Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:23](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/proposal-hub/analytics/analytics-filters.tsx#L23)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:23](https:/
 
 > `optional` **dateTo**: `Date`
 
-Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/components/proposal-hub/analytics/analytics-filters.tsx#L24)
+Defined in: [components/proposal-hub/analytics/analytics-filters.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/components/proposal-hub/analytics/analytics-filters.tsx#L24)

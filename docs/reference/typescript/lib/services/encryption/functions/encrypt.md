@@ -8,7 +8,7 @@
 
 > **encrypt**(`text`): `string`
 
-Defined in: [lib/services/encryption.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/lib/services/encryption.ts#L54)
+Defined in: [lib/services/encryption.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/services/encryption.ts#L54)
 
 Encrypt text using AES-256-GCM
 

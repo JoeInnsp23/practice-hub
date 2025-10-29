@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/settings/legal/page.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/app/admin/settings/legal/page.tsx#L16)
+Defined in: [app/admin/settings/legal/page.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/app/admin/settings/legal/page.tsx#L16)
 
 Admin Legal Settings Page
 Allows administrators to edit legal page content

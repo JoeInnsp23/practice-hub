@@ -8,7 +8,7 @@
 
 > **calculateNextPeriod**(`currentPeriodEndDate`, `frequency`): `Date`
 
-Defined in: [lib/services/template-placeholders.ts:178](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/lib/services/template-placeholders.ts#L178)
+Defined in: [lib/services/template-placeholders.ts:178](https://github.com/JoeInnsp23/practice-hub/blob/116a6c755666afa836e10cee1a53f3879afcc423/lib/services/template-placeholders.ts#L178)
 
 Calculate the next period's activation date after task completion
 This is used to auto-generate the next recurring task
