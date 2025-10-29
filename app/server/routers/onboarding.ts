@@ -23,6 +23,25 @@ import { sendKYCVerificationEmail } from "@/lib/email-client-portal";
 import { lemverifyClient } from "@/lib/kyc/lemverify-client";
 import { protectedProcedure, router } from "../trpc";
 
+/**
+ * Safely converts questionnaire field value to string
+ * @param value - Unknown value from questionnaire response
+ * @param fallback - Fallback value if conversion fails
+ * @returns String value or fallback
+ */
+function getStringValue(value: unknown, fallback: string): string;
+function getStringValue(value: unknown): string | undefined;
+function getStringValue(value: unknown, fallback?: string): string | undefined {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  // Handle other types (numbers, dates, etc.) by converting to string
+  return String(value);
+}
+
 // Onboarding task template - 17 standard tasks from CSV
 const ONBOARDING_TEMPLATE_TASKS = [
   {
@@ -767,11 +786,20 @@ export const onboardingRouter = router({
       }
 
       // Extract data for LEM Verify
-      const firstName = prefilledData.fields.contact_first_name?.value || "";
-      const lastName = prefilledData.fields.contact_last_name?.value || "";
-      const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
+      const firstName = getStringValue(
+        prefilledData.fields.contact_first_name?.value,
+        "",
+      );
+      const lastName = getStringValue(
+        prefilledData.fields.contact_last_name?.value,
+        "",
+      );
+      const dateOfBirth = getStringValue(
+        prefilledData.fields.contact_date_of_birth?.value,
+      );
       const phoneNumber =
-        prefilledData.fields.contact_phone?.value || client.phone;
+        getStringValue(prefilledData.fields.contact_phone?.value) ||
+        client.phone;
 
       try {
         // Request verification from LEM Verify
@@ -1026,11 +1054,20 @@ export const onboardingRouter = router({
 
       // Get questionnaire data for name/DOB
       const prefilledData = await getPrefilledQuestionnaire(session.id);
-      const firstName = prefilledData.fields.contact_first_name?.value || "";
-      const lastName = prefilledData.fields.contact_last_name?.value || "";
-      const dateOfBirth = prefilledData.fields.contact_date_of_birth?.value;
+      const firstName = getStringValue(
+        prefilledData.fields.contact_first_name?.value,
+        "",
+      );
+      const lastName = getStringValue(
+        prefilledData.fields.contact_last_name?.value,
+        "",
+      );
+      const dateOfBirth = getStringValue(
+        prefilledData.fields.contact_date_of_birth?.value,
+      );
       const phoneNumber =
-        prefilledData.fields.contact_phone?.value || client.phone;
+        getStringValue(prefilledData.fields.contact_phone?.value) ||
+        client.phone;
 
       try {
         // Request new verification from LEM Verify

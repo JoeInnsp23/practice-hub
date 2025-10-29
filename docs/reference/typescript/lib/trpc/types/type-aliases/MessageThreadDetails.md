@@ -8,4 +8,4 @@
 
 > **MessageThreadDetails** = [`RouterOutputs`](RouterOutputs.md)\[`"messages"`\]\[`"getThread"`\]
 
-Defined in: [lib/trpc/types.ts:83](https://github.com/JoeInnsp23/practice-hub/blob/9e7851c354300230e454e29ea7a4f3ebf08bd3a6/lib/trpc/types.ts#L83)
+Defined in: [lib/trpc/types.ts:83](https://github.com/JoeInnsp23/practice-hub/blob/7df6add5a5fd051dd64ec39b8575b2b0e33b9d04/lib/trpc/types.ts#L83)
