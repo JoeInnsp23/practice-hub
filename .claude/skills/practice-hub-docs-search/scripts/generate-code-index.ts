@@ -34,8 +34,8 @@ function extractTypeScriptDocs(filePath: string): CodeEntry[] {
   const jsdocPattern =
     /\/\*\*\s*([\s\S]*?)\*\/\s*export\s+((?:type|function|const|default function|interface|class)\s+(\w+))/g;
 
-  let match;
-  while ((match = jsdocPattern.exec(content)) !== null) {
+  let match: RegExpExecArray | null = jsdocPattern.exec(content);
+  while (match !== null) {
     const jsdocText = match[1];
     const declaration = match[2];
     const name = match[3];
@@ -67,6 +67,8 @@ function extractTypeScriptDocs(filePath: string): CodeEntry[] {
       type,
       signature: declaration.split("\n")[0],
     });
+
+    match = jsdocPattern.exec(content);
   }
 
   return entries;

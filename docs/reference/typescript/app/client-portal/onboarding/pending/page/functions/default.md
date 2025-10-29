@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/client-portal/onboarding/pending/page.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/app/client-portal/onboarding/pending/page.tsx#L19)
+Defined in: [app/client-portal/onboarding/pending/page.tsx:19](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/app/client-portal/onboarding/pending/page.tsx#L19)
 
 ## Returns
 

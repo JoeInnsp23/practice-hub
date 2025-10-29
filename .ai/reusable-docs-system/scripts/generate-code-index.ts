@@ -33,8 +33,8 @@ function extractTypeScriptDocs(filePath: string): CodeEntry[] {
   const jsdocPattern =
     /\/\*\*\s*([\s\S]*?)\*\/\s*export\s+((?:type|function|const|default function|interface)\s+(\w+))/g;
 
-  let match;
-  while ((match = jsdocPattern.exec(content)) !== null) {
+  let match: RegExpExecArray | null = jsdocPattern.exec(content);
+  while (match !== null) {
     const jsdocText = match[1];
     const declaration = match[2];
     const name = match[3];
@@ -60,6 +60,8 @@ function extractTypeScriptDocs(filePath: string): CodeEntry[] {
       type,
       signature: declaration.split("\n")[0],
     });
+
+    match = jsdocPattern.exec(content);
   }
 
   return entries;
@@ -76,8 +78,8 @@ function extractPythonDocs(filePath: string): CodeEntry[] {
   const pythonPattern =
     /^(async\s+)?def\s+(\w+)\s*\([^)]*\)\s*->\s*[^:]*:\s*"""([\s\S]*?)"""/gm;
 
-  let match;
-  while ((match = pythonPattern.exec(content)) !== null) {
+  let match: RegExpExecArray | null = pythonPattern.exec(content);
+  while (match !== null) {
     const isAsync = match[1];
     const name = match[2];
     const docstring = match[3];
@@ -97,6 +99,8 @@ function extractPythonDocs(filePath: string): CodeEntry[] {
       type: "function",
       signature: `${isAsync ? "async " : ""}def ${name}(...)`,
     });
+
+    match = pythonPattern.exec(content);
   }
 
   return entries;

@@ -8,6 +8,6 @@
 
 > **MessageThreadListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"messages"`\]\[`"listThreads"`\]
 
-Defined in: [lib/trpc/types.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/trpc/types.ts#L81)
+Defined in: [lib/trpc/types.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/lib/trpc/types.ts#L81)
 
 Message Types

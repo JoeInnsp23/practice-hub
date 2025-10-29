@@ -8,7 +8,7 @@
 
 > **validateClientRow**(`row`, `rowNumber`, `tenantId`): `Promise`\<[`ValidationResult`](../interfaces/ValidationResult.md)\>
 
-Defined in: [lib/services/client-import-validator.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/lib/services/client-import-validator.ts#L97)
+Defined in: [lib/services/client-import-validator.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/lib/services/client-import-validator.ts#L97)
 
 ## Parameters
 

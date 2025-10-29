@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-28T11:26:38.788Z
+# Generated: 2025-10-29T18:30:15.250Z
 
 functions:
   staffStatisticsRouter:
@@ -498,13 +498,13 @@ functions:
   dataToCSV:
     description: "Convert data to CSV string"
     file: "lib/services/csv-import.ts"
-    line: 237
+    line: 246
     type: "function"
     signature: "function dataToCSV"
   chunkData:
     description: "Validate CSV headers against expected fields"
     file: "lib/services/csv-import.ts"
-    line: 260
+    line: 269
     type: "function"
     signature: "function chunkData"
   generateCSV:
@@ -1242,7 +1242,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-28T11:26:38.790Z"
+  generated: "2025-10-29T18:30:15.252Z"
   total_entries: 205
   functions: 132
   types: 57

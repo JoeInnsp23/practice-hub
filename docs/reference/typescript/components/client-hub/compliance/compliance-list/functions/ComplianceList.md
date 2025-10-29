@@ -8,7 +8,7 @@
 
 > **ComplianceList**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/compliance/compliance-list.tsx:61](https://github.com/JoeInnsp23/practice-hub/blob/fa9296e7bbc6822b06362f435d4ecdcd4d0a431c/components/client-hub/compliance/compliance-list.tsx#L61)
+Defined in: [components/client-hub/compliance/compliance-list.tsx:61](https://github.com/JoeInnsp23/practice-hub/blob/6fb9b8384d137e195384abb23927b89eacc534ff/components/client-hub/compliance/compliance-list.tsx#L61)
 
 ## Parameters
 
