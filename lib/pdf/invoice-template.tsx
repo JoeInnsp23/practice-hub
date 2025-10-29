@@ -405,9 +405,9 @@ export const InvoiceDocument = ({
         <View style={styles.footer}>
           {invoice.terms && (
             <Text style={styles.footerText}>
-                <Text style={{ fontWeight: "bold" }}>Payment Terms: </Text>
-                {invoice.terms}
-              </Text>
+              <Text style={{ fontWeight: "bold" }}>Payment Terms: </Text>
+              {invoice.terms}
+            </Text>
           )}
           <Text style={styles.footerText}>
             Thank you for your business. For any questions about this invoice,

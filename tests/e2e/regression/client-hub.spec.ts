@@ -57,7 +57,9 @@ test.describe("Client Hub - Task Management", () => {
     // 5. Verify completedAt timestamp set
   });
 
-  test.skip("should update workflow checklist item", async ({ page: _page }) => {
+  test.skip("should update workflow checklist item", async ({
+    page: _page,
+  }) => {
     // TODO: Implement test
     // 1. Navigate to task with workflow
     // 2. Click checklist item to complete
@@ -77,7 +79,9 @@ test.describe("Client Hub - Task Management", () => {
     // 7. Verify assignment history for each task
   });
 
-  test.skip("should add internal note with mention", async ({ page: _page }) => {
+  test.skip("should add internal note with mention", async ({
+    page: _page,
+  }) => {
     // TODO: Implement test
     // 1. Navigate to task detail page
     // 2. Click "Add Note"

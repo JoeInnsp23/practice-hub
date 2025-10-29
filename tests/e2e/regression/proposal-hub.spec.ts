@@ -18,7 +18,9 @@ test.describe("Proposal Hub - Proposal Lifecycle", () => {
     // 6. Verify lead status updated
   });
 
-  test.skip("should update proposal and create version", async ({ page: _page }) => {
+  test.skip("should update proposal and create version", async ({
+    page: _page,
+  }) => {
     // TODO: Implement test
     // 1. Navigate to proposal detail page
     // 2. Edit proposal (change monthly total)
@@ -102,7 +104,9 @@ test.describe("Proposal Hub - Proposal Lifecycle", () => {
 });
 
 test.describe("Proposal Hub - Pipeline Management", () => {
-  test.skip("should display proposals in Kanban view", async ({ page: _page }) => {
+  test.skip("should display proposals in Kanban view", async ({
+    page: _page,
+  }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/pipeline
     // 2. Verify 7 pipeline stages displayed
@@ -129,7 +133,9 @@ test.describe("Proposal Hub - Analytics", () => {
     // 5. Verify breakdown by source
   });
 
-  test.skip("should display pricing model performance", async ({ page: _page }) => {
+  test.skip("should display pricing model performance", async ({
+    page: _page,
+  }) => {
     // TODO: Implement test
     // 1. Navigate to /proposal-hub/analytics/pricing
     // 2. Verify pricing model usage stats

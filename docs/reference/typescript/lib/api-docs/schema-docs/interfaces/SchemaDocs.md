@@ -6,7 +6,7 @@
 
 # Interface: SchemaDocs
 
-Defined in: [lib/api-docs/schema-docs.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/api-docs/schema-docs.ts#L34)
+Defined in: [lib/api-docs/schema-docs.ts:34](https://github.com/JoeInnsp23/practice-hub/blob/9e7851c354300230e454e29ea7a4f3ebf08bd3a6/lib/api-docs/schema-docs.ts#L34)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/api-docs/schema-docs.ts:34](https://github.com/JoeInnsp23/pract
 
 > **generatedAt**: `string`
 
-Defined in: [lib/api-docs/schema-docs.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/api-docs/schema-docs.ts#L36)
+Defined in: [lib/api-docs/schema-docs.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/9e7851c354300230e454e29ea7a4f3ebf08bd3a6/lib/api-docs/schema-docs.ts#L36)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/api-docs/schema-docs.ts:36](https://github.com/JoeInnsp23/pract
 
 > **tables**: [`SchemaTable`](SchemaTable.md)[]
 
-Defined in: [lib/api-docs/schema-docs.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/api-docs/schema-docs.ts#L35)
+Defined in: [lib/api-docs/schema-docs.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/9e7851c354300230e454e29ea7a4f3ebf08bd3a6/lib/api-docs/schema-docs.ts#L35)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/api-docs/schema-docs.ts:35](https://github.com/JoeInnsp23/pract
 
 > **totalColumns**: `number`
 
-Defined in: [lib/api-docs/schema-docs.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/api-docs/schema-docs.ts#L38)
+Defined in: [lib/api-docs/schema-docs.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/9e7851c354300230e454e29ea7a4f3ebf08bd3a6/lib/api-docs/schema-docs.ts#L38)
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: [lib/api-docs/schema-docs.ts:38](https://github.com/JoeInnsp23/pract
 
 > **totalTables**: `number`
 
-Defined in: [lib/api-docs/schema-docs.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/186c10535b61d69a87268563dccf39fc73de34e9/lib/api-docs/schema-docs.ts#L37)
+Defined in: [lib/api-docs/schema-docs.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/9e7851c354300230e454e29ea7a4f3ebf08bd3a6/lib/api-docs/schema-docs.ts#L37)
