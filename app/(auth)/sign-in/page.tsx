@@ -104,7 +104,9 @@ function SignInFormContent() {
               viewBox="0 0 23 23"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              aria-label="Microsoft logo"
             >
+              <title>Microsoft logo</title>
               <path d="M11 0H0V11H11V0Z" fill="#F25022" />
               <path d="M23 0H12V11H23V0Z" fill="#7FBA00" />
               <path d="M11 12H0V23H11V12Z" fill="#00A4EF" />

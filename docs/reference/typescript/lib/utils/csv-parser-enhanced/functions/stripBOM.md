@@ -8,7 +8,7 @@
 
 > **stripBOM**(`content`): `string`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:91](https://github.com/JoeInnsp23/practice-hub/blob/7df6add5a5fd051dd64ec39b8575b2b0e33b9d04/lib/utils/csv-parser-enhanced.ts#L91)
+Defined in: [lib/utils/csv-parser-enhanced.ts:91](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/utils/csv-parser-enhanced.ts#L91)
 
 Strip Byte Order Mark (BOM) from CSV content
 

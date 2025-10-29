@@ -1,0 +1,306 @@
+
+> practice-hub@0.1.0 db:reset /root/projects/practice-hub
+> pnpm db:migrate:reset && pnpm db:seed && pnpm db:seed:auth
+
+
+> practice-hub@0.1.0 db:migrate:reset /root/projects/practice-hub
+> tsx -r dotenv/config scripts/migrate.ts --reset dotenv_config_path=.env.local
+
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+🗑️  Dropping and recreating schema...
+NOTICE:  drop cascades to 121 other objects
+DETAIL:  drop cascades to type client_status
+drop cascades to type client_type
+drop cascades to type compliance_priority
+drop cascades to type compliance_status
+drop cascades to type document_type
+drop cascades to type import_entity_type
+drop cascades to type import_status
+drop cascades to type invoice_status
+drop cascades to type lead_status
+drop cascades to type leave_status
+drop cascades to type leave_type
+drop cascades to type onboarding_priority
+drop cascades to type onboarding_status
+drop cascades to type pricing_model
+drop cascades to type pricing_rule_type
+drop cascades to type proposal_status
+drop cascades to type recurring_frequency
+drop cascades to type sales_stage
+drop cascades to type service_component_category
+drop cascades to type service_price_type
+drop cascades to type task_priority
+drop cascades to type task_status
+drop cascades to type time_entry_status
+drop cascades to type transaction_data_source
+drop cascades to type work_type
+drop cascades to table account
+drop cascades to table activity_logs
+drop cascades to table aml_checks
+drop cascades to table calendar_event_attendees
+drop cascades to table calendar_events
+drop cascades to table client_contacts
+drop cascades to table client_directors
+drop cascades to table client_pscs
+drop cascades to table client_portal_access
+drop cascades to table client_portal_account
+drop cascades to table client_portal_invitations
+drop cascades to table client_portal_session
+drop cascades to table client_portal_users
+drop cascades to table client_portal_verification
+drop cascades to table client_services
+drop cascades to table client_task_template_overrides
+drop cascades to table client_transaction_data
+drop cascades to table clients
+drop cascades to table companies_house_cache
+drop cascades to table companies_house_rate_limit
+drop cascades to table compliance
+drop cascades to table departments
+drop cascades to table document_signatures
+drop cascades to table documents
+drop cascades to table email_queue
+drop cascades to table email_templates
+drop cascades to table feedback
+drop cascades to table import_logs
+drop cascades to table integration_settings
+drop cascades to table invitations
+drop cascades to table invoice_items
+drop cascades to table invoices
+drop cascades to table kyc_verifications
+drop cascades to table leads
+drop cascades to table leave_balances
+drop cascades to table leave_requests
+drop cascades to table legal_pages
+drop cascades to table message_thread_participants
+drop cascades to table message_threads
+drop cascades to table messages
+drop cascades to table notifications
+drop cascades to table onboarding_responses
+drop cascades to table onboarding_sessions
+drop cascades to table onboarding_tasks
+drop cascades to table portal_categories
+drop cascades to table portal_links
+drop cascades to table pricing_rules
+drop cascades to table proposal_notes
+drop cascades to table proposal_services
+drop cascades to table proposal_signatures
+drop cascades to table proposal_templates
+drop cascades to table proposal_versions
+drop cascades to table proposals
+drop cascades to table role_permissions
+drop cascades to table services
+drop cascades to table session
+drop cascades to table staff_capacity
+drop cascades to table task_assignment_history
+drop cascades to table task_notes
+drop cascades to table task_templates
+drop cascades to table task_workflow_instances
+drop cascades to table tasks
+drop cascades to table tenants
+drop cascades to table time_entries
+drop cascades to table timesheet_submissions
+drop cascades to table toil_accrual_history
+drop cascades to table user_favorites
+drop cascades to table user_permissions
+drop cascades to table user_settings
+drop cascades to table users
+drop cascades to table verification
+drop cascades to table work_types
+drop cascades to table workflow_email_rules
+drop cascades to table workflow_stages
+drop cascades to table workflow_templates
+and 21 other objects (see server log for list)
+DROP SCHEMA
+CREATE SCHEMA
+✅ Schema dropped and recreated
+
+📋 Pushing schema (creating tables)...
+
+> practice-hub@0.1.0 db:push:dev /root/projects/practice-hub
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/root/projects/practice-hub/drizzle.config.ts'
+[dotenv@17.2.2] injecting env (0) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+Using 'pg' driver for database querying
+[⣷] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[✓] Changes applied
+✅ Schema pushed
+
+🔄 Running migrations (creating views)...
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "drizzle" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "__drizzle_migrations" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Migrations completed successfully!
+
+👁️  Creating database views...
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+✅ Database views created successfully!
+
+✅ Database migration complete!
+
+💡 Next step: Run 'pnpm db:seed' to populate the database
+
+> practice-hub@0.1.0 db:seed /root/projects/practice-hub
+> tsx -r dotenv/config scripts/seed.ts dotenv_config_path=.env.local
+
+🌱 Starting database seed...
+Creating tenant...
+Creating departments...
+Creating work types...
+Creating users...
+Updating departments with managers...
+Creating user settings...
+Creating staff capacity records...
+Creating working patterns...
+Creating leave balances...
+Creating TOIL accrual history...
+Creating leave requests...
+Creating invitations...
+Creating legal pages...
+Creating portal categories and links...
+✓ Created 20 portal links across 3 categories
+Creating service components...
+✓ Created 28 services
+Creating pricing rules...
+✓ Created 138 pricing rules
+Creating task templates...
+✓ Created 19 task templates
+Creating clients...
+Creating client contacts...
+Creating client directors...
+Creating client PSCs...
+Assigning service components to clients...
+Creating leads...
+✅ Created 15 leads
+Creating proposals...
+✅ Created 20 proposals with services
+Creating onboarding sessions...
+✅ Created 5 onboarding sessions with tasks
+Creating tasks...
+Creating auto-generated tasks from templates...
+Creating task notes...
+✅ Created 30 task notes for 10 tasks
+Creating task assignment history...
+✅ Created assignment history for 15 tasks
+Creating time entries...
+Creating timesheet submissions...
+✅ Created timesheet submissions
+Creating invoices...
+Creating compliance items...
+Creating workflows...
+Assigning workflows to tasks...
+Skipping workflow templates (disabled due to bugs)...
+✓ Skipped workflow templates (section disabled)
+✓ 50 Workflow instances created
+Creating documents and uploading to S3...
+✓ Documents created and uploaded to S3
+Creating activity logs...
+Creating client portal users and access...
+Creating message threads, messages, notifications, and calendar events...
+✓ Created message threads, messages, notifications, and calendar events
+Creating integration settings...
+Creating import logs...
+Creating sample Xero webhook events...
+✓ Created integration settings, import logs, and sample webhook events
+Creating email templates...
+✓ Created 5 email templates
+Creating workflow email rules...
+✓ Created 4 workflow email rules for workflow "Annual Tax Return Process"
+✅ Database seeding completed!
+
+📊 Seed Summary:
+================
+✓ 1 Tenant created
+✓ 4 Users created
+✓ 3 Portal categories created
+✓ 20 Portal links created (internal modules + external tools)
+✓ 28 Service Components created
+✓ 138 Pricing Rules created
+✓ 25 Clients created
+✓ 56 Tasks created
+✓ 30 Invoices created
+✓ Multiple time entries created (last 90 days)
+✓ Compliance items created
+✓ Document structure created
+✓ 8 Workflow templates created
+✓ 5 Email templates created
+✓ Workflow email rules created (workflow triggers)
+✓ 100 Activity logs created
+
+👤 Test Users:
+==============
+Email: joe@pageivy.com
+Role: admin
+---
+Email: sarah.johnson@demo.com
+Role: accountant
+---
+Email: mike.chen@demo.com
+Role: accountant
+---
+Email: emily.davis@demo.com
+Role: member
+---
+
+🎉 You can now log in with any of the above users!
+Note: In development, authentication will auto-create these users with Clerk.
+
+> practice-hub@0.1.0 db:seed:auth /root/projects/practice-hub
+> tsx -r dotenv/config scripts/seed-auth-users.ts dotenv_config_path=.env.local
+
+🔐 Creating Better Auth accounts for seed users...
+
+Clearing existing auth accounts...
+✓ Cleared old accounts
+
+✓ Created auth account for joe@pageivy.com
+✓ Created auth account for sarah.johnson@demo.com
+✓ Created auth account for mike.chen@demo.com
+✓ Created auth account for emily.davis@demo.com
+
+✅ Auth account creation complete!
+
+📧 Users can sign in with:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  joe@pageivy.com     → Innspired@321
+  Other users         → password123
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👥 Available Users:
+  • joe@pageivy.com                (admin)
+  • sarah.johnson@demo.com         (accountant)
+  • mike.chen@demo.com             (accountant)
+  • emily.davis@demo.com           (member)
+

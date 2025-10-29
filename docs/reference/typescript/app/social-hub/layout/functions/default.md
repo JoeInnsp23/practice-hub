@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/social-hub/layout.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/7df6add5a5fd051dd64ec39b8575b2b0e33b9d04/app/social-hub/layout.tsx#L14)
+Defined in: [app/social-hub/layout.tsx:14](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/app/social-hub/layout.tsx#L14)
 
 ## Parameters
 

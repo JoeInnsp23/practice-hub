@@ -6,6 +6,7 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeaveCalendar } from "@/components/client-hub/leave/leave-calendar";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -170,11 +171,14 @@ export default function LeaveCalendarPage() {
             <h3 className="font-semibold mb-4">Filters</h3>
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">
+                <Label
+                  htmlFor="team-member-filter"
+                  className="text-sm text-muted-foreground mb-2 block"
+                >
                   Team Member
-                </label>
+                </Label>
                 <Select value={userFilter} onValueChange={setUserFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger id="team-member-filter">
                     <SelectValue placeholder="All Team Members" />
                   </SelectTrigger>
                   <SelectContent>

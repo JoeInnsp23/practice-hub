@@ -128,10 +128,9 @@ export function TaskBoard({
                       </div>
                     ) : (
                       columnTasks.map((task) => (
-                        <div
+                        <button
+                          type="button"
                           key={task.id}
-                          role="button"
-                          tabIndex={0}
                           draggable
                           onDragStart={() => handleDragStart(task)}
                           onKeyDown={(e) => {
@@ -140,7 +139,7 @@ export function TaskBoard({
                               handleDragStart(task);
                             }
                           }}
-                          className="cursor-move"
+                          className="cursor-move w-full text-left"
                         >
                           <TaskCard
                             task={task}
@@ -148,7 +147,7 @@ export function TaskBoard({
                             onDelete={onDeleteTask}
                             onStatusChange={onStatusChange}
                           />
-                        </div>
+                        </button>
                       ))
                     )}
                   </div>

@@ -221,12 +221,11 @@ export function MonthlyTimesheet({
               const isWeekend = getDay(day) === 0 || getDay(day) === 6;
 
               return (
-                <div
+                <button
+                  type="button"
                   key={day.toISOString()}
-                  role="button"
-                  tabIndex={0}
                   className={cn(
-                    "border-r border-b border-slate-200 dark:border-slate-700 last:border-r-0 min-h-[120px] p-2 cursor-pointer",
+                    "border-r border-b border-slate-200 dark:border-slate-700 last:border-r-0 min-h-[120px] p-2 cursor-pointer w-full text-left",
                     "hover:bg-slate-50 dark:hover:bg-slate-700/30",
                     !isCurrentMonth &&
                       "bg-slate-50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-500",
@@ -276,11 +275,10 @@ export function MonthlyTimesheet({
                       const workTypeLabel = workType?.label || "Unknown";
 
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={entry.id || `${entry.date}-${entry.hours}`}
-                          role="button"
-                          tabIndex={0}
-                          className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
+                          className="w-full text-left text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
                           style={{
                             backgroundColor: `${workTypeColor}20`,
                             borderLeftColor: workTypeColor,
@@ -317,7 +315,7 @@ export function MonthlyTimesheet({
                               {entry.description}
                             </div>
                           )}
-                        </div>
+                        </button>
                       );
                     })}
                     {dayEntries.length > 3 && (
@@ -326,7 +324,7 @@ export function MonthlyTimesheet({
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

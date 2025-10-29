@@ -152,9 +152,10 @@ export function UploadModal({
 
         <div className="space-y-4">
           {/* Drop Zone */}
-          <div
+          <button
+            type="button"
             className={cn(
-              "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+              "border-2 border-dashed rounded-lg p-8 text-center transition-colors w-full",
               isDragging
                 ? "border-blue-500 bg-primary/5 dark:bg-primary/10"
                 : "border-gray-300 dark:border-gray-600",
@@ -162,6 +163,13 @@ export function UploadModal({
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onClick={() => document.getElementById("file-upload")?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                document.getElementById("file-upload")?.click();
+              }
+            }}
           >
             <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <p className="text-sm text-muted-foreground mb-2">
@@ -181,7 +189,7 @@ export function UploadModal({
                 <span>Browse Files</span>
               </Button>
             </label>
-          </div>
+          </button>
 
           {/* Selected Files */}
           {files.length > 0 && (

@@ -148,9 +148,10 @@ export function OnboardingDocumentUpload({
   return (
     <div className="space-y-6">
       {/* Upload Area */}
-      <div
+      <button
+        type="button"
         className={`
-          border-2 border-dashed rounded-lg p-8 text-center transition-colors
+          border-2 border-dashed rounded-lg p-8 text-center transition-colors w-full
           ${dragActive ? "border-primary bg-primary/5" : "border-border"}
           ${uploading ? "opacity-50 pointer-events-none" : "cursor-pointer hover:border-primary"}
         `}
@@ -158,6 +159,13 @@ export function OnboardingDocumentUpload({
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
+        onClick={() => document.getElementById("file-upload")?.click()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            document.getElementById("file-upload")?.click();
+          }
+        }}
       >
         <input
           type="file"
@@ -193,7 +201,7 @@ export function OnboardingDocumentUpload({
             </div>
           </div>
         </label>
-      </div>
+      </button>
 
       {/* Selected Files */}
       {files.length > 0 && (

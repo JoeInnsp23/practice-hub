@@ -82,10 +82,9 @@ export function FloatingPriceWidget({
     >
       {isMinimized ? (
         /* Minimized View */
-        <div
-          role="button"
-          tabIndex={0}
-          className="flex flex-col items-center py-1.5 gap-1.5 cursor-pointer hover:bg-accent/50 transition-colors"
+        <button
+          type="button"
+          className="w-full flex flex-col items-center py-1.5 gap-1.5 cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => setIsMinimized(false)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -119,7 +118,7 @@ export function FloatingPriceWidget({
           <div className="mt-auto pt-1 border-t border-border w-full flex justify-center">
             <ChevronsLeft className="h-5 w-5 text-primary animate-pulse" />
           </div>
-        </div>
+        </button>
       ) : (
         /* Expanded View */
         <>

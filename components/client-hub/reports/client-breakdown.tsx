@@ -90,10 +90,18 @@ export function ClientBreakdown({
           {/* Client List */}
           <div className="space-y-3">
             {topClients.map((client, index) => (
-              <div
+              <button
+                type="button"
                 key={client.name}
                 onClick={() => handleClientClick(client.clientId)}
-                className={`flex items-center justify-between p-2 rounded-lg transition-colors ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleClientClick(client.clientId);
+                  }
+                }}
+                disabled={!client.clientId}
+                className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors ${
                   client.clientId
                     ? "cursor-pointer hover:bg-accent/50"
                     : "cursor-default"
@@ -132,7 +140,7 @@ export function ClientBreakdown({
                     )}
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 

@@ -243,6 +243,7 @@ function EventCard({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className="w-full text-left p-3 rounded-lg border hover:bg-muted/50 transition-colors"
     >

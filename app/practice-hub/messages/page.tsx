@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import type { RouterOutputs } from "@/lib/trpc/types";
@@ -336,6 +337,7 @@ function ThreadItem({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
         "w-full p-3 rounded-lg text-left transition-colors",
@@ -479,10 +481,14 @@ function NewChannelDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">
+            <Label
+              htmlFor="channel-name"
+              className="text-sm font-medium mb-2 block"
+            >
               Channel name
-            </label>
+            </Label>
             <Input
+              id="channel-name"
               placeholder="e.g. tax-team"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -491,10 +497,14 @@ function NewChannelDialog({
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">
+            <Label
+              htmlFor="channel-description"
+              className="text-sm font-medium mb-2 block"
+            >
               Description (optional)
-            </label>
+            </Label>
             <Textarea
+              id="channel-description"
               placeholder="What's this channel about?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -510,9 +520,9 @@ function NewChannelDialog({
               onChange={(e) => setIsPrivate(e.target.checked)}
               className="rounded"
             />
-            <label htmlFor="private" className="text-sm">
+            <Label htmlFor="private" className="text-sm">
               Make private (only invited members can access)
-            </label>
+            </Label>
           </div>
 
           <div className="flex justify-end gap-2">
@@ -582,9 +592,9 @@ function NewDMDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">
+            <Label className="text-sm font-medium mb-2 block">
               Select a user
-            </label>
+            </Label>
             <ScrollArea className="h-64 border rounded-lg p-2">
               <div className="space-y-1">
                 {users.map((user: UserData) => (

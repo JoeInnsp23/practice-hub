@@ -26,11 +26,11 @@ export function AppCard({
   const isComingSoon = status === "coming-soon";
 
   return (
-    <div
-      role="button"
-      tabIndex={!isComingSoon ? 0 : -1}
+    <button
+      type="button"
+      disabled={isComingSoon}
       className={cn(
-        "glass-card",
+        "glass-card w-full text-left",
         "group relative overflow-hidden transition-all duration-300 rounded-xl",
         "hover:shadow-xl hover:-translate-y-1",
         isComingSoon ? "cursor-not-allowed opacity-60" : "cursor-pointer",
@@ -92,6 +92,6 @@ export function AppCard({
           background: `linear-gradient(90deg, ${color}, ${color}66)`,
         }}
       />
-    </div>
+    </button>
   );
 }

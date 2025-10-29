@@ -1,0 +1,4 @@
+
+> practice-hub@0.1.0 typecheck /root/projects/practice-hub
+> tsc --noEmit
+

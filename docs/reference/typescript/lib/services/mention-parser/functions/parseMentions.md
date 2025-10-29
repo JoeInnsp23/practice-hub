@@ -8,7 +8,7 @@
 
 > **parseMentions**(`text`): `string`[]
 
-Defined in: [lib/services/mention-parser.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/7df6add5a5fd051dd64ec39b8575b2b0e33b9d04/lib/services/mention-parser.ts#L25)
+Defined in: [lib/services/mention-parser.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/services/mention-parser.ts#L25)
 
 Parse
 

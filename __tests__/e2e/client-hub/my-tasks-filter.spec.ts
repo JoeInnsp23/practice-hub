@@ -22,7 +22,7 @@ import { expect, test } from "@playwright/test";
  */
 
 test.describe("My Tasks Filter (GAP-001)", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     // Reset test database with tasks
     // This requires running: pnpm test:e2e:reset-db
     // The test database should have 4 tasks seeded as described above

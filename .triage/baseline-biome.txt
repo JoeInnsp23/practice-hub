@@ -1,0 +1,350 @@
+__tests__/e2e/client-hub/my-tasks-filter.spec.ts:25:28 lint/correctness/noUnusedFunctionParameters ━━━━━━━━━━
+
+  ! This parameter is unused.
+  
+    24 │ test.describe("My Tasks Filter (GAP-001)", () => {
+  > 25 │   test.beforeEach(async ({ page }) => {
+       │                            ^^^^
+    26 │     // Reset test database with tasks
+    27 │     // This requires running: pnpm test:e2e:reset-db
+  
+  i Unused parameters might be the result of an incomplete refactoring.
+  
+
+app/(auth)/sign-in/page.tsx:102:13 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Alternative text title element cannot be empty
+  
+    100 │             disabled={isLoading}
+    101 │           >
+  > 102 │             <svg
+        │             ^^^^
+  > 103 │               className="mr-2 h-5 w-5"
+  > 104 │               viewBox="0 0 23 23"
+  > 105 │               fill="none"
+  > 106 │               xmlns="http://www.w3.org/2000/svg"
+  > 107 │             >
+        │             ^
+    108 │               <path d="M11 0H0V11H11V0Z" fill="#F25022" />
+    109 │               <path d="M23 0H12V11H23V0Z" fill="#7FBA00" />
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app/(auth)/sign-up/page.tsx:141:13 lint/a11y/noSvgWithoutTitle ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Alternative text title element cannot be empty
+  
+    139 │             disabled={isLoading}
+    140 │           >
+  > 141 │             <svg
+        │             ^^^^
+  > 142 │               className="mr-2 h-5 w-5"
+  > 143 │               viewBox="0 0 23 23"
+  > 144 │               fill="none"
+  > 145 │               xmlns="http://www.w3.org/2000/svg"
+  > 146 │             >
+        │             ^
+    147 │               <path d="M11 0H0V11H11V0Z" fill="#F25022" />
+    148 │               <path d="M23 0H12V11H23V0Z" fill="#7FBA00" />
+  
+  i For accessibility purposes, SVGs should have an alternative text, provided via title element. If the svg element has role="img", you should add the aria-label or aria-labelledby attribute.
+  
+
+app/client-hub/leave/calendar/page.tsx:173:17 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    171 │             <div className="space-y-4">
+    172 │               <div>
+  > 173 │                 <label className="text-sm text-muted-foreground mb-2 block">
+        │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 174 │                   Team Member
+  > 175 │                 </label>
+        │                 ^^^^^^^^
+    176 │                 <Select value={userFilter} onValueChange={setUserFilter}>
+    177 │                   <SelectTrigger>
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+app/client-portal/onboarding/components/document-upload.tsx:151:7 lint/a11y/noStaticElementInteractions ━━━━━━━━━━
+
+  × Static Elements should not be interactive.
+  
+    149 │     <div className="space-y-6">
+    150 │       {/* Upload Area */}
+  > 151 │       <div
+        │       ^^^^
+  > 152 │         className={`
+         ...
+  > 160 │         onDrop={handleDrop}
+  > 161 │       >
+        │       ^
+    162 │         <input
+    163 │           type="file"
+  
+  i To add interactivity such as a mouse or key event listener to a static element, give the element an appropriate role value.
+  
+
+app/practice-hub/calendar/page.tsx:245:5 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    244 │   return (
+  > 245 │     <button
+        │     ^^^^^^^
+  > 246 │       onClick={onClick}
+  > 247 │       className="w-full text-left p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+  > 248 │     >
+        │     ^
+    249 │       <div className="flex items-start gap-3">
+    250 │         <div
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+app/practice-hub/messages/page.tsx:482:13 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    480 │         <form onSubmit={handleSubmit} className="space-y-4">
+    481 │           <div>
+  > 482 │             <label className="text-sm font-medium mb-2 block">
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 483 │               Channel name
+  > 484 │             </label>
+        │             ^^^^^^^^
+    485 │             <Input
+    486 │               placeholder="e.g. tax-team"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+app/practice-hub/messages/page.tsx:494:13 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    493 │           <div>
+  > 494 │             <label className="text-sm font-medium mb-2 block">
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 495 │               Description (optional)
+  > 496 │             </label>
+        │             ^^^^^^^^
+    497 │             <Textarea
+    498 │               placeholder="What's this channel about?"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+app/practice-hub/messages/page.tsx:585:13 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    583 │         <form onSubmit={handleSubmit} className="space-y-4">
+    584 │           <div>
+  > 585 │             <label className="text-sm font-medium mb-2 block">
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 586 │               Select a user
+  > 587 │             </label>
+        │             ^^^^^^^^
+    588 │             <ScrollArea className="h-64 border rounded-lg p-2">
+    589 │               <div className="space-y-1">
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+app/practice-hub/messages/page.tsx:338:5 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    337 │   return (
+  > 338 │     <button
+        │     ^^^^^^^
+  > 339 │       onClick={onClick}
+         ...
+  > 344 │       )}
+  > 345 │     >
+        │     ^
+    346 │       <div className="flex items-start gap-3">
+    347 │         {threadData.type === "team_channel" ? (
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+components/client-hub/documents/upload-modal.tsx:155:11 lint/a11y/noStaticElementInteractions ━━━━━━━━━━
+
+  × Static Elements should not be interactive.
+  
+    153 │         <div className="space-y-4">
+    154 │           {/* Drop Zone */}
+  > 155 │           <div
+        │           ^^^^
+  > 156 │             className={cn(
+         ...
+  > 164 │             onDrop={handleDrop}
+  > 165 │           >
+        │           ^
+    166 │             <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+    167 │             <p className="text-sm text-muted-foreground mb-2">
+  
+  i To add interactivity such as a mouse or key event listener to a static element, give the element an appropriate role value.
+  
+
+components/client-hub/reports/client-breakdown.tsx:93:15 lint/a11y/noStaticElementInteractions ━━━━━━━━━━
+
+  × Static Elements should not be interactive.
+  
+     91 │           <div className="space-y-3">
+     92 │             {topClients.map((client, index) => (
+   > 93 │               <div
+        │               ^^^^
+   > 94 │                 key={client.name}
+         ...
+  > 100 │                 }`}
+  > 101 │               >
+        │               ^
+    102 │                 <div className="flex items-center gap-3 flex-1">
+    103 │                   <div
+  
+  i To add interactivity such as a mouse or key event listener to a static element, give the element an appropriate role value.
+  
+
+components/client-hub/reports/client-breakdown.tsx:93:15 lint/a11y/useKeyWithClickEvents ━━━━━━━━━━━
+
+  × Enforce to have the onClick mouse event with the onKeyUp, the onKeyDown, or the onKeyPress keyboard event.
+  
+     91 │           <div className="space-y-3">
+     92 │             {topClients.map((client, index) => (
+   > 93 │               <div
+        │               ^^^^
+   > 94 │                 key={client.name}
+         ...
+  > 100 │                 }`}
+  > 101 │               >
+        │               ^
+    102 │                 <div className="flex items-center gap-3 flex-1">
+    103 │                   <div
+  
+  i Actions triggered using mouse events should have corresponding keyboard events to account for keyboard-only navigation.
+  
+
+components/client-hub/tasks/task-board.tsx:133:27 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+    131 │                         <div
+    132 │                           key={task.id}
+  > 133 │                           role="button"
+        │                           ^^^^^^^^^^^^^
+    134 │                           tabIndex={0}
+    135 │                           draggable
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+components/client-hub/time/hourly-timesheet.tsx:308:23 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+    306 │                     <div
+    307 │                       key={day.toISOString()}
+  > 308 │                       role="button"
+        │                       ^^^^^^^^^^^^^
+    309 │                       tabIndex={0}
+    310 │                       className={cn(
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+components/client-hub/time/hourly-timesheet.tsx:342:33 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+    340 │                               <div
+    341 │                                 key={entry.id || `${entry.date}-${entry.hours}`}
+  > 342 │                                 role="button"
+        │                                 ^^^^^^^^^^^^^
+    343 │                                 tabIndex={0}
+    344 │                                 className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+components/client-hub/time/monthly-timesheet.tsx:226:19 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+    224 │                 <div
+    225 │                   key={day.toISOString()}
+  > 226 │                   role="button"
+        │                   ^^^^^^^^^^^^^
+    227 │                   tabIndex={0}
+    228 │                   className={cn(
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+components/client-hub/time/monthly-timesheet.tsx:281:27 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+    279 │                         <div
+    280 │                           key={entry.id || `${entry.date}-${entry.hours}`}
+  > 281 │                           role="button"
+        │                           ^^^^^^^^^^^^^
+    282 │                           tabIndex={0}
+    283 │                           className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+components/client-hub/workflows/workflow-assignment-modal.tsx:100:21 lint/a11y/useSemanticElements ━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+     98 │                   <div
+     99 │                     key={workflow.id}
+  > 100 │                     role="button"
+        │                     ^^^^^^^^^^^^^
+    101 │                     tabIndex={0}
+    102 │                     className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+components/practice-hub/AppCard.tsx:30:7 lint/a11y/useSemanticElements ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The elements with this role can be changed to the following elements:
+    <button>
+  
+    28 │   return (
+    29 │     <div
+  > 30 │       role="button"
+       │       ^^^^^^^^^^^^^
+    31 │       tabIndex={!isComingSoon ? 0 : -1}
+    32 │       className={cn(
+  
+  i For examples and more information, see WAI-ARIA Roles
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 5.
+Checked 655 files in 2s. No fixes applied.
+Found 24 errors.
+Found 1 warning.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

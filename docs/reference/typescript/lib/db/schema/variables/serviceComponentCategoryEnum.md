@@ -8,4 +8,4 @@
 
 > `const` **serviceComponentCategoryEnum**: `PgEnum`\<\[`"compliance"`, `"vat"`, `"bookkeeping"`, `"payroll"`, `"management"`, `"secretarial"`, `"tax_planning"`, `"addon"`\]\>
 
-Defined in: [lib/db/schema.ts:782](https://github.com/JoeInnsp23/practice-hub/blob/7df6add5a5fd051dd64ec39b8575b2b0e33b9d04/lib/db/schema.ts#L782)
+Defined in: [lib/db/schema.ts:782](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/db/schema.ts#L782)

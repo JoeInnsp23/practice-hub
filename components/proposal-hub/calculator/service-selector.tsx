@@ -169,9 +169,8 @@ export function ServiceSelector({
                         )}
                       </button>
                       <div className="flex-1 space-y-2">
-                        <div
-                          role="button"
-                          tabIndex={0}
+                        <button
+                          type="button"
                           onClick={() => handleToggleService(comp.code)}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") {
@@ -179,7 +178,7 @@ export function ServiceSelector({
                               handleToggleService(comp.code);
                             }
                           }}
-                          className="cursor-pointer"
+                          className="cursor-pointer w-full text-left"
                         >
                           <p className="text-base font-medium">{comp.name}</p>
                           {comp.description && (
@@ -187,7 +186,7 @@ export function ServiceSelector({
                               {comp.description}
                             </p>
                           )}
-                        </div>
+                        </button>
 
                         {/* Service Configuration */}
                         {isServiceSelected(comp.code) && (

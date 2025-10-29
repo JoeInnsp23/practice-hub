@@ -95,11 +95,10 @@ export function WorkflowAssignmentModal({
             >
               <div className="space-y-3">
                 {workflows.map((workflow) => (
-                  <div
+                  <button
+                    type="button"
                     key={workflow.id}
-                    role="button"
-                    tabIndex={0}
-                    className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                    className="w-full flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer text-left"
                     onClick={() => setSelectedWorkflowId(workflow.id)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -142,7 +141,7 @@ export function WorkflowAssignmentModal({
                         </div>
                       </div>
                     </Label>
-                  </div>
+                  </button>
                 ))}
               </div>
             </RadioGroup>

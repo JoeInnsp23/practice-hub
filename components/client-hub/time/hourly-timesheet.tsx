@@ -303,12 +303,11 @@ export function HourlyTimesheet({
                   const isToday = currentTime && isSameDay(day, currentTime);
 
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={day.toISOString()}
-                      role="button"
-                      tabIndex={0}
                       className={cn(
-                        "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer",
+                        "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer w-full text-left",
                         "hover:bg-slate-100 dark:hover:bg-slate-700/50",
                         isWeekend && "bg-slate-50 dark:bg-slate-800/50",
                         isToday &&
@@ -337,11 +336,10 @@ export function HourlyTimesheet({
                             const workTypeLabel = workType?.label || "Unknown";
 
                             return (
-                              <div
+                              <button
+                                type="button"
                                 key={entry.id || `${entry.date}-${entry.hours}`}
-                                role="button"
-                                tabIndex={0}
-                                className="text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
+                                className="w-full text-left text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
                                 style={{
                                   backgroundColor: `${workTypeColor}20`,
                                   borderLeftColor: workTypeColor,
@@ -380,7 +378,7 @@ export function HourlyTimesheet({
                                     </span>
                                   )}
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
                           {entries.length > 2 && (
@@ -390,7 +388,7 @@ export function HourlyTimesheet({
                           )}
                         </div>
                       )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>

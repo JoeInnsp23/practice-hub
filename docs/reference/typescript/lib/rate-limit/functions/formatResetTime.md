@@ -8,7 +8,7 @@
 
 > **formatResetTime**(`resetAt`): `string`
 
-Defined in: [lib/rate-limit.ts:196](https://github.com/JoeInnsp23/practice-hub/blob/7df6add5a5fd051dd64ec39b8575b2b0e33b9d04/lib/rate-limit.ts#L196)
+Defined in: [lib/rate-limit.ts:196](https://github.com/JoeInnsp23/practice-hub/blob/2ef882a6259cc571283924a3906aee4baef25f65/lib/rate-limit.ts#L196)
 
 Format seconds remaining until reset
 
