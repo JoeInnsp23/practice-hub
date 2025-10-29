@@ -8,4 +8,4 @@
 
 > **ServiceImportData** = `z.infer`\<*typeof* [`serviceImportSchema`](../variables/serviceImportSchema.md)\>
 
-Defined in: [lib/validators/csv-import.ts:252](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/validators/csv-import.ts#L252)
+Defined in: [lib/validators/csv-import.ts:252](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/validators/csv-import.ts#L252)

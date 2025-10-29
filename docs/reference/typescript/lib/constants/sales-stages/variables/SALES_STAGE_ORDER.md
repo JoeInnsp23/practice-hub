@@ -8,6 +8,6 @@
 
 > `const` **SALES\_STAGE\_ORDER**: [`SalesStage`](../type-aliases/SalesStage.md)[]
 
-Defined in: [lib/constants/sales-stages.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/constants/sales-stages.ts#L105)
+Defined in: [lib/constants/sales-stages.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/constants/sales-stages.ts#L105)
 
 Sales stages in display order for Kanban board

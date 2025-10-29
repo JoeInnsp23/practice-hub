@@ -8,6 +8,6 @@
 
 > **ConnectionState** = `"connecting"` \| `"connected"` \| `"disconnected"` \| `"reconnecting"` \| `"failed"`
 
-Defined in: [lib/realtime/client.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/realtime/client.ts#L24)
+Defined in: [lib/realtime/client.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/realtime/client.ts#L24)
 
 Connection state for realtime client

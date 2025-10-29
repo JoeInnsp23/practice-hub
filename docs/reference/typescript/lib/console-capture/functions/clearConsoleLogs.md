@@ -8,7 +8,7 @@
 
 > **clearConsoleLogs**(): `void`
 
-Defined in: [lib/console-capture.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/console-capture.ts#L133)
+Defined in: [lib/console-capture.ts:133](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/console-capture.ts#L133)
 
 ## Returns
 

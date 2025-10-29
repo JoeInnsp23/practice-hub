@@ -8,4 +8,4 @@
 
 > **OnboardingSessionWithRelations** = [`RouterOutputs`](RouterOutputs.md)\[`"onboarding"`\]\[`"getById"`\]
 
-Defined in: [lib/trpc/types.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/trpc/types.ts#L140)
+Defined in: [lib/trpc/types.ts:140](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/trpc/types.ts#L140)

@@ -8,4 +8,4 @@
 
 > `const` **workTypeEnum**: `PgEnum`\<\[`"work"`, `"admin"`, `"training"`, `"meeting"`, `"business_development"`, `"research"`, `"holiday"`, `"sick"`, `"time_off_in_lieu"`\]\>
 
-Defined in: [lib/db/schema.ts:577](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/db/schema.ts#L577)
+Defined in: [lib/db/schema.ts:577](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/db/schema.ts#L577)

@@ -8,7 +8,7 @@
 
 > **WinLossChart**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/charts/win-loss-chart.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/components/proposal-hub/charts/win-loss-chart.tsx#L29)
+Defined in: [components/proposal-hub/charts/win-loss-chart.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/components/proposal-hub/charts/win-loss-chart.tsx#L29)
 
 ## Parameters
 

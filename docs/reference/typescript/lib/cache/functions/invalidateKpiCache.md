@@ -8,7 +8,7 @@
 
 > **invalidateKpiCache**(`tenantId`): `void`
 
-Defined in: [lib/cache.ts:143](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/cache.ts#L143)
+Defined in: [lib/cache.ts:143](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/cache.ts#L143)
 
 Invalidate KPI cache for a specific tenant
 

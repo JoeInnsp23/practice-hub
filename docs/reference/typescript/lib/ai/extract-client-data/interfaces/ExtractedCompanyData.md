@@ -6,7 +6,7 @@
 
 # Interface: ExtractedCompanyData
 
-Defined in: [lib/ai/extract-client-data.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L49)
+Defined in: [lib/ai/extract-client-data.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L49)
 
 Extracted company data from incorporation certificates and Companies House extracts
 Note: Beneficial ownership (PSC) is included in Companies House extracts
@@ -17,7 +17,7 @@ Note: Beneficial ownership (PSC) is included in Companies House extracts
 
 > `optional` **companyName**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L50)
+Defined in: [lib/ai/extract-client-data.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L50)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [lib/ai/extract-client-data.ts:50](https://github.com/JoeInnsp23/pra
 
 > `optional` **companyType**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L53)
+Defined in: [lib/ai/extract-client-data.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L53)
 
 ***
 
@@ -33,7 +33,7 @@ Defined in: [lib/ai/extract-client-data.ts:53](https://github.com/JoeInnsp23/pra
 
 > `optional` **directors**: `object`[]
 
-Defined in: [lib/ai/extract-client-data.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L61)
+Defined in: [lib/ai/extract-client-data.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L61)
 
 #### appointedDate?
 
@@ -49,7 +49,7 @@ Defined in: [lib/ai/extract-client-data.ts:61](https://github.com/JoeInnsp23/pra
 
 > `optional` **incorporationDate**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L52)
+Defined in: [lib/ai/extract-client-data.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L52)
 
 ***
 
@@ -57,7 +57,7 @@ Defined in: [lib/ai/extract-client-data.ts:52](https://github.com/JoeInnsp23/pra
 
 > `optional` **natureOfBusiness**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:72](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L72)
+Defined in: [lib/ai/extract-client-data.ts:72](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L72)
 
 ***
 
@@ -65,7 +65,7 @@ Defined in: [lib/ai/extract-client-data.ts:72](https://github.com/JoeInnsp23/pra
 
 > `optional` **personsWithSignificantControl**: `object`[]
 
-Defined in: [lib/ai/extract-client-data.ts:66](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L66)
+Defined in: [lib/ai/extract-client-data.ts:66](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L66)
 
 #### name
 
@@ -85,7 +85,7 @@ Defined in: [lib/ai/extract-client-data.ts:66](https://github.com/JoeInnsp23/pra
 
 > `optional` **registeredAddress**: `object`
 
-Defined in: [lib/ai/extract-client-data.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L54)
+Defined in: [lib/ai/extract-client-data.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L54)
 
 #### city?
 
@@ -113,7 +113,7 @@ Defined in: [lib/ai/extract-client-data.ts:54](https://github.com/JoeInnsp23/pra
 
 > `optional` **registrationNumber**: `string`
 
-Defined in: [lib/ai/extract-client-data.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L51)
+Defined in: [lib/ai/extract-client-data.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L51)
 
 ***
 
@@ -121,4 +121,4 @@ Defined in: [lib/ai/extract-client-data.ts:51](https://github.com/JoeInnsp23/pra
 
 > `optional` **sicCodes**: `string`[]
 
-Defined in: [lib/ai/extract-client-data.ts:71](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/ai/extract-client-data.ts#L71)
+Defined in: [lib/ai/extract-client-data.ts:71](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/ai/extract-client-data.ts#L71)

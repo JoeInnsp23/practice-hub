@@ -8,7 +8,7 @@
 
 > **parseBoolean**(`value`, `defaultValue`): `boolean`
 
-Defined in: [lib/utils/csv-parser-enhanced.ts:350](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/lib/utils/csv-parser-enhanced.ts#L350)
+Defined in: [lib/utils/csv-parser-enhanced.ts:350](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/lib/utils/csv-parser-enhanced.ts#L350)
 
 Parse boolean string to boolean
 

@@ -8,7 +8,7 @@
 
 > **AvatarFallback**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/avatar.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/components/ui/avatar.tsx#L37)
+Defined in: [components/ui/avatar.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/components/ui/avatar.tsx#L37)
 
 ## Parameters
 

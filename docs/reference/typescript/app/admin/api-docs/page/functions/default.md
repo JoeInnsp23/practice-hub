@@ -8,7 +8,7 @@
 
 > **default**(): `Promise`\<`Element`\>
 
-Defined in: [app/admin/api-docs/page.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/38124a31efda433037aa5c92745e20b5ed3fb75a/app/admin/api-docs/page.tsx#L16)
+Defined in: [app/admin/api-docs/page.tsx:16](https://github.com/JoeInnsp23/practice-hub/blob/e79dc0281c79b757604d709e1a40f94413376c22/app/admin/api-docs/page.tsx#L16)
 
 API Documentation Page (Server Component)
 
