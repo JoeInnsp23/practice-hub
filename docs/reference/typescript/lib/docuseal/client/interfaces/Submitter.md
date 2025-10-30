@@ -6,7 +6,7 @@
 
 # Interface: Submitter
 
-Defined in: [lib/docuseal/client.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/docuseal/client.ts#L12)
+Defined in: [lib/docuseal/client.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/docuseal/client.ts#L12)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/docuseal/client.ts:12](https://github.com/JoeInnsp23/practice-h
 
 > **email**: `string`
 
-Defined in: [lib/docuseal/client.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/docuseal/client.ts#L13)
+Defined in: [lib/docuseal/client.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/docuseal/client.ts#L13)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/docuseal/client.ts:13](https://github.com/JoeInnsp23/practice-h
 
 > **name**: `string`
 
-Defined in: [lib/docuseal/client.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/docuseal/client.ts#L14)
+Defined in: [lib/docuseal/client.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/docuseal/client.ts#L14)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [lib/docuseal/client.ts:14](https://github.com/JoeInnsp23/practice-h
 
 > `optional` **role**: `string`
 
-Defined in: [lib/docuseal/client.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/docuseal/client.ts#L15)
+Defined in: [lib/docuseal/client.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/docuseal/client.ts#L15)

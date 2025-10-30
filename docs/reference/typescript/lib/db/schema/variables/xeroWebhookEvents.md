@@ -8,4 +8,4 @@
 
 > `const` **xeroWebhookEvents**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:3502](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/db/schema.ts#L3502)
+Defined in: [lib/db/schema.ts:3502](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/db/schema.ts#L3502)

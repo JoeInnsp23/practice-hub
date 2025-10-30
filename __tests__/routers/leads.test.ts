@@ -4,24 +4,20 @@
  * Tests for the leads tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { leadsRouter } from "@/app/server/routers/leads";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+import {
+  type TestDataTracker,
+  cleanupTestData,
+  createTestLead,
+  createTestTenant,
+  createTestUser,
+} from "../helpers/factories";
 
 // Mock auto-convert helper
 vi.mock("@/lib/client-portal/auto-convert-lead", () => ({
@@ -34,11 +30,24 @@ vi.mock("@/lib/client-portal/auto-convert-lead", () => ({
 describe("app/server/routers/leads.ts", () => {
   let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof leadsRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    leads: [],
+  };
 
   beforeEach(() => {
     ctx = createMockContext();
     _caller = createCaller(leadsRouter, ctx);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.leads = [];
   });
 
   describe("list", () => {
@@ -83,9 +92,21 @@ describe("app/server/routers/leads.ts", () => {
 
   describe("getById", () => {
     it("should accept valid UUID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(_caller.getById(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(_caller.getById(lead.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -106,6 +127,17 @@ describe("app/server/routers/leads.ts", () => {
     });
 
     it("should accept valid lead data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
         firstName: "John",
         lastName: "Doe",
@@ -115,10 +147,23 @@ describe("app/server/routers/leads.ts", () => {
         source: "website" as const,
       };
 
-      await expect(_caller.create(validInput)).resolves.not.toThrow();
+      const result = await _caller.create(validInput);
+      tracker.leads?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should accept any string as email", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       // Note: email is z.string().optional() without .email() validation in leads
       const validInput = {
         firstName: "John",
@@ -127,12 +172,23 @@ describe("app/server/routers/leads.ts", () => {
         companyName: "Test Corp",
       };
 
-      await expect(
-        _caller.create(validInput as Record<string, unknown>),
-      ).resolves.not.toThrow();
+      const result = await _caller.create(validInput as Record<string, unknown>);
+      tracker.leads?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should accept optional fields", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
         firstName: "John",
         lastName: "Doe",
@@ -142,9 +198,9 @@ describe("app/server/routers/leads.ts", () => {
         notes: "Interested in accounting services",
       };
 
-      await expect(
-        _caller.create(validInput as Record<string, unknown>),
-      ).resolves.not.toThrow();
+      const result = await _caller.create(validInput as Record<string, unknown>);
+      tracker.leads?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -161,8 +217,22 @@ describe("app/server/routers/leads.ts", () => {
     });
 
     it("should accept valid update data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: lead.id,
         data: {
           status: "contacted" as const,
           notes: "Follow-up scheduled",
@@ -186,9 +256,21 @@ describe("app/server/routers/leads.ts", () => {
 
   describe("delete", () => {
     it("should accept valid lead ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(_caller.delete(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(_caller.delete(lead.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -209,9 +291,26 @@ describe("app/server/routers/leads.ts", () => {
     });
 
     it("should accept valid assignment data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const assignedUser = await createTestUser(tenantId);
+      tracker.users?.push(assignedUser);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        leadId: "550e8400-e29b-41d4-a716-446655440000",
-        assignedToId: "660e8400-e29b-41d4-a716-446655440000",
+        leadId: lead.id,
+        assignedToId: assignedUser,
       };
 
       await expect(_caller.assignLead(validInput)).resolves.not.toThrow();
@@ -231,8 +330,22 @@ describe("app/server/routers/leads.ts", () => {
     });
 
     it("should accept valid follow-up data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        leadId: "550e8400-e29b-41d4-a716-446655440000",
+        leadId: lead.id,
         nextFollowUpAt: "2025-12-31T10:00:00Z",
         notes: "Call to discuss pricing",
       };
@@ -241,8 +354,22 @@ describe("app/server/routers/leads.ts", () => {
     });
 
     it("should validate nextFollowUpAt is a string", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        leadId: "550e8400-e29b-41d4-a716-446655440000",
+        leadId: lead.id,
         nextFollowUpAt: "2024-01-01", // String is valid
       };
 
@@ -252,8 +379,22 @@ describe("app/server/routers/leads.ts", () => {
 
   describe("convertToClient", () => {
     it("should accept valid conversion data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        leadId: "550e8400-e29b-41d4-a716-446655440000",
+        leadId: lead.id,
         clientData: {
           clientCode: "CL001",
           type: "limited_company",

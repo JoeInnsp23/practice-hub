@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/settings/email-templates/page.tsx:57](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/app/admin/settings/email-templates/page.tsx#L57)
+Defined in: [app/admin/settings/email-templates/page.tsx:57](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/app/admin/settings/email-templates/page.tsx#L57)
 
 ## Returns
 

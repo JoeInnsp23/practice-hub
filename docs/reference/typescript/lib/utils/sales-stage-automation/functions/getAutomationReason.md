@@ -8,7 +8,7 @@
 
 > **getAutomationReason**(`status`, `stage`): `string`
 
-Defined in: [lib/utils/sales-stage-automation.ts:87](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/utils/sales-stage-automation.ts#L87)
+Defined in: [lib/utils/sales-stage-automation.ts:87](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/utils/sales-stage-automation.ts#L87)
 
 Gets a human-readable description of the automation rule
 

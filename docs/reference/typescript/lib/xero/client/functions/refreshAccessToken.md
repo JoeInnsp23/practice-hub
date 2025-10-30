@@ -8,7 +8,7 @@
 
 > **refreshAccessToken**(`refreshToken`): `Promise`\<[`XeroTokenResponse`](../interfaces/XeroTokenResponse.md)\>
 
-Defined in: [lib/xero/client.ts:119](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/xero/client.ts#L119)
+Defined in: [lib/xero/client.ts:119](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/xero/client.ts#L119)
 
 Refresh access token using refresh token
 

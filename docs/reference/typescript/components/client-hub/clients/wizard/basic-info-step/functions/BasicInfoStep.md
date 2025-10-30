@@ -8,7 +8,7 @@
 
 > **BasicInfoStep**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/wizard/basic-info-step.tsx:56](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/components/client-hub/clients/wizard/basic-info-step.tsx#L56)
+Defined in: [components/client-hub/clients/wizard/basic-info-step.tsx:56](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/components/client-hub/clients/wizard/basic-info-step.tsx#L56)
 
 ## Parameters
 
