@@ -8,10 +8,10 @@ import { afterAll, afterEach, beforeAll, vi } from "vitest";
 
 // Note: NODE_ENV is already set by vitest.config.ts
 // No need to set it here as process.env.NODE_ENV is read-only in modules
+// IMPORTANT: Tests MUST use the test database on port 5433, NOT the production database
 process.env.DATABASE_URL =
   process.env.TEST_DATABASE_URL ||
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:PgHub2024SecureDB9kL@localhost:5432/practice_hub";
+  "postgresql://postgres:221d2afbd4bcaa1d05d6e9606d0c9051f15f734ce4e9d94b78eb11e40e25578a@localhost:5433/practice_hub_test";
 process.env.BETTER_AUTH_SECRET = "test-secret-key-for-auth";
 process.env.BETTER_AUTH_URL = "http://localhost:3000";
 process.env.NEXT_PUBLIC_BETTER_AUTH_URL = "http://localhost:3000";

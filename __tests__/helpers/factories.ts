@@ -35,6 +35,8 @@ import {
   leads,
   legalPages,
   messages,
+  messageThreadParticipants,
+  messageThreads,
   pricingRules,
   proposals,
   services,
@@ -78,6 +80,8 @@ export interface TestDataTracker {
   leads?: string[];
   calendarEvents?: string[];
   messages?: string[];
+  messageThreads?: string[];
+  messageThreadParticipants?: string[];
   legalPages?: string[];
 }
 
@@ -475,6 +479,26 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
       await db.delete(messages).where(inArray(messages.id, tracker.messages));
     }
 
+    if (
+      tracker.messageThreadParticipants &&
+      tracker.messageThreadParticipants.length > 0
+    ) {
+      await db
+        .delete(messageThreadParticipants)
+        .where(
+          inArray(
+            messageThreadParticipants.id,
+            tracker.messageThreadParticipants,
+          ),
+        );
+    }
+
+    if (tracker.messageThreads && tracker.messageThreads.length > 0) {
+      await db
+        .delete(messageThreads)
+        .where(inArray(messageThreads.id, tracker.messageThreads));
+    }
+
     if (tracker.calendarEvents && tracker.calendarEvents.length > 0) {
       await db
         .delete(calendarEvents)
@@ -790,4 +814,66 @@ export async function createTestPricingRule(
     .returning();
 
   return rule;
+}
+
+/**
+ * Create a test message thread
+ */
+export async function createTestMessageThread(
+  tenantId: string,
+  createdBy: string,
+  overrides: Partial<typeof messageThreads.$inferInsert> = {},
+) {
+  const threadId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [thread] = await db
+    .insert(messageThreads)
+    .values({
+      id: threadId,
+      tenantId,
+      createdBy,
+      type: overrides.type || "direct",
+      name: overrides.name || (overrides.type === "team_channel" ? `Test Channel ${timestamp}` : null),
+      description: overrides.description || null,
+      isPrivate: overrides.isPrivate ?? false,
+      clientId: overrides.clientId || null,
+      lastMessageAt: overrides.lastMessageAt || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return thread;
+}
+
+/**
+ * Create a test message thread participant
+ */
+export async function createTestMessageThreadParticipant(
+  threadId: string,
+  participantId: string,
+  overrides: Partial<typeof messageThreadParticipants.$inferInsert> = {},
+) {
+  const participantRecordId = crypto.randomUUID();
+  const participantType = overrides.participantType || "staff";
+
+  const [participant] = await db
+    .insert(messageThreadParticipants)
+    .values({
+      id: participantRecordId,
+      threadId,
+      participantType,
+      participantId,
+      userId: overrides.userId || (participantType === "staff" ? participantId : null),
+      role: overrides.role || "member",
+      joinedAt: new Date(),
+      lastReadAt: overrides.lastReadAt || null,
+      mutedUntil: overrides.mutedUntil || null,
+      ...overrides,
+    })
+    .returning();
+
+  return participant;
 }

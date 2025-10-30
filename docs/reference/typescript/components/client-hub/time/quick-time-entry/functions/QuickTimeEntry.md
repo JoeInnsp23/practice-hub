@@ -8,7 +8,7 @@
 
 > **QuickTimeEntry**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/time/quick-time-entry.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/client-hub/time/quick-time-entry.tsx#L54)
+Defined in: [components/client-hub/time/quick-time-entry.tsx:54](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/components/client-hub/time/quick-time-entry.tsx#L54)
 
 ## Parameters
 

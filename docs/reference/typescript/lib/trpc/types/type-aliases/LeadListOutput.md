@@ -8,6 +8,6 @@
 
 > **LeadListOutput** = [`RouterOutputs`](RouterOutputs.md)\[`"leads"`\]\[`"list"`\]
 
-Defined in: [lib/trpc/types.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/trpc/types.ts#L131)
+Defined in: [lib/trpc/types.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/trpc/types.ts#L131)
 
 Lead Types

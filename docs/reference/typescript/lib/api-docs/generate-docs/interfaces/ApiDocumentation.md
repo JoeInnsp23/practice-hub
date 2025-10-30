@@ -6,7 +6,7 @@
 
 # Interface: ApiDocumentation
 
-Defined in: [lib/api-docs/generate-docs.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/api-docs/generate-docs.ts#L36)
+Defined in: [lib/api-docs/generate-docs.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/api-docs/generate-docs.ts#L36)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/api-docs/generate-docs.ts:36](https://github.com/JoeInnsp23/pra
 
 > **generatedAt**: `string`
 
-Defined in: [lib/api-docs/generate-docs.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/api-docs/generate-docs.ts#L38)
+Defined in: [lib/api-docs/generate-docs.ts:38](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/api-docs/generate-docs.ts#L38)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/api-docs/generate-docs.ts:38](https://github.com/JoeInnsp23/pra
 
 > **routers**: [`ApiDocRouter`](ApiDocRouter.md)[]
 
-Defined in: [lib/api-docs/generate-docs.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/api-docs/generate-docs.ts#L37)
+Defined in: [lib/api-docs/generate-docs.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/api-docs/generate-docs.ts#L37)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [lib/api-docs/generate-docs.ts:37](https://github.com/JoeInnsp23/pra
 
 > **version**: `string`
 
-Defined in: [lib/api-docs/generate-docs.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/api-docs/generate-docs.ts#L39)
+Defined in: [lib/api-docs/generate-docs.ts:39](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/api-docs/generate-docs.ts#L39)

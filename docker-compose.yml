@@ -16,7 +16,7 @@ services:
     container_name: practice-hub-test-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: 221d2afbd4bcaa1d05d6e9606d0c9051f15f734ce4e9d94b78eb11e40e25578a
       POSTGRES_DB: practice_hub_test
     ports:
       - "127.0.0.1:5433:5432"

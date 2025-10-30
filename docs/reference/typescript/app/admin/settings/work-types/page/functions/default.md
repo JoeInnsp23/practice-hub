@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/settings/work-types/page.tsx:121](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/app/admin/settings/work-types/page.tsx#L121)
+Defined in: [app/admin/settings/work-types/page.tsx:121](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/app/admin/settings/work-types/page.tsx#L121)
 
 ## Returns
 

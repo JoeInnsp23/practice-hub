@@ -6,7 +6,7 @@
 
 # Interface: CSVRowError
 
-Defined in: [lib/services/csv-parser.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/services/csv-parser.ts#L13)
+Defined in: [lib/services/csv-parser.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/services/csv-parser.ts#L13)
 
 Error information for a single row
 
@@ -16,7 +16,7 @@ Error information for a single row
 
 > **error**: `string`
 
-Defined in: [lib/services/csv-parser.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/services/csv-parser.ts#L16)
+Defined in: [lib/services/csv-parser.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/services/csv-parser.ts#L16)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [lib/services/csv-parser.ts:16](https://github.com/JoeInnsp23/practi
 
 > **field**: `string`
 
-Defined in: [lib/services/csv-parser.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/services/csv-parser.ts#L15)
+Defined in: [lib/services/csv-parser.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/services/csv-parser.ts#L15)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [lib/services/csv-parser.ts:15](https://github.com/JoeInnsp23/practi
 
 > **row**: `number`
 
-Defined in: [lib/services/csv-parser.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/services/csv-parser.ts#L14)
+Defined in: [lib/services/csv-parser.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/services/csv-parser.ts#L14)

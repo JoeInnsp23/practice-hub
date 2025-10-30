@@ -8,7 +8,7 @@
 
 > **isXeroEnabled**(`tenantId`): `Promise`\<`boolean`\>
 
-Defined in: [lib/xero/middleware.ts:79](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/xero/middleware.ts#L79)
+Defined in: [lib/xero/middleware.ts:79](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/middleware.ts#L79)
 
 Check if Xero integration is enabled for a tenant
 

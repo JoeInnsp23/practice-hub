@@ -8,4 +8,4 @@
 
 > `const` **proposalStatusEnum**: `PgEnum`\<\[`"draft"`, `"sent"`, `"viewed"`, `"signed"`, `"rejected"`, `"expired"`\]\>
 
-Defined in: [lib/db/schema.ts:1636](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/db/schema.ts#L1636)
+Defined in: [lib/db/schema.ts:1636](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/db/schema.ts#L1636)
