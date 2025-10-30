@@ -31,7 +31,12 @@ import {
 vi.mock("@/lib/pdf/generate-invoice-pdf", () => ({
   generateInvoicePdf: vi
     .fn()
-    .mockResolvedValue(Buffer.from("mock-pdf-content")),
+    .mockImplementation(async (options: { invoiceId: string }) => {
+      return {
+        pdfUrl: `https://s3.example.com/invoices/${options.invoiceId}.pdf`,
+        fileName: `invoice-${options.invoiceId}.pdf`,
+      };
+    }),
 }));
 
 describe("app/server/routers/invoices.ts (Integration)", () => {

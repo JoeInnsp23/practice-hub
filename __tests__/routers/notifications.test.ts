@@ -1,36 +1,67 @@
 /**
- * Notifications Router Tests
+ * Notifications Router Integration Tests
  *
- * Tests for the notifications tRPC router
+ * Integration-level tests for the notifications tRPC router.
+ * Tests verify database operations, tenant isolation, and notification workflow.
+ *
+ * Cleanup Strategy: TestDataTracker + afterEach cleanup
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { notificationsRouter } from "@/app/server/routers/notifications";
+import {
+  cleanupTestData,
+  createTestNotification,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
-
 describe("app/server/routers/notifications.ts", () => {
   let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof notificationsRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    notifications: [],
+  };
 
-  beforeEach(() => {
-    ctx = createMockContext();
+  beforeEach(async () => {
+    // Create test tenant and user
+    const tenantId = await createTestTenant();
+    const userId = await createTestUser(tenantId, { role: "user" });
+
+    tracker.tenants?.push(tenantId);
+    tracker.users?.push(userId);
+
+    // Create mock context with real tenant and user
+    ctx = createMockContext({
+      authContext: {
+        userId,
+        tenantId,
+        organizationName: "Test Organization",
+        role: "user",
+        email: `user-${Date.now()}@example.com`,
+        firstName: "Test",
+        lastName: "User",
+      },
+    }) as TestContextWithAuth;
+
     _caller = createCaller(notificationsRouter, ctx);
-    vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.notifications = [];
   });
 
   describe("list", () => {
@@ -94,8 +125,16 @@ describe("app/server/routers/notifications.ts", () => {
     });
 
     it("should accept valid notification ID", async () => {
+      // Create a notification
+      const notification = await createTestNotification(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        { isRead: false },
+      );
+      tracker.notifications?.push(notification.id);
+
       const validInput = {
-        notificationId: "550e8400-e29b-41d4-a716-446655440000",
+        notificationId: notification.id,
       };
 
       await expect(_caller.markAsRead(validInput)).resolves.not.toThrow();
@@ -134,8 +173,15 @@ describe("app/server/routers/notifications.ts", () => {
     });
 
     it("should accept valid notification ID", async () => {
+      // Create a notification
+      const notification = await createTestNotification(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.notifications?.push(notification.id);
+
       const validInput = {
-        notificationId: "550e8400-e29b-41d4-a716-446655440000",
+        notificationId: notification.id,
       };
 
       await expect(_caller.delete(validInput)).resolves.not.toThrow();
@@ -156,8 +202,8 @@ describe("app/server/routers/notifications.ts", () => {
 
     it("should accept valid notification data", async () => {
       const validInput = {
-        userId: "550e8400-e29b-41d4-a716-446655440000",
-        type: "task_assigned",
+        userId: ctx.authContext.userId,
+        type: "task_assigned" as const,
         title: "New Task Assigned",
         message: "You have been assigned a new task",
       };
@@ -167,14 +213,13 @@ describe("app/server/routers/notifications.ts", () => {
 
     it("should accept optional fields", async () => {
       const validInput = {
-        userId: "550e8400-e29b-41d4-a716-446655440000",
-        type: "client_message",
-        title: "New Message",
-        message: "You have a new message from a client",
-        actionUrl: "/messages/thread-123",
-        entityType: "message_thread",
-        entityId: "660e8400-e29b-41d4-a716-446655440000",
-        // metadata: { threadName: "Client Support" }, // Skip metadata - complex type
+        userId: ctx.authContext.userId,
+        type: "mention" as const,
+        title: "You were mentioned",
+        message: "Someone mentioned you in a comment",
+        actionUrl: "/tasks/123",
+        entityType: "task" as const,
+        entityId: "550e8400-e29b-41d4-a716-446655440000",
       };
 
       await expect(_caller.create(validInput)).resolves.not.toThrow();

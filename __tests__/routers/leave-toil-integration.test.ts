@@ -1,9 +1,16 @@
 import { eq, sql } from "drizzle-orm";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { appRouter } from "@/app/server";
 import { db } from "@/lib/db";
 import { leaveBalances, leaveRequests, tenants, users } from "@/lib/db/schema";
 import { createMockContext } from "../helpers/trpc";
+
+// Mock email notifications (React not available in Vitest environment)
+vi.mock("@/lib/email/leave-notifications", () => ({
+  sendLeaveRequestSubmitted: vi.fn().mockResolvedValue({ success: true }),
+  sendLeaveRequestApproved: vi.fn().mockResolvedValue({ success: true }),
+  sendLeaveRequestRejected: vi.fn().mockResolvedValue({ success: true }),
+}));
 
 describe("Leave-TOIL Redemption Integration", () => {
   let testTenantId: string;

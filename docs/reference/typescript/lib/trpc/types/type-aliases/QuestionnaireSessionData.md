@@ -8,6 +8,6 @@
 
 > **QuestionnaireSessionData** = [`RouterOutputs`](RouterOutputs.md)\[`"onboarding"`\]\[`"getQuestionnaireSession"`\]
 
-Defined in: [lib/trpc/types.ts:146](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/lib/trpc/types.ts#L146)
+Defined in: [lib/trpc/types.ts:146](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/trpc/types.ts#L146)
 
 Onboarding Questionnaire Types (Story 7.2 completion)

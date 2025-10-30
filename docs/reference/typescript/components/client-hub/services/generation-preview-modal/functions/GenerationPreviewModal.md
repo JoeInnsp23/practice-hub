@@ -8,7 +8,7 @@
 
 > **GenerationPreviewModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/services/generation-preview-modal.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/components/client-hub/services/generation-preview-modal.tsx#L37)
+Defined in: [components/client-hub/services/generation-preview-modal.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/components/client-hub/services/generation-preview-modal.tsx#L37)
 
 Modal to preview and confirm task generation from templates
 Shows what tasks will be created before committing

@@ -8,7 +8,7 @@
 
 > **CardTitle**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/card.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/components/ui/card.tsx#L31)
+Defined in: [components/ui/card.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/components/ui/card.tsx#L31)
 
 ## Parameters
 

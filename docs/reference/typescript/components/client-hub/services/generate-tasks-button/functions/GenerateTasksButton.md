@@ -8,7 +8,7 @@
 
 > **GenerateTasksButton**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/services/generate-tasks-button.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/components/client-hub/services/generate-tasks-button.tsx#L20)
+Defined in: [components/client-hub/services/generate-tasks-button.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/components/client-hub/services/generate-tasks-button.tsx#L20)
 
 Button to trigger auto-generation of tasks from templates
 Opens preview modal before generation

@@ -8,7 +8,7 @@
 
 > **EditUserDialog**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/users/edit-user-dialog.tsx:47](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/app/admin/users/edit-user-dialog.tsx#L47)
+Defined in: [app/admin/users/edit-user-dialog.tsx:47](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/app/admin/users/edit-user-dialog.tsx#L47)
 
 ## Parameters
 

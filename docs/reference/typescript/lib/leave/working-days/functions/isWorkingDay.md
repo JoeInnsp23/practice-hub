@@ -8,7 +8,7 @@
 
 > **isWorkingDay**(`date`): `boolean`
 
-Defined in: [lib/leave/working-days.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/lib/leave/working-days.ts#L51)
+Defined in: [lib/leave/working-days.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/leave/working-days.ts#L51)
 
 Check if a date is a working day (not weekend or bank holiday)
 

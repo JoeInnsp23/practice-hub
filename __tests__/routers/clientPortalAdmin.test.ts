@@ -1,29 +1,38 @@
 /**
- * Client Portal Admin Router Tests
+ * Client Portal Admin Router Integration Tests
  *
- * Tests for the clientPortalAdmin tRPC router
+ * Integration-level tests for the clientPortalAdmin tRPC router.
+ * Tests verify database operations, tenant isolation, invitation workflow, and access management.
+ *
+ * Cleanup Strategy: TestDataTracker + afterEach cleanup
+ * External Dependencies: Email sending mocked (sendClientPortalInvitationEmail)
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { eq } from "drizzle-orm";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clientPortalAdminRouter } from "@/app/server/routers/clientPortalAdmin";
+import { db } from "@/lib/db";
+import {
+  clientPortalAccess,
+  clientPortalInvitations,
+  clientPortalUsers,
+} from "@/lib/db/schema";
+import {
+  cleanupTestData,
+  createTestClient,
+  createTestClientPortalInvitation,
+  createTestClientPortalUser,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
-
-// Mock email sending
+// Mock email sending (external dependency)
 vi.mock("@/lib/email/send-client-portal-invitation", () => ({
   sendClientPortalInvitationEmail: vi.fn().mockResolvedValue(undefined),
 }));
@@ -31,12 +40,73 @@ vi.mock("@/lib/email/send-client-portal-invitation", () => ({
 describe("app/server/routers/clientPortalAdmin.ts", () => {
   let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof clientPortalAdminRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    clientPortalUsers: [],
+    clientPortalInvitations: [],
+    clientPortalAccess: [],
+  };
+  let testClientId: string; // For tests requiring a real client
 
-  beforeEach(() => {
-    ctx = createMockContext();
-    ctx.authContext.role = "admin"; // Admin router requires admin role
+  beforeEach(async () => {
+    // Create test tenant and admin user
+    const tenantId = await createTestTenant();
+    const userId = await createTestUser(tenantId, { role: "admin" });
+
+    tracker.tenants?.push(tenantId);
+    tracker.users?.push(userId);
+
+    // Create a test client for invitation tests
+    const client = await createTestClient(tenantId, userId, {
+      name: "Client Portal Test Client",
+    });
+    testClientId = client.id;
+    tracker.clients?.push(testClientId);
+
+    // Create mock context with real tenant and user
+    ctx = createMockContext({
+      authContext: {
+        userId,
+        tenantId,
+        organizationName: "Test Organization",
+        role: "admin",
+        email: `admin-${Date.now()}@example.com`,
+        firstName: "Test",
+        lastName: "Admin",
+      },
+    }) as TestContextWithAuth;
+
     _caller = createCaller(clientPortalAdminRouter, ctx);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    // Delete ALL client portal records for this tenant (router creates some we don't track)
+    const tenantIds = tracker.tenants || [];
+    for (const tenantId of tenantIds) {
+      await db
+        .delete(clientPortalAccess)
+        .where(eq(clientPortalAccess.tenantId, tenantId));
+      await db
+        .delete(clientPortalInvitations)
+        .where(eq(clientPortalInvitations.tenantId, tenantId));
+      await db
+        .delete(clientPortalUsers)
+        .where(eq(clientPortalUsers.tenantId, tenantId));
+    }
+
+    // Then cleanup tracked records (clients, users, tenants)
+    await cleanupTestData(tracker);
+
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.clientPortalUsers = [];
+    tracker.clientPortalInvitations = [];
+    tracker.clientPortalAccess = [];
   });
 
   describe("sendInvitation", () => {
@@ -56,7 +126,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         email: "client@example.com",
         firstName: "John",
         lastName: "Doe",
-        clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+        clientIds: [testClientId],
         role: "viewer" as const,
       };
 
@@ -68,7 +138,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         email: "invalid-email",
         firstName: "John",
         lastName: "Doe",
-        clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+        clientIds: [testClientId],
         role: "viewer",
       };
 
@@ -82,7 +152,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         email: "client@example.com",
         firstName: "", // Empty string
         lastName: "Doe",
-        clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+        clientIds: [testClientId],
         role: "viewer",
       };
 
@@ -94,7 +164,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         email: "client@example.com",
         firstName: "John",
         lastName: "", // Empty string
-        clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+        clientIds: [testClientId],
         role: "viewer",
       };
 
@@ -118,7 +188,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         email: "client@example.com",
         firstName: "John",
         lastName: "Doe",
-        clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+        clientIds: [testClientId],
         role: "superadmin",
       };
 
@@ -133,10 +203,10 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
       for (const role of validRoles) {
         await expect(
           _caller.sendInvitation({
-            email: "client@example.com",
+            email: `${role}-${Date.now()}@example.com`,
             firstName: "John",
             lastName: "Doe",
-            clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+            clientIds: [testClientId],
             role: role as unknown as "viewer",
           }),
         ).resolves.not.toThrow();
@@ -148,7 +218,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
         email: "client@example.com",
         firstName: "John",
         lastName: "Doe",
-        clientIds: ["550e8400-e29b-41d4-a716-446655440000"],
+        clientIds: [testClientId],
         role: "viewer" as const,
         message: "Welcome to the client portal!",
       };
@@ -205,8 +275,17 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should accept valid invitation ID", async () => {
+      // Create a pending invitation
+      const invitation = await createTestClientPortalInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        [testClientId],
+        { status: "pending" },
+      );
+      tracker.clientPortalInvitations?.push(invitation.id);
+
       const validInput = {
-        invitationId: "550e8400-e29b-41d4-a716-446655440000",
+        invitationId: invitation.id,
       };
 
       await expect(_caller.resendInvitation(validInput)).resolves.not.toThrow();
@@ -225,8 +304,17 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should accept valid invitation ID", async () => {
+      // Create a pending invitation
+      const invitation = await createTestClientPortalInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        [testClientId],
+        { status: "pending" },
+      );
+      tracker.clientPortalInvitations?.push(invitation.id);
+
       const validInput = {
-        invitationId: "550e8400-e29b-41d4-a716-446655440000",
+        invitationId: invitation.id,
       };
 
       await expect(_caller.revokeInvitation(validInput)).resolves.not.toThrow();
@@ -256,9 +344,16 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should accept valid access grant data", async () => {
+      // Create a portal user
+      const portalUser = await createTestClientPortalUser(
+        ctx.authContext.tenantId,
+        { email: `portal-${Date.now()}@example.com` },
+      );
+      tracker.clientPortalUsers?.push(portalUser.id);
+
       const validInput = {
-        portalUserId: "portal-user-123",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        portalUserId: portalUser.id,
+        clientId: testClientId,
         role: "viewer" as const,
       };
 
@@ -266,9 +361,16 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should accept optional expiresAt", async () => {
+      // Create a portal user
+      const portalUser = await createTestClientPortalUser(
+        ctx.authContext.tenantId,
+        { email: `portal-${Date.now()}@example.com` },
+      );
+      tracker.clientPortalUsers?.push(portalUser.id);
+
       const validInput = {
-        portalUserId: "portal-user-123",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        portalUserId: portalUser.id,
+        clientId: testClientId,
         role: "editor" as const,
         expiresAt: new Date("2025-12-31"),
       };
@@ -279,7 +381,7 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     it("should validate role enum values", async () => {
       const invalidInput = {
         portalUserId: "portal-user-123",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        clientId: testClientId,
         role: "superuser",
       };
 
@@ -292,10 +394,17 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
       const validRoles = ["viewer", "editor", "admin"];
 
       for (const role of validRoles) {
+        // Create a portal user for each role test
+        const portalUser = await createTestClientPortalUser(
+          ctx.authContext.tenantId,
+          { email: `portal-${role}-${Date.now()}@example.com` },
+        );
+        tracker.clientPortalUsers?.push(portalUser.id);
+
         await expect(
           _caller.grantAccess({
-            portalUserId: "portal-user-123",
-            clientId: "550e8400-e29b-41d4-a716-446655440000",
+            portalUserId: portalUser.id,
+            clientId: testClientId,
             role: role as unknown as "viewer",
           }),
         ).resolves.not.toThrow();
@@ -367,8 +476,15 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should accept valid portal user ID", async () => {
+      // Create a portal user
+      const portalUser = await createTestClientPortalUser(
+        ctx.authContext.tenantId,
+        { email: `suspend-${Date.now()}@example.com`, status: "active" },
+      );
+      tracker.clientPortalUsers?.push(portalUser.id);
+
       const validInput = {
-        portalUserId: "portal-user-123",
+        portalUserId: portalUser.id,
       };
 
       await expect(_caller.suspendUser(validInput)).resolves.not.toThrow();
@@ -387,8 +503,15 @@ describe("app/server/routers/clientPortalAdmin.ts", () => {
     });
 
     it("should accept valid portal user ID", async () => {
+      // Create a suspended portal user
+      const portalUser = await createTestClientPortalUser(
+        ctx.authContext.tenantId,
+        { email: `reactivate-${Date.now()}@example.com`, status: "suspended" },
+      );
+      tracker.clientPortalUsers?.push(portalUser.id);
+
       const validInput = {
-        portalUserId: "portal-user-123",
+        portalUserId: portalUser.id,
       };
 
       await expect(_caller.reactivateUser(validInput)).resolves.not.toThrow();

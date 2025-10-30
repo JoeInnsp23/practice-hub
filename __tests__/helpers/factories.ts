@@ -24,14 +24,19 @@
  * ```
  */
 
+import crypto from "node:crypto";
 import { inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   calendarEvents,
+  clientPortalAccess,
+  clientPortalInvitations,
+  clientPortalUsers,
   clients,
   clientTransactionData,
   departments,
   documents,
+  invitations,
   invoices,
   kycVerifications,
   leads,
@@ -39,6 +44,7 @@ import {
   messages,
   messageThreadParticipants,
   messageThreads,
+  notifications,
   pricingRules,
   proposals,
   services,
@@ -87,6 +93,11 @@ export interface TestDataTracker {
   legalPages?: string[];
   kycVerifications?: string[];
   transactionData?: string[];
+  invitations?: string[];
+  notifications?: string[];
+  clientPortalUsers?: string[];
+  clientPortalInvitations?: string[];
+  clientPortalAccess?: string[];
 }
 
 /**
@@ -133,6 +144,88 @@ export async function createTestUser(
   });
 
   return userId;
+}
+
+/**
+ * Create a test invitation (staff team member invitation)
+ *
+ * @example
+ * const invitation = await createTestInvitation(tenantId, invitedBy, {
+ *   email: "test@example.com",
+ *   role: "accountant"
+ * });
+ * tracker.invitations?.push(invitation.id);
+ */
+export async function createTestInvitation(
+  tenantId: string,
+  invitedBy: string,
+  overrides: Partial<typeof invitations.$inferInsert> = {},
+) {
+  const invitationId = crypto.randomUUID();
+  const timestamp = Date.now();
+  const token = crypto.randomBytes(32).toString("hex");
+
+  const [invitation] = await db
+    .insert(invitations)
+    .values({
+      id: invitationId,
+      tenantId,
+      email: overrides.email || `invite-${timestamp}@example.com`,
+      role: overrides.role || "member",
+      token: overrides.token || token,
+      invitedBy,
+      customMessage: overrides.customMessage || null,
+      status: overrides.status || "pending",
+      expiresAt:
+        overrides.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      acceptedAt: overrides.acceptedAt || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return invitation;
+}
+
+/**
+ * Create a test notification
+ *
+ * @example
+ * const notification = await createTestNotification(tenantId, userId, {
+ *   type: "task_assigned",
+ *   title: "New task assigned"
+ * });
+ * tracker.notifications?.push(notification.id);
+ */
+export async function createTestNotification(
+  tenantId: string,
+  userId: string,
+  overrides: Partial<typeof notifications.$inferInsert> = {},
+) {
+  const notificationId = crypto.randomUUID();
+
+  const [notification] = await db
+    .insert(notifications)
+    .values({
+      id: notificationId,
+      tenantId,
+      userId,
+      type: overrides.type || "info",
+      title: overrides.title || "Test Notification",
+      message: overrides.message || "This is a test notification",
+      actionUrl: overrides.actionUrl || null,
+      entityType: overrides.entityType || null,
+      entityId: overrides.entityId || null,
+      isRead: overrides.isRead ?? false,
+      readAt: overrides.readAt || null,
+      metadata: overrides.metadata || null,
+      createdAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return notification;
 }
 
 /**
@@ -505,6 +598,30 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
         .where(inArray(messageThreads.id, tracker.messageThreads));
     }
 
+    // Delete client portal records (respecting FK dependencies)
+    if (tracker.clientPortalAccess && tracker.clientPortalAccess.length > 0) {
+      await db
+        .delete(clientPortalAccess)
+        .where(inArray(clientPortalAccess.id, tracker.clientPortalAccess));
+    }
+
+    if (
+      tracker.clientPortalInvitations &&
+      tracker.clientPortalInvitations.length > 0
+    ) {
+      await db
+        .delete(clientPortalInvitations)
+        .where(
+          inArray(clientPortalInvitations.id, tracker.clientPortalInvitations),
+        );
+    }
+
+    if (tracker.clientPortalUsers && tracker.clientPortalUsers.length > 0) {
+      await db
+        .delete(clientPortalUsers)
+        .where(inArray(clientPortalUsers.id, tracker.clientPortalUsers));
+    }
+
     if (tracker.calendarEvents && tracker.calendarEvents.length > 0) {
       await db
         .delete(calendarEvents)
@@ -611,6 +728,20 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
       await db
         .delete(legalPages)
         .where(inArray(legalPages.id, tracker.legalPages));
+    }
+
+    // Delete invitations before users (FK: invitations.invitedBy -> users.id)
+    if (tracker.invitations && tracker.invitations.length > 0) {
+      await db
+        .delete(invitations)
+        .where(inArray(invitations.id, tracker.invitations));
+    }
+
+    // Delete notifications before users (FK: notifications.userId -> users.id)
+    if (tracker.notifications && tracker.notifications.length > 0) {
+      await db
+        .delete(notifications)
+        .where(inArray(notifications.id, tracker.notifications));
     }
 
     if (tracker.users && tracker.users.length > 0) {
@@ -944,4 +1075,133 @@ export async function createTestMessageThreadParticipant(
     .returning();
 
   return participant;
+}
+
+/**
+ * Create a test client portal user (external authentication)
+ *
+ * @example
+ * const portalUser = await createTestClientPortalUser(tenantId, {
+ *   email: "custom@example.com",
+ *   status: "suspended",
+ * });
+ * tracker.clientPortalUsers?.push(portalUser.id);
+ */
+export async function createTestClientPortalUser(
+  tenantId: string,
+  overrides: Partial<typeof clientPortalUsers.$inferInsert> = {},
+) {
+  const userId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [user] = await db
+    .insert(clientPortalUsers)
+    .values({
+      id: userId,
+      tenantId,
+      email: overrides.email || `portal-${timestamp}@example.com`,
+      firstName: overrides.firstName || "Portal",
+      lastName: overrides.lastName || "User",
+      phone: overrides.phone || null,
+      status: overrides.status || "active",
+      lastLoginAt: overrides.lastLoginAt || null,
+      invitedAt: overrides.invitedAt || new Date(),
+      acceptedAt: overrides.acceptedAt || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return user;
+}
+
+/**
+ * Create a test client portal invitation
+ *
+ * @example
+ * const invitation = await createTestClientPortalInvitation(
+ *   tenantId,
+ *   staffUserId,
+ *   [clientId],
+ *   { status: "pending" }
+ * );
+ * tracker.clientPortalInvitations?.push(invitation.id);
+ */
+export async function createTestClientPortalInvitation(
+  tenantId: string,
+  invitedBy: string,
+  clientIds: string[],
+  overrides: Partial<typeof clientPortalInvitations.$inferInsert> = {},
+) {
+  const invitationId = crypto.randomUUID();
+  const timestamp = Date.now();
+  const token = crypto.randomBytes(32).toString("hex");
+
+  const [invitation] = await db
+    .insert(clientPortalInvitations)
+    .values({
+      id: invitationId,
+      tenantId,
+      email: overrides.email || `invite-${timestamp}@example.com`,
+      firstName: overrides.firstName || "Invited",
+      lastName: overrides.lastName || "User",
+      clientIds: overrides.clientIds || clientIds,
+      role: overrides.role || "viewer",
+      token: overrides.token || token,
+      invitedBy,
+      status: overrides.status || "pending",
+      expiresAt:
+        overrides.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      sentAt: overrides.sentAt || new Date(),
+      acceptedAt: overrides.acceptedAt || null,
+      revokedAt: overrides.revokedAt || null,
+      revokedBy: overrides.revokedBy || null,
+      metadata: overrides.metadata || null,
+      ...overrides,
+    })
+    .returning();
+
+  return invitation;
+}
+
+/**
+ * Create a test client portal access record (links portal user to client)
+ *
+ * @example
+ * const access = await createTestClientPortalAccess(
+ *   tenantId,
+ *   portalUserId,
+ *   clientId,
+ *   staffUserId,
+ *   { role: "editor" }
+ * );
+ * tracker.clientPortalAccess?.push(access.id);
+ */
+export async function createTestClientPortalAccess(
+  tenantId: string,
+  portalUserId: string,
+  clientId: string,
+  grantedBy: string,
+  overrides: Partial<typeof clientPortalAccess.$inferInsert> = {},
+) {
+  const accessId = crypto.randomUUID();
+
+  const [access] = await db
+    .insert(clientPortalAccess)
+    .values({
+      id: accessId,
+      tenantId,
+      portalUserId,
+      clientId,
+      role: overrides.role || "viewer",
+      grantedBy,
+      isActive: overrides.isActive ?? true,
+      expiresAt: overrides.expiresAt || null,
+      grantedAt: overrides.grantedAt || new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return access;
 }

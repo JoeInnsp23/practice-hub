@@ -1,29 +1,29 @@
 /**
- * Invitations Router Tests
+ * Invitations Router Integration Tests
  *
- * Tests for the invitations tRPC router
+ * Integration-level tests for the invitations tRPC router.
+ * Tests verify database operations, tenant isolation, and invitation workflow.
+ *
+ * Cleanup Strategy: TestDataTracker + afterEach cleanup
+ * External Dependencies: Email sending mocked (sendInvitationEmail)
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { invitationsRouter } from "@/app/server/routers/invitations";
+import {
+  cleanupTestData,
+  createTestInvitation,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
-
-// Mock email sending
+// Mock email sending (external dependency)
 vi.mock("@/lib/email", () => ({
   sendInvitationEmail: vi.fn().mockResolvedValue(undefined),
 }));
@@ -31,12 +31,44 @@ vi.mock("@/lib/email", () => ({
 describe("app/server/routers/invitations.ts", () => {
   let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof invitationsRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    invitations: [],
+  };
 
-  beforeEach(() => {
-    ctx = createMockContext();
-    ctx.authContext.role = "admin"; // Most procedures require admin
+  beforeEach(async () => {
+    // Create test tenant and admin user
+    const tenantId = await createTestTenant();
+    const userId = await createTestUser(tenantId, { role: "admin" });
+
+    tracker.tenants?.push(tenantId);
+    tracker.users?.push(userId);
+
+    // Create mock context with real tenant and user
+    ctx = createMockContext({
+      authContext: {
+        userId,
+        tenantId,
+        organizationName: "Test Organization",
+        role: "admin",
+        email: `admin-${Date.now()}@example.com`,
+        firstName: "Test",
+        lastName: "Admin",
+      },
+    }) as TestContextWithAuth;
+
     _caller = createCaller(invitationsRouter, ctx);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.invitations = [];
   });
 
   describe("getRateLimitStatus", () => {
@@ -110,7 +142,7 @@ describe("app/server/routers/invitations.ts", () => {
 
     it("should accept valid invitation data", async () => {
       const validInput = {
-        email: "newuser@example.com",
+        email: `newuser-${Date.now()}@example.com`,
         role: "accountant" as const,
       };
 
@@ -119,7 +151,7 @@ describe("app/server/routers/invitations.ts", () => {
 
     it("should accept custom message", async () => {
       const validInput = {
-        email: "user@example.com",
+        email: `user-${Date.now()}@example.com`,
         role: "member" as const,
         customMessage: "Welcome to the team!",
       };
@@ -144,7 +176,7 @@ describe("app/server/routers/invitations.ts", () => {
       for (const role of validRoles) {
         await expect(
           _caller.send({
-            email: "test@example.com",
+            email: `${role}-${Date.now()}@example.com`,
             role,
           }),
         ).resolves.not.toThrow();
@@ -173,8 +205,16 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should accept valid token", async () => {
+      // Create a pending invitation with known token
+      const invitation = await createTestInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        { status: "pending" },
+      );
+      tracker.invitations?.push(invitation.id);
+
       const validInput = {
-        token: "abc123def456",
+        token: invitation.token,
       };
 
       await expect(_caller.verify(validInput)).resolves.not.toThrow();
@@ -194,8 +234,16 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should accept valid acceptance data", async () => {
+      // Create a pending invitation
+      const invitation = await createTestInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        { status: "pending" },
+      );
+      tracker.invitations?.push(invitation.id);
+
       const validInput = {
-        token: "abc123def456",
+        token: invitation.token,
         password: "securePassword123!",
       };
 
@@ -203,8 +251,16 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should accept optional name fields", async () => {
+      // Create a pending invitation
+      const invitation = await createTestInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        { status: "pending" },
+      );
+      tracker.invitations?.push(invitation.id);
+
       const validInput = {
-        token: "xyz789",
+        token: invitation.token,
         password: "strongPass123!",
         firstName: "Jane",
         lastName: "Doe",
@@ -235,8 +291,16 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should accept valid invitation ID", async () => {
+      // Create a pending invitation
+      const invitation = await createTestInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        { status: "pending" },
+      );
+      tracker.invitations?.push(invitation.id);
+
       const validInput = {
-        invitationId: "550e8400-e29b-41d4-a716-446655440000",
+        invitationId: invitation.id,
       };
 
       await expect(_caller.resend(validInput)).resolves.not.toThrow();
@@ -265,8 +329,16 @@ describe("app/server/routers/invitations.ts", () => {
     });
 
     it("should accept valid invitation ID", async () => {
+      // Create a pending invitation
+      const invitation = await createTestInvitation(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+        { status: "pending" },
+      );
+      tracker.invitations?.push(invitation.id);
+
       const validInput = {
-        invitationId: "660e8400-e29b-41d4-a716-446655440000",
+        invitationId: invitation.id,
       };
 
       await expect(_caller.cancel(validInput)).resolves.not.toThrow();
