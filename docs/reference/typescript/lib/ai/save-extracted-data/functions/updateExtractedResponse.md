@@ -8,7 +8,7 @@
 
 > **updateExtractedResponse**(`onboardingSessionId`, `questionKey`, `newValue`, `tenantId?`): `Promise`\<`void`\>
 
-Defined in: [lib/ai/save-extracted-data.ts:123](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/ai/save-extracted-data.ts#L123)
+Defined in: [lib/ai/save-extracted-data.ts:123](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/ai/save-extracted-data.ts#L123)
 
 Update extracted data with user edits
 

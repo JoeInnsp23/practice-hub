@@ -8,7 +8,7 @@
 
 > **getProposalSignedPdfUrl**(`proposalId`, `ttlSeconds`): `Promise`\<`string` \| `null`\>
 
-Defined in: [lib/s3/signed-pdf-access.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/s3/signed-pdf-access.ts#L16)
+Defined in: [lib/s3/signed-pdf-access.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/s3/signed-pdf-access.ts#L16)
 
 Get presigned URL for signed proposal PDF
 

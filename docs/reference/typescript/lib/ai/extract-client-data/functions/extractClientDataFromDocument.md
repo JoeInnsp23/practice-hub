@@ -8,7 +8,7 @@
 
 > **extractClientDataFromDocument**(`fileBuffer`, `mimeType`, `filename`): `Promise`\<[`DocumentExtractionResult`](../interfaces/DocumentExtractionResult.md)\>
 
-Defined in: [lib/ai/extract-client-data.ts:136](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/ai/extract-client-data.ts#L136)
+Defined in: [lib/ai/extract-client-data.ts:136](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/ai/extract-client-data.ts#L136)
 
 Extract data from a document using Gemini Vision
 

@@ -8,7 +8,7 @@
 
 > **getPresignedUrl**(`key`, `expiresIn`): `Promise`\<`string`\>
 
-Defined in: [lib/s3/upload.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/s3/upload.ts#L97)
+Defined in: [lib/s3/upload.ts:97](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/s3/upload.ts#L97)
 
 Generate presigned URL for secure document access
 

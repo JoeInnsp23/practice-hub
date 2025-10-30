@@ -6,7 +6,7 @@
 
 # Interface: BankTransaction
 
-Defined in: [lib/xero/client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/client.ts#L51)
+Defined in: [lib/xero/client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/client.ts#L51)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/xero/client.ts:51](https://github.com/JoeInnsp23/practice-hub/b
 
 > **date**: `string`
 
-Defined in: [lib/xero/client.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/client.ts#L52)
+Defined in: [lib/xero/client.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/client.ts#L52)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/xero/client.ts:52](https://github.com/JoeInnsp23/practice-hub/b
 
 > **description**: `string`
 
-Defined in: [lib/xero/client.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/client.ts#L53)
+Defined in: [lib/xero/client.ts:53](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/client.ts#L53)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/xero/client.ts:53](https://github.com/JoeInnsp23/practice-hub/b
 
 > **reference**: `string`
 
-Defined in: [lib/xero/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/client.ts#L54)
+Defined in: [lib/xero/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/client.ts#L54)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/xero/client.ts:54](https://github.com/JoeInnsp23/practice-hub/b
 
 > **total**: `number`
 
-Defined in: [lib/xero/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/client.ts#L55)
+Defined in: [lib/xero/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/client.ts#L55)
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: [lib/xero/client.ts:55](https://github.com/JoeInnsp23/practice-hub/b
 
 > **type**: `"SPEND"` \| `"RECEIVE"`
 
-Defined in: [lib/xero/client.ts:56](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/client.ts#L56)
+Defined in: [lib/xero/client.ts:56](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/client.ts#L56)

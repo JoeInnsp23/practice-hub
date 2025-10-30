@@ -6,7 +6,7 @@
 
 # Interface: TemplateVariables
 
-Defined in: [lib/email/template-renderer.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L21)
+Defined in: [lib/email/template-renderer.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L21)
 
 Template variable values
 All values are optional and will render as "N/A" if undefined
@@ -17,7 +17,7 @@ All values are optional and will render as "N/A" if undefined
 
 > `optional` **client\_name**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L22)
+Defined in: [lib/email/template-renderer.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L22)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [lib/email/template-renderer.ts:22](https://github.com/JoeInnsp23/pr
 
 > `optional` **company\_name**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L26)
+Defined in: [lib/email/template-renderer.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L26)
 
 ***
 
@@ -33,7 +33,7 @@ Defined in: [lib/email/template-renderer.ts:26](https://github.com/JoeInnsp23/pr
 
 > `optional` **due\_date**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L24)
+Defined in: [lib/email/template-renderer.ts:24](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L24)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [lib/email/template-renderer.ts:24](https://github.com/JoeInnsp23/pr
 
 > `optional` **staff\_name**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L25)
+Defined in: [lib/email/template-renderer.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L25)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [lib/email/template-renderer.ts:25](https://github.com/JoeInnsp23/pr
 
 > `optional` **stage\_name**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L28)
+Defined in: [lib/email/template-renderer.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L28)
 
 ***
 
@@ -57,7 +57,7 @@ Defined in: [lib/email/template-renderer.ts:28](https://github.com/JoeInnsp23/pr
 
 > `optional` **task\_name**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L23)
+Defined in: [lib/email/template-renderer.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L23)
 
 ***
 
@@ -65,4 +65,4 @@ Defined in: [lib/email/template-renderer.ts:23](https://github.com/JoeInnsp23/pr
 
 > `optional` **workflow\_name**: `string` \| `null`
 
-Defined in: [lib/email/template-renderer.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/template-renderer.ts#L27)
+Defined in: [lib/email/template-renderer.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/template-renderer.ts#L27)

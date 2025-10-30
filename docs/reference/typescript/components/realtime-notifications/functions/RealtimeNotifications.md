@@ -8,7 +8,7 @@
 
 > **RealtimeNotifications**(): `Element`
 
-Defined in: [components/realtime-notifications.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/components/realtime-notifications.tsx#L36)
+Defined in: [components/realtime-notifications.tsx:36](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/components/realtime-notifications.tsx#L36)
 
 ## Returns
 

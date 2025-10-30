@@ -6,7 +6,7 @@
 
 # Class: XeroApiClient
 
-Defined in: [lib/xero/api-client.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L93)
+Defined in: [lib/xero/api-client.ts:93](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L93)
 
 Xero API Client for pushing data to Xero
 
@@ -26,7 +26,7 @@ Xero API Client for pushing data to Xero
 
 > **createOrUpdateContact**(`tenantId`, `contact`): `Promise`\<\{ `ContactID`: `string`; \} \| `null`\>
 
-Defined in: [lib/xero/api-client.ts:209](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L209)
+Defined in: [lib/xero/api-client.ts:209](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L209)
 
 Create or update a contact in Xero
 
@@ -50,7 +50,7 @@ Create or update a contact in Xero
 
 > **createOrUpdateInvoice**(`tenantId`, `invoice`): `Promise`\<\{ `InvoiceID`: `string`; \} \| `null`\>
 
-Defined in: [lib/xero/api-client.ts:250](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L250)
+Defined in: [lib/xero/api-client.ts:250](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L250)
 
 Create or update an invoice in Xero
 
@@ -74,7 +74,7 @@ Create or update an invoice in Xero
 
 > **createPayment**(`tenantId`, `payment`): `Promise`\<\{ `PaymentID`: `string`; \} \| `null`\>
 
-Defined in: [lib/xero/api-client.ts:291](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L291)
+Defined in: [lib/xero/api-client.ts:291](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L291)
 
 Create a payment in Xero
 
@@ -98,7 +98,7 @@ Create a payment in Xero
 
 > **getContact**(`tenantId`, `contactId`): `Promise`\<`XeroContact` \| `null`\>
 
-Defined in: [lib/xero/api-client.ts:332](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L332)
+Defined in: [lib/xero/api-client.ts:332](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L332)
 
 Get a contact from Xero by ID
 
@@ -122,7 +122,7 @@ Get a contact from Xero by ID
 
 > **getCredentials**(`tenantId`): `Promise`\<`XeroCredentials` \| `null`\>
 
-Defined in: [lib/xero/api-client.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L100)
+Defined in: [lib/xero/api-client.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L100)
 
 Get Xero credentials for a tenant
 Automatically refreshes if expired
@@ -143,7 +143,7 @@ Automatically refreshes if expired
 
 > **getInvoice**(`tenantId`, `invoiceId`): `Promise`\<`XeroInvoice` \| `null`\>
 
-Defined in: [lib/xero/api-client.ts:374](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/api-client.ts#L374)
+Defined in: [lib/xero/api-client.ts:374](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/api-client.ts#L374)
 
 Get an invoice from Xero by ID
 

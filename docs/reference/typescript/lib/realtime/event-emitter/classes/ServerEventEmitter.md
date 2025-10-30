@@ -6,7 +6,7 @@
 
 # Class: ServerEventEmitter
 
-Defined in: [lib/realtime/event-emitter.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L35)
+Defined in: [lib/realtime/event-emitter.ts:35](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L35)
 
 Server-side event emitter for real-time updates
 
@@ -26,7 +26,7 @@ Server-side event emitter for real-time updates
 
 > **clearAll**(): `void`
 
-Defined in: [lib/realtime/event-emitter.ts:143](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L143)
+Defined in: [lib/realtime/event-emitter.ts:143](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L143)
 
 Clear all subscribers
 
@@ -40,7 +40,7 @@ Clear all subscribers
 
 > **clearTenant**(`tenantId`): `void`
 
-Defined in: [lib/realtime/event-emitter.ts:136](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L136)
+Defined in: [lib/realtime/event-emitter.ts:136](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L136)
 
 Clear all subscribers for a tenant
 
@@ -62,7 +62,7 @@ Tenant ID to clear
 
 > **emit**(`tenantId`, `event`): `void`
 
-Defined in: [lib/realtime/event-emitter.ts:74](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L74)
+Defined in: [lib/realtime/event-emitter.ts:74](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L74)
 
 Emit event to all subscribers of a tenant
 
@@ -90,7 +90,7 @@ Event to emit
 
 > **getActiveTenants**(): `string`[]
 
-Defined in: [lib/realtime/event-emitter.ts:127](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L127)
+Defined in: [lib/realtime/event-emitter.ts:127](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L127)
 
 Get all active tenant IDs
 
@@ -106,7 +106,7 @@ Array of tenant IDs with active subscribers
 
 > **getSubscriberCount**(`tenantId`): `number`
 
-Defined in: [lib/realtime/event-emitter.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L105)
+Defined in: [lib/realtime/event-emitter.ts:105](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L105)
 
 Get active subscriber count for a tenant
 
@@ -130,7 +130,7 @@ Number of active subscribers
 
 > **getTotalSubscriberCount**(): `number`
 
-Defined in: [lib/realtime/event-emitter.ts:114](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L114)
+Defined in: [lib/realtime/event-emitter.ts:114](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L114)
 
 Get total active subscriber count across all tenants
 
@@ -146,7 +146,7 @@ Total number of active subscribers
 
 > **subscribe**(`tenantId`, `callback`): () => `void`
 
-Defined in: [lib/realtime/event-emitter.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L49)
+Defined in: [lib/realtime/event-emitter.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L49)
 
 Subscribe to events for a specific tenant
 

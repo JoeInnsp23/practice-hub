@@ -8,7 +8,7 @@
 
 > **formatUserForMention**(`user`): `string`
 
-Defined in: [lib/services/mention-parser.ts:147](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/services/mention-parser.ts#L147)
+Defined in: [lib/services/mention-parser.ts:147](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/services/mention-parser.ts#L147)
 
 Format a user object for display in
 

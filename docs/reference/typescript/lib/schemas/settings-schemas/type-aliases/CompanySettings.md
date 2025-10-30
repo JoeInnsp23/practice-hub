@@ -8,6 +8,6 @@
 
 > **CompanySettings** = `z.infer`\<*typeof* [`companySettingsSchema`](../variables/companySettingsSchema.md)\>
 
-Defined in: [lib/schemas/settings-schemas.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/schemas/settings-schemas.ts#L57)
+Defined in: [lib/schemas/settings-schemas.ts:57](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/schemas/settings-schemas.ts#L57)
 
 Type exports for use in tRPC procedures and components

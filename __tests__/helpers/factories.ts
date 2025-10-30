@@ -413,6 +413,7 @@ export async function createTestMessage(
 ) {
   const messageId = crypto.randomUUID();
   const timestamp = Date.now();
+  const senderType = overrides.senderType || "staff";
 
   const [message] = await db
     .insert(messages)
@@ -420,7 +421,8 @@ export async function createTestMessage(
       id: messageId,
       senderId,
       threadId,
-      senderType: overrides.senderType || "staff",
+      senderType,
+      userId: overrides.userId || (senderType === "staff" ? senderId : null), // Set userId for staff messages
       content: overrides.content || `Test message ${timestamp}`,
       type: overrides.type || "text",
       metadata: overrides.metadata || null,

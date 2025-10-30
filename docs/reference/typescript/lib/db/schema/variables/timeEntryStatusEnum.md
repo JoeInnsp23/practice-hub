@@ -8,4 +8,4 @@
 
 > `const` **timeEntryStatusEnum**: `PgEnum`\<\[`"draft"`, `"submitted"`, `"approved"`, `"rejected"`\]\>
 
-Defined in: [lib/db/schema.ts:590](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/db/schema.ts#L590)
+Defined in: [lib/db/schema.ts:590](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/db/schema.ts#L590)

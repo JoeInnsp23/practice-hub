@@ -8,7 +8,7 @@
 
 > `const` **serverEventEmitter**: [`ServerEventEmitter`](../classes/ServerEventEmitter.md)
 
-Defined in: [lib/realtime/event-emitter.ts:171](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/realtime/event-emitter.ts#L171)
+Defined in: [lib/realtime/event-emitter.ts:171](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/realtime/event-emitter.ts#L171)
 
 Singleton server event emitter instance
 

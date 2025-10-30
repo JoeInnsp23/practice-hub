@@ -8,7 +8,7 @@
 
 > **calculateWorkingDays**(`startDate`, `endDate`): `number`
 
-Defined in: [lib/leave/working-days.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/leave/working-days.ts#L61)
+Defined in: [lib/leave/working-days.ts:61](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/leave/working-days.ts#L61)
 
 Calculate working days between two dates (excluding weekends and UK bank holidays)
 

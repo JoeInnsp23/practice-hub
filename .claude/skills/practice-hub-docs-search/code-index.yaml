@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-10-30T11:25:20.159Z
+# Generated: 2025-10-30T11:46:12.571Z
 
 functions:
   staffStatisticsRouter:
@@ -1242,7 +1242,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-10-30T11:25:20.160Z"
+  generated: "2025-10-30T11:46:12.572Z"
   total_entries: 205
   functions: 132
   types: 57

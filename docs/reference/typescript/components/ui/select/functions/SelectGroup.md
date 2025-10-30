@@ -8,7 +8,7 @@
 
 > **SelectGroup**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/select.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/components/ui/select.tsx#L15)
+Defined in: [components/ui/select.tsx:15](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/components/ui/select.tsx#L15)
 
 ## Parameters
 

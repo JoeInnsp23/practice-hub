@@ -8,7 +8,7 @@
 
 > **sendTimesheetApprovalEmail**(`__namedParameters`): `Promise`\<`CreateEmailResponseSuccess` \| `undefined`\>
 
-Defined in: [lib/email/timesheet-notifications.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/email/timesheet-notifications.ts#L58)
+Defined in: [lib/email/timesheet-notifications.ts:58](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/email/timesheet-notifications.ts#L58)
 
 ## Parameters
 

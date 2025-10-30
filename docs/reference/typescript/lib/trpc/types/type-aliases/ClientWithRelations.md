@@ -8,4 +8,4 @@
 
 > **ClientWithRelations** = [`RouterOutputs`](RouterOutputs.md)\[`"clients"`\]\[`"getById"`\]
 
-Defined in: [lib/trpc/types.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/trpc/types.ts#L36)
+Defined in: [lib/trpc/types.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/trpc/types.ts#L36)

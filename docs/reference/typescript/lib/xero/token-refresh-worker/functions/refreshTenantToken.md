@@ -8,7 +8,7 @@
 
 > **refreshTenantToken**(`tenantId`): `Promise`\<\{ `error?`: `string`; `success`: `boolean`; \}\>
 
-Defined in: [lib/xero/token-refresh-worker.ts:165](https://github.com/JoeInnsp23/practice-hub/blob/b0b909866b95eed49104c62378b0a329433cddfb/lib/xero/token-refresh-worker.ts#L165)
+Defined in: [lib/xero/token-refresh-worker.ts:165](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/xero/token-refresh-worker.ts#L165)
 
 Refresh a single tenant's Xero token
 
