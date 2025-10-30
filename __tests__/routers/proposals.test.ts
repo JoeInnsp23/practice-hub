@@ -22,8 +22,11 @@ import {
 } from "../helpers/trpc";
 
 // Mock PDF generation
-vi.mock("@/lib/pdf/proposal-generator", () => ({
-  generateProposalPDF: vi.fn().mockResolvedValue(Buffer.from("mock-pdf")),
+vi.mock("@/lib/pdf/generate-proposal-pdf", () => ({
+  generateProposalPdf: vi.fn().mockResolvedValue({
+    pdfUrl: "https://mock-s3.com/proposal.pdf",
+    pdfKey: "mock-key",
+  }),
 }));
 
 // Mock S3 upload
@@ -327,7 +330,9 @@ describe("app/server/routers/proposals.ts", () => {
       const userId = await createTestUser(tenantId);
       tracker.users?.push(userId);
 
-      const client = await createTestClient(tenantId, userId);
+      const client = await createTestClient(tenantId, userId, {
+        email: "client@example.com",
+      });
       tracker.clients?.push(client.id);
 
       const proposal = await createTestProposal(tenantId, client.id);

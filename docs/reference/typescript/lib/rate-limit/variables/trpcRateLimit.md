@@ -8,4 +8,4 @@
 
 > `const` **trpcRateLimit**: `RegionRatelimit` \| `null`
 
-Defined in: [lib/rate-limit.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/lib/rate-limit.ts#L52)
+Defined in: [lib/rate-limit.ts:52](https://github.com/JoeInnsp23/practice-hub/blob/7cf57c0e0f79c8ff999f48b52fd2e2e285c0f23e/lib/rate-limit.ts#L52)

@@ -8,7 +8,7 @@
 
 > **FilePreviewModal**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/client-hub/documents/file-preview-modal.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/components/client-hub/documents/file-preview-modal.tsx#L29)
+Defined in: [components/client-hub/documents/file-preview-modal.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/7cf57c0e0f79c8ff999f48b52fd2e2e285c0f23e/components/client-hub/documents/file-preview-modal.tsx#L29)
 
 ## Parameters
 

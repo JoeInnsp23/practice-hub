@@ -198,12 +198,7 @@ export const proposalsRouter = router({
       const conditions = [eq(proposals.tenantId, tenantId)];
 
       if (input?.stages && input.stages.length > 0) {
-        conditions.push(
-          sql`${proposals.salesStage} = ANY(ARRAY[${sql.join(
-            input.stages.map((s) => sql`${s}`),
-            sql`, `,
-          )}]::text[])`,
-        );
+        conditions.push(inArray(proposals.salesStage, input.stages));
       }
 
       if (input?.assignedToId) {

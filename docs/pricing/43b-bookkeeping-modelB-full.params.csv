@@ -1,0 +1,1 @@
+service_code,entity_type,complexity_tier,tx_band_code,tx_band_label,included_bank_accounts,per_extra_bank_account_gbp,base_fee_exact_gbp,per_tx_fee_exact_gbp,rounding_applied,min_engagement_applied,statistics_base_p50,statistics_per_tx_p50,n_sources,source_ids

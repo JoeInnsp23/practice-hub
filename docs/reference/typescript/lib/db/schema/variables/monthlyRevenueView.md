@@ -8,4 +8,4 @@
 
 > `const` **monthlyRevenueView**: `PgViewWithSelection`\<`"monthly_revenue_view"`, `true`, \{ `collected`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `invoiceCount`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `invoiced`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `month`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `tenantId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `uniqueClients`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; \}\>
 
-Defined in: [lib/db/schema.ts:2775](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/lib/db/schema.ts#L2775)
+Defined in: [lib/db/schema.ts:2775](https://github.com/JoeInnsp23/practice-hub/blob/7cf57c0e0f79c8ff999f48b52fd2e2e285c0f23e/lib/db/schema.ts#L2775)
