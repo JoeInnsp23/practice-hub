@@ -4,50 +4,107 @@
  * Tests for the admin-kyc tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { adminKycRouter } from "@/app/server/routers/admin-kyc";
+import { db } from "@/lib/db";
+import { kycVerifications } from "@/lib/db/schema";
 import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+  cleanupTestData,
+  createTestClient,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("app/server/routers/admin-kyc.ts", () => {
-  let ctx: TestContextWithAuth;
-  let _caller: ReturnType<typeof createCaller<typeof adminKycRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    kycVerifications: [],
+  };
 
-  beforeEach(() => {
-    ctx = createMockContext();
-    ctx.authContext.role = "admin"; // Admin router requires admin role
-    _caller = createCaller(adminKycRouter, ctx);
-    vi.clearAllMocks();
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.kycVerifications = [];
   });
 
   describe("listPendingReviews", () => {
     it("should accept empty input", async () => {
-      await expect(_caller.listPendingReviews({})).resolves.not.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
+      await expect(caller.listPendingReviews({})).resolves.not.toThrow();
     });
 
     it("should accept status filter", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.listPendingReviews({ status: "pending" }),
+        caller.listPendingReviews({ status: "pending" }),
       ).resolves.not.toThrow();
     });
 
     it("should accept pagination parameters", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.listPendingReviews({
+        caller.listPendingReviews({
           limit: 25,
           offset: 50,
         }),
@@ -55,19 +112,57 @@ describe("app/server/routers/admin-kyc.ts", () => {
     });
 
     it("should validate status enum values", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.listPendingReviews({
+        caller.listPendingReviews({
           status: "invalid",
         }),
       ).rejects.toThrow();
     });
 
     it("should accept both pending and completed status", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       const validStatuses = ["pending", "completed"] as const;
 
       for (const status of validStatuses) {
         await expect(
-          _caller.listPendingReviews({ status }),
+          caller.listPendingReviews({ status }),
         ).resolves.not.toThrow();
       }
     });
@@ -75,13 +170,69 @@ describe("app/server/routers/admin-kyc.ts", () => {
 
   describe("getVerificationDetail", () => {
     it("should validate required verificationId field", async () => {
-      await expect(_caller.getVerificationDetail({})).rejects.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
+      await expect(caller.getVerificationDetail({})).rejects.toThrow();
     });
 
     it("should accept valid verification ID", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      // Create KYC verification record
+      const [kycRecord] = await db
+        .insert(kycVerifications)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          clientId: client.id,
+          lemverifyId: `lemverify-${Date.now()}`,
+          clientRef: `ref-${Date.now()}`,
+          status: "completed",
+          outcome: "pass",
+        })
+        .returning();
+      tracker.kycVerifications?.push(kycRecord.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.getVerificationDetail({
-          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        caller.getVerificationDetail({
+          verificationId: kycRecord.id,
         }),
       ).resolves.not.toThrow();
     });
@@ -89,25 +240,116 @@ describe("app/server/routers/admin-kyc.ts", () => {
 
   describe("approveVerification", () => {
     it("should validate required verificationId field", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.approveVerification({
+        caller.approveVerification({
           notes: "Approved",
         }),
       ).rejects.toThrow();
     });
 
     it("should accept valid approval data", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const [kycRecord] = await db
+        .insert(kycVerifications)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          clientId: client.id,
+          lemverifyId: `lemverify-${Date.now()}`,
+          clientRef: `ref-${Date.now()}`,
+          status: "completed",
+          outcome: "pass",
+        })
+        .returning();
+      tracker.kycVerifications?.push(kycRecord.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.approveVerification({
-          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        caller.approveVerification({
+          verificationId: kycRecord.id,
         }),
       ).resolves.not.toThrow();
     });
 
     it("should accept optional notes", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const [kycRecord] = await db
+        .insert(kycVerifications)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          clientId: client.id,
+          lemverifyId: `lemverify-${Date.now()}`,
+          clientRef: `ref-${Date.now()}`,
+          status: "completed",
+          outcome: "pass",
+        })
+        .returning();
+      tracker.kycVerifications?.push(kycRecord.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.approveVerification({
-          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        caller.approveVerification({
+          verificationId: kycRecord.id,
           notes: "Verification approved after review",
         }),
       ).resolves.not.toThrow();
@@ -116,22 +358,113 @@ describe("app/server/routers/admin-kyc.ts", () => {
 
   describe("rejectVerification", () => {
     it("should validate required fields", async () => {
-      await expect(_caller.rejectVerification({})).rejects.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
+      await expect(caller.rejectVerification({})).rejects.toThrow();
     });
 
     it("should accept valid rejection data", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const [kycRecord] = await db
+        .insert(kycVerifications)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          clientId: client.id,
+          lemverifyId: `lemverify-${Date.now()}`,
+          clientRef: `ref-${Date.now()}`,
+          status: "completed",
+          outcome: "pass",
+        })
+        .returning();
+      tracker.kycVerifications?.push(kycRecord.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.rejectVerification({
-          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        caller.rejectVerification({
+          verificationId: kycRecord.id,
           reason: "Document does not match identity",
         }),
       ).resolves.not.toThrow();
     });
 
     it("should validate reason minimum length", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const [kycRecord] = await db
+        .insert(kycVerifications)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          clientId: client.id,
+          lemverifyId: `lemverify-${Date.now()}`,
+          clientRef: `ref-${Date.now()}`,
+          status: "completed",
+          outcome: "pass",
+        })
+        .returning();
+      tracker.kycVerifications?.push(kycRecord.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(adminKycRouter, ctx);
+
       await expect(
-        _caller.rejectVerification({
-          verificationId: "550e8400-e29b-41d4-a716-446655440000",
+        caller.rejectVerification({
+          verificationId: kycRecord.id,
           reason: "Short", // Below minimum of 10 characters
         }),
       ).rejects.toThrow();

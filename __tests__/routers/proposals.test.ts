@@ -7,19 +7,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { proposalsRouter } from "@/app/server/routers/proposals";
 import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
-import {
-  type TestDataTracker,
   cleanupTestData,
   createTestClient,
   createTestLead,
   createTestProposal,
   createTestTenant,
   createTestUser,
+  type TestDataTracker,
 } from "../helpers/factories";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock PDF generation
 vi.mock("@/lib/pdf/proposal-generator", () => ({

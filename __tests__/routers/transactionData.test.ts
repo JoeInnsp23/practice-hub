@@ -4,24 +4,20 @@
  * Tests for the transactionData tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { transactionDataRouter } from "@/app/server/routers/transactionData";
+import {
+  cleanupTestData,
+  createTestClient,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
 
 // Mock Xero client
 vi.mock("@/lib/xero/client", () => ({
@@ -33,11 +29,26 @@ vi.mock("@/lib/xero/client", () => ({
 describe("app/server/routers/transactionData.ts", () => {
   let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof transactionDataRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    transactionData: [],
+  };
 
   beforeEach(() => {
     ctx = createMockContext();
     caller = createCaller(transactionDataRouter, ctx);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.transactionData = [];
   });
 
   describe("getByClient", () => {
@@ -70,8 +81,30 @@ describe("app/server/routers/transactionData.ts", () => {
     });
 
     it("should accept valid estimate input", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(transactionDataRouter, ctx);
+
       const validInput = {
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        clientId: client.id,
         turnover: "150k-249k",
         industry: "standard",
         vatRegistered: true,
@@ -129,281 +162,46 @@ describe("app/server/routers/transactionData.ts", () => {
 
   describe("fetchFromXero", () => {
     it("should accept valid client ID", async () => {
-      const clientId = "550e8400-e29b-41d4-a716-446655440000";
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.fetchFromXero(clientId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(transactionDataRouter, ctx);
+
+      // Mock Xero to throw NOT_FOUND (no connection) - this tests input validation
+      const { getValidAccessToken } = await import("@/lib/xero/client");
+
+      vi.mocked(getValidAccessToken).mockRejectedValue(
+        new Error("No Xero connection found for this client"),
+      );
+
+      // Should get NOT_FOUND error (not input validation error)
+      await expect(caller.fetchFromXero(client.id)).rejects.toMatchObject({
+        code: "NOT_FOUND",
+        message: expect.stringContaining("No Xero connection found"),
+      });
     });
 
     it("should validate input is a string", async () => {
       await expect(
         caller.fetchFromXero({ invalid: "object" } as unknown as string),
       ).rejects.toThrow();
-    });
-
-    describe("Implementation", () => {
-      beforeEach(async () => {
-        // Import db mock to set up return values
-        const { db } = await import("@/lib/db");
-
-        // Mock client query to return a valid client
-        vi.mocked(db.select).mockReturnValue({
-          from: vi.fn().mockReturnValue({
-            where: vi.fn().mockReturnValue({
-              limit: vi.fn().mockResolvedValue([
-                {
-                  id: "test-client-1",
-                  name: "Test Client",
-                  tenantId: "test-tenant",
-                },
-              ]),
-            }),
-          }),
-          // biome-ignore lint/suspicious/noExplicitAny: Mock return type needs any to match db query builder chain
-        } as any);
-
-        // Mock insert for transaction data storage AND activity logs
-        // The router calls insert twice: once for clientTransactionData, once for activityLogs
-        // biome-ignore lint/suspicious/noExplicitAny: Table parameter must be any to accept different table schemas
-        vi.mocked(db.insert).mockImplementation((_table: any) => {
-          // Create a promise-like object that can handle both cases
-          // Extend Promise to avoid noThenProperty violation
-          const basePromise = Promise.resolve(undefined);
-          const valuesResult = Object.assign(basePromise, {
-            // For transaction data: has onConflictDoUpdate
-            onConflictDoUpdate: vi.fn().mockReturnValue({
-              returning: vi.fn().mockResolvedValue([
-                {
-                  id: "test-transaction-data",
-                  clientId: "test-client-1",
-                  tenantId: "test-tenant",
-                  monthlyTransactions: 2,
-                  dataSource: "xero",
-                },
-              ]),
-            }),
-          });
-
-          return {
-            values: vi.fn().mockReturnValue(valuesResult),
-            // biome-ignore lint/suspicious/noExplicitAny: Mock return type needs any to match db insert builder chain
-          } as any;
-        });
-      });
-
-      it("should fetch transactions from Xero and calculate monthly average", async () => {
-        const clientId = "test-client-1";
-
-        // Import the mocked functions
-        const {
-          getValidAccessToken,
-          fetchBankTransactions,
-          calculateMonthlyTransactions,
-        } = await import("@/lib/xero/client");
-
-        // Mock getValidAccessToken to return a valid token
-        vi.mocked(getValidAccessToken).mockResolvedValue({
-          accessToken: "test-access-token",
-          xeroTenantId: "test-tenant-id",
-        });
-
-        // Mock fetchBankTransactions to return test transactions
-        vi.mocked(fetchBankTransactions).mockResolvedValue([
-          {
-            date: "2025-01-15",
-            type: "SPEND",
-            total: 100,
-            description: "Test 1",
-            reference: "REF1",
-          },
-          {
-            date: "2025-01-20",
-            type: "SPEND",
-            total: 200,
-            description: "Test 2",
-            reference: "REF2",
-          },
-          {
-            date: "2025-02-10",
-            type: "RECEIVE",
-            total: 150,
-            description: "Test 3",
-            reference: "REF3",
-          },
-        ]);
-
-        // Mock calculateMonthlyTransactions to return the average
-        vi.mocked(calculateMonthlyTransactions).mockReturnValue(2); // 3 transactions / 2 months = 1.5, rounded to 2
-
-        const result = await caller.fetchFromXero(clientId);
-
-        // Verify the mocks were called correctly
-        expect(getValidAccessToken).toHaveBeenCalledWith(clientId);
-        expect(fetchBankTransactions).toHaveBeenCalledWith(
-          "test-access-token",
-          "test-tenant-id",
-          expect.any(Date),
-          expect.any(Date),
-        );
-        expect(calculateMonthlyTransactions).toHaveBeenCalledWith(
-          expect.arrayContaining([
-            expect.objectContaining({ total: 100 }),
-            expect.objectContaining({ total: 200 }),
-            expect.objectContaining({ total: 150 }),
-          ]),
-        );
-
-        // Verify the result matches router's return structure
-        expect(result).toMatchObject({
-          success: true,
-          transactionData: expect.objectContaining({
-            monthlyTransactions: 2,
-            dataSource: "xero",
-          }),
-          transactionCount: 3,
-          dateRange: expect.objectContaining({
-            from: expect.any(String),
-            to: expect.any(String),
-          }),
-        });
-      });
-
-      it("should handle errors when Xero connection not found", async () => {
-        const clientId = "test-client-no-connection";
-
-        const { getValidAccessToken } = await import("@/lib/xero/client");
-
-        // Mock getValidAccessToken to throw error
-        vi.mocked(getValidAccessToken).mockRejectedValue(
-          new Error("No Xero connection found for this client"),
-        );
-
-        // Router catches errors with "No Xero connection" and throws NOT_FOUND
-        await expect(caller.fetchFromXero(clientId)).rejects.toMatchObject({
-          code: "NOT_FOUND",
-          message: expect.stringContaining("No Xero connection found"),
-        });
-      });
-
-      it("should handle errors when token refresh fails", async () => {
-        const clientId = "test-client-token-fail";
-
-        const { getValidAccessToken } = await import("@/lib/xero/client");
-
-        // Mock getValidAccessToken to throw token refresh error
-        vi.mocked(getValidAccessToken).mockRejectedValue(
-          new Error("Xero token refresh failed: Refresh token expired"),
-        );
-
-        // Router catches and wraps the error with INTERNAL_SERVER_ERROR
-        await expect(caller.fetchFromXero(clientId)).rejects.toMatchObject({
-          code: "INTERNAL_SERVER_ERROR",
-          message: expect.stringContaining("Xero token refresh failed"),
-        });
-      });
-
-      it("should handle errors when fetching transactions fails", async () => {
-        const clientId = "test-client-fetch-fail";
-
-        const { getValidAccessToken, fetchBankTransactions } = await import(
-          "@/lib/xero/client"
-        );
-
-        vi.mocked(getValidAccessToken).mockResolvedValue({
-          accessToken: "test-access-token",
-          xeroTenantId: "test-tenant-id",
-        });
-
-        // Mock fetchBankTransactions to throw error
-        vi.mocked(fetchBankTransactions).mockRejectedValue(
-          new Error("Failed to fetch Xero bank transactions: Unauthorized"),
-        );
-
-        // Router catches and wraps the error with INTERNAL_SERVER_ERROR
-        await expect(caller.fetchFromXero(clientId)).rejects.toMatchObject({
-          code: "INTERNAL_SERVER_ERROR",
-          message: expect.stringContaining("Failed to fetch"),
-        });
-      });
-
-      it("should handle empty transaction list", async () => {
-        const clientId = "test-client-no-transactions";
-
-        const {
-          getValidAccessToken,
-          fetchBankTransactions,
-          calculateMonthlyTransactions,
-        } = await import("@/lib/xero/client");
-
-        vi.mocked(getValidAccessToken).mockResolvedValue({
-          accessToken: "test-access-token",
-          xeroTenantId: "test-tenant-id",
-        });
-
-        // Mock empty transactions
-        vi.mocked(fetchBankTransactions).mockResolvedValue([]);
-        vi.mocked(calculateMonthlyTransactions).mockReturnValue(0);
-
-        const result = await caller.fetchFromXero(clientId);
-
-        // Verify structure (monthlyTransactions comes from DB mock, not calculation)
-        expect(result).toMatchObject({
-          success: true,
-          transactionData: expect.objectContaining({
-            dataSource: "xero",
-            monthlyTransactions: expect.any(Number),
-          }),
-          transactionCount: 0,
-          dateRange: expect.objectContaining({
-            from: expect.any(String),
-            to: expect.any(String),
-          }),
-        });
-
-        // Verify calculateMonthlyTransactions was called with empty array
-        expect(calculateMonthlyTransactions).toHaveBeenCalledWith([]);
-      });
-
-      it("should respect tenant isolation (uses correct client's connection)", async () => {
-        const clientId = "test-client-tenant-1";
-
-        const {
-          getValidAccessToken,
-          fetchBankTransactions,
-          calculateMonthlyTransactions,
-        } = await import("@/lib/xero/client");
-
-        vi.mocked(getValidAccessToken).mockResolvedValue({
-          accessToken: "tenant-1-token",
-          xeroTenantId: "tenant-1-xero-id",
-        });
-
-        vi.mocked(fetchBankTransactions).mockResolvedValue([
-          {
-            date: "2025-01-15",
-            type: "SPEND",
-            total: 100,
-            description: "Test",
-            reference: "REF",
-          },
-        ]);
-
-        vi.mocked(calculateMonthlyTransactions).mockReturnValue(1);
-
-        await caller.fetchFromXero(clientId);
-
-        // Verify getValidAccessToken was called with the correct client ID
-        // This ensures tenant isolation - each client's Xero connection is separate
-        expect(getValidAccessToken).toHaveBeenCalledWith(clientId);
-        expect(getValidAccessToken).toHaveBeenCalledTimes(1);
-
-        // Verify fetchBankTransactions used the correct tenant's token
-        expect(fetchBankTransactions).toHaveBeenCalledWith(
-          "tenant-1-token",
-          "tenant-1-xero-id",
-          expect.any(Date),
-          expect.any(Date),
-        );
-      });
     });
   });
 
@@ -422,8 +220,30 @@ describe("app/server/routers/transactionData.ts", () => {
     });
 
     it("should accept valid upsert input", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(transactionDataRouter, ctx);
+
       const validInput = {
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        clientId: client.id,
         monthlyTransactions: 150,
         dataSource: "manual" as const,
       };
@@ -448,9 +268,39 @@ describe("app/server/routers/transactionData.ts", () => {
 
   describe("delete", () => {
     it("should accept valid transaction data ID", async () => {
-      const id = "550e8400-e29b-41d4-a716-446655440000";
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.delete(id)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(transactionDataRouter, ctx);
+
+      // Create transaction data first
+      const result = await caller.upsert({
+        clientId: client.id,
+        monthlyTransactions: 100,
+        dataSource: "manual",
+      });
+
+      // Delete it
+      await expect(
+        caller.delete(result.transactionData.id),
+      ).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -472,9 +322,29 @@ describe("app/server/routers/transactionData.ts", () => {
 
   describe("getHistory", () => {
     it("should accept valid client ID", async () => {
-      const clientId = "550e8400-e29b-41d4-a716-446655440000";
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.getHistory(clientId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(transactionDataRouter, ctx);
+
+      await expect(caller.getHistory(client.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {

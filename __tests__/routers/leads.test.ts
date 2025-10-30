@@ -7,17 +7,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { leadsRouter } from "@/app/server/routers/leads";
 import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
-import {
-  type TestDataTracker,
   cleanupTestData,
   createTestLead,
   createTestTenant,
   createTestUser,
+  type TestDataTracker,
 } from "../helpers/factories";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 // Mock auto-convert helper
 vi.mock("@/lib/client-portal/auto-convert-lead", () => ({
@@ -172,7 +172,9 @@ describe("app/server/routers/leads.ts", () => {
         companyName: "Test Corp",
       };
 
-      const result = await _caller.create(validInput as Record<string, unknown>);
+      const result = await _caller.create(
+        validInput as Record<string, unknown>,
+      );
       tracker.leads?.push(result.id);
       await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
@@ -198,7 +200,9 @@ describe("app/server/routers/leads.ts", () => {
         notes: "Interested in accounting services",
       };
 
-      const result = await _caller.create(validInput as Record<string, unknown>);
+      const result = await _caller.create(
+        validInput as Record<string, unknown>,
+      );
       tracker.leads?.push(result.id);
       await expect(Promise.resolve(result)).resolves.not.toThrow();
     });

@@ -1,33 +1,41 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { tasksRouter } from "@/app/server/routers/tasks";
 import { workflowsRouter } from "@/app/server/routers/workflows";
 import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+  cleanupTestData,
+  createTestClient,
+  createTestTask,
+  createTestTenant,
+  createTestUser,
+  createTestWorkflow,
+  createTestWorkflowVersion,
+  type TestDataTracker,
+} from "../helpers/factories";
+import { createCaller, createMockContext } from "../helpers/trpc";
 
 describe("Workflow Versioning System", () => {
-  let ctx: TestContextWithAuth;
-  let _workflowCaller: ReturnType<typeof createCaller<typeof workflowsRouter>>;
-  let _taskCaller: ReturnType<typeof createCaller<typeof tasksRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    workflows: [],
+    workflowVersions: [],
+    workflowStages: [],
+    taskWorkflowInstances: [],
+    tasks: [],
+  };
 
-  beforeEach(() => {
-    ctx = createMockContext();
-    _workflowCaller = createCaller(workflowsRouter, ctx);
-    _taskCaller = createCaller(tasksRouter, ctx);
-    vi.clearAllMocks();
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.workflows = [];
+    tracker.workflowVersions = [];
+    tracker.workflowStages = [];
+    tracker.taskWorkflowInstances = [];
+    tracker.tasks = [];
   });
 
   describe("Router Procedures Exist", () => {
@@ -45,90 +53,331 @@ describe("Workflow Versioning System", () => {
 
   describe("Input Validation", () => {
     it("should validate listVersions input", async () => {
+      // Setup: Create tenant, user, and workflow
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
+      // Test: Should not throw when listing versions for a real workflow
       await expect(
-        _workflowCaller.listVersions("workflow-uuid-123"),
+        workflowCaller.listVersions(workflow.id),
       ).resolves.not.toThrow();
     });
 
     it("should validate publishVersion input", async () => {
+      // Setup: Create tenant, user, workflow, and version
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      const version = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+      });
+      tracker.workflowVersions?.push(version.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
       const input = {
-        versionId: "version-uuid-123",
-        workflowId: "workflow-uuid-456",
+        versionId: version.id,
+        workflowId: workflow.id,
       };
 
-      await expect(
-        _workflowCaller.publishVersion(input),
-      ).resolves.not.toThrow();
+      await expect(workflowCaller.publishVersion(input)).resolves.not.toThrow();
     });
 
     it("should validate publishVersion input with publishNotes", async () => {
+      // Setup: Create tenant, user, workflow, and version
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      const version = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+      });
+      tracker.workflowVersions?.push(version.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
       const input = {
-        versionId: "version-uuid-123",
-        workflowId: "workflow-uuid-456",
+        versionId: version.id,
+        workflowId: workflow.id,
         publishNotes: "Fixed stage ordering issue",
       };
 
-      await expect(
-        _workflowCaller.publishVersion(input),
-      ).resolves.not.toThrow();
+      await expect(workflowCaller.publishVersion(input)).resolves.not.toThrow();
     });
 
     it("should validate compareVersions input", async () => {
+      // Setup: Create tenant, user, workflow, and 2 versions
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      const version1 = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+        version: 1,
+      });
+      tracker.workflowVersions?.push(version1.id);
+
+      const version2 = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+        version: 2,
+      });
+      tracker.workflowVersions?.push(version2.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
       const input = {
-        workflowId: "workflow-uuid-123",
-        versionId1: "version-uuid-456",
-        versionId2: "version-uuid-789",
+        workflowId: workflow.id,
+        versionId1: version1.id,
+        versionId2: version2.id,
       };
 
       await expect(
-        _workflowCaller.compareVersions(input),
+        workflowCaller.compareVersions(input),
       ).resolves.not.toThrow();
     });
 
     it("should validate rollbackToVersion input", async () => {
+      // Setup: Create tenant, user, workflow, and version
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      const version = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+      });
+      tracker.workflowVersions?.push(version.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
       const input = {
-        workflowId: "workflow-uuid-123",
-        targetVersionId: "version-uuid-456",
+        workflowId: workflow.id,
+        targetVersionId: version.id,
         publishImmediately: true,
         publishNotes: "Rollback to version 2 due to critical issue",
       };
 
       await expect(
-        _workflowCaller.rollbackToVersion(input),
+        workflowCaller.rollbackToVersion(input),
       ).resolves.not.toThrow();
     });
 
     it("should validate rollbackToVersion input with minimal fields", async () => {
+      // Setup: Create tenant, user, workflow, and version
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      const version = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+      });
+      tracker.workflowVersions?.push(version.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
       const input = {
-        workflowId: "workflow-uuid-123",
-        targetVersionId: "version-uuid-456",
+        workflowId: workflow.id,
+        targetVersionId: version.id,
       };
 
       await expect(
-        _workflowCaller.rollbackToVersion(input),
+        workflowCaller.rollbackToVersion(input),
       ).resolves.not.toThrow();
     });
 
     it("should validate migrateInstances input", async () => {
+      // Setup: Create tenant, user, workflow, and version
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      const version = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+      });
+      tracker.workflowVersions?.push(version.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const workflowCaller = createCaller(workflowsRouter, ctx);
+
+      // Note: migrateInstances requires real instances, but for input validation
+      // we can test with empty array or non-existent IDs
       const input = {
-        instanceIds: ["inst-1", "inst-2", "inst-3"],
-        newVersionId: "version-uuid-789",
+        instanceIds: [],
+        newVersionId: version.id,
       };
 
       await expect(
-        _workflowCaller.migrateInstances(input),
+        workflowCaller.migrateInstances(input),
       ).resolves.not.toThrow();
     });
   });
 
   describe("Task Assignment with Versioning", () => {
     it("should validate assignWorkflow input", async () => {
+      // Setup: Create tenant, user, client, workflow, and task
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const workflow = await createTestWorkflow(tenantId, userId);
+      tracker.workflows?.push(workflow.id);
+
+      // Create an active version for the workflow
+      const version = await createTestWorkflowVersion(workflow.id, tenantId, {
+        createdById: userId,
+        isActive: true, // assignWorkflow requires an active version
+      });
+      tracker.workflowVersions?.push(version.id);
+
+      const task = await createTestTask(tenantId, client.id, userId);
+      tracker.tasks?.push(task.id);
+
+      // Create context with real IDs
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const taskCaller = createCaller(tasksRouter, ctx);
+
       const input = {
-        taskId: "task-uuid-123",
-        workflowId: "workflow-uuid-456",
+        taskId: task.id,
+        workflowId: workflow.id,
       };
 
-      await expect(_taskCaller.assignWorkflow(input)).resolves.not.toThrow();
+      await expect(taskCaller.assignWorkflow(input)).resolves.not.toThrow();
     });
   });
 });

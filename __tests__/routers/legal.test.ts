@@ -5,8 +5,14 @@
  * Validates multi-tenant isolation, version tracking, and admin authorization
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { legalRouter } from "@/app/server/routers/legal";
+import {
+  cleanupTestData,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
 import {
   createAdminCaller,
   createCaller,
@@ -14,27 +20,29 @@ import {
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
-
 describe("app/server/routers/legal.ts", () => {
   let ctx: TestContextWithAuth;
   let _caller: ReturnType<typeof createCaller<typeof legalRouter>>;
   let _adminCaller: ReturnType<typeof createAdminCaller<typeof legalRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    legalPages: [],
+  };
 
   beforeEach(() => {
     ctx = createMockContext();
     _caller = createCaller(legalRouter, ctx);
     _adminCaller = createAdminCaller(legalRouter);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.legalPages = [];
   });
 
   describe("getByType", () => {
@@ -45,20 +53,140 @@ describe("app/server/routers/legal.ts", () => {
     });
 
     it("should accept valid pageType: privacy", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
+      // Create privacy page first
+      const result = await adminCaller.update({
+        pageType: "privacy",
+        content: "# Privacy Policy\n\nTest content",
+      });
+      tracker.legalPages?.push(result.id);
+
+      // Now fetch it
+      const userCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "user@example.com",
+          firstName: "User",
+          lastName: "Test",
+          organizationName: "Test Org",
+        },
+      });
+      const userCaller = createCaller(legalRouter, userCtx);
+
       await expect(
-        _caller.getByType({ pageType: "privacy" }),
+        userCaller.getByType({ pageType: "privacy" }),
       ).resolves.not.toThrow();
     });
 
     it("should accept valid pageType: terms", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
+      // Create terms page first
+      const result = await adminCaller.update({
+        pageType: "terms",
+        content: "# Terms of Service\n\nTest content",
+      });
+      tracker.legalPages?.push(result.id);
+
+      // Now fetch it
+      const userCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "user@example.com",
+          firstName: "User",
+          lastName: "Test",
+          organizationName: "Test Org",
+        },
+      });
+      const userCaller = createCaller(legalRouter, userCtx);
+
       await expect(
-        _caller.getByType({ pageType: "terms" }),
+        userCaller.getByType({ pageType: "terms" }),
       ).resolves.not.toThrow();
     });
 
     it("should accept valid pageType: cookie_policy", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
+      // Create cookie policy page first
+      const result = await adminCaller.update({
+        pageType: "cookie_policy",
+        content: "# Cookie Policy\n\nTest content",
+      });
+      tracker.legalPages?.push(result.id);
+
+      // Now fetch it
+      const userCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "user@example.com",
+          firstName: "User",
+          lastName: "Test",
+          organizationName: "Test Org",
+        },
+      });
+      const userCaller = createCaller(legalRouter, userCtx);
+
       await expect(
-        _caller.getByType({ pageType: "cookie_policy" }),
+        userCaller.getByType({ pageType: "cookie_policy" }),
       ).resolves.not.toThrow();
     });
 
@@ -85,12 +213,32 @@ describe("app/server/routers/legal.ts", () => {
     });
 
     it("should accept valid input with pageType and content", async () => {
-      await expect(
-        _adminCaller.update({
-          pageType: "privacy",
-          content: "# Privacy Policy\n\nThis is the privacy policy content.",
-        }),
-      ).resolves.not.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
+      const result = await adminCaller.update({
+        pageType: "privacy",
+        content: "# Privacy Policy\n\nThis is the privacy policy content.",
+      });
+      tracker.legalPages?.push(result.id);
+
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should reject empty content", async () => {
@@ -103,18 +251,38 @@ describe("app/server/routers/legal.ts", () => {
     });
 
     it("should accept markdown formatted content", async () => {
-      await expect(
-        _adminCaller.update({
-          pageType: "terms",
-          content: `# Terms of Service
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
+      const result = await adminCaller.update({
+        pageType: "terms",
+        content: `# Terms of Service
 
 ## Section 1
 - Item 1
 - Item 2
 
 **Bold text** and *italic text*`,
-        }),
-      ).resolves.not.toThrow();
+      });
+      tracker.legalPages?.push(result.id);
+
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -175,12 +343,34 @@ describe("app/server/routers/legal.ts", () => {
 
   describe("version tracking", () => {
     it("update input should accept content that will be versioned", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
       const input = {
         pageType: "privacy" as const,
         content: "Updated privacy policy content",
       };
 
-      await expect(_adminCaller.update(input)).resolves.not.toThrow();
+      const result = await adminCaller.update(input);
+      tracker.legalPages?.push(result.id);
+
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -198,27 +388,67 @@ describe("app/server/routers/legal.ts", () => {
     });
 
     it("should accept long content for update", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
       const longContent = "A".repeat(10000); // 10K characters
-      await expect(
-        _adminCaller.update({
-          pageType: "terms",
-          content: longContent,
-        }),
-      ).resolves.not.toThrow();
+      const result = await adminCaller.update({
+        pageType: "terms",
+        content: longContent,
+      });
+      tracker.legalPages?.push(result.id);
+
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should handle special characters in content", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const adminCtx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const adminCaller = createCaller(legalRouter, adminCtx);
+
       const specialContent = `# Privacy Policy
 
 Special characters: !@#$%^&*()_+-=[]{}|;':",./<>?
 Unicode: 你好 مرحبا Здравствуйте`;
 
-      await expect(
-        _adminCaller.update({
-          pageType: "privacy",
-          content: specialContent,
-        }),
-      ).resolves.not.toThrow();
+      const result = await adminCaller.update({
+        pageType: "privacy",
+        content: specialContent,
+      });
+      tracker.legalPages?.push(result.id);
+
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 });

@@ -7,12 +7,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { messagesRouter } from "@/app/server/routers/messages";
 import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
-import {
-  type TestDataTracker,
   cleanupTestData,
   createTestClient,
   createTestMessage,
@@ -20,7 +14,13 @@ import {
   createTestMessageThreadParticipant,
   createTestTenant,
   createTestUser,
+  type TestDataTracker,
 } from "../helpers/factories";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("app/server/routers/messages.ts", () => {
   let ctx: TestContextWithAuth;
@@ -37,7 +37,6 @@ describe("app/server/routers/messages.ts", () => {
   beforeEach(() => {
     ctx = createMockContext();
     _caller = createCaller(messagesRouter, ctx);
-    vi.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -246,7 +245,7 @@ describe("app/server/routers/messages.ts", () => {
       const userId = await createTestUser(tenantId);
       tracker.users?.push(userId);
 
-      const client = await createTestClient(tenantId);
+      const client = await createTestClient(tenantId, userId);
       tracker.clients?.push(client.id);
 
       // Update context with real tenant
@@ -272,7 +271,7 @@ describe("app/server/routers/messages.ts", () => {
       const userId = await createTestUser(tenantId);
       tracker.users?.push(userId);
 
-      const client = await createTestClient(tenantId);
+      const client = await createTestClient(tenantId, userId);
       tracker.clients?.push(client.id);
 
       // Update context with real tenant

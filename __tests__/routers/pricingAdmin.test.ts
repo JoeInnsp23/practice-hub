@@ -7,18 +7,18 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { pricingAdminRouter } from "@/app/server/routers/pricingAdmin";
 import {
-  createCaller,
-  createMockContext,
-  type TestContextWithAuth,
-} from "../helpers/trpc";
-import {
-  type TestDataTracker,
   cleanupTestData,
   createTestPricingRule,
   createTestService,
   createTestTenant,
   createTestUser,
+  type TestDataTracker,
 } from "../helpers/factories";
+import {
+  createCaller,
+  createMockContext,
+  type TestContextWithAuth,
+} from "../helpers/trpc";
 
 describe("app/server/routers/pricingAdmin.ts", () => {
   let ctx: TestContextWithAuth;
@@ -461,7 +461,9 @@ describe("app/server/routers/pricingAdmin.ts", () => {
       ];
 
       const result = await caller.bulkCreateRules(validInput);
-      result.rules.forEach((rule) => tracker.pricingRules?.push(rule.id));
+      for (const rule of result.rules) {
+        tracker.pricingRules?.push(rule.id);
+      }
       await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 

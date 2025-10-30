@@ -16,75 +16,145 @@ import {
   type TestDataTracker,
 } from "../helpers/factories";
 import {
-  createAdminCaller,
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
-
-// Mock Better Auth
+// Mock Better Auth (external dependency - keep mock)
 vi.mock("@/lib/auth", () => ({
   auth: {
     api: {
       createUser: vi.fn().mockResolvedValue({
         user: { id: "test-user-id" },
       }),
+      forgetPassword: vi.fn().mockResolvedValue({
+        success: true,
+      }),
     },
   },
 }));
 
-// Mock password reset
+// Mock password reset (external dependency - keep mock)
 vi.mock("@/lib/email/password-reset", () => ({
   sendPasswordResetEmail: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe("app/server/routers/users.ts", () => {
-  let ctx: TestContextWithAuth;
-  let _caller: ReturnType<typeof createCaller<typeof usersRouter>>;
-  let _adminCaller: ReturnType<typeof createAdminCaller<typeof usersRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    departments: [],
+  };
 
-  beforeEach(() => {
-    ctx = createMockContext();
-    _caller = createCaller(usersRouter, ctx);
-    _adminCaller = createAdminCaller(usersRouter);
-    vi.clearAllMocks();
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.departments = [];
   });
 
   describe("list", () => {
     it("should accept empty input", async () => {
-      await expect(_caller.list({})).resolves.not.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
+      await expect(caller.list({})).resolves.not.toThrow();
     });
 
     it("should accept search parameter", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       await expect(
-        _caller.list({
+        caller.list({
           search: "john doe",
         }),
       ).resolves.not.toThrow();
     });
 
     it("should accept role filter", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       await expect(
-        _caller.list({
+        caller.list({
           role: "admin",
         }),
       ).resolves.not.toThrow();
     });
 
     it("should accept multiple filters", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       await expect(
-        _caller.list({
+        caller.list({
           search: "test",
           role: "member", // Valid: member, admin, accountant, or "all"
         }),
@@ -94,55 +164,169 @@ describe("app/server/routers/users.ts", () => {
 
   describe("getById", () => {
     it("should accept valid UUID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(_caller.getById(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Create another user to query
+      const queryUserId = await createTestUser(tenantId);
+      tracker.users?.push(queryUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
+      await expect(caller.getById(queryUserId)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
-      await expect(_caller.getById(123 as unknown)).rejects.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "user",
+          email: "test@example.com",
+          firstName: "Test",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
+      await expect(caller.getById(123 as unknown)).rejects.toThrow();
     });
   });
 
   describe("create", () => {
     it("should validate required fields", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const invalidInput = {
         // Missing required fields
         firstName: "John",
       };
 
-      await expect(
-        _adminCaller.create(invalidInput as unknown),
-      ).rejects.toThrow();
+      await expect(caller.create(invalidInput as unknown)).rejects.toThrow();
     });
 
     it("should accept valid user data", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const validInput = {
-        email: "john@example.com",
+        email: `john-${Date.now()}@example.com`,
         firstName: "John",
         lastName: "Doe",
         role: "user" as const,
         password: "SecurePass123!",
       };
 
-      await expect(_adminCaller.create(validInput)).resolves.not.toThrow();
+      await expect(caller.create(validInput)).resolves.not.toThrow();
     });
 
     it("should accept any string as email", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       // Note: email is auto-generated from schema without .email() validation
       const validInput = {
-        email: "invalid-email", // Any string is valid
+        email: `invalid-email-${Date.now()}`, // Any string is valid
         firstName: "John",
         lastName: "Doe",
         role: "member" as const,
       };
 
-      await expect(_adminCaller.create(validInput)).resolves.not.toThrow();
+      await expect(caller.create(validInput)).resolves.not.toThrow();
     });
 
     it("should accept optional phone field", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const validInput = {
-        email: "john@example.com",
+        email: `john-phone-${Date.now()}@example.com`,
         firstName: "John",
         lastName: "Doe",
         role: "user" as const,
@@ -150,151 +334,392 @@ describe("app/server/routers/users.ts", () => {
         phone: "+1234567890",
       };
 
-      await expect(_adminCaller.create(validInput)).resolves.not.toThrow();
+      await expect(caller.create(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("update", () => {
     it("should validate required id field", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const invalidInput = {
         // Missing id
         firstName: "Jane",
       };
 
-      await expect(_caller.update(invalidInput as unknown)).rejects.toThrow();
+      await expect(caller.update(invalidInput as unknown)).rejects.toThrow();
     });
 
     it("should accept valid update data", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      // Create user to update
+      const updateUserId = await createTestUser(tenantId);
+      tracker.users?.push(updateUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: updateUserId,
         data: {
           firstName: "Jane",
           lastName: "Smith",
         },
       };
 
-      await expect(_adminCaller.update(validInput)).resolves.not.toThrow();
+      await expect(caller.update(validInput)).resolves.not.toThrow();
     });
 
     it("should accept any string as email in updates", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      // Create user to update
+      const updateUserId = await createTestUser(tenantId);
+      tracker.users?.push(updateUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       // Email validation not enforced in schema
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: updateUserId,
         data: {
           email: "not-valid", // Any string is valid
         },
       };
 
-      await expect(_adminCaller.update(validInput)).resolves.not.toThrow();
+      await expect(caller.update(validInput)).resolves.not.toThrow();
     });
 
     it("should accept partial updates", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      // Create user to update
+      const updateUserId = await createTestUser(tenantId);
+      tracker.users?.push(updateUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: updateUserId,
         data: {
           phone: "+9876543210",
         },
       };
 
-      await expect(_adminCaller.update(validInput)).resolves.not.toThrow();
+      await expect(caller.update(validInput)).resolves.not.toThrow();
     });
   });
 
   describe("delete", () => {
     it("should accept valid user ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(_adminCaller.delete(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      // Create user to delete
+      const deleteUserId = await createTestUser(tenantId);
+      tracker.users?.push(deleteUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
+      await expect(caller.delete(deleteUserId)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
-      await expect(_adminCaller.delete({} as unknown)).rejects.toThrow();
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
+      await expect(caller.delete({} as unknown)).rejects.toThrow();
     });
   });
 
   describe("updateRole", () => {
     it("should validate required fields", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const invalidInput = {
         // Missing role
         id: "550e8400-e29b-41d4-a716-446655440000",
       };
 
       await expect(
-        _adminCaller.updateRole(invalidInput as unknown),
+        caller.updateRole(invalidInput as unknown),
       ).rejects.toThrow();
     });
 
     it("should accept valid role update", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      // Create user to update role
+      const updateUserId = await createTestUser(tenantId);
+      tracker.users?.push(updateUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: updateUserId,
         role: "admin" as const,
       };
 
-      await expect(_adminCaller.updateRole(validInput)).resolves.not.toThrow();
+      await expect(caller.updateRole(validInput)).resolves.not.toThrow();
     });
 
     it("should validate id is a string", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const invalidInput = {
         id: 123,
         role: "admin",
       };
 
       await expect(
-        _adminCaller.updateRole(invalidInput as unknown),
+        caller.updateRole(invalidInput as unknown),
       ).rejects.toThrow();
     });
   });
 
   describe("sendPasswordReset", () => {
     it("should validate required userId field", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const invalidInput = {};
 
       await expect(
-        _adminCaller.sendPasswordReset(invalidInput as unknown),
+        caller.sendPasswordReset(invalidInput as unknown),
       ).rejects.toThrow();
     });
 
     it("should accept valid userId", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      // Create user for password reset with valid email
+      const resetUserId = await createTestUser(tenantId, {
+        email: `reset-${Date.now()}@example.com`,
+      });
+      tracker.users?.push(resetUserId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const validInput = {
-        userId: "550e8400-e29b-41d4-a716-446655440000",
+        userId: resetUserId,
       };
 
-      await expect(
-        _adminCaller.sendPasswordReset(validInput),
-      ).resolves.not.toThrow();
+      await expect(caller.sendPasswordReset(validInput)).resolves.not.toThrow();
     });
 
     it("should validate userId is a string", async () => {
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId, { role: "admin" });
+      tracker.users?.push(userId);
+
+      const ctx = createMockContext({
+        authContext: {
+          tenantId,
+          userId,
+          role: "admin",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          organizationName: "Test Org",
+        },
+      });
+      const caller = createCaller(usersRouter, ctx);
+
       const invalidInput = {
         userId: 123, // Should be string
       };
 
       await expect(
-        _adminCaller.sendPasswordReset(invalidInput as unknown),
+        caller.sendPasswordReset(invalidInput as unknown),
       ).rejects.toThrow();
     });
   });
 
-  describe("Bulk Operations (Integration)", () => {
-    // Integration test context (uses real database, not mocks)
+  describe("Bulk Operations", () => {
     let integrationCtx: TestContextWithAuth;
     let integrationCaller: ReturnType<typeof createCaller<typeof usersRouter>>;
-    const integrationTracker: TestDataTracker = {
-      tenants: [],
-      users: [],
-      departments: [],
-    };
 
     beforeEach(async () => {
-      // Unmock the database for integration tests
-      vi.unmock("@/lib/db");
-
       // Create test tenant and admin user
       const tenantId = await createTestTenant();
       const userId = await createTestUser(tenantId, { role: "admin" });
 
-      integrationTracker.tenants?.push(tenantId);
-      integrationTracker.users?.push(userId);
+      tracker.tenants?.push(tenantId);
+      tracker.users?.push(userId);
 
       // Create mock context with test tenant and user
       integrationCtx = createMockContext({
@@ -310,17 +735,6 @@ describe("app/server/routers/users.ts", () => {
       });
 
       integrationCaller = createCaller(usersRouter, integrationCtx);
-    });
-
-    afterEach(async () => {
-      await cleanupTestData(integrationTracker);
-      // Reset tracker
-      integrationTracker.tenants = [];
-      integrationTracker.users = [];
-      integrationTracker.departments = [];
-
-      // Re-mock the database for other tests
-      vi.doMock("@/lib/db");
     });
 
     describe("bulkUpdateStatus", () => {
@@ -344,7 +758,7 @@ describe("app/server/routers/users.ts", () => {
             status: "pending",
           },
         );
-        integrationTracker.users?.push(user1Id, user2Id, user3Id);
+        tracker.users?.push(user1Id, user2Id, user3Id);
 
         const result = await integrationCaller.bulkUpdateStatus({
           userIds: [user1Id, user2Id, user3Id],
@@ -370,15 +784,15 @@ describe("app/server/routers/users.ts", () => {
         const otherUserId = await createTestUser(otherTenantId, {
           status: "pending",
         });
-        integrationTracker.tenants?.push(otherTenantId);
-        integrationTracker.users?.push(otherUserId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
 
         // Create a user in current tenant
         const currentTenantUserId = await createTestUser(
           integrationCtx.authContext.tenantId,
           { status: "pending" },
         );
-        integrationTracker.users?.push(currentTenantUserId);
+        tracker.users?.push(currentTenantUserId);
 
         // Try to update users from both tenants
         await expect(
@@ -402,7 +816,7 @@ describe("app/server/routers/users.ts", () => {
             status: "pending",
           },
         );
-        integrationTracker.users?.push(user1Id, user2Id);
+        tracker.users?.push(user1Id, user2Id);
 
         await integrationCaller.bulkUpdateStatus({
           userIds: [user1Id, user2Id],
@@ -460,7 +874,7 @@ describe("app/server/routers/users.ts", () => {
             role: "member",
           },
         );
-        integrationTracker.users?.push(user1Id, user2Id);
+        tracker.users?.push(user1Id, user2Id);
 
         const result = await integrationCaller.bulkChangeRole({
           userIds: [user1Id, user2Id],
@@ -485,8 +899,8 @@ describe("app/server/routers/users.ts", () => {
         const otherUserId = await createTestUser(otherTenantId, {
           role: "member",
         });
-        integrationTracker.tenants?.push(otherTenantId);
-        integrationTracker.users?.push(otherUserId);
+        tracker.tenants?.push(otherTenantId);
+        tracker.users?.push(otherUserId);
 
         // Try to change role for user in different tenant
         await expect(
@@ -510,7 +924,7 @@ describe("app/server/routers/users.ts", () => {
             role: "member",
           },
         );
-        integrationTracker.users?.push(user1Id, user2Id);
+        tracker.users?.push(user1Id, user2Id);
 
         await integrationCaller.bulkChangeRole({
           userIds: [user1Id, user2Id],
@@ -536,7 +950,7 @@ describe("app/server/routers/users.ts", () => {
         const user1Id = await createTestUser(
           integrationCtx.authContext.tenantId,
         );
-        integrationTracker.users?.push(user1Id);
+        tracker.users?.push(user1Id);
 
         await expect(
           integrationCaller.bulkChangeRole({
@@ -561,7 +975,7 @@ describe("app/server/routers/users.ts", () => {
             updatedAt: new Date(),
           })
           .returning();
-        integrationTracker.departments?.push(department.id);
+        tracker.departments?.push(department.id);
 
         const user1Id = await createTestUser(
           integrationCtx.authContext.tenantId,
@@ -569,7 +983,7 @@ describe("app/server/routers/users.ts", () => {
         const user2Id = await createTestUser(
           integrationCtx.authContext.tenantId,
         );
-        integrationTracker.users?.push(user1Id, user2Id);
+        tracker.users?.push(user1Id, user2Id);
 
         const result = await integrationCaller.bulkAssignDepartment({
           userIds: [user1Id, user2Id],
@@ -591,7 +1005,7 @@ describe("app/server/routers/users.ts", () => {
       it("should enforce multi-tenant isolation", async () => {
         // Create a department in different tenant
         const otherTenantId = await createTestTenant();
-        integrationTracker.tenants?.push(otherTenantId);
+        tracker.tenants?.push(otherTenantId);
 
         const [otherDepartment] = await db
           .insert(departments)
@@ -603,12 +1017,12 @@ describe("app/server/routers/users.ts", () => {
             updatedAt: new Date(),
           })
           .returning();
-        integrationTracker.departments?.push(otherDepartment.id);
+        tracker.departments?.push(otherDepartment.id);
 
         const user1Id = await createTestUser(
           integrationCtx.authContext.tenantId,
         );
-        integrationTracker.users?.push(user1Id);
+        tracker.users?.push(user1Id);
 
         // Try to assign department from different tenant
         await expect(
@@ -630,7 +1044,7 @@ describe("app/server/routers/users.ts", () => {
             updatedAt: new Date(),
           })
           .returning();
-        integrationTracker.departments?.push(department.id);
+        tracker.departments?.push(department.id);
 
         const user1Id = await createTestUser(
           integrationCtx.authContext.tenantId,
@@ -638,7 +1052,7 @@ describe("app/server/routers/users.ts", () => {
         const user2Id = await createTestUser(
           integrationCtx.authContext.tenantId,
         );
-        integrationTracker.users?.push(user1Id, user2Id);
+        tracker.users?.push(user1Id, user2Id);
 
         await integrationCaller.bulkAssignDepartment({
           userIds: [user1Id, user2Id],
@@ -664,7 +1078,7 @@ describe("app/server/routers/users.ts", () => {
         const user1Id = await createTestUser(
           integrationCtx.authContext.tenantId,
         );
-        integrationTracker.users?.push(user1Id);
+        tracker.users?.push(user1Id);
 
         const nonExistentDeptId = crypto.randomUUID();
 
@@ -684,7 +1098,7 @@ describe("app/server/routers/users.ts", () => {
           integrationCtx.authContext.tenantId,
           { status: "pending" },
         );
-        integrationTracker.users?.push(validUserId);
+        tracker.users?.push(validUserId);
 
         const nonExistentUserId = crypto.randomUUID();
 

@@ -8,7 +8,7 @@
 
 > **requireClientPortalAuth**(`selectedClientId?`): `Promise`\<[`ClientPortalAuthContext`](../interfaces/ClientPortalAuthContext.md)\>
 
-Defined in: [lib/client-portal-auth.ts:172](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/client-portal-auth.ts#L172)
+Defined in: [lib/client-portal-auth.ts:172](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/lib/client-portal-auth.ts#L172)
 
 ## Parameters
 

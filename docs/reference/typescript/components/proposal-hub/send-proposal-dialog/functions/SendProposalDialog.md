@@ -8,7 +8,7 @@
 
 > **SendProposalDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/send-proposal-dialog.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/components/proposal-hub/send-proposal-dialog.tsx#L28)
+Defined in: [components/proposal-hub/send-proposal-dialog.tsx:28](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/components/proposal-hub/send-proposal-dialog.tsx#L28)
 
 ## Parameters
 

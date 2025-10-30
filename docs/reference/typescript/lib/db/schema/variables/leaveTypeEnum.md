@@ -8,4 +8,4 @@
 
 > `const` **leaveTypeEnum**: `PgEnum`\<\[`"annual_leave"`, `"sick_leave"`, `"toil"`, `"unpaid"`, `"other"`\]\>
 
-Defined in: [lib/db/schema.ts:266](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/db/schema.ts#L266)
+Defined in: [lib/db/schema.ts:266](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/lib/db/schema.ts#L266)

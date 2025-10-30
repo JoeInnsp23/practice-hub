@@ -8,7 +8,7 @@
 
 > **exportTasksToCSV**(`tasks`, `columns`): `string`
 
-Defined in: [lib/export/task-export.ts:66](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/export/task-export.ts#L66)
+Defined in: [lib/export/task-export.ts:66](https://github.com/JoeInnsp23/practice-hub/blob/2195d8502914b90f0cfc488db93d3fa6bc1a5b9f/lib/export/task-export.ts#L66)
 
 Export tasks to CSV format
 

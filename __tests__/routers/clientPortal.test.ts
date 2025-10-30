@@ -4,20 +4,23 @@
  * Tests for the clientPortal tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clientPortalRouter } from "@/app/server/routers/clientPortal";
-import { createClientPortalCaller } from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+import {
+  cleanupTestData,
+  createTestClient,
+  createTestInvoice,
+  createTestMessageThread,
+  createTestMessageThreadParticipant,
+  createTestProposal,
+  createTestTenant,
+  createTestUser,
+  type TestDataTracker,
+} from "../helpers/factories";
+import {
+  createClientPortalCaller,
+  createMockClientPortalAuthContext,
+} from "../helpers/trpc";
 
 // Mock DocuSeal client
 vi.mock("@/lib/docuseal/client", () => ({
@@ -33,10 +36,33 @@ describe("app/server/routers/clientPortal.ts", () => {
   let portalCaller: ReturnType<
     typeof createClientPortalCaller<typeof clientPortalRouter>
   >;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    proposals: [],
+    invoices: [],
+    messageThreads: [],
+    messageThreadParticipants: [],
+    messages: [],
+  };
 
   beforeEach(() => {
     portalCaller = createClientPortalCaller(clientPortalRouter);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.proposals = [];
+    tracker.invoices = [];
+    tracker.messageThreads = [];
+    tracker.messageThreadParticipants = [];
+    tracker.messages = [];
   });
 
   describe("getMyClients", () => {
@@ -119,12 +145,39 @@ describe("app/server/routers/clientPortal.ts", () => {
     });
 
     it("should accept valid proposal ID", async () => {
-      const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-      };
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id, {
+        status: "sent",
+      });
+      tracker.proposals?.push(proposal.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
 
       await expect(
-        portalCaller.getProposalById(validInput),
+        portalCaller.getProposalById({ id: proposal.id }),
       ).resolves.not.toThrow();
     });
   });
@@ -195,12 +248,39 @@ describe("app/server/routers/clientPortal.ts", () => {
     });
 
     it("should accept valid invoice ID", async () => {
-      const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-      };
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const invoice = await createTestInvoice(tenantId, client.id, userId, {
+        status: "sent",
+      });
+      tracker.invoices?.push(invoice.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
 
       await expect(
-        portalCaller.getInvoiceById(validInput),
+        portalCaller.getInvoiceById({ id: invoice.id }),
       ).resolves.not.toThrow();
     });
   });
@@ -309,12 +389,51 @@ describe("app/server/routers/clientPortal.ts", () => {
     });
 
     it("should accept valid thread and client IDs", async () => {
-      const validInput = {
-        threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
-      };
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(portalCaller.getThread(validInput)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+
+      const thread = await createTestMessageThread(tenantId, userId, {
+        clientId: client.id,
+        type: "client",
+      });
+      tracker.messageThreads?.push(thread.id);
+
+      // Add client portal user as participant
+      const participant = await createTestMessageThreadParticipant(
+        thread.id,
+        clientPortalAuthContext.portalUserId,
+        {
+          participantType: "client_portal",
+        },
+      );
+      tracker.messageThreadParticipants?.push(participant.id);
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
+
+      await expect(
+        portalCaller.getThread({ threadId: thread.id, clientId: client.id }),
+      ).resolves.not.toThrow();
     });
   });
 
@@ -331,13 +450,50 @@ describe("app/server/routers/clientPortal.ts", () => {
     });
 
     it("should accept valid input with defaults", async () => {
-      const validInput = {
-        threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
-      };
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+
+      const thread = await createTestMessageThread(tenantId, userId, {
+        clientId: client.id,
+        type: "client",
+      });
+      tracker.messageThreads?.push(thread.id);
+
+      // Add client portal user as participant
+      const participant = await createTestMessageThreadParticipant(
+        thread.id,
+        clientPortalAuthContext.portalUserId,
+        {
+          participantType: "client_portal",
+        },
+      );
+      tracker.messageThreadParticipants?.push(participant.id);
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
 
       await expect(
-        portalCaller.listMessages(validInput),
+        portalCaller.listMessages({ threadId: thread.id, clientId: client.id }),
       ).resolves.not.toThrow();
     });
 
@@ -385,13 +541,56 @@ describe("app/server/routers/clientPortal.ts", () => {
     });
 
     it("should accept valid message data", async () => {
-      const validInput = {
-        threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
-        content: "Hello from client portal",
-      };
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(portalCaller.sendMessage(validInput)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+
+      const thread = await createTestMessageThread(tenantId, userId, {
+        clientId: client.id,
+        type: "client",
+      });
+      tracker.messageThreads?.push(thread.id);
+
+      // Add client portal user as participant
+      const participant = await createTestMessageThreadParticipant(
+        thread.id,
+        clientPortalAuthContext.portalUserId,
+        {
+          participantType: "client_portal",
+        },
+      );
+      tracker.messageThreadParticipants?.push(participant.id);
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
+
+      const result = await portalCaller.sendMessage({
+        threadId: thread.id,
+        clientId: client.id,
+        content: "Hello from client portal",
+      });
+      tracker.messages?.push(result.id);
+
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should validate content minimum length", async () => {
@@ -415,25 +614,111 @@ describe("app/server/routers/clientPortal.ts", () => {
     });
 
     it("should accept file type", async () => {
-      const validInput = {
-        threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+
+      const thread = await createTestMessageThread(tenantId, userId, {
+        clientId: client.id,
+        type: "client",
+      });
+      tracker.messageThreads?.push(thread.id);
+
+      // Add client portal user as participant
+      const participant = await createTestMessageThreadParticipant(
+        thread.id,
+        clientPortalAuthContext.portalUserId,
+        {
+          participantType: "client_portal",
+        },
+      );
+      tracker.messageThreadParticipants?.push(participant.id);
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
+
+      const result = await portalCaller.sendMessage({
+        threadId: thread.id,
+        clientId: client.id,
         content: "File attachment",
         type: "file" as const,
-      };
+      });
+      tracker.messages?.push(result.id);
 
-      await expect(portalCaller.sendMessage(validInput)).resolves.not.toThrow();
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should accept message without metadata", async () => {
-      const validInput = {
-        threadId: "550e8400-e29b-41d4-a716-446655440000",
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const clientPortalAuthContext = createMockClientPortalAuthContext({
+        tenantId,
+        currentClientId: client.id,
+        email: client.email || undefined,
+        clientAccess: [
+          {
+            clientId: client.id,
+            clientName: client.name,
+            role: "viewer",
+            isActive: true,
+          },
+        ],
+      });
+
+      const thread = await createTestMessageThread(tenantId, userId, {
+        clientId: client.id,
+        type: "client",
+      });
+      tracker.messageThreads?.push(thread.id);
+
+      // Add client portal user as participant
+      const participant = await createTestMessageThreadParticipant(
+        thread.id,
+        clientPortalAuthContext.portalUserId,
+        {
+          participantType: "client_portal",
+        },
+      );
+      tracker.messageThreadParticipants?.push(participant.id);
+      const portalCaller = createClientPortalCaller(clientPortalRouter, {
+        clientPortalAuthContext,
+      });
+
+      const result = await portalCaller.sendMessage({
+        threadId: thread.id,
+        clientId: client.id,
         content: "Message without metadata",
         type: "text" as const,
-      };
+      });
+      tracker.messages?.push(result.id);
 
-      await expect(portalCaller.sendMessage(validInput)).resolves.not.toThrow();
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 

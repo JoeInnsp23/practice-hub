@@ -29,9 +29,11 @@ import { db } from "@/lib/db";
 import {
   calendarEvents,
   clients,
+  clientTransactionData,
   departments,
   documents,
   invoices,
+  kycVerifications,
   leads,
   legalPages,
   messages,
@@ -83,6 +85,8 @@ export interface TestDataTracker {
   messageThreads?: string[];
   messageThreadParticipants?: string[];
   legalPages?: string[];
+  kycVerifications?: string[];
+  transactionData?: string[];
 }
 
 /**
@@ -507,6 +511,34 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
         .where(inArray(calendarEvents.id, tracker.calendarEvents));
     }
 
+    if (tracker.timeEntries && tracker.timeEntries.length > 0) {
+      await db
+        .delete(timeEntries)
+        .where(inArray(timeEntries.id, tracker.timeEntries));
+    }
+
+    if (tracker.documents && tracker.documents.length > 0) {
+      await db
+        .delete(documents)
+        .where(inArray(documents.id, tracker.documents));
+    }
+
+    if (tracker.proposals && tracker.proposals.length > 0) {
+      await db
+        .delete(proposals)
+        .where(inArray(proposals.id, tracker.proposals));
+    }
+
+    if (tracker.invoices && tracker.invoices.length > 0) {
+      await db.delete(invoices).where(inArray(invoices.id, tracker.invoices));
+    }
+
+    // Delete tasks first - CASCADE will delete taskWorkflowInstances
+    if (tracker.tasks && tracker.tasks.length > 0) {
+      await db.delete(tasks).where(inArray(tasks.id, tracker.tasks));
+    }
+
+    // Now safe to delete workflow-related data
     if (
       tracker.taskWorkflowInstances &&
       tracker.taskWorkflowInstances.length > 0
@@ -536,32 +568,6 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
         .where(inArray(workflows.id, tracker.workflows));
     }
 
-    if (tracker.timeEntries && tracker.timeEntries.length > 0) {
-      await db
-        .delete(timeEntries)
-        .where(inArray(timeEntries.id, tracker.timeEntries));
-    }
-
-    if (tracker.documents && tracker.documents.length > 0) {
-      await db
-        .delete(documents)
-        .where(inArray(documents.id, tracker.documents));
-    }
-
-    if (tracker.proposals && tracker.proposals.length > 0) {
-      await db
-        .delete(proposals)
-        .where(inArray(proposals.id, tracker.proposals));
-    }
-
-    if (tracker.invoices && tracker.invoices.length > 0) {
-      await db.delete(invoices).where(inArray(invoices.id, tracker.invoices));
-    }
-
-    if (tracker.tasks && tracker.tasks.length > 0) {
-      await db.delete(tasks).where(inArray(tasks.id, tracker.tasks));
-    }
-
     if (tracker.taskTemplates && tracker.taskTemplates.length > 0) {
       await db
         .delete(taskTemplates)
@@ -581,6 +587,20 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
 
     if (tracker.leads && tracker.leads.length > 0) {
       await db.delete(leads).where(inArray(leads.id, tracker.leads));
+    }
+
+    // Delete KYC verifications before clients (clientId FK dependency)
+    if (tracker.kycVerifications && tracker.kycVerifications.length > 0) {
+      await db
+        .delete(kycVerifications)
+        .where(inArray(kycVerifications.id, tracker.kycVerifications));
+    }
+
+    // Delete transaction data before clients (clientId FK dependency)
+    if (tracker.transactionData && tracker.transactionData.length > 0) {
+      await db
+        .delete(clientTransactionData)
+        .where(inArray(clientTransactionData.id, tracker.transactionData));
     }
 
     if (tracker.clients && tracker.clients.length > 0) {
@@ -757,6 +777,46 @@ export async function createTestWorkflowStage(
 }
 
 /**
+ * Create a test workflow version
+ */
+export async function createTestWorkflowVersion(
+  workflowId: string,
+  tenantId: string,
+  overrides: Partial<typeof workflowVersions.$inferInsert> = {},
+) {
+  const versionId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [version] = await db
+    .insert(workflowVersions)
+    .values({
+      id: versionId,
+      workflowId,
+      tenantId,
+      version: overrides.version ?? 1,
+      name: overrides.name || `Test Workflow Version ${timestamp}`,
+      description: overrides.description || `Test workflow version description`,
+      type: overrides.type || "task_template",
+      trigger: overrides.trigger || "manual",
+      estimatedDays: overrides.estimatedDays || null,
+      serviceId: overrides.serviceId || null,
+      config: overrides.config || {},
+      stagesSnapshot: overrides.stagesSnapshot || [],
+      changeDescription: overrides.changeDescription || null,
+      changeType: overrides.changeType || "created",
+      publishNotes: overrides.publishNotes || null,
+      isActive: overrides.isActive ?? false,
+      publishedAt: overrides.publishedAt || null,
+      createdAt: new Date(),
+      createdById: overrides.createdById || null,
+      ...overrides,
+    })
+    .returning();
+
+  return version;
+}
+
+/**
  * Create a test service (pricing component)
  */
 export async function createTestService(
@@ -836,7 +896,11 @@ export async function createTestMessageThread(
       tenantId,
       createdBy,
       type: overrides.type || "direct",
-      name: overrides.name || (overrides.type === "team_channel" ? `Test Channel ${timestamp}` : null),
+      name:
+        overrides.name ||
+        (overrides.type === "team_channel"
+          ? `Test Channel ${timestamp}`
+          : null),
       description: overrides.description || null,
       isPrivate: overrides.isPrivate ?? false,
       clientId: overrides.clientId || null,
@@ -868,7 +932,9 @@ export async function createTestMessageThreadParticipant(
       threadId,
       participantType,
       participantId,
-      userId: overrides.userId || (participantType === "staff" ? participantId : null),
+      userId:
+        overrides.userId ||
+        (participantType === "staff" ? participantId : null),
       role: overrides.role || "member",
       joinedAt: new Date(),
       lastReadAt: overrides.lastReadAt || null,

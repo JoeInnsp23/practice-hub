@@ -6,7 +6,7 @@
  */
 
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import {
@@ -92,15 +92,15 @@ export const adminKycRouter = router({
         .offset(input.offset);
 
       // Get total count for pagination
-      const [{ count }] = await db
-        .select({ count: kycVerifications.id })
+      const [{ count: totalCount }] = await db
+        .select({ count: count() })
         .from(kycVerifications)
         .where(and(...whereConditions));
 
       return {
         verifications,
-        total: count,
-        hasMore: input.offset + input.limit < Number(count),
+        total: totalCount,
+        hasMore: input.offset + input.limit < Number(totalCount),
       };
     }),
 
