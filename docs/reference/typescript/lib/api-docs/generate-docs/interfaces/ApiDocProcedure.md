@@ -6,7 +6,7 @@
 
 # Interface: ApiDocProcedure
 
-Defined in: [lib/api-docs/generate-docs.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L14)
+Defined in: [lib/api-docs/generate-docs.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L14)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/api-docs/generate-docs.ts:14](https://github.com/JoeInnsp23/pra
 
 > `optional` **description**: `string`
 
-Defined in: [lib/api-docs/generate-docs.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L17)
+Defined in: [lib/api-docs/generate-docs.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L17)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/api-docs/generate-docs.ts:17](https://github.com/JoeInnsp23/pra
 
 > `optional` **input**: `object`
 
-Defined in: [lib/api-docs/generate-docs.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L18)
+Defined in: [lib/api-docs/generate-docs.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L18)
 
 #### example?
 
@@ -38,7 +38,7 @@ Defined in: [lib/api-docs/generate-docs.ts:18](https://github.com/JoeInnsp23/pra
 
 > **name**: `string`
 
-Defined in: [lib/api-docs/generate-docs.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L15)
+Defined in: [lib/api-docs/generate-docs.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L15)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/api-docs/generate-docs.ts:15](https://github.com/JoeInnsp23/pra
 
 > `optional` **output**: `object`
 
-Defined in: [lib/api-docs/generate-docs.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L22)
+Defined in: [lib/api-docs/generate-docs.ts:22](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L22)
 
 #### example?
 
@@ -62,7 +62,7 @@ Defined in: [lib/api-docs/generate-docs.ts:22](https://github.com/JoeInnsp23/pra
 
 > **requiresAdmin**: `boolean`
 
-Defined in: [lib/api-docs/generate-docs.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L27)
+Defined in: [lib/api-docs/generate-docs.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L27)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [lib/api-docs/generate-docs.ts:27](https://github.com/JoeInnsp23/pra
 
 > **requiresAuth**: `boolean`
 
-Defined in: [lib/api-docs/generate-docs.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L26)
+Defined in: [lib/api-docs/generate-docs.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L26)
 
 ***
 
@@ -78,4 +78,4 @@ Defined in: [lib/api-docs/generate-docs.ts:26](https://github.com/JoeInnsp23/pra
 
 > **type**: `"query"` \| `"mutation"` \| `"subscription"`
 
-Defined in: [lib/api-docs/generate-docs.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/api-docs/generate-docs.ts#L16)
+Defined in: [lib/api-docs/generate-docs.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/api-docs/generate-docs.ts#L16)

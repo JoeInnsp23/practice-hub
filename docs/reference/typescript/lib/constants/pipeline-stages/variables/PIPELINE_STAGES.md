@@ -8,4 +8,4 @@
 
 > `const` **PIPELINE\_STAGES**: `Record`\<[`PipelineStage`](../type-aliases/PipelineStage.md), [`StageConfig`](../interfaces/StageConfig.md)\>
 
-Defined in: [lib/constants/pipeline-stages.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/constants/pipeline-stages.ts#L36)
+Defined in: [lib/constants/pipeline-stages.ts:36](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/constants/pipeline-stages.ts#L36)

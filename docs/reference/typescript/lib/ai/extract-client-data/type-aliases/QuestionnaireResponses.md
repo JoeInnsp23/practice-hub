@@ -8,6 +8,6 @@
 
 > **QuestionnaireResponses** = `Record`\<`string`, [`QuestionnaireValue`](QuestionnaireValue.md)\>
 
-Defined in: [lib/ai/extract-client-data.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/d308624649fa00a433a170aeda9a977cd5e01c3f/lib/ai/extract-client-data.ts#L131)
+Defined in: [lib/ai/extract-client-data.ts:131](https://github.com/JoeInnsp23/practice-hub/blob/d9496975b4531ee6b6c9f97767a80271c265ed85/lib/ai/extract-client-data.ts#L131)
 
 Mapped questionnaire responses from extracted document data
