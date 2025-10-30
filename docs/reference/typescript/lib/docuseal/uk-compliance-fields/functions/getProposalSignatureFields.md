@@ -8,7 +8,7 @@
 
 > **getProposalSignatureFields**(`proposalData`): [`TemplateField`](../../client/interfaces/TemplateField.md)[]
 
-Defined in: [lib/docuseal/uk-compliance-fields.ts:106](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/docuseal/uk-compliance-fields.ts#L106)
+Defined in: [lib/docuseal/uk-compliance-fields.ts:106](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/docuseal/uk-compliance-fields.ts#L106)
 
 Get field configuration for a specific proposal
 

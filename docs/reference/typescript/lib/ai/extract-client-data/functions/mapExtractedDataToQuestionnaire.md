@@ -8,7 +8,7 @@
 
 > **mapExtractedDataToQuestionnaire**(`extraction`): [`QuestionnaireResponses`](../type-aliases/QuestionnaireResponses.md)
 
-Defined in: [lib/ai/extract-client-data.ts:250](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/lib/ai/extract-client-data.ts#L250)
+Defined in: [lib/ai/extract-client-data.ts:250](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/lib/ai/extract-client-data.ts#L250)
 
 Pre-fill onboarding questionnaire from extracted data
 

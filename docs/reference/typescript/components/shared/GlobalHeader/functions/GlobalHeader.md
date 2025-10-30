@@ -8,7 +8,7 @@
 
 > **GlobalHeader**(`__namedParameters`): `Element`
 
-Defined in: [components/shared/GlobalHeader.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/feeee83c46f10e1793ee763577244c23e431b73b/components/shared/GlobalHeader.tsx#L27)
+Defined in: [components/shared/GlobalHeader.tsx:27](https://github.com/JoeInnsp23/practice-hub/blob/1880350608077cd291749d4e46e12f3fb3757d2b/components/shared/GlobalHeader.tsx#L27)
 
 ## Parameters
 

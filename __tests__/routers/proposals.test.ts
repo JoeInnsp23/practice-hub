@@ -4,26 +4,22 @@
  * Tests for the proposals tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { proposalsRouter } from "@/app/server/routers/proposals";
-import { db } from "@/lib/db";
-import { leads } from "@/lib/db/schema";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+import {
+  type TestDataTracker,
+  cleanupTestData,
+  createTestClient,
+  createTestLead,
+  createTestProposal,
+  createTestTenant,
+  createTestUser,
+} from "../helpers/factories";
 
 // Mock PDF generation
 vi.mock("@/lib/pdf/proposal-generator", () => ({
@@ -40,14 +36,36 @@ vi.mock("@/lib/email/proposal-email", () => ({
   sendProposalEmail: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/email/send-proposal-email", () => ({
+  sendSignedConfirmationEmail: vi.fn().mockResolvedValue(undefined),
+  sendTeamNotificationEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("app/server/routers/proposals.ts", () => {
   let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof proposalsRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    clients: [],
+    leads: [],
+    proposals: [],
+  };
 
   beforeEach(() => {
     ctx = createMockContext();
     caller = createCaller(proposalsRouter, ctx);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.clients = [];
+    tracker.leads = [];
+    tracker.proposals = [];
   });
 
   describe("list", () => {
@@ -74,9 +92,24 @@ describe("app/server/routers/proposals.ts", () => {
 
   describe("getById", () => {
     it("should accept valid UUID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.getById(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.getById(proposal.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -97,8 +130,22 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept valid proposal data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        clientId: "550e8400-e29b-41d4-a716-446655440000",
+        clientId: client.id,
         title: "Accounting Services Proposal",
         status: "draft" as const,
         pricingModelUsed: "model_a" as const,
@@ -108,7 +155,9 @@ describe("app/server/routers/proposals.ts", () => {
         services: [],
       };
 
-      await expect(caller.create(validInput)).resolves.not.toThrow();
+      const result = await caller.create(validInput);
+      tracker.proposals?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should validate totalAmount is a number", async () => {
@@ -127,11 +176,27 @@ describe("app/server/routers/proposals.ts", () => {
 
   describe("createFromLead", () => {
     it("should accept valid lead ID", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const lead = await createTestLead(tenantId);
+      tracker.leads?.push(lead.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        leadId: "550e8400-e29b-41d4-a716-446655440000",
+        leadId: lead.id,
       };
 
-      await expect(caller.createFromLead(validInput)).resolves.not.toThrow();
+      const result = await caller.createFromLead(validInput);
+      tracker.proposals?.push(result.proposal.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should validate required leadId field", async () => {
@@ -156,8 +221,25 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept valid update data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: proposal.id,
         data: {
           title: "Updated Proposal Title",
           status: "sent" as const,
@@ -168,8 +250,25 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept partial updates", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: proposal.id,
         data: {
           title: "New Title",
         },
@@ -181,9 +280,24 @@ describe("app/server/routers/proposals.ts", () => {
 
   describe("delete", () => {
     it("should accept valid proposal ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.delete(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.delete(proposal.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -206,8 +320,25 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept valid send data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: proposal.id,
         validUntil: "2025-12-31",
       };
 
@@ -228,9 +359,24 @@ describe("app/server/routers/proposals.ts", () => {
 
   describe("trackView", () => {
     it("should accept valid proposal ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.trackView(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.trackView(proposal.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -253,8 +399,25 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept valid signature data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        proposalId: "550e8400-e29b-41d4-a716-446655440000",
+        proposalId: proposal.id,
         signerName: "John Doe",
         signerEmail: "john@example.com",
         signatureData: "base64-signature-data",
@@ -264,9 +427,26 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should accept any string as email", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       // Note: signerEmail is z.string() without .email() validation
       const validInput = {
-        proposalId: "550e8400-e29b-41d4-a716-446655440000",
+        proposalId: proposal.id,
         signerName: "John Doe",
         signerEmail: "not-an-email", // Any string is valid
         signatureData: "data",
@@ -288,9 +468,24 @@ describe("app/server/routers/proposals.ts", () => {
 
   describe("generatePdf", () => {
     it("should accept valid proposal ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.generatePdf(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.generatePdf(proposal.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -302,8 +497,25 @@ describe("app/server/routers/proposals.ts", () => {
 
   describe("updateSalesStage", () => {
     it("should accept valid sales stage update", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: proposal.id,
         salesStage: "qualified" as const,
       };
 
@@ -311,6 +523,23 @@ describe("app/server/routers/proposals.ts", () => {
     });
 
     it("should validate all sales stage enum values", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const client = await createTestClient(tenantId, userId);
+      tracker.clients?.push(client.id);
+
+      const proposal = await createTestProposal(tenantId, client.id);
+      tracker.proposals?.push(proposal.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validStages = [
         "enquiry",
         "qualified",
@@ -323,7 +552,7 @@ describe("app/server/routers/proposals.ts", () => {
 
       for (const stage of validStages) {
         const input = {
-          id: "550e8400-e29b-41d4-a716-446655440000",
+          id: proposal.id,
           salesStage: stage,
         };
 
@@ -472,19 +701,26 @@ describe("app/server/routers/proposals.ts", () => {
   describe("Proposal Notes (GAP-003)", () => {
     describe("createNote", () => {
       it("should create a note for a proposal", async () => {
-        // First create a proposal
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Note",
-            lastName: "Tester",
-            email: "note.tester@test.com",
-            phone: "+44 7700 900000",
-            companyName: "Note Test Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Note",
+          lastName: "Tester",
+          email: "note.tester@test.com",
+          phone: "+44 7700 900000",
+          companyName: "Note Test Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -493,6 +729,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "1200.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         // Create note
         const note = await caller.createNote({
@@ -510,18 +747,26 @@ describe("app/server/routers/proposals.ts", () => {
       });
 
       it("should create an internal note", async () => {
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Internal",
-            lastName: "Note",
-            email: "internal.note@test.com",
-            phone: "+44 7700 900001",
-            companyName: "Internal Note Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Internal",
+          lastName: "Note",
+          email: "internal.note@test.com",
+          phone: "+44 7700 900001",
+          companyName: "Internal Note Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -530,6 +775,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "1800.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         const note = await caller.createNote({
           proposalId: proposal.proposal.id,
@@ -555,18 +801,26 @@ describe("app/server/routers/proposals.ts", () => {
 
     describe("getNotes", () => {
       it("should retrieve notes for a proposal", async () => {
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Get",
-            lastName: "Notes",
-            email: "get.notes@test.com",
-            phone: "+44 7700 900002",
-            companyName: "Get Notes Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Get",
+          lastName: "Notes",
+          email: "get.notes@test.com",
+          phone: "+44 7700 900002",
+          companyName: "Get Notes Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -575,6 +829,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "2400.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         // Create multiple notes
         await caller.createNote({
@@ -603,18 +858,26 @@ describe("app/server/routers/proposals.ts", () => {
       });
 
       it("should support pagination", async () => {
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Pagination",
-            lastName: "Test",
-            email: "pagination@test.com",
-            phone: "+44 7700 900003",
-            companyName: "Pagination Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Pagination",
+          lastName: "Test",
+          email: "pagination@test.com",
+          phone: "+44 7700 900003",
+          companyName: "Pagination Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -623,6 +886,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "3000.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         // Create 3 notes
         for (let i = 0; i < 3; i++) {
@@ -653,18 +917,26 @@ describe("app/server/routers/proposals.ts", () => {
 
     describe("updateNote", () => {
       it("should allow author to update their note", async () => {
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Update",
-            lastName: "Note",
-            email: "update.note@test.com",
-            phone: "+44 7700 900004",
-            companyName: "Update Note Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Update",
+          lastName: "Note",
+          email: "update.note@test.com",
+          phone: "+44 7700 900004",
+          companyName: "Update Note Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -673,6 +945,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "3600.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         const note = await caller.createNote({
           proposalId: proposal.proposal.id,
@@ -702,18 +975,26 @@ describe("app/server/routers/proposals.ts", () => {
 
     describe("deleteNote", () => {
       it("should allow author to delete their note", async () => {
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Delete",
-            lastName: "Note",
-            email: "delete.note@test.com",
-            phone: "+44 7700 900005",
-            companyName: "Delete Note Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Delete",
+          lastName: "Note",
+          email: "delete.note@test.com",
+          phone: "+44 7700 900005",
+          companyName: "Delete Note Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -722,6 +1003,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "4200.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         const note = await caller.createNote({
           proposalId: proposal.proposal.id,
@@ -755,18 +1037,26 @@ describe("app/server/routers/proposals.ts", () => {
 
     describe("getNoteCount", () => {
       it("should count notes for a proposal", async () => {
-        const [lead] = await db
-          .insert(leads)
-          .values({
-            tenantId: ctx.authContext.tenantId,
-            firstName: "Count",
-            lastName: "Notes",
-            email: "count.notes@test.com",
-            phone: "+44 7700 900006",
-            companyName: "Count Notes Ltd",
-            source: "referral",
-          })
-          .returning();
+        // Create real test data
+        const tenantId = await createTestTenant();
+        tracker.tenants?.push(tenantId);
+
+        const userId = await createTestUser(tenantId);
+        tracker.users?.push(userId);
+
+        const lead = await createTestLead(tenantId, {
+          firstName: "Count",
+          lastName: "Notes",
+          email: "count.notes@test.com",
+          phone: "+44 7700 900006",
+          companyName: "Count Notes Ltd",
+          source: "referral",
+        });
+        tracker.leads?.push(lead.id);
+
+        // Update context with real tenant
+        ctx.authContext.tenantId = tenantId;
+        ctx.authContext.userId = userId;
 
         const proposal = await caller.createFromLead({
           leadId: lead.id,
@@ -775,6 +1065,7 @@ describe("app/server/routers/proposals.ts", () => {
           annualTotal: "4800.00",
           services: [],
         });
+        tracker.proposals?.push(proposal.proposal.id);
 
         // Create 3 notes
         for (let i = 0; i < 3; i++) {
