@@ -8,7 +8,7 @@
 
 > **Skeleton**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/skeleton.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/components/ui/skeleton.tsx#L3)
+Defined in: [components/ui/skeleton.tsx:3](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/ui/skeleton.tsx#L3)
 
 ## Parameters
 

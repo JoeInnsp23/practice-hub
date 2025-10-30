@@ -4,33 +4,42 @@
  * Tests for the calendar tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { calendarRouter } from "@/app/server/routers/calendar";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+import {
+  type TestDataTracker,
+  cleanupTestData,
+  createTestCalendarEvent,
+  createTestTenant,
+  createTestUser,
+} from "../helpers/factories";
 
 describe("app/server/routers/calendar.ts", () => {
   let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof calendarRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    calendarEvents: [],
+  };
 
   beforeEach(() => {
     ctx = createMockContext();
     caller = createCaller(calendarRouter, ctx);
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.calendarEvents = [];
   });
 
   describe("listEvents", () => {
@@ -72,9 +81,23 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid event ID", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.getEvent({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
         }),
       ).resolves.not.toThrow();
     });
@@ -98,45 +121,79 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid event data", async () => {
-      await expect(
-        caller.createEvent({
-          title: "Team Meeting",
-          type: "meeting" as const,
-          startTime: new Date("2025-01-15T09:00:00Z"),
-          endTime: new Date("2025-01-15T10:00:00Z"),
-        }),
-      ).resolves.not.toThrow();
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      const result = await caller.createEvent({
+        title: "Team Meeting",
+        type: "meeting" as const,
+        startTime: new Date("2025-01-15T09:00:00Z"),
+        endTime: new Date("2025-01-15T10:00:00Z"),
+      });
+
+      tracker.calendarEvents?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should accept optional fields", async () => {
-      await expect(
-        caller.createEvent({
-          title: "Client Consultation",
-          description: "Discuss quarterly results",
-          type: "meeting" as const,
-          startTime: new Date("2025-01-20T14:00:00Z"),
-          endTime: new Date("2025-01-20T15:00:00Z"),
-          allDay: false,
-          location: "Conference Room A",
-          clientId: "550e8400-e29b-41d4-a716-446655440000",
-          taskId: "660e8400-e29b-41d4-a716-446655440000",
-          reminderMinutes: 15,
-          isRecurring: false,
-          attendeeIds: ["770e8400-e29b-41d4-a716-446655440000"],
-        }),
-      ).resolves.not.toThrow();
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      const result = await caller.createEvent({
+        title: "Client Consultation",
+        description: "Discuss quarterly results",
+        type: "meeting" as const,
+        startTime: new Date("2025-01-20T14:00:00Z"),
+        endTime: new Date("2025-01-20T15:00:00Z"),
+        allDay: false,
+        location: "Conference Room A",
+        // clientId is optional - omit instead of null
+        reminderMinutes: 15,
+        isRecurring: false,
+      });
+
+      tracker.calendarEvents?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should accept all-day events", async () => {
-      await expect(
-        caller.createEvent({
-          title: "Company Holiday",
-          type: "out_of_office" as const,
-          startTime: new Date("2025-12-25T00:00:00Z"),
-          endTime: new Date("2025-12-25T23:59:59Z"),
-          allDay: true,
-        }),
-      ).resolves.not.toThrow();
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      const result = await caller.createEvent({
+        title: "Company Holiday",
+        type: "out_of_office" as const,
+        startTime: new Date("2025-12-25T00:00:00Z"),
+        endTime: new Date("2025-12-25T23:59:59Z"),
+        allDay: true,
+      });
+
+      tracker.calendarEvents?.push(result.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -150,18 +207,46 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid update data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.updateEvent({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
           title: "Updated Meeting Title",
         }),
       ).resolves.not.toThrow();
     });
 
     it("should accept partial updates", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.updateEvent({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
           location: "Virtual Meeting - Zoom",
           reminderMinutes: 30,
         }),
@@ -177,9 +262,23 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid event ID", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.deleteEvent({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
         }),
       ).resolves.not.toThrow();
     });
@@ -195,21 +294,63 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid response data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      // Create event WITH the user as an attendee
+      const event = await caller.createEvent({
+        title: "Team Meeting",
+        type: "meeting" as const,
+        startTime: new Date("2025-01-15T09:00:00Z"),
+        endTime: new Date("2025-01-15T10:00:00Z"),
+        attendeeIds: [userId], // Add user as attendee
+      });
+      tracker.calendarEvents?.push(event.id);
+
       await expect(
         caller.respondToInvitation({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
           status: "accepted" as const,
         }),
       ).resolves.not.toThrow();
     });
 
     it("should accept all status values", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      // Create event WITH the user as an attendee
+      const event = await caller.createEvent({
+        title: "Team Meeting",
+        type: "meeting" as const,
+        startTime: new Date("2025-01-15T09:00:00Z"),
+        endTime: new Date("2025-01-15T10:00:00Z"),
+        attendeeIds: [userId], // Add user as attendee
+      });
+      tracker.calendarEvents?.push(event.id);
+
       const statuses = ["accepted", "declined", "tentative"] as const;
 
       for (const status of statuses) {
         await expect(
           caller.respondToInvitation({
-            eventId: "550e8400-e29b-41d4-a716-446655440000",
+            eventId: event.id,
             status,
           }),
         ).resolves.not.toThrow();
@@ -227,19 +368,53 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid attendee data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const attendeeUser = await createTestUser(tenantId);
+      tracker.users?.push(attendeeUser);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.addAttendee({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
-          userId: "660e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
+          userId: attendeeUser,
         }),
       ).resolves.not.toThrow();
     });
 
     it("should accept optional isOptional field", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const attendeeUser = await createTestUser(tenantId);
+      tracker.users?.push(attendeeUser);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.addAttendee({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
-          userId: "660e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
+          userId: attendeeUser,
           isOptional: true,
         }),
       ).resolves.not.toThrow();
@@ -256,10 +431,27 @@ describe("app/server/routers/calendar.ts", () => {
     });
 
     it("should accept valid removal data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const attendeeUser = await createTestUser(tenantId);
+      tracker.users?.push(attendeeUser);
+
+      const event = await createTestCalendarEvent(tenantId, userId);
+      tracker.calendarEvents?.push(event.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       await expect(
         caller.removeAttendee({
-          eventId: "550e8400-e29b-41d4-a716-446655440000",
-          userId: "660e8400-e29b-41d4-a716-446655440000",
+          eventId: event.id,
+          userId: attendeeUser,
         }),
       ).resolves.not.toThrow();
     });

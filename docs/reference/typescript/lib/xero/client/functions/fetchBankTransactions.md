@@ -8,7 +8,7 @@
 
 > **fetchBankTransactions**(`accessToken`, `xeroTenantId`, `fromDate`, `toDate`): `Promise`\<[`BankTransaction`](../interfaces/BankTransaction.md)[]\>
 
-Defined in: [lib/xero/client.ts:220](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/xero/client.ts#L220)
+Defined in: [lib/xero/client.ts:220](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/xero/client.ts#L220)
 
 Fetch bank transactions from Xero
 

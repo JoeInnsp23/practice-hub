@@ -8,7 +8,7 @@
 
 > **generateSchemaMarkdown**(): `Promise`\<`string`\>
 
-Defined in: [lib/api-docs/schema-docs.ts:189](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/schema-docs.ts#L189)
+Defined in: [lib/api-docs/schema-docs.ts:189](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/schema-docs.ts#L189)
 
 Generate markdown documentation for database schema
 

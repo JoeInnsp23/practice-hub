@@ -8,7 +8,7 @@
 
 > **checkRateLimit**(`identifier`, `config`): [`RateLimitResult`](../interfaces/RateLimitResult.md)
 
-Defined in: [lib/rate-limit.ts:142](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/rate-limit.ts#L142)
+Defined in: [lib/rate-limit.ts:142](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/rate-limit.ts#L142)
 
 Check if identifier is within rate limit
 

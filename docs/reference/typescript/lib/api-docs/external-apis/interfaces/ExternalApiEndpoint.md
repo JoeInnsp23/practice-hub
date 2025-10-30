@@ -6,7 +6,7 @@
 
 # Interface: ExternalApiEndpoint
 
-Defined in: [lib/api-docs/external-apis.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L10)
+Defined in: [lib/api-docs/external-apis.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L10)
 
 External API Documentation
 
@@ -21,7 +21,7 @@ Documentation for third-party APIs integrated with Practice Hub:
 
 > **authentication**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L14)
+Defined in: [lib/api-docs/external-apis.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L14)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [lib/api-docs/external-apis.ts:14](https://github.com/JoeInnsp23/pra
 
 > **description**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L13)
+Defined in: [lib/api-docs/external-apis.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L13)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [lib/api-docs/external-apis.ts:13](https://github.com/JoeInnsp23/pra
 
 > `optional` **documentation**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L28)
+Defined in: [lib/api-docs/external-apis.ts:28](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L28)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [lib/api-docs/external-apis.ts:28](https://github.com/JoeInnsp23/pra
 
 > **method**: `"GET"` \| `"POST"` \| `"PUT"` \| `"DELETE"` \| `"PATCH"`
 
-Defined in: [lib/api-docs/external-apis.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L11)
+Defined in: [lib/api-docs/external-apis.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L11)
 
 ***
 
@@ -53,7 +53,7 @@ Defined in: [lib/api-docs/external-apis.ts:11](https://github.com/JoeInnsp23/pra
 
 > `optional` **parameters**: `object`[]
 
-Defined in: [lib/api-docs/external-apis.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L15)
+Defined in: [lib/api-docs/external-apis.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L15)
 
 #### description
 
@@ -77,7 +77,7 @@ Defined in: [lib/api-docs/external-apis.ts:15](https://github.com/JoeInnsp23/pra
 
 > **path**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L12)
+Defined in: [lib/api-docs/external-apis.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L12)
 
 ***
 
@@ -85,7 +85,7 @@ Defined in: [lib/api-docs/external-apis.ts:12](https://github.com/JoeInnsp23/pra
 
 > `optional` **rateLimit**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L27)
+Defined in: [lib/api-docs/external-apis.ts:27](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L27)
 
 ***
 
@@ -93,7 +93,7 @@ Defined in: [lib/api-docs/external-apis.ts:27](https://github.com/JoeInnsp23/pra
 
 > `optional` **requestBody**: `object`
 
-Defined in: [lib/api-docs/external-apis.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L21)
+Defined in: [lib/api-docs/external-apis.ts:21](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L21)
 
 #### contentType
 
@@ -113,4 +113,4 @@ Defined in: [lib/api-docs/external-apis.ts:21](https://github.com/JoeInnsp23/pra
 
 > `optional` **responseExample**: `string`
 
-Defined in: [lib/api-docs/external-apis.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/api-docs/external-apis.ts#L26)
+Defined in: [lib/api-docs/external-apis.ts:26](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/api-docs/external-apis.ts#L26)

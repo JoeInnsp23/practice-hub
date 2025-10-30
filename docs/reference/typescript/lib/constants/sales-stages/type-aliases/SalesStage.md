@@ -8,4 +8,4 @@
 
 > **SalesStage** = `"enquiry"` \| `"qualified"` \| `"proposal_sent"` \| `"follow_up"` \| `"won"` \| `"lost"` \| `"dormant"`
 
-Defined in: [lib/constants/sales-stages.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/constants/sales-stages.ts#L17)
+Defined in: [lib/constants/sales-stages.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/constants/sales-stages.ts#L17)

@@ -8,7 +8,7 @@
 
 > **ApprovalList**(`__namedParameters`): `Element`
 
-Defined in: [components/admin/leave/approval-list.tsx:107](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/components/admin/leave/approval-list.tsx#L107)
+Defined in: [components/admin/leave/approval-list.tsx:107](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/admin/leave/approval-list.tsx#L107)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **markClientAsPendingSync**(`clientId`): `Promise`\<`void`\>
 
-Defined in: [lib/xero/sync-service.ts:366](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/lib/xero/sync-service.ts#L366)
+Defined in: [lib/xero/sync-service.ts:366](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/xero/sync-service.ts#L366)
 
 Mark entity as pending sync
 

@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/admin/staff/capacity/page.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/400f6cb47eec7523d4762fc26198d406bae9fc52/app/admin/staff/capacity/page.tsx#L37)
+Defined in: [app/admin/staff/capacity/page.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/app/admin/staff/capacity/page.tsx#L37)
 
 ## Returns
 
