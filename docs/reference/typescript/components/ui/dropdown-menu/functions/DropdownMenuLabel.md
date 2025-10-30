@@ -8,7 +8,7 @@
 
 > **DropdownMenuLabel**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/dropdown-menu.tsx:146](https://github.com/JoeInnsp23/practice-hub/blob/7cf57c0e0f79c8ff999f48b52fd2e2e285c0f23e/components/ui/dropdown-menu.tsx#L146)
+Defined in: [components/ui/dropdown-menu.tsx:146](https://github.com/JoeInnsp23/practice-hub/blob/0abc606c646ff806e99f12f8c16d74528f5b19b4/components/ui/dropdown-menu.tsx#L146)
 
 ## Parameters
 

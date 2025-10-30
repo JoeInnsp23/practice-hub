@@ -34,6 +34,24 @@ vi.mock("@/lib/s3/upload", () => ({
   uploadToS3: vi.fn().mockResolvedValue("https://s3.example.com/proposal.pdf"),
 }));
 
+// Mock DocuSeal client
+vi.mock("@/lib/docuseal/client", () => ({
+  docusealClient: {
+    createTemplate: vi.fn().mockResolvedValue({
+      id: "mock-template-id",
+      name: "Mock Template",
+    }),
+    createSubmission: vi.fn().mockResolvedValue({
+      id: "mock-submission-id",
+      slug: "mock-slug",
+    }),
+    getSubmission: vi.fn().mockResolvedValue({
+      id: "mock-submission-id",
+      status: "pending",
+    }),
+  },
+}));
+
 // Mock email
 vi.mock("@/lib/email/proposal-email", () => ({
   sendProposalEmail: vi.fn().mockResolvedValue(undefined),
