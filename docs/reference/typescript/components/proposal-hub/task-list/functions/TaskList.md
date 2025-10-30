@@ -8,7 +8,7 @@
 
 > **TaskList**(`__namedParameters`): `Element`
 
-Defined in: [components/proposal-hub/task-list.tsx:102](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/components/proposal-hub/task-list.tsx#L102)
+Defined in: [components/proposal-hub/task-list.tsx:102](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/components/proposal-hub/task-list.tsx#L102)
 
 ## Parameters
 

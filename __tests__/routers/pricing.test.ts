@@ -1,36 +1,62 @@
 /**
- * Pricing Router Tests
+ * Pricing Router Integration Tests
  *
- * Tests for the pricing tRPC router
+ * Integration-level tests for the pricing tRPC router.
+ * Tests verify pricing calculations using real database seed data.
+ *
+ * Cleanup Strategy: No cleanup needed (read-only operations on seed data)
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
+import { beforeEach, describe, expect, it } from "vitest";
 import { pricingRouter } from "@/app/server/routers/pricing";
+import { db } from "@/lib/db";
+import { services, tenants } from "@/lib/db/schema";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
-
 describe("app/server/routers/pricing.ts", () => {
   let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof pricingRouter>>;
 
-  beforeEach(() => {
-    ctx = createMockContext();
+  beforeEach(async () => {
+    // Find seeded tenant with services (from seed data)
+    const [seededTenant] = await db.select().from(tenants).limit(1);
+
+    if (!seededTenant) {
+      throw new Error("No seeded tenant found - run pnpm db:reset first");
+    }
+
+    // Verify tenant has services
+    const tenantServices = await db
+      .select()
+      .from(services)
+      .where(eq(services.tenantId, seededTenant.id))
+      .limit(1);
+
+    if (tenantServices.length === 0) {
+      throw new Error(
+        "Seeded tenant has no services - run pnpm db:reset first",
+      );
+    }
+
+    ctx = createMockContext({
+      authContext: {
+        userId: crypto.randomUUID(),
+        tenantId: seededTenant.id,
+        organizationName: seededTenant.name,
+        role: "user",
+        email: "test@example.com",
+        firstName: "Test",
+        lastName: "User",
+      },
+    }) as TestContextWithAuth;
+
     caller = createCaller(pricingRouter, ctx);
-    vi.clearAllMocks();
   });
 
   describe("calculate", () => {
@@ -48,7 +74,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "standard",
         services: [
           {
-            serviceCode: "BOOKKEEPING_MONTHLY",
+            serviceCode: "BOOK_BASIC",
           },
         ],
       };
@@ -62,7 +88,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "complex",
         services: [
           {
-            serviceCode: "BOOKKEEPING_MONTHLY",
+            serviceCode: "BOOK_BASIC",
             config: {
               complexity: "average",
               frequency: "monthly",
@@ -80,7 +106,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "regulated",
         services: [
           {
-            serviceCode: "BOOKKEEPING_MONTHLY",
+            serviceCode: "BOOK_BASIC",
           },
         ],
         transactionData: {
@@ -98,7 +124,7 @@ describe("app/server/routers/pricing.ts", () => {
         industry: "standard",
         services: [
           {
-            serviceCode: "VAT_QUARTERLY",
+            serviceCode: "VAT_STANDARD",
           },
         ],
         modifiers: {

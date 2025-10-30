@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import {
   staffCapacity,
   timeEntries,
+  timesheetSubmissions,
   toilAccrualHistory,
 } from "@/lib/db/schema";
 import {
@@ -63,8 +64,18 @@ describe("TOIL Multi-Tenant Isolation", () => {
   });
 
   it("should not accrue TOIL across tenants", async () => {
-    // Create timesheet for Tenant A user
+    // Create timesheet submission for Tenant A user
     const timesheetId = crypto.randomUUID();
+    await db.insert(timesheetSubmissions).values({
+      id: timesheetId,
+      tenantId: tenantAId,
+      userId: userAId,
+      weekStartDate: "2025-01-06",
+      weekEndDate: "2025-01-12",
+      status: "approved",
+      totalHours: "45",
+    });
+
     await db.insert(timeEntries).values({
       id: crypto.randomUUID(),
       tenantId: tenantAId,

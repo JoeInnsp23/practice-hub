@@ -47,6 +47,7 @@ import {
   notifications,
   pricingRules,
   proposals,
+  proposalTemplates,
   services,
   tasks,
   taskTemplates,
@@ -85,6 +86,7 @@ export interface TestDataTracker {
   taskTemplates?: string[];
   departments?: string[];
   proposals?: string[];
+  proposalTemplates?: string[];
   leads?: string[];
   calendarEvents?: string[];
   messages?: string[];
@@ -742,6 +744,13 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
       await db
         .delete(notifications)
         .where(inArray(notifications.id, tracker.notifications));
+    }
+
+    // Delete proposalTemplates before users (FK: proposalTemplates.createdById -> users.id)
+    if (tracker.proposalTemplates && tracker.proposalTemplates.length > 0) {
+      await db
+        .delete(proposalTemplates)
+        .where(inArray(proposalTemplates.id, tracker.proposalTemplates));
     }
 
     if (tracker.users && tracker.users.length > 0) {

@@ -6,7 +6,7 @@
 
 # Interface: ApiDocRouter
 
-Defined in: [lib/api-docs/generate-docs.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/api-docs/generate-docs.ts#L30)
+Defined in: [lib/api-docs/generate-docs.ts:30](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/api-docs/generate-docs.ts#L30)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/api-docs/generate-docs.ts:30](https://github.com/JoeInnsp23/pra
 
 > `optional` **description**: `string`
 
-Defined in: [lib/api-docs/generate-docs.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/api-docs/generate-docs.ts#L32)
+Defined in: [lib/api-docs/generate-docs.ts:32](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/api-docs/generate-docs.ts#L32)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/api-docs/generate-docs.ts:32](https://github.com/JoeInnsp23/pra
 
 > **name**: `string`
 
-Defined in: [lib/api-docs/generate-docs.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/api-docs/generate-docs.ts#L31)
+Defined in: [lib/api-docs/generate-docs.ts:31](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/api-docs/generate-docs.ts#L31)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [lib/api-docs/generate-docs.ts:31](https://github.com/JoeInnsp23/pra
 
 > **procedures**: [`ApiDocProcedure`](ApiDocProcedure.md)[]
 
-Defined in: [lib/api-docs/generate-docs.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/api-docs/generate-docs.ts#L33)
+Defined in: [lib/api-docs/generate-docs.ts:33](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/api-docs/generate-docs.ts#L33)

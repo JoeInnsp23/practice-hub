@@ -1,0 +1,405 @@
+[
+  {
+    "service_code": "BOOK_BASIC",
+    "name": "Bookkeeping (Basic)",
+    "category": "bookkeeping",
+    "unit": "monthly",
+    "pricing_model": "A+B",
+    "description": "Cash-coding, bank feeds, basic reconciliation",
+    "typical_scope_inclusions": [
+      "bank_feeds",
+      "cash_coding",
+      "bank_rules",
+      "basic_reconciliation",
+      "vat_preparation_coding_only"
+    ],
+    "typical_scope_exclusions": [
+      "invoice_posting",
+      "debtor_management",
+      "creditor_management",
+      "accruals",
+      "prepayments",
+      "journal_adjustments"
+    ]
+  },
+  {
+    "service_code": "BOOK_FULL",
+    "name": "Bookkeeping (Full)",
+    "category": "bookkeeping",
+    "unit": "monthly",
+    "pricing_model": "A+B",
+    "description": "Full bookkeeping including sales/purchase invoices, accruals, journals",
+    "typical_scope_inclusions": [
+      "all_basic_bookkeeping_items",
+      "sales_invoice_posting",
+      "purchase_invoice_posting",
+      "debtor_ledger_management",
+      "creditor_ledger_management",
+      "accruals_prepayments",
+      "journal_adjustments",
+      "month_end_procedures",
+      "full_nominal_reconciliation"
+    ],
+    "typical_scope_exclusions": []
+  },
+  {
+    "service_code": "COMP_ACCOUNTS",
+    "name": "Annual Accounts & Corporation Tax",
+    "category": "compliance",
+    "unit": "annual",
+    "pricing_model": "A+B",
+    "description": "Statutory accounts preparation and CT600 filing"
+  },
+  {
+    "service_code": "COMP_CONFIRMATION",
+    "name": "Confirmation Statement",
+    "category": "compliance",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Companies House confirmation statement filing"
+  },
+  {
+    "service_code": "COMP_SATR",
+    "name": "Self-Assessment Tax Return",
+    "category": "compliance",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Personal tax return preparation and submission"
+  },
+  {
+    "service_code": "VAT_QTR",
+    "name": "VAT Returns (Quarterly)",
+    "category": "vat",
+    "unit": "quarterly",
+    "pricing_model": "A+B",
+    "description": "Quarterly VAT return preparation and submission"
+  },
+  {
+    "service_code": "PAYROLL_RUN",
+    "name": "Payroll Processing",
+    "category": "payroll",
+    "unit": "monthly",
+    "pricing_model": "tiered",
+    "description": "Payroll processing, RTI submissions, payslips"
+  },
+  {
+    "service_code": "PAYROLL_PENSION",
+    "name": "Auto-Enrolment Pension",
+    "category": "payroll",
+    "unit": "monthly",
+    "pricing_model": "tiered",
+    "description": "Pension scheme administration and submissions"
+  },
+  {
+    "service_code": "MGMT_MONTHLY",
+    "name": "Monthly Management Accounts",
+    "category": "management",
+    "unit": "monthly",
+    "pricing_model": "A+B",
+    "description": "Management accounts pack with KPIs and commentary"
+  },
+  {
+    "service_code": "SEC_BASIC",
+    "name": "Secretarial (Basic)",
+    "category": "secretarial",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Basic company secretarial services"
+  },
+  {
+    "service_code": "SEC_FULL",
+    "name": "Secretarial (Full)",
+    "category": "secretarial",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Comprehensive company secretarial services"
+  },
+  {
+    "service_code": "SEC_COMPLEX",
+    "name": "Secretarial (Complex)",
+    "category": "secretarial",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Complex company secretarial for groups/multi-entity"
+  },
+  {
+    "service_code": "TAX_ANNUAL",
+    "name": "Annual Tax Planning",
+    "category": "tax_planning",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Annual tax planning review and advice"
+  },
+  {
+    "service_code": "TAX_RD",
+    "name": "R&D Tax Claims",
+    "category": "tax_planning",
+    "unit": "per_claim",
+    "pricing_model": "percentage",
+    "description": "R&D tax relief claim preparation (% of benefit)"
+  },
+  {
+    "service_code": "TAX_PLAN_DIR_REM",
+    "name": "Director Remuneration Planning",
+    "category": "tax_planning",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Optimal director salary/dividend mix planning"
+  },
+  {
+    "service_code": "TAX_PLAN_DIVIDENDS",
+    "name": "Dividend Tax Planning",
+    "category": "tax_planning",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Dividend distribution and tax optimization"
+  },
+  {
+    "service_code": "TAX_PLAN_CGT_RET",
+    "name": "CGT Retirement Planning",
+    "category": "tax_planning",
+    "unit": "per_project",
+    "pricing_model": "fixed",
+    "description": "Capital gains tax planning for business exit/retirement"
+  },
+  {
+    "service_code": "TAX_PLAN_CAP_ALLOW",
+    "name": "Capital Allowances Optimization",
+    "category": "tax_planning",
+    "unit": "per_project",
+    "pricing_model": "fixed",
+    "description": "Annual investment allowance and capital allowances claims"
+  },
+  {
+    "service_code": "TAX_PLAN_IHT_BRIEF",
+    "name": "IHT Briefings",
+    "category": "tax_planning",
+    "unit": "per_session",
+    "pricing_model": "fixed",
+    "description": "Inheritance tax planning briefings"
+  },
+  {
+    "service_code": "SEIS_EIS_SUPPORT",
+    "name": "SEIS/EIS Support",
+    "category": "tax_planning",
+    "unit": "per_project",
+    "pricing_model": "fixed",
+    "description": "SEIS/EIS compliance and advance assurance applications"
+  },
+  {
+    "service_code": "IR35_ASSESS",
+    "name": "IR35 Assessment",
+    "category": "tax_planning",
+    "unit": "per_assessment",
+    "pricing_model": "fixed",
+    "description": "IR35 status determination and documentation"
+  },
+  {
+    "service_code": "CASHFLOW_PACK",
+    "name": "Cashflow Forecasting Pack",
+    "category": "management",
+    "unit": "monthly",
+    "pricing_model": "fixed",
+    "description": "Monthly cashflow forecasts and scenario planning"
+  },
+  {
+    "service_code": "FD_VIRTUAL_TIERED",
+    "name": "Virtual FD Services (Tiered)",
+    "category": "management",
+    "unit": "monthly",
+    "pricing_model": "tiered",
+    "description": "Virtual Finance Director services by engagement level"
+  },
+  {
+    "service_code": "ADDON_CIS",
+    "name": "CIS Returns",
+    "category": "addon",
+    "unit": "monthly",
+    "pricing_model": "fixed",
+    "description": "Construction Industry Scheme monthly returns"
+  },
+  {
+    "service_code": "ADDON_RENTAL",
+    "name": "Rental Properties",
+    "category": "addon",
+    "unit": "per_property",
+    "pricing_model": "fixed",
+    "description": "Rental property accounting per property"
+  },
+  {
+    "service_code": "ADDON_VAT_REG",
+    "name": "VAT Registration",
+    "category": "addon",
+    "unit": "one_off",
+    "pricing_model": "fixed",
+    "description": "VAT registration application"
+  },
+  {
+    "service_code": "ADDON_PAYE_REG",
+    "name": "PAYE Registration",
+    "category": "addon",
+    "unit": "one_off",
+    "pricing_model": "fixed",
+    "description": "PAYE scheme registration"
+  },
+  {
+    "service_code": "ADMIN_64_8",
+    "name": "64-8 Agent Authorization",
+    "category": "admin",
+    "unit": "per_application",
+    "pricing_model": "fixed",
+    "description": "HMRC agent authorization form"
+  },
+  {
+    "service_code": "ADMIN_KYC",
+    "name": "KYC/AML Onboarding",
+    "category": "admin",
+    "unit": "per_client",
+    "pricing_model": "fixed",
+    "description": "Know Your Client and Anti-Money Laundering checks"
+  },
+  {
+    "service_code": "ADMIN_VAT_REG",
+    "name": "VAT Registration",
+    "category": "admin",
+    "unit": "one_off",
+    "pricing_model": "fixed",
+    "description": "VAT registration application processing"
+  },
+  {
+    "service_code": "ADMIN_PAYE_SETUP",
+    "name": "PAYE Setup",
+    "category": "admin",
+    "unit": "one_off",
+    "pricing_model": "fixed",
+    "description": "PAYE scheme setup and registration"
+  },
+  {
+    "service_code": "ADMIN_AE_SETUP",
+    "name": "Auto-Enrolment Setup",
+    "category": "admin",
+    "unit": "one_off",
+    "pricing_model": "fixed",
+    "description": "Workplace pension auto-enrolment setup"
+  },
+  {
+    "service_code": "ADMIN_PENSION_SETUP",
+    "name": "Pension Provider Setup",
+    "category": "admin",
+    "unit": "per_scheme",
+    "pricing_model": "fixed",
+    "description": "Pension provider integration and setup"
+  },
+  {
+    "service_code": "ADMIN_PENSION_PROC",
+    "name": "Pension Processing",
+    "category": "admin",
+    "unit": "monthly",
+    "pricing_model": "per_employee",
+    "description": "Monthly pension contributions processing"
+  },
+  {
+    "service_code": "ADMIN_MTD_LICENSE",
+    "name": "MTD Bridging/Licensing",
+    "category": "admin",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Making Tax Digital software licensing"
+  },
+  {
+    "service_code": "ADMIN_REG_OFFICE",
+    "name": "Registered Office Service",
+    "category": "admin",
+    "unit": "annual",
+    "pricing_model": "fixed",
+    "description": "Registered office address service"
+  },
+  {
+    "service_code": "ADMIN_CONF_STMT",
+    "name": "Confirmation Statement Admin",
+    "category": "admin",
+    "unit": "per_filing",
+    "pricing_model": "fixed",
+    "description": "Confirmation statement preparation and filing"
+  },
+  {
+    "service_code": "ADMIN_OFFICER_CHG",
+    "name": "Officer/PSC/RO Changes",
+    "category": "admin",
+    "unit": "per_change",
+    "pricing_model": "fixed",
+    "description": "Companies House officer, PSC, or registered office changes"
+  },
+  {
+    "service_code": "ADMIN_SHARE_CHG",
+    "name": "Share Capital Changes",
+    "category": "admin",
+    "unit": "per_change",
+    "pricing_model": "fixed",
+    "description": "Share capital allocation or transfer filing"
+  },
+  {
+    "service_code": "ADMIN_P11D",
+    "name": "P11D Preparation",
+    "category": "admin",
+    "unit": "per_director_employee",
+    "pricing_model": "fixed",
+    "description": "Benefits-in-kind P11D form preparation"
+  },
+  {
+    "service_code": "ADMIN_P60",
+    "name": "P60 Preparation",
+    "category": "admin",
+    "unit": "per_employee",
+    "pricing_model": "fixed",
+    "description": "End-of-year P60 preparation"
+  },
+  {
+    "service_code": "ADMIN_PSA",
+    "name": "PSA Application",
+    "category": "admin",
+    "unit": "per_application",
+    "pricing_model": "fixed",
+    "description": "PAYE Settlement Agreement application"
+  },
+  {
+    "service_code": "ADMIN_CIS_VERIFY",
+    "name": "CIS Verification",
+    "category": "admin",
+    "unit": "per_verification",
+    "pricing_model": "fixed",
+    "description": "CIS subcontractor verification"
+  },
+  {
+    "service_code": "ADMIN_CIS_SUBCON",
+    "name": "CIS Per-Subcontractor",
+    "category": "admin",
+    "unit": "per_subcontractor_month",
+    "pricing_model": "fixed",
+    "description": "CIS monthly return per subcontractor"
+  },
+  {
+    "service_code": "ADMIN_SW_MIGRATION",
+    "name": "Software Migration/Setup",
+    "category": "admin",
+    "unit": "one_off",
+    "pricing_model": "fixed",
+    "description": "Accounting software migration and setup"
+  },
+  {
+    "service_code": "ADMIN_BANK_FEED",
+    "name": "Bank Feed Setup",
+    "category": "admin",
+    "unit": "per_account",
+    "pricing_model": "fixed",
+    "description": "Bank feed connection setup per account"
+  },
+  {
+    "service_code": "ADMIN_ECOM_INT",
+    "name": "E-commerce/App Integrations",
+    "category": "admin",
+    "unit": "per_integration",
+    "pricing_model": "fixed",
+    "description": "E-commerce platform or app integration setup"
+  }
+]

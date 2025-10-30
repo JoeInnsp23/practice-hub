@@ -8,7 +8,7 @@
 
 > **replacePlaceholders**(`text`, `data`): `string`
 
-Defined in: [lib/services/template-placeholders.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/lib/services/template-placeholders.ts#L25)
+Defined in: [lib/services/template-placeholders.ts:25](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/services/template-placeholders.ts#L25)
 
 ## Parameters
 

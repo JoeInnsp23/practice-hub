@@ -8,7 +8,7 @@
 
 > **DataExportButton**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/data-export-button.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/47a42b8b1866380387e3b382e1438aba9103358d/components/client-hub/data-export-button.tsx#L37)
+Defined in: [components/client-hub/data-export-button.tsx:37](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/components/client-hub/data-export-button.tsx#L37)
 
 ## Parameters
 
