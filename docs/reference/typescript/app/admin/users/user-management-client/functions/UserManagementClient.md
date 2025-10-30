@@ -8,7 +8,7 @@
 
 > **UserManagementClient**(`__namedParameters`): `Element`
 
-Defined in: [app/admin/users/user-management-client.tsx:75](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/app/admin/users/user-management-client.tsx#L75)
+Defined in: [app/admin/users/user-management-client.tsx:75](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/app/admin/users/user-management-client.tsx#L75)
 
 ## Parameters
 

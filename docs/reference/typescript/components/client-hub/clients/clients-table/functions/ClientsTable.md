@@ -8,7 +8,7 @@
 
 > **ClientsTable**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/clients/clients-table.tsx:51](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/client-hub/clients/clients-table.tsx#L51)
+Defined in: [components/client-hub/clients/clients-table.tsx:51](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/client-hub/clients/clients-table.tsx#L51)
 
 ## Parameters
 

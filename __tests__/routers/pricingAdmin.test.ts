@@ -4,28 +4,31 @@
  * Tests for the pricingAdmin tRPC router
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { pricingAdminRouter } from "@/app/server/routers/pricingAdmin";
 import {
   createCaller,
   createMockContext,
   type TestContextWithAuth,
 } from "../helpers/trpc";
-
-// Use vi.hoisted with dynamic import to create db mock before vi.mock processes
-const mockedDb = await vi.hoisted(async () => {
-  const { createDbMock } = await import("../helpers/db-mock");
-  return createDbMock();
-});
-
-// Mock the database with proper thenable pattern
-vi.mock("@/lib/db", () => ({
-  db: mockedDb,
-}));
+import {
+  type TestDataTracker,
+  cleanupTestData,
+  createTestPricingRule,
+  createTestService,
+  createTestTenant,
+  createTestUser,
+} from "../helpers/factories";
 
 describe("app/server/routers/pricingAdmin.ts", () => {
   let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof pricingAdminRouter>>;
+  const tracker: TestDataTracker = {
+    tenants: [],
+    users: [],
+    services: [],
+    pricingRules: [],
+  };
 
   beforeEach(() => {
     ctx = createMockContext({
@@ -40,7 +43,15 @@ describe("app/server/routers/pricingAdmin.ts", () => {
       },
     });
     caller = createCaller(pricingAdminRouter, ctx);
-    vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await cleanupTestData(tracker);
+    // Reset tracker arrays
+    tracker.tenants = [];
+    tracker.users = [];
+    tracker.services = [];
+    tracker.pricingRules = [];
   });
 
   describe("getAllComponents", () => {
@@ -55,9 +66,21 @@ describe("app/server/routers/pricingAdmin.ts", () => {
 
   describe("getComponent", () => {
     it("should accept valid component ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.getComponent(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.getComponent(service.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -76,16 +99,29 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept valid component data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
         code: "corp_tax",
         name: "Corporation Tax Return",
-        category: "compliance",
-        pricingModel: "fixed",
+        category: "compliance" as const,
+        pricingModel: "fixed" as const,
         description: "Annual corporation tax return",
         isActive: true,
       };
 
-      await expect(caller.createComponent(validInput)).resolves.not.toThrow();
+      const result = await caller.createComponent(validInput);
+      tracker.services?.push(result.component.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -102,8 +138,22 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept valid update data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: service.id,
         data: {
           name: "Updated Component Name",
           isActive: false,
@@ -114,8 +164,22 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept partial updates", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: service.id,
         data: {
           isActive: false,
         },
@@ -127,9 +191,21 @@ describe("app/server/routers/pricingAdmin.ts", () => {
 
   describe("deleteComponent", () => {
     it("should accept valid component ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.deleteComponent(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.deleteComponent(service.id)).resolves.not.toThrow();
     });
 
     it("should validate input is a string", async () => {
@@ -148,13 +224,29 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept valid clone data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: service.id,
         newCode: "corp_tax_v2",
         newName: "Corporation Tax Return V2",
       };
 
-      await expect(caller.cloneComponent(validInput)).resolves.not.toThrow();
+      const result = await caller.cloneComponent(validInput);
+      tracker.services?.push(result.component.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -169,11 +261,29 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept valid bulk update data", async () => {
+      // Create real test data (router creates activity logs which require real tenant)
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service1 = await createTestService(tenantId, {
+        code: "TEST_SVC_1",
+      });
+      tracker.services?.push(service1.id);
+
+      const service2 = await createTestService(tenantId, {
+        code: "TEST_SVC_2",
+      });
+      tracker.services?.push(service2.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        ids: [
-          "550e8400-e29b-41d4-a716-446655440000",
-          "660e8400-e29b-41d4-a716-446655440000",
-        ],
+        ids: [service1.id, service2.id],
         isActive: true,
       };
 
@@ -221,16 +331,32 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept valid rule data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        serviceId: "550e8400-e29b-41d4-a716-446655440000",
-        ruleType: "turnover_band",
+        componentId: service.id, // Fixed: router expects componentId, not serviceId
+        ruleType: "turnover_band" as const,
         minValue: "0",
         maxValue: "49999",
         price: "150.00",
         isActive: true,
       };
 
-      await expect(caller.createRule(validInput)).resolves.not.toThrow();
+      const result = await caller.createRule(validInput);
+      tracker.pricingRules?.push(result.rule.id);
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
   });
 
@@ -247,8 +373,25 @@ describe("app/server/routers/pricingAdmin.ts", () => {
     });
 
     it("should accept valid update data", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      const rule = await createTestPricingRule(tenantId, service.id);
+      tracker.pricingRules?.push(rule.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = {
-        id: "550e8400-e29b-41d4-a716-446655440000",
+        id: rule.id,
         data: {
           price: "175.00",
           isActive: true,
@@ -261,26 +404,55 @@ describe("app/server/routers/pricingAdmin.ts", () => {
 
   describe("deleteRule", () => {
     it("should accept valid rule ID", async () => {
-      const validId = "550e8400-e29b-41d4-a716-446655440000";
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
 
-      await expect(caller.deleteRule(validId)).resolves.not.toThrow();
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      const rule = await createTestPricingRule(tenantId, service.id);
+      tracker.pricingRules?.push(rule.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
+      await expect(caller.deleteRule(rule.id)).resolves.not.toThrow();
     });
   });
 
   describe("bulkCreateRules", () => {
     it("should accept array of valid rules", async () => {
+      // Create real test data
+      const tenantId = await createTestTenant();
+      tracker.tenants?.push(tenantId);
+
+      const userId = await createTestUser(tenantId);
+      tracker.users?.push(userId);
+
+      const service = await createTestService(tenantId);
+      tracker.services?.push(service.id);
+
+      // Update context with real tenant
+      ctx.authContext.tenantId = tenantId;
+      ctx.authContext.userId = userId;
+
       const validInput = [
         {
-          serviceId: "550e8400-e29b-41d4-a716-446655440000",
-          ruleType: "turnover_band",
+          componentId: service.id, // Fixed: router expects componentId, not serviceId
+          ruleType: "turnover_band" as const,
           minValue: "0",
           maxValue: "49999",
           price: "150.00",
           isActive: true,
         },
         {
-          serviceId: "550e8400-e29b-41d4-a716-446655440000",
-          ruleType: "turnover_band",
+          componentId: service.id, // Fixed: router expects componentId, not serviceId
+          ruleType: "turnover_band" as const,
           minValue: "50000",
           maxValue: "99999",
           price: "200.00",
@@ -288,7 +460,9 @@ describe("app/server/routers/pricingAdmin.ts", () => {
         },
       ];
 
-      await expect(caller.bulkCreateRules(validInput)).resolves.not.toThrow();
+      const result = await caller.bulkCreateRules(validInput);
+      result.rules.forEach((rule) => tracker.pricingRules?.push(rule.id));
+      await expect(Promise.resolve(result)).resolves.not.toThrow();
     });
 
     it("should validate input is an array", async () => {

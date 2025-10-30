@@ -8,7 +8,7 @@
 
 > **getClientId**(`headers`): `string`
 
-Defined in: [lib/rate-limit.ts:184](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/rate-limit.ts#L184)
+Defined in: [lib/rate-limit.ts:184](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/rate-limit.ts#L184)
 
 Get client ID from Next.js headers (for tRPC)
 

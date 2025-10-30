@@ -8,7 +8,7 @@
 
 > **DropdownMenuRadioItem**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/dropdown-menu.tsx:122](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/ui/dropdown-menu.tsx#L122)
+Defined in: [components/ui/dropdown-menu.tsx:122](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/ui/dropdown-menu.tsx#L122)
 
 ## Parameters
 

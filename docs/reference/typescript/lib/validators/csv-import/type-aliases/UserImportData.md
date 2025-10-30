@@ -8,4 +8,4 @@
 
 > **UserImportData** = `z.infer`\<*typeof* [`userImportSchema`](../variables/userImportSchema.md)\>
 
-Defined in: [lib/validators/csv-import.ts:276](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/validators/csv-import.ts#L276)
+Defined in: [lib/validators/csv-import.ts:276](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/validators/csv-import.ts#L276)

@@ -8,7 +8,7 @@
 
 > **ClientBreakdown**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/reports/client-breakdown.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/client-hub/reports/client-breakdown.tsx#L24)
+Defined in: [components/client-hub/reports/client-breakdown.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/client-hub/reports/client-breakdown.tsx#L24)
 
 ## Parameters
 

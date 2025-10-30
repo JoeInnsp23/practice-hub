@@ -8,7 +8,7 @@
 
 > **generateClientCode**(`tenantId`): `Promise`\<`string`\>
 
-Defined in: [lib/services/client-import-validator.ts:241](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/services/client-import-validator.ts#L241)
+Defined in: [lib/services/client-import-validator.ts:241](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/services/client-import-validator.ts#L241)
 
 ## Parameters
 

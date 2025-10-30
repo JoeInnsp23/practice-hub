@@ -8,4 +8,4 @@
 
 > `const` **workflows**: `PgTableWithColumns`\<\{ \}\>
 
-Defined in: [lib/db/schema.ts:1455](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/db/schema.ts#L1455)
+Defined in: [lib/db/schema.ts:1455](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/db/schema.ts#L1455)

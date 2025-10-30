@@ -35,6 +35,7 @@ import {
   leads,
   legalPages,
   messages,
+  pricingRules,
   proposals,
   services,
   tasks,
@@ -70,6 +71,7 @@ export interface TestDataTracker {
   taskWorkflowInstances?: string[];
   timeEntries?: string[];
   services?: string[];
+  pricingRules?: string[];
   taskTemplates?: string[];
   departments?: string[];
   proposals?: string[];
@@ -540,6 +542,13 @@ export async function cleanupTestData(tracker: TestDataTracker): Promise<void> {
         .where(inArray(taskTemplates.id, tracker.taskTemplates));
     }
 
+    // Delete pricing rules before services (foreign key dependency)
+    if (tracker.pricingRules && tracker.pricingRules.length > 0) {
+      await db
+        .delete(pricingRules)
+        .where(inArray(pricingRules.id, tracker.pricingRules));
+    }
+
     if (tracker.services && tracker.services.length > 0) {
       await db.delete(services).where(inArray(services.id, tracker.services));
     }
@@ -719,4 +728,66 @@ export async function createTestWorkflowStage(
     .returning();
 
   return stage;
+}
+
+/**
+ * Create a test service (pricing component)
+ */
+export async function createTestService(
+  tenantId: string,
+  overrides: Partial<typeof services.$inferInsert> = {},
+) {
+  const serviceId = crypto.randomUUID();
+  const timestamp = Date.now();
+
+  const [service] = await db
+    .insert(services)
+    .values({
+      id: serviceId,
+      tenantId,
+      code: overrides.code || `TEST_SVC_${timestamp}`,
+      name: overrides.name || `Test Service ${timestamp}`,
+      category: overrides.category || "compliance",
+      pricingModel: overrides.pricingModel || "fixed",
+      description: overrides.description || "Test service description",
+      basePrice: overrides.basePrice || "100.00",
+      isActive: overrides.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return service;
+}
+
+/**
+ * Create a test pricing rule
+ */
+export async function createTestPricingRule(
+  tenantId: string,
+  componentId: string,
+  overrides: Partial<typeof pricingRules.$inferInsert> = {},
+) {
+  const ruleId = crypto.randomUUID();
+
+  const [rule] = await db
+    .insert(pricingRules)
+    .values({
+      id: ruleId,
+      tenantId,
+      componentId,
+      ruleType: overrides.ruleType || "fixed", // Valid enum: turnover_band, transaction_band, employee_band, per_unit, fixed
+      price: overrides.price || "50.00",
+      minValue: overrides.minValue || null,
+      maxValue: overrides.maxValue || null,
+      complexityLevel: overrides.complexityLevel || null,
+      isActive: overrides.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    })
+    .returning();
+
+  return rule;
 }

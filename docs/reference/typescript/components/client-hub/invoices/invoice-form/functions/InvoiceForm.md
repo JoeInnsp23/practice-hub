@@ -8,7 +8,7 @@
 
 > **InvoiceForm**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/invoices/invoice-form.tsx:94](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/client-hub/invoices/invoice-form.tsx#L94)
+Defined in: [components/client-hub/invoices/invoice-form.tsx:94](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/client-hub/invoices/invoice-form.tsx#L94)
 
 ## Parameters
 

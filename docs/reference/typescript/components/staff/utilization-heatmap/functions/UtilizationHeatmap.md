@@ -8,7 +8,7 @@
 
 > **UtilizationHeatmap**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/utilization-heatmap.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/staff/utilization-heatmap.tsx#L20)
+Defined in: [components/staff/utilization-heatmap.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/staff/utilization-heatmap.tsx#L20)
 
 ## Parameters
 

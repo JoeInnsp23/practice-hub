@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/(auth)/oauth-setup/page.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/app/(auth)/oauth-setup/page.tsx#L29)
+Defined in: [app/(auth)/oauth-setup/page.tsx:29](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/app/(auth)/oauth-setup/page.tsx#L29)
 
 ## Returns
 

@@ -8,7 +8,7 @@
 
 > **BreadcrumbItem**(`__namedParameters`): `Element`
 
-Defined in: [components/ui/breadcrumb.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/components/ui/breadcrumb.tsx#L24)
+Defined in: [components/ui/breadcrumb.tsx:24](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/components/ui/breadcrumb.tsx#L24)
 
 ## Parameters
 

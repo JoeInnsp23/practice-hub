@@ -6,7 +6,7 @@
 
 # Interface: LeaveNotificationData
 
-Defined in: [lib/email/leave-notifications.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L8)
+Defined in: [lib/email/leave-notifications.ts:8](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L8)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [lib/email/leave-notifications.ts:8](https://github.com/JoeInnsp23/p
 
 > `optional` **approverName**: `string`
 
-Defined in: [lib/email/leave-notifications.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L15)
+Defined in: [lib/email/leave-notifications.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L15)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [lib/email/leave-notifications.ts:15](https://github.com/JoeInnsp23/
 
 > `optional` **comments**: `string` \| `null`
 
-Defined in: [lib/email/leave-notifications.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L16)
+Defined in: [lib/email/leave-notifications.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L16)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [lib/email/leave-notifications.ts:16](https://github.com/JoeInnsp23/
 
 > **daysCount**: `number`
 
-Defined in: [lib/email/leave-notifications.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L14)
+Defined in: [lib/email/leave-notifications.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L14)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [lib/email/leave-notifications.ts:14](https://github.com/JoeInnsp23/
 
 > **endDate**: `string`
 
-Defined in: [lib/email/leave-notifications.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L13)
+Defined in: [lib/email/leave-notifications.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L13)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [lib/email/leave-notifications.ts:13](https://github.com/JoeInnsp23/
 
 > **leaveType**: `string`
 
-Defined in: [lib/email/leave-notifications.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L11)
+Defined in: [lib/email/leave-notifications.ts:11](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L11)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [lib/email/leave-notifications.ts:11](https://github.com/JoeInnsp23/
 
 > **startDate**: `string`
 
-Defined in: [lib/email/leave-notifications.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L12)
+Defined in: [lib/email/leave-notifications.ts:12](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L12)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [lib/email/leave-notifications.ts:12](https://github.com/JoeInnsp23/
 
 > **to**: `string`
 
-Defined in: [lib/email/leave-notifications.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L9)
+Defined in: [lib/email/leave-notifications.ts:9](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L9)
 
 ***
 
@@ -70,4 +70,4 @@ Defined in: [lib/email/leave-notifications.ts:9](https://github.com/JoeInnsp23/p
 
 > **userName**: `string`
 
-Defined in: [lib/email/leave-notifications.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/289f42de64921783d58cc816f143e812482b2254/lib/email/leave-notifications.ts#L10)
+Defined in: [lib/email/leave-notifications.ts:10](https://github.com/JoeInnsp23/practice-hub/blob/30ba65ff0eafe0379db42bdf4730426617ccf6fb/lib/email/leave-notifications.ts#L10)
