@@ -1,16 +1,16 @@
 {
-  "generated": "2025-11-02T22:17:46.217Z",
-  "totalDocs": 34,
+  "generated": "2025-11-02T22:59:54.919Z",
+  "totalDocs": 40,
   "byStatus": {
     "draft": 21,
-    "complete": 6,
+    "complete": 12,
     "active": 1,
     "current": 6
   },
   "byGenerated": {
-    "HUMAN-AUTHORED": 29,
+    "HUMAN-AUTHORED": 30,
     "HYBRID": 4,
-    "AI-GENERATED": 1
+    "AI-GENERATED": 6
   },
   "entries": [
     {
@@ -441,6 +441,107 @@
       ]
     },
     {
+      "path": "dev/DOCUMENTATION_WORKFLOW.md",
+      "title": "Documentation Workflow Guide",
+      "description": "Complete guide for maintaining Practice Hub's hybrid documentation system",
+      "audience": [
+        "dev",
+        "ops"
+      ],
+      "status": "complete",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T22:53:55.254Z",
+      "wordCount": 816,
+      "sections": [
+        "Documentation Workflow Guide",
+        "Table of Contents",
+        "Overview",
+        "Architecture",
+        "Quick Start",
+        "Initial Setup",
+        "1. Install Python dependencies",
+        "2. Setup pre-commit hook (recommended)",
+        "3. Derive initial facts",
+        "First Documentation Update",
+        "1. Add @doc tags to your code (see Tagging Guide below)",
+        "2. Extract tags",
+        "3. Build unified docs",
+        "4. Validate",
+        "5. Commit",
+        "Daily Development Workflow",
+        "When You Add/Modify Code",
+        "Documentation System",
+        "Three Section Types",
+        "Custom Guide",
+        "Tagging Guide",
+        "Tag Format",
+        "Target Paths",
+        "When to Tag",
+        "Tag Examples",
+        "Maintenance Operations",
+        "Full Maintenance Cycle",
+        "Complete automation (recommended)",
+        "Or manual steps:",
+        "Audit Operations",
+        "Find items needing documentation",
+        "Generate tagging plan",
+        "Apply tags (dry run first!)",
+        "Apply tags for real",
+        "Rollback if needed",
+        "Check for redundant code",
+        "Fix broken internal links",
+        "Generate Module READMEs",
+        "Auto-generate module documentation",
+        "Drift Detection",
+        "Check for stale AI-GENERATED content",
+        "With custom threshold (default: 5%)",
+        "CI/CD Integration",
+        "Pre-commit Hook",
+        "Runs automatically on every commit",
+        "1. Derive repo facts",
+        "2. Extract @doc tags",
+        "3. Build unified docs",
+        "4. Validate documentation",
+        "5. Auto-stage generated files",
+        "GitHub Actions",
+        "Troubleshooting",
+        "Tag Not Extracted",
+        "Extraction Zone Overwritten",
+        "Additional Notes",
+        "Documentation Drift",
+        "Invalid Doc Tag",
+        "Pre-commit Hook Fails",
+        "Best Practices",
+        "1. Tag as You Code",
+        "2. Keep Tags Close",
+        "3. Use Clear Summaries",
+        "4. Provide Examples",
+        "5. Run Maintenance Before Commits",
+        "6. Review Generated Content",
+        "7. Use HUMAN-AUTHORED for Context",
+        "8. Validate Regularly",
+        "Scripts Reference",
+        "Metrics & Quality Gates",
+        "Coverage Metrics",
+        "Find untagged items",
+        "Check current coverage",
+        "Total taggable: 275 items (80 tables + 39 env vars + 156 components)",
+        "Tagged: 0 (0% coverage)",
+        "Drift Thresholds",
+        "References"
+      ],
+      "tags": [
+        "documentation",
+        "workflow",
+        "automation",
+        "best-practices"
+      ],
+      "codeExtractTargets": [
+        "api/clients",
+        "api/invalid"
+      ]
+    },
+    {
       "path": "development/adding-tables.md",
       "title": "adding-tables",
       "description": "",
@@ -764,6 +865,50 @@
       ]
     },
     {
+      "path": "modules/admin/README.md",
+      "title": "Admin Panel",
+      "description": "System administration including user management, KYC review queue, and portal links.",
+      "audience": [
+        "dev"
+      ],
+      "status": "complete",
+      "generated": "AI-GENERATED",
+      "lastModified": "2025-11-02T22:20:51.892Z",
+      "wordCount": 64,
+      "sections": [
+        "Admin Panel",
+        "Module Statistics",
+        "Related Routers",
+        "Key Components",
+        "Features",
+        "User Guide",
+        "Development"
+      ],
+      "tags": []
+    },
+    {
+      "path": "modules/client-admin/README.md",
+      "title": "Client Admin",
+      "description": "Module description needed.",
+      "audience": [
+        "dev"
+      ],
+      "status": "complete",
+      "generated": "AI-GENERATED",
+      "lastModified": "2025-11-02T22:20:51.894Z",
+      "wordCount": 52,
+      "sections": [
+        "Client Admin",
+        "Module Statistics",
+        "Related Routers",
+        "Key Components",
+        "Features",
+        "User Guide",
+        "Development"
+      ],
+      "tags": []
+    },
+    {
       "path": "modules/client-hub/README.md",
       "title": "README",
       "description": "",
@@ -806,6 +951,28 @@
       ]
     },
     {
+      "path": "modules/portal/README.md",
+      "title": "Portal Management",
+      "description": "Portal categories and links management for client resources.",
+      "audience": [
+        "dev"
+      ],
+      "status": "complete",
+      "generated": "AI-GENERATED",
+      "lastModified": "2025-11-02T22:20:51.901Z",
+      "wordCount": 61,
+      "sections": [
+        "Portal Management",
+        "Module Statistics",
+        "Related Routers",
+        "Key Components",
+        "Features",
+        "User Guide",
+        "Development"
+      ],
+      "tags": []
+    },
+    {
       "path": "modules/practice-hub/README.md",
       "title": "README",
       "description": "",
@@ -846,6 +1013,50 @@
       "tags": [
         ""
       ]
+    },
+    {
+      "path": "modules/providers/README.md",
+      "title": "Providers",
+      "description": "Module description needed.",
+      "audience": [
+        "dev"
+      ],
+      "status": "complete",
+      "generated": "AI-GENERATED",
+      "lastModified": "2025-11-02T22:20:51.907Z",
+      "wordCount": 57,
+      "sections": [
+        "Providers",
+        "Module Statistics",
+        "Related Routers",
+        "Key Components",
+        "Features",
+        "User Guide",
+        "Development"
+      ],
+      "tags": []
+    },
+    {
+      "path": "modules/social-hub/README.md",
+      "title": "Social Hub",
+      "description": "Team collaboration features (in development).",
+      "audience": [
+        "dev"
+      ],
+      "status": "complete",
+      "generated": "AI-GENERATED",
+      "lastModified": "2025-11-02T22:20:51.907Z",
+      "wordCount": 57,
+      "sections": [
+        "Social Hub",
+        "Module Statistics",
+        "Related Routers",
+        "Key Components",
+        "Features",
+        "User Guide",
+        "Development"
+      ],
+      "tags": []
     },
     {
       "path": "README.md",
