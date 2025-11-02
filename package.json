@@ -37,7 +37,10 @@
     "audit:redundancy": "tsx scripts/audit-redundancy.ts",
     "audit:deps": "pnpm depcheck",
     "audit:exports": "pnpm ts-prune",
-    "audit:all": "pnpm audit:redundancy"
+    "audit:all": "pnpm audit:redundancy",
+    "docs:validate:frontmatter": "tsx scripts/validate-frontmatter.ts",
+    "docs:validate:orphans": "bash scripts/find-orphaned-docs.sh",
+    "docs:validate": "pnpm docs:validate:frontmatter && pnpm docs:validate:orphans"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.901.0",

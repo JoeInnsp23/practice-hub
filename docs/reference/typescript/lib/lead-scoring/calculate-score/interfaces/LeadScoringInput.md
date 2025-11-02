@@ -6,7 +6,7 @@
 
 # Interface: LeadScoringInput
 
-Defined in: [lib/lead-scoring/calculate-score.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L14)
+Defined in: [lib/lead-scoring/calculate-score.ts:14](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/lead-scoring/calculate-score.ts#L14)
 
 Lead Scoring Algorithm
 
@@ -25,7 +25,7 @@ Higher scores indicate leads with greater potential value and fit.
 
 > **businessType**: `string`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L19)
+Defined in: [lib/lead-scoring/calculate-score.ts:19](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/lead-scoring/calculate-score.ts#L19)
 
 ***
 
@@ -33,7 +33,7 @@ Defined in: [lib/lead-scoring/calculate-score.ts:19](https://github.com/JoeInnsp
 
 > **estimatedEmployees**: `number`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L16)
+Defined in: [lib/lead-scoring/calculate-score.ts:16](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/lead-scoring/calculate-score.ts#L16)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [lib/lead-scoring/calculate-score.ts:16](https://github.com/JoeInnsp
 
 > **estimatedTurnover**: `number`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L15)
+Defined in: [lib/lead-scoring/calculate-score.ts:15](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/lead-scoring/calculate-score.ts#L15)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [lib/lead-scoring/calculate-score.ts:15](https://github.com/JoeInnsp
 
 > **industry**: `string`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L18)
+Defined in: [lib/lead-scoring/calculate-score.ts:18](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/lead-scoring/calculate-score.ts#L18)
 
 ***
 
@@ -57,4 +57,4 @@ Defined in: [lib/lead-scoring/calculate-score.ts:18](https://github.com/JoeInnsp
 
 > **interestedServices**: `string`[]
 
-Defined in: [lib/lead-scoring/calculate-score.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L17)
+Defined in: [lib/lead-scoring/calculate-score.ts:17](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/lead-scoring/calculate-score.ts#L17)

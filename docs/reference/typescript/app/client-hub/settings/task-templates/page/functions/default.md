@@ -8,7 +8,7 @@
 
 > **default**(): `Element`
 
-Defined in: [app/client-hub/settings/task-templates/page.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/app/client-hub/settings/task-templates/page.tsx#L38)
+Defined in: [app/client-hub/settings/task-templates/page.tsx:38](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/app/client-hub/settings/task-templates/page.tsx#L38)
 
 ## Returns
 

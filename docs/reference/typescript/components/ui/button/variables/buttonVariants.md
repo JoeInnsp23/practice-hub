@@ -8,7 +8,7 @@
 
 > `const` **buttonVariants**: (`props?`) => `string`
 
-Defined in: [components/ui/button.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/components/ui/button.tsx#L7)
+Defined in: [components/ui/button.tsx:7](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/components/ui/button.tsx#L7)
 
 ## Parameters
 
