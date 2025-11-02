@@ -8,7 +8,7 @@
 
 > **getQualificationLevel**(`score`): `string`
 
-Defined in: [lib/lead-scoring/calculate-score.ts:148](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/lead-scoring/calculate-score.ts#L148)
+Defined in: [lib/lead-scoring/calculate-score.ts:148](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/lead-scoring/calculate-score.ts#L148)
 
 Get a human-readable qualification level
 

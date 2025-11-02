@@ -8,7 +8,7 @@
 
 > **getNextStage**(`currentStage`): [`PipelineStage`](../type-aliases/PipelineStage.md) \| `null`
 
-Defined in: [lib/constants/pipeline-stages.ts:148](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/constants/pipeline-stages.ts#L148)
+Defined in: [lib/constants/pipeline-stages.ts:148](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/constants/pipeline-stages.ts#L148)
 
 Get next stage in pipeline (null if no logical next stage)
 

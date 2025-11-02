@@ -8,7 +8,7 @@
 
 > **calculatePeriodEndDate**(`activationDate`, `frequency`, `dayOfMonth?`): `Date`
 
-Defined in: [lib/services/template-placeholders.ts:119](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/services/template-placeholders.ts#L119)
+Defined in: [lib/services/template-placeholders.ts:119](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/services/template-placeholders.ts#L119)
 
 Calculate the period end date based on activation date and recurring frequency
 For quarterly: End of the quarter (Mar 31, Jun 30, Sep 30, Dec 31)

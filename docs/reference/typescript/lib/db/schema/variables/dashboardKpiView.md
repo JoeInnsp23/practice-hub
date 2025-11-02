@@ -8,4 +8,4 @@
 
 > `const` **dashboardKpiView**: `PgViewWithSelection`\<`"dashboard_kpi_view"`, `true`, \{ `activeClients`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `billableHours30d`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `collectedRevenue`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `completedTasks30d`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `inProgressTasks`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `newClients30d`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `outstandingRevenue`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `overdueCompliance`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `overdueTasks`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `pendingTasks`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `tenantId`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `totalHours30d`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `totalRevenue`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; `upcomingCompliance30d`: `PgColumn`\<\{ \}, \{ \}, \{ \}\>; \}\>
 
-Defined in: [lib/db/schema.ts:2754](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/db/schema.ts#L2754)
+Defined in: [lib/db/schema.ts:2754](https://github.com/JoeInnsp23/practice-hub/blob/3938b1e4aa281b3143a14c67c33d5b24dfa44fca/lib/db/schema.ts#L2754)
