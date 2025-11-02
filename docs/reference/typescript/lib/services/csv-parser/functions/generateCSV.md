@@ -8,7 +8,7 @@
 
 > **generateCSV**\<`T`\>(`data`, `fields?`): `string`
 
-Defined in: [lib/services/csv-parser.ts:248](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/services/csv-parser.ts#L248)
+Defined in: [lib/services/csv-parser.ts:248](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/services/csv-parser.ts#L248)
 
 Generate CSV from array of objects
 

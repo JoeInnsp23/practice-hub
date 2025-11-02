@@ -251,21 +251,31 @@ function main() {
   const yaml = buildYaml(entries);
 
   // Write to code-index.yaml
-  const outputPath = path.join(__dirname, "../code-index.yaml");
-  fs.writeFileSync(outputPath, yaml, "utf-8");
+  const yamlOutputPath = path.join(__dirname, "../code-index.yaml");
+  fs.writeFileSync(yamlOutputPath, yaml, "utf-8");
 
-  console.log(`✅ Generated code-index.yaml (${outputPath})`);
+  console.log(`✅ Generated code-index.yaml (${yamlOutputPath})`);
+
+  // Also generate JSON version for programmatic access
+  const jsonIndex = {
+    generated: new Date().toISOString(),
+    version: "1.0",
+    total_entries: entries.length,
+    functions: entries.filter((e) => e.type === "function"),
+    types: entries.filter((e) => e.type === "type"),
+    components: entries.filter((e) => e.type === "component"),
+    classes: entries.filter((e) => e.type === "class"),
+  };
+
+  const jsonOutputPath = path.join(__dirname, "../code-index.json");
+  fs.writeFileSync(jsonOutputPath, JSON.stringify(jsonIndex, null, 2), "utf-8");
+
+  console.log(`✅ Generated code-index.json (${jsonOutputPath})`);
   console.log(`📊 Summary:`);
-  console.log(
-    `   - Functions: ${entries.filter((e) => e.type === "function").length}`,
-  );
-  console.log(`   - Types: ${entries.filter((e) => e.type === "type").length}`);
-  console.log(
-    `   - Components: ${entries.filter((e) => e.type === "component").length}`,
-  );
-  console.log(
-    `   - Classes: ${entries.filter((e) => e.type === "class").length}`,
-  );
+  console.log(`   - Functions: ${jsonIndex.functions.length}`);
+  console.log(`   - Types: ${jsonIndex.types.length}`);
+  console.log(`   - Components: ${jsonIndex.components.length}`);
+  console.log(`   - Classes: ${jsonIndex.classes.length}`);
 }
 
 main();

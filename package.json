@@ -32,7 +32,8 @@
     "db:reset": "pnpm db:migrate:reset && pnpm db:seed && pnpm db:seed:auth",
     "docs:generate": "typedoc && echo '✅ TypeScript API docs generated'",
     "docs:generate:code-index": "tsx .claude/skills/practice-hub-docs-search/scripts/generate-code-index.ts",
-    "docs:generate:all": "pnpm docs:generate && pnpm docs:generate:code-index",
+    "docs:generate:doc-index": "tsx .claude/skills/practice-hub-docs-search/scripts/generate-doc-index.ts",
+    "docs:generate:all": "pnpm docs:generate && pnpm docs:generate:code-index && pnpm docs:generate:doc-index",
     "bmad:refresh": "bmad-method install -f -i codex",
     "bmad:list": "bmad-method list:agents",
     "bmad:validate": "bmad-method validate"

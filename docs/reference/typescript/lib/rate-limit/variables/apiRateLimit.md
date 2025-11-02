@@ -8,4 +8,4 @@
 
 > `const` **apiRateLimit**: `RegionRatelimit` \| `null`
 
-Defined in: [lib/rate-limit.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/rate-limit.ts#L42)
+Defined in: [lib/rate-limit.ts:42](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/rate-limit.ts#L42)

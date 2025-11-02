@@ -8,7 +8,7 @@
 
 > **validatePlaceholders**(`text`): `object`
 
-Defined in: [lib/services/template-placeholders.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/services/template-placeholders.ts#L77)
+Defined in: [lib/services/template-placeholders.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/services/template-placeholders.ts#L77)
 
 ## Parameters
 

@@ -8,4 +8,4 @@
 
 > `const` **CLIENT\_CSV\_FIELDS**: `string`[]
 
-Defined in: [lib/validators/csv-import.ts:282](https://github.com/JoeInnsp23/practice-hub/blob/0684bb05103cc29834824a6eb8b19671ef751322/lib/validators/csv-import.ts#L282)
+Defined in: [lib/validators/csv-import.ts:282](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/validators/csv-import.ts#L282)

@@ -1,0 +1,401 @@
+{
+  "generated": "2025-11-02T18:07:14.502Z",
+  "version": "1.0.0",
+  "total": 32,
+  "docs": [
+    {
+      "title": "ADR NNNN: [Short Title]",
+      "file": "docs/.templates/ADR_TEMPLATE.md",
+      "category": "decisions",
+      "status": [
+        "proposed | accepted | rejected | deprecated | superseded"
+      ],
+      "excerpt": "[proposed | accepted | rejected | deprecated | superseded]",
+      "tags": [
+        "architecture",
+        "decision"
+      ],
+      "created": "YYYY-MM-DD",
+      "updated": "YYYY-MM-DD"
+    },
+    {
+      "title": "[Service Name] Integration Guide",
+      "file": "docs/.templates/INTEGRATION_GUIDE_TEMPLATE.md",
+      "category": "guides",
+      "status": "active",
+      "excerpt": "[Brief description of what this service does and why Practice Hub integrates with it]",
+      "tags": [
+        "integration",
+        "[service-name]"
+      ],
+      "created": "YYYY-MM-DD",
+      "updated": "YYYY-MM-DD"
+    },
+    {
+      "title": "Practice Hub Documentation",
+      "file": "docs/README.md",
+      "category": "other",
+      "status": "active",
+      "excerpt": "**AI-Optimized Documentation Architecture v2.0**",
+      "tags": []
+    },
+    {
+      "title": "API Design & tRPC Patterns",
+      "file": "docs/architecture/api-design.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: Practice Hub uses tRPC for 100% type-safe APIs with automatic multi-tenant scoping, rate limiting, and comprehensive error handling. No REST APIs except webhooks.",
+      "tags": [
+        "trpc",
+        "api",
+        "type-safety",
+        "patterns"
+      ]
+    },
+    {
+      "title": "Authentication & Authorization Architecture",
+      "file": "docs/architecture/authentication.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: Practice Hub uses two separate Better Auth instances: one for staff (with Microsoft OAuth + email/password) and one for client portal (email/password only), enabling dual-level data",
+      "tags": [
+        "authentication",
+        "authorization",
+        "better-auth",
+        "security",
+        "oauth"
+      ]
+    },
+    {
+      "title": "Coding Standards & Conventions",
+      "file": "docs/architecture/coding-standards.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: This document defines coding standards, patterns, and best practices for Practice Hub development. All code must follow these conventions for consistency, maintainability, and AI ag",
+      "tags": [
+        "coding-standards",
+        "best-practices",
+        "conventions",
+        "patterns"
+      ]
+    },
+    {
+      "title": "Design System & UI Patterns",
+      "file": "docs/architecture/design-system.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: Practice Hub uses a custom glass-card design system built on shadcn/ui components with Tailwind CSS v4, enforcing solid backgrounds, consistent module colors, and gradient layouts.",
+      "tags": [
+        "design-system",
+        "ui",
+        "tailwind",
+        "shadcn",
+        "components"
+      ]
+    },
+    {
+      "title": "Multi-Tenancy Architecture",
+      "file": "docs/architecture/multi-tenancy.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: Practice Hub implements dual-level data isolation: tenant-level (accountancy firm) and client-level (customer business), ensuring complete data separation between tenants and option",
+      "tags": [
+        "multi-tenancy",
+        "isolation",
+        "security",
+        "database"
+      ]
+    },
+    {
+      "title": "Source Tree & Directory Structure",
+      "file": "docs/architecture/source-tree.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: Practice Hub follows Next.js 15 App Router conventions with a modular architecture organized by feature hubs. This document provides a complete directory reference with purpose and ",
+      "tags": [
+        "source-tree",
+        "directory",
+        "organization",
+        "structure"
+      ]
+    },
+    {
+      "title": "Tech Stack & Dependencies",
+      "file": "docs/architecture/tech-stack.md",
+      "category": "architecture",
+      "status": "current",
+      "excerpt": "**Quick Summary**: Practice Hub is built on Next.js 15 with React 19, PostgreSQL, Better Auth, tRPC, and shadcn/ui. This document provides a complete inventory of all technologies, their versions, pur",
+      "tags": [
+        "tech-stack",
+        "dependencies",
+        "versions",
+        "infrastructure"
+      ]
+    },
+    {
+      "title": "Example Architecture Decision Record",
+      "file": "docs/decisions/0001-example-adr.md",
+      "category": "decisions",
+      "status": "draft",
+      "excerpt": "Template example for documenting architectural decisions.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Architecture Decision Records (ADRs)",
+      "file": "docs/decisions/README.md",
+      "category": "decisions",
+      "status": "active",
+      "excerpt": "This directory contains Architecture Decision Records (ADRs) documenting significant architectural and design decisions made for Practice Hub.",
+      "tags": [
+        "adr",
+        "architecture"
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Adding Database Tables",
+      "file": "docs/development/adding-tables.md",
+      "category": "development",
+      "status": "draft",
+      "excerpt": "How to add new database tables using Drizzle ORM.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Creating UI Components",
+      "file": "docs/development/creating-components.md",
+      "category": "development",
+      "status": "draft",
+      "excerpt": "Guide to creating React components following Practice Hub design system.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Creating tRPC Routers",
+      "file": "docs/development/creating-routers.md",
+      "category": "development",
+      "status": "draft",
+      "excerpt": "Guide to creating and configuring tRPC routers in Practice Hub.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Debugging Guide",
+      "file": "docs/development/debugging-guide.md",
+      "category": "development",
+      "status": "draft",
+      "excerpt": "Common debugging techniques and tools for Practice Hub.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Technical Debt Inventory",
+      "file": "docs/development/technical-debt.md",
+      "category": "development",
+      "status": "draft",
+      "excerpt": "Known technical debt items and prioritization.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Testing Guide",
+      "file": "docs/development/testing-guide.md",
+      "category": "development",
+      "status": "draft",
+      "excerpt": "Comprehensive guide to testing in Practice Hub (unit, integration, E2E).",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Common Development Tasks",
+      "file": "docs/getting-started/common-tasks.md",
+      "category": "getting-started",
+      "status": "draft",
+      "excerpt": "Frequently performed development tasks and how to accomplish them.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Project Structure",
+      "file": "docs/getting-started/project-structure.md",
+      "category": "getting-started",
+      "status": "draft",
+      "excerpt": "Overview of the Practice Hub project directory structure and organization.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "AI Agent Quick Start",
+      "file": "docs/getting-started/quickstart-ai-agent.md",
+      "category": "getting-started",
+      "status": "draft",
+      "excerpt": "Quick start guide for AI agents working with Practice Hub codebase.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Developer Quick Start",
+      "file": "docs/getting-started/quickstart-developer.md",
+      "category": "getting-started",
+      "status": "draft",
+      "excerpt": "Quick start guide for developers new to Practice Hub.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Admin Panel Module",
+      "file": "docs/modules/admin-panel/README.md",
+      "category": "modules",
+      "status": "draft",
+      "excerpt": "Overview of the Admin Panel functionality and architecture.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Client Hub Module",
+      "file": "docs/modules/client-hub/README.md",
+      "category": "modules",
+      "status": "draft",
+      "excerpt": "Overview of the Client Hub module functionality and architecture.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Client Portal Module",
+      "file": "docs/modules/client-portal/README.md",
+      "category": "modules",
+      "status": "draft",
+      "excerpt": "Overview of the Client Portal functionality and architecture.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Practice Hub Module",
+      "file": "docs/modules/practice-hub/README.md",
+      "category": "modules",
+      "status": "draft",
+      "excerpt": "Overview of the Practice Hub module functionality and architecture.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Proposal Hub Module",
+      "file": "docs/modules/proposal-hub/README.md",
+      "category": "modules",
+      "status": "draft",
+      "excerpt": "Overview of the Proposal Hub module functionality and architecture.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Coverage Guidelines",
+      "file": "docs/testing/coverage-guidelines.md",
+      "category": "testing",
+      "status": "draft",
+      "excerpt": "Test coverage targets and measurement strategies.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "End-to-End Testing",
+      "file": "docs/testing/e2e-testing.md",
+      "category": "testing",
+      "status": "draft",
+      "excerpt": "Guide to E2E testing with Playwright.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Integration Testing",
+      "file": "docs/testing/integration-testing.md",
+      "category": "testing",
+      "status": "draft",
+      "excerpt": "Guide to integration testing patterns and best practices.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Test Data Factories",
+      "file": "docs/testing/test-data-factories.md",
+      "category": "testing",
+      "status": "draft",
+      "excerpt": "Using test data factories for consistent test setup.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    },
+    {
+      "title": "Unit Testing",
+      "file": "docs/testing/unit-testing.md",
+      "category": "testing",
+      "status": "draft",
+      "excerpt": "Guide to writing and running unit tests with Vitest.",
+      "tags": [
+        ""
+      ],
+      "created": "2025-11-02",
+      "updated": "2025-11-02"
+    }
+  ]
+}

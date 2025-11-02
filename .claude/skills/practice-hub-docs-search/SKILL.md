@@ -79,19 +79,77 @@ This skill searches across 6 documentation domains:
 5. **Stories** (`docs/stories/`) - User stories, feature specifications
 6. **QA** (`docs/qa/`) - QA assessments, test plans, quality gates
 
-## Code Index
+## Search Indexes
 
-The skill maintains a searchable index of:
-- **Functions** - All exported functions with JSDoc documentation
-- **Types** - TypeScript interfaces, types, schemas
-- **Components** - React components with props documentation
-- **Routers** - tRPC router definitions with procedure signatures
+The skill maintains two searchable indexes for fast context retrieval:
+
+### 1. Code Index (`code-index.json`)
+
+Extracts and indexes all TypeScript code with JSDoc documentation:
+
+- **Functions** (132 entries) - All exported functions with JSDoc documentation
+- **Types** (57 entries) - TypeScript interfaces, types, schemas
+- **Components** (12 entries) - React components with props documentation
+- **Classes** (4 entries) - Class definitions with documentation
 
 Each entry includes:
-- File path and line number
+- File path and line number (for direct navigation)
 - Function signature with parameters
 - Description from JSDoc/comments
-- Usage examples (when available)
+- Type classification (function/type/component/class)
+
+**File**: `.claude/skills/practice-hub-docs-search/code-index.json`
+
+**Usage**:
+```typescript
+// Load the index
+const codeIndex = require("./.claude/skills/practice-hub-docs-search/code-index.json");
+
+// Search functions
+const getAuthContextFn = codeIndex.functions.find(f => f.name === "getAuthContext");
+console.log(`${getAuthContextFn.file}:${getAuthContextFn.line}`);
+// Output: lib/auth.ts:125
+```
+
+### 2. Documentation Index (`doc-index.json`)
+
+Extracts and indexes all markdown documentation with frontmatter:
+
+- **Total**: 32 documented pages across 8 categories
+- **Categories**: architecture (7), development (6), testing (5), modules (5), getting-started (4), decisions (3), guides (1), other (1)
+
+Each entry includes:
+- Title and file path
+- Category and status (draft/active/archived)
+- Excerpt (first 200 chars)
+- Tags for keyword search
+- Created/updated timestamps
+
+**File**: `.claude/skills/practice-hub-docs-search/doc-index.json`
+
+**Usage**:
+```typescript
+// Load the index
+const docIndex = require("./.claude/skills/practice-hub-docs-search/doc-index.json");
+
+// Search by category
+const archDocs = docIndex.docs.filter(d => d.category === "architecture");
+
+// Search by keyword in title/excerpt
+const authDocs = docIndex.docs.filter(d =>
+  d.title.toLowerCase().includes("auth") ||
+  d.excerpt.toLowerCase().includes("auth")
+);
+```
+
+### Index Formats
+
+Both indexes are available in two formats:
+
+- **YAML** (`.yaml`) - Human-readable, grep-friendly
+- **JSON** (`.json`) - Programmatic access, faster parsing
+
+Use YAML for manual exploration, JSON for automated tools.
 
 ## Usage Examples
 
@@ -154,13 +212,19 @@ This skill is designed to work seamlessly with Practice Hub's development workfl
 
 **Manual regeneration**:
 ```bash
+# Regenerate all indexes
 pnpm docs:generate:all
+
+# Or individually:
+pnpm docs:generate:code-index   # Code index only
+pnpm docs:generate:doc-index    # Documentation index only
 ```
 
 **Update frequency**: Documentation should be updated whenever:
 - New functions/types are added with JSDoc
 - Documentation files are created/updated in `docs/`
 - New concepts/features are added to the system
+- Frontmatter is added to documentation files
 
 ## Related Skills
 
@@ -172,6 +236,10 @@ pnpm docs:generate:all
 
 ---
 
-**Skill Version**: 1.0.0
-**Last Updated**: 2025-10-26
+**Skill Version**: 1.1.0
+**Last Updated**: 2025-11-02
 **Maintained By**: Development Team
+
+**Changelog**:
+- v1.1.0 (2025-11-02): Added doc-index.json, enhanced code-index with JSON output, updated documentation
+- v1.0.0 (2025-10-26): Initial release with code-index.yaml
