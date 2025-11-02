@@ -1,8 +1,8 @@
 ---
-documentation_version: "2.0"
-last_updated: "2025-10-21"
+documentation_version: "2.1"
+last_updated: "2025-11-02"
 architecture: "ai-optimized"
-total_documents: 45
+total_documents: 66
 categories:
   - getting-started
   - architecture
@@ -10,6 +10,9 @@ categories:
   - reference
   - operations
   - development
+  - testing
+  - modules
+  - decisions
   - troubleshooting
   - user-guides
 ---
@@ -40,10 +43,12 @@ categories:
 - **UI design system** → [Design System & UI Patterns](architecture/design-system.md)
 
 **Development Tasks**:
-- **Creating a new tRPC router** → [API Design](architecture/api-design.md) → Router Patterns
-- **Adding database table** → [Multi-Tenancy Architecture](architecture/multi-tenancy.md) → Schema Patterns
-- **Adding UI component** → [Design System](architecture/design-system.md) → Component Library
+- **Creating a new tRPC router** → [Creating Routers](development/creating-routers.md)
+- **Adding database table** → [Adding Tables](development/adding-tables.md)
+- **Adding UI component** → [Creating Components](development/creating-components.md)
 - **Understanding database schema** → [Database Schema](reference/database/schema.md)
+- **Writing tests** → [Testing Guide](development/testing-guide.md)
+- **Debugging issues** → [Debugging Guide](development/debugging-guide.md)
 
 **Operations**:
 - **Deploying to production** → [Deployment](operations/deployment.md)
@@ -100,8 +105,10 @@ categories:
 Quick start guides for developers and AI agents.
 
 **Documents**:
-- [AI Agent Quick Start](getting-started/quickstart-ai-agent.md) - Optimal context loading for AI agents
-- [Developer Quick Start](getting-started/quickstart-developer.md) - Complete onboarding guide
+- [AI Agent Quick Start](getting-started/quickstart-ai-agent.md) - Optimal context loading for AI agents ⚠️ Draft
+- [Developer Quick Start](getting-started/quickstart-developer.md) - Complete onboarding guide ⚠️ Draft
+- [Project Structure](getting-started/project-structure.md) - Directory organization and structure ⚠️ Draft
+- [Common Tasks](getting-started/common-tasks.md) - Frequently performed development tasks ⚠️ Draft
 
 ---
 
@@ -175,17 +182,54 @@ Production operations, deployment, and maintenance.
 
 ### [Development](development/)
 
-Development standards, conventions, and technical debt.
+Development standards, conventions, and guides.
 
 **Documents**:
-- [Coding Standards](development/coding-standards.md) - Code style guidelines
-- [Technical Debt](development/technical-debt.md) - Pre-production issues and TODOs
+- [Coding Standards](architecture/coding-standards.md) - Code style guidelines
+- [Creating tRPC Routers](development/creating-routers.md) - Guide to creating and configuring tRPC routers ⚠️ Draft
+- [Adding Database Tables](development/adding-tables.md) - How to add tables using Drizzle ORM ⚠️ Draft
+- [Creating UI Components](development/creating-components.md) - React component creation with design system ⚠️ Draft
+- [Testing Guide](development/testing-guide.md) - Comprehensive testing guide (unit/integration/E2E) ⚠️ Draft
+- [Debugging Guide](development/debugging-guide.md) - Common debugging techniques and tools ⚠️ Draft
+- [Technical Debt](development/technical-debt.md) - Known issues and prioritization ⚠️ Draft
 
-**Coming Soon**:
-- Git Workflow
-- Testing Strategy
-- Code Review Checklist
-- Security Guidelines
+---
+
+### [Testing](testing/)
+
+Testing strategies, guides, and best practices.
+
+**Documents**:
+- [Unit Testing](testing/unit-testing.md) - Writing and running unit tests with Vitest ⚠️ Draft
+- [Integration Testing](testing/integration-testing.md) - Integration testing patterns ⚠️ Draft
+- [E2E Testing](testing/e2e-testing.md) - End-to-end testing with Playwright ⚠️ Draft
+- [Test Data Factories](testing/test-data-factories.md) - Using test data factories ⚠️ Draft
+- [Coverage Guidelines](testing/coverage-guidelines.md) - Test coverage targets and measurement ⚠️ Draft
+
+---
+
+### [Modules](modules/)
+
+Module-specific documentation for Practice Hub's core modules.
+
+**Hub Modules**:
+- [Client Hub](modules/client-hub/README.md) - Client management functionality ⚠️ Draft
+- [Proposal Hub](modules/proposal-hub/README.md) - Proposal and sales pipeline ⚠️ Draft
+- [Practice Hub](modules/practice-hub/README.md) - Core practice management ⚠️ Draft
+- [Admin Panel](modules/admin-panel/README.md) - Administrative functions ⚠️ Draft
+- [Client Portal](modules/client-portal/README.md) - External client access ⚠️ Draft
+
+---
+
+### [Decisions](decisions/)
+
+Architecture Decision Records (ADRs) documenting significant architectural decisions.
+
+**Documents**:
+- [ADR Index](decisions/README.md) - Complete list of ADRs
+- [0001: Example ADR](decisions/0001-example-adr.md) - Template example ⚠️ Draft
+
+**Creating ADRs**: Use the [ADR Template](.templates/ADR_TEMPLATE.md)
 
 ---
 
@@ -238,9 +282,10 @@ These files remain in the project root:
 
 ### Document Templates
 
-All documents follow standardized templates in [`.meta/templates/`](.meta/templates/):
-- [Guide Template](.meta/templates/guide-template.md)
-- [Reference Template](.meta/templates/reference-template.md)
+All documents follow standardized templates in [`.templates/`](.templates/):
+- [ADR Template](.templates/ADR_TEMPLATE.md) - Architecture Decision Record template
+- [Module README Template](.templates/MODULE_README_TEMPLATE.md) - Module documentation template
+- [Integration Guide Template](.templates/INTEGRATION_GUIDE_TEMPLATE.md) - Integration guide template
 
 ### Metadata Standard
 
@@ -309,7 +354,10 @@ docker ps             # List running containers
 
 ### In Progress
 
-🚧 Development how-to guides
+🚧 Development how-to guides (6 stubs created)
+🚧 Testing documentation (5 stubs created)
+🚧 Module-specific READMEs (5 stubs created)
+🚧 Architecture Decision Records (ADRs) (1 example created)
 🚧 Additional troubleshooting guides
 🚧 User guides migration
 
@@ -333,8 +381,8 @@ docker ps             # List running containers
 
 **Want to contribute?**
 - Read [CONTRIBUTING.md](../CONTRIBUTING.md)
-- Follow [Coding Standards](development/coding-standards.md)
-- Use document templates from [`.meta/templates/`](.meta/templates/)
+- Follow [Coding Standards](architecture/coding-standards.md)
+- Use document templates from [`.templates/`](.templates/)
 
 ---
 
@@ -342,12 +390,13 @@ docker ps             # List running containers
 
 | Date | Version | Changes | Author |
 |------|---------|---------|--------|
+| 2025-11-02 | 2.1 | Added Testing, Modules, Decisions categories; 21 new stub files; 3 templates | Jose/Janitor |
 | 2025-10-21 | 2.0 | AI-optimized documentation architecture | Winston/Architect |
 | 2025-10-21 | 1.0 | Initial documentation structure | Development Team |
 
 ---
 
-**Documentation Version**: 2.0
-**Last Updated**: 2025-10-21
+**Documentation Version**: 2.1
+**Last Updated**: 2025-11-02
 **Architecture**: AI-Optimized
 **Status**: Current
