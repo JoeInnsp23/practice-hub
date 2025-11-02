@@ -399,41 +399,39 @@ See [`__tests__/README.md`](./__tests__/README.md) for detailed testing document
 
 ## Documentation
 
-### For Users
-- **Staff User Guide**: Coming soon
-- **Client Onboarding Guide**: Coming soon
-- **Admin Training**: Coming soon
-- **FAQ**: Coming soon
+**📚 Complete Documentation**: [`/docs/README.md`](/docs/README.md)
+**🗺️ Full Sitemap**: [`/docs/SITEMAP.md`](/docs/SITEMAP.md)
 
-### For Developers
-- **Development Guidelines**: [`CLAUDE.md`](/CLAUDE.md)
-- **API Reference**: [`/docs/API_REFERENCE.md`](/docs/API_REFERENCE.md)
-- **System Architecture**: [`/docs/SYSTEM_ARCHITECTURE.md`](/docs/SYSTEM_ARCHITECTURE.md)
-- **Testing Guide**: [`__tests__/README.md`](./__tests__/README.md)
-- **Database Schema**: [`/docs/DATABASE_SCHEMA.md`](/docs/DATABASE_SCHEMA.md) (Coming soon)
-- **Environment Variables**: [`/docs/ENVIRONMENT_VARIABLES.md`](/docs/ENVIRONMENT_VARIABLES.md) (Coming soon)
+### Quick Links
 
-### For Operations
-- **Deployment Checklist**: [`/docs/DEPLOYMENT_CHECKLIST.md`](/docs/DEPLOYMENT_CHECKLIST.md)
-- **Operational Runbooks**: [`/docs/operations/RUNBOOKS.md`](/docs/operations/RUNBOOKS.md)
-- **Monitoring Strategy**: [`/docs/operations/MONITORING.md`](/docs/operations/MONITORING.md)
-- **Backup & Recovery**: [`/docs/operations/BACKUP_RECOVERY.md`](/docs/operations/BACKUP_RECOVERY.md)
+**Getting Started**:
+- [Developer Quick Start](docs/getting-started/quickstart-developer.md) - Complete onboarding guide
+- [AI Agent Quick Start](docs/getting-started/quickstart-ai-agent.md) - Optimal context loading
+- [Project Structure](docs/getting-started/project-structure.md) - Directory organization
 
-### Authentication & Security
-- **Microsoft OAuth Setup**: [`/docs/MICROSOFT_OAUTH_SETUP.md`](/docs/MICROSOFT_OAUTH_SETUP.md)
-- **Authentication Overview**: [`/docs/AUTHENTICATION_OVERVIEW.md`](/docs/AUTHENTICATION_OVERVIEW.md)
-- **CSRF Protection**: [`/docs/security/CSRF_PROTECTION.md`](/docs/security/CSRF_PROTECTION.md)
-- **Security Policy**: [`SECURITY.md`](/SECURITY.md) (Coming soon)
+**Architecture**:
+- [System Overview](docs/architecture/system-overview.md) - Brownfield architecture reference
+- [Multi-Tenancy](docs/architecture/multi-tenancy.md) - Dual-level data isolation
+- [Authentication](docs/architecture/authentication.md) - Dual Better Auth system
+- [API Design](docs/architecture/api-design.md) - tRPC patterns
+- [Design System](docs/architecture/design-system.md) - Glass-card UI system
 
-### Integrations
-- **LEM Verify (KYC/AML)**: [`/docs/kyc/LEMVERIFY_INTEGRATION.md`](/docs/kyc/LEMVERIFY_INTEGRATION.md)
-- **Integrations Reference**: [`/docs/INTEGRATIONS_REFERENCE.md`](/docs/INTEGRATIONS_REFERENCE.md) (Coming soon)
+**Development**:
+- [CLAUDE.md](/CLAUDE.md) - ⚠️ CRITICAL development rules (MUST READ)
+- [Creating Routers](docs/development/creating-routers.md) - tRPC router guide
+- [Adding Tables](docs/development/adding-tables.md) - Database schema guide
+- [Testing Guide](docs/development/testing-guide.md) - Unit/integration/E2E testing
 
-### Proposal Hub
-- **Calculator Logic**: [`/docs/proposal-reference/CALCULATOR_LOGIC.md`](/docs/proposal-reference/CALCULATOR_LOGIC.md)
-- **Pricing Structure**: [`/docs/proposal-reference/PRICING_STRUCTURE_2025.md`](/docs/proposal-reference/PRICING_STRUCTURE_2025.md)
-- **Service Components**: [`/docs/proposal-reference/SERVICE_COMPONENTS.md`](/docs/proposal-reference/SERVICE_COMPONENTS.md)
-- **Staff Quick Guide**: [`/docs/proposal-reference/STAFF_QUICK_GUIDE.md`](/docs/proposal-reference/STAFF_QUICK_GUIDE.md)
+**Operations**:
+- [Deployment](docs/operations/deployment.md) - Production deployment guide
+- [Monitoring](docs/operations/monitoring.md) - Sentry + monitoring setup
+- [Backup & Recovery](docs/operations/backup-recovery.md) - Database operations
+
+**Integrations**:
+- [LEM Verify (KYC)](docs/guides/integrations/lemverify.md) - Identity verification
+- [Microsoft OAuth](docs/guides/integrations/microsoft-oauth.md) - OAuth setup
+- [Sentry](docs/guides/integrations/sentry.md) - Error tracking
+- [DocuSeal](docs/guides/integrations/docuseal.md) - E-signature integration
 
 ### External Resources
 - **Better Auth Docs**: https://www.better-auth.com/docs
