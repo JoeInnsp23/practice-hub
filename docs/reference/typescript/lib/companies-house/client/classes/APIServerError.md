@@ -6,7 +6,7 @@
 
 # Class: APIServerError
 
-Defined in: [lib/companies-house/client.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/companies-house/client.ts#L76)
+Defined in: [lib/companies-house/client.ts:76](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/companies-house/client.ts#L76)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [lib/companies-house/client.ts:76](https://github.com/JoeInnsp23/pra
 
 > **new APIServerError**(`statusCode`): `APIServerError`
 
-Defined in: [lib/companies-house/client.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/companies-house/client.ts#L77)
+Defined in: [lib/companies-house/client.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/companies-house/client.ts#L77)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [lib/companies-house/client.ts:77](https://github.com/JoeInnsp23/pra
 
 > `optional` **companyNumber**: `string`
 
-Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/companies-house/client.ts#L55)
+Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/companies-house/client.ts#L55)
 
 #### Inherited from
 
@@ -52,7 +52,7 @@ Defined in: [lib/companies-house/client.ts:55](https://github.com/JoeInnsp23/pra
 
 > `optional` **statusCode**: `number`
 
-Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/companies-house/client.ts#L54)
+Defined in: [lib/companies-house/client.ts:54](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/companies-house/client.ts#L54)
 
 #### Inherited from
 

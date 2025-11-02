@@ -8,7 +8,7 @@
 
 > `const` **webhookSubmissionRateLimit**: `RegionRatelimit` \| `null`
 
-Defined in: [lib/rate-limit/webhook.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/rate-limit/webhook.ts#L55)
+Defined in: [lib/rate-limit/webhook.ts:55](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/rate-limit/webhook.ts#L55)
 
 Submission-level rate limiter: 1 request/second
 

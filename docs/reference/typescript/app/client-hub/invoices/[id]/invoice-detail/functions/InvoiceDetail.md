@@ -8,7 +8,7 @@
 
 > **InvoiceDetail**(`__namedParameters`): `Element`
 
-Defined in: [app/client-hub/invoices/\[id\]/invoice-detail.tsx:26](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/app/client-hub/invoices/[id]/invoice-detail.tsx#L26)
+Defined in: [app/client-hub/invoices/\[id\]/invoice-detail.tsx:26](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/app/client-hub/invoices/[id]/invoice-detail.tsx#L26)
 
 ## Parameters
 

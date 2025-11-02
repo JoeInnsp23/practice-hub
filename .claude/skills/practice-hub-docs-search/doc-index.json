@@ -1,14 +1,14 @@
 {
-  "generated": "2025-11-02T21:23:11.371Z",
-  "totalDocs": 33,
+  "generated": "2025-11-02T22:17:46.217Z",
+  "totalDocs": 34,
   "byStatus": {
     "draft": 21,
-    "complete": 5,
+    "complete": 6,
     "active": 1,
     "current": 6
   },
   "byGenerated": {
-    "HUMAN-AUTHORED": 28,
+    "HUMAN-AUTHORED": 29,
     "HYBRID": 4,
     "AI-GENERATED": 1
   },
@@ -501,7 +501,10 @@
         "3. Test",
         "Related Documentation"
       ],
-      "tags": []
+      "tags": [],
+      "codeExtractTargets": [
+        "patterns/router-setup"
+      ]
     },
     {
       "path": "development/debugging-guide.md",
@@ -648,6 +651,95 @@
       ],
       "tags": [
         ""
+      ]
+    },
+    {
+      "path": "guides/SECRETS_HANDLING.md",
+      "title": "Secrets Handling Guide",
+      "description": "Best practices for managing secrets, API keys, and sensitive data in Practice Hub",
+      "audience": [
+        "dev",
+        "ops"
+      ],
+      "status": "complete",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T22:10:52.399Z",
+      "wordCount": 533,
+      "sections": [
+        "Secrets Handling Guide",
+        "Table of Contents",
+        "Overview",
+        "What Counts as a Secret?",
+        "Types of Secrets",
+        "1. Database Credentials",
+        "❌ NEVER",
+        "✅ CORRECT - Use environment-specific files",
+        ".env.local",
+        "Store actual password in secure secret manager (1Password, AWS Secrets Manager, etc.)",
+        "2. API Keys",
+        "3. Signing Secrets",
+        "Environment Variables",
+        "Required Secrets",
+        "File Structure",
+        ".env.example",
+        "Database",
+        "Better Auth",
+        "DocuSeal",
+        "Sentry",
+        "S3 Storage",
+        "External APIs",
+        "Never Commit Secrets",
+        ".gitignore Protection",
+        "Environment variables",
+        "Secrets",
+        "Pre-Commit Hook",
+        ".git/hooks/pre-commit",
+        "Check for common secret patterns",
+        "GitHub Secret Scanning",
+        "Local Development",
+        "Setup Process",
+        "1. Copy template",
+        "2. Generate secrets",
+        "3. Add API keys from dashboards",
+        "- DOCUSEAL_API_KEY: http://localhost:3030",
+        "- SENTRY_AUTH_TOKEN: https://sentry.io/settings/account/api/auth-tokens/",
+        "- S3_*: Hetzner console",
+        "- LEM_VERIFY_API_KEY: LEM dashboard",
+        "- GEMINI_API_KEY: https://aistudio.google.com/apikey",
+        "4. Verify",
+        "Sharing Secrets with Team",
+        "Production Deployment",
+        "Vercel Deployment",
+        "Add secrets via Vercel dashboard or CLI",
+        "... etc for all secrets",
+        "Docker Deployment",
+        "docker-compose.prod.yml",
+        "Environment-Specific Secrets",
+        "Secret Rotation",
+        "Rotation Schedule",
+        "Rotation Process",
+        "Emergency Rotation",
+        "Incident Response",
+        "Secret Exposed in Commit",
+        "1. Rotate secret immediately",
+        "2. Force push to remove from history (DANGEROUS - coordinate with team)",
+        "3. Notify team",
+        "4. Audit access logs",
+        "5. Update .gitignore to prevent recurrence",
+        "Secret Exposed in Logs",
+        "Secret in Error Messages",
+        "Validation",
+        "Startup Validation",
+        "CI/CD Validation",
+        ".github/workflows/security-scan.yml",
+        "Best Practices Summary",
+        "References"
+      ],
+      "tags": [
+        "security",
+        "secrets",
+        "environment-variables",
+        "best-practices"
       ]
     },
     {

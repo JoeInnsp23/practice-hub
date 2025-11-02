@@ -8,4 +8,4 @@
 
 > `const` **db**: `NodePgDatabase`\<[`lib/db/schema`](../schema/README.md)\> & `object`
 
-Defined in: [lib/db/index.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/db/index.ts#L13)
+Defined in: [lib/db/index.ts:13](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/db/index.ts#L13)

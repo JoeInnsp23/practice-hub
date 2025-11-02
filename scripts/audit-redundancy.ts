@@ -27,8 +27,30 @@ interface AuditReport {
   recommendations: string[];
 }
 
+// Protected paths (never remove)
+const PROTECTED_FILES = [
+	"middleware.ts",
+	"app/layout.tsx",
+	"app/api",
+	"components/ui",
+	"lib/auth.ts",
+	"lib/db/schema.ts",
+	"scripts/",
+	".claude/",
+];
+
+const PROTECTED_DEPS = [
+	"@biomejs/biome",
+	"vitest",
+	"@playwright/test",
+	"typescript",
+	"tsx",
+	"drizzle-kit",
+	"typedoc",
+];
+
 // Ensure output directory exists
-mkdirSync("docs/.meta", { recursive: true });
+mkdirSync("docs/dev", { recursive: true });
 
 console.log("🔍 Running redundancy audit...\n");
 
@@ -42,7 +64,10 @@ try {
 }
 
 const depcheckReport = JSON.parse(depcheckOutput || "{}");
-const unusedDeps = depcheckReport.dependencies || [];
+const allUnusedDeps = depcheckReport.dependencies || [];
+const unusedDeps = allUnusedDeps.filter(
+	(d: string) => !PROTECTED_DEPS.includes(d),
+);
 
 console.log(`   Found ${unusedDeps.length} potentially unused dependencies\n`);
 
@@ -96,8 +121,8 @@ const report: AuditReport = {
 
 // Write JSON report
 writeFileSync(
-  "docs/.meta/redundancy-audit-report.json",
-  JSON.stringify(report, null, 2)
+	"docs/dev/REDUNDANCY_AUDIT_REPORT.json",
+	JSON.stringify(report, null, 2),
 );
 
 // Write Markdown summary
@@ -146,16 +171,16 @@ ${report.details.unusedExports.length > 20 ? `\n...and ${report.details.unusedEx
 
 ## Next Steps
 
-- [ ] Review depcheck report: \`cat docs/.meta/redundancy-audit-report.json | jq '.details.unusedDependencies'\`
-- [ ] Review ts-prune report: \`cat docs/.meta/redundancy-audit-report.json | jq '.details.unusedExports'\`
+- [ ] Review depcheck report: \`cat docs/dev/REDUNDANCY_AUDIT_REPORT.json | jq '.details.unusedDependencies'\`
+- [ ] Review ts-prune report: \`cat docs/dev/REDUNDANCY_AUDIT_REPORT.json | jq '.details.unusedExports'\`
 - [ ] Create cleanup PR with tested removals
 `;
 
-writeFileSync("docs/.meta/redundancy-audit-summary.md", markdown);
+writeFileSync("docs/dev/REDUNDANCY_AUDIT_REPORT.md", markdown);
 
 console.log("✅ Redundancy audit complete!\n");
-console.log(`   Summary: docs/.meta/redundancy-audit-summary.md`);
-console.log(`   Full report: docs/.meta/redundancy-audit-report.json\n`);
+console.log(`   Summary: docs/dev/REDUNDANCY_AUDIT_REPORT.md`);
+console.log(`   Full report: docs/dev/REDUNDANCY_AUDIT_REPORT.json\n`);
 console.log("📊 Summary:");
 console.log(`   - Unused dependencies: ${unusedDeps.length}`);
 console.log(`   - Unused exports: ${unusedExports.length}`);

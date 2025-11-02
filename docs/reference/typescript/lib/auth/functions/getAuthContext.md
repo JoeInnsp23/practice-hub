@@ -8,7 +8,7 @@
 
 > **getAuthContext**(): `Promise`\<[`AuthContext`](../interfaces/AuthContext.md) \| `null`\>
 
-Defined in: [lib/auth.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/auth.ts#L100)
+Defined in: [lib/auth.ts:100](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/auth.ts#L100)
 
 ## Returns
 

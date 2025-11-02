@@ -1,0 +1,64 @@
+# Documentation Target Mapping
+# Maps @doc:path#section tags to actual documentation files
+#
+# Usage:
+#   @doc:api/clients#list → docs/reference/api/routers.md, section "Clients Router"
+
+targets:
+  # API Reference
+  api/clients:
+    file: docs/reference/api/routers.md
+    section: "<!-- BEGIN CODE-EXTRACT: api/clients -->"
+    type: code-extract
+    description: "Clients router procedures"
+
+  api/tasks:
+    file: docs/reference/api/routers.md
+    section: "<!-- BEGIN CODE-EXTRACT: api/tasks -->"
+    type: code-extract
+    description: "Tasks router procedures"
+
+  api/proposals:
+    file: docs/reference/api/routers.md
+    section: "<!-- BEGIN CODE-EXTRACT: api/proposals -->"
+    type: code-extract
+    description: "Proposals router procedures"
+
+  # Database Schema
+  db/clients:
+    file: docs/reference/database/schema.md
+    section: "<!-- BEGIN CODE-EXTRACT: db/clients -->"
+    type: code-extract
+    description: "Clients table schema"
+
+  db/tasks:
+    file: docs/reference/database/schema.md
+    section: "<!-- BEGIN CODE-EXTRACT: db/tasks -->"
+    type: code-extract
+    description: "Tasks table schema"
+
+  # Environment Variables
+  env/database:
+    file: docs/reference/configuration/environment.md
+    section: "<!-- BEGIN CODE-EXTRACT: env/database -->"
+    type: code-extract
+    description: "Database environment variables"
+
+  env/auth:
+    file: docs/reference/configuration/environment.md
+    section: "<!-- BEGIN CODE-EXTRACT: env/auth -->"
+    type: code-extract
+    description: "Authentication environment variables"
+
+  # Development Patterns
+  patterns/router-setup:
+    file: docs/development/creating-routers.md
+    section: "<!-- BEGIN CODE-EXTRACT: patterns/router-setup -->"
+    type: code-extract
+    description: "Router setup patterns and examples"
+
+  patterns/multi-tenant:
+    file: docs/architecture/multi-tenancy.md
+    section: "<!-- BEGIN CODE-EXTRACT: patterns/multi-tenant -->"
+    type: code-extract
+    description: "Multi-tenancy implementation patterns"

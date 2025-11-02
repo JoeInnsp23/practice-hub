@@ -1,0 +1,52 @@
+# Code Owners for Practice Hub
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @JoeInnsp23
+
+# Documentation
+/docs/** @JoeInnsp23
+/scripts/derive_repo_facts.ts @JoeInnsp23
+/scripts/extract_doclets.py @JoeInnsp23
+/scripts/build_docs.py @JoeInnsp23
+/scripts/*doc*.* @JoeInnsp23
+/.claude/skills/docs-maintainer/ @JoeInnsp23
+/.claude/skills/practice-hub-docs-search/ @JoeInnsp23
+/.claude/agents/docs-update.md @JoeInnsp23
+
+# Core architecture
+/lib/db/schema.ts @JoeInnsp23
+/lib/auth.ts @JoeInnsp23
+/lib/auth-client.ts @JoeInnsp23
+/app/server/context.ts @JoeInnsp23
+/app/server/trpc.ts @JoeInnsp23
+/middleware.ts @JoeInnsp23
+
+# Database and migrations
+/drizzle/ @JoeInnsp23
+/scripts/migrate.ts @JoeInnsp23
+/scripts/seed*.ts @JoeInnsp23
+
+# CI/CD and DevOps
+/.github/ @JoeInnsp23
+/docker-compose.yml @JoeInnsp23
+/Dockerfile @JoeInnsp23
+/scripts/setup-*.sh @JoeInnsp23
+
+# Security
+/.env.example @JoeInnsp23
+/scripts/validate-env.ts @JoeInnsp23
+/docs/guides/SECRETS_HANDLING.md @JoeInnsp23
+
+# Design system
+/app/globals.css @JoeInnsp23
+/components/ui/ @JoeInnsp23
+/components/GlobalHeader.tsx @JoeInnsp23
+/components/GlobalSidebar.tsx @JoeInnsp23
+
+# Critical configurations
+/package.json @JoeInnsp23
+/tsconfig.json @JoeInnsp23
+/biome.json @JoeInnsp23
+/next.config.ts @JoeInnsp23
+/tailwind.config.ts @JoeInnsp23

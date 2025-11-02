@@ -1,0 +1,143 @@
+# GitHub Actions Labeler Configuration
+# Automatically applies labels to PRs based on changed files
+# https://github.com/actions/labeler
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**/*"
+          - "**/*.md"
+          - "scripts/*doc*.{ts,py,sh}"
+          - ".claude/skills/docs-maintainer/**/*"
+          - ".claude/skills/practice-hub-docs-search/**/*"
+          - ".claude/agents/docs-update.md"
+
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/db/schema.ts"
+          - "drizzle/**/*"
+          - "scripts/migrate.ts"
+          - "scripts/seed*.ts"
+
+api:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/server/routers/**/*"
+          - "app/api/**/*"
+
+components:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "components/**/*"
+
+ui-design:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/globals.css"
+          - "components/ui/**/*"
+          - "tailwind.config.ts"
+
+authentication:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/auth*.ts"
+          - "app/(auth)/**/*"
+          - "app/server/context.ts"
+          - "middleware.ts"
+
+client-hub:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/client-hub/**/*"
+          - "app/server/routers/clients.ts"
+
+proposal-hub:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/proposal-hub/**/*"
+          - "app/server/routers/proposals.ts"
+
+practice-hub:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/practice-hub/**/*"
+
+admin:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/admin/**/*"
+
+client-portal:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/client-portal/**/*"
+
+testing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "__tests__/**/*"
+          - "**/*.test.{ts,tsx}"
+          - "**/*.spec.{ts,tsx}"
+          - "vitest.config.ts"
+          - "playwright.config.ts"
+          - ".claude/skills/practice-hub-testing/**/*"
+
+ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**/*"
+          - "docker-compose.yml"
+          - "Dockerfile"
+          - "scripts/setup-*.sh"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "package.json"
+          - "pnpm-lock.yaml"
+
+configuration:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tsconfig.json"
+          - "biome.json"
+          - "next.config.ts"
+          - ".env.example"
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/auth*.ts"
+          - "middleware.ts"
+          - "scripts/validate-env.ts"
+          - "docs/guides/SECRETS_HANDLING.md"
+
+breaking-change:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/db/schema.ts"
+          - "app/server/trpc.ts"
+          - "app/server/context.ts"
+
+performance:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/db/**/*"
+          - "**/*.index.ts"
+
+refactor:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "lib/**/*"
+          - "utils/**/*"
+
+skills:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".claude/skills/**/*"
+
+agents:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".claude/agents/**/*"

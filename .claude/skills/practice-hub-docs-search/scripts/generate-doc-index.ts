@@ -20,6 +20,7 @@ interface DocEntry {
 	wordCount: number;
 	sections: string[];
 	tags: string[];
+	codeExtractTargets?: string[]; // CODE-EXTRACT targets referenced
 }
 
 interface DocIndex {
@@ -96,6 +97,21 @@ function countWords(content: string): number {
 }
 
 /**
+ * Extract CODE-EXTRACT target names from markdown
+ */
+function extractCodeExtractTargets(content: string): string[] {
+	const pattern = /<!-- BEGIN CODE-EXTRACT: ([a-zA-Z0-9/_-]+) -->/g;
+	const targets: string[] = [];
+	let match: RegExpExecArray | null;
+
+	while ((match = pattern.exec(content)) !== null) {
+		targets.push(match[1]);
+	}
+
+	return targets;
+}
+
+/**
  * Scan a markdown file and extract metadata
  */
 function scanDocument(filePath: string): DocEntry | null {
@@ -109,6 +125,7 @@ function scanDocument(filePath: string): DocEntry | null {
 
 	const stats = fs.statSync(filePath);
 	const relativePath = filePath.replace(/^docs\//, "");
+	const codeExtractTargets = extractCodeExtractTargets(content);
 
 	return {
 		path: relativePath,
@@ -125,6 +142,7 @@ function scanDocument(filePath: string): DocEntry | null {
 		wordCount: countWords(content),
 		sections: extractSections(content),
 		tags: frontmatter.tags || [],
+		codeExtractTargets: codeExtractTargets.length > 0 ? codeExtractTargets : undefined,
 	};
 }
 

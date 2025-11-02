@@ -1,0 +1,265 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly on Mondays at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  secret-scan:
+    name: Scan for Exposed Secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comprehensive scan
+
+      - name: Check for hardcoded secrets in diff
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "🔍 Scanning PR diff for potential secrets..."
+
+          # Check for common secret patterns
+          if git diff origin/${{ github.base_ref }}...HEAD | grep -E '(password|secret|api[_-]?key|token).*=.*["\'][^"\']{20,}["\']'; then
+            echo "❌ Potential secret detected in PR diff!"
+            echo ""
+            echo "Detected patterns (redacted):"
+            git diff origin/${{ github.base_ref }}...HEAD | grep -E '(password|secret|api[_-]?key|token)' | sed 's/[=:].*/=<redacted>/'
+            echo ""
+            echo "Please remove hardcoded secrets and use environment variables instead."
+            echo "See: docs/guides/SECRETS_HANDLING.md"
+            exit 1
+          fi
+
+          echo "✅ No secrets detected in diff"
+
+      - name: Validate .env.example
+        run: |
+          echo "🔍 Validating .env.example..."
+
+          # Ensure template doesn't contain actual secrets
+          if grep -E '[A-Za-z0-9+/]{32,}' .env.example | grep -v '=.*<.*>'; then
+            echo "❌ .env.example appears to contain actual secret values"
+            echo ""
+            echo "Found:"
+            grep -E '[A-Za-z0-9+/]{32,}' .env.example | grep -v '=.*<.*>'
+            echo ""
+            echo "Replace with placeholders like: <generate-with-openssl-rand-base64-32>"
+            exit 1
+          fi
+
+          echo "✅ .env.example contains only placeholders"
+
+      - name: Check for committed .env files
+        run: |
+          echo "🔍 Checking for committed .env files..."
+
+          if git ls-files | grep -E '^\.env(\.|$)' | grep -v '.env.example'; then
+            echo "❌ .env files should not be committed!"
+            echo ""
+            echo "Found:"
+            git ls-files | grep -E '^\.env(\.|$)' | grep -v '.env.example'
+            echo ""
+            echo "Remove with: git rm --cached <file>"
+            exit 1
+          fi
+
+          echo "✅ No .env files committed"
+
+      - name: Scan for API keys and tokens
+        run: |
+          echo "🔍 Scanning for exposed API keys and tokens..."
+
+          # Common API key patterns
+          PATTERNS=(
+            "sk_live_[a-zA-Z0-9]{32,}"         # Stripe live keys
+            "pk_live_[a-zA-Z0-9]{32,}"         # Stripe public keys
+            "AIza[a-zA-Z0-9_-]{35}"            # Google API keys
+            "ya29\.[a-zA-Z0-9_-]{68,}"         # Google OAuth tokens
+            "AKIA[A-Z0-9]{16}"                 # AWS Access Key IDs
+            "ghp_[a-zA-Z0-9]{36}"              # GitHub Personal Access Tokens
+            "gho_[a-zA-Z0-9]{36}"              # GitHub OAuth Tokens
+            "glpat-[a-zA-Z0-9_-]{20}"          # GitLab Personal Access Tokens
+          )
+
+          FOUND=0
+          for pattern in "${PATTERNS[@]}"; do
+            if git grep -E "$pattern" | grep -v 'security-scan.yml'; then
+              echo "❌ Potential API key/token found matching: $pattern"
+              FOUND=1
+            fi
+          done
+
+          if [ $FOUND -eq 1 ]; then
+            echo ""
+            echo "Please remove exposed API keys and use environment variables."
+            exit 1
+          fi
+
+          echo "✅ No API keys/tokens detected"
+
+  dependency-scan:
+    name: Scan Dependencies for Vulnerabilities
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run npm audit
+        run: |
+          echo "🔍 Running npm audit..."
+          pnpm audit --audit-level=high --json > audit-report.json || true
+
+          # Check for high/critical vulnerabilities
+          HIGH_VULNS=$(cat audit-report.json | jq '.metadata.vulnerabilities.high // 0')
+          CRITICAL_VULNS=$(cat audit-report.json | jq '.metadata.vulnerabilities.critical // 0')
+
+          echo "High vulnerabilities: $HIGH_VULNS"
+          echo "Critical vulnerabilities: $CRITICAL_VULNS"
+
+          if [ $CRITICAL_VULNS -gt 0 ]; then
+            echo "❌ Critical vulnerabilities detected!"
+            pnpm audit --audit-level=critical
+            exit 1
+          fi
+
+          if [ $HIGH_VULNS -gt 0 ]; then
+            echo "⚠️  High vulnerabilities detected (non-blocking)"
+            pnpm audit --audit-level=high
+          fi
+
+          echo "✅ No critical vulnerabilities"
+
+  license-check:
+    name: Check Dependency Licenses
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check licenses
+        run: |
+          echo "🔍 Checking dependency licenses..."
+
+          # Forbidden licenses
+          FORBIDDEN_LICENSES=("GPL-3.0" "AGPL-3.0" "SSPL-1.0")
+
+          # Extract licenses from package.json files
+          FOUND_FORBIDDEN=0
+
+          for license in "${FORBIDDEN_LICENSES[@]}"; do
+            if grep -r "\"license\": \"$license\"" node_modules/*/package.json 2>/dev/null; then
+              echo "❌ Forbidden license detected: $license"
+              FOUND_FORBIDDEN=1
+            fi
+          done
+
+          if [ $FOUND_FORBIDDEN -eq 1 ]; then
+            echo ""
+            echo "Please review and remove dependencies with forbidden licenses."
+            exit 1
+          fi
+
+          echo "✅ No forbidden licenses detected"
+
+  env-validation:
+    name: Validate Environment Configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate environment schema
+        run: |
+          echo "🔍 Validating environment variable schema..."
+
+          # Check if validate-env.ts exists
+          if [ ! -f "scripts/validate-env.ts" ]; then
+            echo "⚠️  No environment validation script found (non-blocking)"
+            exit 0
+          fi
+
+          # Run validation with test env
+          tsx scripts/validate-env.ts --env=test || {
+            echo "❌ Environment validation failed"
+            echo "   Ensure .env.example is complete and valid"
+            exit 1
+          }
+
+          echo "✅ Environment schema is valid"
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [secret-scan, dependency-scan, license-check, env-validation]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Scan | ${{ needs.secret-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| License Check | ${{ needs.license-check.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment Validation | ${{ needs.env-validation.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY

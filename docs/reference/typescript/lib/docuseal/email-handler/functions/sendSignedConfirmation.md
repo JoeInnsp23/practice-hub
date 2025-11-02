@@ -8,7 +8,7 @@
 
 > **sendSignedConfirmation**(`params`): `Promise`\<`void`\>
 
-Defined in: [lib/docuseal/email-handler.ts:127](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/docuseal/email-handler.ts#L127)
+Defined in: [lib/docuseal/email-handler.ts:127](https://github.com/JoeInnsp23/practice-hub/blob/4ac3e11673b26f0cf99f4de854d24fd36cbe0068/lib/docuseal/email-handler.ts#L127)
 
 Send signed confirmation email via Resend
 Includes audit trail summary
