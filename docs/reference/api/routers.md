@@ -1,8 +1,25 @@
-# API Reference
+---
+title: tRPC Routers Reference
+description: Complete API reference for all tRPC routers and procedures
+audience: dev
+status: complete
+generated: HYBRID
+---
 
-This document provides an overview of Practice Hub's APIs, including tRPC procedures, webhook endpoints, and authentication patterns.
+# tRPC Routers Reference
+
+<!-- BEGIN AI-GENERATED -->
+**Total Routers**: {{repo-facts.routers.total}}
+**Total Procedures**: {{repo-facts.routers.procedures.total}} ({{repo-facts.routers.procedures.queries}} queries / {{repo-facts.routers.procedures.mutations}} mutations)
+
+**AI Summary**: This section will be auto-updated by docs-maintainer skill based on router changes.
+<!-- END AI-GENERATED -->
 
 ---
+
+<!-- HUMAN-AUTHORED SECTION -->
+
+This document provides an overview of Practice Hub's APIs, including tRPC procedures, webhook endpoints, and authentication patterns.
 
 ## Table of Contents
 

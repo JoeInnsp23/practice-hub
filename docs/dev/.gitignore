@@ -1,0 +1,12 @@
+# Temporary files
+*.tmp
+*.temp
+
+# Build artifacts
+*.pyc
+__pycache__/
+
+# Keep generated files
+!repo-facts.json
+!doclets.yaml
+!*.md

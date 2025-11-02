@@ -8,7 +8,7 @@
 
 > **AddClientAccessDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/client-admin/add-client-access-dialog.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/components/client-admin/add-client-access-dialog.tsx#L48)
+Defined in: [components/client-admin/add-client-access-dialog.tsx:48](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/components/client-admin/add-client-access-dialog.tsx#L48)
 
 ## Parameters
 

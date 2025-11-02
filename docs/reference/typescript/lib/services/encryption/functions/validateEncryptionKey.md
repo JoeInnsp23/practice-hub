@@ -8,7 +8,7 @@
 
 > **validateEncryptionKey**(): `boolean`
 
-Defined in: [lib/services/encryption.ts:193](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/services/encryption.ts#L193)
+Defined in: [lib/services/encryption.ts:193](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/services/encryption.ts#L193)
 
 Utility to validate encryption key format
 Useful for startup checks

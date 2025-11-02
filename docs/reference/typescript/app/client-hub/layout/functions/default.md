@@ -8,7 +8,7 @@
 
 > **default**(`__namedParameters`): `Element`
 
-Defined in: [app/client-hub/layout.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/app/client-hub/layout.tsx#L53)
+Defined in: [app/client-hub/layout.tsx:53](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/app/client-hub/layout.tsx#L53)
 
 ## Parameters
 

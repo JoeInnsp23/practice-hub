@@ -8,4 +8,4 @@
 
 > `const` **metadata**: `Metadata`
 
-Defined in: [app/layout.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/app/layout.tsx#L20)
+Defined in: [app/layout.tsx:20](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/app/layout.tsx#L20)

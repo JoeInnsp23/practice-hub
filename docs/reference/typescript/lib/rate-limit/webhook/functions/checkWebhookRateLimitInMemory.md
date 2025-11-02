@@ -8,7 +8,7 @@
 
 > **checkWebhookRateLimitInMemory**(`key`, `maxRequests`, `windowMs`): `object`
 
-Defined in: [lib/rate-limit/webhook.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/rate-limit/webhook.ts#L77)
+Defined in: [lib/rate-limit/webhook.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/rate-limit/webhook.ts#L77)
 
 In-memory rate limit check (fallback for development)
 

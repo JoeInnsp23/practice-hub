@@ -1,8 +1,26 @@
+---
+title: Environment Variables Reference
+description: Complete list of required and optional environment variables
+audience: dev, ops
+status: complete
+generated: HYBRID
+---
+
 # Environment Variables Reference
 
-This document provides a complete reference for all environment variables used in Practice Hub.
+<!-- BEGIN AI-GENERATED -->
+**Total Variables**: {{repo-facts.envVars.total}}
+**Required**: {{repo-facts.envVars.required.length}}
+**Optional**: {{repo-facts.envVars.optional.length}}
+
+**AI Summary**: Variable usage patterns and recommendations will be auto-generated here.
+<!-- END AI-GENERATED -->
 
 ---
+
+<!-- HUMAN-AUTHORED SECTION -->
+
+This document provides a complete reference for all environment variables used in Practice Hub.
 
 ## Table of Contents
 

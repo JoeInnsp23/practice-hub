@@ -1,8 +1,26 @@
-# Database Schema Documentation
+---
+title: Database Schema Reference
+description: Complete database schema with tables, columns, relationships
+audience: dev
+status: complete
+generated: HYBRID
+---
 
-Complete reference for Practice Hub's PostgreSQL database schema.
+# Database Schema Reference
+
+<!-- BEGIN AI-GENERATED -->
+**Total Tables**: {{repo-facts.database.tables}}
+**Total Enums**: {{repo-facts.database.enums}}
+**Total Views**: {{repo-facts.database.views}}
+
+**AI Summary**: ERD and relationship diagrams will be auto-generated here.
+<!-- END AI-GENERATED -->
 
 ---
+
+<!-- HUMAN-AUTHORED SECTION -->
+
+Complete reference for Practice Hub's PostgreSQL database schema.
 
 ## Table of Contents
 
@@ -32,9 +50,9 @@ Practice Hub uses PostgreSQL 14+ with Drizzle ORM for schema management. The dat
 
 ### Key Statistics
 
-- **61 Tables**: Core entities, integrations, and support tables
-- **19 Enums**: Type-safe status values and categories
-- **7 Views**: Pre-joined data for dashboards and reports
+- **{{repo-facts.database.tables}} Tables**: Core entities, integrations, and support tables
+- **{{repo-facts.database.enums}} Enums**: Type-safe status values and categories
+- **{{repo-facts.database.views}} Views**: Pre-joined data for dashboards and reports
 - **Multi-Tenancy**: All tables reference `tenants.id` for data isolation
 - **Dual Isolation**: Client portal tables use both `tenantId` + `clientId`
 - **Better Auth**: Integrated authentication with staff and client portals

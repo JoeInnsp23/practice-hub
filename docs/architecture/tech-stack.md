@@ -1,25 +1,30 @@
 ---
-title: "Tech Stack & Dependencies"
-category: "architecture"
-subcategory: "infrastructure"
-purpose: "Complete reference for all technologies, libraries, and versions used in Practice Hub"
-audience: ["ai-agent", "developer", "devops"]
-prerequisites: []
-related: ["system-overview.md", "coding-standards.md"]
-last_updated: "2025-10-21"
-version: "1.0"
-status: "current"
-owner: "architecture-team"
-tags: ["tech-stack", "dependencies", "versions", "infrastructure"]
+title: Technology Stack
+description: Complete technology stack with versions and justifications
+audience: dev, architect
+status: complete
+generated: AI-GENERATED
 ---
 
-# Tech Stack & Dependencies
+# Technology Stack
+
+<!-- BEGIN AI-GENERATED -->
+**Framework**: Next.js {{package.json:next.version}}
+**React**: {{package.json:react.version}}
+**Database**: PostgreSQL (Drizzle ORM {{package.json:drizzle-orm.version}})
+**Auth**: Better Auth {{package.json:better-auth.version}}
+
+**Total Dependencies**: {{package.json:dependencies.count}}
+**Total Dev Dependencies**: {{package.json:devDependencies.count}}
+
+This section will be auto-updated when package.json changes.
+<!-- END AI-GENERATED -->
+
+---
+
+<!-- HUMAN-AUTHORED SECTION -->
 
 **Quick Summary**: Practice Hub is built on Next.js 15 with React 19, PostgreSQL, Better Auth, tRPC, and shadcn/ui. This document provides a complete inventory of all technologies, their versions, purposes, and configuration details.
-
-**Last Updated**: 2025-10-21 | **Version**: 1.0 | **Status**: Current
-
----
 
 ## What This Document Covers
 

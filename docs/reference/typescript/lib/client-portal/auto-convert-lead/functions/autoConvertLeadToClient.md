@@ -8,7 +8,7 @@
 
 > **autoConvertLeadToClient**(`proposalId`, `leadId`, `tenantId`): `Promise`\<`AutoConvertResult` \| `null`\>
 
-Defined in: [lib/client-portal/auto-convert-lead.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/client-portal/auto-convert-lead.ts#L37)
+Defined in: [lib/client-portal/auto-convert-lead.ts:37](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/client-portal/auto-convert-lead.ts#L37)
 
 ## Parameters
 

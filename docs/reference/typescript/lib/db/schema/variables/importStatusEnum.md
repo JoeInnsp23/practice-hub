@@ -8,4 +8,4 @@
 
 > `const` **importStatusEnum**: `PgEnum`\<\[`"pending"`, `"processing"`, `"completed"`, `"failed"`, `"partial"`\]\>
 
-Defined in: [lib/db/schema.ts:562](https://github.com/JoeInnsp23/practice-hub/blob/dca241f0fd6bb3f57af90d17356789e3883d8e6f/lib/db/schema.ts#L562)
+Defined in: [lib/db/schema.ts:562](https://github.com/JoeInnsp23/practice-hub/blob/897f162ed11263f92c9b7f58ca58e3feb1830bb2/lib/db/schema.ts#L562)

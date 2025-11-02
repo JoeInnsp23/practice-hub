@@ -1,50 +1,49 @@
 {
-  "generated": "2025-11-02T18:07:14.502Z",
-  "version": "1.0.0",
-  "total": 32,
-  "docs": [
+  "generated": "2025-11-02T21:23:11.371Z",
+  "totalDocs": 33,
+  "byStatus": {
+    "draft": 21,
+    "complete": 5,
+    "active": 1,
+    "current": 6
+  },
+  "byGenerated": {
+    "HUMAN-AUTHORED": 28,
+    "HYBRID": 4,
+    "AI-GENERATED": 1
+  },
+  "entries": [
     {
-      "title": "ADR NNNN: [Short Title]",
-      "file": "docs/.templates/ADR_TEMPLATE.md",
-      "category": "decisions",
-      "status": [
-        "proposed | accepted | rejected | deprecated | superseded"
-      ],
-      "excerpt": "[proposed | accepted | rejected | deprecated | superseded]",
-      "tags": [
-        "architecture",
-        "decision"
-      ],
-      "created": "YYYY-MM-DD",
-      "updated": "YYYY-MM-DD"
-    },
-    {
-      "title": "[Service Name] Integration Guide",
-      "file": "docs/.templates/INTEGRATION_GUIDE_TEMPLATE.md",
-      "category": "guides",
-      "status": "active",
-      "excerpt": "[Brief description of what this service does and why Practice Hub integrates with it]",
-      "tags": [
-        "integration",
-        "[service-name]"
-      ],
-      "created": "YYYY-MM-DD",
-      "updated": "YYYY-MM-DD"
-    },
-    {
-      "title": "Practice Hub Documentation",
-      "file": "docs/README.md",
-      "category": "other",
-      "status": "active",
-      "excerpt": "**AI-Optimized Documentation Architecture v2.0**",
-      "tags": []
-    },
-    {
+      "path": "architecture/api-design.md",
       "title": "API Design & tRPC Patterns",
-      "file": "docs/architecture/api-design.md",
-      "category": "architecture",
+      "description": "",
+      "audience": [
+        "ai-agent",
+        "developer"
+      ],
       "status": "current",
-      "excerpt": "**Quick Summary**: Practice Hub uses tRPC for 100% type-safe APIs with automatic multi-tenant scoping, rate limiting, and comprehensive error handling. No REST APIs except webhooks.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-10-23T21:41:41.780Z",
+      "wordCount": 565,
+      "sections": [
+        "API Design & tRPC Patterns",
+        "What This Document Covers",
+        "Prerequisites",
+        "Quick Start / TL;DR",
+        "Detailed Guide",
+        "Why tRPC?",
+        "tRPC Setup",
+        "Query Patterns",
+        "Mutation Patterns",
+        "Error Handling",
+        "Rate Limiting",
+        "Client Usage",
+        "Examples",
+        "Example 1: Complete Router",
+        "Common Patterns",
+        "Related Documentation",
+        "Changelog"
+      ],
       "tags": [
         "trpc",
         "api",
@@ -53,11 +52,40 @@
       ]
     },
     {
+      "path": "architecture/authentication.md",
       "title": "Authentication & Authorization Architecture",
-      "file": "docs/architecture/authentication.md",
-      "category": "architecture",
+      "description": "",
+      "audience": [
+        "ai-agent",
+        "developer"
+      ],
       "status": "current",
-      "excerpt": "**Quick Summary**: Practice Hub uses two separate Better Auth instances: one for staff (with Microsoft OAuth + email/password) and one for client portal (email/password only), enabling dual-level data",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-10-22T19:03:09.343Z",
+      "wordCount": 701,
+      "sections": [
+        "Authentication & Authorization Architecture",
+        "What This Document Covers",
+        "Prerequisites",
+        "Quick Start / TL;DR",
+        "Detailed Guide",
+        "Why Dual Auth Systems?",
+        "Staff Authentication (Better Auth)",
+        "Client Portal Authentication (Better Auth - Separate Instance)",
+        "Middleware (Route Protection)",
+        "Authorization Levels",
+        "tRPC + Better Auth Integration",
+        "Examples",
+        "Example 1: Custom Sign-In Page (Staff)",
+        "Example 2: Microsoft OAuth Setup Page",
+        "Example 3: Protected Server Component (Module-Level)",
+        "Example 4: Client Portal Protected Page",
+        "Common Patterns",
+        "Troubleshooting",
+        "Related Documentation",
+        "Changelog",
+        "Feedback"
+      ],
       "tags": [
         "authentication",
         "authorization",
@@ -67,11 +95,68 @@
       ]
     },
     {
+      "path": "architecture/coding-standards.md",
       "title": "Coding Standards & Conventions",
-      "file": "docs/architecture/coding-standards.md",
-      "category": "architecture",
+      "description": "",
+      "audience": [
+        "ai-agent",
+        "developer"
+      ],
       "status": "current",
-      "excerpt": "**Quick Summary**: This document defines coding standards, patterns, and best practices for Practice Hub development. All code must follow these conventions for consistency, maintainability, and AI ag",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-10-21T19:46:49.334Z",
+      "wordCount": 885,
+      "sections": [
+        "Coding Standards & Conventions",
+        "What This Document Covers",
+        "Critical Rules (from CLAUDE.md)",
+        "TypeScript Conventions",
+        "Strict Mode",
+        "Type Definitions",
+        "Null Safety",
+        "React Patterns",
+        "Server vs. Client Components",
+        "Component Structure",
+        "Hooks Usage",
+        "tRPC API Patterns",
+        "Router Structure",
+        "Input Validation",
+        "Multi-Tenant Query Patterns",
+        "Error Handling in tRPC",
+        "Database Query Patterns",
+        "Drizzle ORM Conventions",
+        "Query Helpers",
+        "UI Component Standards",
+        "Design System (Glass-Card)",
+        "shadcn/ui Usage",
+        "Form Patterns",
+        "Checklist Components",
+        "Error Handling & Logging",
+        "Sentry Error Tracking",
+        "Toast Notifications",
+        "Testing Patterns",
+        "Vitest Unit Tests",
+        "File Organization",
+        "Import Order",
+        "File Naming",
+        "Database Schema Conventions",
+        "Schema Updates (Development)",
+        "1. Update lib/db/schema.ts",
+        "2. Update scripts/seed.ts",
+        "3. Reset database",
+        "Schema Patterns",
+        "Performance Best Practices",
+        "Database Performance",
+        "React Performance",
+        "Security Best Practices",
+        "Authentication Checks",
+        "Input Sanitization",
+        "Documentation",
+        "Code Comments",
+        "JSDoc for Public APIs",
+        "Summary Checklist",
+        "Related Documentation"
+      ],
       "tags": [
         "coding-standards",
         "best-practices",
@@ -80,11 +165,41 @@
       ]
     },
     {
+      "path": "architecture/design-system.md",
       "title": "Design System & UI Patterns",
-      "file": "docs/architecture/design-system.md",
-      "category": "architecture",
+      "description": "",
+      "audience": [
+        "ai-agent",
+        "developer",
+        "designer"
+      ],
       "status": "current",
-      "excerpt": "**Quick Summary**: Practice Hub uses a custom glass-card design system built on shadcn/ui components with Tailwind CSS v4, enforcing solid backgrounds, consistent module colors, and gradient layouts.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-10-21T19:00:31.173Z",
+      "wordCount": 605,
+      "sections": [
+        "Design System & UI Patterns",
+        "What This Document Covers",
+        "Prerequisites",
+        "Quick Start / TL;DR",
+        "Detailed Guide",
+        "Design Philosophy",
+        "Core Design System Classes",
+        "Component Library",
+        "Module Layout Patterns",
+        "Critical Design Rules",
+        "Typography",
+        "Spacing & Layout",
+        "Notifications",
+        "Dark Mode",
+        "Examples",
+        "Example 1: Standard Page Layout",
+        "Example 2: Data Table with Glass-Table",
+        "Example 3: Form with shadcn/ui Components",
+        "Common Patterns",
+        "Related Documentation",
+        "Changelog"
+      ],
       "tags": [
         "design-system",
         "ui",
@@ -94,11 +209,39 @@
       ]
     },
     {
+      "path": "architecture/multi-tenancy.md",
       "title": "Multi-Tenancy Architecture",
-      "file": "docs/architecture/multi-tenancy.md",
-      "category": "architecture",
+      "description": "",
+      "audience": [
+        "ai-agent",
+        "developer"
+      ],
       "status": "current",
-      "excerpt": "**Quick Summary**: Practice Hub implements dual-level data isolation: tenant-level (accountancy firm) and client-level (customer business), ensuring complete data separation between tenants and option",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-10-21T18:56:19.921Z",
+      "wordCount": 797,
+      "sections": [
+        "Multi-Tenancy Architecture",
+        "What This Document Covers",
+        "Prerequisites",
+        "Quick Start / TL;DR",
+        "Detailed Guide",
+        "Architecture Overview",
+        "Database Schema Patterns",
+        "Authentication Context Design",
+        "Query Patterns",
+        "Critical Security Requirements",
+        "Examples",
+        "Example 1: Creating a New Table (Staff Access)",
+        "Example 2: Creating a New Table (Client Portal Access)",
+        "Example 3: Staff Server Component",
+        "Example 4: Client Portal Server Component",
+        "Common Patterns",
+        "Troubleshooting",
+        "Related Documentation",
+        "Changelog",
+        "Feedback"
+      ],
       "tags": [
         "multi-tenancy",
         "isolation",
@@ -107,11 +250,54 @@
       ]
     },
     {
+      "path": "architecture/source-tree.md",
       "title": "Source Tree & Directory Structure",
-      "file": "docs/architecture/source-tree.md",
-      "category": "architecture",
+      "description": "",
+      "audience": [
+        "ai-agent",
+        "developer"
+      ],
       "status": "current",
-      "excerpt": "**Quick Summary**: Practice Hub follows Next.js 15 App Router conventions with a modular architecture organized by feature hubs. This document provides a complete directory reference with purpose and ",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-10-21T19:44:11.355Z",
+      "wordCount": 585,
+      "sections": [
+        "Source Tree & Directory Structure",
+        "What This Document Covers",
+        "Quick Start / TL;DR",
+        "Root Directory",
+        "`app/` - Next.js App Router",
+        "Overview",
+        "Structure",
+        "`components/` - React Components",
+        "Overview",
+        "Structure",
+        "`lib/` - Business Logic & Utilities",
+        "Overview",
+        "Structure",
+        "`scripts/` - Operational Scripts",
+        "Overview",
+        "Structure",
+        "`drizzle/` - Database Migrations",
+        "Overview",
+        "Structure",
+        "`docs/` - Documentation",
+        "Overview",
+        "Structure",
+        "`public/` - Static Assets",
+        "Overview",
+        "Structure",
+        "`.claude/` - AI Agent Skills",
+        "Overview",
+        "Structure",
+        "Configuration Files",
+        "Root Configuration Files",
+        "Module Organization Pattern",
+        "File Naming Conventions",
+        "Import Path Aliases",
+        "Key Directories Summary",
+        "Related Documentation"
+      ],
       "tags": [
         "source-tree",
         "directory",
@@ -120,282 +306,840 @@
       ]
     },
     {
-      "title": "Tech Stack & Dependencies",
-      "file": "docs/architecture/tech-stack.md",
-      "category": "architecture",
-      "status": "current",
-      "excerpt": "**Quick Summary**: Practice Hub is built on Next.js 15 with React 19, PostgreSQL, Better Auth, tRPC, and shadcn/ui. This document provides a complete inventory of all technologies, their versions, pur",
+      "path": "architecture/tech-stack.md",
+      "title": "Technology Stack",
+      "description": "Complete technology stack with versions and justifications",
+      "audience": [
+        "dev, architect"
+      ],
+      "status": "complete",
+      "generated": "AI-GENERATED",
+      "lastModified": "2025-11-02T20:44:14.305Z",
+      "wordCount": 1750,
+      "sections": [
+        "Technology Stack",
+        "What This Document Covers",
+        "Quick Start / TL;DR",
+        "Framework & Runtime",
+        "Next.js 15.5.4 (App Router)",
+        "React 19.1.0",
+        "TypeScript 5.x",
+        "Turbopack",
+        "Database & ORM Stack",
+        "PostgreSQL 14+",
+        "docker-compose.yml",
+        "Drizzle ORM 0.44.5",
+        "Drizzle Kit 0.31.4",
+        "Authentication & Authorization",
+        "Better Auth 1.3.26",
+        "Microsoft OAuth",
+        "bcryptjs 3.0.2",
+        "API & Data Fetching",
+        "tRPC 11.6.0",
+        "TanStack Query 5.90.2",
+        "Zod 4.1.11",
+        "SuperJSON 2.2.2",
+        "UI & Styling",
+        "shadcn/ui",
+        "Tailwind CSS v4",
+        "Lucide React 0.544.0",
+        "Framer Motion 12.23.22",
+        "next-themes 0.4.6",
+        "Forms & Validation",
+        "React Hook Form 7.63.0",
+        "@hookform/resolvers 5.2.2",
+        "Date & Time",
+        "date-fns 4.1.0",
+        "react-day-picker 9.11.0",
+        "Data Visualization",
+        "Recharts 3.2.1",
+        "File Handling",
+        "react-pdf/renderer 4.3.1",
+        "xlsx 0.18.5",
+        "papaparse 5.5.3",
+        "Email",
+        "Resend 6.1.2",
+        "@react-email/components 0.5.6",
+        "Storage & CDN",
+        "AWS SDK S3 Client 3.901.0",
+        "Development (MinIO)",
+        "Production (Hetzner)",
+        "AI & Integrations",
+        "Google Generative AI 0.24.1",
+        "axios 1.12.2",
+        "Rate Limiting & Caching",
+        "Upstash Redis 1.35.6",
+        "@upstash/ratelimit 2.0.6",
+        "Error Tracking",
+        "Sentry Next.js 10.20.0",
+        "Notifications",
+        "react-hot-toast 2.6.0",
+        "Drag & Drop",
+        "dnd-kit 6.3.1 + sortable 10.0.0",
+        "Development Tools",
+        "Biome 2.2.0",
+        "Vitest 3.2.4",
+        "tsx 4.20.6",
+        "dotenv 17.2.2",
+        "Third-Party Integrations",
+        "DocuSeal (E-Signature)",
+        "LEM Verify (KYC/AML)",
+        "Xero (Accounting)",
+        "Infrastructure",
+        "Docker Compose",
+        "MinIO",
+        "Production Deployment",
+        "Target Platform: Coolify (Hetzner)",
+        "Summary",
+        "Related Documentation"
+      ],
+      "tags": []
+    },
+    {
+      "path": "decisions/0001-example-adr.md",
+      "title": "0001-example-adr",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
+      "status": "draft",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.239Z",
+      "wordCount": 29,
+      "sections": [
+        "Example Architecture Decision Record",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
-        "tech-stack",
-        "dependencies",
-        "versions",
-        "infrastructure"
+        ""
       ]
     },
     {
-      "title": "Example Architecture Decision Record",
-      "file": "docs/decisions/0001-example-adr.md",
-      "category": "decisions",
-      "status": "draft",
-      "excerpt": "Template example for documenting architectural decisions.",
-      "tags": [
-        ""
+      "path": "decisions/README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
-    },
-    {
-      "title": "Architecture Decision Records (ADRs)",
-      "file": "docs/decisions/README.md",
-      "category": "decisions",
       "status": "active",
-      "excerpt": "This directory contains Architecture Decision Records (ADRs) documenting significant architectural and design decisions made for Practice Hub.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.244Z",
+      "wordCount": 101,
+      "sections": [
+        "Architecture Decision Records (ADRs)",
+        "What is an ADR?",
+        "Format",
+        "Index",
+        "Creating a New ADR",
+        "Related Documentation"
+      ],
       "tags": [
         "adr",
         "architecture"
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Adding Database Tables",
-      "file": "docs/development/adding-tables.md",
-      "category": "development",
+      "path": "development/adding-tables.md",
+      "title": "adding-tables",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "How to add new database tables using Drizzle ORM.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.202Z",
+      "wordCount": 31,
+      "sections": [
+        "Adding Database Tables",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Creating UI Components",
-      "file": "docs/development/creating-components.md",
-      "category": "development",
+      "path": "development/creating-components.md",
+      "title": "creating-components",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Guide to creating React components following Practice Hub design system.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.205Z",
+      "wordCount": 32,
+      "sections": [
+        "Creating UI Components",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
+      "path": "development/creating-routers.md",
       "title": "Creating tRPC Routers",
-      "file": "docs/development/creating-routers.md",
-      "category": "development",
-      "status": "draft",
-      "excerpt": "Guide to creating and configuring tRPC routers in Practice Hub.",
-      "tags": [
-        ""
+      "description": "Guide for creating new tRPC routers following conventions",
+      "audience": [
+        "dev"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      "status": "complete",
+      "generated": "HYBRID",
+      "lastModified": "2025-11-02T20:44:43.022Z",
+      "wordCount": 123,
+      "sections": [
+        "Creating tRPC Routers",
+        "Step-by-Step Guide",
+        "1. Create Router File",
+        "2. Register in Root Router",
+        "3. Test",
+        "Related Documentation"
+      ],
+      "tags": []
     },
     {
-      "title": "Debugging Guide",
-      "file": "docs/development/debugging-guide.md",
-      "category": "development",
+      "path": "development/debugging-guide.md",
+      "title": "debugging-guide",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Common debugging techniques and tools for Practice Hub.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.209Z",
+      "wordCount": 29,
+      "sections": [
+        "Debugging Guide",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Technical Debt Inventory",
-      "file": "docs/development/technical-debt.md",
-      "category": "development",
+      "path": "development/technical-debt.md",
+      "title": "technical-debt",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Known technical debt items and prioritization.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.211Z",
+      "wordCount": 28,
+      "sections": [
+        "Technical Debt Inventory",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Testing Guide",
-      "file": "docs/development/testing-guide.md",
-      "category": "development",
+      "path": "development/testing-guide.md",
+      "title": "testing-guide",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Comprehensive guide to testing in Practice Hub (unit, integration, E2E).",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.207Z",
+      "wordCount": 31,
+      "sections": [
+        "Testing Guide",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Common Development Tasks",
-      "file": "docs/getting-started/common-tasks.md",
-      "category": "getting-started",
+      "path": "getting-started/common-tasks.md",
+      "title": "common-tasks",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Frequently performed development tasks and how to accomplish them.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.198Z",
+      "wordCount": 31,
+      "sections": [
+        "Common Development Tasks",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Project Structure",
-      "file": "docs/getting-started/project-structure.md",
-      "category": "getting-started",
+      "path": "getting-started/project-structure.md",
+      "title": "project-structure",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Overview of the Practice Hub project directory structure and organization.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.196Z",
+      "wordCount": 31,
+      "sections": [
+        "Project Structure",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "AI Agent Quick Start",
-      "file": "docs/getting-started/quickstart-ai-agent.md",
-      "category": "getting-started",
+      "path": "getting-started/quickstart-ai-agent.md",
+      "title": "quickstart-ai-agent",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Quick start guide for AI agents working with Practice Hub codebase.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.193Z",
+      "wordCount": 34,
+      "sections": [
+        "AI Agent Quick Start",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Developer Quick Start",
-      "file": "docs/getting-started/quickstart-developer.md",
-      "category": "getting-started",
+      "path": "getting-started/quickstart-developer.md",
+      "title": "quickstart-developer",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Quick start guide for developers new to Practice Hub.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.191Z",
+      "wordCount": 31,
+      "sections": [
+        "Developer Quick Start",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Admin Panel Module",
-      "file": "docs/modules/admin-panel/README.md",
-      "category": "modules",
+      "path": "modules/admin-panel/README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Overview of the Admin Panel functionality and architecture.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.230Z",
+      "wordCount": 30,
+      "sections": [
+        "Admin Panel Module",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Client Hub Module",
-      "file": "docs/modules/client-hub/README.md",
-      "category": "modules",
+      "path": "modules/client-hub/README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Overview of the Client Hub module functionality and architecture.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.223Z",
+      "wordCount": 31,
+      "sections": [
+        "Client Hub Module",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Client Portal Module",
-      "file": "docs/modules/client-portal/README.md",
-      "category": "modules",
+      "path": "modules/client-portal/README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Overview of the Client Portal functionality and architecture.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.235Z",
+      "wordCount": 30,
+      "sections": [
+        "Client Portal Module",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Practice Hub Module",
-      "file": "docs/modules/practice-hub/README.md",
-      "category": "modules",
+      "path": "modules/practice-hub/README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Overview of the Practice Hub module functionality and architecture.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.228Z",
+      "wordCount": 31,
+      "sections": [
+        "Practice Hub Module",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Proposal Hub Module",
-      "file": "docs/modules/proposal-hub/README.md",
-      "category": "modules",
+      "path": "modules/proposal-hub/README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Overview of the Proposal Hub module functionality and architecture.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.225Z",
+      "wordCount": 31,
+      "sections": [
+        "Proposal Hub Module",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
-      ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      ]
     },
     {
-      "title": "Coverage Guidelines",
-      "file": "docs/testing/coverage-guidelines.md",
-      "category": "testing",
-      "status": "draft",
-      "excerpt": "Test coverage targets and measurement strategies.",
-      "tags": [
-        ""
+      "path": "README.md",
+      "title": "README",
+      "description": "",
+      "audience": [
+        "dev"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      "status": "draft",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:58:26.764Z",
+      "wordCount": 1448,
+      "sections": [
+        "Practice Hub Documentation",
+        "Document Discovery",
+        "By Task",
+        "By Role",
+        "Documentation Categories",
+        "[Getting Started](getting-started/)",
+        "[Architecture](architecture/)",
+        "[Guides](guides/)",
+        "[Reference](reference/)",
+        "[Operations](operations/)",
+        "[Development](development/)",
+        "[Testing](testing/)",
+        "[Modules](modules/)",
+        "[Decisions](decisions/)",
+        "[Troubleshooting](troubleshooting/)",
+        "[User Guides](user-guides/)",
+        "Critical Files (Root Directory)",
+        "Documentation Architecture",
+        "AI-Optimized Design",
+        "Document Templates",
+        "Metadata Standard",
+        "Quick Command Reference",
+        "Development",
+        "Database (CRITICAL: Only use pnpm db:reset)",
+        "Testing",
+        "Docker",
+        "Documentation Status",
+        "Completed",
+        "In Progress",
+        "Archived",
+        "Feedback & Contributions",
+        "Changelog"
+      ],
+      "tags": []
     },
     {
-      "title": "End-to-End Testing",
-      "file": "docs/testing/e2e-testing.md",
-      "category": "testing",
-      "status": "draft",
-      "excerpt": "Guide to E2E testing with Playwright.",
-      "tags": [
-        ""
+      "path": "reference/api/routers.md",
+      "title": "tRPC Routers Reference",
+      "description": "Complete API reference for all tRPC routers and procedures",
+      "audience": [
+        "dev"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      "status": "complete",
+      "generated": "HYBRID",
+      "lastModified": "2025-11-02T20:37:34.852Z",
+      "wordCount": 627,
+      "sections": [
+        "tRPC Routers Reference",
+        "Table of Contents",
+        "tRPC API Overview",
+        "Base URL",
+        "Request Format",
+        "Response Format",
+        "Error Format",
+        "Authentication",
+        "Public Procedures",
+        "Protected Procedures",
+        "Admin Procedures",
+        "Context",
+        "Core Routers",
+        "Clients Router (`clientsRouter`)",
+        "Onboarding Router (`onboardingRouter`)",
+        "Users Router (`usersRouter`)",
+        "Portal Router (`portalRouter`)",
+        "Webhook Endpoints",
+        "LEM Verify Webhook",
+        "DocuSeal Webhook",
+        "Error Handling",
+        "Error Codes",
+        "Error Response Structure",
+        "Error Handling Example",
+        "Rate Limiting",
+        "Default Limits",
+        "Rate Limit Response",
+        "Implementation Example",
+        "API Versioning",
+        "Testing APIs",
+        "Development Environment",
+        "Using curl (Webhooks)",
+        "Test LEM Verify webhook (with signature)",
+        "Further Reading"
+      ],
+      "tags": []
     },
     {
-      "title": "Integration Testing",
-      "file": "docs/testing/integration-testing.md",
-      "category": "testing",
-      "status": "draft",
-      "excerpt": "Guide to integration testing patterns and best practices.",
-      "tags": [
-        ""
+      "path": "reference/configuration/environment.md",
+      "title": "Environment Variables Reference",
+      "description": "Complete list of required and optional environment variables",
+      "audience": [
+        "dev, ops"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      "status": "complete",
+      "generated": "HYBRID",
+      "lastModified": "2025-11-02T20:38:39.405Z",
+      "wordCount": 1253,
+      "sections": [
+        "Environment Variables Reference",
+        "Table of Contents",
+        "Required Variables",
+        "Database",
+        "Authentication (Better Auth)",
+        "Optional Variables",
+        "Microsoft OAuth",
+        "KYC/AML (LEM Verify)",
+        "AI Document Extraction (Google Gemini)",
+        "Email (Resend)",
+        "Object Storage (S3-Compatible)",
+        "Application Configuration",
+        "E-Signature (DocuSeal)",
+        "Monitoring & Observability",
+        "Environment-Specific Configuration",
+        "Development (.env.local)",
+        "Required",
+        "Optional - for testing features",
+        "MinIO (local S3)",
+        "Optional - KYC testing",
+        "Optional - email testing",
+        "Production (.env or hosting platform)",
+        "Required",
+        "Microsoft OAuth",
+        "KYC/AML",
+        "Email",
+        "Storage (Hetzner S3)",
+        "Application",
+        "Monitoring",
+        "Security Best Practices",
+        "Secret Management",
+        "Environment Variable Validation",
+        "List all environment variables",
+        "Secure Transmission",
+        "Troubleshooting",
+        "Common Issues",
+        "Additional Resources"
+      ],
+      "tags": []
     },
     {
-      "title": "Test Data Factories",
-      "file": "docs/testing/test-data-factories.md",
-      "category": "testing",
-      "status": "draft",
-      "excerpt": "Using test data factories for consistent test setup.",
-      "tags": [
-        ""
+      "path": "reference/database/schema.md",
+      "title": "Database Schema Reference",
+      "description": "Complete database schema with tables, columns, relationships",
+      "audience": [
+        "dev"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      "status": "complete",
+      "generated": "HYBRID",
+      "lastModified": "2025-11-02T20:38:07.797Z",
+      "wordCount": 6287,
+      "sections": [
+        "Database Schema Reference",
+        "Table of Contents",
+        "Overview",
+        "Key Statistics",
+        "Schema Location",
+        "Database Design Principles",
+        "1. Multi-Tenancy",
+        "2. UUID Primary Keys",
+        "3. Timestamps",
+        "4. Soft Deletes",
+        "5. JSONB Metadata",
+        "6. Denormalization",
+        "Table Categories",
+        "Core Authentication & Tenancy",
+        "`tenants`",
+        "`users`",
+        "`session`",
+        "`account`",
+        "`verification`",
+        "`invitations`",
+        "`feedback`",
+        "CRM Tables",
+        "`clients`",
+        "`client_contacts`",
+        "`client_directors`",
+        "`client_pscs`",
+        "`services`",
+        "`client_services`",
+        "`xero_connections`",
+        "Operations Tables",
+        "`tasks`",
+        "`time_entries`",
+        "`documents`",
+        "`document_signatures`",
+        "`workflows`",
+        "`workflow_stages`",
+        "`workflow_versions`",
+        "`task_workflow_instances`",
+        "`compliance`",
+        "Financial Tables",
+        "`invoices`",
+        "`invoice_items`",
+        "Proposal & Pricing System",
+        "`service_components`",
+        "`pricing_rules`",
+        "`leads`",
+        "`proposals`",
+        "`proposal_services`",
+        "`client_transaction_data`",
+        "`proposal_signatures`",
+        "`proposal_versions`",
+        "`proposal_templates`",
+        "Onboarding & KYC System",
+        "`onboarding_sessions`",
+        "`onboarding_tasks`",
+        "`onboarding_responses`",
+        "`aml_checks`",
+        "`kyc_verifications`",
+        "Communication & Collaboration",
+        "`message_threads`",
+        "`message_thread_participants`",
+        "`messages`",
+        "`notifications`",
+        "`calendar_events`",
+        "`calendar_event_attendees`",
+        "Client Portal System",
+        "`client_portal_users`",
+        "`client_portal_access`",
+        "`client_portal_invitations`",
+        "Client Portal Better Auth Tables",
+        "Portal Management",
+        "`portal_categories`",
+        "`portal_links`",
+        "`user_favorites`",
+        "Support Tables",
+        "`activity_logs`",
+        "`user_permissions`",
+        "`role_permissions`",
+        "Database Views",
+        "`dashboard_kpi_view`",
+        "`activity_feed_view`",
+        "`task_details_view`",
+        "`client_details_view`",
+        "`compliance_details_view`",
+        "`time_entries_view`",
+        "`invoice_details_view`",
+        "Enums Reference",
+        "Client Enums",
+        "Task Enums",
+        "Document Enums",
+        "Invoice Enums",
+        "Time Entry Enums",
+        "Compliance Enums",
+        "Service Enums",
+        "Proposal Enums",
+        "Onboarding Enums",
+        "Indexes & Performance",
+        "Composite Indexes",
+        "Covering Indexes",
+        "Partial Indexes",
+        "Multi-Tenancy Patterns",
+        "Data Isolation",
+        "Cascade Deletion",
+        "Row-Level Security (Future)",
+        "Sample Queries",
+        "Get Client with Recent Activity",
+        "Get Dashboard KPIs",
+        "Get Unbilled Hours by Client",
+        "Get Overdue Compliance Items",
+        "Get Proposal Conversion Rate",
+        "Get Client Onboarding Progress",
+        "Get KYC Verifications Requiring Review",
+        "Schema Evolution",
+        "Migration Strategy",
+        "Production Migration",
+        "Further Reading",
+        "Changelog",
+        "Version 1.1 (2025-10-21)"
+      ],
+      "tags": []
     },
     {
-      "title": "Unit Testing",
-      "file": "docs/testing/unit-testing.md",
-      "category": "testing",
+      "path": "testing/coverage-guidelines.md",
+      "title": "coverage-guidelines",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
       "status": "draft",
-      "excerpt": "Guide to writing and running unit tests with Vitest.",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.222Z",
+      "wordCount": 27,
+      "sections": [
+        "Coverage Guidelines",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
       "tags": [
         ""
+      ]
+    },
+    {
+      "path": "testing/e2e-testing.md",
+      "title": "e2e-testing",
+      "description": "",
+      "audience": [
+        "dev"
       ],
-      "created": "2025-11-02",
-      "updated": "2025-11-02"
+      "status": "draft",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.217Z",
+      "wordCount": 29,
+      "sections": [
+        "End-to-End Testing",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "path": "testing/integration-testing.md",
+      "title": "integration-testing",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
+      "status": "draft",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.215Z",
+      "wordCount": 29,
+      "sections": [
+        "Integration Testing",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "path": "testing/test-data-factories.md",
+      "title": "test-data-factories",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
+      "status": "draft",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.220Z",
+      "wordCount": 30,
+      "sections": [
+        "Test Data Factories",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
+      "tags": [
+        ""
+      ]
+    },
+    {
+      "path": "testing/unit-testing.md",
+      "title": "unit-testing",
+      "description": "",
+      "audience": [
+        "dev"
+      ],
+      "status": "draft",
+      "generated": "HUMAN-AUTHORED",
+      "lastModified": "2025-11-02T17:55:33.213Z",
+      "wordCount": 30,
+      "sections": [
+        "Unit Testing",
+        "Overview",
+        "Contents",
+        "Related Documentation"
+      ],
+      "tags": [
+        ""
+      ]
     }
   ]
 }

@@ -34,13 +34,18 @@
     "docs:generate:code-index": "tsx .claude/skills/practice-hub-docs-search/scripts/generate-code-index.ts",
     "docs:generate:doc-index": "tsx .claude/skills/practice-hub-docs-search/scripts/generate-doc-index.ts",
     "docs:generate:all": "pnpm docs:generate && pnpm docs:generate:code-index && pnpm docs:generate:doc-index",
+    "docs:facts": "tsx scripts/derive_repo_facts.ts",
+    "docs:extract": "python3 scripts/extract_doclets.py",
+    "docs:build": "python3 scripts/build_docs.py",
+    "docs:audit-tags": "python3 scripts/audit_taggable_items.py",
+    "docs:validate:frontmatter": "tsx scripts/validate-frontmatter.ts",
+    "docs:validate:orphans": "bash scripts/find-orphaned-docs.sh",
+    "docs:validate:drift": "python3 scripts/check_doc_drift.py",
+    "docs:validate": "pnpm docs:validate:frontmatter && pnpm docs:validate:orphans && pnpm docs:validate:drift",
     "audit:redundancy": "tsx scripts/audit-redundancy.ts",
     "audit:deps": "pnpm depcheck",
     "audit:exports": "pnpm ts-prune",
-    "audit:all": "pnpm audit:redundancy",
-    "docs:validate:frontmatter": "tsx scripts/validate-frontmatter.ts",
-    "docs:validate:orphans": "bash scripts/find-orphaned-docs.sh",
-    "docs:validate": "pnpm docs:validate:frontmatter && pnpm docs:validate:orphans"
+    "audit:all": "pnpm audit:redundancy"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.901.0",
