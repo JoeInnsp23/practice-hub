@@ -8,7 +8,7 @@
 
 > **UploadModal**(`__namedParameters`): `Element`
 
-Defined in: [components/client-hub/documents/upload-modal.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/components/client-hub/documents/upload-modal.tsx#L41)
+Defined in: [components/client-hub/documents/upload-modal.tsx:41](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/components/client-hub/documents/upload-modal.tsx#L41)
 
 ## Parameters
 

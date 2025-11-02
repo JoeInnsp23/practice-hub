@@ -6,7 +6,7 @@
 
 # Interface: ConnectionStats
 
-Defined in: [lib/realtime/client.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L75)
+Defined in: [lib/realtime/client.ts:75](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L75)
 
 Connection statistics
 
@@ -16,7 +16,7 @@ Connection statistics
 
 > **isPolling**: `boolean`
 
-Defined in: [lib/realtime/client.ts:87](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L87)
+Defined in: [lib/realtime/client.ts:87](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L87)
 
 Is using polling fallback
 
@@ -26,7 +26,7 @@ Is using polling fallback
 
 > `optional` **lastConnected**: `number`
 
-Defined in: [lib/realtime/client.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L81)
+Defined in: [lib/realtime/client.ts:81](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L81)
 
 Last successful connection timestamp
 
@@ -36,7 +36,7 @@ Last successful connection timestamp
 
 > `optional` **lastDisconnected**: `number`
 
-Defined in: [lib/realtime/client.ts:83](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L83)
+Defined in: [lib/realtime/client.ts:83](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L83)
 
 Last disconnection timestamp
 
@@ -46,7 +46,7 @@ Last disconnection timestamp
 
 > `optional` **lastHeartbeat**: `number`
 
-Defined in: [lib/realtime/client.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L85)
+Defined in: [lib/realtime/client.ts:85](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L85)
 
 Last heartbeat received timestamp
 
@@ -56,7 +56,7 @@ Last heartbeat received timestamp
 
 > **reconnectAttempts**: `number`
 
-Defined in: [lib/realtime/client.ts:79](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L79)
+Defined in: [lib/realtime/client.ts:79](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L79)
 
 Number of reconnection attempts
 
@@ -66,6 +66,6 @@ Number of reconnection attempts
 
 > **state**: [`ConnectionState`](../type-aliases/ConnectionState.md)
 
-Defined in: [lib/realtime/client.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/realtime/client.ts#L77)
+Defined in: [lib/realtime/client.ts:77](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/realtime/client.ts#L77)
 
 Current connection state

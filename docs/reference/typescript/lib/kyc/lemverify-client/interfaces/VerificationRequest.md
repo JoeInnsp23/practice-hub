@@ -6,7 +6,7 @@
 
 # Interface: VerificationRequest
 
-Defined in: [lib/kyc/lemverify-client.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L43)
+Defined in: [lib/kyc/lemverify-client.ts:43](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L43)
 
 Verification request input
 
@@ -16,7 +16,7 @@ Verification request input
 
 > `optional` **callbackUrl**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L50)
+Defined in: [lib/kyc/lemverify-client.ts:50](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L50)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [lib/kyc/lemverify-client.ts:50](https://github.com/JoeInnsp23/pract
 
 > **clientRef**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L44)
+Defined in: [lib/kyc/lemverify-client.ts:44](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L44)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [lib/kyc/lemverify-client.ts:44](https://github.com/JoeInnsp23/pract
 
 > `optional` **dateOfBirth**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L48)
+Defined in: [lib/kyc/lemverify-client.ts:48](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L48)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [lib/kyc/lemverify-client.ts:48](https://github.com/JoeInnsp23/pract
 
 > **email**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L45)
+Defined in: [lib/kyc/lemverify-client.ts:45](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L45)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [lib/kyc/lemverify-client.ts:45](https://github.com/JoeInnsp23/pract
 
 > **firstName**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L46)
+Defined in: [lib/kyc/lemverify-client.ts:46](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L46)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [lib/kyc/lemverify-client.ts:46](https://github.com/JoeInnsp23/pract
 
 > **lastName**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L47)
+Defined in: [lib/kyc/lemverify-client.ts:47](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L47)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [lib/kyc/lemverify-client.ts:47](https://github.com/JoeInnsp23/pract
 
 > `optional` **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [lib/kyc/lemverify-client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L51)
+Defined in: [lib/kyc/lemverify-client.ts:51](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L51)
 
 ***
 
@@ -72,4 +72,4 @@ Defined in: [lib/kyc/lemverify-client.ts:51](https://github.com/JoeInnsp23/pract
 
 > `optional` **phoneNumber**: `string`
 
-Defined in: [lib/kyc/lemverify-client.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/kyc/lemverify-client.ts#L49)
+Defined in: [lib/kyc/lemverify-client.ts:49](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/kyc/lemverify-client.ts#L49)

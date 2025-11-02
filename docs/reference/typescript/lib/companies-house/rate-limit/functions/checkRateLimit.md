@@ -8,7 +8,7 @@
 
 > **checkRateLimit**(): `Promise`\<`boolean`\>
 
-Defined in: [lib/companies-house/rate-limit.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/lib/companies-house/rate-limit.ts#L23)
+Defined in: [lib/companies-house/rate-limit.ts:23](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/lib/companies-house/rate-limit.ts#L23)
 
 Check if a request can be made within the current rate limit
 

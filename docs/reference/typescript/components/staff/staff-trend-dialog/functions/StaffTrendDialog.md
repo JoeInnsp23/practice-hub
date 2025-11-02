@@ -8,7 +8,7 @@
 
 > **StaffTrendDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/staff/staff-trend-dialog.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/components/staff/staff-trend-dialog.tsx#L31)
+Defined in: [components/staff/staff-trend-dialog.tsx:31](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/components/staff/staff-trend-dialog.tsx#L31)
 
 ## Parameters
 

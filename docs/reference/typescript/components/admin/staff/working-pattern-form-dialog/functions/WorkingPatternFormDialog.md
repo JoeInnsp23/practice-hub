@@ -8,7 +8,7 @@
 
 > **WorkingPatternFormDialog**(`__namedParameters`): `Element`
 
-Defined in: [components/admin/staff/working-pattern-form-dialog.tsx:174](https://github.com/JoeInnsp23/practice-hub/blob/21444299d8ea4ce7974beac0b6aa70c0cff46a3b/components/admin/staff/working-pattern-form-dialog.tsx#L174)
+Defined in: [components/admin/staff/working-pattern-form-dialog.tsx:174](https://github.com/JoeInnsp23/practice-hub/blob/7fb11d6acbd6461abb0d50f5a7de8dab38498d2e/components/admin/staff/working-pattern-form-dialog.tsx#L174)
 
 ## Parameters
 
