@@ -120,10 +120,19 @@ Practice Hub requires two separate authentication systems due to the dual-level 
 ```typescript
 // lib/auth.ts
 import { betterAuth } from "better-auth";
-import { prisma } from "./db";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "./db";
 
 export const auth = betterAuth({
-  database: prisma,
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user: users,
+      session: sessions,
+      account: accounts,
+      verification: verifications,
+    },
+  }),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // TODO: Enable in production
@@ -315,7 +324,7 @@ export const clientPortalAuth = betterAuth({
 
 #### API Route
 
-**File**: `app/api/client-portal-auth/[...all]/route.ts`
+**File**: `app/(client-portal)/api/client-portal-auth/[...all]/route.ts`
 
 ```typescript
 import { toNextJsHandler } from "better-auth/next-js";
@@ -340,12 +349,18 @@ export const { POST, GET } = toNextJsHandler(clientPortalAuth);
 
 ```typescript
 export interface ClientPortalAuthContext {
-  userId: string;
-  clientId: string;   // REQUIRED - Specific client company
-  tenantId: string;   // REQUIRED - Accountancy firm
+  portalUserId: string;   // Portal user ID
+  tenantId: string;       // REQUIRED - Accountancy firm
   email: string;
   firstName: string | null;
   lastName: string | null;
+  clientAccess: Array<{   // Multi-client support
+    clientId: string;
+    clientName: string;
+    role: string;
+    isActive: boolean;
+  }>;
+  currentClientId?: string; // Selected client for multi-client users
 }
 
 export async function getClientPortalAuthContext(): Promise<ClientPortalAuthContext | null> {
@@ -357,7 +372,8 @@ export async function getClientPortalAuthContext(): Promise<ClientPortalAuthCont
     return null;
   }
 
-  // Look up user's tenant AND client from database
+  // Look up user's tenant from client_portal_users
+  // Then query client_portal_access for all accessible clients
   const userRecord = await db
     .select({
       id: clientPortalUsers.id,

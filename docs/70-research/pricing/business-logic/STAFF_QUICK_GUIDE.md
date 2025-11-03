@@ -2,6 +2,8 @@
 
 **Keep this handy when quoting clients!**
 
+> **⚠️ PRICE DISCLAIMER:** Quick-reference prices in this guide are from the 2025-09-30 snapshot and may be outdated. Pricing is now database-driven and admin-configurable. **Always use the proposal calculator for accurate current pricing.** This guide shows the quoting workflow and decision-making process.
+
 ---
 
 ## 30-Second Quote Process

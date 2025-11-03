@@ -3,6 +3,8 @@
 **Version:** 1.0
 **Last Updated:** September 30, 2025
 
+> **⚠️ PRICE DISCLAIMER:** All prices and calculations in these examples are based on the 2025-09-30 pricing snapshot. Actual prices may differ as pricing is now database-driven and admin-configurable. **Always use the proposal calculator for current quotes.** These examples illustrate the calculation methodology only.
+
 This document provides detailed pricing examples for common client scenarios to help with quoting.
 
 ---

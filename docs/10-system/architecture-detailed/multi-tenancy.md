@@ -176,17 +176,20 @@ export const clientPortalAccess = pgTable("client_portal_access", {
 **Usage**: Client portal users can only access data for their specific client
 
 **Tables Using This Pattern**:
-- `client_portal_access` - Portal access grants
+- `client_portal_access` - Portal access grants (junction table for multi-client support)
 - `client_portal_invitations` - Client portal invitations
+- `client_portal_session` - ✅ HAS dual isolation (`tenantId` + `clientId`)
+- `client_portal_account` - ✅ HAS dual isolation (`tenantId` + `clientId`)
+- `client_portal_verification` - ✅ HAS dual isolation (`tenantId` + `clientId`)
 - Client-scoped data (proposals, invoices, documents when accessed via portal)
 
-**⚠️ CRITICAL ISSUE**: The following tables are MISSING dual isolation:
-- `client_portal_users` - Missing `tenantId` + `clientId`
-- `client_portal_session` - Missing `tenantId` + `clientId`
-- `client_portal_account` - Missing `tenantId` + `clientId`
-- `client_portal_verification` - Missing `tenantId` + `clientId`
-
-See [Technical Debt](../development/technical-debt.md) for fix details.
+**📝 Multi-Client Access Pattern**:
+- `client_portal_users` - Uses `tenantId` ONLY (by design)
+  - Supports users accessing multiple clients within a tenant
+  - Client associations managed via `client_portal_access` junction table
+  - Pattern: user.tenantId → clientPortalAccess → multiple clientId values
+- Authentication context includes `clientAccess[]` array with all accessible clients
+- Current session tracks selected `currentClientId` for multi-client users
 
 ---
 
@@ -272,18 +275,33 @@ export async function getAuthContext(): Promise<AuthContext | null> {
 ```typescript
 // lib/client-portal-auth.ts
 export interface ClientPortalAuthContext {
-  userId: string;
-  clientId: string;      // REQUIRED: Specific client company
+  portalUserId: string;  // Portal user ID (not userId)
   tenantId: string;      // REQUIRED: Accountancy firm
   email: string;
   firstName: string | null;
   lastName: string | null;
+  clientAccess: Array<{  // Multi-client support
+    clientId: string;
+    clientName: string;
+    role: string;
+    isActive: boolean;
+  }>;
+  currentClientId?: string; // Selected client for multi-client users
 }
 ```
 
-**Why Separate**: Client portal users need dual isolation (tenantId + clientId)
+**Why Separate**: Client portal users need dual isolation (tenantId + clientId) AND support for multi-client access
 
-**Implementation**: Similar to staff auth, but looks up both `tenantId` and `clientId` from `client_portal_users` table
+**Multi-Client Pattern**:
+- Portal users can access multiple clients within a tenant
+- `clientAccess` array contains all client grants
+- `currentClientId` tracks which client context is active in current session
+- Queries must filter by `authContext.currentClientId` (not single `clientId`)
+
+**Implementation**:
+1. Looks up `client_portal_users` by session (gets `tenantId`)
+2. Queries `client_portal_access` junction table for all client grants
+3. Returns array of accessible clients with current selection
 
 ---
 
@@ -318,7 +336,7 @@ export const clientsRouter = router({
 
 #### Client Portal Query (Dual Isolation)
 
-**Pattern**: Filter by BOTH `tenantId` AND `clientId`
+**Pattern**: Filter by BOTH `tenantId` AND `currentClientId`
 
 ```typescript
 // ❌ WRONG - Client portal missing clientId
@@ -333,8 +351,8 @@ const proposals = await db
   .from(proposalsTable)
   .where(
     and(
-      eq(proposalsTable.tenantId, authContext.tenantId),  // Tenant isolation
-      eq(proposalsTable.clientId, authContext.clientId)   // Client isolation
+      eq(proposalsTable.tenantId, authContext.tenantId),           // Tenant isolation
+      eq(proposalsTable.clientId, authContext.currentClientId)     // Client isolation (current selection)
     )
   );
 ```
@@ -343,19 +361,25 @@ const proposals = await db
 ```typescript
 export const clientPortalRouter = router({
   getProposals: clientPortalProcedure.query(({ ctx }) => {
-    // ctx.authContext has both tenantId and clientId
+    // ctx.authContext has tenantId and currentClientId (selected client)
+    if (!ctx.authContext.currentClientId) {
+      throw new Error("No client selected");
+    }
+
     return db
       .select()
       .from(proposals)
       .where(
         and(
           eq(proposals.tenantId, ctx.authContext.tenantId),
-          eq(proposals.clientId, ctx.authContext.clientId)
+          eq(proposals.clientId, ctx.authContext.currentClientId)
         )
       );
   }),
 });
 ```
+
+**📝 Multi-Client Support Note**: For users with access to multiple clients, queries use `currentClientId` from session. Users can switch between accessible clients in their `clientAccess[]` array.
 
 ---
 

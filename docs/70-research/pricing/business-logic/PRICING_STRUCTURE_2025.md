@@ -2,7 +2,9 @@
 
 **Version:** 1.0
 **Last Updated:** September 30, 2025
-**Status:** Active
+**Status:** Reference Document
+
+> **⚠️ PRICE DISCLAIMER:** Prices shown in this document are examples from the 2025-09-30 snapshot and may not reflect current pricing. All pricing is now database-driven via the `pricingRules` table and configurable through the admin interface. **Use the proposal calculator for current, accurate pricing.**
 
 ---
 
