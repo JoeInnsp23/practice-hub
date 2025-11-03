@@ -1,7 +1,22 @@
 # Documentation Sitemap
 
 **Last Updated**: 2025-01-03  
-**Total Documents**: 45 (aggressively consolidated from 121)
+**Total Documents**: 45 (aggressively consolidated from 121)  
+**AI-Optimized**: Numbered index structure for easy navigation
+
+---
+
+## Numbered Documentation Index
+
+- **[00-ai-index/](00-ai-index/README.md)** - ⭐ AI agent entry point (MANDATORY first read)
+- **[10-system/](10-system/README.md)** - System architecture & core docs
+- **[20-dev-standards/](20-dev-standards/README.md)** - Coding standards & documentation guide
+- **[30-reference/](30-reference/README.md)** - API, database, config, security
+- **[40-guides/](40-guides/README.md)** - Integration guides & specialized docs
+- **[50-operations/](50-operations/README.md)** - Deployment & operational procedures
+- **[60-active-planning/](60-active-planning/README.md)** - Active phases, launch plans, sprints
+- **[70-research/](70-research/README.md)** - Research projects (pricing, market analysis)
+- **[90-completed/](90-completed/README.md)** - Completed phases, historical reports
 
 ---
 

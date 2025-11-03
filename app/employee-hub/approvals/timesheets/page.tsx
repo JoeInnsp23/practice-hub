@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -25,6 +26,9 @@ export default function ApprovalsPage() {
       utils.timesheets.getPendingApprovals.invalidate();
     },
     onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { operation: "approve_timesheet" },
+      });
       toast.error(error.message || "Failed to approve timesheet");
     },
   });
@@ -36,6 +40,9 @@ export default function ApprovalsPage() {
       utils.timesheets.getPendingApprovals.invalidate();
     },
     onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { operation: "reject_timesheet" },
+      });
       toast.error(error.message || "Failed to reject timesheet");
     },
   });
@@ -47,6 +54,9 @@ export default function ApprovalsPage() {
       utils.timesheets.getPendingApprovals.invalidate();
     },
     onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { operation: "bulk_approve_timesheets" },
+      });
       toast.error(error.message || "Failed to approve timesheets");
     },
   });
@@ -59,6 +69,9 @@ export default function ApprovalsPage() {
       utils.timesheets.getPendingApprovals.invalidate();
     },
     onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { operation: "bulk_reject_timesheets" },
+      });
       toast.error(error.message || "Failed to reject timesheets");
     },
   });

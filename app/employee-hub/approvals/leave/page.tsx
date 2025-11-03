@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import {
   AlertTriangle,
   CheckCircle,
@@ -9,7 +8,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { ApprovalActionsModal } from "@/components/employee-hub/leave/approval-actions-modal";
@@ -52,34 +50,8 @@ export default function LeaveApprovalsPage() {
 
   // Fetch team leave requests
   const { data: teamLeave, isLoading } = trpc.leave.getTeamLeave.useQuery({});
-  const utils = trpc.useUtils();
 
-  // Mutations for single approve/reject
-  const _approveMutation = trpc.leave.approve.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request approved");
-      utils.leave.getTeamLeave.invalidate();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "approve_leave" },
-      });
-      toast.error(error.message || "Failed to approve leave request");
-    },
-  });
-
-  const _rejectMutation = trpc.leave.reject.useMutation({
-    onSuccess: () => {
-      toast.success("Leave request rejected");
-      utils.leave.getTeamLeave.invalidate();
-    },
-    onError: (error) => {
-      Sentry.captureException(error, {
-        tags: { operation: "reject_leave" },
-      });
-      toast.error(error.message || "Failed to reject leave request");
-    },
-  });
+  // Note: Approve/reject actions are handled by ApprovalActionsModal component
 
   // Calculate stats
   const stats = useMemo(() => {

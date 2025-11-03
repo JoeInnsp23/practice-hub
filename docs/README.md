@@ -21,15 +21,32 @@ categories:
 
 ## Quick Navigation
 
-**For AI Agents:**
-1. Load [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - Complete system state
-2. Load [../CLAUDE.md](../CLAUDE.md) - CRITICAL development rules
-3. Load integration guides as needed
+**For AI Agents (START HERE):**
+1. **[00-ai-index/README.md](00-ai-index/README.md)** - ⭐ MANDATORY: AI documentation index with load order
+2. Load [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - Complete system state
+3. Load [../CLAUDE.md](../CLAUDE.md) - CRITICAL development rules
+4. Load integration guides as needed
 
 **For Developers:**
 1. [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - System understanding
 2. [coding-standards.md](coding-standards.md) - Development standards
 3. [../CLAUDE.md](../CLAUDE.md) - CRITICAL rules
+
+---
+
+## Numbered Documentation Index
+
+**AI-Optimized Structure (numbered prefixes for sorting):**
+
+- **[00-ai-index/](00-ai-index/)** - AI agent entry point (MANDATORY first read)
+- **[10-system/](10-system/)** - System architecture & core docs
+- **[20-dev-standards/](20-dev-standards/)** - Coding standards & documentation guide
+- **[30-reference/](30-reference/)** - API, database, config, security
+- **[40-guides/](40-guides/)** - Integration guides & specialized docs
+- **[50-operations/](50-operations/)** - Deployment & operational procedures
+- **[60-active-planning/](60-active-planning/)** - Active phases, launch plans, sprints
+- **[70-research/](70-research/)** - Research projects (pricing, market analysis)
+- **[90-completed/](90-completed/)** - Completed phases, historical reports
 
 ---
 
@@ -135,14 +152,18 @@ docker compose down   # Stop services
 
 ---
 
-## Archived Documentation
+## Special Directories
 
-**Location:** `docs/.archive/`
+**Active Planning:**
+- Location: `60-active-planning/` (phases, launch, agents, sprints)
 
-- `audit-2025-01-03/` - Superseded docs from Phase 0 audit
-- `planning-docs/` - Phase plans (PHASE_0, PHASE_1, LAUNCH_PLAN_REVISED, etc.)
-- `user-guides-moved-2025-01-03/` - End-user guides (better in external wiki)
-- Historical archives from previous audits
+**Completed Work:**
+- Location: `90-completed/` (phase reports, retrospectives)
+
+**Old CRM Archive (PROJECT ROOT ONLY):**
+- Location: `/root/projects/practice-hub/.archive/` (NOT in docs/)
+- Purpose: Reference material from archived CRM application
+- ⚠️ DO NOT add new documentation here - it's for old app reference only
 
 ---
 

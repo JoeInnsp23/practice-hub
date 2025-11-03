@@ -746,7 +746,12 @@ export const leaveRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { tenantId } = ctx.authContext;
+      const { tenantId, role } = ctx.authContext;
+
+      // Check if user is manager/admin (only managers can view team leave)
+      if (role !== "manager" && role !== "admin" && role !== "org:admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
 
       const whereConditions = [eq(leaveRequests.tenantId, tenantId)];
 
