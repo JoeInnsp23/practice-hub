@@ -166,7 +166,7 @@ docs/
 
 #### Issue 3: Audit Reports Location [LOW SEVERITY]
 
-**Current Location:** `docs/audit/`
+**Current Location:** `docs/90-completed/phase-0/audit/`
 
 **Analysis:**
 - ✅ Appropriate for historical audit records
@@ -174,7 +174,7 @@ docs/
 - ⚠️ But they're counted in file total
 
 **Recommendation:**
-- [ ] Consider moving to `docs/90-completed/phase-0/audit/` to align with phase organization
+- ✅ **COMPLETED:** Moved to `docs/90-completed/phase-0/audit/` to align with phase organization
 - [ ] OR explicitly exclude from active file count in reports
 
 #### Issue 4: Numbered Index READMEs Purpose [INFORMATIONAL]
@@ -307,7 +307,7 @@ docs/
 - [ ] [Medium] Reconcile file count in PHASE_0_COMPLETE.md: Update to reflect actual 60 files OR clarify "45 content files + 15 navigation/audit files"
 - [ ] [Medium] Document numbered taxonomy (00-90) as "Phase 0 Enhancement" in PHASE_0_COMPLETE.md
 - [ ] [Low] Update final structure diagram in PHASE_0_COMPLETE.md to show numbered buckets
-- [ ] [Low] Consider moving `docs/audit/` to `docs/90-completed/phase-0/audit/` for alignment
+- ✅ **COMPLETED:** Moved `docs/audit/` to `docs/90-completed/phase-0/audit/` for alignment
 - [ ] [Low] Document distinction between "content docs" vs "index docs" in file count methodology
 
 ### Advisory Notes:

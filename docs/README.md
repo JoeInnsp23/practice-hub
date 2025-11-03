@@ -93,7 +93,7 @@ categories:
 - [Database Scripts](reference/database/scripts.md)
 
 **Configuration & Security:**
-- [Environment Variables](reference/configuration/environment.md)
+  - [Environment Variables](reference/configuration/environment.md)
 - [CSRF Protection](reference/security/csrf.md)
 - [Error Codes](reference/error-codes.md)
 - [Integrations Reference](reference/integrations.md)
