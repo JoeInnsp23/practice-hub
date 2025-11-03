@@ -1,0 +1,97 @@
+---
+description: Documentation AI Index and Organization Rules - Always load AI index first when working with docs
+globs:
+  - "docs/**/*.md"
+  - "docs/**/*.mdx"
+alwaysApply: true
+---
+
+# Documentation AI Index and Organization Rules
+
+**Purpose:** Ensure AI agents always load the documentation index first and follow proper documentation organization.
+
+## Context Rules
+
+### Always Include (High Priority)
+
+These files must be included when working with documentation:
+
+1. **`docs/00-ai-index/README.md`** - MANDATORY: AI documentation index with load order and save rules
+2. **`docs/20-dev-standards/DOCUMENTATION_GUIDE.md`** - Where to save different document types
+3. **`docs/10-system/bmm-brownfield-architecture.md`** - Complete system reference (96 tables, 44 routers, 1,778 tests)
+
+### Prefer Include (Medium Priority)
+
+Load these as needed for specific tasks:
+
+- `docs/30-reference/**` - API, database, config, security references
+- `docs/40-guides/**` - Integration guides and specialized documentation
+- `docs/50-operations/**` - Deployment and operational procedures
+
+### Exclude from Default Context
+
+These directories are excluded to reduce noise:
+
+- `docs/70-research/**` - Research projects (pricing, market analysis) - load explicitly when needed
+- `**/.archive/**` - Old CRM app reference (project root only) - NEVER modify
+- `docs/audit/**` - Historical audit reports - reference only
+
+---
+
+## Documentation Creation Guardrails
+
+### Before Creating ANY Documentation
+
+**MANDATORY CHECKLIST:**
+
+1. ✅ Read `docs/00-ai-index/README.md` first
+2. ✅ Check `docs/20-dev-standards/DOCUMENTATION_GUIDE.md` for correct location
+3. ✅ Verify content doesn't already exist in `bmm-brownfield-architecture.md` or `coding-standards.md`
+4. ✅ Confirm correct numbered bucket (10/20/30/40/50/60/70/90)
+
+### Prohibited Actions
+
+**DO NOT:**
+- ❌ Create files in `docs/` root (max 7 core files allowed)
+- ❌ Create stub/placeholder files (<500 words) unless in `60-active-planning/` with phase owner
+- ❌ Create duplicate documentation for existing content
+- ❌ Create subdirectories for single files
+- ❌ Add files to `.archive/` (old CRM app reference only - project root)
+
+### Required Actions
+
+**ALWAYS:**
+- ✅ Check `DOCUMENTATION_GUIDE.md` before creating any documentation
+- ✅ Use numbered taxonomy (00/10/20/30/40/50/60/70/90) for organization
+- ✅ Place active planning in `60-active-planning/{category}/`
+- ✅ Place completed phases in `90-completed/{phase-name}/`
+- ✅ Ask user if unsure about location or if creating new category
+
+---
+
+## Numbered Taxonomy Reference
+
+```
+00-ai-index/          AI entry point (MANDATORY first read)
+10-system/            System architecture & core docs
+20-dev-standards/     Coding standards & documentation guide
+30-reference/          API, database, config, security
+40-guides/            Integration guides & specialized docs
+50-operations/         Deployment & operational procedures
+60-active-planning/    Active phases, launch plans, sprints
+70-research/          Research projects (excluded from default context)
+90-completed/          Completed phases, historical reports
+```
+
+---
+
+## Prompt Instructions
+
+When creating new documentation, include this prompt instruction:
+
+> "Before creating any documentation, check `docs/20-dev-standards/DOCUMENTATION_GUIDE.md` to determine the correct location based on document type. Verify the content doesn't duplicate existing documentation in `bmm-brownfield-architecture.md` or `coding-standards.md`. Use the numbered taxonomy (00-90) for proper organization."
+
+---
+
+**Last Updated:** 2025-01-03  
+**Version:** 1.0

@@ -1,267 +1,127 @@
 ---
-documentation_version: "2.0"
-last_updated: "2025-10-21"
-architecture: "ai-optimized"
+documentation_version: "3.0"
+last_updated: "2025-01-03"
+architecture: "aggressively-consolidated"
 total_documents: 45
 categories:
-  - getting-started
-  - architecture
+  - core
   - guides
   - reference
   - operations
-  - development
-  - troubleshooting
-  - user-guides
+  - pricing
 ---
 
 # Practice Hub Documentation
 
-**AI-Optimized Documentation Architecture v2.0**
+**Aggressively Consolidated - January 2025**
 
-**AI Agent Quick Start**: Load [`getting-started/quickstart-ai-agent.md`](getting-started/quickstart-ai-agent.md) for optimal context
-
----
-
-## Document Discovery
-
-### By Task
-
-**Setting Up**:
-- **Local development environment** → [Developer Quick Start](getting-started/quickstart-developer.md)
-- **AI agent context loading** → [AI Agent Quick Start](getting-started/quickstart-ai-agent.md)
-- **Microsoft OAuth** → [Microsoft OAuth Setup](guides/integrations/microsoft-oauth.md)
-- **Sentry error tracking** → [Sentry Setup](guides/integrations/sentry.md)
-
-**Understanding the System**:
-- **Overall architecture** → [System Overview](architecture/system-overview.md)
-- **Multi-tenancy patterns** → [Multi-Tenancy Architecture](architecture/multi-tenancy.md)
-- **Authentication system** → [Authentication & Authorization](architecture/authentication.md)
-- **API design patterns** → [API Design & tRPC Patterns](architecture/api-design.md)
-- **UI design system** → [Design System & UI Patterns](architecture/design-system.md)
-
-**Development Tasks**:
-- **Creating a new tRPC router** → [API Design](architecture/api-design.md) → Router Patterns
-- **Adding database table** → [Multi-Tenancy Architecture](architecture/multi-tenancy.md) → Schema Patterns
-- **Adding UI component** → [Design System](architecture/design-system.md) → Component Library
-- **Understanding database schema** → [Database Schema](reference/database/schema.md)
-
-**Operations**:
-- **Deploying to production** → [Deployment](operations/deployment.md)
-- **Production readiness check** → [Production Checklist](operations/production-checklist.md)
-- **Backup and recovery** → [Backup & Recovery](operations/backup-recovery.md)
-- **Monitoring setup** → [Monitoring](operations/monitoring.md)
-
-**Troubleshooting**:
-- **Database connection issues** → [Common Errors](troubleshooting/common-errors.md)
-- **Authentication problems** → [Common Errors](troubleshooting/common-errors.md)
-- **Known technical debt** → [Technical Debt](development/technical-debt.md)
-
-### By Role
-
-**AI Agent**:
-1. Load [AI Agent Quick Start](getting-started/quickstart-ai-agent.md)
-2. Load [CRITICAL RULES](../CLAUDE.md) from root
-3. Load [System Overview](architecture/system-overview.md)
-4. Load task-specific docs based on work
-
-**New Developer**:
-1. [Developer Quick Start](getting-started/quickstart-developer.md)
-2. [System Overview](architecture/system-overview.md)
-3. [Multi-Tenancy Architecture](architecture/multi-tenancy.md)
-4. [Coding Standards](development/coding-standards.md)
-
-**Backend Developer**:
-1. [API Design & tRPC Patterns](architecture/api-design.md)
-2. [Multi-Tenancy Architecture](architecture/multi-tenancy.md)
-3. [Database Schema](reference/database/schema.md)
-4. [Authentication & Authorization](architecture/authentication.md)
-
-**Frontend Developer**:
-1. [Design System & UI Patterns](architecture/design-system.md)
-2. [API Design & tRPC Patterns](architecture/api-design.md)
-3. [Coding Standards](development/coding-standards.md)
-
-**DevOps Engineer**:
-1. [Operations Documentation](operations/)
-2. [Deployment](operations/deployment.md)
-3. [Monitoring](operations/monitoring.md)
-4. [Environment Variables](reference/configuration/environment.md)
-
-**System Admin**:
-1. [User Guides](user-guides/)
-2. [Operations Runbooks](operations/runbooks.md)
+**Start Here:** [`bmm-brownfield-architecture.md`](bmm-brownfield-architecture.md) - Complete system reference
 
 ---
 
-## Documentation Categories
+## Quick Navigation
 
-### [Getting Started](getting-started/)
+**For AI Agents (START HERE):**
+1. **[00-ai-index/README.md](00-ai-index/README.md)** - ⭐ MANDATORY: AI documentation index with load order
+2. Load [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - Complete system state
+3. Load [../CLAUDE.md](../CLAUDE.md) - CRITICAL development rules
+4. Load integration guides as needed
 
-Quick start guides for developers and AI agents.
-
-**Documents**:
-- [AI Agent Quick Start](getting-started/quickstart-ai-agent.md) - Optimal context loading for AI agents
-- [Developer Quick Start](getting-started/quickstart-developer.md) - Complete onboarding guide
-
----
-
-### [Architecture](architecture/)
-
-System design, patterns, and technical architecture.
-
-**Documents**:
-- [System Overview](architecture/system-overview.md) - Complete brownfield architecture reference
-- [Multi-Tenancy Architecture](architecture/multi-tenancy.md) - Dual-level data isolation patterns
-- [Authentication & Authorization](architecture/authentication.md) - Dual Better Auth system
-- [API Design & tRPC Patterns](architecture/api-design.md) - Type-safe API architecture
-- [Design System & UI Patterns](architecture/design-system.md) - Glass-card design system
-
-**Key Topics**:
-- Multi-tenant SaaS architecture (tenant + client isolation)
-- Better Auth dual authentication system
-- tRPC type-safe APIs (29 routers)
-- shadcn/ui component library
-- PostgreSQL database (50+ tables, 14 views)
+**For Developers:**
+1. [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - System understanding
+2. [coding-standards.md](coding-standards.md) - Development standards
+3. [../CLAUDE.md](../CLAUDE.md) - CRITICAL rules
 
 ---
 
-### [Guides](guides/)
+## Numbered Documentation Index
 
-Task-oriented how-to guides for development and operations.
+**AI-Optimized Structure (numbered prefixes for sorting):**
 
-**Sub-categories**:
-- **[Development](guides/development/)** - Coming soon
-- **[Integrations](guides/integrations/)** - Integration setup guides
-  - [Microsoft OAuth Setup](guides/integrations/microsoft-oauth.md)
-  - [LEM Verify Integration](guides/integrations/lemverify.md)
-  - [Sentry Setup](guides/integrations/sentry.md)
-  - [Xero Integration](guides/integrations/xero.md)
+- **[00-ai-index/](00-ai-index/)** - AI agent entry point (MANDATORY first read)
+- **[10-system/](10-system/)** - System architecture & core docs
+- **[20-dev-standards/](20-dev-standards/)** - Coding standards & documentation guide
+- **[30-reference/](30-reference/)** - API, database, config, security
+- **[40-guides/](40-guides/)** - Integration guides & specialized docs
+- **[50-operations/](50-operations/)** - Deployment & operational procedures
+- **[60-active-planning/](60-active-planning/)** - Active phases, launch plans, sprints
+- **[70-research/](70-research/)** - Research projects (pricing, market analysis)
+- **[90-completed/](90-completed/)** - Completed phases, historical reports
 
 ---
 
-### [Reference](reference/)
+## Core Documentation (7 files)
 
-Technical reference for APIs, database, configuration, and business logic.
+- [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - **PRIMARY** - Complete system reference (96 tables/views, 44 routers, 1,778 tests)
+- [README.md](README.md) - This file
+- [SITEMAP.md](SITEMAP.md) - Complete documentation index
+- [bmm-index.md](bmm-index.md) - BMad method entry point
+- [coding-standards.md](coding-standards.md) - Development standards (includes router creation, testing, database patterns)
+- [known-issues.md](known-issues.md) - Known issues and troubleshooting
+- [realtime-architecture.md](realtime-architecture.md) - SSE implementation details
 
-**Sub-categories**:
-- **[API Reference](reference/api/)** - tRPC routers documentation
-  - [tRPC Routers](reference/api/routers.md) - All 29 routers
-- **[Database Reference](reference/database/)** - Schema and scripts
-  - [Schema](reference/database/schema.md) - Complete database schema
-  - [Scripts](reference/database/scripts.md) - Database management scripts
-- **[Configuration](reference/configuration/)** - Environment and settings
+---
+
+## Integration Guides (6 files)
+
+**Location:** `guides/integrations/`
+
+- [Microsoft OAuth](guides/integrations/microsoft-oauth.md) - Staff SSO setup
+- [Xero](guides/integrations/xero.md) - Accounting integration
+- [DocuSeal](guides/integrations/docuseal.md) - E-signature platform
+- [Sentry](guides/integrations/sentry.md) - Error tracking
+- [LEM Verify](guides/integrations/lemverify.md) - KYC/AML
+- [Companies House](guides/integrations/companies-house.md) - UK company data
+
+---
+
+## Development Guides (3 files)
+
+**Location:** `guides/`
+
+- [Bulk Operations Testing](guides/testing/bulk-operations-test-implementation-plan.md)
+- [Secrets Handling](guides/SECRETS_HANDLING.md)
+- [SQL Safety Checklist](guides/sql-safety-checklist.md)
+
+---
+
+## Reference Documentation (7 files)
+
+**API & Database:**
+- [tRPC Routers](reference/api/routers.md) - All 44 routers
+- [Database Schema](reference/database/schema.md) - Complete 96 tables/views reference
+- [Database Scripts](reference/database/scripts.md)
+
+**Configuration & Security:**
   - [Environment Variables](reference/configuration/environment.md)
-- **[Security](reference/security/)** - Security implementations
-  - [CSRF Protection](reference/security/csrf.md)
-
-**Standalone Documents**:
-- [Integrations Reference](reference/integrations.md) - All 9 integrations
-- [Error Codes](reference/error-codes.md) - Standard error codes
+- [CSRF Protection](reference/security/csrf.md)
+- [Error Codes](reference/error-codes.md)
+- [Integrations Reference](reference/integrations.md)
 
 ---
 
-### [Operations](operations/)
+## Operations (2 files)
 
-Production operations, deployment, and maintenance.
-
-**Documents**:
-- [Deployment](operations/deployment.md) - Deployment procedures
-- [Production Checklist](operations/production-checklist.md) - Pre-production validation
-- [Backup & Recovery](operations/backup-recovery.md) - Database backup procedures
-- [Monitoring](operations/monitoring.md) - Monitoring and alerting
-- [Runbooks](operations/runbooks.md) - Operational procedures
+- [Deployment](operations/deployment.md) - Production deployment procedures
+- [Runbooks](operations/runbooks.md) - Operations procedures (includes backup, monitoring, production checklist)
 
 ---
 
-### [Development](development/)
+## Pricing Research (20 files)
 
-Development standards, conventions, and technical debt.
+**Location:** `pricing/`
 
-**Documents**:
-- [Coding Standards](development/coding-standards.md) - Code style guidelines
-- [Technical Debt](development/technical-debt.md) - Pre-production issues and TODOs
+Comprehensive market research, service catalog, and pricing models.
 
-**Coming Soon**:
-- Git Workflow
-- Testing Strategy
-- Code Review Checklist
-- Security Guidelines
+**Core Documents:**
+- Executive brief, service inventory, market research
+- Pricing models (A & B), DSL, quote workflow
+- Test plan, readiness checklist, rollout plan
+- Decisions, gaps analysis
 
----
-
-### [Troubleshooting](troubleshooting/)
-
-Problem-solution database for common errors.
-
-**Documents**:
-- [Common Errors](troubleshooting/common-errors.md) - Top errors and solutions
-
-**Coming Soon**:
-- Database Issues
-- Authentication Issues
-- Integration Failures
-- Performance Problems
-
----
-
-### [User Guides](user-guides/)
-
-End-user documentation for staff and clients.
-
-**Note**: User guides directory exists but documentation is pending migration.
-
----
-
-## Critical Files (Root Directory)
-
-These files remain in the project root:
-
-- **[CLAUDE.md](../CLAUDE.md)** - ⚠️ CRITICAL: Development rules and conventions (MUST READ for all developers and AI agents)
-- **[README.md](../README.md)** - Project overview
-- **[SECURITY.md](../SECURITY.md)** - Security policy
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Contributing guidelines
-- **[CHANGELOG.md](../CHANGELOG.md)** - Version history
-
----
-
-## Documentation Architecture
-
-### AI-Optimized Design
-
-**Features**:
-- ✅ **YAML Frontmatter** - All docs have machine-readable metadata
-- ✅ **Task-Oriented Organization** - Find docs by "what to do" not "what it is"
-- ✅ **Single Source of Truth** - Zero redundancy, clear ownership
-- ✅ **Cross-Referenced** - Related docs linked throughout
-- ✅ **Version Controlled** - Last updated dates, change tracking
-- ✅ **TL;DR Sections** - Quick summaries for AI agents and experienced developers
-
-### Document Templates
-
-All documents follow standardized templates in [`.meta/templates/`](.meta/templates/):
-- [Guide Template](.meta/templates/guide-template.md)
-- [Reference Template](.meta/templates/reference-template.md)
-
-### Metadata Standard
-
-Every document includes YAML frontmatter:
-
-```yaml
----
-title: "Document Title"
-category: "architecture|guide|reference|operations|development"
-subcategory: "specific-area"
-purpose: "One-line description"
-audience: ["ai-agent", "developer", "devops"]
-prerequisites: ["other-doc.md"]
-related: ["related-doc.md"]
-last_updated: "YYYY-MM-DD"
-version: "X.X"
-status: "current|deprecated|draft"
-owner: "team-name"
-tags: ["keyword1", "keyword2"]
----
-```
+**Market Data:**
+- 6 competitor snapshots (pricing/data/market/snapshots/)
+- Research planning (pricing/data/research/)
 
 ---
 
@@ -270,7 +130,7 @@ tags: ["keyword1", "keyword2"]
 ```bash
 # Development
 pnpm install          # Install dependencies
-pnpm dev              # Start dev server (user runs, not AI)
+pnpm dev              # Start dev server (user runs)
 pnpm build            # Production build
 pnpm lint             # Run Biome linter
 pnpm typecheck        # TypeScript check
@@ -280,61 +140,30 @@ pnpm db:reset         # Drop + push + migrate + seed (ONE command)
 pnpm db:studio        # Open Drizzle Studio
 
 # Testing
-pnpm test             # Run all tests (58 tests passing)
+pnpm test             # Run all tests (1,778 test cases in 85 files)
 pnpm test:watch       # Watch mode
 pnpm test:coverage    # Coverage report
+pnpm test:e2e         # E2E tests (Playwright)
 
 # Docker
 docker compose up -d  # Start services
 docker compose down   # Stop services
-docker ps             # List running containers
 ```
 
 ---
 
-## Documentation Status
+## Special Directories
 
-### Completed
+**Active Planning:**
+- Location: `60-active-planning/` (phases, launch, agents, sprints)
 
-✅ AI-optimized architecture (v2.0)
-✅ YAML frontmatter for all core docs
-✅ Task-based and role-based navigation
-✅ Master index with discovery metadata
-✅ Architecture documents (5 docs)
-✅ Integration guides (4 docs)
-✅ Reference documentation (6 docs)
-✅ Operations documentation (5 docs)
-✅ Development documentation (2 docs)
-✅ Troubleshooting documentation (1 doc)
+**Completed Work:**
+- Location: `90-completed/` (phase reports, retrospectives)
 
-### In Progress
-
-🚧 Development how-to guides
-🚧 Additional troubleshooting guides
-🚧 User guides migration
-
-### Archived
-
-📦 Historical documents in [`.archive/`](.archive/):
-- Gap analysis reports
-- Phase completion reports
-- Handover documents
-- Audit reports
-- Pull request documentation
-
----
-
-## Feedback & Contributions
-
-**Found an issue?**
-- Update the relevant document directly
-- Check [Technical Debt](development/technical-debt.md) for known issues
-- Consult [Troubleshooting](troubleshooting/common-errors.md) for common problems
-
-**Want to contribute?**
-- Read [CONTRIBUTING.md](../CONTRIBUTING.md)
-- Follow [Coding Standards](development/coding-standards.md)
-- Use document templates from [`.meta/templates/`](.meta/templates/)
+**Old CRM Archive (PROJECT ROOT ONLY):**
+- Location: `/root/projects/practice-hub/.archive/` (NOT in docs/)
+- Purpose: Reference material from archived CRM application
+- ⚠️ DO NOT add new documentation here - it's for old app reference only
 
 ---
 
@@ -342,12 +171,14 @@ docker ps             # List running containers
 
 | Date | Version | Changes | Author |
 |------|---------|---------|--------|
-| 2025-10-21 | 2.0 | AI-optimized documentation architecture | Winston/Architect |
-| 2025-10-21 | 1.0 | Initial documentation structure | Development Team |
+| 2025-01-03 | 3.0 | **AGGRESSIVE CONSOLIDATION**: 121 → 45 files. Deleted 40+ files (reference/proposals duplicates, architecture subdocs, dev meta, user guides moved), archived planning docs, fixed metrics (1,778 tests, 96 tables/views) | Mary/Analyst |
+| 2025-11-02 | 2.1 | Added stub files | Jose/Janitor |
+| 2025-10-21 | 2.0 | AI-optimized architecture | Winston/Architect |
+| 2025-10-21 | 1.0 | Initial structure | Development Team |
 
 ---
 
-**Documentation Version**: 2.0
-**Last Updated**: 2025-10-21
-**Architecture**: AI-Optimized
-**Status**: Current
+**Documentation Version**: 3.0  
+**Last Updated**: 2025-01-03  
+**Active Documents**: 45 (reduced from 121)  
+**Status**: Aggressively Consolidated

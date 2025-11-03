@@ -1,0 +1,92 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [main, develop, chore/docs-reorg]
+    paths:
+      - "docs/**"
+      - "README.md"
+      - "CLAUDE.md"
+      - ".github/workflows/docs-ci.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "docs/**"
+      - "README.md"
+      - "CLAUDE.md"
+
+jobs:
+  validate-frontmatter:
+    name: Validate Frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate frontmatter
+        run: pnpm tsx scripts/validate-frontmatter.ts
+        continue-on-error: true
+
+  generate-indexes:
+    name: Generate Documentation Indexes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate code index
+        run: pnpm docs:generate:code-index
+
+      - name: Generate doc index
+        run: pnpm docs:generate:doc-index
+
+      - name: Check indexes exist
+        run: |
+          if [ -f .claude/skills/practice-hub-docs-search/code-index.json ]; then
+            echo "✅ Code index generated successfully"
+            du -h .claude/skills/practice-hub-docs-search/code-index.json
+          else
+            echo "❌ Code index generation failed"
+            exit 1
+          fi
+          if [ -f .claude/skills/practice-hub-docs-search/doc-index.json ]; then
+            echo "✅ Doc index generated successfully"
+            du -h .claude/skills/practice-hub-docs-search/doc-index.json
+          else
+            echo "❌ Doc index generation failed"
+            exit 1
+          fi
+
+  check-orphaned-docs:
+    name: Check for Orphaned Documents
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find orphaned docs
+        run: bash scripts/find-orphaned-docs.sh
+        continue-on-error: true

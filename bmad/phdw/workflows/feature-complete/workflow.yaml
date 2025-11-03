@@ -1,0 +1,13 @@
+# Feature Complete Workflow Configuration
+name: feature-complete
+description: "Validate feature completion and merge to main (Olympus)"
+author: "Zeus - Workflow Orchestrator"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+
+installed_path: "{project-root}/bmad/phdw/workflows/feature-complete"
+template: false
+instructions: "{installed_path}/instructions.md"
+
+standalone: false # Called by phdw-master
+

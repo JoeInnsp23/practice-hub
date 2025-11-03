@@ -1,0 +1,8 @@
+---
+description: Database reset — single command only
+alwaysApply: true
+---
+
+- Always use `pnpm db:reset` to reset the database.
+- Do not run individual DB scripts (push/generate/migrate/seed) separately.
+

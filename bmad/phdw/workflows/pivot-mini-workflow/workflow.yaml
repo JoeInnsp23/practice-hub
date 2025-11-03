@@ -1,0 +1,21 @@
+# Pivot Mini-Workflow Configuration
+name: pivot-mini-workflow
+description: "Handle major pivots during story work with structured restart from requirements"
+author: "Zeus - Workflow Orchestrator"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+
+installed_path: "{project-root}/bmad/phdw/workflows/pivot-mini-workflow"
+template: false
+instructions: "{installed_path}/instructions.md"
+
+# Mini-workflow uses these sub-workflows
+sub_workflows:
+  feature_brainstorm_mini: "{project-root}/bmad/phdw/workflows/feature-brainstorm/workflow.yaml"
+  create_feature_brief: "{project-root}/bmad/phdw/workflows/create-feature-brief/workflow.yaml"
+  dev_story: "{project-root}/bmad/phdw/workflows/dev-story/workflow.yaml"
+  qa_story: "{project-root}/bmad/phdw/workflows/qa-story/workflow.yaml"
+
+standalone: false
+

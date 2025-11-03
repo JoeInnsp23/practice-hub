@@ -1,0 +1,13 @@
+---
+description: Errors & logging — Sentry first; no console in prod
+alwaysApply: true
+---
+
+- Use `@sentry/nextjs` for error tracking.
+- No `console.log/warn/debug` in production. Gate debug logs behind `NODE_ENV === "development"`.
+- Replace `console.error` with `Sentry.captureException(error, { tags, extra })`.
+- User messaging: never show raw errors; use `react-hot-toast` with generic text; optional short error code.
+- Tagging/context: tags `{ area, operation, module, severity }`; extra non-PII only; include `tenantId`/`userId` when available.
+- Exceptions: webhook signature verification failures (minimal `console.error` + Sentry); development-only code paths.
+- Biome enforcement: `"style": { "noConsole": "error" }` in `biome.json`; use ignores only for exceptions above.
+

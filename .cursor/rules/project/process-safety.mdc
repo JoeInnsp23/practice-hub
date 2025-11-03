@@ -1,0 +1,9 @@
+---
+description: Process safety — avoid killall; prefer targeted signals
+alwaysApply: true
+---
+
+- Do not use `killall` (e.g., `killall node`/`pnpm`).
+- Use `ps`/`grep` to find PIDs and `kill <pid>`.
+- Use `pkill -f` only with an exact, narrowly-scoped pattern and only when necessary.
+

@@ -1,0 +1,9 @@
+---
+description: Design — module color tokens; no inline hex
+alwaysApply: true
+---
+
+- Use module color tokens via the shared theme.
+- Client Hub `#3b82f6`, Admin `#f97316`, Practice Hub primary.
+- Do not use inline hex in components.
+

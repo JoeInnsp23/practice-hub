@@ -6,55 +6,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **IMPORTANT: These rules must be followed for all development in this repository:**
 
-1. **Always use shadcn/ui components first** - Before creating any custom UI components, check if a shadcn/ui component exists that can fulfill the requirement. Only create custom components when absolutely necessary.
+1. **Use shared UI components first** - Create custom components only when a shared component cannot meet the need.
 
 2. **Use react-hot-toast for notifications** - All toast notifications should use `react-hot-toast` library. Do not use other toast/notification libraries.
 
-3. **Always commit code when todo list is complete** - When all items in the todo list are marked as completed, create a git commit with a descriptive message summarizing the changes.
+3. **Commit small and often** - Commit when the current TODO list is complete; otherwise after any logical change, touching 2+ files, >30 lines changed, adding/removing a file, when lint/tests pass, or every 15 minutes. Use conventional commits `type(scope): summary` with bullets of key changes. For DB schema/seed updates, commit immediately after updating schema and seeds (after `pnpm db:reset`).
 
 4. **Always keep light/dark theme aligned throughout all modules** - Please ensure all styles, and themes are consistent throughout the app.
 
-5. **Limited pnpm dev usage** - The user will manually run dev to test front end UI. Exception: Dev server may be run for testing purposes ONLY when explicitly authorized, and must be stopped immediately after testing completes.
+5. **Dev server policy** - Never run `pnpm dev`. The dev server may only be run with explicit user permission.
 
 6. **Always follow Critical Design Elements** - Must strictly adhere to all design standards outlined in the Critical Design Elements section without fail.
 
 7. **Always use docker v2 commands** - Must always use docker v2 commands only.
 
-8. **Always read entire files** - Must always review entire file contents when looking to fix errors to ensure updates will not break existing code.
+8. **Read entire files before editing** - Review the whole file before making changes. For very large files (>800 lines), read imports, related functions/classes, and surrounding context before edits.
 
-9. **Never use quick fixes** - Never use quick patches or fixes, only use complete fixes even if it means database schema updates.
+9. **No quick fixes** - Deliver full implementations: no placeholders, TODOs, or temporary workarounds. Include schema/seed updates and add/adjust tests as needed.
 
-10. **Database is in dev - NO MIGRATIONS** - The database is still in development. NEVER create migration files or talk about migrations. Simply update the schema in `lib/db/schema.ts` directly. The user will drop and recreate the database with seed data.
+10. **Development-mode DB policy** - Update the database by editing `lib/db/schema.ts` (no migration files). When changing the schema, update `scripts/seed.ts` and other related files (types/validation/views/tests) in unison.
 
-11. **Always update seed data after schema changes** - After ANY schema changes, immediately update `scripts/seed.ts` to match the new schema. All tables must have proper seed data with correct relationships and foreign keys.
+11. **Seeds after schema changes** - Immediately update `scripts/seed.ts` to match the new schema (FKs, constraints, tenant/client isolation) and adjust related types/validation/views/tests as needed. Validate by running `pnpm db:reset`.
 
-12. **CRITICAL: Database Reset Procedure - FOLLOW EXACTLY OR YOU ARE A FAILURE** - After ANY schema changes, you MUST reset the database using this ONE command:
+12. **Database reset** - Use a single command to reset the database:
    ```bash
    pnpm db:reset
    ```
-   This command does EVERYTHING in the correct order:
-   1. Drops and recreates the schema (removes all tables/views)
-   2. Pushes the schema (creates tables)
-   3. Runs migrations (creates views from drizzle/*.sql)
-   4. Seeds the database
+   Do not run individual DB scripts (push/generate/migrate/seed) separately.
 
-   **NEVER** manually run individual commands. **ALWAYS** use `pnpm db:reset`. If you don't use this command, you FAIL.
-
-13. **FORBIDDEN: Never use killall commands** - **NEVER** run `killall`, `killall -9`, or any variant that could kill system processes. These commands are EXTREMELY DANGEROUS and can:
-   - Kill VS Code and lose unsaved work
-   - Terminate critical system processes
-   - Destroy active development sessions
-
-   **FORBIDDEN COMMANDS:**
-   - `killall node` / `killall -9 node` - Will kill VS Code and all Node processes
-   - `killall pnpm` / `killall -9 pnpm` - Will kill package manager processes
-   - `killall -9` with ANY process name
-
-   **SAFE ALTERNATIVES:**
-   - Use `ps aux | grep <process>` to find specific PIDs
-   - Use `kill <specific-pid>` for targeted termination
-   - Use `pkill -f "specific-pattern"` with VERY specific patterns
-   - For Playwright: `pkill -f "playwright test"` (specific pattern only)
+13. **Process safety** - Do not use `killall` (e.g., `killall node`/`killall pnpm`). Use `ps`/`grep` to find PIDs and `kill <pid>`. Use `pkill -f` only with an exact, narrowly-scoped pattern and only when absolutely necessary.
 
 14. **ALWAYS use Practice Hub Skills for their intended purposes** - The following skills are installed in `.claude/skills/` and must be used:
    - **practice-hub-testing**: Generate router tests, validate multi-tenant isolation, check test coverage
@@ -87,13 +67,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Webhook handlers (external integrations need visible debugging)
      - API route handlers for webhook signature verification failures
      - Development-only code paths (guarded by `process.env.NODE_ENV === 'development'`)
-   - **Add ESLint rule** to prevent console statements:
-     ```json
-     // .eslintrc.json (future)
-     "rules": {
-       "no-console": ["error", { "allow": [] }]
-     }
-     ```
+  - **Biome enforcement**:
+    ```json
+    {
+      "$schema": "https://biomejs.dev/schemas/1.7.0/schema.json",
+      "linter": { "rules": { "style": { "noConsole": "error" } } }
+    }
+    ```
 
 16. **SQL Safety Policy** - All database queries must follow SQL safety best practices (see `/docs/guides/sql-safety-checklist.md` for complete checklist):
    - **NEVER use `= ANY(${array})` pattern** - Causes PostgreSQL syntax errors due to parameter expansion
@@ -107,6 +87,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      // ❌ WRONG - Will fail at runtime
      .where(sql`${table.id} = ANY(${ids})`)
      ```
+  - **Empty arrays** - If an array is empty, short-circuit in code (e.g., return an empty result) to avoid invalid SQL.
    - **Exception: ARRAY[] syntax is acceptable** - If ANY() is required, use explicit PostgreSQL ARRAY[] constructor:
      ```typescript
      // ✅ ACCEPTABLE - Explicit ARRAY[] with type casting
@@ -147,50 +128,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - React Hook Form, Zod, and tRPC all support and encourage transform patterns
      - Industry standard approach validated by 2025 research
    - **Research Sources:** Zod transforms, React Hook Form valueAsNumber, tRPC input transforms, Drizzle ORM decimal design
-   - **Historical Context:** Story 7.2 architectural pivot (2025-10-26) - see `/docs/stories/7.2.story.md` for complete rationale
+   - **Do not coerce for logic:** Avoid parsing DB decimal strings to numbers for business logic; use strings in the domain model. Convert to numbers only for UI formatting and guard with `Number.isFinite`.
+   - **Historical Context:** Architectural decision (2025-10-26) — principle remains: number inputs in forms; string conversion at the DB boundary for decimals.
 
 ## Critical Design Elements
 
 **IMPORTANT: These design standards must be followed consistently across all modules:**
 
-1. **Card styling** - Use `glass-card` class for all cards. The Card component from shadcn/ui applies this automatically. Never use inline `bg-card border` styles.
+1. **Card styling** - Use the shared Card component first. Apply the `glass-card` design-system class via the shared component API. Do not hand-roll card styles (no inline `bg-* border`).
 
-2. **Table styling** - Wrap all Table components with `<div className="glass-table">` for consistent styling.
+2. **Table styling** - Use a shared TableContainer wrapper; ensure all tables are wrapped in `<div className="glass-table">`. No inline table background/border styles.
 
-3. **Headers and Sidebars** - Always use GlobalHeader and GlobalSidebar components:
-   - GlobalHeader: Include `showBackToHome={true}` for non-practice-hub modules
-   - Add module-specific `headerColor` prop
-   - GlobalSidebar: Match module color with header
+3. **Headers and Sidebars** - Use shared `GlobalHeader` and `GlobalSidebar` components. Provide module-specific `headerColor`; set `showBackToHome={true}` for non–practice-hub modules. Keep header/sidebar colors aligned to the module palette. Do not build bespoke headers/sidebars.
 
-4. **Layout backgrounds** - All module layouts must use gradient background:
+4. **Layout backgrounds** - All module layouts must use gradient background (apply on the top-level layout container):
    ```tsx
    className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
    ```
 
-5. **No transparency/glassmorphism** - All components must have solid backgrounds:
-   - Use `rgb(255, 255, 255)` for white (not rgba with opacity)
-   - Use `rgb(30, 41, 59)` for dark slate
-   - No backdrop-filter or blur effects
+ 
 
-6. **Use design system classes** - Reference predefined classes from globals.css:
-   - `.glass-card` - For primary content cards
-   - `.glass-subtle` - For headers and sidebars
-   - `.glass-table` - For table containers
+6. **Use design system classes** - Use tokens/classes from `globals.css` via shared components (e.g., `.glass-card`, `.glass-subtle`, `.glass-table`). Avoid inline `bg-*`, `border`, and `shadow` styling; extend the design system if a token is missing.
 
-7. **Module color scheme** - Maintain consistent colors:
-   - Client Hub: `#3b82f6` (blue)
-   - Admin Panel: `#f97316` (orange)
-   - Practice Hub: Primary theme color
+7. **Module color scheme** - Use module color tokens via the shared theme (Client Hub `#3b82f6`, Admin `#f97316`, Practice Hub primary). Do not use inline hex in components.
 
-8. **Authentication patterns** - Follow Better Auth's standard implementation patterns:
-   - **Middleware**: Protect routes, public paths, session checks
-   - **Auth API Route**: `app/api/auth/[...all]/route.ts` with Node.js runtime
-   - **Custom Auth Pages**: Sign-in/sign-up with email/password and OAuth
-   - **Module Protection**: Server-side `getAuthContext()` with role-based access
+8. **Authentication patterns** - Follow Better Auth standard patterns:
+  - **Middleware (Node runtime)**: Protect routes; public paths: `/`, `/sign-in`, `/sign-up`; allow `/api/*`; unauthenticated users redirect to `/sign-in?from=PATH`.
+  - **Auth API Route (Node runtime)**: `app/api/auth/[...all]/route.ts` uses `toNextJsHandler(auth)` with `export const runtime = "nodejs"`.
+  - **Tenant/role context**: Use `getAuthContext()` for tenant and role information; use protected/admin tRPC procedures.
+  - **Server components/layouts**: Use `redirect()` on unauthorized access.
 
    **Complete implementation details:** See `/docs/architecture/authentication.md` for middleware setup, protected procedures, and session access patterns. For Microsoft OAuth setup, see `/docs/guides/integrations/microsoft-oauth.md`.
 
-9. **Checklist Components** - All checklist-type UI components must follow this design language:
+9. **Checklist Components** - Use a shared `ChecklistItem` component that supports completed/unfinished states, toggle interaction, and `h-6 w-6` icons. Styles must match the design language below:
 
    **Completed items:**
    ```tsx

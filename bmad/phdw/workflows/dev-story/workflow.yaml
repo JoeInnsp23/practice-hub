@@ -1,0 +1,14 @@
+# Dev Story Workflow Configuration
+name: dev-story
+description: "Hephaestus forges story implementation with practice-hub tech-stack optimization and 90% test coverage"
+author: "Hephaestus - Practice Hub Dev Agent"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+user_name: "{config_source}:user_name"
+
+installed_path: "{project-root}/bmad/phdw/workflows/dev-story"
+template: false # Action workflow
+instructions: "{installed_path}/instructions.md"
+
+standalone: false # Called by phdw-master
+

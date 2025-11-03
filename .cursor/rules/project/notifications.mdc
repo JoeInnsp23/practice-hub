@@ -1,0 +1,8 @@
+---
+description: Notifications — use react-hot-toast
+alwaysApply: true
+---
+
+- Use `react-hot-toast` for user-facing notifications.
+- Do not introduce alternative notification/toast libraries.
+

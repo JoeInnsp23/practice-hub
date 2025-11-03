@@ -1,0 +1,51 @@
+# PH Dev Suite Master Workflow Configuration
+name: phdw-master
+description: "Master orchestrator for complete feature development lifecycle from brainstorming to production merge"
+author: "Zeus - Workflow Orchestrator"
+
+# Load from module config
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+qa_reports_path: "{config_source}:qa_reports_path"
+quality_gate_mode: "{config_source}:quality_gate_mode"
+user_name: "{config_source}:user_name"
+
+# Module paths
+installed_path: "{project-root}/bmad/phdw/workflows/phdw-master"
+template: false # Action workflow, not document
+instructions: "{installed_path}/instructions.md"
+
+# Workflow state tracking
+workflow_state_file: "{project-root}/bmad/phdw/data/workflow-state-{{feature_id}}.json"
+
+# Sub-workflows this orchestrates (Phase 2 Complete - All 7 Gods)
+sub_workflows:
+  # Athena's workflows
+  feature_brainstorm: "{project-root}/bmad/phdw/workflows/feature-brainstorm/workflow.yaml"
+  app_audit: "{project-root}/bmad/phdw/workflows/app-audit/workflow.yaml"
+  
+  # Hermes's workflows  
+  create_feature_brief: "{project-root}/bmad/phdw/workflows/create-feature-brief/workflow.yaml"
+  brief_to_prd: "{project-root}/bmad/phdw/workflows/brief-to-prd/workflow.yaml"
+  prd_to_tdd: "{project-root}/bmad/phdw/workflows/prd-to-tdd/workflow.yaml"
+  
+  # Prometheus's workflows
+  tdd_to_epics: "{project-root}/bmad/phdw/workflows/tdd-to-epics/workflow.yaml"
+  epics_to_stories: "{project-root}/bmad/phdw/workflows/epics-to-stories/workflow.yaml"
+  
+  # Hephaestus's workflows
+  pre_story_quality_gate: "{project-root}/bmad/phdw/workflows/pre-story-quality-gate/workflow.yaml"
+  dev_story: "{project-root}/bmad/phdw/workflows/dev-story/workflow.yaml"
+  
+  # Apollo's workflows
+  qa_story: "{project-root}/bmad/phdw/workflows/qa-story/workflow.yaml"
+  
+  # Themis's workflows
+  doc_sync: "{project-root}/bmad/phdw/workflows/doc-sync/workflow.yaml"
+  
+  # Zeus's workflows
+  pivot_mini_workflow: "{project-root}/bmad/phdw/workflows/pivot-mini-workflow/workflow.yaml"
+  feature_complete: "{project-root}/bmad/phdw/workflows/feature-complete/workflow.yaml"
+
+standalone: true
+

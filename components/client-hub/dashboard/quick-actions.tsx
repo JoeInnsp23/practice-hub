@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, Clock, Plus, Users } from "lucide-react";
+import { BarChart3, Plus, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -8,8 +8,6 @@ import type { WizardFormData } from "@/components/client-hub/clients/client-wiza
 import { ClientWizardModal } from "@/components/client-hub/clients/client-wizard-modal";
 import { TaskModal } from "@/components/client-hub/tasks/task-modal";
 import type { TaskFormPayload } from "@/components/client-hub/tasks/types";
-import type { TimeEntryFormData } from "@/components/client-hub/time/time-entry-modal";
-import { TimeEntryModal } from "@/components/client-hub/time/time-entry-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -21,7 +19,6 @@ export function QuickActions({ className }: QuickActionsProps) {
   const router = useRouter();
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [isTimeEntryModalOpen, setIsTimeEntryModalOpen] = useState(false);
 
   const handleSaveClient = (_clientData: WizardFormData) => {
     toast.success("Client added successfully");
@@ -31,11 +28,6 @@ export function QuickActions({ className }: QuickActionsProps) {
   const handleSaveTask = (_taskData: TaskFormPayload) => {
     toast.success("Task created successfully");
     setIsTaskModalOpen(false);
-  };
-
-  const handleSaveTimeEntry = (_timeData: TimeEntryFormData) => {
-    toast.success("Time entry logged successfully");
-    setIsTimeEntryModalOpen(false);
   };
 
   const actions = [
@@ -49,12 +41,6 @@ export function QuickActions({ className }: QuickActionsProps) {
       label: "Add Client",
       icon: Users,
       onClick: () => setIsClientModalOpen(true),
-      variant: "secondary" as const,
-    },
-    {
-      label: "Log Time",
-      icon: Clock,
-      onClick: () => setIsTimeEntryModalOpen(true),
       variant: "secondary" as const,
     },
     {
@@ -97,12 +83,6 @@ export function QuickActions({ className }: QuickActionsProps) {
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
         onSave={handleSaveTask}
-      />
-
-      <TimeEntryModal
-        isOpen={isTimeEntryModalOpen}
-        onClose={() => setIsTimeEntryModalOpen(false)}
-        onSave={handleSaveTimeEntry}
       />
     </>
   );

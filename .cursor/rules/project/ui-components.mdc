@@ -1,0 +1,10 @@
+---
+description: UI components — shared first, custom only when necessary
+alwaysApply: true
+---
+
+- Use shared UI components first.
+- Create custom components only when a shared component cannot meet the need.
+- Prefer design-system tokens/classes via shared components.
+- Avoid bespoke component variants unless standardized.
+

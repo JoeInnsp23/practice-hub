@@ -1,0 +1,11 @@
+---
+description: Development commands — install/build/start, lint/format, DB compose up
+alwaysApply: true
+---
+
+- Install: `pnpm install`
+- Build: `pnpm build`
+- Start: `pnpm start`
+- Lint/Format: `pnpm lint`, `pnpm format`
+- Database: `docker compose up -d`
+

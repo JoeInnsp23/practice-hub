@@ -50,6 +50,7 @@ export function PracticeHubClient({
     "Proposal Hub": "#ec4899", // pink
     "Social Hub": "#8b5cf6", // purple
     "Client Hub": "#3b82f6", // blue
+    "Employee Hub": "#10b981", // emerald green
     "Employee Portal": "#a855f7", // purple
     "Client Portal": "#10b981", // green
     "Admin Panel": "#f97316", // orange

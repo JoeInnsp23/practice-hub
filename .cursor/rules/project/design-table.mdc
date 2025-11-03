@@ -1,0 +1,9 @@
+---
+description: Design — Tables wrapped in glass-table via shared container
+alwaysApply: true
+---
+
+- Use a shared TableContainer wrapper.
+- Wrap all tables in `<div className="glass-table">`.
+- Avoid inline table background/border styles.
+

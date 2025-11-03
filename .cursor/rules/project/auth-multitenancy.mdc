@@ -1,0 +1,12 @@
+---
+description: Auth & multi-tenancy — Better Auth patterns and tenant scoping
+alwaysApply: true
+---
+
+- Middleware (Node runtime): protect routes; public paths `/`, `/sign-in`, `/sign-up`; allow `/api/*`.
+- Redirect unauthenticated to `/sign-in?from=PATH`.
+- Auth API route: `app/api/auth/[...all]/route.ts` uses `toNextJsHandler(auth)` with `export const runtime = "nodejs"`.
+- Tenant/role context: use `getAuthContext()`; use protected/admin tRPC procedures.
+- Server components/layouts: use `redirect()` on unauthorized.
+- Tenant isolation: all tables have `tenantId`; client portal tables require `tenantId` + `clientId`.
+

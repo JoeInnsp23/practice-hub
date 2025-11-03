@@ -1,0 +1,11 @@
+---
+description: Design — GlobalHeader & GlobalSidebar usage
+alwaysApply: true
+---
+
+- Use shared `GlobalHeader` and `GlobalSidebar` components.
+- Provide module-specific `headerColor`.
+- Set `showBackToHome={true}` on non–practice-hub modules.
+- Keep header/sidebar colors aligned to the module palette.
+- Do not build bespoke header/sidebar variants.
+

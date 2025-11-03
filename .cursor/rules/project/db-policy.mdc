@@ -1,0 +1,8 @@
+---
+description: Database policy — schema-first during development
+alwaysApply: true
+---
+
+- Update the DB by editing `lib/db/schema.ts` (no migration files).
+- When changing the schema, update `scripts/seed.ts` and related files (types/validation/views/tests) in unison.
+

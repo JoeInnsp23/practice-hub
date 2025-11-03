@@ -1,0 +1,16 @@
+# Epics to Stories Workflow Configuration
+name: epics-to-stories
+description: "Prometheus transforms epics into detailed stories with acceptance criteria, testing requirements, and dependencies"
+author: "Prometheus - Epic Planner"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+
+installed_path: "{project-root}/bmad/phdw/workflows/epics-to-stories"
+template: "{installed_path}/story-plan-template.md"
+instructions: "{installed_path}/instructions.md"
+
+default_output_file: "{feature_output_path}/stories-{{feature_id}}.md"
+
+standalone: false
+

@@ -1,0 +1,128 @@
+name: Documentation Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "docs/**"
+      - "scripts/derive_repo_facts.ts"
+      - "scripts/extract_doclets.py"
+      - "scripts/build_docs.py"
+      - "scripts/validate-frontmatter.ts"
+      - ".github/workflows/docs-validation.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "docs/**"
+      - "scripts/**"
+
+jobs:
+  validate:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Python dependencies
+        run: pip install -r scripts/requirements-docs.txt
+
+      - name: Validate frontmatter
+        run: pnpm docs:validate:frontmatter
+
+      - name: Derive repo facts
+        run: pnpm docs:facts
+
+      - name: Extract doclets
+        run: pnpm docs:extract
+
+      - name: Build documentation
+        run: pnpm docs:build
+
+      - name: Check for orphaned docs
+        run: pnpm docs:validate:orphans
+
+      - name: Check for documentation drift
+        run: pnpm docs:validate:drift
+
+      - name: Verify generated files are up-to-date
+        run: |
+          git diff --exit-code docs/dev/repo-facts.json docs/dev/doclets.yaml || {
+            echo "❌ Generated docs are out of sync!"
+            echo "Run: pnpm docs:facts && pnpm docs:extract && pnpm docs:build"
+            exit 1
+          }
+
+  link-check:
+    name: Check Documentation Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+
+      - name: Check internal links
+        run: |
+          find docs -name "*.md" -not -path "*/node_modules/*" -not -path "*/.archive/*" -exec markdown-link-check {} \;
+
+  redundancy-audit:
+    name: Redundancy Audit
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run redundancy audit
+        run: pnpm audit:redundancy
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: redundancy-audit-report
+          path: docs/dev/REDUNDANCY_AUDIT_REPORT.md
+          retention-days: 30

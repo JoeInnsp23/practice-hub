@@ -26,6 +26,11 @@ python scripts/generate_router_test.py app/server/routers/clients.ts
 - Includes multi-tenant isolation tests
 - Creates beforeEach/afterEach hooks
 
+**Integration with docs-maintainer**:
+- Use `docs/dev/repo-facts.json` to discover all routers
+- Auto-generates tests for newly added routers
+- Validates test coverage against router inventory
+
 ### 2. Validate Tenant Isolation
 ```bash
 python scripts/validate_tenant_isolation.py

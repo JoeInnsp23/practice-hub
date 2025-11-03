@@ -1,0 +1,17 @@
+# TDD to Epics Workflow Configuration
+name: tdd-to-epics
+description: "Prometheus transforms TDD into epics with parallelization strategy and file-touch analysis"
+author: "Prometheus - Epic Planner"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+epic_parallelization: "{config_source}:epic_parallelization"
+
+installed_path: "{project-root}/bmad/phdw/workflows/tdd-to-epics"
+template: "{installed_path}/epic-plan-template.md"
+instructions: "{installed_path}/instructions.md"
+
+default_output_file: "{feature_output_path}/epic-plan-{{feature_id}}.md"
+
+standalone: false
+

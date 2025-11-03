@@ -1,0 +1,162 @@
+# PH Dev Suite Module Configuration
+# Installation questions and module configuration values
+# Generated: 2025-11-03
+
+code: phdw
+name: "PH Dev Suite"
+description: "Practice Hub Development Workflow - Quality-gated development with Greek god agents"
+default_selected: false
+
+# Welcome message shown during installation
+prompt:
+  - "⚡ Welcome to PH Dev Suite! 🏛️"
+  - ""
+  - "The Greek pantheon stands ready to enforce divine quality in your development workflow!"
+  - ""
+  - "Zeus will orchestrate your feature quests with mandatory quality gates."
+  - "Hephaestus will forge code with 90% test coverage."
+  - "Apollo will validate with Cursor browser tools (paramount!)."
+  - "Themis will maintain documentation harmony."
+  - ""
+  - "Quality is non-negotiable. Security is paramount. Documentation must not drift."
+
+# Core configuration values are automatically inherited from installer:
+## user_name
+## communication_language  
+## document_output_language
+## output_folder
+
+# ============================================================================
+# PHDW-SPECIFIC CONFIGURATION
+# ============================================================================
+
+# Feature workflow output location
+feature_output_path:
+  prompt: "Where should feature artifacts (Brief, PRD, TDD, Epics, Stories) be saved?"
+  default: "docs/features"
+  result: "{project-root}/{value}"
+
+# QA reports output location
+qa_reports_path:
+  prompt: "Where should Apollo's QA reports be saved?"
+  default: "docs/qa-reports"
+  result: "{project-root}/{value}"
+
+# Project status document location
+project_status_doc:
+  prompt: "Path to project status document (Themis will update this)"
+  default: "docs/PROJECT_STATUS.md"
+  result: "{project-root}/{value}"
+
+# Quality gate strictness (Phase 1 MVP uses 'standard')
+quality_gate_mode:
+  prompt: "Quality gate enforcement level"
+  default: "standard"
+  result: "{value}"
+  single-select:
+    - value: "lenient"
+      label: "Lenient - 80% test coverage, warnings allowed"
+    - value: "standard"
+      label: "Standard - 90% test coverage, zero errors (RECOMMENDED)"
+    - value: "strict"
+      label: "Strict - 95% test coverage, zero warnings, performance budgets"
+
+# Front-end testing tool preference
+frontend_test_tool:
+  prompt: "Front-end testing tool (Apollo will use this)"
+  default: "cursor-browser"
+  result: "{value}"
+  single-select:
+    - value: "cursor-browser"
+      label: "Cursor Browser Tools (PARAMOUNT - recommended)"
+    - value: "playwright"
+      label: "Playwright (backup option)"
+    - value: "both"
+      label: "Both - Cursor first, Playwright fallback"
+
+# Git commit message prefix
+git_commit_prefix:
+  result: "[PHDW]"
+
+# Workflow state tracking location
+workflow_state_path:
+  result: "{project-root}/bmad/phdw/data/workflow-state.json"
+
+# Epic parallelization preference
+epic_parallelization:
+  prompt: "Enable epic parallelization optimization?"
+  default: "enabled"
+  result: "{value}"
+  single-select:
+    - value: "enabled"
+      label: "Enabled - Prometheus will plan parallel epics (RECOMMENDED)"
+    - value: "manual"
+      label: "Manual - User decides parallelization"
+    - value: "disabled"
+      label: "Disabled - All epics sequential"
+
+# Documentation drift detection sensitivity
+drift_detection_level:
+  prompt: "Documentation drift detection sensitivity"
+  default: "conservative"
+  result: "{value}"
+  single-select:
+    - value: "relaxed"
+      label: "Relaxed - Only critical drift (schema, routes)"
+    - value: "conservative"
+      label: "Conservative - All detected changes (RECOMMENDED)"
+    - value: "aggressive"
+      label: "Aggressive - Preemptive updates on code changes"
+
+# Module version (static)
+module_version:
+  result: "1.0.0-mvp"
+
+# Module phase (static - will be updated as module evolves)
+module_phase:
+  result: "phase1-mvp"
+
+# Practice-hub integration paths (static)
+practice_hub_docs_path:
+  result: "{project-root}/docs"
+
+practice_hub_architecture_docs:
+  result: "{project-root}/docs/architecture"
+
+practice_hub_coding_standards:
+  result: "{project-root}/CLAUDE.md"
+
+practice_hub_cursor_rules:
+  result: "{project-root}/.cursorrules"
+
+# Multi-tenant architecture reference
+multi_tenant_docs:
+  result: "{project-root}/docs/architecture/multi-tenancy.md"
+
+# Tech stack references (for agent embedding)
+tech_stack_references:
+  result: |
+    Next.js 15 App Router
+    Drizzle ORM (schema-first dev-mode)
+    Better Auth (multi-tenant)
+    tRPC (type-safe APIs)
+    Vitest (90% coverage minimum)
+    Cursor Browser Tools (front-end testing)
+    Biome (lint/format)
+
+# Gods' communication style
+gods_speak:
+  result: "mythological-professional"
+
+# Workflow lock enforcement
+enforce_workflow_locks:
+  result: true
+
+# Feature branch naming pattern
+feature_branch_pattern:
+  result: "feature/{kebab-case-name}"
+
+# Epic numbering pattern
+epic_numbering_pattern:
+  result: "X.Y (parallel) | X.0 (sequential)"
+

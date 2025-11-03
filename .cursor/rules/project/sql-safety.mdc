@@ -1,0 +1,11 @@
+---
+description: SQL safety — use Drizzle helpers; avoid ANY
+alwaysApply: true
+---
+
+- Use Drizzle helpers (`inArray`, `eq`, `and`, `or`) instead of raw SQL.
+- Do not use `= ANY(${array})`; prefer `inArray(column, array)`.
+- If an array is empty, short-circuit in code (return empty results) to avoid invalid SQL.
+- Only if strictly necessary, use explicit `ARRAY[...]::type[]` with `sql` and proper casting (no string interpolation).
+- Pre-commit scan for `= ANY(` to prevent regressions.
+
