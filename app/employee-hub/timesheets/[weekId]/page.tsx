@@ -1,36 +1,38 @@
-import { Clock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { parse, startOfWeek } from "date-fns";
+import { redirect } from "next/navigation";
+import { use } from "react";
 
 interface WeeklyTimesheetPageProps {
   params: Promise<{ weekId: string }>;
 }
 
-export default async function WeeklyTimesheetPage({
+export default function WeeklyTimesheetPage({
   params,
 }: WeeklyTimesheetPageProps) {
-  const { weekId } = await params;
+  const { weekId } = use(params);
 
-  return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Weekly Timesheet</h1>
-        <p className="text-muted-foreground mt-2">Week ID: {weekId}</p>
-      </div>
+  // Parse weekId (expected format: YYYY-MM-DD or YYYYMMDD)
+  let weekDate: Date;
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-emerald-600" />
-            Timesheet Entry Form
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Weekly timesheet entry form will be migrated from Client Hub in Task
-            2.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  try {
+    // Try ISO format first (YYYY-MM-DD)
+    if (weekId.includes("-")) {
+      weekDate = parse(weekId, "yyyy-MM-dd", new Date());
+    } else {
+      // Try compact format (YYYYMMDD)
+      weekDate = parse(weekId, "yyyyMMdd", new Date());
+    }
+
+    // Ensure it's a valid Monday (week start)
+    weekDate = startOfWeek(weekDate, { weekStartsOn: 1 });
+  } catch {
+    // Invalid weekId format - redirect to current week
+    redirect("/employee-hub/time-entries");
+  }
+
+  // Redirect to the main time-entries page
+  // The time-entries page already has week navigation and handles all weeks
+  redirect("/employee-hub/time-entries");
 }

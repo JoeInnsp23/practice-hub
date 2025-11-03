@@ -2,6 +2,7 @@
 
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import {
+  AlertCircle,
   Calendar,
   CheckCircle,
   Clock,
@@ -9,6 +10,7 @@ import {
   Umbrella,
 } from "lucide-react";
 import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,11 +38,14 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
   const weekEndStr = format(weekEnd, "yyyy-MM-dd");
 
   // Fetch timesheet data
-  const { data: summary, isLoading: summaryLoading } =
-    trpc.timesheets.summary.useQuery({
-      startDate: weekStartStr,
-      endDate: weekEndStr,
-    });
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    error: summaryError,
+  } = trpc.timesheets.summary.useQuery({
+    startDate: weekStartStr,
+    endDate: weekEndStr,
+  });
 
   const { data: submissionStatus } =
     trpc.timesheets.getSubmissionStatus.useQuery({
@@ -51,12 +56,18 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
     trpc.settings.getTimesheetSettings.useQuery();
 
   // Fetch leave balance
-  const { data: leaveBalance, isLoading: leaveLoading } =
-    trpc.leave.getBalance.useQuery({});
+  const {
+    data: leaveBalance,
+    isLoading: leaveLoading,
+    error: leaveError,
+  } = trpc.leave.getBalance.useQuery({});
 
   // Fetch TOIL balance
-  const { data: toilBalance, isLoading: toilLoading } =
-    trpc.toil.getBalance.useQuery({});
+  const {
+    data: toilBalance,
+    isLoading: toilLoading,
+    error: toilError,
+  } = trpc.toil.getBalance.useQuery({});
 
   // Fetch pending approvals (for managers)
   const { data: pendingTimesheets } =
@@ -79,6 +90,9 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
   const pendingLeaveCount =
     teamLeave?.requests.filter((r) => r.status === "pending").length || 0;
 
+  // Show error if critical queries fail
+  const hasCriticalError = summaryError || leaveError || toilError;
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -88,6 +102,18 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
           Welcome back, {displayName}! Here's your personal overview.
         </p>
       </div>
+
+      {/* Error Alert */}
+      {hasCriticalError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error Loading Dashboard</AlertTitle>
+          <AlertDescription>
+            Some dashboard data failed to load. Please refresh the page or
+            contact support if the issue persists.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Quick Actions */}
       <Card>
