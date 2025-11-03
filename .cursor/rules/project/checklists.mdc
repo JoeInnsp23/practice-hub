@@ -1,0 +1,11 @@
+---
+description: Design — checklist components via shared ChecklistItem
+alwaysApply: true
+---
+
+- Use a shared `ChecklistItem` component.
+- Support completed/unfinished states and toggle interaction.
+- Use icons sized `h-6 w-6`.
+- Completed: green border/background per design; unfinished: standard border.
+- Do not hand-roll checklist markup per page.
+

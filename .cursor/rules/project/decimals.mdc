@@ -1,0 +1,10 @@
+---
+description: Decimals — numbers in forms, strings at DB boundary
+alwaysApply: true
+---
+
+- Forms: use number inputs with RHF `valueAsNumber` or `z.coerce.number()`.
+- Transform at boundary: convert to strings for decimal DB columns; keep decimals as strings in Drizzle.
+- Display: convert with `Number(str)` only for UI formatting; guard with `Number.isFinite`.
+- Tests: assert stored values are strings and round-trip formatting is correct.
+

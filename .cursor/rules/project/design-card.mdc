@@ -1,0 +1,9 @@
+---
+description: Design — Cards via shared component + glass-card
+alwaysApply: true
+---
+
+- Use the shared Card component first.
+- Apply the `glass-card` class via the shared component API.
+- Do not hand-roll card styles (no inline `bg-* border`).
+

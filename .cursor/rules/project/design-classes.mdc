@@ -1,0 +1,9 @@
+---
+description: Design — use tokens/classes via shared components
+alwaysApply: true
+---
+
+- Use classes/tokens from `globals.css` via shared components (e.g., `.glass-card`, `.glass-subtle`, `.glass-table`).
+- Avoid inline `bg-*`, `border`, and `shadow` styling.
+- Extend the design system when a token is missing.
+
