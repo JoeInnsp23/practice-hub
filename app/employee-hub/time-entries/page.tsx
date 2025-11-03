@@ -2,6 +2,7 @@
 
 import { addDays, endOfWeek, format, startOfWeek } from "date-fns";
 import {
+  AlertCircle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -13,6 +14,7 @@ import toast from "react-hot-toast";
 import { DatePickerButton } from "@/components/employee-hub/timesheets/date-picker-button";
 import { WeeklySummaryCard } from "@/components/employee-hub/timesheets/weekly-summary-card";
 import { WeeklyTimesheetGrid } from "@/components/employee-hub/timesheets/weekly-timesheet-grid";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,20 +36,22 @@ export default function TimePage() {
       weekStartDate: weekStartStr,
     });
 
-  const { data: summary } = trpc.timesheets.summary.useQuery({
-    startDate: weekStartStr,
-    endDate: weekEndStr,
-  });
+  const { data: summary, error: summaryError } =
+    trpc.timesheets.summary.useQuery({
+      startDate: weekStartStr,
+      endDate: weekEndStr,
+    });
 
-  const { data: weeklySummary } = trpc.timesheets.getWeeklySummary.useQuery({
-    weekStartDate: weekStartStr,
-    weekEndDate: weekEndStr,
-  });
+  const { data: weeklySummary, error: weeklySummaryError } =
+    trpc.timesheets.getWeeklySummary.useQuery({
+      weekStartDate: weekStartStr,
+      weekEndDate: weekEndStr,
+    });
 
   const { data: leaveBalance } = trpc.leave.getBalance.useQuery({});
 
   // Fetch user timesheet settings (Story 6.3)
-  const { data: timesheetSettings } =
+  const { data: timesheetSettings, error: settingsError } =
     trpc.settings.getTimesheetSettings.useQuery();
 
   const submitMutation = trpc.timesheets.submit.useMutation({
@@ -119,6 +123,24 @@ export default function TimePage() {
 
   // Calculate holiday balance
   const annualRemaining = leaveBalance?.annualRemaining || 0;
+
+  // Check for critical errors
+  const hasCriticalError = summaryError || weeklySummaryError || settingsError;
+
+  if (hasCriticalError) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error Loading Timesheet</AlertTitle>
+          <AlertDescription>
+            Failed to load timesheet data. Please refresh the page or contact
+            support if the issue persists.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   const getStatusBadge = () => {
     if (!submissionStatus) return null;

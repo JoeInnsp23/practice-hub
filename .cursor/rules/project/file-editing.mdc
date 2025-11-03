@@ -1,0 +1,8 @@
+---
+description: File editing — read full context first
+alwaysApply: true
+---
+
+- Read the entire file before editing.
+- For very large files (>800 lines), read imports, related functions/classes, and surrounding context before changes.
+

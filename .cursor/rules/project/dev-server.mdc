@@ -1,0 +1,8 @@
+---
+description: Dev server — only with explicit user permission
+alwaysApply: true
+---
+
+- Never run `pnpm dev`.
+- The dev server may only be run with explicit user permission.
+

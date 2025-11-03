@@ -1,0 +1,9 @@
+---
+description: Implementation quality — full implementations only
+alwaysApply: true
+---
+
+- No quick fixes.
+- Full implementation only — no placeholders, TODOs, or temporary workarounds.
+- Include schema/seed updates and add/adjust tests as needed.
+

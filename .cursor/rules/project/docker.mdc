@@ -1,0 +1,8 @@
+---
+description: Docker — use Compose v2 commands
+alwaysApply: true
+---
+
+- Use Docker Compose v2: `docker compose ...`.
+- Do not use legacy `docker-compose` CLI.
+

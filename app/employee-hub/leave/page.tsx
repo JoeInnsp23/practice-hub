@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertCircle,
   AlertTriangle,
   Calendar,
   CheckCircle,
@@ -17,6 +18,7 @@ import { LeaveList } from "@/components/employee-hub/leave/leave-list";
 import { LeaveRequestModal } from "@/components/employee-hub/leave/leave-request-modal";
 import { ToilBalanceWidget } from "@/components/employee-hub/toil/toil-balance-widget";
 import { ToilHistoryTable } from "@/components/employee-hub/toil/toil-history-table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,10 +45,16 @@ export default function LeavePage() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch leave data
-  const { data: balanceResponse, isLoading: balanceLoading } =
-    trpc.leave.getBalance.useQuery({});
-  const { data: historyResponse, isLoading: historyLoading } =
-    trpc.leave.getHistory.useQuery({});
+  const {
+    data: balanceResponse,
+    isLoading: balanceLoading,
+    error: balanceError,
+  } = trpc.leave.getBalance.useQuery({});
+  const {
+    data: historyResponse,
+    isLoading: historyLoading,
+    error: historyError,
+  } = trpc.leave.getHistory.useQuery({});
   const { data: teamLeaveResponse } = trpc.leave.getTeamLeave.useQuery({});
 
   // Extract and transform data from responses
@@ -134,6 +142,24 @@ export default function LeavePage() {
     setIsRequestModalOpen(false);
     setEditingRequest(null);
   };
+
+  // Check for critical errors
+  const hasCriticalError = balanceError || historyError;
+
+  if (hasCriticalError) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error Loading Leave Data</AlertTitle>
+          <AlertDescription>
+            Failed to load leave information. Please refresh the page or contact
+            support if the issue persists.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

@@ -1,0 +1,8 @@
+---
+description: Theme — keep light/dark aligned
+alwaysApply: true
+---
+
+- Keep light/dark themes aligned across all modules.
+- Verify components honor theme tokens and variants.
+

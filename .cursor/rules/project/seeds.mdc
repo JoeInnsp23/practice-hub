@@ -1,0 +1,9 @@
+---
+description: Seeds — update after schema changes
+alwaysApply: true
+---
+
+- After any schema change, immediately update `scripts/seed.ts` to match the new schema.
+- Include FKs, constraints, tenant/client isolation.
+- Validate by running `pnpm db:reset`.
+

@@ -1,0 +1,11 @@
+---
+description: Commit cadence — frequent, conventional commits
+alwaysApply: true
+---
+
+- Commit when TODO list is complete; otherwise after:
+  - logical change, 2+ files changed, >30 LOC, file add/remove,
+  - lint/tests pass, or every 15 minutes.
+- Use conventional commits `type(scope): summary` + bullets of key changes.
+- For schema/seed updates, commit immediately after `pnpm db:reset`.
+
