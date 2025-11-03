@@ -4,7 +4,7 @@
  * Checks that all docs have valid YAML frontmatter with required fields.
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 interface FrontmatterError {
@@ -89,7 +89,7 @@ function findMarkdownFiles(dir: string): string[] {
       for (const entry of entries) {
         if (
           ["node_modules", ".archive", ".meta", "typescript"].includes(
-            entry.name
+            entry.name,
           )
         ) {
           continue;
@@ -133,7 +133,7 @@ function main() {
     process.exit(1);
   } else {
     console.log(
-      `✅ All ${files.length} documentation files have valid frontmatter`
+      `✅ All ${files.length} documentation files have valid frontmatter`,
     );
   }
 }

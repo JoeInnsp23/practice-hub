@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-02T22:20:22.696Z
+# Generated: 2025-11-03T04:38:22.754Z
 
 functions:
   staffStatisticsRouter:
@@ -1179,7 +1179,7 @@ components:
     signature: "function GenerationPreviewModal"
   DatePickerButton:
     description: "The currently selected week start date (Monday)"
-    file: "components/client-hub/time/date-picker-button.tsx"
+    file: "components/employee-hub/timesheets/date-picker-button.tsx"
     line: 15
     type: "component"
     signature: "function DatePickerButton"
@@ -1242,7 +1242,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-02T22:20:22.697Z"
+  generated: "2025-11-03T04:38:22.755Z"
   total_entries: 205
   functions: 132
   types: 57

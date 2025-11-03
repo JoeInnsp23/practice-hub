@@ -8,8 +8,7 @@
  */
 
 import { execSync } from "node:child_process";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
 
 interface AuditReport {
   generated: string;
@@ -28,25 +27,25 @@ interface AuditReport {
 }
 
 // Protected paths (never remove)
-const PROTECTED_FILES = [
-	"middleware.ts",
-	"app/layout.tsx",
-	"app/api",
-	"components/ui",
-	"lib/auth.ts",
-	"lib/db/schema.ts",
-	"scripts/",
-	".claude/",
+const _PROTECTED_FILES = [
+  "middleware.ts",
+  "app/layout.tsx",
+  "app/api",
+  "components/ui",
+  "lib/auth.ts",
+  "lib/db/schema.ts",
+  "scripts/",
+  ".claude/",
 ];
 
 const PROTECTED_DEPS = [
-	"@biomejs/biome",
-	"vitest",
-	"@playwright/test",
-	"typescript",
-	"tsx",
-	"drizzle-kit",
-	"typedoc",
+  "@biomejs/biome",
+  "vitest",
+  "@playwright/test",
+  "typescript",
+  "tsx",
+  "drizzle-kit",
+  "typedoc",
 ];
 
 // Ensure output directory exists
@@ -58,15 +57,18 @@ console.log("🔍 Running redundancy audit...\n");
 console.log("📦 Checking for unused dependencies...");
 let depcheckOutput = "";
 try {
-  depcheckOutput = execSync("pnpm depcheck --json", { encoding: "utf-8", stdio: "pipe" });
-} catch (e: any) {
-  depcheckOutput = e.stdout || "{}";
+  depcheckOutput = execSync("pnpm depcheck --json", {
+    encoding: "utf-8",
+    stdio: "pipe",
+  });
+} catch (e: unknown) {
+  depcheckOutput = (e as { stdout?: string }).stdout || "{}";
 }
 
 const depcheckReport = JSON.parse(depcheckOutput || "{}");
 const allUnusedDeps = depcheckReport.dependencies || [];
 const unusedDeps = allUnusedDeps.filter(
-	(d: string) => !PROTECTED_DEPS.includes(d),
+  (d: string) => !PROTECTED_DEPS.includes(d),
 );
 
 console.log(`   Found ${unusedDeps.length} potentially unused dependencies\n`);
@@ -75,25 +77,30 @@ console.log(`   Found ${unusedDeps.length} potentially unused dependencies\n`);
 console.log("🧹 Checking for unused exports...");
 let tsPruneOutput = "";
 try {
-  tsPruneOutput = execSync("pnpm ts-prune --error", { encoding: "utf-8", stdio: "pipe" });
-} catch (e: any) {
-  tsPruneOutput = e.stdout || "";
+  tsPruneOutput = execSync("pnpm ts-prune --error", {
+    encoding: "utf-8",
+    stdio: "pipe",
+  });
+} catch (e: unknown) {
+  tsPruneOutput = (e as { stdout?: string }).stdout || "";
 }
 
-const unusedExports = tsPruneOutput.split("\n").filter(line => line.includes("used in module"));
+const unusedExports = tsPruneOutput
+  .split("\n")
+  .filter((line) => line.includes("used in module"));
 
 console.log(`   Found ${unusedExports.length} potentially unused exports\n`);
 
 // Simplified knip check (knip config complex, just check unused files)
 console.log("📁 Checking for unused files...");
-let unusedFiles: string[] = [];
+const unusedFiles: string[] = [];
 
 // For now, just check for common patterns
-const potentialUnused = [
+const _potentialUnused = [
   "docs/.archive",
   "docs/gap-analysis",
   ".next",
-  "coverage"
+  "coverage",
 ];
 
 console.log(`   Checked common unused patterns\n`);
@@ -121,8 +128,8 @@ const report: AuditReport = {
 
 // Write JSON report
 writeFileSync(
-	"docs/dev/REDUNDANCY_AUDIT_REPORT.json",
-	JSON.stringify(report, null, 2),
+  "docs/dev/REDUNDANCY_AUDIT_REPORT.json",
+  JSON.stringify(report, null, 2),
 );
 
 // Write Markdown summary
@@ -141,24 +148,32 @@ const markdown = `# Redundancy Audit Report
 
 ## Recommendations
 
-${report.recommendations.map(rec => `- ${rec}`).join("\n")}
+${report.recommendations.map((rec) => `- ${rec}`).join("\n")}
 
 ## Details
 
 ### Unused Dependencies
 
-${report.details.unusedDependencies.length > 0
-  ? report.details.unusedDependencies.slice(0, 20).map(d => `- \`${d}\``).join("\n")
-  : "✅ No unused dependencies detected"
+${
+  report.details.unusedDependencies.length > 0
+    ? report.details.unusedDependencies
+        .slice(0, 20)
+        .map((d) => `- \`${d}\``)
+        .join("\n")
+    : "✅ No unused dependencies detected"
 }
 
 ${report.details.unusedDependencies.length > 20 ? `\n...and ${report.details.unusedDependencies.length - 20} more\n` : ""}
 
 ### Unused Exports (Top 20)
 
-${report.details.unusedExports.length > 0
-  ? report.details.unusedExports.slice(0, 20).map(e => `- ${e}`).join("\n")
-  : "✅ No unused exports detected"
+${
+  report.details.unusedExports.length > 0
+    ? report.details.unusedExports
+        .slice(0, 20)
+        .map((e) => `- ${e}`)
+        .join("\n")
+    : "✅ No unused exports detected"
 }
 
 ${report.details.unusedExports.length > 20 ? `\n...and ${report.details.unusedExports.length - 20} more\n` : ""}
@@ -194,11 +209,15 @@ function generateRecommendations(counts: {
   const recs: string[] = [];
 
   if (counts.deps > 0) {
-    recs.push(`📦 Remove ${counts.deps} unused dependencies: \`pnpm remove <dep>\``);
+    recs.push(
+      `📦 Remove ${counts.deps} unused dependencies: \`pnpm remove <dep>\``,
+    );
   }
 
   if (counts.exports > 10) {
-    recs.push(`🧹 Clean up ${counts.exports} unused exports (low priority, check false positives)`);
+    recs.push(
+      `🧹 Clean up ${counts.exports} unused exports (low priority, check false positives)`,
+    );
   }
 
   if (counts.files > 0) {
@@ -208,7 +227,9 @@ function generateRecommendations(counts: {
   if (recs.length === 0) {
     recs.push("✅ No major redundancy detected! Codebase is clean.");
   } else {
-    recs.push("⚠️ **Always verify before deleting** - run tests after each removal");
+    recs.push(
+      "⚠️ **Always verify before deleting** - run tests after each removal",
+    );
   }
 
   return recs;

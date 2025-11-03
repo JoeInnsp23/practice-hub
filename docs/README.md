@@ -1,312 +1,110 @@
 ---
-documentation_version: "2.1"
-last_updated: "2025-11-02"
-architecture: "ai-optimized"
-total_documents: 66
+documentation_version: "3.0"
+last_updated: "2025-01-03"
+architecture: "aggressively-consolidated"
+total_documents: 45
 categories:
-  - getting-started
-  - architecture
+  - core
   - guides
   - reference
   - operations
-  - development
-  - testing
-  - modules
-  - decisions
-  - troubleshooting
-  - user-guides
+  - pricing
 ---
 
 # Practice Hub Documentation
 
-**AI-Optimized Documentation Architecture v2.0**
+**Aggressively Consolidated - January 2025**
 
-**AI Agent Quick Start**: Load [`getting-started/quickstart-ai-agent.md`](getting-started/quickstart-ai-agent.md) for optimal context
-
----
-
-## Document Discovery
-
-### By Task
-
-**Setting Up**:
-- **Local development environment** → [Developer Quick Start](getting-started/quickstart-developer.md)
-- **AI agent context loading** → [AI Agent Quick Start](getting-started/quickstart-ai-agent.md)
-- **Microsoft OAuth** → [Microsoft OAuth Setup](guides/integrations/microsoft-oauth.md)
-- **Sentry error tracking** → [Sentry Setup](guides/integrations/sentry.md)
-
-**Understanding the System**:
-- **Overall architecture** → [System Overview](architecture/system-overview.md)
-- **Multi-tenancy patterns** → [Multi-Tenancy Architecture](architecture/multi-tenancy.md)
-- **Authentication system** → [Authentication & Authorization](architecture/authentication.md)
-- **API design patterns** → [API Design & tRPC Patterns](architecture/api-design.md)
-- **UI design system** → [Design System & UI Patterns](architecture/design-system.md)
-
-**Development Tasks**:
-- **Creating a new tRPC router** → [Creating Routers](development/creating-routers.md)
-- **Adding database table** → [Adding Tables](development/adding-tables.md)
-- **Adding UI component** → [Creating Components](development/creating-components.md)
-- **Understanding database schema** → [Database Schema](reference/database/schema.md)
-- **Writing tests** → [Testing Guide](development/testing-guide.md)
-- **Debugging issues** → [Debugging Guide](development/debugging-guide.md)
-
-**Operations**:
-- **Deploying to production** → [Deployment](operations/deployment.md)
-- **Production readiness check** → [Production Checklist](operations/production-checklist.md)
-- **Backup and recovery** → [Backup & Recovery](operations/backup-recovery.md)
-- **Monitoring setup** → [Monitoring](operations/monitoring.md)
-
-**Troubleshooting**:
-- **Database connection issues** → [Common Errors](troubleshooting/common-errors.md)
-- **Authentication problems** → [Common Errors](troubleshooting/common-errors.md)
-- **Known technical debt** → [Technical Debt](development/technical-debt.md)
-
-### By Role
-
-**AI Agent**:
-1. Load [AI Agent Quick Start](getting-started/quickstart-ai-agent.md)
-2. Load [CRITICAL RULES](../CLAUDE.md) from root
-3. Load [System Overview](architecture/system-overview.md)
-4. Load task-specific docs based on work
-
-**New Developer**:
-1. [Developer Quick Start](getting-started/quickstart-developer.md)
-2. [System Overview](architecture/system-overview.md)
-3. [Multi-Tenancy Architecture](architecture/multi-tenancy.md)
-4. [Coding Standards](development/coding-standards.md)
-
-**Backend Developer**:
-1. [API Design & tRPC Patterns](architecture/api-design.md)
-2. [Multi-Tenancy Architecture](architecture/multi-tenancy.md)
-3. [Database Schema](reference/database/schema.md)
-4. [Authentication & Authorization](architecture/authentication.md)
-
-**Frontend Developer**:
-1. [Design System & UI Patterns](architecture/design-system.md)
-2. [API Design & tRPC Patterns](architecture/api-design.md)
-3. [Coding Standards](development/coding-standards.md)
-
-**DevOps Engineer**:
-1. [Operations Documentation](operations/)
-2. [Deployment](operations/deployment.md)
-3. [Monitoring](operations/monitoring.md)
-4. [Environment Variables](reference/configuration/environment.md)
-
-**System Admin**:
-1. [User Guides](user-guides/)
-2. [Operations Runbooks](operations/runbooks.md)
+**Start Here:** [`bmm-brownfield-architecture.md`](bmm-brownfield-architecture.md) - Complete system reference
 
 ---
 
-## Documentation Categories
+## Quick Navigation
 
-### [Getting Started](getting-started/)
+**For AI Agents:**
+1. Load [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - Complete system state
+2. Load [../CLAUDE.md](../CLAUDE.md) - CRITICAL development rules
+3. Load integration guides as needed
 
-Quick start guides for developers and AI agents.
-
-**Documents**:
-- [AI Agent Quick Start](getting-started/quickstart-ai-agent.md) - Optimal context loading for AI agents ⚠️ Draft
-- [Developer Quick Start](getting-started/quickstart-developer.md) - Complete onboarding guide ⚠️ Draft
-- [Project Structure](getting-started/project-structure.md) - Directory organization and structure ⚠️ Draft
-- [Common Tasks](getting-started/common-tasks.md) - Frequently performed development tasks ⚠️ Draft
-
----
-
-### [Architecture](architecture/)
-
-System design, patterns, and technical architecture.
-
-**Documents**:
-- [System Overview](architecture/system-overview.md) - Complete brownfield architecture reference
-- [Multi-Tenancy Architecture](architecture/multi-tenancy.md) - Dual-level data isolation patterns
-- [Authentication & Authorization](architecture/authentication.md) - Dual Better Auth system
-- [API Design & tRPC Patterns](architecture/api-design.md) - Type-safe API architecture
-- [Design System & UI Patterns](architecture/design-system.md) - Glass-card design system
-
-**Key Topics**:
-- Multi-tenant SaaS architecture (tenant + client isolation)
-- Better Auth dual authentication system
-- tRPC type-safe APIs (29 routers)
-- shadcn/ui component library
-- PostgreSQL database (50+ tables, 14 views)
+**For Developers:**
+1. [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - System understanding
+2. [coding-standards.md](coding-standards.md) - Development standards
+3. [../CLAUDE.md](../CLAUDE.md) - CRITICAL rules
 
 ---
 
-### [Guides](guides/)
+## Core Documentation (7 files)
 
-Task-oriented how-to guides for development and operations.
-
-**Sub-categories**:
-- **[Development](guides/development/)** - Coming soon
-- **[Integrations](guides/integrations/)** - Integration setup guides
-  - [Microsoft OAuth Setup](guides/integrations/microsoft-oauth.md)
-  - [LEM Verify Integration](guides/integrations/lemverify.md)
-  - [Sentry Setup](guides/integrations/sentry.md)
-  - [Xero Integration](guides/integrations/xero.md)
+- [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - **PRIMARY** - Complete system reference (96 tables/views, 44 routers, 1,778 tests)
+- [README.md](README.md) - This file
+- [SITEMAP.md](SITEMAP.md) - Complete documentation index
+- [bmm-index.md](bmm-index.md) - BMad method entry point
+- [coding-standards.md](coding-standards.md) - Development standards (includes router creation, testing, database patterns)
+- [known-issues.md](known-issues.md) - Known issues and troubleshooting
+- [realtime-architecture.md](realtime-architecture.md) - SSE implementation details
 
 ---
 
-### [Reference](reference/)
+## Integration Guides (6 files)
 
-Technical reference for APIs, database, configuration, and business logic.
+**Location:** `guides/integrations/`
 
-**Sub-categories**:
-- **[API Reference](reference/api/)** - tRPC routers documentation
-  - [tRPC Routers](reference/api/routers.md) - All 29 routers
-- **[Database Reference](reference/database/)** - Schema and scripts
-  - [Schema](reference/database/schema.md) - Complete database schema
-  - [Scripts](reference/database/scripts.md) - Database management scripts
-- **[Configuration](reference/configuration/)** - Environment and settings
-  - [Environment Variables](reference/configuration/environment.md)
-- **[Security](reference/security/)** - Security implementations
-  - [CSRF Protection](reference/security/csrf.md)
-
-**Standalone Documents**:
-- [Integrations Reference](reference/integrations.md) - All 9 integrations
-- [Error Codes](reference/error-codes.md) - Standard error codes
+- [Microsoft OAuth](guides/integrations/microsoft-oauth.md) - Staff SSO setup
+- [Xero](guides/integrations/xero.md) - Accounting integration
+- [DocuSeal](guides/integrations/docuseal.md) - E-signature platform
+- [Sentry](guides/integrations/sentry.md) - Error tracking
+- [LEM Verify](guides/integrations/lemverify.md) - KYC/AML
+- [Companies House](guides/integrations/companies-house.md) - UK company data
 
 ---
 
-### [Operations](operations/)
+## Development Guides (3 files)
 
-Production operations, deployment, and maintenance.
+**Location:** `guides/`
 
-**Documents**:
-- [Deployment](operations/deployment.md) - Deployment procedures
-- [Production Checklist](operations/production-checklist.md) - Pre-production validation
-- [Backup & Recovery](operations/backup-recovery.md) - Database backup procedures
-- [Monitoring](operations/monitoring.md) - Monitoring and alerting
-- [Runbooks](operations/runbooks.md) - Operational procedures
+- [Bulk Operations Testing](guides/testing/bulk-operations-test-implementation-plan.md)
+- [Secrets Handling](guides/SECRETS_HANDLING.md)
+- [SQL Safety Checklist](guides/sql-safety-checklist.md)
 
 ---
 
-### [Development](development/)
+## Reference Documentation (7 files)
 
-Development standards, conventions, and guides.
+**API & Database:**
+- [tRPC Routers](reference/api/routers.md) - All 44 routers
+- [Database Schema](reference/database/schema.md) - Complete 96 tables/views reference
+- [Database Scripts](reference/database/scripts.md)
 
-**Documents**:
-- [Coding Standards](architecture/coding-standards.md) - Code style guidelines
-- [Creating tRPC Routers](development/creating-routers.md) - Guide to creating and configuring tRPC routers ⚠️ Draft
-- [Adding Database Tables](development/adding-tables.md) - How to add tables using Drizzle ORM ⚠️ Draft
-- [Creating UI Components](development/creating-components.md) - React component creation with design system ⚠️ Draft
-- [Testing Guide](development/testing-guide.md) - Comprehensive testing guide (unit/integration/E2E) ⚠️ Draft
-- [Debugging Guide](development/debugging-guide.md) - Common debugging techniques and tools ⚠️ Draft
-- [Technical Debt](development/technical-debt.md) - Known issues and prioritization ⚠️ Draft
-
----
-
-### [Testing](testing/)
-
-Testing strategies, guides, and best practices.
-
-**Documents**:
-- [Unit Testing](testing/unit-testing.md) - Writing and running unit tests with Vitest ⚠️ Draft
-- [Integration Testing](testing/integration-testing.md) - Integration testing patterns ⚠️ Draft
-- [E2E Testing](testing/e2e-testing.md) - End-to-end testing with Playwright ⚠️ Draft
-- [Test Data Factories](testing/test-data-factories.md) - Using test data factories ⚠️ Draft
-- [Coverage Guidelines](testing/coverage-guidelines.md) - Test coverage targets and measurement ⚠️ Draft
+**Configuration & Security:**
+- [Environment Variables](reference/configuration/environment.md)
+- [CSRF Protection](reference/security/csrf.md)
+- [Error Codes](reference/error-codes.md)
+- [Integrations Reference](reference/integrations.md)
 
 ---
 
-### [Modules](modules/)
+## Operations (2 files)
 
-Module-specific documentation for Practice Hub's core modules.
-
-**Hub Modules**:
-- [Client Hub](modules/client-hub/README.md) - Client management functionality ⚠️ Draft
-- [Proposal Hub](modules/proposal-hub/README.md) - Proposal and sales pipeline ⚠️ Draft
-- [Practice Hub](modules/practice-hub/README.md) - Core practice management ⚠️ Draft
-- [Admin Panel](modules/admin-panel/README.md) - Administrative functions ⚠️ Draft
-- [Client Portal](modules/client-portal/README.md) - External client access ⚠️ Draft
+- [Deployment](operations/deployment.md) - Production deployment procedures
+- [Runbooks](operations/runbooks.md) - Operations procedures (includes backup, monitoring, production checklist)
 
 ---
 
-### [Decisions](decisions/)
+## Pricing Research (20 files)
 
-Architecture Decision Records (ADRs) documenting significant architectural decisions.
+**Location:** `pricing/`
 
-**Documents**:
-- [ADR Index](decisions/README.md) - Complete list of ADRs
-- [0001: Example ADR](decisions/0001-example-adr.md) - Template example ⚠️ Draft
+Comprehensive market research, service catalog, and pricing models.
 
-**Creating ADRs**: Use the [ADR Template](.templates/ADR_TEMPLATE.md)
+**Core Documents:**
+- Executive brief, service inventory, market research
+- Pricing models (A & B), DSL, quote workflow
+- Test plan, readiness checklist, rollout plan
+- Decisions, gaps analysis
 
----
-
-### [Troubleshooting](troubleshooting/)
-
-Problem-solution database for common errors.
-
-**Documents**:
-- [Common Errors](troubleshooting/common-errors.md) - Top errors and solutions
-
-**Coming Soon**:
-- Database Issues
-- Authentication Issues
-- Integration Failures
-- Performance Problems
-
----
-
-### [User Guides](user-guides/)
-
-End-user documentation for staff and clients.
-
-**Note**: User guides directory exists but documentation is pending migration.
-
----
-
-## Critical Files (Root Directory)
-
-These files remain in the project root:
-
-- **[CLAUDE.md](../CLAUDE.md)** - ⚠️ CRITICAL: Development rules and conventions (MUST READ for all developers and AI agents)
-- **[README.md](../README.md)** - Project overview
-- **[SECURITY.md](../SECURITY.md)** - Security policy
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Contributing guidelines
-- **[CHANGELOG.md](../CHANGELOG.md)** - Version history
-
----
-
-## Documentation Architecture
-
-### AI-Optimized Design
-
-**Features**:
-- ✅ **YAML Frontmatter** - All docs have machine-readable metadata
-- ✅ **Task-Oriented Organization** - Find docs by "what to do" not "what it is"
-- ✅ **Single Source of Truth** - Zero redundancy, clear ownership
-- ✅ **Cross-Referenced** - Related docs linked throughout
-- ✅ **Version Controlled** - Last updated dates, change tracking
-- ✅ **TL;DR Sections** - Quick summaries for AI agents and experienced developers
-
-### Document Templates
-
-All documents follow standardized templates in [`.templates/`](.templates/):
-- [ADR Template](.templates/ADR_TEMPLATE.md) - Architecture Decision Record template
-- [Module README Template](.templates/MODULE_README_TEMPLATE.md) - Module documentation template
-- [Integration Guide Template](.templates/INTEGRATION_GUIDE_TEMPLATE.md) - Integration guide template
-
-### Metadata Standard
-
-Every document includes YAML frontmatter:
-
-```yaml
----
-title: "Document Title"
-category: "architecture|guide|reference|operations|development"
-subcategory: "specific-area"
-purpose: "One-line description"
-audience: ["ai-agent", "developer", "devops"]
-prerequisites: ["other-doc.md"]
-related: ["related-doc.md"]
-last_updated: "YYYY-MM-DD"
-version: "X.X"
-status: "current|deprecated|draft"
-owner: "team-name"
-tags: ["keyword1", "keyword2"]
----
-```
+**Market Data:**
+- 6 competitor snapshots (pricing/data/market/snapshots/)
+- Research planning (pricing/data/research/)
 
 ---
 
@@ -315,7 +113,7 @@ tags: ["keyword1", "keyword2"]
 ```bash
 # Development
 pnpm install          # Install dependencies
-pnpm dev              # Start dev server (user runs, not AI)
+pnpm dev              # Start dev server (user runs)
 pnpm build            # Production build
 pnpm lint             # Run Biome linter
 pnpm typecheck        # TypeScript check
@@ -325,64 +123,26 @@ pnpm db:reset         # Drop + push + migrate + seed (ONE command)
 pnpm db:studio        # Open Drizzle Studio
 
 # Testing
-pnpm test             # Run all tests (58 tests passing)
+pnpm test             # Run all tests (1,778 test cases in 85 files)
 pnpm test:watch       # Watch mode
 pnpm test:coverage    # Coverage report
+pnpm test:e2e         # E2E tests (Playwright)
 
 # Docker
 docker compose up -d  # Start services
 docker compose down   # Stop services
-docker ps             # List running containers
 ```
 
 ---
 
-## Documentation Status
+## Archived Documentation
 
-### Completed
+**Location:** `docs/.archive/`
 
-✅ AI-optimized architecture (v2.0)
-✅ YAML frontmatter for all core docs
-✅ Task-based and role-based navigation
-✅ Master index with discovery metadata
-✅ Architecture documents (5 docs)
-✅ Integration guides (4 docs)
-✅ Reference documentation (6 docs)
-✅ Operations documentation (5 docs)
-✅ Development documentation (2 docs)
-✅ Troubleshooting documentation (1 doc)
-
-### In Progress
-
-🚧 Development how-to guides (6 stubs created)
-🚧 Testing documentation (5 stubs created)
-🚧 Module-specific READMEs (5 stubs created)
-🚧 Architecture Decision Records (ADRs) (1 example created)
-🚧 Additional troubleshooting guides
-🚧 User guides migration
-
-### Archived
-
-📦 Historical documents in [`.archive/`](.archive/):
-- Gap analysis reports
-- Phase completion reports
-- Handover documents
-- Audit reports
-- Pull request documentation
-
----
-
-## Feedback & Contributions
-
-**Found an issue?**
-- Update the relevant document directly
-- Check [Technical Debt](development/technical-debt.md) for known issues
-- Consult [Troubleshooting](troubleshooting/common-errors.md) for common problems
-
-**Want to contribute?**
-- Read [CONTRIBUTING.md](../CONTRIBUTING.md)
-- Follow [Coding Standards](architecture/coding-standards.md)
-- Use document templates from [`.templates/`](.templates/)
+- `audit-2025-01-03/` - Superseded docs from Phase 0 audit
+- `planning-docs/` - Phase plans (PHASE_0, PHASE_1, LAUNCH_PLAN_REVISED, etc.)
+- `user-guides-moved-2025-01-03/` - End-user guides (better in external wiki)
+- Historical archives from previous audits
 
 ---
 
@@ -390,13 +150,14 @@ docker ps             # List running containers
 
 | Date | Version | Changes | Author |
 |------|---------|---------|--------|
-| 2025-11-02 | 2.1 | Added Testing, Modules, Decisions categories; 21 new stub files; 3 templates | Jose/Janitor |
-| 2025-10-21 | 2.0 | AI-optimized documentation architecture | Winston/Architect |
-| 2025-10-21 | 1.0 | Initial documentation structure | Development Team |
+| 2025-01-03 | 3.0 | **AGGRESSIVE CONSOLIDATION**: 121 → 45 files. Deleted 40+ files (reference/proposals duplicates, architecture subdocs, dev meta, user guides moved), archived planning docs, fixed metrics (1,778 tests, 96 tables/views) | Mary/Analyst |
+| 2025-11-02 | 2.1 | Added stub files | Jose/Janitor |
+| 2025-10-21 | 2.0 | AI-optimized architecture | Winston/Architect |
+| 2025-10-21 | 1.0 | Initial structure | Development Team |
 
 ---
 
-**Documentation Version**: 2.1
-**Last Updated**: 2025-11-02
-**Architecture**: AI-Optimized
-**Status**: Current
+**Documentation Version**: 3.0  
+**Last Updated**: 2025-01-03  
+**Active Documents**: 45 (reduced from 121)  
+**Status**: Aggressively Consolidated

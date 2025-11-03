@@ -1,142 +1,97 @@
 # Documentation Sitemap
 
-Complete index of all Practice Hub documentation.
-
-**Last Updated**: 2025-11-02
-**Total Documents**: 66+ (excluding TypeDoc)
+**Last Updated**: 2025-01-03  
+**Total Documents**: 45 (aggressively consolidated from 121)
 
 ---
 
-## Getting Started
+## Core System Documentation
 
-- [Developer Quick Start](getting-started/quickstart-developer.md) ⚠️ Draft
-- [AI Agent Quick Start](getting-started/quickstart-ai-agent.md) ⚠️ Draft
-- [Project Structure](getting-started/project-structure.md) ⚠️ Draft
-- [Common Tasks](getting-started/common-tasks.md) ⚠️ Draft
+- [bmm-brownfield-architecture.md](bmm-brownfield-architecture.md) - **START HERE** - Complete system reference
+- [bmm-index.md](bmm-index.md) - BMad method entry point
+- [coding-standards.md](coding-standards.md) - Development standards (router creation, testing, database)
+- [README.md](README.md) - This sitemap
+- [SITEMAP.md](SITEMAP.md) - Documentation index
 
-## Architecture
+## Technical References
 
-- [System Overview](architecture/system-overview.md)
-- [Multi-Tenancy](architecture/multi-tenancy.md)
-- [Authentication](architecture/authentication.md)
-- [API Design](architecture/api-design.md)
-- [Design System](architecture/design-system.md)
-- [Tech Stack](architecture/tech-stack.md)
-- [Source Tree](architecture/source-tree.md)
-- [Coding Standards](architecture/coding-standards.md)
-- [Brownfield Architecture](architecture/brownfield-architecture.md)
+- [known-issues.md](known-issues.md) - Known issues & troubleshooting
+- [realtime-architecture.md](realtime-architecture.md) - SSE implementation
 
-## Development
+---
 
-- [Creating Routers](development/creating-routers.md) ⚠️ Draft
-- [Adding Tables](development/adding-tables.md) ⚠️ Draft
-- [Creating Components](development/creating-components.md) ⚠️ Draft
-- [Testing Guide](development/testing-guide.md) ⚠️ Draft
-- [Debugging Guide](development/debugging-guide.md) ⚠️ Draft
-- [Technical Debt](development/technical-debt.md) ⚠️ Draft
+## Integration Guides (6)
 
-## Testing
+- [Microsoft OAuth](guides/integrations/microsoft-oauth.md) - Staff SSO
+- [Xero](guides/integrations/xero.md) - Accounting integration
+- [DocuSeal](guides/integrations/docuseal.md) - E-signatures
+- [Sentry](guides/integrations/sentry.md) - Error tracking
+- [LEM Verify](guides/integrations/lemverify.md) - KYC/AML
+- [Companies House](guides/integrations/companies-house.md) - UK company data
 
-- [Unit Testing](testing/unit-testing.md) ⚠️ Draft
-- [Integration Testing](testing/integration-testing.md) ⚠️ Draft
-- [E2E Testing](testing/e2e-testing.md) ⚠️ Draft
-- [Test Data Factories](testing/test-data-factories.md) ⚠️ Draft
-- [Coverage Guidelines](testing/coverage-guidelines.md) ⚠️ Draft
+## Development Guides (3)
 
-## Modules
-
-- [Client Hub](modules/client-hub/README.md) ⚠️ Draft
-- [Proposal Hub](modules/proposal-hub/README.md) ⚠️ Draft
-- [Practice Hub](modules/practice-hub/README.md) ⚠️ Draft
-- [Admin Panel](modules/admin-panel/README.md) ⚠️ Draft
-- [Client Portal](modules/client-portal/README.md) ⚠️ Draft
-
-## Guides
-
-### Integration Guides
-- [LEM Verify](guides/integrations/lemverify.md)
-- [Microsoft OAuth](guides/integrations/microsoft-oauth.md)
-- [Sentry](guides/integrations/sentry.md)
-- [DocuSeal](guides/integrations/docuseal.md)
-- [Xero](guides/integrations/xero.md)
-- [Companies House](guides/integrations/companies-house.md)
-
-### Development Guides
+- [Bulk Operations Testing](guides/testing/bulk-operations-test-implementation-plan.md)
+- [Secrets Handling](guides/SECRETS_HANDLING.md)
 - [SQL Safety Checklist](guides/sql-safety-checklist.md)
 
-### Testing Guides
-- [Bulk Operations Test Implementation](guides/testing/bulk-operations-test-implementation-plan.md)
+---
 
-## Reference
+## Reference (7)
 
-### API Reference
-- [tRPC Routers](reference/api/routers.md)
+### API & Database
+- [tRPC Routers](reference/api/routers.md) - 44 routers
+- [Database Schema](reference/database/schema.md) - 96 tables/views
+- [Database Scripts](reference/database/scripts.md)
 
-### Database Reference
-- [Schema](reference/database/schema.md)
-- [Scripts](reference/database/scripts.md)
-
-### Configuration
+### Configuration & Security
 - [Environment Variables](reference/configuration/environment.md)
-
-### Security
 - [CSRF Protection](reference/security/csrf.md)
-
-### Business Logic
-- [Pricing Calculator Logic](reference/business-logic/proposals/CALCULATOR_LOGIC.md)
-- [Pricing Structure 2025](reference/business-logic/proposals/PRICING_STRUCTURE_2025.md)
-- [Pricing Examples](reference/business-logic/proposals/PRICING_EXAMPLES.md)
-- [Service Components](reference/business-logic/proposals/SERVICE_COMPONENTS.md)
-- [Staff Quick Guide](reference/business-logic/proposals/STAFF_QUICK_GUIDE.md)
-
-### Integrations Reference
-- [Integrations Overview](reference/integrations.md)
 - [Error Codes](reference/error-codes.md)
+- [Integrations Overview](reference/integrations.md)
 
-### TypeScript API
-- [TypeScript API (TypeDoc)](reference/typescript/) - Auto-generated
+---
 
-## Operations
+## Operations (2)
 
 - [Deployment](operations/deployment.md)
-- [Production Checklist](operations/production-checklist.md)
-- [Backup & Recovery](operations/backup-recovery.md)
-- [Monitoring](operations/monitoring.md)
-- [Runbooks](operations/runbooks.md)
+- [Runbooks](operations/runbooks.md) - Includes backup, monitoring, production checklist
 
-## Troubleshooting
+---
 
-- [Common Errors](troubleshooting/common-errors.md)
+## Pricing Research (20)
 
-## User Guides
+**Core Documents (12):**
+- 00-exec-brief.md
+- 10-service-inventory.md
+- 15-service-alignment-matrix.md
+- 20-market-research.md
+- 30-pricing-model.md
+- 32-pricing-dsl.md
+- 40-quote-workflow.md
+- 45-readiness-checklist.md
+- 50-test-plan.md
+- 55-gaps.md
+- 60-decisions.md
+- 70-rollout-plan.md
 
-- [Staff Guide](user-guides/STAFF_GUIDE.md)
-- [Client Onboarding Guide](user-guides/CLIENT_ONBOARDING_GUIDE.md)
-- [Admin Training](user-guides/ADMIN_TRAINING.md)
-- [FAQ](user-guides/FAQ.md)
+**Market Data (8):**
+- data/market/snapshots/ (6 competitor analyses)
+- data/research/ (2 research planning docs)
 
-## Decisions
-
-- [ADR Index](decisions/README.md)
-- [0001: Example ADR](decisions/0001-example-adr.md) ⚠️ Draft
-
-## Additional Resources
-
-- [Project Brief](brief.md)
-- [Known Issues](known-issues.md)
-- [Realtime Architecture](realtime-architecture.md)
+---
 
 ## Archived Documentation
 
-- [Gap Analysis Reports](.archive/2025-10-19-gap-analysis/)
-- [Historical Documents](.archive/)
+**`.archive/` contains:**
+- audit-2025-01-03/ - Documentation from Phase 0 consolidation
+- planning-docs/ - Phase plans (PHASE_0, PHASE_1, LAUNCH_PLAN_REVISED, etc.)
+- user-guides-moved-2025-01-03/ - End-user training (better in external wiki)
+- Historical archives from previous audits
+
+**Note:** Planning docs in archive are still active - retrieve for execution, archive permanently after completion.
 
 ---
 
-**Documentation Version**: 2.1
-**Architecture**: AI-Optimized
-**Template Repository**: [`.templates/`](.templates/)
-
-**Index Files**:
-- [Code Index](../.claude/skills/practice-hub-docs-search/code-index.json) - 205 entries
-- [Doc Index](../.claude/skills/practice-hub-docs-search/doc-index.json) - 32 pages
+**Documentation Version**: 3.0 - Aggressively Consolidated  
+**Reduction**: 121 → 45 files (63% reduction)

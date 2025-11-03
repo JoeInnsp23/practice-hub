@@ -17,10 +17,7 @@
       "path": "architecture/api-design.md",
       "title": "API Design & tRPC Patterns",
       "description": "",
-      "audience": [
-        "ai-agent",
-        "developer"
-      ],
+      "audience": ["ai-agent", "developer"],
       "status": "current",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-10-23T21:41:41.780Z",
@@ -44,21 +41,13 @@
         "Related Documentation",
         "Changelog"
       ],
-      "tags": [
-        "trpc",
-        "api",
-        "type-safety",
-        "patterns"
-      ]
+      "tags": ["trpc", "api", "type-safety", "patterns"]
     },
     {
       "path": "architecture/authentication.md",
       "title": "Authentication & Authorization Architecture",
       "description": "",
-      "audience": [
-        "ai-agent",
-        "developer"
-      ],
+      "audience": ["ai-agent", "developer"],
       "status": "current",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-10-22T19:03:09.343Z",
@@ -98,10 +87,7 @@
       "path": "architecture/coding-standards.md",
       "title": "Coding Standards & Conventions",
       "description": "",
-      "audience": [
-        "ai-agent",
-        "developer"
-      ],
+      "audience": ["ai-agent", "developer"],
       "status": "current",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-10-21T19:46:49.334Z",
@@ -157,22 +143,13 @@
         "Summary Checklist",
         "Related Documentation"
       ],
-      "tags": [
-        "coding-standards",
-        "best-practices",
-        "conventions",
-        "patterns"
-      ]
+      "tags": ["coding-standards", "best-practices", "conventions", "patterns"]
     },
     {
       "path": "architecture/design-system.md",
       "title": "Design System & UI Patterns",
       "description": "",
-      "audience": [
-        "ai-agent",
-        "developer",
-        "designer"
-      ],
+      "audience": ["ai-agent", "developer", "designer"],
       "status": "current",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-10-21T19:00:31.173Z",
@@ -200,22 +177,13 @@
         "Related Documentation",
         "Changelog"
       ],
-      "tags": [
-        "design-system",
-        "ui",
-        "tailwind",
-        "shadcn",
-        "components"
-      ]
+      "tags": ["design-system", "ui", "tailwind", "shadcn", "components"]
     },
     {
       "path": "architecture/multi-tenancy.md",
       "title": "Multi-Tenancy Architecture",
       "description": "",
-      "audience": [
-        "ai-agent",
-        "developer"
-      ],
+      "audience": ["ai-agent", "developer"],
       "status": "current",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-10-21T18:56:19.921Z",
@@ -242,21 +210,13 @@
         "Changelog",
         "Feedback"
       ],
-      "tags": [
-        "multi-tenancy",
-        "isolation",
-        "security",
-        "database"
-      ]
+      "tags": ["multi-tenancy", "isolation", "security", "database"]
     },
     {
       "path": "architecture/source-tree.md",
       "title": "Source Tree & Directory Structure",
       "description": "",
-      "audience": [
-        "ai-agent",
-        "developer"
-      ],
+      "audience": ["ai-agent", "developer"],
       "status": "current",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-10-21T19:44:11.355Z",
@@ -298,20 +258,13 @@
         "Key Directories Summary",
         "Related Documentation"
       ],
-      "tags": [
-        "source-tree",
-        "directory",
-        "organization",
-        "structure"
-      ]
+      "tags": ["source-tree", "directory", "organization", "structure"]
     },
     {
       "path": "architecture/tech-stack.md",
       "title": "Technology Stack",
       "description": "Complete technology stack with versions and justifications",
-      "audience": [
-        "dev, architect"
-      ],
+      "audience": ["dev, architect"],
       "status": "complete",
       "generated": "AI-GENERATED",
       "lastModified": "2025-11-02T20:44:14.305Z",
@@ -399,9 +352,7 @@
       "path": "decisions/0001-example-adr.md",
       "title": "0001-example-adr",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.239Z",
@@ -412,17 +363,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "decisions/README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "active",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.244Z",
@@ -435,19 +382,13 @@
         "Creating a New ADR",
         "Related Documentation"
       ],
-      "tags": [
-        "adr",
-        "architecture"
-      ]
+      "tags": ["adr", "architecture"]
     },
     {
       "path": "dev/DOCUMENTATION_WORKFLOW.md",
       "title": "Documentation Workflow Guide",
       "description": "Complete guide for maintaining Practice Hub's hybrid documentation system",
-      "audience": [
-        "dev",
-        "ops"
-      ],
+      "audience": ["dev", "ops"],
       "status": "complete",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T22:53:55.254Z",
@@ -530,25 +471,14 @@
         "Drift Thresholds",
         "References"
       ],
-      "tags": [
-        "documentation",
-        "workflow",
-        "automation",
-        "best-practices"
-      ],
-      "codeExtractTargets": [
-        "api/clients",
-        "api/invalid"
-      ]
+      "tags": ["documentation", "workflow", "automation", "best-practices"],
+      "codeExtractTargets": ["api/clients", "api/invalid"]
     },
     {
       "path": "dev/IMPLEMENTATION_SUMMARY.md",
       "title": "Documentation Reorganization Implementation Summary",
       "description": "Complete summary of documentation system implementation",
-      "audience": [
-        "dev",
-        "architect"
-      ],
+      "audience": ["dev", "architect"],
       "status": "complete",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T23:02:08.460Z",
@@ -613,17 +543,13 @@
         "References"
       ],
       "tags": [],
-      "codeExtractTargets": [
-        "api/clients"
-      ]
+      "codeExtractTargets": ["api/clients"]
     },
     {
       "path": "development/adding-tables.md",
       "title": "adding-tables",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.202Z",
@@ -634,17 +560,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "development/creating-components.md",
       "title": "creating-components",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.205Z",
@@ -655,17 +577,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "development/creating-routers.md",
       "title": "Creating tRPC Routers",
       "description": "Guide for creating new tRPC routers following conventions",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "HYBRID",
       "lastModified": "2025-11-02T20:44:43.022Z",
@@ -679,17 +597,13 @@
         "Related Documentation"
       ],
       "tags": [],
-      "codeExtractTargets": [
-        "patterns/router-setup"
-      ]
+      "codeExtractTargets": ["patterns/router-setup"]
     },
     {
       "path": "development/debugging-guide.md",
       "title": "debugging-guide",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.209Z",
@@ -700,17 +614,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "development/technical-debt.md",
       "title": "technical-debt",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.211Z",
@@ -721,17 +631,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "development/testing-guide.md",
       "title": "testing-guide",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.207Z",
@@ -742,17 +648,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "getting-started/common-tasks.md",
       "title": "common-tasks",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.198Z",
@@ -763,17 +665,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "getting-started/project-structure.md",
       "title": "project-structure",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.196Z",
@@ -784,17 +682,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "getting-started/quickstart-ai-agent.md",
       "title": "quickstart-ai-agent",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.193Z",
@@ -805,17 +699,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "getting-started/quickstart-developer.md",
       "title": "quickstart-developer",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.191Z",
@@ -826,18 +716,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "guides/SECRETS_HANDLING.md",
       "title": "Secrets Handling Guide",
       "description": "Best practices for managing secrets, API keys, and sensitive data in Practice Hub",
-      "audience": [
-        "dev",
-        "ops"
-      ],
+      "audience": ["dev", "ops"],
       "status": "complete",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T22:10:52.399Z",
@@ -912,20 +797,13 @@
         "Best Practices Summary",
         "References"
       ],
-      "tags": [
-        "security",
-        "secrets",
-        "environment-variables",
-        "best-practices"
-      ]
+      "tags": ["security", "secrets", "environment-variables", "best-practices"]
     },
     {
       "path": "modules/admin-panel/README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.230Z",
@@ -936,17 +814,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "modules/admin/README.md",
       "title": "Admin Panel",
       "description": "System administration including user management, KYC review queue, and portal links.",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "AI-GENERATED",
       "lastModified": "2025-11-02T22:20:51.892Z",
@@ -966,9 +840,7 @@
       "path": "modules/client-admin/README.md",
       "title": "Client Admin",
       "description": "Module description needed.",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "AI-GENERATED",
       "lastModified": "2025-11-02T22:20:51.894Z",
@@ -988,9 +860,7 @@
       "path": "modules/client-hub/README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.223Z",
@@ -1001,17 +871,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "modules/client-portal/README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.235Z",
@@ -1022,17 +888,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "modules/portal/README.md",
       "title": "Portal Management",
       "description": "Portal categories and links management for client resources.",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "AI-GENERATED",
       "lastModified": "2025-11-02T22:20:51.901Z",
@@ -1052,9 +914,7 @@
       "path": "modules/practice-hub/README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.228Z",
@@ -1065,17 +925,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "modules/proposal-hub/README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.225Z",
@@ -1086,17 +942,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "modules/providers/README.md",
       "title": "Providers",
       "description": "Module description needed.",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "AI-GENERATED",
       "lastModified": "2025-11-02T22:20:51.907Z",
@@ -1116,9 +968,7 @@
       "path": "modules/social-hub/README.md",
       "title": "Social Hub",
       "description": "Team collaboration features (in development).",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "AI-GENERATED",
       "lastModified": "2025-11-02T22:20:51.907Z",
@@ -1138,9 +988,7 @@
       "path": "README.md",
       "title": "README",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:58:26.764Z",
@@ -1185,9 +1033,7 @@
       "path": "reference/api/routers.md",
       "title": "tRPC Routers Reference",
       "description": "Complete API reference for all tRPC routers and procedures",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "HYBRID",
       "lastModified": "2025-11-02T20:37:34.852Z",
@@ -1234,9 +1080,7 @@
       "path": "reference/configuration/environment.md",
       "title": "Environment Variables Reference",
       "description": "Complete list of required and optional environment variables",
-      "audience": [
-        "dev, ops"
-      ],
+      "audience": ["dev, ops"],
       "status": "complete",
       "generated": "HYBRID",
       "lastModified": "2025-11-02T20:38:39.405Z",
@@ -1286,9 +1130,7 @@
       "path": "reference/database/schema.md",
       "title": "Database Schema Reference",
       "description": "Complete database schema with tables, columns, relationships",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "complete",
       "generated": "HYBRID",
       "lastModified": "2025-11-02T20:38:07.797Z",
@@ -1419,9 +1261,7 @@
       "path": "testing/coverage-guidelines.md",
       "title": "coverage-guidelines",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.222Z",
@@ -1432,17 +1272,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "testing/e2e-testing.md",
       "title": "e2e-testing",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.217Z",
@@ -1453,17 +1289,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "testing/integration-testing.md",
       "title": "integration-testing",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.215Z",
@@ -1474,17 +1306,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "testing/test-data-factories.md",
       "title": "test-data-factories",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.220Z",
@@ -1495,17 +1323,13 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     },
     {
       "path": "testing/unit-testing.md",
       "title": "unit-testing",
       "description": "",
-      "audience": [
-        "dev"
-      ],
+      "audience": ["dev"],
       "status": "draft",
       "generated": "HUMAN-AUTHORED",
       "lastModified": "2025-11-02T17:55:33.213Z",
@@ -1516,9 +1340,7 @@
         "Contents",
         "Related Documentation"
       ],
-      "tags": [
-        ""
-      ]
+      "tags": [""]
     }
   ]
 }
