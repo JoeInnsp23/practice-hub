@@ -1,0 +1,50 @@
+id,uuid,createdAt,updatedAt,companyName,businessType,industry,turnover,numberOfEmployess,contactCollection,contact collection ID,leadsCollection,leads collection ID,quotesFromCompanyCollection,quotes (from company) collection ID,clientsCollection,clients collection ID,interactionsCollection,interactions collection ID
+61,rec19g61cmg6msrun,"30/09/2025, 15:06",,company,Ltd Company,,12345,2,test test,159,test- 2025-09-30T14:06:31.005Z,169,,,,,,
+60,rec19g617mfuzvrgn,"22/09/2025, 11:39",,Genevieve Cafe Ltd,Ltd Company,Hospitality,350000,14,Laura Hughes,146,Laura- 2025-09-22T10:39:34.161Z,156,,,,,,
+59,rec19g616mfgxlgw5,"12/09/2025, 15:27",,,Sole Trader,Hospitality,,20,Ruth Wheatley,136,Ruth- 2025-09-12T14:26:49.246Z,146,,38,,,,
+58,rec19g618mfgohdqq,"12/09/2025, 11:12",,"Youth Sports Development Ltd ",Ltd Company,Other,80000,0,"Ross Parr ",135,"Ross Parr - Lead - 2025-09-11,Ross- 2025-09-12T10:11:39.729Z","143,145",,37,,,,
+57,rec19g615mfcfwfq1,"09/09/2025, 12:00",,Mjh hospitality ltd,Ltd Company,,0,8,Martin Hodgson,129,Martin-Lead-9 September 2025,139,,,,,,
+56,rec19g617mf2knd9x,"02/09/2025, 14:16",,The star at cotton,Ltd Company,,1000000,30,Emma Louise Hall,120,Emma-Lead-2 September 2025,130,,,,,,
+55,rec19g6rameo1xdqz,"23/08/2025, 10:23",,Three horseshoes,Ltd Company,,0,23,Diane blake,112,Diane-Lead-23 August 2025,117,,,,,,
+54,rec19g617mdss0hme,"01/08/2025, 13:04",," Rangi Tamu Limited",Ltd Company,,40000,0,Abigael  Ombaso,95,,,,,,,,
+53,rec34j5p8mcx7qi4f,"10/07/2025, 10:56",,Primeman Ltd,Ltd Company,Other,,,Bret Kapetanov,82,Maddison May Kapetanov Nee Brundell - Lead - 2025-07-03,88,,27,,,"Proposal Sent,Proposal Sent","99,100"
+52,rec19g617mcx48tt0,"10/07/2025, 09:18",,The Masons Arms (Marshfield) Ltd,Ltd Company,Hospitality,683084,38,Jamie-Leigh Delve,85,Jamie-Leigh- 2025-07-10T08:17:59.836Z,91,,28,,,"Proposal Sent,Quote accepted :D ","98,124"
+49,rec19g616mcbujp7s,"25/06/2025, 12:03",,SCULPT STUDIO LIMITED,Ltd Company,Other,200000,2,Rachel Sidall,70,Rachel- 2025-06-25T11:03:12.299Z,76,Accounts pre VAT registered £88k turnover,23,,,Proposal Sent,74
+47,rec19g617mc4kgo86,"20/06/2025, 09:47",,BAMBUBAR LTD,Ltd Company,Hospitality,78393,3,Jazmine Grimshaw,68,Jazmine- 2025-06-20T08:46:46.034Z,74,,,,,,
+45,rec19g63fmb0ry77q,"23/05/2025, 13:26",,Edmund Street Activity Centre Ltd,Ltd Company,Hospitality,700000,15,Stephen  Ward,65,Stephen - 2025-05-23T12:25:35.416Z,67,,19,,,"Proposal Sent,Proposal Sent","45,46"
+44,rec19g62kmb0qo4m4,"23/05/2025, 12:50",,Homecare Chesterfield Limited,Ltd Company,Hospitality,400000,10,"Stephen Ward ",63,Stephen- 2025-05-23T11:49:44.925Z,66,,18,,,,
+42,rec16n8969maqowpsp,"16/05/2025, 12:03",,Coco Factory Ltd,Ltd Company,Other,0,1,Shuyu Lin,58,Shuyu Lin - Lead - 2025-05-15,64,Accounts for year-end 30 June 2025,16,,,,
+41,rec19g67zmao7fiyf,"14/05/2025, 18:18",,Marcad Engineering Design Ltd,Ltd Company,Other,126000,1,Dave Griffin,57,,,,,,,,
+40,rec19g68gmao7asvp,"14/05/2025, 18:14",,Marcad Engineering Design Ltd,Ltd Company,Other,126000,1,Dave Griffin,56,Dave- 2025-05-14T17:12:34.124Z,58,,15,,,,
+39,rec19g616makwsx4h,"12/05/2025, 10:57",,Evergreen Hospitality Limited,Ltd Company,,0,12,Lesley Cork,53,Lesley-Lead-8 May 2025,55,,,,,"Client didnt answer, have sent Lesley a follow up on Whatsapp.,Called Lesley, no answer so ive whatsapped.","31,32"
+37,rec19g616maf85xud,"08/05/2025, 11:29",,Freelance sales for will writing,,,,,"Rachael  Kidd ",51,Kidd  - Lead - 2025-05-08T10:29:06.631Z,54,,14,8,8,Proposal Sent,30
+35,rec4qm49ma43vmut,"30/04/2025, 16:43",,The Crown Inn (Wrex) Ltd,Ltd Company,Hospitality,200000,3,Robert Venn,49,Robert Venn-02APR2025,51,,13,4,4,,
+34,rec19g616ma2fugyl,"29/04/2025, 12:43",,The Ship Newhaven Ltd,Ltd Company,Hospitality,520000,7,Jason Matthews,47,Jason- 2025-04-29T11:42:34.350Z,49,VAT Registration & MGD Registration,11,,,"Proposal Sent,Proposal Sent","24,25"
+33,rec19g62cma16g3hg,"28/04/2025, 15:32",,The Castle Inn Bramber Limited,Ltd Company,Hospitality,1000000,25,Jack Visick,46,Jack- 2025-04-28T14:19:19.327Z,48,,10,,,"Proposal Sent,Spoke to Daniel ( other owner of The Castle) Re-send quote via e-mail on 23.05,E-mailed Jack to see if quote was of any interest.","23,43,67"
+31,rec19g615m9vel7l6,"24/04/2025, 14:33",,"Bc plumbing & gas ",Ltd Company,,,,"Ben  Windsor ",44,Windsor  - Lead - 2025-04-24T13:33:38.401Z,47,,,,,"Called Ben, he has a current accountant but is unhappy
+BC Plumbing & Gas is going into liquidation, but he is looking to incorporate a new one.
+Girlfriend is also looking for an accountant
+He couldn't speak as he was driving, so I WhatsApped him all the relevant questions.",29
+30,rec19g617m9vej94q,"24/04/2025, 14:31",,Solum Saxum,Ltd Company,,,,"David  FRAYNE ",43,FRAYNE  - Lead - 2025-04-24T13:32:18.464Z,46,,,,,"Client said he enquired months ago, is no longer interested",28
+28,recado6nk9m9tugwfl,"23/04/2025, 12:22",," Blue Link Platforms",Ltd Company,,40000,1,Tom Wilkinson,37,Tom - Lead - 2025-04-14,39,1 off-payroll,8,,,Proposal Sent,20
+27,reckb929m9lg0afc,"17/04/2025, 15:15",,Lucy Owen New Company,Ltd Company,,90000,1,Lucy Owen,38,Lucy - Lead - 2025-04-16,40,Xero Setup for New Business,6,,,"Automated Email Sent,Call-back auto scheduled for StriveX lead,Proposal Sent","9,10,14"
+26,rec1dqwg9m9k3jp3c,"16/04/2025, 16:38",,Emma Wallen Ltd,Ltd Company,,85000,,Emma Wallen,39,Emma Wallen - Lead - 2025-04-16,41,,,,,"Automated Email Sent,Call-back auto scheduled for StriveX lead,Follow-up email sent after Emma replied to the automated booking request","11,12,13"
+25,rec19g616m9k3j3w5,"16/04/2025, 16:38",,Friends and Flavours Limited,Ltd Company,Hospitality,300000,,"Jonathan  Stevens ",40,Jonathan - 2025-04-16T15:37:54.761Z,42,Professional consultation with company directors to discuss the proposed business separation and preliminary tax/VAT implications.,9,,,Proposal Sent,22
+24,rec19g616m9bjhkc2,"10/04/2025, 16:55",,EMERALD TCG BAR LIMITED,Ltd Company,Hospitality,600000,,Richard Browne,35,Richard- 2025-04-10T15:54:44.296Z,35,,,,,,
+22,rec19g632m9baybqn,"10/04/2025, 12:56",,EVSE Ltd,Ltd Company,Hospitality,364000,10,Anna Shepphord,32,Anna- 2025-04-10T11:48:05.430Z,32,,5,,,"Proposal Sent,Check quote received ","5,6"
+20,rec19g65zm930mist,"04/04/2025, 17:45",,PUB CO INNS LTD,Ltd Company,Hospitality,,14,Michael Clark,30,Michael- 2025-04-04T16:41:53.424Z,31,,4,2,2,Proposal Sent,4
+19,rec2l1h9m8ym0hto,"01/04/2025, 15:44",,Abrasive Limited,Ltd Company,,,1,Vanessa Rubio,26,Vanessa - Lead - 25/03/2025,28,,3,,,Proposal Sent,3
+18,rec19g616m8xcx93q,"31/03/2025, 18:42",,General Manager,Ltd Company,,0,2,Ross Harry Miles,25,Ross-Lead-26 February 2025,24,,,,16,,
+17,rec19g66km8f44tz7,"18/03/2025, 23:16","19/03/2025, 00:43",Shopboxd Collective Limited,Ltd Company,,,1,Madeka Panchoo,20,Mads - Lead - 03/03/2025,5,,,1,1,,
+16,rec19g66km8f44tz6,"18/03/2025, 23:16","18/03/2025, 23:28",Maroush Group Ltd,Ltd Company,,,,Ranya Abouzaki,18,Maroush - Lead - 24/01/2025,8,,,,,,
+15,rec19g66km8f44tz5,"18/03/2025, 23:16","18/03/2025, 23:28",Prasad Inc Ltd,Ltd Company,,,,Aman Bindra,17,Aman - Lead - 25/11/2024,6,,,,,,
+13,rec19g66km8f44tz3,"18/03/2025, 23:16","18/03/2025, 23:28",The Parkhill Group,Ltd Company,,,,Joe Badby,13,Parkhill - Lead - 21/11/2024,7,,,,,,
+12,rec19g66km8f44tz2,"18/03/2025, 23:16","18/03/2025, 23:28",Charlton oliver properties ltd,Ltd Company,,,,Robert Charlton,12,Rob - Lead - 22/01/2025,17,,,,,,
+11,rec19g66km8f44tz1,"18/03/2025, 23:16","18/03/2025, 23:28",Brix Wine Limited,Ltd Company,,,,Ruairi Kavanagh,11,Ruari - Lead - 23/01/2025,13,,,,,,
+10,rec19g66km8f44tz0,"18/03/2025, 23:16","18/03/2025, 23:28",Orcas Sands Ltd TA The Mitre Inn,Ltd Company,,,,Steve,9,Steve - Lead - 30/01/2025,10,,,,,,
+9,rec19g66km8f44tyz,"18/03/2025, 23:16","19/03/2025, 00:07",Slater & Slater Pub Co,Ltd Company,Hospitality,500000,2,Andrew Slater,8,Andrew - Lead - 18/02/2025,9,,,,,,
+8,rec19g66km8f44tyy,"18/03/2025, 23:16","31/03/2025, 16:39",Restaurant,Ltd Company,Hospitality,,5,Maulik Solanki,7,Maulik - Lead - 25/02/2025,2,,,,,,
+7,rec19g66km8f44tyx,"18/03/2025, 23:16","18/03/2025, 23:28",Moody's,Ltd Company,,,,Yaz,6,Yaz - Lead - 06/02/2025,16,,,,,,
+4,rec19g66km8f44tyu,"18/03/2025, 23:16","18/03/2025, 23:28",The falstaff inn,Ltd Company,,,,Louise Kim Twitchell,15,Lousie - Lead - 14/10/2024,3,,,,,,
+3,rec19g66km8f44tyt,"18/03/2025, 23:16","18/03/2025, 23:28",The Grouse Inn,Ltd Company,,,,Paul Barrow,14,Paul - Lead - 15/10/2024,11,,,,,,
+2,rec19g66km8f44tys,"18/03/2025, 23:16","19/03/2025, 00:14",JL,,,,,Jamie Lucas,5,Jamie - Lead - 06/02/2025,1,,,,,,

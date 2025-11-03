@@ -1,0 +1,18 @@
+id,uuid,createdAt,updatedAt,lead,Lead ID,contact,Contact ID,companies,Companies ID,numberOfEmployees,quotes,Quotes ID,complexityMultiplier,packageOption,Package Option ID,payrollOption,Payroll Option ID,addOnsOptions,Add-Ons Options ID,monthlyFee,onbardingStartDate,onboardingStatus,directDebitStatus,notes,pensionsOption,Pensions Option ID,clientIdVal,clientManager,interactionsCollection,interactions collection ID,onboardingSession,onboarding session ID
+17,rec19g617mfv21mvr,"22/09/2025, 12:40","22/09/2025, 12:40",Ross - Lead - 2025-05-22,70,Ross Harry Miles,25,,,,"Ross Harry ",36,0.9,STARTER £0 - £89999,2,,,,,71,22/09/2025,Not Started,Not setup,,,,17,,,,,15
+16,recrii82mfv1p6re,"22/09/2025, 12:30","22/09/2025, 12:40",,,Ross Harry Miles,25,General Manager,18,2,"Ross Harry ",36,0.9,STARTER £0 - £89999,2,,,,,71,22/09/2025,Not Started,Pending,,,,,,,,,
+15,recqgn669md6ljext,"17/07/2025, 00:32","17/07/2025, 00:32",Yasmin Li - Lead - 2025-07-11,92,Yasmin Li,86,,,,,30,0.7,PREMIUM £90000 - £149999,16,DIRECTOR_ONLY: Monthly,10,"VAT Registration,PAYE Registration","13,12",228,16/07/2025,Not Started,Not setup,,Pension - Monthly,1,15,,,,,14
+14,rec3xu64s9mcxisyr0,"10/07/2025, 16:06","10/07/2025, 16:06",Cameron - Lead - 2025-06-27,82,Cameron,76,,,,"£60 Admin fee for filing RT01
+£300 for creating and filing overdue accounts
+£144 Director SATR",24,1,,,,,,,0,10/07/2025,In Progress,Not setup,,,,,,,,,
+13,rec5lhw8mct82e8d,"07/07/2025, 15:54","10/07/2025, 16:01",Sheridan- 2025-07-07T11:32:28.675Z,90,Sheridan Loxley,84,,,,Capital Gains Calculation and submission,26,1,,,,,,,0,07/07/2025,In Progress,Not setup,,,,13,,,,,13
+12,recc9a6mv9mcnvwlfk,"03/07/2025, 22:15","10/07/2025, 16:01",Sam- 2025-07-02T13:37:57.854Z,85,Sam Millen,79,,,,,25,1,,,,,,,0,03/07/2025,In Progress,Not setup,,,,12,,,,,12
+11,rec1921ik9mc9ad72o,"23/06/2025, 17:03","10/07/2025, 16:01",Shaw- 2025-06-23T09:10:52.830Z,75,Shaw LLoyd,69,,,,,22,1,,,,,,,0,23/06/2025,Completed,Not setup,,,,11,,,,,11
+10,rec4k4229mbl01lyz,"06/06/2025, 17:08","22/09/2025, 12:40",,,Ross Swallow,61,,,,,21,0,,,,,,,0,06/06/2025,In Progress,Not setup,,,,10,,,,,10
+9,rec19g616mb6gqi7m,"27/05/2025, 12:58","27/05/2025, 13:03",Salman- 2025-05-16T13:29:39.077Z,65,Salman Zimri,59,,,,"This is for Salmans Self Assesment tax return and Incorporation of his new company
+Split is £220 SATR / £160.00 Incorporation ",17,1,,,,,,,0,27/05/2025,In Progress,Not setup,,,,9,,,,,9
+8,rec19g617mb0zwrth,"23/05/2025, 17:08","10/07/2025, 16:02",Kidd  - Lead - 2025-05-08T10:29:06.631Z,54,"Rachael  Kidd ",51,Freelance sales for will writing,37,,,14,,,,,,,,0,23/05/2025,In Progress,Not setup,,,,8,,,,,8
+4,rechdc48ma44dsl2,"30/04/2025, 16:57","10/07/2025, 16:01",Robert Venn-02APR2025,51,Robert Venn,49,The Crown Inn (Wrex) Ltd,35,3,,13,1,GROWTH £150000 - £249999,11,0-20 employees: Monthly,1,,,267,30/04/2025,Completed,Accepted,,Pension - Monthly,1,4,,,,,4
+3,rec16krqnv9ma42iids,"30/04/2025, 16:05","10/07/2025, 16:01",Beverley Boam - 20APR2025,50,Beverley Boam,48,,,,2024 & 2025 Accounts + VAT Returns,12,1,GROWTH £0 - £89999,9,0-20 employees: Monthly,1,,,165,30/04/2025,Completed,Not setup,,,,3,,,,,3
+2,reccdsg49m932jwxa,"04/04/2025, 18:38","02/05/2025, 11:19",Michael- 2025-04-04T16:41:53.424Z,31,Michael Clark,30,PUB CO INNS LTD,20,14,,4,1,,,0-20 employees: Weekly,2,,,344,04/04/2025,In Progress,Not setup,,Pension - Weekly,2,2,Danielle,Proposal Sent,4,,2
+1,rec19g64em8f77ylr,"19/03/2025, 00:43","10/07/2025, 16:02",Mads - Lead - 03/03/2025,5,Madeka Panchoo,20,Shopboxd Collective Limited,17,1,,,,,,,,,,,10/03/2025,Completed,Pending,,,,1,Heather,,,,
