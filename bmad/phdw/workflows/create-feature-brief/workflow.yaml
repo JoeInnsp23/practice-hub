@@ -1,0 +1,16 @@
+# Create Feature Brief Workflow Configuration
+name: create-feature-brief
+description: "Create a comprehensive feature brief with practice-hub context (Phase 1 MVP manual version)"
+author: "Zeus - Workflow Orchestrator (Hermes in Phase 2)"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+
+installed_path: "{project-root}/bmad/phdw/workflows/create-feature-brief"
+template: "{installed_path}/feature-brief-template.md"
+instructions: "{installed_path}/instructions.md"
+
+default_output_file: "{feature_output_path}/feature-brief-{{feature_id}}.md"
+
+standalone: false # Called by phdw-master
+

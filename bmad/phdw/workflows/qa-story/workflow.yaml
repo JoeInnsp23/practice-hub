@@ -1,0 +1,17 @@
+# QA Story Workflow Configuration
+name: qa-story
+description: "Apollo validates story with Cursor browser tools, performance checks, security scans, and multi-tenant validation"
+author: "Apollo - Practice Hub QA Agent"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+qa_reports_path: "{config_source}:qa_reports_path"
+frontend_test_tool: "{config_source}:frontend_test_tool"
+
+installed_path: "{project-root}/bmad/phdw/workflows/qa-story"
+template: "{installed_path}/qa-report-template.md"
+instructions: "{installed_path}/instructions.md"
+
+default_output_file: "{qa_reports_path}/story-{{story_id}}-qa-report.md"
+
+standalone: false # Called by phdw-master
+

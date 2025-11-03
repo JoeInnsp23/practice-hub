@@ -1,0 +1,124 @@
+# PH Dev Suite Workflow State Schema
+# Defines the structure of workflow state tracking
+
+feature:
+  feature_id: string              # Kebab-case feature identifier
+  feature_name: string            # Human-friendly name
+  feature_branch: string          # Git branch (feature/{feature_id})
+  current_epic_branch: string     # Current working branch (epic/{epic_id} or feature branch) (NEW!)
+  workflow_phase: enum            # Current workflow phase
+    - 'planning'                  # Athena analyzing
+    - 'documentation'             # Hermes crafting artifacts
+    - 'epic-planning'             # Prometheus planning epics
+    - 'implementation'            # Hephaestus forging stories
+    - 'qa'                        # Apollo validating
+    - 'complete'                  # Feature merged to main
+    - 'ready_to_merge'            # Waiting for merge approval
+    - 'paused'                    # User paused with *pause-quest (NEW!)
+    - 'aborted'                   # Quest aborted with *abort-quest (NEW!)
+  current_epic: string | null     # Current epic ID (e.g., "1.1", "2.0")
+  current_story: string | null    # Current story ID (e.g., "1.2.3")
+  created_at: timestamp
+  updated_at: timestamp
+
+gates:
+  brief_validated: enum
+    - 'locked'                    # Cannot proceed to PRD
+    - 'unlocked'                  # Validated, can proceed
+  prd_validated: enum
+    - 'locked'                    # Cannot proceed to TDD
+    - 'unlocked'                  # Validated, can proceed
+  tdd_validated: enum
+    - 'locked'                    # Cannot proceed to epics
+    - 'unlocked'                  # Validated, can proceed
+  pre_story_quality: enum
+    - 'pending'                   # Not run yet
+    - 'passed'                    # Format/lint/typecheck passed
+    - 'failed'                    # Issues found
+  qa_gate: enum
+    - 'pending'                   # Not run yet
+    - 'passed'                    # Apollo approved
+    - 'failed'                    # Apollo found issues
+
+epics:
+  - id: string                    # Epic ID (e.g., "1.1", "1.2", "2.0")
+    name: string                  # Epic name
+    description: string
+    status: enum
+      - 'pending'                 # Not started
+      - 'blocked_by_dependency'   # Waiting for prerequisite epic (NEW!)
+      - 'paused_not_ready'        # Paused due to readiness check failure (NEW!)
+      - 'in_progress'             # Currently working
+      - 'complete'                # All stories done
+      - 'merged'                  # Merged to feature branch
+      - 'rolled_back'             # Epic rolled back via *rollback-epic (NEW!)
+    parallelizable: boolean       # Can run parallel with other epics?
+    parallel_group: string | null # Parallel group ID (e.g., "phase-2")
+    epic_branch: string | null    # Epic sub-branch (e.g., "epic/2.1") or null if using feature branch (NEW!)
+    files_touched: string[]       # Files this epic will modify
+    dependencies: string[]        # Epic IDs this depends on
+    stories: string[]             # Story IDs in this epic
+    created_at: timestamp
+    merged_at: timestamp | null   # When epic merged to feature branch (NEW!)
+
+stories:
+  - id: string                    # Story ID (e.g., "1.2.3")
+    epic_id: string               # Parent epic ID
+    name: string                  # Story name
+    description: string           # What needs to be implemented
+    acceptance_criteria: string[] # How we know it's done
+    testing_requirements: string[] # Specific tests needed
+    status: enum
+      - 'pending'                 # Not started
+      - 'in_progress'             # Currently implementing
+      - 'qa_failed'               # Apollo found issues
+      - 'qa_passed'               # Apollo approved
+      - 'done'                    # Complete (QA passed + docs synced)
+      - 'ended_pivot'             # Closed due to pivot (NEW!)
+      - 'paused_dependency_pivot' # Paused due to dependency pivot (NEW!)
+      - 'revised_post_pivot'      # Revised after dependency pivot (NEW!)
+    dependencies: string[]        # Story IDs this depends on
+    needs_review: boolean         # Flagged by pivot-mini-workflow (NEW!)
+    qa_reports: array             # QA report objects
+      - report_path: string
+        gate_decision: 'PASS' | 'FAIL'
+        coverage: number
+        findings_count: object
+        timestamp: timestamp
+    commits: string[]             # Git commit hashes
+    created_at: timestamp
+    completed_at: timestamp | null
+
+blocked_stories: string[]         # Story IDs paused due to pivots (NEW!)
+
+pantheon_activity:                # God activity tracking (NEW!)
+  athena:
+    brainstorming_complete: boolean
+    app_audit_complete: boolean
+  hermes:
+    brief_created: boolean
+    prd_created: boolean
+    tdd_created: boolean
+  prometheus:
+    epics_planned: boolean
+    stories_created: boolean
+  hephaestus:
+    stories_forged: number
+  apollo:
+    qa_validations: number
+    qa_passes: number
+    qa_fails: number
+  themis:
+    doc_sync_operations: number
+    drift_items_fixed: number
+
+metrics:
+  total_epics: number
+  total_stories: number
+  total_qa_cycles: number
+  average_coverage: number
+  git_commits: number
+  time_saved_from_parallelization: number
+  pivot_count: number             # How many pivots occurred (NEW!)
+  dependency_blocks: number       # Dependency-related pauses (NEW!)
+

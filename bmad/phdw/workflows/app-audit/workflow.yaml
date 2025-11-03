@@ -1,0 +1,16 @@
+# App Audit Workflow Configuration
+name: app-audit
+description: "Athena analyzes existing practice-hub codebase to determine module placement and impact"
+author: "Athena - Requirements Analyst"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+
+installed_path: "{project-root}/bmad/phdw/workflows/app-audit"
+template: "{installed_path}/audit-report-template.md"
+instructions: "{installed_path}/instructions.md"
+
+default_output_file: "{feature_output_path}/app-audit-{{feature_id}}.md"
+
+standalone: false
+

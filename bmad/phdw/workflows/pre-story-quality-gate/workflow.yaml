@@ -1,0 +1,13 @@
+# Pre-Story Quality Gate Workflow Configuration
+name: pre-story-quality-gate
+description: "Run format/lint/typecheck before story work, fix ALL issues (even pre-existing)"
+author: "Hephaestus - Practice Hub Dev Agent"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+
+installed_path: "{project-root}/bmad/phdw/workflows/pre-story-quality-gate"
+template: false # Action workflow
+instructions: "{installed_path}/instructions.md"
+
+standalone: false # Called by phdw-master
+

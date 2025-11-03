@@ -1,0 +1,14 @@
+# Documentation Sync Workflow Configuration
+name: doc-sync
+description: "Themis detects documentation drift and restores harmony after story completion"
+author: "Themis - Documentation Guardian"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+project_status_doc: "{config_source}:project_status_doc"
+drift_detection_level: "{config_source}:drift_detection_level"
+
+installed_path: "{project-root}/bmad/phdw/workflows/doc-sync"
+template: false # Action workflow
+instructions: "{installed_path}/instructions.md"
+
+standalone: false # Called after Apollo QA pass

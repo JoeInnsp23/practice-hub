@@ -1,0 +1,17 @@
+# Brief to PRD Workflow Configuration
+name: brief-to-prd
+description: "Hermes transforms Feature Brief into validated Product Requirements Document"
+author: "Hermes - Documentation Architect"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+
+installed_path: "{project-root}/bmad/phdw/workflows/brief-to-prd"
+template: "{installed_path}/prd-template.md"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/prd-validation-checklist.md"
+
+default_output_file: "{feature_output_path}/prd-{{feature_id}}.md"
+
+standalone: false
+

@@ -1,0 +1,17 @@
+# PRD to TDD Workflow Configuration
+name: prd-to-tdd
+description: "Hermes creates Test-Driven Development Multi-Phase Plan from PRD"
+author: "Hermes - Documentation Architect"
+
+config_source: "{project-root}/bmad/phdw/config.yaml"
+feature_output_path: "{config_source}:feature_output_path"
+
+installed_path: "{project-root}/bmad/phdw/workflows/prd-to-tdd"
+template: "{installed_path}/tdd-template.md"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/tdd-validation-checklist.md"
+
+default_output_file: "{feature_output_path}/tdd-{{feature_id}}.md"
+
+standalone: false
+
