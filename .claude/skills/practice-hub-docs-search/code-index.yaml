@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-04T11:18:07.532Z
+# Generated: 2025-11-04T11:39:16.438Z
 
 functions:
   staffStatisticsRouter:
@@ -1243,6 +1243,36 @@ components:
     line: 9
     type: "component"
     signature: "function FloatingLabelInput"
+  SkeletonAvatar:
+    description: "Props for the SkeletonAvatar component."
+    file: "components/ui/skeleton-avatar.tsx"
+    line: 6
+    type: "component"
+    signature: "function SkeletonAvatar"
+  SkeletonCard:
+    description: "Props for the SkeletonCard component."
+    file: "components/ui/skeleton-card.tsx"
+    line: 6
+    type: "component"
+    signature: "function SkeletonCard"
+  SkeletonTable:
+    description: "Props for the SkeletonTable component."
+    file: "components/ui/skeleton-table.tsx"
+    line: 6
+    type: "component"
+    signature: "function SkeletonTable"
+  SkeletonText:
+    description: "Props for the SkeletonText component."
+    file: "components/ui/skeleton-text.tsx"
+    line: 6
+    type: "component"
+    signature: "function SkeletonText"
+  SkeletonWidget:
+    description: "Props for the SkeletonWidget component."
+    file: "components/ui/skeleton-widget.tsx"
+    line: 6
+    type: "component"
+    signature: "function SkeletonWidget"
 
 classes:
   EventSubscriptionManager:
@@ -1272,9 +1302,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-04T11:18:07.533Z"
-  total_entries: 210
+  generated: "2025-11-04T11:39:16.439Z"
+  total_entries: 215
   functions: 134
   types: 58
-  components: 14
+  components: 19
   classes: 4
