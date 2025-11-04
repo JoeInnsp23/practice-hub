@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-03T14:45:16.545Z
+# Generated: 2025-11-04T00:56:05.425Z
 
 functions:
   staffStatisticsRouter:
@@ -729,6 +729,18 @@ functions:
     line: 166
     type: "function"
     signature: "function exportStaffUtilizationToCSV"
+  HUB_COLORS:
+    description: "Hub Color Utilities"
+    file: "lib/utils/hub-colors.ts"
+    line: 1
+    type: "function"
+    signature: "const HUB_COLORS"
+  getHubGradient:
+    description: "Gradient mapping for hub colors."
+    file: "lib/utils/hub-colors.ts"
+    line: 49
+    type: "function"
+    signature: "function getHubGradient"
   getAutoSalesStage:
     description: "Sales Stage Automation"
     file: "lib/utils/sales-stage-automation.ts"
@@ -1133,6 +1145,12 @@ types:
     line: 171
     type: "type"
     signature: "type WorkflowListOutput"
+  HubName:
+    description: "Type representing valid hub names."
+    file: "lib/utils/hub-colors.ts"
+    line: 35
+    type: "type"
+    signature: "type HubName"
   PlaceholderData:
     description: "Data required for placeholder replacement in task templates"
     file: "lib/utils/task-generation.ts"
@@ -1242,9 +1260,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-03T14:45:16.546Z"
-  total_entries: 205
-  functions: 132
-  types: 57
+  generated: "2025-11-04T00:56:05.427Z"
+  total_entries: 208
+  functions: 134
+  types: 58
   components: 12
   classes: 4
