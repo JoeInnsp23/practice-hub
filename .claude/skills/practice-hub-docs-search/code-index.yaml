@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-04T11:39:16.438Z
+# Generated: 2025-11-04T13:12:02.698Z
 
 functions:
   staffStatisticsRouter:
@@ -1273,6 +1273,12 @@ components:
     line: 6
     type: "component"
     signature: "function SkeletonWidget"
+  TableEmpty:
+    description: "Props for the TableEmpty component."
+    file: "components/ui/table-empty.tsx"
+    line: 6
+    type: "component"
+    signature: "function TableEmpty"
 
 classes:
   EventSubscriptionManager:
@@ -1302,9 +1308,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-04T11:39:16.439Z"
-  total_entries: 215
+  generated: "2025-11-04T13:12:02.699Z"
+  total_entries: 216
   functions: 134
   types: 58
-  components: 19
+  components: 20
   classes: 4

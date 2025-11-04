@@ -329,6 +329,11 @@
     opacity: 1;
   }
 
+  /* Better spacing for table rows */
+  .table-row td {
+    padding: 1rem 0.75rem;
+  }
+
   /* ============================================================================
    * PREFERS-REDUCED-MOTION - Accessibility Support
    * ============================================================================ */
@@ -359,6 +364,10 @@
 
     .table-row {
       transition: none;
+    }
+
+    .table-row:hover {
+      background-color: transparent;
     }
 
     .table-row-actions {
