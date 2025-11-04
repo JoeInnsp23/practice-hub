@@ -61,10 +61,62 @@
           <tag>action xml tag → Perform the action</tag>
           <tag>check if="condition" xml tag → Conditional block wrapping actions (requires closing &lt;/check&gt;)</tag>
           <tag>ask xml tag → Prompt user and WAIT for response</tag>
+          <tag>invoke-agent path="..." → Load and activate agent persona</tag>
           <tag>invoke-workflow xml tag → Execute another workflow with given inputs</tag>
           <tag>invoke-task xml tag → Execute specified task</tag>
           <tag>goto step="x" → Jump to specified step</tag>
         </execute-tags>
+      </substep>
+      
+      <substep n="2b-agent" title="Handle invoke-agent Tag">
+        <if tag="invoke-agent">
+          <mandate critical="ABSOLUTE">When you encounter invoke-agent tag, you MUST execute these steps IMMEDIATELY</mandate>
+          
+          <step n="1" critical="true">Parse the path attribute and resolve ALL variables ({project-root}, {installed_path}, etc.)</step>
+          
+          <step n="2" critical="true">IMMEDIATELY USE THE READ_FILE TOOL to load the agent file
+            - Tool: read_file
+            - Parameter: target_file = resolved_path
+            - DO NOT use offset or limit
+            - Read the COMPLETE agent file
+            - This is MANDATORY - you MUST call the tool
+          </step>
+          
+          <step n="3" critical="true">READ AND PROCESS the entire agent definition from the loaded file:
+            - Agent persona
+            - Role and domain
+            - Personality and communication style
+            - Capabilities and expertise
+            - Commands and workflows
+            - ALL content from the agent file
+          </step>
+          
+          <step n="4" critical="true">EMBODY the loaded agent's COMPLETE personality
+            - You ARE that agent now (not the previous agent)
+            - Think as that agent thinks
+            - Speak in that agent's voice and style
+            - Use that agent's knowledge and expertise
+            - Adopt that agent's self-critical behaviors
+            - Reference that agent's domain knowledge
+          </step>
+          
+          <step n="5" critical="true">Execute ALL remaining actions in the current step AS THAT AGENT
+            - When action says "Athena speaks", YOU speak as Athena (you are Athena)
+            - Use the agent's communication patterns
+            - Reference the agent's capabilities
+            - Maintain the agent's personality throughout
+          </step>
+          
+          <step n="6" critical="true">When the step ends (closing step tag encountered):
+            - AUTOMATICALLY deactivate the agent persona
+            - Return to the previous agent in the stack
+            - Resume previous agent's voice and personality
+          </step>
+          
+          <note>Agent activation scope: Current step only</note>
+          <note>Agent stack: LIFO (Last In, First Out) - agents deactivate in reverse order</note>
+          <note>Tool usage: MANDATORY - invoke-agent REQUIRES calling read_file tool</note>
+        </if>
       </substep>
 
       <substep n="2c" title="Handle Special Output Tags">
@@ -118,6 +170,7 @@
       <tag>check if="condition"&gt;...&lt;/check&gt; - Conditional block wrapping multiple items (closing tag required)</tag>
       <tag>ask - Get user input (wait for response)</tag>
       <tag>goto - Jump to another step</tag>
+      <tag>invoke-agent path="..." - Load and activate agent persona</tag>
       <tag>invoke-workflow - Call another workflow</tag>
       <tag>invoke-task - Call a task</tag>
     </execution>

@@ -671,118 +671,24 @@ export function useStaggerAnimation(count: number, delay = 100) {
 - A) Redirect to `/practice-hub` (current behavior)
 - B) Show personalized dashboard with hub navigation
 
-**Zeus Decision:** ✅ **A) Redirect to `/practice-hub`**  
-**Rationale:** 
-- Phase 2 focus is UI polish, not new features
-- Current behavior is familiar to users
-- Personalized dashboard can be Phase 3 enhancement
-- Reduces implementation scope and risk
-
-**Impact:** Simplified implementation - just ensure redirect works smoothly
-
----
+**Impact:** Affects user experience and implementation scope
 
 ### Q2: Floating Labels for Forms
 **Question:** Should we implement floating label pattern (label moves up on focus)?  
 **Impact:** Medium - adds complexity but improves UX
-
-**Zeus Decision:** ❌ **Skip for Phase 2**  
-**Rationale:**
-- Phase 2 focus is core polish (shadows, animations, cards)
-- Floating labels are nice-to-have enhancement
-- Current form labels work adequately
-- Can add in Phase 3 if user feedback requests it
-
-**Impact:** Reduces scope - focus on input focus states, validation animations, placeholder styling
-
----
 
 ### Q3: Chart Animation Library
 **Question:** Should we use existing chart library animations or custom?  
 **Current:** Recharts likely in use  
 **Impact:** May already have animations, just need to enable
 
-**Zeus Decision:** ✅ **Use existing chart library animations (enable if available)**  
-**Rationale:**
-- Check what chart library is in use (Recharts, Chart.js, etc.)
-- Enable built-in animations if available
-- Add custom count-up animations for numbers only
-- No need to rebuild entire chart animation system
-
-**Implementation:**
-- Audit chart library usage in codebase
-- Enable animations if library supports them
-- Add custom number count-up for KPI widgets
-- Document chart animation approach
-
-**Impact:** Minimal - likely just configuration changes
-
----
-
 ### Q4: Component Library Updates
 **Question:** Should we update shadcn/ui components to latest versions first?  
 **Impact:** May get some improvements for free
 
-**Zeus Decision:** ⚠️ **Check and update if non-breaking, but don't block**  
-**Rationale:**
-- Check current shadcn/ui component versions
-- Update if:
-  - ✅ No breaking changes
-  - ✅ Adds UI improvements we need
-  - ✅ Fixes accessibility issues
-- Don't update if:
-  - ❌ Breaking changes require refactoring
-  - ❌ No relevant improvements
-  - ❌ Would delay Phase 2 timeline
-
-**Implementation:**
-- Quick audit of component versions
-- Check changelog for relevant improvements
-- Update if low-risk, skip if high-risk
-- Proceed with polish regardless
-
-**Impact:** Low - optional enhancement, not blocker
-
----
-
 ### Q5: Browser Support Baseline
 **Question:** Confirm browser support: last 2 versions of modern browsers OK?  
 **Impact:** Affects CSS prefix strategy
-
-**Zeus Decision:** ✅ **Yes - Last 2 versions of modern browsers**  
-**Rationale:**
-- Modern browsers have excellent CSS support (animations, transforms, etc.)
-- Tailwind v4 handles most vendor prefixes automatically
-- Focus testing on: Chrome, Firefox, Safari, Edge (last 2 versions)
-- Mobile: iOS Safari, Chrome Mobile (last 2 major versions)
-
-**Specific Support:**
-- Desktop: Chrome 120+, Firefox 120+, Safari 17+, Edge 120+
-- Mobile: iOS Safari 17+, Chrome Mobile 120+
-- No IE11 support needed
-- Graceful degradation for older browsers (animations disabled, styles still work)
-
-**Impact:** Simplified CSS - no complex vendor prefixes needed, Tailwind handles most
-
----
-
-## Clarification Summary
-
-**Zeus's Strategic Decisions:**
-1. ✅ Landing page redirect: Keep current behavior (redirect to `/practice-hub`)
-2. ❌ Floating labels: Skip for Phase 2 (focus on core polish)
-3. ✅ Chart animations: Use existing library + enable if available
-4. ⚠️ Component updates: Check and update if low-risk, don't block
-5. ✅ Browser support: Last 2 versions of modern browsers (no IE11)
-
-**Scope Impact:**
-- **Reduced:** Landing page complexity (no personalized dashboard)
-- **Reduced:** Form complexity (no floating labels)
-- **Simplified:** Chart animations (use existing)
-- **Neutral:** Component updates (optional)
-- **Standard:** Browser support (modern only)
-
-**Result:** Streamlined Phase 2 focus on core UI polish without feature creep.
 
 ---
 

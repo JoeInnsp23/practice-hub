@@ -95,10 +95,7 @@
       "parallelizable": true,
       "parallel_group": "auth-pages",
       "epic_branch": null,
-      "files_touched": [
-        "app/(auth)/sign-in/page.tsx",
-        "app/page.tsx"
-      ],
+      "files_touched": ["app/(auth)/sign-in/page.tsx", "app/page.tsx"],
       "dependencies": ["2.0"],
       "stories": ["4.1", "4.2"],
       "created_at": "2025-01-03T00:00:00Z",
@@ -899,4 +896,3 @@
     "dependency_blocks": 0
   }
 }
-
