@@ -10,15 +10,15 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { CardInteractive } from "@/components/ui/card-interactive";
+import { FloatingLabelInput } from "@/components/ui/input-floating";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { signIn } from "@/lib/auth-client";
 
 const signInSchema = z.object({
@@ -34,6 +34,8 @@ function SignInFormContent() {
   const from = searchParams.get("from") || "/practice-hub";
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isMicrosoftLoading, setIsMicrosoftLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     register,
@@ -57,9 +59,13 @@ function SignInFormContent() {
         return;
       }
 
+      setIsSuccess(true);
       toast.success("Welcome back!");
-      router.push(from);
-      router.refresh();
+      // Small delay to show success state before redirect
+      setTimeout(() => {
+        router.push(from);
+        router.refresh();
+      }, 500);
     } catch (error) {
       // Error already handled by result.error above
       // Only log if it's an unexpected error type
@@ -75,6 +81,7 @@ function SignInFormContent() {
   };
 
   const handleMicrosoftSignIn = async () => {
+    setIsMicrosoftLoading(true);
     try {
       await signIn.social({
         provider: "microsoft",
@@ -88,12 +95,19 @@ function SignInFormContent() {
         },
       });
       toast.error("Failed to sign in with Microsoft");
+    } finally {
+      setIsMicrosoftLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <CardInteractive
+        moduleColor={HUB_COLORS["practice-hub"]}
+        className="w-full max-w-md animate-lift-in"
+        style={{ animationDelay: "0s", opacity: 0 }}
+        ariaLabel="Sign In"
+      >
         <CardHeader className="space-y-2 pb-6">
           <CardTitle className="text-3xl font-bold text-center">
             Sign In
@@ -107,9 +121,12 @@ function SignInFormContent() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-11"
+            className="w-full h-11 animate-fade-in"
+            style={{ animationDelay: "0.1s", opacity: 0 }}
             onClick={handleMicrosoftSignIn}
-            disabled={isLoading}
+            disabled={isLoading || isMicrosoftLoading}
+            isLoading={isMicrosoftLoading}
+            loadingText="Connecting to Microsoft..."
           >
             <svg
               className="mr-2 h-5 w-5"
@@ -141,56 +158,66 @@ function SignInFormContent() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "0.2s", opacity: 0 }}
+            >
+              <FloatingLabelInput
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                label="Email"
                 {...register("email")}
-                disabled={isLoading}
+                disabled={isLoading || isSuccess}
                 autoComplete="email"
                 autoFocus
+                error={errors.email?.message}
+                success={isSuccess}
+                moduleColor={HUB_COLORS["practice-hub"]}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "0.3s", opacity: 0 }}
+            >
+              <div className="flex items-center justify-between mb-2">
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
+                  className="text-sm text-primary hover:underline ml-auto"
                 >
                   Forgot password?
                 </Link>
               </div>
-              <Input
+              <FloatingLabelInput
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                label="Password"
                 {...register("password")}
-                disabled={isLoading}
+                disabled={isLoading || isSuccess}
                 autoComplete="current-password"
+                error={errors.password?.message}
+                success={isSuccess}
+                moduleColor={HUB_COLORS["practice-hub"]}
               />
-              {errors.password && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
             </div>
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 pt-2">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign in"}
+            <Button
+              type="submit"
+              className="w-full animate-fade-in"
+              style={{ animationDelay: "0.4s", opacity: 0 }}
+              disabled={isLoading || isSuccess}
+              isLoading={isLoading}
+              loadingText="Signing in..."
+            >
+              {isSuccess ? "Success!" : "Sign in"}
             </Button>
 
-            <p className="text-sm text-center text-muted-foreground">
+            <p
+              className="text-sm text-center text-muted-foreground animate-fade-in"
+              style={{ animationDelay: "0.5s", opacity: 0 }}
+            >
               Don't have an account?{" "}
               <Link
                 href="/sign-up"
@@ -201,7 +228,7 @@ function SignInFormContent() {
             </p>
           </CardFooter>
         </form>
-      </Card>
+      </CardInteractive>
     </div>
   );
 }
