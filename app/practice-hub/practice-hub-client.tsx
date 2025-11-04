@@ -4,10 +4,10 @@ import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
 import { ClientOnly } from "@/components/client-only";
-import { AppCard } from "@/components/practice-hub/AppCard";
 import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
 import { PendingApprovalsWidget } from "@/components/practice-hub/pending-approvals-widget";
 import { Card } from "@/components/ui/card";
+import { CardInteractive } from "@/components/ui/card-interactive";
 import {
   Select,
   SelectContent,
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { useSession } from "@/lib/auth-client";
 import { api } from "@/lib/trpc/client";
 
@@ -132,7 +133,10 @@ export function PracticeHubClient({
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="glass-card rounded-xl p-8">
+      <CardInteractive
+        moduleColor={HUB_COLORS["practice-hub"]}
+        className="rounded-xl p-8 animate-fade-in"
+      >
         <h1 className="text-3xl font-bold text-card-foreground">
           Welcome to Practice Hub, {displayName}!
         </h1>
@@ -140,7 +144,7 @@ export function PracticeHubClient({
           Access all your essential tools and resources from one central
           location.
         </p>
-      </div>
+      </CardInteractive>
 
       {/* Pending Approvals Widget (for managers/admins) */}
       <PendingApprovalsWidget />
@@ -158,28 +162,71 @@ export function PracticeHubClient({
                   </p>
                 </Card>
               ) : (
-                practiceHubApps.map((app) => (
-                  <AppCard
-                    key={app.id}
-                    title={app.name}
-                    description={app.description}
-                    icon={app.icon}
-                    color={app.color}
-                    status={app.status}
-                    onClick={() => handleAppClick(app)}
-                  />
-                ))
+                practiceHubApps.map((app, index) => {
+                  const IconComponent = app.icon;
+                  const isComingSoon = app.status === "coming-soon";
+
+                  return (
+                    <CardInteractive
+                      key={app.id}
+                      moduleColor={app.color}
+                      onClick={
+                        !isComingSoon ? () => handleAppClick(app) : undefined
+                      }
+                      ariaLabel={
+                        !isComingSoon
+                          ? `Navigate to ${app.name}`
+                          : `${app.name} (Coming Soon)`
+                      }
+                      className="animate-lift-in rounded-xl p-6"
+                      style={{
+                        animationDelay: `${index * 0.1}s`,
+                        opacity: 0,
+                      }}
+                    >
+                      {/* Icon Container */}
+                      <div
+                        className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300"
+                        style={{
+                          background: `linear-gradient(135deg, ${app.color}, ${app.color}dd)`,
+                        }}
+                      >
+                        <IconComponent className="h-6 w-6 text-white transition-transform duration-300" />
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="mb-2 text-lg font-semibold text-card-foreground">
+                        {app.name}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {app.description}
+                      </p>
+
+                      {/* Coming Soon Badge */}
+                      {isComingSoon && (
+                        <span className="absolute right-4 top-4 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                          Coming Soon
+                        </span>
+                      )}
+                    </CardInteractive>
+                  );
+                })
               )}
             </div>
           </TabsContent>
 
           {/* Favorites Tab (when implemented) */}
           <TabsContent value="favorites" className="mt-0">
-            <div className="glass-card rounded-xl p-8 text-center">
+            <CardInteractive
+              moduleColor={HUB_COLORS["practice-hub"]}
+              className="rounded-xl p-8 text-center"
+            >
               <p className="text-muted-foreground">
                 No favorites yet. Star your most used apps for quick access.
               </p>
-            </div>
+            </CardInteractive>
           </TabsContent>
 
           {/* Useful Links Tab */}
@@ -236,67 +283,55 @@ export function PracticeHubClient({
                           : ExternalLink;
 
                         return (
-                          <a
+                          <CardInteractive
                             key={link.id}
-                            href={link.url}
-                            target={link.targetBlank ? "_blank" : undefined}
-                            rel={
-                              link.targetBlank
-                                ? "noopener noreferrer"
-                                : undefined
+                            moduleColor={
+                              category.colorHex || HUB_COLORS["practice-hub"]
                             }
-                            className="block"
+                            onClick={() => {
+                              if (link.targetBlank) {
+                                window.open(
+                                  link.url,
+                                  "_blank",
+                                  "noopener,noreferrer",
+                                );
+                              } else {
+                                window.location.href = link.url;
+                              }
+                            }}
+                            ariaLabel={`Navigate to ${link.title}${!link.isInternal ? " (external link)" : ""}`}
+                            className="rounded-xl p-4"
                           >
-                            <div className="glass-card group relative overflow-hidden transition-all duration-300 rounded-xl hover:shadow-xl hover:-translate-y-1 cursor-pointer">
-                              <div className="relative p-4">
-                                <div className="flex items-start gap-3">
-                                  <div
-                                    className="p-3 rounded-lg flex-shrink-0 shadow-md transition-all duration-300 group-hover:shadow-lg"
-                                    style={{
-                                      backgroundColor: `${category.colorHex}20`,
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        color: category.colorHex || "#000000",
-                                      }}
-                                    >
-                                      <LinkIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                                    </span>
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-card-foreground flex items-center gap-1">
-                                      {link.title}
-                                      {!link.isInternal && (
-                                        <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                      )}
-                                    </h4>
-                                    {link.description && (
-                                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                        {link.description}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
+                            <div className="flex items-start gap-3">
+                              <div
+                                className="p-3 rounded-lg flex-shrink-0 shadow-md"
+                                style={{
+                                  backgroundColor: `${category.colorHex}20`,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    color: category.colorHex || "#000000",
+                                  }}
+                                >
+                                  <LinkIcon className="h-5 w-5" />
+                                </span>
                               </div>
-
-                              {/* Glass Hover Tint Overlay */}
-                              <div
-                                className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none"
-                                style={{
-                                  background: `linear-gradient(135deg, ${category.colorHex}15, ${category.colorHex}25)`,
-                                }}
-                              />
-
-                              {/* Bottom Highlight Line */}
-                              <div
-                                className="absolute bottom-0 left-0 h-1 w-full transform scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-                                style={{
-                                  background: `linear-gradient(90deg, ${category.colorHex}, ${category.colorHex}66)`,
-                                }}
-                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-card-foreground flex items-center gap-1">
+                                  {link.title}
+                                  {!link.isInternal && (
+                                    <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                  )}
+                                </h4>
+                                {link.description && (
+                                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                    {link.description}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          </a>
+                          </CardInteractive>
                         );
                       })}
                     </div>

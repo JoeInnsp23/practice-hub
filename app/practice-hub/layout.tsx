@@ -2,6 +2,7 @@
 
 import { Building2 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 export default function PracticeHubLayout({
   children,
@@ -14,7 +15,8 @@ export default function PracticeHubLayout({
         title="Practice Hub"
         subtitle="Business Management Suite"
         icon={Building2}
-        iconColor="#2563eb"
+        iconColor={HUB_COLORS["practice-hub"]}
+        headerColor={HUB_COLORS["practice-hub"]}
       />
 
       {/* Main Content */}

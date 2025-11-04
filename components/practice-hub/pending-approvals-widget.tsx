@@ -25,7 +25,7 @@ export function PendingApprovalsWidget() {
   }
 
   return (
-    <Card className="glass-card p-6">
+    <Card className="glass-card shadow-medium p-6">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/20">
