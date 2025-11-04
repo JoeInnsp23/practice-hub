@@ -207,7 +207,7 @@ export default function PricingAnalyticsPage() {
               </TableHeader>
               <TableBody>
                 {discounts.map((discount) => (
-                  <TableRow key={discount.type}>
+                  <TableRow key={discount.type} className="table-row">
                     <TableCell className="font-medium capitalize">
                       {discount.type === "newClient"
                         ? "New Client"

@@ -248,7 +248,7 @@ export function ServiceComponentsTab() {
                 </TableRow>
               ) : (
                 filteredComponents.map((component) => (
-                  <TableRow key={component.id}>
+                  <TableRow key={component.id} className="table-row">
                     <TableCell className="font-mono text-xs">
                       {component.code}
                     </TableCell>

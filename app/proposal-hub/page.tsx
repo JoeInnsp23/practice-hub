@@ -23,6 +23,8 @@ import { UpcomingTasksWidget } from "@/components/proposal-hub/widgets/upcoming-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CardInteractive } from "@/components/ui/card-interactive";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import {
   Table,
   TableBody,
@@ -199,7 +201,12 @@ export default function ProposalHubPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="glass-card p-6">
+      <CardInteractive
+        moduleColor={HUB_COLORS["proposal-hub"]}
+        className="animate-lift-in"
+        style={{ animationDelay: "0s", opacity: 0 }}
+        ariaLabel="Quick Actions"
+      >
         <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button
@@ -244,7 +251,7 @@ export default function ProposalHubPage() {
             </div>
           </Button>
         </div>
-      </Card>
+      </CardInteractive>
 
       {/* Recent Proposals */}
       <Card className="glass-card overflow-hidden">
@@ -290,7 +297,7 @@ export default function ProposalHubPage() {
                 recentProposals.map((proposal) => (
                   <TableRow
                     key={proposal.id}
-                    className="cursor-pointer hover:bg-accent/50"
+                    className="table-row cursor-pointer"
                     onClick={() =>
                       router.push(`/proposal-hub/proposals/${proposal.id}`)
                     }

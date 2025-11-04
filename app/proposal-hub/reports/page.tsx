@@ -275,7 +275,7 @@ export default function ReportsPage() {
                         total > 0 ? (converted / total) * 100 : 0;
 
                       return (
-                        <TableRow key={source.source}>
+                        <TableRow key={source.source} className="table-row">
                           <TableCell className="font-medium">
                             {source.source || "Unknown"}
                           </TableCell>
@@ -491,7 +491,7 @@ export default function ReportsPage() {
                   </TableHeader>
                   <TableBody>
                     {modelData.byModel.map((model) => (
-                      <TableRow key={model.model}>
+                      <TableRow key={model.model} className="table-row">
                         <TableCell className="font-medium">
                           {model.model}
                         </TableCell>
@@ -599,7 +599,7 @@ export default function ReportsPage() {
                   </TableHeader>
                   <TableBody>
                     {serviceData.services.map((service, index) => (
-                      <TableRow key={service.componentCode}>
+                      <TableRow key={service.componentCode} className="table-row">
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground w-6">

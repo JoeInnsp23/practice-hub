@@ -316,7 +316,7 @@ export default function ProposalsPage() {
                 proposals.map((proposal) => (
                   <TableRow
                     key={proposal.id}
-                    className="cursor-pointer hover:bg-accent/50"
+                    className="table-row cursor-pointer"
                     onClick={() =>
                       router.push(`/proposal-hub/proposals/${proposal.id}`)
                     }

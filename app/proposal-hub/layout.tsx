@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
   { name: "Overview", href: "/proposal-hub", icon: Home },
@@ -54,7 +55,7 @@ export default function ProposalHubLayout({
       <GlobalHeader
         moduleName="Proposal Hub"
         title="Proposal Hub"
-        headerColor="#ec4899"
+        headerColor={HUB_COLORS["proposal-hub"]}
         showBackToHome={true}
       />
 
@@ -64,7 +65,7 @@ export default function ProposalHubLayout({
           baseHref="/proposal-hub"
           navigation={navigation}
           sections={sections}
-          moduleColor="#ec4899"
+          moduleColor={HUB_COLORS["proposal-hub"]}
         />
 
         <main className="flex-1 min-w-0 overflow-x-hidden p-8 max-w-7xl mx-auto">

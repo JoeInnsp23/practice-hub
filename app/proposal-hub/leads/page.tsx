@@ -249,7 +249,7 @@ export default function LeadsPage() {
                 leads.map((lead) => (
                   <TableRow
                     key={lead.id}
-                    className="cursor-pointer hover:bg-accent/50"
+                    className="table-row cursor-pointer"
                     onClick={() =>
                       router.push(`/proposal-hub/leads/${lead.id}`)
                     }
