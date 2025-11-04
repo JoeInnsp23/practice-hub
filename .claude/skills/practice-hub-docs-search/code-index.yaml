@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-04T01:05:59.425Z
+# Generated: 2025-11-04T01:20:15.255Z
 
 functions:
   staffStatisticsRouter:
@@ -1231,6 +1231,12 @@ components:
     line: 3
     type: "component"
     signature: "function Footer"
+  CardInteractive:
+    description: "Props for the CardInteractive component."
+    file: "components/ui/card-interactive.tsx"
+    line: 8
+    type: "component"
+    signature: "function CardInteractive"
 
 classes:
   EventSubscriptionManager:
@@ -1260,9 +1266,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-04T01:05:59.426Z"
-  total_entries: 208
+  generated: "2025-11-04T01:20:15.256Z"
+  total_entries: 209
   functions: 134
   types: 58
-  components: 12
+  components: 13
   classes: 4
