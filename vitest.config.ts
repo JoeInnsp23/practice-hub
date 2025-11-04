@@ -27,7 +27,12 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["lib/**/*.ts", "app/api/**/*.ts", "app/server/routers/**/*.ts"],
+      include: [
+        "lib/**/*.ts",
+        "app/api/**/*.ts",
+        "app/server/routers/**/*.ts",
+        "components/**/*.tsx",
+      ],
       exclude: [
         "**/*.test.ts",
         "**/*.spec.ts",
