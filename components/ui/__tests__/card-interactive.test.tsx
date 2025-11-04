@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import * as React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { CardInteractive } from "../card-interactive";
@@ -67,7 +66,6 @@ describe("CardInteractive", () => {
       );
 
       const card = container.querySelector(".card-interactive") as HTMLElement;
-      const styles = window.getComputedStyle(card);
       expect(card.style.getPropertyValue("--module-color")).toBe(
         HUB_COLORS["client-hub"],
       );
