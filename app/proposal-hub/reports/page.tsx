@@ -364,7 +364,7 @@ export default function ReportsPage() {
                   </TableHeader>
                   <TableBody>
                     {pipelineMetrics.leadsByStage.map((stage) => (
-                      <TableRow key={stage.stage}>
+                      <TableRow key={stage.stage} className="table-row">
                         <TableCell className="font-medium capitalize">
                           {stage.stage}
                         </TableCell>
@@ -599,7 +599,10 @@ export default function ReportsPage() {
                   </TableHeader>
                   <TableBody>
                     {serviceData.services.map((service, index) => (
-                      <TableRow key={service.componentCode} className="table-row">
+                      <TableRow
+                        key={service.componentCode}
+                        className="table-row"
+                      >
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground w-6">
