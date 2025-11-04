@@ -98,9 +98,16 @@ async function handleVerificationCompleted(
     .limit(1);
 
   if (!verification) {
-    console.warn("KYC verification not found for LEM Verify ID:", event.id);
-    console.warn(
-      "This may be a test webhook or a verification from another tenant",
+    Sentry.captureMessage(
+      "KYC verification not found for LEM Verify ID - may be test webhook or from another tenant",
+      {
+        tags: {
+          operation: "kyc_verification_not_found",
+          source: "lemverify_webhook",
+        },
+        extra: { lemVerifyId: event.id },
+        level: "warning",
+      },
     );
     return; // Not an error - may be test webhook
   }
