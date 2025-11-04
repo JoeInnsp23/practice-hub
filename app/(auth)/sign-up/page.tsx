@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -101,7 +102,13 @@ export default function SignUpPage() {
       router.push("/practice-hub");
       router.refresh();
     } catch (error) {
-      console.error("Sign up error:", error);
+      // Error already handled by setupResponse.json() above
+      // Only log if it's an unexpected error type
+      if (error instanceof Error) {
+        Sentry.captureException(error, {
+          tags: { operation: "sign_up", component: "SignUpPage" },
+        });
+      }
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
@@ -115,7 +122,12 @@ export default function SignUpPage() {
         callbackURL: "/oauth-setup", // Will check if tenant setup needed
       });
     } catch (error) {
-      console.error("Microsoft sign up error:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "microsoft_sign_up",
+          component: "SignUpPage",
+        },
+      });
       toast.error("Failed to sign up with Microsoft");
     }
   };

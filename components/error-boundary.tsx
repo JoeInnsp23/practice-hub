@@ -40,16 +40,21 @@ export class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error to error reporting service
-    console.error("Error caught by boundary:", error, errorInfo);
-
-    // Send error to monitoring service (e.g., Sentry, LogRocket)
-    if (
-      typeof window !== "undefined" &&
-      window.location.hostname !== "localhost"
-    ) {
-      // Production error reporting
-      this.reportError(error, errorInfo);
+    // Send error to Sentry
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const Sentry = require("@sentry/nextjs");
+      Sentry.captureException(error, {
+        tags: { component: "ErrorBoundary" },
+        extra: {
+          componentStack: errorInfo.componentStack,
+        },
+        contexts: {
+          react: {
+            componentStack: errorInfo.componentStack,
+          },
+        },
+      });
     }
 
     this.setState({
@@ -58,22 +63,9 @@ export class ErrorBoundary extends React.Component<
     });
   }
 
-  reportError(error: Error, errorInfo: ErrorInfo) {
-    // Send error to monitoring service
-    fetch("/api/errors/report", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-      }),
-    }).catch((reportError) => {
-      console.error("Failed to report error:", reportError);
-    });
+  reportError(_error: Error, _errorInfo: ErrorInfo) {
+    // Error reporting is now handled by Sentry in componentDidCatch
+    // This method is kept for backwards compatibility but no longer used
   }
 
   reset = () => {

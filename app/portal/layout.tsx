@@ -26,8 +26,13 @@ export default function ClientPortalLayout({
       toast.success("Signed out successfully");
       router.push("/portal/sign-in");
     } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          operation: "client_portal_sign_out",
+          component: "PortalLayout",
+        },
+      });
       toast.error("Failed to sign out");
-      console.error("Sign out error:", error);
     }
   };
 

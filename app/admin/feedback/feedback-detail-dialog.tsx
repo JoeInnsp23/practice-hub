@@ -10,6 +10,8 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
+import * as Sentry from "@sentry/nextjs";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -92,8 +94,16 @@ export function FeedbackDetailDialog({
 
       onStatusUpdate(feedback.id, status);
       onClose();
+      toast.success("Feedback status updated");
     } catch (error) {
-      console.error("Failed to update feedback:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "update_feedback_status",
+          component: "FeedbackDetailDialog",
+        },
+        extra: { feedbackId: feedback.id, status },
+      });
+      toast.error("Failed to update feedback");
     } finally {
       setSaving(false);
     }

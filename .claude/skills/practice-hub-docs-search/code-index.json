@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-04T01:29:45.671Z",
+  "generated": "2025-11-04T14:50:50.392Z",
   "version": "1.0",
-  "total_entries": 209,
+  "total_entries": 216,
   "functions": [
     {
       "name": "staffStatisticsRouter",
@@ -1646,6 +1646,62 @@
       "line": 8,
       "type": "component",
       "signature": "function CardInteractive"
+    },
+    {
+      "name": "FloatingLabelInput",
+      "description": "Props for the FloatingLabelInput component.",
+      "file": "components/ui/input-floating.tsx",
+      "line": 9,
+      "type": "component",
+      "signature": "function FloatingLabelInput"
+    },
+    {
+      "name": "SkeletonAvatar",
+      "description": "Props for the SkeletonAvatar component.",
+      "file": "components/ui/skeleton-avatar.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function SkeletonAvatar"
+    },
+    {
+      "name": "SkeletonCard",
+      "description": "Props for the SkeletonCard component.",
+      "file": "components/ui/skeleton-card.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function SkeletonCard"
+    },
+    {
+      "name": "SkeletonTable",
+      "description": "Props for the SkeletonTable component.",
+      "file": "components/ui/skeleton-table.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function SkeletonTable"
+    },
+    {
+      "name": "SkeletonText",
+      "description": "Props for the SkeletonText component.",
+      "file": "components/ui/skeleton-text.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function SkeletonText"
+    },
+    {
+      "name": "SkeletonWidget",
+      "description": "Props for the SkeletonWidget component.",
+      "file": "components/ui/skeleton-widget.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function SkeletonWidget"
+    },
+    {
+      "name": "TableEmpty",
+      "description": "Props for the TableEmpty component.",
+      "file": "components/ui/table-empty.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function TableEmpty"
     }
   ],
   "classes": [

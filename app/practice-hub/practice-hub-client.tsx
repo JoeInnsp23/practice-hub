@@ -117,8 +117,9 @@ export function PracticeHubClient({
   const _handleToggleFavorite = async (linkId: string) => {
     try {
       await toggleFavoriteMutation.mutateAsync({ linkId });
-    } catch (error) {
-      console.error("Failed to toggle favorite:", error);
+    } catch {
+      // Silently fail for favorite toggle - non-critical action
+      // Error already handled by mutation's onError handler
     }
   };
 

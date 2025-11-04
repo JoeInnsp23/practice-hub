@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
@@ -131,7 +132,9 @@ export function UserManagementClient({
       utils.users.list.invalidate();
     },
     onError: (error) => {
-      console.error("Failed to delete user:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "delete_user", component: "UserManagementClient" },
+      });
       toast.error("Failed to remove user");
     },
   });
@@ -141,7 +144,12 @@ export function UserManagementClient({
       toast.success("Password reset email sent");
     },
     onError: (error) => {
-      console.error("Failed to send password reset:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "send_password_reset",
+          component: "UserManagementClient",
+        },
+      });
       toast.error("Failed to send password reset email");
     },
   });

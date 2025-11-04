@@ -155,7 +155,13 @@ export function FeedbackManagementClient({
 
       toast.success("Feedback status updated");
     } catch (error) {
-      console.error("Failed to update feedback:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "update_feedback_status",
+          component: "FeedbackManagementClient",
+        },
+        extra: { feedbackId, newStatus },
+      });
       toast.error("Failed to update feedback");
     }
   };

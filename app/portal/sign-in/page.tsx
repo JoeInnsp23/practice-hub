@@ -45,7 +45,12 @@ export default function ClientPortalSignInPage() {
       const from = searchParams.get("from") || "/portal";
       router.push(from);
     } catch (error) {
-      console.error("Sign in error:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "client_portal_sign_in",
+          component: "PortalSignInPage",
+        },
+      });
       toast.error("An error occurred during sign in");
       setIsLoading(false);
     }

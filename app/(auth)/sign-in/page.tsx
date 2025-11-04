@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
+import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,13 @@ function SignInFormContent() {
       router.push(from);
       router.refresh();
     } catch (error) {
-      console.error("Sign in error:", error);
+      // Error already handled by result.error above
+      // Only log if it's an unexpected error type
+      if (error instanceof Error && !error.message.includes("Invalid")) {
+        Sentry.captureException(error, {
+          tags: { operation: "sign_in", component: "SignInPage" },
+        });
+      }
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -74,7 +81,12 @@ function SignInFormContent() {
         callbackURL: "/oauth-setup", // Will check if tenant setup needed
       });
     } catch (error) {
-      console.error("Microsoft sign in error:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "microsoft_sign_in",
+          component: "SignInPage",
+        },
+      });
       toast.error("Failed to sign in with Microsoft");
     }
   };

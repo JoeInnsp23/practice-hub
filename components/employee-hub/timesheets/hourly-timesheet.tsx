@@ -3,6 +3,8 @@
 import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import * as Sentry from "@sentry/nextjs";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
   type TimeEntry,
@@ -103,8 +105,13 @@ export function HourlyTimesheet({
       await createTimeEntry.mutateAsync(entry);
       setRefreshKey((prev) => prev + 1); // Trigger data refresh
       setIsModalOpen(false);
+      toast.success("Time entry saved successfully");
     } catch (error) {
-      console.error("Failed to save time entry:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "save_time_entry", component: "HourlyTimesheet" },
+        extra: { entry },
+      });
+      toast.error("Failed to save time entry");
     }
   };
 

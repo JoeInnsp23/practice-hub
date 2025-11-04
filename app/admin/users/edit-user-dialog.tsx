@@ -2,6 +2,7 @@
 
 import { Shield, User } from "lucide-react";
 import { useState } from "react";
+import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,9 @@ export function EditUserDialog({
       onClose();
     },
     onError: (error) => {
-      console.error("Failed to update user:", error);
+      Sentry.captureException(error, {
+        tags: { operation: "update_user", component: "EditUserDialog" },
+      });
       toast.error(error.message || "Failed to update user");
     },
   });
