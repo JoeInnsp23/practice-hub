@@ -1,0 +1,195 @@
+"use client";
+
+import { CheckCircle2 } from "lucide-react";
+import type * as React from "react";
+import { useId, useState } from "react";
+
+import { cn } from "@/lib/utils";
+
+/**
+ * Props for the FloatingLabelInput component.
+ */
+interface FloatingLabelInputProps
+  extends Omit<React.ComponentProps<"input">, "placeholder"> {
+  /**
+   * Label text that floats above the input.
+   */
+  label: string;
+
+  /**
+   * Error message to display below the input.
+   * When provided, the input will show error styling and shake animation.
+   */
+  error?: string;
+
+  /**
+   * Whether to show success state with checkmark icon.
+   */
+  success?: boolean;
+
+  /**
+   * Hub color for focus ring (CSS variable --module-color).
+   * Optional - defaults to ring color if not provided.
+   */
+  moduleColor?: string;
+}
+
+/**
+ * FloatingLabelInput - An input component with a floating label pattern.
+ *
+ * Features:
+ * - Label floats up smoothly on focus or when input has value
+ * - Error message display with slide-down animation
+ * - Success checkmark display
+ * - Error shake animation on validation failure
+ * - Focus ring uses hub color when available
+ * - Full accessibility support
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <FloatingLabelInput
+ *   label="Email"
+ *   type="email"
+ *   value={email}
+ *   onChange={(e) => setEmail(e.target.value)}
+ * />
+ *
+ * // With error
+ * <FloatingLabelInput
+ *   label="Password"
+ *   type="password"
+ *   error="Password must be at least 8 characters"
+ * />
+ *
+ * // With success
+ * <FloatingLabelInput
+ *   label="Username"
+ *   value={username}
+ *   success
+ * />
+ * ```
+ */
+export function FloatingLabelInput({
+  label,
+  error,
+  success,
+  moduleColor,
+  className,
+  id,
+  value,
+  defaultValue,
+  onFocus,
+  onBlur,
+  ...props
+}: FloatingLabelInputProps) {
+  const generatedId = useId();
+  const inputId = id || generatedId;
+  const [isFocused, setIsFocused] = useState(false);
+  const [internalValue, setInternalValue] = useState<string>(
+    defaultValue?.toString() || "",
+  );
+
+  // Check if input has a value
+  // For controlled inputs, check value prop
+  // For uncontrolled inputs, check internal state
+  const hasValue = Boolean(
+    (value !== undefined && value !== null && value !== "") ||
+      (value === undefined && internalValue !== ""),
+  );
+
+  // Determine if label should be floating
+  const isLabelFloating = isFocused || hasValue;
+
+  // Handle focus events
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true);
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(false);
+    onBlur?.(e);
+  };
+
+  // Handle change for uncontrolled inputs
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (value === undefined) {
+      // Uncontrolled input - track value internally
+      setInternalValue(e.target.value);
+    }
+    props.onChange?.(e);
+  };
+
+  // Set CSS variable for hub color if provided
+  const style: React.CSSProperties = moduleColor
+    ? ({ "--module-color": moduleColor } as React.CSSProperties)
+    : {};
+
+  return (
+    <div className="relative" style={style}>
+      <input
+        id={inputId}
+        data-slot="input-floating"
+        value={value}
+        defaultValue={defaultValue}
+        onChange={handleChange}
+        className={cn(
+          "peer w-full rounded-md border bg-background px-3 pt-6 pb-2 text-sm transition-all duration-200",
+          "file:text-foreground placeholder:text-muted-foreground",
+          "selection:bg-primary selection:text-primary-foreground",
+          "dark:bg-input/30 border-input",
+          "shadow-xs outline-none",
+          "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
+          "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+          "focus-visible:outline-2 focus-visible:outline-offset-2",
+          "focus-visible:outline-[var(--module-color,var(--ring))]",
+          // Error state
+          error &&
+            "border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          error && "input-error-shake",
+          // Success state
+          success &&
+            !error &&
+            "border-green-500 focus-visible:ring-green-500/20",
+          // Aria invalid for accessibility
+          error && "aria-invalid",
+          className,
+        )}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        {...props}
+      />
+      <label
+        htmlFor={inputId}
+        className={cn(
+          "absolute left-3 pointer-events-none transition-all duration-200 ease-out",
+          "text-muted-foreground",
+          isLabelFloating
+            ? "top-2 text-xs"
+            : "top-1/2 -translate-y-1/2 text-sm",
+        )}
+      >
+        {label}
+      </label>
+      {error && (
+        <p
+          id={`${inputId}-error`}
+          className="mt-1 text-sm text-destructive input-error-message"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
+      {success && !error && (
+        <CheckCircle2
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500 animate-fade-in"
+          aria-hidden="true"
+        />
+      )}
+    </div>
+  );
+}

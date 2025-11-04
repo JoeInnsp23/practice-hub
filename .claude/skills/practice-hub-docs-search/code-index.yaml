@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-04T08:03:32.816Z
+# Generated: 2025-11-04T11:18:07.532Z
 
 functions:
   staffStatisticsRouter:
@@ -1237,6 +1237,12 @@ components:
     line: 8
     type: "component"
     signature: "function CardInteractive"
+  FloatingLabelInput:
+    description: "Props for the FloatingLabelInput component."
+    file: "components/ui/input-floating.tsx"
+    line: 9
+    type: "component"
+    signature: "function FloatingLabelInput"
 
 classes:
   EventSubscriptionManager:
@@ -1266,9 +1272,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-04T08:03:32.818Z"
-  total_entries: 209
+  generated: "2025-11-04T11:18:07.533Z"
+  total_entries: 210
   functions: 134
   types: 58
-  components: 13
+  components: 14
   classes: 4
