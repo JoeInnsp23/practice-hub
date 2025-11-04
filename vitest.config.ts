@@ -45,6 +45,13 @@ export default defineConfig({
         functions: 75,
         branches: 75,
         statements: 75,
+        // Per-file thresholds for component files (Apollo's 90% requirement)
+        "components/**/*.tsx": {
+          lines: 90,
+          functions: 90,
+          branches: 90,
+          statements: 90,
+        },
       },
     },
   },
