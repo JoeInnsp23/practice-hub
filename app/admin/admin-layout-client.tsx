@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -41,7 +42,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
       <GlobalHeader
         moduleName="Admin Panel"
         title="Admin Panel"
-        headerColor="#f97316"
+        headerColor={HUB_COLORS.admin}
         showBackToHome={true}
       />
       <div className="flex">
@@ -50,7 +51,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           baseHref="/admin"
           navigation={navigation}
           sections={sections}
-          moduleColor="#f97316"
+          moduleColor={HUB_COLORS.admin}
         />
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
       </div>

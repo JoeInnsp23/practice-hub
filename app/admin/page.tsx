@@ -13,6 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CardInteractive } from "@/components/ui/card-interactive";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { getAuthContext } from "@/lib/auth";
 
 export default async function AdminDashboardPage() {
@@ -60,27 +62,37 @@ export default async function AdminDashboardPage() {
 
       {/* Admin Sections Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {adminSections.map((section) => {
+        {adminSections.map((section, index) => {
           const Icon = section.icon;
           return (
-            <Link key={section.href} href={section.href}>
-              <Card className="hover:shadow-xl transition-shadow cursor-pointer h-full">
-                <CardHeader>
-                  <div
-                    className={`w-12 h-12 ${section.bgColor} rounded-lg flex items-center justify-center mb-3`}
-                  >
-                    <Icon className={`h-6 w-6 ${section.iconColor}`} />
-                  </div>
-                  <CardTitle className="text-xl">{section.title}</CardTitle>
-                  <CardDescription>{section.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-end">
-                    <ArrowRight className="h-5 w-5 text-slate-400 dark:text-slate-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <CardInteractive
+              key={section.href}
+              moduleColor={HUB_COLORS.admin}
+              onClick={() => {
+                window.location.href = section.href;
+              }}
+              ariaLabel={`Navigate to ${section.title}`}
+              className="h-full animate-lift-in"
+              style={{
+                animationDelay: `${index * 0.1}s`,
+                opacity: 0,
+              }}
+            >
+              <CardHeader>
+                <div
+                  className={`w-12 h-12 ${section.bgColor} rounded-lg flex items-center justify-center mb-3`}
+                >
+                  <Icon className={`h-6 w-6 ${section.iconColor}`} />
+                </div>
+                <CardTitle className="text-xl">{section.title}</CardTitle>
+                <CardDescription>{section.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-end">
+                  <ArrowRight className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                </div>
+              </CardContent>
+            </CardInteractive>
           );
         })}
       </div>
