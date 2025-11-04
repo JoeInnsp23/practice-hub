@@ -1,0 +1,902 @@
+{
+  "feature": {
+    "feature_id": "ui-ux-polish-phase-2",
+    "feature_name": "Enhanced Design System & UI Polish",
+    "feature_branch": "feature/ui-ux-polish-phase-2",
+    "current_epic_branch": "feature/ui-ux-polish-phase-2",
+    "workflow_phase": "epic-planning",
+    "current_epic": null,
+    "current_story": null,
+    "created_at": "2025-01-03T00:00:00Z",
+    "updated_at": "2025-01-03T00:00:00Z"
+  },
+  "gates": {
+    "brief_validated": "unlocked",
+    "prd_validated": "unlocked",
+    "tdd_validated": "unlocked",
+    "pre_story_quality": "pending",
+    "qa_gate": "pending"
+  },
+  "epics": [
+    {
+      "id": "1.0",
+      "name": "Foundation",
+      "description": "Create enhanced design system CSS file with all utility classes, shadows, animations, and documentation",
+      "status": "pending",
+      "parallelizable": false,
+      "parallel_group": null,
+      "epic_branch": null,
+      "files_touched": [
+        "app/enhanced-design.css",
+        "app/globals.css",
+        "docs/design/enhanced-design-system.md",
+        "docs/design/archive-design-patterns.md"
+      ],
+      "dependencies": [],
+      "stories": ["1.1", "1.2", "1.3"],
+      "created_at": "2025-01-03T00:00:00Z",
+      "merged_at": null
+    },
+    {
+      "id": "2.0",
+      "name": "Core Components",
+      "description": "Enhance existing components and create new component variants",
+      "status": "pending",
+      "parallelizable": false,
+      "parallel_group": null,
+      "epic_branch": null,
+      "files_touched": [
+        "lib/utils/hub-colors.ts",
+        "components/ui/card.tsx",
+        "components/ui/card-interactive.tsx",
+        "components/ui/button.tsx",
+        "components/ui/input-floating.tsx",
+        "components/ui/skeleton.tsx",
+        "components/ui/skeleton-card.tsx",
+        "components/ui/skeleton-table.tsx",
+        "components/ui/skeleton-text.tsx",
+        "components/ui/skeleton-avatar.tsx",
+        "components/ui/skeleton-widget.tsx",
+        "components/ui/table-empty.tsx",
+        "app/enhanced-design.css"
+      ],
+      "dependencies": ["1.0"],
+      "stories": ["2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"],
+      "created_at": "2025-01-03T00:00:00Z",
+      "merged_at": null
+    },
+    {
+      "id": "3.0",
+      "name": "Hub Layouts",
+      "description": "Apply enhanced design system to all hub layouts",
+      "status": "pending",
+      "parallelizable": true,
+      "parallel_group": "hub-layouts",
+      "epic_branch": null,
+      "files_touched": [
+        "app/practice-hub/**",
+        "app/client-hub/**",
+        "app/admin/**",
+        "app/employee-hub/**",
+        "app/proposal-hub/**",
+        "app/social-hub/**",
+        "app/client-portal/**"
+      ],
+      "dependencies": ["2.0"],
+      "stories": ["3.1", "3.2", "3.3", "3.4", "3.5", "3.6"],
+      "created_at": "2025-01-03T00:00:00Z",
+      "merged_at": null
+    },
+    {
+      "id": "4.0",
+      "name": "Login & Landing",
+      "description": "Redesign login page and create landing page",
+      "status": "pending",
+      "parallelizable": true,
+      "parallel_group": "auth-pages",
+      "epic_branch": null,
+      "files_touched": [
+        "app/(auth)/sign-in/page.tsx",
+        "app/page.tsx"
+      ],
+      "dependencies": ["2.0"],
+      "stories": ["4.1", "4.2"],
+      "created_at": "2025-01-03T00:00:00Z",
+      "merged_at": null
+    },
+    {
+      "id": "5.0",
+      "name": "Polish & Testing",
+      "description": "Final polish and comprehensive testing",
+      "status": "pending",
+      "parallelizable": false,
+      "parallel_group": null,
+      "epic_branch": null,
+      "files_touched": [
+        "components/shared/GlobalSidebar.tsx",
+        "hooks/use-count-up.ts"
+      ],
+      "dependencies": ["3.0", "4.0"],
+      "stories": ["5.1", "5.2", "5.3", "5.4", "5.5", "5.6"],
+      "created_at": "2025-01-03T00:00:00Z",
+      "merged_at": null
+    },
+    {
+      "id": "6.0",
+      "name": "Browser Testing & Iteration",
+      "description": "Final browser testing and documentation",
+      "status": "pending",
+      "parallelizable": false,
+      "parallel_group": null,
+      "epic_branch": null,
+      "files_touched": [],
+      "dependencies": ["5.0"],
+      "stories": ["6.1", "6.2"],
+      "created_at": "2025-01-03T00:00:00Z",
+      "merged_at": null
+    }
+  ],
+  "stories": [
+    {
+      "id": "1.1",
+      "epic_id": "1.0",
+      "name": "Create Enhanced Design CSS File",
+      "description": "Create app/enhanced-design.css file with complete shadow system, animation keyframes, and utility classes",
+      "acceptance_criteria": [
+        "File exists at app/enhanced-design.css",
+        "Import statement added to globals.css",
+        "All shadow classes available (.shadow-soft, .shadow-medium, .shadow-strong, .shadow-elevated)",
+        "All animation keyframes defined (@keyframes fadeIn, slideIn, liftIn, shimmer, spin)",
+        "All utility classes available (.animate-fade-in, .animate-slide-in, .animate-lift-in, .hover-lift, .button-feedback)",
+        "Dark mode variants work correctly",
+        "prefers-reduced-motion respected (animations disabled)"
+      ],
+      "testing_requirements": [
+        "Visual: Verify classes available in browser DevTools",
+        "Manual: Apply classes to test elements, verify shadows render correctly",
+        "Manual: Test animations work in browser",
+        "Dark mode: Verify dark mode variants work"
+      ],
+      "status": "pending",
+      "dependencies": [],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "1.2",
+      "epic_id": "1.0",
+      "name": "Document Enhanced Design System",
+      "description": "Document all new classes and patterns in design system documentation",
+      "acceptance_criteria": [
+        "Documentation file created at docs/design/enhanced-design-system.md",
+        "All classes documented with usage examples",
+        "Dark mode considerations documented",
+        "Code examples provided for each pattern"
+      ],
+      "testing_requirements": [
+        "Documentation review: Verify completeness",
+        "Code examples: Verify examples work"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "1.3",
+      "epic_id": "1.0",
+      "name": "Archive Pattern Extraction Documentation",
+      "description": "Document extracted patterns from archive, showing what was adopted vs. rejected",
+      "acceptance_criteria": [
+        "Documentation file created at docs/design/archive-design-patterns.md",
+        "All extracted patterns documented",
+        "Rejected patterns clearly marked (branding, orange colors)",
+        "Before/after comparisons shown",
+        "Pattern vs. branding separation clear"
+      ],
+      "testing_requirements": [
+        "Documentation review: Verify patterns match archive",
+        "Visual comparison: Verify extracted patterns correct"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.1",
+      "epic_id": "2.0",
+      "name": "Create Hub Color Utilities",
+      "description": "Create centralized hub color constants and gradient utility functions",
+      "acceptance_criteria": [
+        "File exists at lib/utils/hub-colors.ts",
+        "HUB_COLORS constant includes all 6 hubs",
+        "getHubGradient function returns correct gradient for each hub color",
+        "Unknown colors default to blue gradient",
+        "TypeScript types exported correctly"
+      ],
+      "testing_requirements": [
+        "Unit: Test getHubGradient returns correct gradients for each hub color",
+        "Unit: Test getHubGradient handles unknown colors gracefully",
+        "Type: Verify TypeScript types work correctly"
+      ],
+      "status": "pending",
+      "dependencies": [],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.2",
+      "epic_id": "2.0",
+      "name": "Enhance Card Component",
+      "description": "Add variant prop to Card component (default, elevated, interactive)",
+      "acceptance_criteria": [
+        "Card component accepts variant prop (\"default\" | \"elevated\" | \"interactive\")",
+        "Default variant uses existing glass-card class",
+        "Elevated variant applies shadow-medium class",
+        "Interactive variant applies card-interactive class",
+        "All variants work in dark mode"
+      ],
+      "testing_requirements": [
+        "Unit: Test Card renders with each variant",
+        "Unit: Test Card props work correctly",
+        "Visual: Verify each variant applies correct styles",
+        "Dark mode: Verify dark mode works for all variants"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.3",
+      "epic_id": "2.0",
+      "name": "Create CardInteractive Component",
+      "description": "Create new CardInteractive component with hover lift and gradient accent bar",
+      "acceptance_criteria": [
+        "Component exists at components/ui/card-interactive.tsx",
+        "Component accepts moduleColor prop (defaults to blue)",
+        "Hover lift works (translateY -4px)",
+        "Gradient bar slides in from left on hover (translateX -100% → 0%)",
+        "Gradient uses hub color via getHubGradient",
+        "onClick handler works if provided",
+        "Accessibility: aria-label support",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Unit: Test CardInteractive renders correctly",
+        "Unit: Test moduleColor prop applies gradient correctly",
+        "Unit: Test onClick handler works",
+        "Visual: Verify hover lift works (translateY -4px)",
+        "Visual: Verify gradient bar slides in on hover",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.1", "1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.4",
+      "epic_id": "2.0",
+      "name": "Enhance Button Component",
+      "description": "Add loading state and micro-interactions to Button component",
+      "acceptance_criteria": [
+        "Button accepts isLoading prop",
+        "Button accepts loadingText prop",
+        "Spinner shows when isLoading is true",
+        "Button disabled when loading",
+        "Hover scale effect works (1.02)",
+        "Active scale effect works (0.98)",
+        "Focus ring visible and uses hub color"
+      ],
+      "testing_requirements": [
+        "Unit: Test Button shows spinner when isLoading",
+        "Unit: Test Button is disabled when loading",
+        "Unit: Test loadingText displays correctly",
+        "Visual: Verify hover scale works (1.02)",
+        "Visual: Verify active scale works (0.98)",
+        "Visual: Verify focus ring uses hub color when available"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.5",
+      "epic_id": "2.0",
+      "name": "Create FloatingLabelInput Component",
+      "description": "Create FloatingLabelInput component with floating label pattern",
+      "acceptance_criteria": [
+        "Component exists at components/ui/input-floating.tsx",
+        "Label floats up smoothly on focus (200ms transition)",
+        "Label floats up when input has value",
+        "Error message displays below input with slide-down animation",
+        "Success checkmark displays when success prop is true",
+        "Error shake animation works on validation failure",
+        "Focus ring uses hub color",
+        "Accessibility: Label properly associated with input"
+      ],
+      "testing_requirements": [
+        "Unit: Test FloatingLabelInput renders correctly",
+        "Unit: Test label floats up on focus",
+        "Unit: Test label floats up when value exists",
+        "Unit: Test error message displays",
+        "Unit: Test success checkmark displays",
+        "Visual: Verify focus state animations",
+        "Visual: Verify error shake animation",
+        "Accessibility: Verify label association (htmlFor)"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.6",
+      "epic_id": "2.0",
+      "name": "Create Skeleton Components",
+      "description": "Create skeleton loading components for all content types",
+      "acceptance_criteria": [
+        "Skeleton component enhanced with shimmer variant",
+        "SkeletonCard component created",
+        "SkeletonTable component created (5 rows)",
+        "SkeletonText component created",
+        "SkeletonAvatar component created",
+        "SkeletonWidget component created",
+        "Shimmer animation runs smoothly (60fps)",
+        "Dark mode variants use appropriate muted colors"
+      ],
+      "testing_requirements": [
+        "Unit: Test all skeleton components render correctly",
+        "Unit: Test shimmer variant applies correctly",
+        "Visual: Verify shimmer animation runs smoothly (60fps)",
+        "Visual: Verify skeletons match content shapes",
+        "Dark mode: Verify dark mode colors work"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "2.7",
+      "epic_id": "2.0",
+      "name": "Enhance Table Component",
+      "description": "Add row hover effects and empty state component",
+      "acceptance_criteria": [
+        "Table rows have hover background change (200ms transition)",
+        "Action buttons fade in on row hover (opacity 0 → 1)",
+        "TableEmpty component created with icon and message",
+        "Empty state displays when table has no data"
+      ],
+      "testing_requirements": [
+        "Unit: Test TableEmpty component renders correctly",
+        "Visual: Verify row hover background change works",
+        "Visual: Verify action buttons fade in on row hover",
+        "Visual: Verify empty state displays correctly"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "3.1",
+      "epic_id": "3.0",
+      "name": "Polish Practice Hub Dashboard",
+      "description": "Apply enhanced design system to Practice Hub dashboard",
+      "acceptance_criteria": [
+        "Dashboard cards use CardInteractive component",
+        "Cards have multi-layer shadows",
+        "Cards stagger in sequentially on load",
+        "Hover lift effects work",
+        "Hub color displays correctly in header/sidebar",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify cards have enhanced shadows",
+        "Visual: Verify cards stagger in on load",
+        "Visual: Verify hover effects work",
+        "Visual: Verify hub color correct (default blue)",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "3.2",
+      "epic_id": "3.0",
+      "name": "Polish Client Hub Layouts",
+      "description": "Apply enhanced design system to Client Hub layouts",
+      "acceptance_criteria": [
+        "Client Hub pages use enhanced components",
+        "Client cards use CardInteractive with blue gradient",
+        "Client table has row hover effects",
+        "Forms use FloatingLabelInput where appropriate",
+        "Hub color displays correctly in header/sidebar (blue #3b82f6)",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify Client Hub pages polished",
+        "Visual: Verify hub color correct (blue #3b82f6)",
+        "Visual: Verify table enhancements work",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3", "2.5", "2.7"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "3.3",
+      "epic_id": "3.0",
+      "name": "Polish Admin Hub Layouts",
+      "description": "Apply enhanced design system to Admin Hub layouts",
+      "acceptance_criteria": [
+        "Admin Hub pages use enhanced components",
+        "Cards use CardInteractive with orange gradient",
+        "Tables have row hover effects",
+        "Forms use FloatingLabelInput",
+        "Hub color displays correctly in header/sidebar (orange #f97316)",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify Admin Hub pages polished",
+        "Visual: Verify hub color correct (orange #f97316)",
+        "Visual: Verify table enhancements work",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3", "2.5", "2.7"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "3.4",
+      "epic_id": "3.0",
+      "name": "Polish Employee Hub Layouts",
+      "description": "Apply enhanced design system to Employee Hub layouts (when Employee Hub created)",
+      "acceptance_criteria": [
+        "Employee Hub pages use enhanced components",
+        "Cards use CardInteractive with emerald gradient",
+        "Interfaces polished consistently",
+        "Hub color displays correctly in header/sidebar (emerald #10b981)",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify Employee Hub pages polished",
+        "Visual: Verify hub color correct (emerald #10b981)",
+        "Visual: Verify enhancements work",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3", "2.5", "2.7"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "3.5",
+      "epic_id": "3.0",
+      "name": "Polish Proposal Hub Layouts",
+      "description": "Apply enhanced design system to Proposal Hub layouts",
+      "acceptance_criteria": [
+        "Proposal Hub pages use enhanced components",
+        "Cards use CardInteractive with pink gradient",
+        "Interfaces polished consistently",
+        "Hub color displays correctly in header/sidebar (pink #ec4899)",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify Proposal Hub pages polished",
+        "Visual: Verify hub color correct (pink #ec4899)",
+        "Visual: Verify enhancements work",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3", "2.5", "2.7"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "3.6",
+      "epic_id": "3.0",
+      "name": "Polish Social Hub & Client Portal Layouts",
+      "description": "Apply enhanced design system to Social Hub and Client Portal layouts",
+      "acceptance_criteria": [
+        "Social Hub pages use enhanced components (purple gradient)",
+        "Client Portal pages polished consistently",
+        "Hub colors display correctly",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify Social Hub pages polished (purple #8b5cf6)",
+        "Visual: Verify Client Portal pages polished",
+        "Dark mode: Verify dark mode works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3", "2.5", "2.7"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "4.1",
+      "epic_id": "4.0",
+      "name": "Redesign Login Page",
+      "description": "Redesign login page with professional layout and animations",
+      "acceptance_criteria": [
+        "Login page redesigned with professional layout",
+        "Card lifts in smoothly (animate-lift-in)",
+        "Form elements stagger in sequentially",
+        "FloatingLabelInput used for email/password",
+        "Microsoft OAuth button has loading state",
+        "Error messages display with slide-down animation",
+        "Success state shows checkmark",
+        "Dark mode works correctly",
+        "Mobile responsive (touch-friendly, no zoom on focus)",
+        "Keyboard navigation works"
+      ],
+      "testing_requirements": [
+        "Visual: Verify login page looks professional",
+        "Visual: Verify animations work (card lift, form stagger)",
+        "Visual: Verify error states work",
+        "Visual: Verify loading states work",
+        "Mobile: Verify responsive on mobile",
+        "Dark mode: Verify dark mode works",
+        "Accessibility: Verify keyboard navigation works"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3", "2.5"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "4.2",
+      "epic_id": "4.0",
+      "name": "Create Landing Page",
+      "description": "Create professional landing page for unauthenticated users",
+      "acceptance_criteria": [
+        "Landing page exists at app/page.tsx",
+        "Unauthenticated users see landing page",
+        "Authenticated users redirect to /practice-hub",
+        "Hero section fades in on load",
+        "Features section shows 4 main hubs with icons",
+        "Benefits section displays 3-4 key benefits",
+        "Trust section displays security/compliance info",
+        "Sections lift in on scroll (Intersection Observer)",
+        "CTAs clear and prominent",
+        "Mobile responsive (cards stack)",
+        "Dark mode works correctly",
+        "Accessible (skip link, proper headings, alt text)"
+      ],
+      "testing_requirements": [
+        "Functional: Verify unauthenticated users see landing page",
+        "Functional: Verify authenticated users redirect to /practice-hub",
+        "Visual: Verify hero fades in",
+        "Visual: Verify sections lift on scroll",
+        "Visual: Verify CTAs work",
+        "Mobile: Verify responsive on mobile",
+        "Dark mode: Verify dark mode works",
+        "Accessibility: Verify skip link, headings, alt text"
+      ],
+      "status": "pending",
+      "dependencies": ["2.3"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "5.1",
+      "epic_id": "5.0",
+      "name": "Modal/Dialog Animations",
+      "description": "Enhance modal/dialog components with smooth animations",
+      "acceptance_criteria": [
+        "Modal entrance feels smooth (300ms liftIn animation)",
+        "Backdrop blur enhances visual hierarchy",
+        "Escape key closes modal",
+        "Focus trap keeps focus inside modal",
+        "All modal sizes animate consistently",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify modal entrance animation smooth (300ms)",
+        "Visual: Verify backdrop blur works",
+        "Functional: Verify Escape key closes modal",
+        "Functional: Verify focus trap works",
+        "Accessibility: Verify keyboard navigation works"
+      ],
+      "status": "pending",
+      "dependencies": ["1.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "5.2",
+      "epic_id": "5.0",
+      "name": "Navigation Enhancements (Sidebar)",
+      "description": "Enhance sidebar with active state polish and collapse animation",
+      "acceptance_criteria": [
+        "Active state has colored left border (4px) with hub color",
+        "Active state has background highlight",
+        "Collapse/expand animation smooth (300ms)",
+        "Collapse state persists in localStorage",
+        "Each hub's color shows correctly in sidebar",
+        "Mobile: Sidebar becomes drawer with slide animation",
+        "Dark mode works correctly"
+      ],
+      "testing_requirements": [
+        "Visual: Verify active state clearly indicates current page",
+        "Visual: Verify collapse/expand animation smooth (300ms)",
+        "Visual: Verify each hub's color shows correctly",
+        "Functional: Verify collapse state persists",
+        "Mobile: Verify sidebar becomes drawer on mobile"
+      ],
+      "status": "pending",
+      "dependencies": ["2.1"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "5.3",
+      "epic_id": "5.0",
+      "name": "Widget/KPI Count-Up Animations",
+      "description": "Add number count-up animations and enable Recharts animations",
+      "acceptance_criteria": [
+        "useCountUp hook created and working",
+        "KPI widgets use count-up animation",
+        "Numbers count up smoothly (smooth counting effect)",
+        "Recharts animations enabled (if supported)",
+        "Animations run at 60fps",
+        "Performance: Animations don't block interaction"
+      ],
+      "testing_requirements": [
+        "Unit: Test useCountUp hook counts correctly",
+        "Unit: Test useCountUp stops at target value",
+        "Visual: Verify numbers count up smoothly",
+        "Visual: Verify Recharts animations work",
+        "Performance: Verify animations don't block main thread"
+      ],
+      "status": "pending",
+      "dependencies": [],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "5.4",
+      "epic_id": "5.0",
+      "name": "Visual Regression Testing",
+      "description": "Perform visual regression testing with Cursor browser tools",
+      "acceptance_criteria": [
+        "Screenshots taken for all hubs",
+        "Screenshots taken for login page",
+        "Screenshots taken for landing page",
+        "Light mode and dark mode tested",
+        "Desktop, tablet, mobile viewports tested",
+        "Visual issues documented"
+      ],
+      "testing_requirements": [
+        "Visual: Screenshot all hubs (before/after comparison)",
+        "Visual: Screenshot login page (before/after)",
+        "Visual: Screenshot landing page",
+        "Visual: Test light mode",
+        "Visual: Test dark mode",
+        "Visual: Test all viewports"
+      ],
+      "status": "pending",
+      "dependencies": ["3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "4.1", "4.2"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "5.5",
+      "epic_id": "5.0",
+      "name": "Performance Testing",
+      "description": "Test animation performance and layout shift",
+      "acceptance_criteria": [
+        "Animations run at 60fps on target devices",
+        "CLS < 0.1 (loading skeletons prevent layout shift)",
+        "Animations don't block interaction",
+        "Performance acceptable on mid-range devices"
+      ],
+      "testing_requirements": [
+        "Performance: Measure FPS during animations",
+        "Performance: Test on mid-range devices",
+        "Performance: Measure CLS",
+        "Performance: Test animations don't block interaction"
+      ],
+      "status": "pending",
+      "dependencies": [],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "5.6",
+      "epic_id": "5.0",
+      "name": "Accessibility Audit",
+      "description": "Perform comprehensive accessibility audit",
+      "acceptance_criteria": [
+        "Keyboard navigation works flawlessly",
+        "Screen reader compatible (VoiceOver, NVDA)",
+        "Color contrast meets WCAG AA (4.5:1 text, 3:1 UI)",
+        "Focus visible in all states",
+        "prefers-reduced-motion respected (animations disabled)",
+        "Zero accessibility violations (axe-core)"
+      ],
+      "testing_requirements": [
+        "Accessibility: Keyboard navigation test",
+        "Accessibility: Screen reader test (VoiceOver, NVDA)",
+        "Accessibility: Color contrast checker",
+        "Accessibility: Focus visible test",
+        "Accessibility: Reduced motion test",
+        "Accessibility: Automated testing (axe-core)"
+      ],
+      "status": "pending",
+      "dependencies": [],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "6.1",
+      "epic_id": "6.0",
+      "name": "Cross-Browser Testing",
+      "description": "Test on all target browsers and devices",
+      "acceptance_criteria": [
+        "All target browsers tested",
+        "All devices tested",
+        "Critical issues fixed",
+        "Browser-specific issues documented",
+        "Graceful degradation for older browsers"
+      ],
+      "testing_requirements": [
+        "Browser: Test all target browsers",
+        "Browser: Test all devices",
+        "Browser: Document browser-specific issues",
+        "Browser: Fix critical issues"
+      ],
+      "status": "pending",
+      "dependencies": ["5.4", "5.5", "5.6"],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "6.2",
+      "epic_id": "6.0",
+      "name": "Final Polish & Documentation",
+      "description": "Final polish based on visual review and complete documentation",
+      "acceptance_criteria": [
+        "All visual enhancements polished",
+        "Component documentation updated",
+        "Design system documentation complete",
+        "Animation guide created",
+        "All documentation accurate"
+      ],
+      "testing_requirements": [
+        "Documentation: Verify all docs complete",
+        "Visual: Final visual review"
+      ],
+      "status": "pending",
+      "dependencies": [],
+      "needs_review": false,
+      "qa_reports": [],
+      "commits": [],
+      "created_at": "2025-01-03T00:00:00Z",
+      "completed_at": null
+    }
+  ],
+  "blocked_stories": [],
+  "pantheon_activity": {
+    "athena": {
+      "brainstorming_complete": true,
+      "app_audit_complete": true
+    },
+    "hermes": {
+      "brief_created": true,
+      "prd_created": true,
+      "tdd_created": true
+    },
+    "prometheus": {
+      "epics_planned": true,
+      "stories_created": true
+    },
+    "hephaestus": {
+      "stories_forged": 0
+    },
+    "apollo": {
+      "qa_validations": 0,
+      "qa_passes": 0,
+      "qa_fails": 0
+    },
+    "themis": {
+      "doc_sync_operations": 0,
+      "drift_items_fixed": 0
+    }
+  },
+  "metrics": {
+    "total_epics": 6,
+    "total_stories": 24,
+    "total_qa_cycles": 0,
+    "average_coverage": 0,
+    "git_commits": 3,
+    "time_saved_from_parallelization": 0,
+    "pivot_count": 0,
+    "dependency_blocks": 0
+  }
+}
+
