@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import * as Sentry from "@sentry/nextjs";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
@@ -256,13 +257,30 @@ export async function POST(request: Request) {
     // Verify webhook signature for security
     const signature = request.headers.get("x-lemverify-signature");
     if (!signature) {
-      console.error("Missing LEM Verify webhook signature");
+      Sentry.captureException(
+        new Error("Missing LEM Verify webhook signature"),
+        {
+          tags: {
+            operation: "webhook_signature_missing",
+            source: "lemverify_webhook",
+          },
+        },
+      );
       return new Response("Missing signature", { status: 401 });
     }
 
     const webhookSecret = process.env.LEMVERIFY_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      console.error("LEMVERIFY_WEBHOOK_SECRET not configured");
+      Sentry.captureException(
+        new Error("LEMVERIFY_WEBHOOK_SECRET not configured"),
+        {
+          tags: {
+            operation: "webhook_config_error",
+            source: "lemverify_webhook",
+            severity: "critical",
+          },
+        },
+      );
       return new Response("Server configuration error", { status: 500 });
     }
 
@@ -273,7 +291,18 @@ export async function POST(request: Request) {
       .digest("hex");
 
     if (signature !== expectedSignature) {
-      console.error("Invalid LEM Verify webhook signature");
+      Sentry.captureException(
+        new Error("Invalid LEM Verify webhook signature"),
+        {
+          tags: {
+            operation: "webhook_signature_invalid",
+            source: "lemverify_webhook",
+          },
+          extra: {
+            providedSignature: `${signature.substring(0, 10)}...`,
+          },
+        },
+      );
       return new Response("Invalid signature", { status: 401 });
     }
 
@@ -282,7 +311,12 @@ export async function POST(request: Request) {
       event = JSON.parse(body);
       // Event successfully parsed
     } catch (parseError) {
-      console.error("Failed to parse webhook body:", parseError);
+      Sentry.captureException(parseError, {
+        tags: {
+          operation: "webhook_parse_error",
+          source: "lemverify_webhook",
+        },
+      });
       // 400 Bad Request: Invalid JSON (don't retry)
       return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
         status: 400,
@@ -292,7 +326,16 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!event.id || !event.status) {
-      console.error("Missing required fields in webhook event");
+      Sentry.captureException(
+        new Error("Missing required fields in LEM Verify webhook event"),
+        {
+          tags: {
+            operation: "webhook_validation_error",
+            source: "lemverify_webhook",
+          },
+          extra: { eventKeys: Object.keys(event) },
+        },
+      );
       // 400 Bad Request: Missing required fields (don't retry)
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -318,7 +361,13 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json" },
       });
     } catch (dbError: unknown) {
-      console.error("Database error processing webhook:", dbError);
+      Sentry.captureException(dbError instanceof Error ? dbError : new Error(String(dbError)), {
+        tags: {
+          operation: "webhook_database_error",
+          source: "lemverify_webhook",
+        },
+        extra: { eventId: event.id, eventStatus: event.status },
+      });
 
       // Check if it's a critical database error (connection, etc.) vs constraint violation
       const errorCode =
@@ -349,9 +398,16 @@ export async function POST(request: Request) {
         );
       } else {
         // 200 OK but log the error: Data issue, not connection (don't retry)
-        console.warn(
-          "Non-critical database error - webhook processed but not saved:",
-          dbError,
+        Sentry.captureException(
+          dbError instanceof Error ? dbError : new Error(String(dbError)),
+          {
+            tags: {
+              operation: "webhook_database_error_non_critical",
+              source: "lemverify_webhook",
+            },
+            extra: { eventId: event.id, eventStatus: event.status },
+            level: "warning",
+          },
         );
 
         // Log to activity logs if possible
@@ -373,7 +429,15 @@ export async function POST(request: Request) {
             });
           }
         } catch (logError) {
-          console.error("Failed to log webhook error:", logError);
+          Sentry.captureException(
+            logError instanceof Error ? logError : new Error(String(logError)),
+            {
+              tags: {
+                operation: "webhook_activity_log_error",
+                source: "lemverify_webhook",
+              },
+            },
+          );
         }
 
         return new Response(
@@ -389,7 +453,15 @@ export async function POST(request: Request) {
       }
     }
   } catch (error: unknown) {
-    console.error("Unexpected webhook error:", error);
+    Sentry.captureException(
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        tags: {
+          operation: "webhook_unexpected_error",
+          source: "lemverify_webhook",
+        },
+      },
+    );
 
     // 500 Internal Server Error: Unexpected error (should retry)
     return new Response(

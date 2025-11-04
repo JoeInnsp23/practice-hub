@@ -63,10 +63,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
        toast.error("User-friendly error message");
      }
      ```
+   - **Webhook handlers and API routes:**
+     - Use Sentry.captureException for ALL errors, including signature verification failures
+     - Signature verification failures are security events and should be tracked in Sentry
+     - Console.error can be used in addition for local debugging, but Sentry is primary
+     - Example: See `app/api/webhooks/docuseal/route.ts` for best practice pattern
    - **Exceptions where console.error is acceptable:**
-     - Webhook handlers (external integrations need visible debugging)
-     - API route handlers for webhook signature verification failures
      - Development-only code paths (guarded by `process.env.NODE_ENV === 'development'`)
+     - Console.log for informational messages (not errors)
   - **Biome enforcement**:
     ```json
     {
