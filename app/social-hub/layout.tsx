@@ -3,6 +3,7 @@
 import { Calendar, FileText, Home, Share2 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
   { name: "Overview", href: "/social-hub", icon: Home },
@@ -21,7 +22,7 @@ export default function SocialHubLayout({
       <GlobalHeader
         moduleName="Social Hub"
         title="Social Hub"
-        headerColor="#8b5cf6"
+        headerColor={HUB_COLORS["social-hub"]}
         showBackToHome={true}
       />
 
@@ -30,7 +31,7 @@ export default function SocialHubLayout({
           moduleName="Social Hub"
           baseHref="/social-hub"
           navigation={navigation}
-          moduleColor="#8b5cf6"
+          moduleColor={HUB_COLORS["social-hub"]}
         />
 
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
