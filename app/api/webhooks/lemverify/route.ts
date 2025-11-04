@@ -225,7 +225,16 @@ async function handleAMLAlert(event: LemVerifyWebhookEvent) {
     .limit(1);
 
   if (!verification) {
-    console.error("KYC verification not found for LEM Verify ID:", event.id);
+    Sentry.captureException(
+      new Error("KYC verification not found for LEM Verify ID"),
+      {
+        tags: {
+          operation: "kyc_verification_not_found",
+          source: "lemverify_webhook",
+        },
+        extra: { lemVerifyId: event.id },
+      },
+    );
     return;
   }
 
@@ -361,13 +370,16 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json" },
       });
     } catch (dbError: unknown) {
-      Sentry.captureException(dbError instanceof Error ? dbError : new Error(String(dbError)), {
-        tags: {
-          operation: "webhook_database_error",
-          source: "lemverify_webhook",
+      Sentry.captureException(
+        dbError instanceof Error ? dbError : new Error(String(dbError)),
+        {
+          tags: {
+            operation: "webhook_database_error",
+            source: "lemverify_webhook",
+          },
+          extra: { eventId: event.id, eventStatus: event.status },
         },
-        extra: { eventId: event.id, eventStatus: event.status },
-      });
+      );
 
       // Check if it's a critical database error (connection, etc.) vs constraint violation
       const errorCode =

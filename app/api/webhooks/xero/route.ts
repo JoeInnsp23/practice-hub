@@ -96,16 +96,13 @@ export async function POST(request: Request) {
     const webhookKey = process.env.XERO_WEBHOOK_KEY;
 
     if (!webhookKey) {
-      Sentry.captureException(
-        new Error("XERO_WEBHOOK_KEY not configured"),
-        {
-          tags: {
-            operation: "webhook_config_error",
-            source: "xero_webhook",
-            severity: "critical",
-          },
+      Sentry.captureException(new Error("XERO_WEBHOOK_KEY not configured"), {
+        tags: {
+          operation: "webhook_config_error",
+          source: "xero_webhook",
+          severity: "critical",
         },
-      );
+      });
       return NextResponse.json(
         { error: "Webhook not configured" },
         { status: 500 },
@@ -113,15 +110,12 @@ export async function POST(request: Request) {
     }
 
     if (!signature) {
-      Sentry.captureException(
-        new Error("Missing x-xero-signature header"),
-        {
-          tags: {
-            operation: "webhook_signature_missing",
-            source: "xero_webhook",
-          },
+      Sentry.captureException(new Error("Missing x-xero-signature header"), {
+        tags: {
+          operation: "webhook_signature_missing",
+          source: "xero_webhook",
         },
-      );
+      });
       return NextResponse.json({ error: "Missing signature" }, { status: 401 });
     }
 
@@ -132,18 +126,15 @@ export async function POST(request: Request) {
       .digest("base64");
 
     if (signature !== expectedSignature) {
-      Sentry.captureException(
-        new Error("Invalid Xero webhook signature"),
-        {
-          tags: {
-            operation: "webhook_signature_invalid",
-            source: "xero_webhook",
-          },
-          extra: {
-            providedSignature: `${signature.substring(0, 10)}...`,
-          },
+      Sentry.captureException(new Error("Invalid Xero webhook signature"), {
+        tags: {
+          operation: "webhook_signature_invalid",
+          source: "xero_webhook",
         },
-      );
+        extra: {
+          providedSignature: `${signature.substring(0, 10)}...`,
+        },
+      });
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
