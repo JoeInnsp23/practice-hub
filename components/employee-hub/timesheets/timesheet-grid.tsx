@@ -169,7 +169,7 @@ export function TimesheetGrid({
                   </TableRow>
                 ) : (
                   entries.map((entry) => (
-                    <TableRow key={entry.id}>
+                    <TableRow key={entry.id} className="table-row">
                       <TableCell className="font-medium">
                         {formatDate(entry.date)}
                       </TableCell>

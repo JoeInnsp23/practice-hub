@@ -88,7 +88,7 @@ export function ToilHistoryTable({
         </TableHeader>
         <TableBody>
           {history.map((record) => (
-            <TableRow key={record.id}>
+            <TableRow key={record.id} className="table-row">
               <TableCell className="font-medium">
                 {formatDate(record.weekEnding)}
               </TableCell>

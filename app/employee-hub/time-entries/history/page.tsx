@@ -166,7 +166,7 @@ export default function TimeEntryHistoryPage() {
                 </thead>
                 <tbody>
                   {timeEntries.map((entry) => (
-                    <tr key={entry.id} className="border-b hover:bg-muted/50">
+                    <tr key={entry.id} className="table-row border-b">
                       <td className="p-3 text-sm">
                         {new Date(entry.date).toLocaleDateString()}
                       </td>

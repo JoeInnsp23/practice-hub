@@ -291,7 +291,7 @@ export function ApprovalList({
           <TableBody>
             {requests.map((request) => (
               <>
-                <TableRow key={request.id}>
+                <TableRow key={request.id} className="table-row">
                   {showBulkActions && (
                     <TableCell>
                       <Checkbox

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
   { name: "Dashboard", href: "/employee-hub", icon: Home },
@@ -56,7 +57,7 @@ export default function EmployeeHubLayout({
       <GlobalHeader
         moduleName="Employee Hub"
         title="Employee Hub"
-        headerColor="#10b981"
+        headerColor={HUB_COLORS["employee-hub"]}
         showBackToHome={true}
       />
       <div className="flex">
@@ -65,7 +66,7 @@ export default function EmployeeHubLayout({
           baseHref="/employee-hub"
           navigation={navigation}
           sections={sections}
-          moduleColor="#10b981"
+          moduleColor={HUB_COLORS["employee-hub"]}
         />
         <main className="flex-1 min-w-0 overflow-x-hidden p-8 max-w-7xl mx-auto">
           {children}

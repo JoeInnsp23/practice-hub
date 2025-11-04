@@ -187,7 +187,7 @@ export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
         </TableHeader>
         <TableBody>
           {requests.map((request) => (
-            <TableRow key={request.id}>
+            <TableRow key={request.id} className="table-row">
               <TableCell>{getTypeBadge(request.leaveType)}</TableCell>
               <TableCell>
                 <div className="text-sm">

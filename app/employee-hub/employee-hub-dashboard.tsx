@@ -12,8 +12,10 @@ import {
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardInteractive } from "@/components/ui/card-interactive";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { useSession } from "@/lib/auth-client";
 import { trpc } from "@/lib/trpc/client";
 
@@ -116,7 +118,12 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
       )}
 
       {/* Quick Actions */}
-      <Card>
+      <CardInteractive
+        moduleColor={HUB_COLORS["employee-hub"]}
+        className="animate-lift-in"
+        style={{ animationDelay: "0s", opacity: 0 }}
+        ariaLabel="Quick Actions"
+      >
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
@@ -150,12 +157,17 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
             </Link>
           </Button>
         </CardContent>
-      </Card>
+      </CardInteractive>
 
       {/* Dashboard Widgets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* My Timesheet Widget */}
-        <Card>
+        <CardInteractive
+          moduleColor={HUB_COLORS["employee-hub"]}
+          className="animate-lift-in"
+          style={{ animationDelay: "0.1s", opacity: 0 }}
+          ariaLabel="This Week's Timesheet"
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-emerald-600" />
@@ -204,10 +216,15 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               </div>
             )}
           </CardContent>
-        </Card>
+        </CardInteractive>
 
         {/* Leave Balance Widget */}
-        <Card>
+        <CardInteractive
+          moduleColor={HUB_COLORS["employee-hub"]}
+          className="animate-lift-in"
+          style={{ animationDelay: "0.2s", opacity: 0 }}
+          ariaLabel="Leave Balances"
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Umbrella className="h-5 w-5 text-emerald-600" />
@@ -253,10 +270,15 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               </div>
             )}
           </CardContent>
-        </Card>
+        </CardInteractive>
 
         {/* TOIL Widget */}
-        <Card>
+        <CardInteractive
+          moduleColor={HUB_COLORS["employee-hub"]}
+          className="animate-lift-in"
+          style={{ animationDelay: "0.3s", opacity: 0 }}
+          ariaLabel="TOIL Overview"
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-emerald-600" />
@@ -290,10 +312,15 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               </div>
             )}
           </CardContent>
-        </Card>
+        </CardInteractive>
 
         {/* Pending Approvals Widget (Managers Only) */}
-        <Card>
+        <CardInteractive
+          moduleColor={HUB_COLORS["employee-hub"]}
+          className="animate-lift-in"
+          style={{ animationDelay: "0.4s", opacity: 0 }}
+          ariaLabel="Pending Approvals"
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-emerald-600" />
@@ -321,7 +348,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </CardInteractive>
       </div>
     </div>
   );
