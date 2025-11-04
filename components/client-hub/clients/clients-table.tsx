@@ -127,7 +127,7 @@ export function ClientsTable({
         {clients.map((client) => (
           <TableRow
             key={client.id}
-            className="cursor-pointer hover:bg-muted/50"
+            className="table-row cursor-pointer"
             onClick={() => router.push(`/client-hub/clients/${client.id}`)}
           >
             <TableCell className="font-medium">{client.clientCode}</TableCell>

@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CardContent, CardHeader } from "@/components/ui/card";
+import { CardInteractive } from "@/components/ui/card-interactive";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { cn } from "@/lib/utils";
 
 interface KPIWidgetProps {
@@ -30,12 +32,11 @@ export function KPIWidget({
   subtext,
 }: KPIWidgetProps) {
   return (
-    <Card
-      className={cn(
-        "cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1",
-        className,
-      )}
+    <CardInteractive
+      moduleColor={HUB_COLORS["client-hub"]}
       onClick={onClick}
+      ariaLabel={onClick ? `View ${title}` : undefined}
+      className={cn("cursor-pointer", className)}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
@@ -69,6 +70,6 @@ export function KPIWidget({
           </>
         )}
       </CardContent>
-    </Card>
+    </CardInteractive>
   );
 }

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
   { name: "Dashboard", href: "/client-hub", icon: LayoutDashboard },
@@ -51,7 +52,7 @@ export default function ClientHubLayout({
       <GlobalHeader
         moduleName="Client Hub"
         title="Client Hub"
-        headerColor="#3b82f6"
+        headerColor={HUB_COLORS["client-hub"]}
         showBackToHome={true}
       />
       <div className="flex">
@@ -60,7 +61,7 @@ export default function ClientHubLayout({
           baseHref="/client-hub"
           navigation={navigation}
           sections={sections}
-          moduleColor="#3b82f6"
+          moduleColor={HUB_COLORS["client-hub"]}
         />
         <main className="flex-1 min-w-0 overflow-x-hidden p-8 max-w-7xl mx-auto">
           {children}
