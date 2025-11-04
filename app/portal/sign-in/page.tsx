@@ -3,6 +3,7 @@
 import { User } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
