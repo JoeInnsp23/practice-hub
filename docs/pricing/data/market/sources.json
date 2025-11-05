@@ -151,5 +151,23 @@
     "credibility_score": 7,
     "source_type": "published_pricing_page",
     "notes": "Tax return specialist with published fee structure"
+  },
+  {
+    "source_id": "SRC018",
+    "brand": "Doshi Accountants",
+    "url": "https://doshiaccountants.co.uk/fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "UK firm with transparent fee structure"
+  },
+  {
+    "source_id": "SRC019",
+    "brand": "My Tax Accountant",
+    "url": "https://www.mytaxaccountant.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Digital accountancy with published pricing"
   }
 ]
