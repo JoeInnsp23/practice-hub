@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-05T18:29:02.214Z",
+  "generated": "2025-11-05T19:04:04.810Z",
   "version": "1.0",
-  "total_entries": 226,
+  "total_entries": 227,
   "functions": [
     {
       "name": "landingRouter",
@@ -10,6 +10,14 @@
       "line": 6,
       "type": "function",
       "signature": "const landingRouter"
+    },
+    {
+      "name": "sessionRouter",
+      "description": "Session router - Provides client-side access to session data",
+      "file": "app/server/routers/session.ts",
+      "line": 3,
+      "type": "function",
+      "signature": "const sessionRouter"
     },
     {
       "name": "staffStatisticsRouter",

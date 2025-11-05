@@ -5,6 +5,7 @@ import {
   Globe,
   LayoutDashboard,
   Mail,
+  Megaphone,
   MessageSquare,
   Users,
 } from "lucide-react";
@@ -14,6 +15,7 @@ import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Invitations", href: "/admin/invitations", icon: Mail },
   { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
