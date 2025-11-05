@@ -3,13 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "../dialog";
 
 describe("Dialog", () => {
@@ -71,7 +71,7 @@ describe("Dialog", () => {
             </DialogHeader>
             <div>Dialog Content</div>
             <DialogFooter>
-              <button>Footer Button</button>
+              <button type="button">Footer Button</button>
             </DialogFooter>
           </DialogContent>
         </Dialog>,
@@ -215,8 +215,8 @@ describe("Dialog", () => {
         <Dialog defaultOpen>
           <DialogContent>
             <DialogTitle>Test Dialog</DialogTitle>
-            <button>First Button</button>
-            <button>Second Button</button>
+            <button type="button">First Button</button>
+            <button type="button">Second Button</button>
           </DialogContent>
         </Dialog>,
       );

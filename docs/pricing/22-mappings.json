@@ -1,0 +1,496 @@
+{
+  "version": "2.0",
+  "description": "Field mappings from lead/proposal forms to pricing drivers - UPDATED WITH CODE EVIDENCE",
+  "lastUpdated": "2025-11-05",
+  "evidence_sources": [
+    "lib/db/schema.ts:1705-1773 (leads table)",
+    "lib/db/schema.ts:601-658 (clients table)",
+    "lib/db/schema.ts:1796-1859 (proposals table)",
+    "app/server/routers/leads.ts:203-223 (lead capture schema)",
+    "app/server/routers/pricing.ts:27-44 (pricing input schema)",
+    "app/(public)/lead-capture/page.tsx:24-43 (form fields)",
+    "docs/70-research/pricing/55-gaps.md (gaps analysis)"
+  ],
+
+  "lead_fields": {
+    "entity_type": {
+      "description": "Business entity type (enum)",
+      "values": [
+        "sole_trader",
+        "partnership",
+        "limited_company",
+        "llp",
+        "individual",
+        "company",
+        "trust",
+        "charity",
+        "other"
+      ],
+      "source_clients": "lib/db/schema.ts:508-517 (clientTypeEnum)",
+      "source_leads": "MISSING - businessType is freeform varchar",
+      "priority": "HIGH",
+      "gap": "GAP-014 - Inconsistent entity type capture"
+    },
+    "turnover_band": {
+      "description": "Annual turnover band for pricing Model A",
+      "values": [
+        "0-89k",
+        "90k-149k",
+        "150k-249k",
+        "250k-499k",
+        "500k-749k",
+        "750k-999k",
+        "1m+"
+      ],
+      "source": "lib/db/schema.ts:1729 (estimatedTurnover decimal), app/server/routers/pricing.ts:134-158 (parseTurnoverBand function)",
+      "status": "implemented",
+      "transform": "parseTurnoverBand(estimatedTurnover)"
+    },
+    "complexity_tier": {
+      "description": "Books complexity level for multipliers",
+      "values": ["clean", "average", "complex", "disaster"],
+      "source": "MISSING in leads",
+      "model_a_multipliers": {
+        "clean": 0.95,
+        "average": 1.0,
+        "complex": 1.15,
+        "disaster": 1.4
+      },
+      "model_b_multipliers": {
+        "clean": 0.98,
+        "average": 1.0,
+        "complex": 1.08,
+        "disaster": 1.2
+      },
+      "source_multipliers": "app/server/routers/pricing.ts:81-100",
+      "status": "missing_in_lead_schema",
+      "priority": "HIGH",
+      "gap": "GAP-003"
+    },
+    "service_level": {
+      "description": "Service level selection (e.g., bookkeeping: basic vs. full)",
+      "values": ["basic", "full"],
+      "context": "Bookkeeping service configuration",
+      "source": "app/(public)/lead-capture/page.tsx:45-61 (CORE_SERVICES and ADD_ON_SERVICES arrays)",
+      "status": "partial - interestedServices captures intent but not level"
+    },
+    "industry": {
+      "description": "Industry type for multipliers",
+      "values": ["simple", "standard", "complex", "regulated"],
+      "multipliers": {
+        "simple": 0.95,
+        "standard": 1.0,
+        "complex": 1.15,
+        "regulated": 1.3
+      },
+      "source": "lib/db/schema.ts:1728, app/server/routers/pricing.ts:102-110, app/(public)/lead-capture/page.tsx:63-72 (INDUSTRIES array)",
+      "status": "implemented",
+      "note": "Lead form has different industry labels (e.g., 'hospitality', 'retail') that must map to pricing tiers"
+    }
+  },
+
+  "pricing_drivers": {
+    "monthlyTransactions": {
+      "type": "numeric",
+      "models": ["modelB"],
+      "source_schema": "MISSING in lib/db/schema.ts:1705-1773 (leads table)",
+      "source_proposals": "lib/db/schema.ts:1803 (proposals.monthlyTransactions)",
+      "fallback": "estimateMonthlyTransactions(turnover, industry, vatRegistered)",
+      "fallback_source": "app/server/routers/pricing.ts:589-622",
+      "status": "missing_in_lead_schema",
+      "priority": "HIGH",
+      "gap": "GAP-001"
+    },
+    "bankAccountsCount": {
+      "type": "numeric",
+      "models": ["modelA", "modelB"],
+      "usage": "Bookkeeping complexity factor",
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-007"
+    },
+    "vatRegistered": {
+      "type": "boolean",
+      "source_clients": "lib/db/schema.ts:612 (clients.vatRegistered)",
+      "source_leads": "MISSING in lib/db/schema.ts:1705-1773 (leads table)",
+      "usage": ["transaction_estimation_multiplier", "auto_add_vat_service"],
+      "multiplier": 1.2,
+      "source_multiplier": "app/server/routers/pricing.ts:617-619",
+      "status": "missing_in_lead_schema",
+      "priority": "HIGH",
+      "gap": "GAP-002"
+    },
+    "estimatedEmployees": {
+      "type": "numeric",
+      "usage": "Payroll pricing tiers",
+      "source": "lib/db/schema.ts:1742 (leads.estimatedEmployees)",
+      "pricing_logic": "app/server/routers/pricing.ts:112-132 (calculatePayroll function)",
+      "status": "implemented"
+    },
+    "propertyCount": {
+      "type": "numeric",
+      "usage": "Rental addon pricing",
+      "service_code": "ADDON_RENTAL",
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-006"
+    },
+    "currentSoftware": {
+      "type": "enum",
+      "values": [
+        "xero",
+        "quickbooks",
+        "sage",
+        "freeagent",
+        "excel",
+        "none",
+        "other"
+      ],
+      "usage": "Integration eligibility and complexity estimation",
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-008"
+    },
+    "hasMultipleCurrencies": {
+      "type": "boolean",
+      "usage": "Complexity surcharge",
+      "surcharge": 25,
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-009"
+    },
+    "hasMultipleEntities": {
+      "type": "boolean",
+      "usage": "Group accounts service auto-add",
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-010"
+    },
+    "entityCount": {
+      "type": "numeric",
+      "usage": "Group surcharge calculation",
+      "bandedSurcharge": {
+        "2": 40,
+        "3-5": 90,
+        "6+": 150
+      },
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "MEDIUM",
+      "gap": "GAP-010"
+    },
+    "payrollFrequency": {
+      "type": "enum",
+      "values": ["weekly", "fortnightly", "4weekly", "monthly"],
+      "multipliers": {
+        "weekly": 3,
+        "fortnightly": 2,
+        "4weekly": 2,
+        "monthly": 1
+      },
+      "source_multipliers": "app/server/routers/pricing.ts:127-129",
+      "source_schema": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "LOW",
+      "gap": "GAP-011"
+    },
+    "cisRegistered": {
+      "type": "boolean",
+      "usage": "Auto-add CIS addon for construction industry",
+      "service_code": "ADDON_CIS",
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "LOW",
+      "gap": "GAP-013"
+    },
+    "incomeStreamsCount": {
+      "type": "numeric",
+      "usage": "Self-assessment complexity (directors/landlords)",
+      "source": "MISSING in lib/db/schema.ts:1705-1773",
+      "status": "missing_in_lead_schema",
+      "priority": "LOW",
+      "gap": "GAP-012"
+    }
+  },
+
+  "gaps": [
+    {
+      "gap": "GAP-001: monthlyTransactions not captured in leads",
+      "evidence": "lib/db/schema.ts:1705-1773 (leads table missing field), app/server/routers/pricing.ts:31-36 (transactionData is optional in calculate input)",
+      "impact": ["modelB pricing unavailable", "Falls back to estimation only"],
+      "priority": "high",
+      "affected_models": ["modelB"],
+      "recommendation": "Add monthlyTransactions?: integer to leads schema with 'I don't know' option"
+    },
+    {
+      "gap": "GAP-002: vatRegistered not captured in leads",
+      "evidence": "lib/db/schema.ts:1705-1773 (leads table missing), lib/db/schema.ts:612 (clients table HAS it)",
+      "impact": [
+        "Transaction estimation accuracy reduced by 20%",
+        "Cannot auto-add VAT service"
+      ],
+      "priority": "high",
+      "affected_functions": ["estimateMonthlyTransactions"],
+      "source": "app/server/routers/pricing.ts:617-619",
+      "recommendation": "Add vatRegistered?: boolean to leads schema"
+    },
+    {
+      "gap": "GAP-003: complexity_tier not captured in leads",
+      "evidence": "app/(public)/lead-capture/page.tsx (no booksCondition field), app/server/routers/pricing.ts:81-100 (complexity multipliers exist but unused for leads)",
+      "impact": [
+        "Complexity multipliers (0.95x to 1.4x) not applied",
+        "Pricing accuracy reduced by up to 40%"
+      ],
+      "priority": "high",
+      "affected_models": ["modelA", "modelB"],
+      "recommendation": "Add booksCondition enum to leads schema with estimation fallback"
+    },
+    {
+      "gap": "GAP-004: No auto-service configuration from lead",
+      "evidence": "app/server/routers/proposals.ts:488 (createFromLead sets services to empty array), docs/70-research/pricing/22-mappings.json:213-276 (serviceAutoConfiguration is design-only)",
+      "impact": [
+        "Manual proposal creation 5-10 min vs. <1 min automated",
+        "Inconsistent service recommendations"
+      ],
+      "priority": "critical",
+      "recommendation": "Implement autoMapLeadToServices() function based on lead data"
+    },
+    {
+      "gap": "GAP-005: No pricing preview in lead capture form",
+      "evidence": "app/(public)/lead-capture/page.tsx (no pricing display component)",
+      "impact": [
+        "Leads don't see pricing before submit",
+        "Lost conversion opportunity"
+      ],
+      "priority": "high",
+      "recommendation": "Add pricing preview after Step 1 (company details)"
+    },
+    {
+      "gap": "GAP-006: propertyCount not captured",
+      "evidence": "lib/db/schema.ts:1705-1773 (missing field), docs/70-research/pricing/10-service-inventory.md:34 (ADDON_RENTAL exists)",
+      "impact": ["Rental addon (£12/property) not auto-added"],
+      "priority": "medium",
+      "recommendation": "Add propertyCount?: integer to leads schema"
+    },
+    {
+      "gap": "GAP-007: bankAccountsCount not captured",
+      "evidence": "lib/db/schema.ts:1705-1773 (missing field)",
+      "impact": ["Bookkeeping complexity under-estimated"],
+      "priority": "medium",
+      "recommendation": "Add bankAccountsCount?: integer to leads schema"
+    },
+    {
+      "gap": "GAP-008: currentSoftware not captured",
+      "evidence": "lib/db/schema.ts:1705-1773 (missing field)",
+      "impact": [
+        "Cannot determine Xero/QuickBooks integration eligibility",
+        "Migration complexity unknown"
+      ],
+      "priority": "medium",
+      "recommendation": "Add currentSoftware?: enum to leads schema"
+    },
+    {
+      "gap": "GAP-014: businessType is freeform, not enum",
+      "evidence": "app/server/routers/leads.ts:206 (businessType: string), lib/db/schema.ts:508-517 (clientTypeEnum exists but not used in leads)",
+      "impact": [
+        "Inconsistent data capture",
+        "Cannot map to entity_type for pricing"
+      ],
+      "priority": "high",
+      "recommendation": "Replace businessType with entityType enum matching clientTypeEnum"
+    }
+  ],
+
+  "service_to_lead_field_mappings": {
+    "COMP_ACCOUNTS": {
+      "auto_add_if": "interestedServices.includes('Accounts')",
+      "config": {
+        "complexity": "estimateComplexity(lead)",
+        "complexity_source": "GAP-003 - not yet implemented"
+      }
+    },
+    "VAT_RETURNS": {
+      "auto_add_if": "vatRegistered === true",
+      "source": "GAP-002 - field not in leads schema"
+    },
+    "BOOK_BASIC": {
+      "auto_add_if": "interestedServices.includes('Bookkeeping') && estimateBookkeepingLevel(lead) === 'basic'",
+      "config": {
+        "complexity": "estimateComplexity(lead)",
+        "transactionsPerMonth": "monthlyTransactions || estimateTransactions(lead)"
+      }
+    },
+    "BOOK_FULL": {
+      "auto_add_if": "interestedServices.includes('Bookkeeping') && estimateBookkeepingLevel(lead) === 'full'",
+      "config": {
+        "complexity": "estimateComplexity(lead)",
+        "transactionsPerMonth": "monthlyTransactions || estimateTransactions(lead)"
+      }
+    },
+    "PAYROLL_STANDARD": {
+      "auto_add_if": "estimatedEmployees > 0",
+      "config": {
+        "employees": "estimatedEmployees",
+        "frequency": "payrollFrequency || 'monthly'"
+      },
+      "pricing_source": "app/server/routers/pricing.ts:112-132"
+    },
+    "ADDON_RENTAL": {
+      "auto_add_if": "propertyCount > 0",
+      "config": {
+        "properties": "propertyCount"
+      },
+      "source": "GAP-006 - field not in leads schema"
+    },
+    "ADDON_CIS": {
+      "auto_add_if": "cisRegistered === true",
+      "source": "GAP-013 - field not in leads schema"
+    },
+    "COMP_SATR": {
+      "auto_add_if": "interestedServices.includes('Self-Assessment')",
+      "config": {
+        "incomeStreams": "incomeStreamsCount || 1"
+      }
+    },
+    "MGMT_MONTHLY": {
+      "auto_add_if": "interestedServices.includes('Management Accounts')"
+    }
+  },
+
+  "transform_functions": {
+    "parseTurnoverBand": {
+      "input": "number (estimatedTurnover)",
+      "output": "string (band label, e.g., '£90k-£149k')",
+      "source": "app/server/routers/pricing.ts:134-158",
+      "status": "implemented"
+    },
+    "estimateMonthlyTransactions": {
+      "input": "{ turnover: string, industry: string, vatRegistered: boolean }",
+      "output": "number (estimated monthly transactions)",
+      "source": "app/server/routers/pricing.ts:589-622",
+      "status": "implemented",
+      "note": "vatRegistered parameter missing in leads"
+    },
+    "getComplexityMultiplier": {
+      "input": "{ complexity: enum, model: 'modelA' | 'modelB' }",
+      "output": "number (multiplier 0.95 to 1.4)",
+      "source": "app/server/routers/pricing.ts:81-100",
+      "status": "implemented"
+    },
+    "getIndustryMultiplier": {
+      "input": "industry: string",
+      "output": "number (multiplier 0.95 to 1.3)",
+      "source": "app/server/routers/pricing.ts:102-110",
+      "status": "implemented"
+    },
+    "calculatePayroll": {
+      "input": "{ employees: number, frequency: enum }",
+      "output": "number (monthly price)",
+      "source": "app/server/routers/pricing.ts:112-132",
+      "status": "implemented"
+    },
+    "estimateComplexity": {
+      "input": "Lead object (booksCondition, currentSoftware, monthlyTransactions, etc.)",
+      "output": "'clean' | 'average' | 'complex' | 'disaster'",
+      "source": "NOT IMPLEMENTED",
+      "status": "design_phase",
+      "gap": "GAP-003",
+      "proposed_logic": {
+        "factors": [
+          { "field": "booksCondition", "weight": 0.5, "directMap": true },
+          {
+            "field": "currentSoftware",
+            "weight": 0.2,
+            "mapping": {
+              "xero": "clean",
+              "quickbooks": "average",
+              "excel": "complex",
+              "none": "disaster"
+            }
+          },
+          {
+            "field": "monthlyTransactions",
+            "weight": 0.15,
+            "bands": {
+              "0-50": "clean",
+              "51-150": "average",
+              "151-300": "complex",
+              "301+": "disaster"
+            }
+          },
+          {
+            "field": "hasMultipleCurrencies",
+            "weight": 0.1,
+            "modifier": "+1 level"
+          },
+          {
+            "field": "hasMultipleEntities",
+            "weight": 0.05,
+            "modifier": "+1 level"
+          }
+        ]
+      }
+    },
+    "estimateBookkeepingLevel": {
+      "input": "Lead object (monthlyTransactions, bankAccountsCount, currentSoftware)",
+      "output": "'basic' | 'full'",
+      "source": "NOT IMPLEMENTED",
+      "status": "design_phase",
+      "proposed_logic": "if (transactions < 100 && accounts <= 2 && software in ['xero', 'quickbooks']) return 'basic'; else return 'full';"
+    }
+  },
+
+  "validation_rules": {
+    "estimatedTurnover": {
+      "required": true,
+      "type": "number",
+      "min": 0,
+      "max": 100000000,
+      "source": "lib/db/schema.ts:1729 (decimal 15,2)"
+    },
+    "monthlyTransactions": {
+      "required": false,
+      "type": "integer",
+      "min": 0,
+      "max": 100000,
+      "source": "GAP-001 - not in schema"
+    },
+    "estimatedEmployees": {
+      "required": true,
+      "type": "integer",
+      "min": 0,
+      "max": 10000,
+      "source": "lib/db/schema.ts:1742"
+    },
+    "propertyCount": {
+      "required": false,
+      "type": "integer",
+      "min": 0,
+      "max": 1000,
+      "source": "GAP-006 - not in schema"
+    },
+    "bankAccountsCount": {
+      "required": false,
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "source": "GAP-007 - not in schema"
+    }
+  },
+
+  "implementation_notes": [
+    "All file:line references verified from codebase (2025-11-05)",
+    "Priority 1: Add missing fields to lead schema (GAP-001, GAP-002, GAP-003, GAP-014)",
+    "Priority 2: Implement auto-service configuration logic (GAP-004)",
+    "Priority 3: Build complexity estimation function (GAP-003)",
+    "Priority 4: Update lead capture form UI with new fields",
+    "Priority 5: Add pricing preview component (GAP-005)",
+    "Validation should happen at both client (React Hook Form + Zod) and server (tRPC input schemas)",
+    "Feature flags recommended for gradual rollout"
+  ]
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "source_id": "SRC001",
+    "brand": "DNS Accountants",
+    "url": "https://www.dnsaccountants.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive calculator with instant quotes; detailed service breakdown"
+  },
+  {
+    "source_id": "SRC002",
+    "brand": "Crunch",
+    "url": "https://www.crunch.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Tiered packages with clear monthly pricing; software + accountant model"
+  },
+  {
+    "source_id": "SRC003",
+    "brand": "1st Formations Accountants",
+    "url": "https://www.1stformations.co.uk/accountancy-services/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "pricing_calculator",
+    "notes": "Interactive calculator with business type and turnover inputs"
+  },
+  {
+    "source_id": "SRC004",
+    "brand": "InniAccounts",
+    "url": "https://www.inniaccounts.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Clear package structure with monthly pricing; contractor-focused"
+  },
+  {
+    "source_id": "SRC005",
+    "brand": "Anna Money",
+    "url": "https://anna.money/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Subscription tiers with add-on accountancy services"
+  },
+  {
+    "source_id": "SRC006",
+    "brand": "TaxAssist Accountants",
+    "url": "https://www.taxassist.co.uk/accountancy-services/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Franchise network with standardized pricing framework; nationwide consistency"
+  },
+  {
+    "source_id": "SRC007",
+    "brand": "GoForma",
+    "url": "https://www.goforma.com/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Franchise network with transparent package-based pricing"
+  },
+  {
+    "source_id": "SRC008",
+    "brand": "Penneys Accountancy",
+    "url": "https://penneysaccountancy.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Digital firm with clear monthly pricing; Birmingham-based"
+  },
+  {
+    "source_id": "SRC009",
+    "brand": "1st Cloud Accountants",
+    "url": "https://www.1stcloudaccountants.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Cloud-first firm with package tiers; London-based"
+  },
+  {
+    "source_id": "SRC010",
+    "brand": "The Accountancy Cloud",
+    "url": "https://theaccountancycloud.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Digital accountancy with transparent pricing structure"
+  }
+]
