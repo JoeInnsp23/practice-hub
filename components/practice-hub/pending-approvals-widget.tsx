@@ -11,16 +11,29 @@ export function PendingApprovalsWidget() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Query pending approvals - server-side authorization handles role checks
+  // Query user role from session router
+  const { data: sessionData } = trpc.session.getRole.useQuery(undefined, {
+    enabled: !!session?.user,
+    retry: false,
+  });
+
+  // Query pending approvals - only for admins
   const { data: submissions, isLoading } =
     trpc.timesheets.getPendingApprovals.useQuery(undefined, {
-      enabled: !!session?.user,
+      enabled: !!session?.user && sessionData?.role === "admin",
       retry: false,
       refetchOnWindowFocus: false,
     });
 
-  // Don't show widget if no session or no pending approvals
-  if (!session?.user || isLoading || !submissions || submissions.length === 0) {
+  // Only show widget to admins
+  if (
+    !session?.user ||
+    !sessionData ||
+    sessionData.role !== "admin" ||
+    isLoading ||
+    !submissions ||
+    submissions.length === 0
+  ) {
     return null;
   }
 

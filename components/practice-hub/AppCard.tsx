@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CardInteractive } from "@/components/ui/card-interactive";
 import { cn } from "@/lib/utils";
 
 interface AppCardProps {
@@ -26,56 +27,45 @@ export function AppCard({
   const isComingSoon = status === "coming-soon";
 
   return (
-    <button
-      type="button"
-      disabled={isComingSoon}
+    <CardInteractive
+      moduleColor={color}
+      onClick={!isComingSoon ? onClick : undefined}
+      ariaLabel={`Navigate to ${title}`}
       className={cn(
-        "glass-card w-full text-left",
-        "group relative overflow-hidden transition-all duration-300 rounded-xl",
-        "hover:shadow-xl hover:-translate-y-1",
-        isComingSoon ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+        "group w-full",
+        isComingSoon && "cursor-not-allowed opacity-60",
         className,
       )}
-      onClick={!isComingSoon ? onClick : undefined}
-      onKeyDown={(e) => {
-        if (!isComingSoon && onClick && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          onClick();
-        }
-      }}
     >
-      {/* Card Content */}
-      <div className="relative p-6">
-        {/* Icon Container */}
-        <div
-          className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300 group-hover:shadow-lg"
-          style={{
-            background: `linear-gradient(135deg, ${color}, ${color}dd)`,
-          }}
-        >
-          <Icon className="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
-        </div>
-
-        {/* Title */}
-        <h3 className="mb-2 text-lg font-semibold text-card-foreground">
-          {title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {description}
-        </p>
-
-        {/* Status Badge */}
-        {isComingSoon && (
-          <Badge
-            variant="secondary"
-            className="absolute right-4 top-4 bg-secondary text-secondary-foreground border"
-          >
-            Coming Soon
-          </Badge>
-        )}
+      {/* Icon Container */}
+      <div
+        className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300 group-hover:shadow-lg"
+        style={{
+          background: `linear-gradient(135deg, ${color}, ${color}dd)`,
+        }}
+      >
+        <Icon className="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
       </div>
+
+      {/* Title */}
+      <h3 className="mb-2 text-lg font-semibold text-card-foreground">
+        {title}
+      </h3>
+
+      {/* Description */}
+      <p className="text-sm text-muted-foreground line-clamp-2">
+        {description}
+      </p>
+
+      {/* Status Badge */}
+      {isComingSoon && (
+        <Badge
+          variant="secondary"
+          className="absolute right-4 top-4 bg-secondary text-secondary-foreground border"
+        >
+          Coming Soon
+        </Badge>
+      )}
 
       {/* Glass Hover Tint Overlay */}
       <div
@@ -92,6 +82,6 @@ export function AppCard({
           background: `linear-gradient(90deg, ${color}, ${color}66)`,
         }}
       />
-    </button>
+    </CardInteractive>
   );
 }

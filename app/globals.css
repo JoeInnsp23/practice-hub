@@ -222,6 +222,21 @@
   }
 }
 
+/* Hub color theming system - derives shades from --hub-color variable */
+[data-hub-root] {
+  /* Derive color shades using color-mix */
+  --hub-color-400: color-mix(in oklch, var(--hub-color) 88%, white 12%);
+  --hub-color-500: var(--hub-color);
+  --hub-color-600: color-mix(in oklch, var(--hub-color) 90%, black 10%);
+
+  /* Gradient rail for card decorations */
+  --hub-gradient-rail: linear-gradient(90deg, var(--hub-color-500), var(--hub-color-600));
+
+  /* Map to shadcn tokens for consistency */
+  --primary: var(--hub-color-500);
+  --ring: var(--hub-color-500);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -338,6 +353,44 @@
       0 0 0 1px rgba(0, 0, 0, 0.03),
       0 20px 25px -5px rgba(0, 0, 0, 0.1),
       0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Interactive card with gradient rail decoration */
+  .card-interactive {
+    @apply glass-card rounded-xl p-6 relative overflow-hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-interactive::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--module-gradient, var(--hub-gradient-rail));
+    transform: translateX(-4px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 20px 25px -5px rgba(0, 0, 0, 0.15),
+      0 10px 10px -5px rgba(0, 0, 0, 0.06);
+  }
+
+  .card-interactive:hover::before {
+    transform: translateX(0);
+  }
+
+  /* Dark mode support */
+  .dark .card-interactive:hover {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 20px 25px -5px rgba(0, 0, 0, 0.5),
+      0 10px 10px -5px rgba(0, 0, 0, 0.2);
   }
 
   /* Subtle neutral gradients for 2025 */

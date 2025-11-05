@@ -5,8 +5,11 @@ import { useState } from "react";
 import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
 import { trpc as api } from "@/app/providers/trpc-provider";
 import { ClientOnly } from "@/components/client-only";
+import { AnnouncementsPanel } from "@/components/practice-hub/announcements-panel";
 import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
+import { NeedHelpCard } from "@/components/practice-hub/need-help-card";
 import { PendingApprovalsWidget } from "@/components/practice-hub/pending-approvals-widget";
+import { UrgentTasksWidget } from "@/components/practice-hub/urgent-tasks-widget";
 import { Card } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
 import {
@@ -133,7 +136,7 @@ export function PracticeHubClient({
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
+      {/* Welcome Section - Full Width */}
       <CardInteractive
         moduleColor={HUB_COLORS["practice-hub"]}
         className="rounded-xl p-8 animate-fade-in"
@@ -147,8 +150,12 @@ export function PracticeHubClient({
         </p>
       </CardInteractive>
 
-      {/* Pending Approvals Widget (for managers/admins) */}
-      <PendingApprovalsWidget />
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Main Content (2/3 width) */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Pending Approvals Widget (for managers/admins) */}
+          <PendingApprovalsWidget />
 
       {/* Navigation Tabs */}
       <ClientOnly>
@@ -343,6 +350,20 @@ export function PracticeHubClient({
           </TabsContent>
         </NavigationTabs>
       </ClientOnly>
+        </div>
+
+        {/* Right Column - Widgets (1/3 width) */}
+        <div className="space-y-6">
+          {/* Announcements Panel */}
+          <AnnouncementsPanel limit={5} />
+
+          {/* Urgent Tasks Widget */}
+          <UrgentTasksWidget />
+
+          {/* Need Help Card */}
+          <NeedHelpCard />
+        </div>
+      </div>
     </div>
   );
 }
