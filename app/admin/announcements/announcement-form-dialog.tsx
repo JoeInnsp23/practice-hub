@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -145,7 +145,7 @@ export function AnnouncementFormDialog({
       }
       form.reset();
       onSuccess();
-    } catch (error) {
+    } catch (_error) {
       toast.error(
         announcement
           ? "Failed to update announcement"
@@ -180,10 +180,7 @@ export function AnnouncementFormDialog({
                 <FormItem>
                   <FormLabel>Title *</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter announcement title"
-                      {...field}
-                    />
+                    <Input placeholder="Enter announcement title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

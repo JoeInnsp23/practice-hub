@@ -1,15 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
-import {
-  AlertCircle,
-  Edit,
-  Megaphone,
-  Pin,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import React, { useState } from "react";
+import { AlertCircle, Edit, Megaphone, Pin, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -31,7 +25,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
 import { AnnouncementFormDialog } from "./announcement-form-dialog";
 
 interface Announcement {
@@ -86,7 +79,7 @@ export function AnnouncementsClient() {
       setDeleteDialogOpen(false);
       setAnnouncementToDelete(null);
       utils.announcements.adminList.invalidate();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete announcement");
     }
   };
@@ -101,12 +94,10 @@ export function AnnouncementsClient() {
         isActive,
       });
       toast.success(
-        isActive
-          ? "Announcement activated"
-          : "Announcement deactivated",
+        isActive ? "Announcement activated" : "Announcement deactivated",
       );
       utils.announcements.adminList.invalidate();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update announcement status");
     }
   };
@@ -119,7 +110,7 @@ export function AnnouncementsClient() {
       });
       toast.success(isPinned ? "Announcement pinned" : "Announcement unpinned");
       utils.announcements.adminList.invalidate();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update pin status");
     }
   };
@@ -142,7 +133,6 @@ export function AnnouncementsClient() {
             Warning
           </Badge>
         );
-      case "info":
       default:
         return (
           <Badge variant="outline" className="text-muted-foreground">
@@ -227,7 +217,9 @@ export function AnnouncementsClient() {
                           }
                         />
                       </TableCell>
-                      <TableCell>{getPriorityBadge(announcement.priority)}</TableCell>
+                      <TableCell>
+                        {getPriorityBadge(announcement.priority)}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div

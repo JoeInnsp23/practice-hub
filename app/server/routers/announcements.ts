@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { and, desc, eq, gte, lte, or } from "drizzle-orm";
 import * as Sentry from "@sentry/nextjs";
-import { announcements, priorityEnum } from "@/lib/db/schema";
+import { and, desc, eq, gte, lte, or } from "drizzle-orm";
+import { z } from "zod";
+import { announcements } from "@/lib/db/schema";
 import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 
 // Validation schemas
@@ -9,9 +9,7 @@ const announcementCreateSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long"),
   content: z.string().min(1, "Content is required"),
   icon: z.string().min(1, "Icon is required"),
-  iconColor: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Invalid hex color"),
+  iconColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid hex color"),
   priority: z.enum(["info", "warning", "critical"]).default("info"),
   isPinned: z.boolean().default(false),
   startsAt: z.date().nullable().optional(),

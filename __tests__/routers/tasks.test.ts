@@ -2358,4 +2358,307 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       expect(history).toEqual([]);
     });
   });
+
+  describe("getTopUrgentTasks", () => {
+    it("should return user's urgent tasks", async () => {
+      // Setup: Create test data
+      const tenant = await createTestTenant();
+      const user = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {});
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user.id);
+      tracker.clients?.push(client.id);
+
+      // Update context to use test user
+      ctx.authContext.userId = user.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create urgent task (high priority, due soon)
+      const urgentTask = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Urgent Task - High Priority",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Due in 3 days
+      });
+      tracker.tasks?.push(urgentTask.id);
+
+      // Create normal task (not urgent)
+      const normalTask = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Normal Task",
+        priority: "medium",
+        status: "todo",
+        dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // Due in 10 days
+      });
+      tracker.tasks?.push(normalTask.id);
+
+      // Query urgent tasks
+      const result = await caller.getTopUrgentTasks();
+
+      // Verify urgent task is returned
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(urgentTask.id);
+      expect(result[0].priority).toBe("high");
+    });
+
+    it("should return tasks due within 5 days", async () => {
+      // Setup
+      const tenant = await createTestTenant();
+      const user = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {});
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user.id);
+      tracker.clients?.push(client.id);
+
+      ctx.authContext.userId = user.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create task due in 4 days (medium priority, but due soon)
+      const dueSoonTask = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Due Soon Task",
+        priority: "medium",
+        status: "todo",
+        dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(dueSoonTask.id);
+
+      const result = await caller.getTopUrgentTasks();
+
+      expect(result.some((t) => t.id === dueSoonTask.id)).toBe(true);
+    });
+
+    it("should only return todo and in_progress tasks", async () => {
+      // Setup
+      const tenant = await createTestTenant();
+      const user = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {});
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user.id);
+      tracker.clients?.push(client.id);
+
+      ctx.authContext.userId = user.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create completed urgent task
+      const completedTask = await createTestTask(
+        tenant.id,
+        client.id,
+        user.id,
+        {
+          title: "Completed Urgent Task",
+          priority: "high",
+          status: "completed",
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        },
+      );
+      tracker.tasks?.push(completedTask.id);
+
+      const result = await caller.getTopUrgentTasks();
+
+      // Completed task should not be in results
+      expect(result.some((t) => t.id === completedTask.id)).toBe(false);
+    });
+
+    it("should limit results to 5 tasks", async () => {
+      // Setup
+      const tenant = await createTestTenant();
+      const user = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {});
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user.id);
+      tracker.clients?.push(client.id);
+
+      ctx.authContext.userId = user.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create 7 urgent tasks
+      for (let i = 0; i < 7; i++) {
+        const task = await createTestTask(tenant.id, client.id, user.id, {
+          title: `Urgent Task ${i + 1}`,
+          priority: "high",
+          status: "todo",
+          dueDate: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000),
+        });
+        tracker.tasks?.push(task.id);
+      }
+
+      const result = await caller.getTopUrgentTasks();
+
+      // Should return max 5 tasks
+      expect(result.length).toBeLessThanOrEqual(5);
+    });
+
+    it("should order by due date ascending", async () => {
+      // Setup
+      const tenant = await createTestTenant();
+      const user = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {});
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user.id);
+      tracker.clients?.push(client.id);
+
+      ctx.authContext.userId = user.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create tasks with different due dates
+      const task1 = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Due in 4 days",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(task1.id);
+
+      const task2 = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Due in 1 day",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(task2.id);
+
+      const task3 = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Due in 2 days",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(task3.id);
+
+      const result = await caller.getTopUrgentTasks();
+
+      // Verify ordering by due date
+      if (result.length >= 3) {
+        const firstTask = result.find((t) => t.id === task2.id);
+        const secondTask = result.find((t) => t.id === task3.id);
+        const thirdTask = result.find((t) => t.id === task1.id);
+
+        const firstIndex = result.indexOf(firstTask!);
+        const secondIndex = result.indexOf(secondTask!);
+        const thirdIndex = result.indexOf(thirdTask!);
+
+        expect(firstIndex).toBeLessThan(secondIndex);
+        expect(secondIndex).toBeLessThan(thirdIndex);
+      }
+    });
+
+    it("should only return tasks assigned to current user", async () => {
+      // Setup
+      const tenant = await createTestTenant();
+      const user1 = await createTestUser(tenant.id, "user");
+      const user2 = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {});
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user1.id, user2.id);
+      tracker.clients?.push(client.id);
+
+      // Set context to user1
+      ctx.authContext.userId = user1.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create task for user1
+      const user1Task = await createTestTask(tenant.id, client.id, user1.id, {
+        title: "User 1 Task",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(user1Task.id);
+
+      // Create task for user2
+      const user2Task = await createTestTask(tenant.id, client.id, user2.id, {
+        title: "User 2 Task",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(user2Task.id);
+
+      const result = await caller.getTopUrgentTasks();
+
+      // Should only return user1's task
+      expect(result.some((t) => t.id === user1Task.id)).toBe(true);
+      expect(result.some((t) => t.id === user2Task.id)).toBe(false);
+    });
+
+    it("should include client name in results", async () => {
+      // Setup
+      const tenant = await createTestTenant();
+      const user = await createTestUser(tenant.id, "user");
+      const client = await createTestClient(tenant.id, {
+        name: "Test Client Co",
+      });
+      tracker.tenants?.push(tenant.id);
+      tracker.users?.push(user.id);
+      tracker.clients?.push(client.id);
+
+      ctx.authContext.userId = user.id;
+      ctx.authContext.tenantId = tenant.id;
+
+      // Create urgent task
+      const task = await createTestTask(tenant.id, client.id, user.id, {
+        title: "Task with Client",
+        priority: "high",
+        status: "todo",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
+      tracker.tasks?.push(task.id);
+
+      const result = await caller.getTopUrgentTasks();
+
+      const foundTask = result.find((t) => t.id === task.id);
+      expect(foundTask).toBeDefined();
+      expect(foundTask?.clientName).toBe("Test Client Co");
+    });
+
+    it("should respect tenant isolation", async () => {
+      // Setup
+      const tenant1 = await createTestTenant();
+      const tenant2 = await createTestTenant();
+      const user1 = await createTestUser(tenant1.id, "user");
+      const user2 = await createTestUser(tenant2.id, "user");
+      const client1 = await createTestClient(tenant1.id, {});
+      const client2 = await createTestClient(tenant2.id, {});
+      tracker.tenants?.push(tenant1.id, tenant2.id);
+      tracker.users?.push(user1.id, user2.id);
+      tracker.clients?.push(client1.id, client2.id);
+
+      // Set context to tenant1/user1
+      ctx.authContext.userId = user1.id;
+      ctx.authContext.tenantId = tenant1.id;
+
+      // Create task for tenant1/user1
+      const tenant1Task = await createTestTask(
+        tenant1.id,
+        client1.id,
+        user1.id,
+        {
+          title: "Tenant 1 Task",
+          priority: "high",
+          status: "todo",
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        },
+      );
+      tracker.tasks?.push(tenant1Task.id);
+
+      // Create task for tenant2/user2 (same user name, different tenant)
+      const tenant2Task = await createTestTask(
+        tenant2.id,
+        client2.id,
+        user2.id,
+        {
+          title: "Tenant 2 Task",
+          priority: "high",
+          status: "todo",
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        },
+      );
+      tracker.tasks?.push(tenant2Task.id);
+
+      const result = await caller.getTopUrgentTasks();
+
+      // Should only return tenant1's task
+      expect(result.some((t) => t.id === tenant1Task.id)).toBe(true);
+      expect(result.some((t) => t.id === tenant2Task.id)).toBe(false);
+    });
+  });
 });

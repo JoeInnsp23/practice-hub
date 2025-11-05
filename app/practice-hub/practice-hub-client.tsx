@@ -157,199 +157,204 @@ export function PracticeHubClient({
           {/* Pending Approvals Widget (for managers/admins) */}
           <PendingApprovalsWidget />
 
-      {/* Navigation Tabs */}
-      <ClientOnly>
-        <NavigationTabs showFavorites={false}>
-          {/* Practice Hub Tab */}
-          <TabsContent value="practice-hub" className="mt-0">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {practiceHubApps.length === 0 ? (
-                <Card className="col-span-full p-8 text-center">
-                  <p className="text-muted-foreground">
-                    No Practice Hub apps available.
-                  </p>
-                </Card>
-              ) : (
-                practiceHubApps.map((app, index) => {
-                  const IconComponent = app.icon;
-                  const isComingSoon = app.status === "coming-soon";
-
-                  return (
-                    <CardInteractive
-                      key={app.id}
-                      moduleColor={app.color}
-                      onClick={
-                        !isComingSoon ? () => handleAppClick(app) : undefined
-                      }
-                      ariaLabel={
-                        !isComingSoon
-                          ? `Navigate to ${app.name}`
-                          : `${app.name} (Coming Soon)`
-                      }
-                      className="animate-lift-in rounded-xl p-6"
-                      style={{
-                        animationDelay: `${index * 0.1}s`,
-                        opacity: 0,
-                      }}
-                    >
-                      {/* Icon Container */}
-                      <div
-                        className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300"
-                        style={{
-                          background: `linear-gradient(135deg, ${app.color}, ${app.color}dd)`,
-                        }}
-                      >
-                        <IconComponent className="h-6 w-6 text-white transition-transform duration-300" />
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="mb-2 text-lg font-semibold text-card-foreground">
-                        {app.name}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {app.description}
+          {/* Navigation Tabs */}
+          <ClientOnly>
+            <NavigationTabs showFavorites={false}>
+              {/* Practice Hub Tab */}
+              <TabsContent value="practice-hub" className="mt-0">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {practiceHubApps.length === 0 ? (
+                    <Card className="col-span-full p-8 text-center">
+                      <p className="text-muted-foreground">
+                        No Practice Hub apps available.
                       </p>
+                    </Card>
+                  ) : (
+                    practiceHubApps.map((app, index) => {
+                      const IconComponent = app.icon;
+                      const isComingSoon = app.status === "coming-soon";
 
-                      {/* Coming Soon Badge */}
-                      {isComingSoon && (
-                        <span className="absolute right-4 top-4 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-                          Coming Soon
-                        </span>
-                      )}
-                    </CardInteractive>
-                  );
-                })
-              )}
-            </div>
-          </TabsContent>
-
-          {/* Favorites Tab (when implemented) */}
-          <TabsContent value="favorites" className="mt-0">
-            <CardInteractive
-              moduleColor={HUB_COLORS["practice-hub"]}
-              className="rounded-xl p-8 text-center"
-            >
-              <p className="text-muted-foreground">
-                No favorites yet. Star your most used apps for quick access.
-              </p>
-            </CardInteractive>
-          </TabsContent>
-
-          {/* Useful Links Tab */}
-          <TabsContent value="useful-links" className="mt-0">
-            {/* Category Filter */}
-            <div className="mb-6">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {externalCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      <div className="flex items-center gap-2">
-                        {category.colorHex && (
+                      return (
+                        <CardInteractive
+                          key={app.id}
+                          moduleColor={app.color}
+                          onClick={
+                            !isComingSoon
+                              ? () => handleAppClick(app)
+                              : undefined
+                          }
+                          ariaLabel={
+                            !isComingSoon
+                              ? `Navigate to ${app.name}`
+                              : `${app.name} (Coming Soon)`
+                          }
+                          className="animate-lift-in rounded-xl p-6"
+                          style={{
+                            animationDelay: `${index * 0.1}s`,
+                            opacity: 0,
+                          }}
+                        >
+                          {/* Icon Container */}
                           <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: category.colorHex }}
-                          />
-                        )}
-                        {category.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Links Display */}
-            {filteredExternalLinks.length === 0 ? (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">
-                  No external links available in this category.
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                {filteredExternalLinks.map((category) => (
-                  <div key={category.id}>
-                    <h3
-                      className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 pb-2 border-b"
-                      style={{ borderColor: category.colorHex || "#e5e5e5" }}
-                    >
-                      {category.name}
-                    </h3>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {category.links.map((link) => {
-                        const LinkIcon = link.iconName
-                          ? getIconComponent(link.iconName) || ExternalLink
-                          : ExternalLink;
-
-                        return (
-                          <CardInteractive
-                            key={link.id}
-                            moduleColor={
-                              category.colorHex || HUB_COLORS["practice-hub"]
-                            }
-                            onClick={() => {
-                              if (link.targetBlank) {
-                                window.open(
-                                  link.url,
-                                  "_blank",
-                                  "noopener,noreferrer",
-                                );
-                              } else {
-                                window.location.href = link.url;
-                              }
+                            className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300"
+                            style={{
+                              background: `linear-gradient(135deg, ${app.color}, ${app.color}dd)`,
                             }}
-                            ariaLabel={`Navigate to ${link.title}${!link.isInternal ? " (external link)" : ""}`}
-                            className="rounded-xl p-4"
                           >
-                            <div className="flex items-start gap-3">
+                            <IconComponent className="h-6 w-6 text-white transition-transform duration-300" />
+                          </div>
+
+                          {/* Title */}
+                          <h3 className="mb-2 text-lg font-semibold text-card-foreground">
+                            {app.name}
+                          </h3>
+
+                          {/* Description */}
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {app.description}
+                          </p>
+
+                          {/* Coming Soon Badge */}
+                          {isComingSoon && (
+                            <span className="absolute right-4 top-4 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                              Coming Soon
+                            </span>
+                          )}
+                        </CardInteractive>
+                      );
+                    })
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Favorites Tab (when implemented) */}
+              <TabsContent value="favorites" className="mt-0">
+                <CardInteractive
+                  moduleColor={HUB_COLORS["practice-hub"]}
+                  className="rounded-xl p-8 text-center"
+                >
+                  <p className="text-muted-foreground">
+                    No favorites yet. Star your most used apps for quick access.
+                  </p>
+                </CardInteractive>
+              </TabsContent>
+
+              {/* Useful Links Tab */}
+              <TabsContent value="useful-links" className="mt-0">
+                {/* Category Filter */}
+                <div className="mb-6">
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {externalCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center gap-2">
+                            {category.colorHex && (
                               <div
-                                className="p-3 rounded-lg flex-shrink-0 shadow-md"
-                                style={{
-                                  backgroundColor: `${category.colorHex}20`,
+                                className="w-2 h-2 rounded-full"
+                                style={{ backgroundColor: category.colorHex }}
+                              />
+                            )}
+                            {category.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Links Display */}
+                {filteredExternalLinks.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <p className="text-muted-foreground">
+                      No external links available in this category.
+                    </p>
+                  </Card>
+                ) : (
+                  <div className="space-y-6">
+                    {filteredExternalLinks.map((category) => (
+                      <div key={category.id}>
+                        <h3
+                          className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 pb-2 border-b"
+                          style={{
+                            borderColor: category.colorHex || "#e5e5e5",
+                          }}
+                        >
+                          {category.name}
+                        </h3>
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                          {category.links.map((link) => {
+                            const LinkIcon = link.iconName
+                              ? getIconComponent(link.iconName) || ExternalLink
+                              : ExternalLink;
+
+                            return (
+                              <CardInteractive
+                                key={link.id}
+                                moduleColor={
+                                  category.colorHex ||
+                                  HUB_COLORS["practice-hub"]
+                                }
+                                onClick={() => {
+                                  if (link.targetBlank) {
+                                    window.open(
+                                      link.url,
+                                      "_blank",
+                                      "noopener,noreferrer",
+                                    );
+                                  } else {
+                                    window.location.href = link.url;
+                                  }
                                 }}
+                                ariaLabel={`Navigate to ${link.title}${!link.isInternal ? " (external link)" : ""}`}
+                                className="rounded-xl p-4"
                               >
-                                <span
-                                  style={{
-                                    color: category.colorHex || "#000000",
-                                  }}
-                                >
-                                  <LinkIcon className="h-5 w-5" />
-                                </span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-card-foreground flex items-center gap-1">
-                                  {link.title}
-                                  {!link.isInternal && (
-                                    <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                  )}
-                                </h4>
-                                {link.description && (
-                                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                    {link.description}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </CardInteractive>
-                        );
-                      })}
-                    </div>
+                                <div className="flex items-start gap-3">
+                                  <div
+                                    className="p-3 rounded-lg flex-shrink-0 shadow-md"
+                                    style={{
+                                      backgroundColor: `${category.colorHex}20`,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        color: category.colorHex || "#000000",
+                                      }}
+                                    >
+                                      <LinkIcon className="h-5 w-5" />
+                                    </span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-card-foreground flex items-center gap-1">
+                                      {link.title}
+                                      {!link.isInternal && (
+                                        <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                      )}
+                                    </h4>
+                                    {link.description && (
+                                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                        {link.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardInteractive>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </NavigationTabs>
-      </ClientOnly>
+                )}
+              </TabsContent>
+            </NavigationTabs>
+          </ClientOnly>
         </div>
 
         {/* Right Column - Widgets (1/3 width) */}

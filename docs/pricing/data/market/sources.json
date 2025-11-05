@@ -169,5 +169,41 @@
     "credibility_score": 8,
     "source_type": "published_pricing_page",
     "notes": "Digital accountancy with published pricing"
+  },
+  {
+    "source_id": "SRC020",
+    "brand": "The Accountancy",
+    "url": "https://www.theaccountancy.co.uk/who-we-help/limited-liability-partnership-accounting-services",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "LLP specialist - from £34.50/month; strong partnership coverage"
+  },
+  {
+    "source_id": "SRC021",
+    "brand": "Clearstone Business",
+    "url": "https://clearstonebusiness.co.uk/packages-pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "High-turnover specialist (£150k-£1m+); tiered packages £129-£499/month"
+  },
+  {
+    "source_id": "SRC022",
+    "brand": "Octa Accountants",
+    "url": "https://octaaccountants.co.uk/virtual-cfo-packages/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Virtual CFO packages from £450/month; advisory services"
+  },
+  {
+    "source_id": "SRC023",
+    "brand": "Birdfynn",
+    "url": "https://birdfynn.co.uk/financial-support-services/virtual-cfo",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Virtual CFO/FD services; strategic advisory pricing"
   }
 ]

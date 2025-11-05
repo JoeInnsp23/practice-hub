@@ -2136,7 +2136,10 @@ export const tasksRouter = router({
             eq(tasks.assigneeId, ctx.authContext.userId),
             eq(tasks.tenantId, ctx.authContext.tenantId),
             inArray(tasks.status, ["todo", "in_progress"]),
-            or(eq(tasks.priority, "high"), sql`${tasks.dueDate} <= ${todayPlus5}`),
+            or(
+              eq(tasks.priority, "high"),
+              sql`${tasks.dueDate} <= ${todayPlus5}`,
+            ),
           ),
         )
         .orderBy(tasks.dueDate, desc(tasks.priority))

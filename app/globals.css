@@ -230,7 +230,11 @@
   --hub-color-600: color-mix(in oklch, var(--hub-color) 90%, black 10%);
 
   /* Gradient rail for card decorations */
-  --hub-gradient-rail: linear-gradient(90deg, var(--hub-color-500), var(--hub-color-600));
+  --hub-gradient-rail: linear-gradient(
+    90deg,
+    var(--hub-color-500),
+    var(--hub-color-600)
+  );
 
   /* Map to shadcn tokens for consistency */
   --primary: var(--hub-color-500);

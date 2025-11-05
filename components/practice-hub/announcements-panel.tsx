@@ -79,7 +79,6 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
             Warning
           </Badge>
         );
-      case "info":
       default:
         return (
           <Badge
@@ -115,12 +114,7 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
           </div>
         </div>
 
-        <Button
-          asChild
-          size="sm"
-          variant="outline"
-          className="text-xs"
-        >
+        <Button asChild size="sm" variant="outline" className="text-xs">
           <Link href="/admin/announcements">View All</Link>
         </Button>
       </div>
