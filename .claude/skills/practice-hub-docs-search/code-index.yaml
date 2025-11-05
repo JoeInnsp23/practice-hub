@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-05T18:29:02.210Z
+# Generated: 2025-11-05T19:04:04.806Z
 
 functions:
   landingRouter:
@@ -9,6 +9,12 @@ functions:
     line: 6
     type: "function"
     signature: "const landingRouter"
+  sessionRouter:
+    description: "Session router - Provides client-side access to session data"
+    file: "app/server/routers/session.ts"
+    line: 3
+    type: "function"
+    signature: "const sessionRouter"
   staffStatisticsRouter:
     description: "Staff Statistics Router"
     file: "app/server/routers/staffStatistics.ts"
@@ -1368,9 +1374,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-05T18:29:02.212Z"
-  total_entries: 226
-  functions: 135
+  generated: "2025-11-05T19:04:04.808Z"
+  total_entries: 227
+  functions: 136
   types: 58
   components: 29
   classes: 4

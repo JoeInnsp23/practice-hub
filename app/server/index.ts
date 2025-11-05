@@ -1,6 +1,7 @@
 import { activitiesRouter } from "./routers/activities";
 import { adminKycRouter } from "./routers/admin-kyc";
 import { analyticsRouter } from "./routers/analytics";
+import { announcementsRouter } from "./routers/announcements";
 import { calendarRouter } from "./routers/calendar";
 import { clientPortalRouter } from "./routers/clientPortal";
 import { clientPortalAdminRouter } from "./routers/clientPortalAdmin";
@@ -30,6 +31,7 @@ import { proposalsRouter } from "./routers/proposals";
 import { proposalTemplatesRouter } from "./routers/proposalTemplates";
 import { reportsRouter } from "./routers/reports";
 import { servicesRouter } from "./routers/services";
+import { sessionRouter } from "./routers/session";
 import { settingsRouter } from "./routers/settings";
 import { staffCapacityRouter } from "./routers/staffCapacity";
 import { staffStatisticsRouter } from "./routers/staffStatistics";
@@ -46,8 +48,10 @@ import { workTypesRouter } from "./routers/workTypes";
 import { router } from "./trpc";
 
 export const appRouter = router({
+  announcements: announcementsRouter,
   dashboard: dashboardRouter,
   clients: clientsRouter,
+  session: sessionRouter,
   tasks: tasksRouter,
   taskGeneration: taskGenerationRouter,
   taskTemplates: taskTemplatesRouter,

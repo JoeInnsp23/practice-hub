@@ -1,0 +1,19 @@
+observation_id,brand,brand_network,source_id,entity_type,turnover_band,service_code,service_name,service_level,complexity_tier,price_gbp_monthly_ex_vat,pricing_model,scope_notes,data_quality,url,captured_date,region
+CRU001,Crunch,Crunch,SRC002,sole_trader,0-49k,BOOK_BASIC,Bookkeeping & Compliance,basic,simple,27,modelA,Core compliance and business management tools,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU002,Crunch,Crunch,SRC002,sole_trader,0-49k,COMP_SATR,Self Assessment,n/a,simple,27,modelA,Self Assessment filing included in package,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU003,Crunch,Crunch,SRC002,ltd,50-99k,BOOK_BASIC,Bookkeeping & Compliance,basic,simple,90,modelA,Core compliance and business management tools,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU004,Crunch,Crunch,SRC002,ltd,50-99k,COMP_ACCOUNTS,Accounts Filing,n/a,simple,90,modelA,Annual accounts filing included in package,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU005,Crunch,Crunch,SRC002,ltd,50-99k,COMP_CT,Corporation Tax,n/a,simple,90,modelA,Corporation Tax return filing included in package,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU006,Crunch,Crunch,SRC002,ltd,50-99k,VAT_QTR,VAT Filing,n/a,simple,90,modelA,VAT compliance and filing support included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU007,Crunch,Crunch,SRC002,ltd,50-99k,BOOK_FULL,Bookkeeping & Compliance,full,standard,137,modelA,Self Assessment filing and tax optimization review included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU008,Crunch,Crunch,SRC002,ltd,50-99k,COMP_SATR,Self Assessment,n/a,standard,137,modelA,Self Assessment filing included in premium package,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU009,Crunch,Crunch,SRC002,ltd,50-99k,ADVISORY_TAX,Tax Optimization,n/a,standard,137,modelA,Tax optimization review included in premium package,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU010,Crunch,Crunch,SRC002,ltd,500-599k,BOOK_FULL,Bookkeeping & Compliance,full,complex,140,modelA,Complex businesses and higher revenue,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU011,Crunch,Crunch,SRC002,ltd,500-599k,COMP_ACCOUNTS,Accounts Filing,n/a,complex,140,modelA,Annual accounts filing included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU012,Crunch,Crunch,SRC002,ltd,500-599k,COMP_CT,Corporation Tax,n/a,complex,140,modelA,Corporation Tax return filing included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU013,Crunch,Crunch,SRC002,ltd,50-99k,BOOK_FULL,E-commerce Accounting,full,standard,175,modelA,Live syncing with major e-commerce platforms,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU014,Crunch,Crunch,SRC002,ltd,500-599k,BOOK_FULL,E-commerce Accounting,full,complex,175,modelA,Complex e-commerce operations with live syncing,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU015,Crunch,Crunch,SRC002,ltd,50-99k,SUPPORT,Expert Support,n/a,simple,0,modelA,Unlimited expert accountant support included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU016,Crunch,Crunch,SRC002,ltd,500-599k,SUPPORT,Expert Support,n/a,complex,0,modelA,Unlimited expert accountant support included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU017,Crunch,Crunch,SRC002,ltd,50-99k,SOFTWARE,Bank Sync,n/a,simple,0,modelA,Real-time bank account synchronization included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England
+CRU018,Crunch,Crunch,SRC002,ltd,500-599k,SOFTWARE,Bank Sync,n/a,complex,0,modelA,Real-time bank account synchronization included,A,https://www.crunch.co.uk/pricing/,2025-01-05,England

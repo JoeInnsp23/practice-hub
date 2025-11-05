@@ -88,5 +88,41 @@
     "credibility_score": 8,
     "source_type": "published_pricing_page",
     "notes": "Digital accountancy with transparent pricing structure"
+  },
+  {
+    "source_id": "SRC011",
+    "brand": "RJ Accountancy Limited",
+    "url": "https://rjaccountancy.co.uk/fees/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Independent firm with published fee structure"
+  },
+  {
+    "source_id": "SRC012",
+    "brand": "Accrue Accounting",
+    "url": "https://www.accrueaccounting.co.uk/accounting-pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Contractor-focused online accountants with price list"
+  },
+  {
+    "source_id": "SRC013",
+    "brand": "Coconut",
+    "url": "https://www.getcoconut.com/pricing",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "App-based accounting with subscription tiers"
+  },
+  {
+    "source_id": "SRC014",
+    "brand": "Sleek",
+    "url": "https://sleek.com/uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Digital accounting platform with transparent pricing"
   }
 ]

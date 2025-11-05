@@ -3331,6 +3331,64 @@ export const notifications = pgTable(
   }),
 );
 
+// Announcements - Company-wide announcements with priority, pinning, and scheduling
+export const priorityEnum = pgEnum("announcement_priority", [
+  "info",
+  "warning",
+  "critical",
+]);
+
+export const announcements = pgTable(
+  "announcements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    content: text("content").notNull(),
+    icon: varchar("icon", { length: 50 }).notNull(), // Lucide icon name
+    iconColor: varchar("icon_color", { length: 7 }).notNull(), // Hex color code
+    priority: priorityEnum("priority").default("info").notNull(),
+    isPinned: boolean("is_pinned").default(false).notNull(),
+    publishedAt: timestamp("published_at").defaultNow().notNull(),
+    startsAt: timestamp("starts_at"), // Schedule window start (nullable)
+    endsAt: timestamp("ends_at"), // Schedule window end (nullable)
+    isActive: boolean("is_active").default(true).notNull(),
+    createdById: text("created_by_id")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    // Index for efficient active announcements query
+    tenantActiveIdx: index("announcements_tenant_active_idx").on(
+      table.tenantId,
+      table.isActive,
+    ),
+    // Index for pinned + priority ordering
+    pinCreatedIdx: index("announcements_pin_created_idx").on(
+      table.tenantId,
+      table.isPinned,
+      table.createdAt,
+    ),
+    // Index for schedule window start filtering
+    startsAtIdx: index("announcements_starts_at_idx").on(
+      table.tenantId,
+      table.startsAt,
+    ),
+    // Index for schedule window end filtering
+    endsAtIdx: index("announcements_ends_at_idx").on(
+      table.tenantId,
+      table.endsAt,
+    ),
+  }),
+);
+
 // Calendar Events - Events, meetings, deadlines
 export const calendarEvents = pgTable(
   "calendar_events",

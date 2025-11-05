@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Main Hub - Accountancy Practice Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": {
+                        DEFAULT: "#7A5CFA",
+                        "light": "#A28BFB",
+                        "dark": "#5F3FDB"
+                    },
+                    "secondary": {
+                        DEFAULT: "#23D3A2",
+                        "light": "#4AF0BB",
+                        "dark": "#17B889"
+                    },
+                    "accent": {
+                        "pink": "#EC4899",
+                        "orange": "#F97316",
+                        "teal": "#14B8A6",
+                        "sky": "#0EA5E9"
+                    },
+                    "background-light": "#F7F7FA",
+                    "background-dark": "#111118",
+                    "surface-light": "#FFFFFF",
+                    "surface-dark": "#1A1A22",
+                    "neutral": {
+                        "100": "#F5F5F5",
+                        "200": "#E5E7EB",
+                        "300": "#D1D5DB",
+                        "400": "#9CA3AF",
+                        "500": "#6B7280",
+                        "600": "#4B5563",
+                        "700": "#374151",
+                        "800": "#1F2937",
+                        "900": "#111827"
+                    }
+                },
+                fontFamily: {
+                    "display": ["Inter", "sans-serif"]
+                },
+                borderRadius: {
+                    "DEFAULT": "0.5rem",
+                    "lg": "0.75rem",
+                    "xl": "1rem",
+                    "full": "9999px"
+                },
+                boxShadow: {
+                    'soft': '0 4px 15px rgba(0, 0, 0, 0.05)',
+                    'soft-dark': '0 4px 15px rgba(0, 0, 0, 0.2)',
+                    'glow-primary': '0 0 20px rgba(122, 92, 250, 0.3)',
+                    'glow-secondary': '0 0 20px rgba(35, 211, 162, 0.3)',
+                }
+            },
+        },
+    }
+</script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-size: 24px;
+    }
+    .gradient-bg {
+        background-image: linear-gradient(135deg, #7A5CFA 0%, #23D3A2 100%);
+    }
+    .dark .dark-gradient-bg {
+        background-image: linear-gradient(135deg, #5F3FDB 0%, #17B889 100%);
+    }
+    .card-hover-effect {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover-effect:hover {
+        transform: translateY(-5px);
+    }
+</style>
+</head>
+<body class="font-display bg-background-dark text-neutral-200">
+<div class="relative flex min-h-screen w-full">
+<aside class="flex flex-col h-screen w-20 bg-surface-dark border-r border-neutral-800 p-2 justify-between sticky top-0">
+<div class="flex flex-col gap-4 items-center">
+<div class="flex items-center justify-center p-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-10" data-alt="Firm Logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBxurfH0H5pbRsg-qkrOACL5IOCAaOZNdv3W1cDbMY4QDJnQawvgCpIM3cR6TRzbXc4Wbp6PAtGEF3h1udrXr-JCbs_S-DZnbJftxABWI8Op3r192yn1aeKzJ-EfNtnhkljsnVcvNPbjJFPfzDrJysrBrhTmurILew4Ng48FrEylGOSGdbt5pFvre0vqPP_7-0U3yooy9GNZeXmeaYMsuWzdPBODsh1h6DTU6NT-px3xvRhr_XuCrfwXOsusm5IHykG0j_9sVGwLMw");'></div>
+</div>
+<nav class="flex flex-col gap-2 mt-4">
+<a class="flex items-center justify-center size-12 rounded-lg dark-gradient-bg text-white shadow-glow-primary" href="#" title="Dashboard">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+</a>
+<a class="flex items-center justify-center size-12 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors" href="#" title="Clients">
+<span class="material-symbols-outlined">group</span>
+</a>
+<a class="flex items-center justify-center size-12 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors" href="#" title="Tasks &amp; Projects">
+<span class="material-symbols-outlined">check_box</span>
+</a>
+<a class="flex items-center justify-center size-12 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors" href="#" title="Time &amp; Billing">
+<span class="material-symbols-outlined">schedule</span>
+</a>
+<a class="flex items-center justify-center size-12 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors" href="#" title="Documents">
+<span class="material-symbols-outlined">description</span>
+</a>
+<a class="flex items-center justify-center size-12 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors" href="#" title="Reports">
+<span class="material-symbols-outlined">bar_chart</span>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-2 items-center">
+<a class="flex items-center justify-center size-12 text-neutral-400 hover:bg-neutral-800 rounded-lg transition-colors" href="#" title="Settings">
+<span class="material-symbols-outlined">settings</span>
+</a>
+<a href="#" title="Jane Doe">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDAxSBlb8Jimz9Cq_AUFMh0dKCamzdCHu9bHnZ5zspeaGdyyve1cQKkpvZu8g87awV8wBVcScVQuwPx9Ca1OOS5684nRBp-vwg7oOl4B9xGX2shaL0Dn3fJyBDEwvN-MnSJaprWNtj0CJWR7QFnLAiIMpjH0EaQewy4Vrs34TBQXTHMXwi5iSRYzMBlz4yJwVvjV8IbS_Y6rHsq020cbiVNg9iLe2YsPcUC3QQ0VKvGDsIIAp15on8ykz6mxgMZhoSOlZ-UqlRVUwo");'></div>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col">
+<header class="flex items-center justify-between whitespace-nowrap bg-background-dark/80 backdrop-blur-sm px-10 py-4 sticky top-0 z-20">
+<div class="flex items-center gap-4">
+<h1 class="text-white text-3xl font-bold">Welcome back, <span class="dark-gradient-bg bg-clip-text text-transparent">Jane!</span></h1>
+</div>
+<div class="flex flex-1 justify-end items-center gap-4">
+<label class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" style="font-size: 20px;">search</span>
+<input class="form-input w-full min-w-[200px] max-w-sm rounded-full text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border-0 bg-surface-dark h-10 placeholder:text-neutral-500 pl-10 pr-4 text-sm" placeholder="Search anything..." type="search"/>
+</label>
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 bg-surface-dark text-neutral-300 hover:bg-neutral-800 gap-2 text-sm font-bold min-w-0 px-3 transition-colors">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">notifications</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-5 dark-gradient-bg text-white text-sm font-bold shadow-soft-dark hover:opacity-90 transition-opacity">
+<span class="truncate">Create New</span>
+</button>
+</div>
+</header>
+<div class="flex-1 p-10 overflow-y-auto">
+<div class="max-w-8xl mx-auto">
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-12 lg:col-span-7 xl:col-span-8 space-y-8">
+<h2 class="text-2xl font-bold text-white">Navigation Hubs</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute -top-4 -right-4 size-24 bg-primary/20 rounded-full transition-transform duration-300 group-hover:scale-150"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-primary text-4xl mb-4">group</span><h3 class="text-lg font-bold text-neutral-100">Client Hub</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute -bottom-6 -left-6 size-28 border-4 border-secondary rounded-full transition-transform duration-300 group-hover:rotate-45"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-secondary text-4xl mb-4">admin_panel_settings</span><h3 class="text-lg font-bold text-neutral-100">Admin Hub</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-accent-pink to-accent-orange scale-y-0 group-hover:scale-y-100 transition-transform origin-top duration-300"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-accent-pink text-4xl mb-4">badge</span><h3 class="text-lg font-bold text-neutral-100">Employee Hub</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute top-4 right-4"><span class="material-symbols-outlined text-accent-orange/50 text-6xl opacity-50 group-hover:opacity-100 group-hover:rotate-12 transition-all duration-300">hub</span></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-accent-orange text-4xl mb-4">forum</span><h3 class="text-lg font-bold text-neutral-100">Social Hub</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute bottom-0 right-0 w-20 h-20 bg-accent-sky/20" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-accent-sky text-4xl mb-4">person_pin</span><h3 class="text-lg font-bold text-neutral-100">Client Portal</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-20 border-2 border-accent-teal rounded-full opacity-20 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-accent-teal text-4xl mb-4">receipt_long</span><h3 class="text-lg font-bold text-neutral-100">Bookkeeping Hub</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-primary-light text-4xl mb-4">account_balance</span><h3 class="text-lg font-bold text-neutral-100">Accounts Hub</h3></div>
+</a>
+<a class="group relative p-6 bg-surface-dark rounded-xl shadow-soft-dark overflow-hidden card-hover-effect" href="#">
+<div class="absolute inset-0 bg-gradient-to-br from-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="relative z-10 flex flex-col h-full"><span class="material-symbols-outlined text-secondary-light text-4xl mb-4">payments</span><h3 class="text-lg font-bold text-neutral-100">Payroll Hub</h3></div>
+</a>
+</div>
+<div class="pt-8">
+<h2 class="text-2xl font-bold text-white">Current Outstanding Tasks</h2>
+<div class="mt-6 space-y-4">
+<div class="flex items-start gap-4 p-4 rounded-xl bg-surface-dark hover:bg-neutral-800/50 card-hover-effect shadow-soft-dark">
+<div class="flex items-center justify-center size-12 rounded-lg bg-red-500/10 text-red-400 flex-shrink-0"><span class="material-symbols-outlined">error</span></div>
+<div>
+<h3 class="font-semibold text-neutral-100">Finalize Q3 VAT for Acme Inc.</h3>
+<p class="text-sm text-neutral-400">Due: 2 days</p>
+<span class="text-xs text-red-400 font-medium mt-2 inline-block">HIGH PRIORITY</span>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="flex items-center justify-center size-8 rounded-full hover:bg-neutral-700 transition-colors"><span class="material-symbols-outlined text-sm">done</span></button>
+<button class="flex items-center justify-center size-8 rounded-full hover:bg-neutral-700 transition-colors"><span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-xl bg-surface-dark hover:bg-neutral-800/50 card-hover-effect shadow-soft-dark">
+<div class="flex items-center justify-center size-12 rounded-lg bg-amber-500/10 text-amber-400 flex-shrink-0"><span class="material-symbols-outlined">hourglass_top</span></div>
+<div>
+<h3 class="font-semibold text-neutral-100">Review Payroll for Innovate Ltd</h3>
+<p class="text-sm text-neutral-400">Due: 5 days</p>
+<span class="text-xs text-amber-400 font-medium mt-2 inline-block">MEDIUM PRIORITY</span>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="flex items-center justify-center size-8 rounded-full hover:bg-neutral-700 transition-colors"><span class="material-symbols-outlined text-sm">done</span></button>
+<button class="flex items-center justify-center size-8 rounded-full hover:bg-neutral-700 transition-colors"><span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-5 xl:col-span-4 relative">
+<div class="sticky top-28 space-y-8">
+<div class="relative bg-surface-dark p-6 rounded-2xl shadow-soft-dark">
+<div class="absolute -top-6 -left-6 z-0">
+<div class="size-32 rounded-2xl dark-gradient-bg transform -rotate-12"></div>
+</div>
+<div class="relative z-10">
+<h3 class="text-xl font-bold text-neutral-100">Company Announcements</h3>
+<div class="mt-4 space-y-4">
+<div class="p-4 rounded-lg bg-neutral-800/50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-light text-xl">celebration</span>
+<h4 class="font-semibold text-neutral-100">New Office Opening</h4>
+</div>
+<p class="text-sm text-neutral-400 mt-1">Join us for the grand opening of our new downtown office next Friday!</p>
+</div>
+<div class="p-4 rounded-lg bg-neutral-800/50">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-light text-xl">update</span>
+<h4 class="font-semibold text-neutral-100">System Maintenance</h4>
+</div>
+<p class="text-sm text-neutral-400 mt-1">Scheduled maintenance this Sunday from 2 AM to 4 AM. Expect brief downtime.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="relative p-8 rounded-2xl shadow-soft-dark bg-neutral-900 text-white">
+<div class="absolute bottom-0 right-0 overflow-hidden rounded-br-2xl">
+<svg fill="none" height="150" viewBox="0 0 150 150" width="150" xmlns="http://www.w3.org/2000/svg">
+<circle cx="125" cy="125" fill="url(#paint0_linear_2_10)" r="75"></circle>
+<defs>
+<linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_2_10" x1="50" x2="200" y1="50" y2="200">
+<stop stop-color="#7A5CFA" stop-opacity="0.5"></stop>
+<stop offset="1" stop-color="#23D3A2" stop-opacity="0.5"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+<div class="relative z-10">
+<h3 class="text-xl font-bold">Need Help?</h3>
+<p class="mt-2 text-neutral-300">Browse the firm's knowledge base or contact IT support directly.</p>
+<button class="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-white text-neutral-800 hover:bg-neutral-200 transition-colors">
+<span>Get Support</span>
+<span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -2103,4 +2103,58 @@ export const tasksRouter = router({
         message: `Generated ${generated} tasks, skipped ${skipped} duplicates`,
       };
     }),
+
+  /**
+   * Get top 5 urgent tasks for current user
+   * Server-side computation for optimal performance
+   * Returns tasks that are:
+   * - Assigned to current user
+   * - Status: todo or in_progress
+   * - Either high priority OR due within next 5 days
+   * - Ordered by: due date (overdue/nearest first), then priority
+   */
+  getTopUrgentTasks: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const now = new Date();
+      const todayPlus5 = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
+
+      const urgentTasks = await ctx.db
+        .select({
+          id: tasks.id,
+          title: tasks.title,
+          description: tasks.description,
+          priority: tasks.priority,
+          status: tasks.status,
+          dueDate: tasks.dueDate,
+          clientId: tasks.clientId,
+          clientName: clients.name,
+        })
+        .from(tasks)
+        .leftJoin(clients, eq(tasks.clientId, clients.id))
+        .where(
+          and(
+            eq(tasks.assigneeId, ctx.authContext.userId),
+            eq(tasks.tenantId, ctx.authContext.tenantId),
+            inArray(tasks.status, ["todo", "in_progress"]),
+            or(eq(tasks.priority, "high"), sql`${tasks.dueDate} <= ${todayPlus5}`),
+          ),
+        )
+        .orderBy(tasks.dueDate, desc(tasks.priority))
+        .limit(5);
+
+      return urgentTasks;
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          operation: "tasks.getTopUrgentTasks",
+          router: "tasks",
+        },
+        extra: {
+          tenantId: ctx.authContext.tenantId,
+          userId: ctx.authContext.userId,
+        },
+      });
+      throw error;
+    }
+  }),
 });

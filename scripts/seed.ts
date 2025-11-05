@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
   activityLogs,
+  announcements,
   calendarEventAttendees,
   calendarEvents,
   clientContacts,
@@ -72,6 +73,7 @@ async function clearDatabase() {
 
   // Delete in reverse order of dependencies
   await db.delete(activityLogs);
+  await db.delete(announcements);
   await db.delete(invoiceItems);
   await db.delete(invoices);
   await db.delete(timesheetSubmissions);
@@ -5246,6 +5248,114 @@ For more information, visit the ICO website: https://ico.org.uk
     console.log("⚠ Skipped workflow email rules (no workflows found)");
   }
 
+  // Announcements - Company-wide communications
+  console.log("Creating announcements...");
+  const announcementsData = [
+    // Active, pinned, critical announcement
+    {
+      title: "Mandatory GDPR Compliance Training",
+      content:
+        "All staff members must complete the GDPR compliance training module by Friday at 10 AM. This is a regulatory requirement. Please confirm attendance via the Employee Hub.",
+      icon: "AlertCircle",
+      iconColor: "#ef4444", // red
+      priority: "critical" as const,
+      isPinned: true,
+      publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      startsAt: null,
+      endsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Expires in 3 days
+      isActive: true,
+      createdById: adminUser.id,
+    },
+    // Active, warning priority
+    {
+      title: "System Maintenance Window",
+      content:
+        "Scheduled maintenance this Sunday from 2 AM to 4 AM. The platform will be unavailable during this time. Please plan your work accordingly and save all progress before the maintenance window.",
+      icon: "Wrench",
+      iconColor: "#f59e0b", // amber
+      priority: "warning" as const,
+      isPinned: false,
+      publishedAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+      startsAt: null,
+      endsAt: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // Expires in 4 days
+      isActive: true,
+      createdById: adminUser.id,
+    },
+    // Active, info priority, pinned
+    {
+      title: "New Office Opening Celebration",
+      content:
+        "Join us for the grand opening of our new downtown office next Friday at 6 PM! Food, drinks, and networking. RSVP via the Social Hub.",
+      icon: "PartyPopper",
+      iconColor: "#8b5cf6", // purple
+      priority: "info" as const,
+      isPinned: true,
+      publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+      startsAt: null,
+      endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expires in 7 days
+      isActive: true,
+      createdById: adminUser.id,
+    },
+    // Scheduled announcement (starts in future)
+    {
+      title: "Q2 Performance Reviews Starting",
+      content:
+        "Performance reviews for Q2 will begin next Monday. Please ensure your self-assessments are completed by then. Check your email for your review schedule.",
+      icon: "ClipboardList",
+      iconColor: "#3b82f6", // blue
+      priority: "info" as const,
+      isPinned: false,
+      publishedAt: new Date(),
+      startsAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Starts in 2 days
+      endsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Expires in 14 days
+      isActive: true,
+      createdById: adminUser.id,
+    },
+    // Inactive announcement (for testing admin panel)
+    {
+      title: "Holiday Party Save the Date",
+      content:
+        "Save the date for our annual holiday party on December 15th. More details coming soon!",
+      icon: "Gift",
+      iconColor: "#ec4899", // pink
+      priority: "info" as const,
+      isPinned: false,
+      publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      startsAt: null,
+      endsAt: null,
+      isActive: false, // Inactive - won't show on Practice Hub
+      createdById: adminUser.id,
+    },
+    // Expired announcement (for testing filtering)
+    {
+      title: "Tax Season Kickoff Meeting",
+      content:
+        "Mandatory meeting for all accountants to discuss tax season strategy and client assignments.",
+      icon: "Calendar",
+      iconColor: "#10b981", // green
+      priority: "warning" as const,
+      isPinned: false,
+      publishedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      startsAt: null,
+      endsAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // Expired 2 days ago
+      isActive: true,
+      createdById: adminUser.id,
+    },
+  ];
+
+  const createdAnnouncements = await db
+    .insert(announcements)
+    .values(
+      announcementsData.map((announcement) => ({
+        id: crypto.randomUUID(),
+        tenantId: tenant.id,
+        ...announcement,
+      })),
+    )
+    .returning();
+
+  console.log(`✅ Created ${createdAnnouncements.length} announcements`);
+
   console.log("✅ Database seeding completed!");
 
   // Print summary
@@ -5266,6 +5376,7 @@ For more information, visit the ICO website: https://ico.org.uk
   console.log(`✓ ${workflowTemplates.length} Workflow templates created`);
   console.log(`✓ ${emailTemplatesList.length} Email templates created`);
   console.log(`✓ Workflow email rules created (workflow triggers)`);
+  console.log(`✓ ${createdAnnouncements.length} Company announcements created`);
   console.log(`✓ 100 Activity logs created`);
 
   console.log("\n👤 Test Users:");
