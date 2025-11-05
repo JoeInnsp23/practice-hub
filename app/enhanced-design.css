@@ -167,7 +167,15 @@
   }
 
   .animate-lift-in {
-    animation: liftIn 0.4s ease forwards;
+    animation: liftIn 0.3s ease forwards;
+  }
+
+  /* Modal/dialog liftIn animation - applies when dialog is open */
+  /* This ensures the animation only runs when the dialog is opening */
+  [data-state="open"].animate-lift-in,
+  [data-state="open"] .animate-lift-in,
+  [data-state="open"][data-slot="dialog-content"].animate-lift-in {
+    animation: liftIn 0.3s ease forwards;
   }
 
   /* Hover lift effect */
@@ -250,7 +258,10 @@
   @media (prefers-reduced-motion: reduce) {
     .animate-float,
     .animate-confetti,
-    .animate-gentle-bounce {
+    .animate-gentle-bounce,
+    .animate-lift-in,
+    [data-state="open"].animate-lift-in,
+    [data-state="open"] .animate-lift-in {
       animation: none;
     }
   }

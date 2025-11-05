@@ -20,7 +20,7 @@ export default function SocialHubLayout({
   return (
     <div
       data-hub-root
-      style={{ ["--hub-color" as any]: HUB_COLORS["social-hub"] }}
+      style={{ "--hub-color": HUB_COLORS["social-hub"] } as React.CSSProperties}
       className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
     >
       <GlobalHeader

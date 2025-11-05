@@ -1,8 +1,16 @@
 {
-  "generated": "2025-11-04T17:04:01.853Z",
+  "generated": "2025-11-05T16:05:39.825Z",
   "version": "1.0",
-  "total_entries": 216,
+  "total_entries": 226,
   "functions": [
+    {
+      "name": "landingRouter",
+      "description": "Landing Page Router",
+      "file": "app/server/routers/landing.ts",
+      "line": 6,
+      "type": "function",
+      "signature": "const landingRouter"
+    },
     {
       "name": "staffStatisticsRouter",
       "description": "Staff Statistics Router",
@@ -1598,6 +1606,78 @@
       "line": 15,
       "type": "component",
       "signature": "function DatePickerButton"
+    },
+    {
+      "name": "LargeBentoCard",
+      "description": "Hook to detect current theme",
+      "file": "components/landing/bento-cards.tsx",
+      "line": 7,
+      "type": "component",
+      "signature": "function LargeBentoCard"
+    },
+    {
+      "name": "MediumBentoCard",
+      "description": "Medium bento card with highlighted feature",
+      "file": "components/landing/bento-cards.tsx",
+      "line": 319,
+      "type": "component",
+      "signature": "function MediumBentoCard"
+    },
+    {
+      "name": "SmallBentoCard",
+      "description": "Small bento card with compact display",
+      "file": "components/landing/bento-cards.tsx",
+      "line": 393,
+      "type": "component",
+      "signature": "function SmallBentoCard"
+    },
+    {
+      "name": "BlogFeed",
+      "description": "Blog Feed Component",
+      "file": "components/landing/blog-feed.tsx",
+      "line": 17,
+      "type": "component",
+      "signature": "function BlogFeed"
+    },
+    {
+      "name": "useParallax",
+      "description": "Icon constellation animation component",
+      "file": "components/landing/landing-animations.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function useParallax"
+    },
+    {
+      "name": "getTimeOfDayGreeting",
+      "description": "Time of day greeting",
+      "file": "components/landing/landing-animations.tsx",
+      "line": 86,
+      "type": "component",
+      "signature": "function getTimeOfDayGreeting"
+    },
+    {
+      "name": "CelebrationConfetti",
+      "description": "Celebration confetti component (simple, CSS-based)",
+      "file": "components/landing/landing-animations.tsx",
+      "line": 99,
+      "type": "component",
+      "signature": "function CelebrationConfetti"
+    },
+    {
+      "name": "LandingPageContent",
+      "description": "Landing page content for internal staff portal - Full custom redesign",
+      "file": "components/landing/landing-page-content.tsx",
+      "line": 36,
+      "type": "component",
+      "signature": "function LandingPageContent"
+    },
+    {
+      "name": "ThemeToggle",
+      "description": "Floating Theme Toggle",
+      "file": "components/landing/theme-toggle.tsx",
+      "line": 6,
+      "type": "component",
+      "signature": "function ThemeToggle"
     },
     {
       "name": "LegalEditor",

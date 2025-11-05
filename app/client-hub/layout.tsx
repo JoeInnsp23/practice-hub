@@ -50,7 +50,7 @@ export default function ClientHubLayout({
   return (
     <div
       data-hub-root
-      style={{ ["--hub-color" as any]: HUB_COLORS["client-hub"] }}
+      style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
       className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
     >
       <GlobalHeader
