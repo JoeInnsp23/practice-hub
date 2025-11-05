@@ -3,8 +3,8 @@
 import { AlertCircle, CheckCircle2, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc/client";
 
 interface VATValidationIndicatorProps {
   vatNumber: string;

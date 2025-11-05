@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import { CardContent, CardHeader } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { cn } from "@/lib/utils";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 interface KPIWidgetProps {
   title: string;

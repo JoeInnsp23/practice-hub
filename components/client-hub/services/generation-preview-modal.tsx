@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/lib/trpc/client";
 
 interface GenerationPreviewModalProps {
   serviceId: string;

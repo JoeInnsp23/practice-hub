@@ -3,6 +3,7 @@
 import { Copy, Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { TaskTemplateFormDialog } from "@/components/client-hub/task-template-form-dialog";
 import { TaskTemplatePreviewDialog } from "@/components/client-hub/task-template-preview-dialog";
 import {
@@ -33,7 +34,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 
 export default function TaskTemplatesPage() {
   const [searchQuery, setSearchQuery] = useState("");

@@ -1,0 +1,52 @@
+---
+description: Procedure helpers, Zod validation, and auth middleware (Practice Hub)
+globs: "app/server/trpc.ts, app/server/routers/**"
+---
+
+## Scope
+- How to write procedures, apply middleware, and enforce isolation.
+
+## Do
+- Validate every input with Zod (queries and mutations).
+- Use helpers: `publicProcedure`, `protectedProcedure`, `adminProcedure`, `clientPortalProcedure`.
+- Throw `TRPCError` with specific `code` (`UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, etc.).
+- Keep cross-cutting logic in middleware, not inline in resolvers.
+
+## Tenant Isolation (Required)
+- Staff routes: filter by `ctx.authContext.tenantId`.
+- Client portal routes: filter by both `ctx.clientPortalAuthContext.tenantId` and `ctx.clientPortalAuthContext.clientId`.
+
+## References
+- `app/server/trpc.ts`
+- `app/server/routers/*`
+- `docs/architecture/multi-tenancy.md`
+
+## Example Pattern
+```ts
+// app/server/routers/clients.ts
+import { z } from "zod";
+import { and, eq } from "drizzle-orm";
+import { clients } from "@/lib/db/schema";
+import { protectedProcedure, router } from "../trpc";
+
+export const clientsRouter = router({
+  list: protectedProcedure.query(({ ctx }) =>
+    ctx.db.select().from(clients).where(eq(clients.tenantId, ctx.authContext.tenantId))
+  ),
+  getById: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const rows = await ctx.db
+        .select()
+        .from(clients)
+        .where(
+          and(
+            eq(clients.tenantId, ctx.authContext.tenantId),
+            eq(clients.id, input.id),
+          ),
+        );
+      return rows[0] ?? null;
+    }),
+});
+```
+

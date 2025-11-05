@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -27,6 +28,56 @@ export const workTypesRouter = router({
         .from(workTypes)
         .where(where)
         .orderBy(workTypes.sortOrder, workTypes.label);
+
+      const hasToil = workTypesList.some(
+        (workType) => workType.code === "TOIL",
+      );
+
+      if (!hasToil) {
+        const sortOrderFallback =
+          (workTypesList[workTypesList.length - 1]?.sortOrder ?? 0) + 1;
+
+        const [insertedToil] = await db
+          .insert(workTypes)
+          .values({
+            id: randomUUID(),
+            tenantId,
+            code: "TOIL",
+            label: "TOIL",
+            colorCode: "#0ea5e9",
+            isActive: true,
+            sortOrder: sortOrderFallback,
+            isBillable: false,
+          })
+          .onConflictDoNothing({
+            target: [workTypes.tenantId, workTypes.code],
+          })
+          .returning();
+
+        if (insertedToil) {
+          workTypesList.push(insertedToil);
+        } else {
+          const [existingToil] = await db
+            .select()
+            .from(workTypes)
+            .where(
+              and(eq(workTypes.tenantId, tenantId), eq(workTypes.code, "TOIL")),
+            )
+            .limit(1);
+
+          if (existingToil) {
+            workTypesList.push(existingToil);
+          }
+        }
+
+        workTypesList.sort((a, b) => {
+          if (a.sortOrder === b.sortOrder) {
+            return a.label.localeCompare(b.label);
+          }
+
+          return a.sortOrder - b.sortOrder;
+        });
+      }
 
       return { workTypes: workTypesList };
     }),
@@ -104,7 +155,7 @@ export const workTypesRouter = router({
       const [newWorkType] = await db
         .insert(workTypes)
         .values({
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           tenantId,
           code: input.code,
           label: input.label,

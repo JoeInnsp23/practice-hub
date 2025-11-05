@@ -1,0 +1,42 @@
+---
+description: Drizzle SQL safety and decimal handling at tRPC boundaries
+globs: "app/server/routers/**"
+---
+
+## Scope
+- Safe querying and numeric handling in procedures.
+
+## SQL Safety
+- Use Drizzle helpers: `eq`, `and`, `or`, `inArray`.
+- Never use `= ANY(${array})`. If arrays can be empty, short-circuit in code.
+- Keep queries tenant-scoped per isolation rules.
+
+### Example (safe `inArray`)
+```ts
+import { inArray, eq, and } from "drizzle-orm";
+
+if (ids.length === 0) return [];
+return ctx.db
+  .select()
+  .from(table)
+  .where(and(eq(table.tenantId, ctx.authContext.tenantId), inArray(table.id, ids)));
+```
+
+## Decimal Handling
+- Forms use numbers.
+- Convert numbers to strings at API/DB boundary for decimal columns.
+- Store decimals as strings in Drizzle; convert only for display and guard with `Number.isFinite`.
+
+### Example (number → string at boundary)
+```ts
+const payload = {
+  amount: input.amount.toString(), // number → string for DB decimal
+};
+await ctx.db.insert(invoices).values({ tenantId: ctx.authContext.tenantId, ...payload });
+```
+
+## References
+- `docs/guides/sql-safety-checklist.md`
+- `docs/architecture/multi-tenancy.md`
+- `CLAUDE.md` (Form Decimal/Numeric Handling Policy)
+

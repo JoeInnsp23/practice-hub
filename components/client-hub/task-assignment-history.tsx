@@ -2,9 +2,9 @@
 
 import { format } from "date-fns";
 import { ArrowRight, Clock, User } from "lucide-react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc/client";
 
 interface TaskAssignmentHistoryProps {
   taskId: string;

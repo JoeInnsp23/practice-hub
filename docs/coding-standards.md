@@ -711,6 +711,136 @@ import { Card } from "@/components/ui/card";
 <GlobalHeader />
 ```
 
+### UI Rules – Brand & Tokens (Practice Hub)
+
+These UI rules make the product feel precise, warm, and easy while keeping a distinctive look across hubs.
+
+- Personality: precise, warm, easy
+- Typeface: Outfit (all tiers)
+- Surfaces: Hybrid — bordered-flat in product UI; glass reserved for landing/hero and select highlights
+- Accents: Use `HUB_COLORS` and `getHubGradient` for module accents; avoid full-bleed brand backgrounds
+- Animated border: Keep the existing animated accent rail on interactive cards
+- Density: Medium (balanced information density and whitespace)
+
+#### Corner Radius Tokens (authoritative)
+
+Token source of truth:
+```60:68:/root/projects/practice-hub/app/globals.css
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.5rem;
+```
+
+- Base radius: 0.5rem (8px)
+- Derived radii: sm 4px, md 6px, lg 8px, xl 12px
+- Standardization for medium-density product UI:
+  - Product cards, tables, panels: `--radius-lg` (8px)
+  - Landing/marketing highlights: `--radius-xl` (12px)
+  - Small controls (badges, chips): `--radius-sm` or `--radius-md`
+
+Implementation notes:
+- Prefer CSS variables over hardcoded Tailwind radii when building custom classes
+- Core interactive card (`.card-interactive`) uses `--radius-lg` to match medium density
+
+#### Hub Gradient Tokens
+
+Use hub-scoped gradients for consistent lighter/darker accents and soft tints.
+
+```306:325:/root/projects/practice-hub/app/globals.css
+  /* Hub gradient utilities */
+  .bg-hub-rail {
+    background: var(--hub-gradient-rail);
+  }
+
+  .bg-hub-cta {
+    background: var(--hub-gradient-cta);
+    color: #fff;
+  }
+
+  .bg-hub-soft {
+    background: var(--hub-gradient-soft);
+  }
+
+  .text-hub-gradient {
+    background: var(--hub-gradient-dim);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+```
+
+Variables (auto-derived from hub color):
+```334:354:/root/projects/practice-hub/app/globals.css
+[data-hub-root] {
+  --hub-color-400: color-mix(in oklch, var(--hub-color) 88%, white 12%);
+  --hub-color-500: var(--hub-color);
+  --hub-color-600: color-mix(in oklch, var(--hub-color) 90%, black 10%);
+  --hub-color-700: color-mix(in oklch, var(--hub-color) 80%, black 20%);
+  --hub-soft-50: color-mix(in oklch, var(--hub-color-500) 6%, white 94%);
+  --hub-soft-100: color-mix(in oklch, var(--hub-color-500) 12%, white 88%);
+  --hub-gradient-rail: linear-gradient(90deg, var(--hub-color-500), var(--hub-color-600));
+  --hub-gradient-cta: linear-gradient(90deg, var(--hub-color-500), var(--hub-color-700));
+  --hub-gradient-dim: linear-gradient(90deg, var(--hub-color-400), var(--hub-color-500));
+  --hub-gradient-soft: linear-gradient(180deg, var(--hub-soft-50), var(--hub-soft-100));
+}
+```
+
+Usage guidelines:
+- Accent rails/badges: `.bg-hub-rail`
+- Stronger CTA strips/hero chips: `.bg-hub-cta`
+- Soft section backgrounds: `.bg-hub-soft`
+- Gradient headings: `.text-hub-gradient`
+
+#### Motion (gentle)
+
+- Duration: 160–220ms (ease-out cubic-bezier(0.2, 0.0, 0, 1))
+- Amplitude: low; emphasize clarity over flair
+- Respect `prefers-reduced-motion`; disable non-essential transforms
+
+#### Multi-Hub Colors
+
+Use the centralized mapping and gradient utility:
+```26:33:/root/projects/practice-hub/lib/utils/hub-colors.ts
+export const HUB_COLORS = {
+  "client-hub": "#3b82f6", // Blue
+  admin: "#f97316", // Orange
+  "employee-hub": "#10b981", // Emerald
+  "proposal-hub": "#ec4899", // Pink
+  "social-hub": "#8b5cf6", // Purple
+  "practice-hub": "#2563eb", // Default blue
+} as const;
+```
+
+Guidelines:
+- Use hub color for focus rings, small rails, and indicators; avoid flooding surfaces
+- Use `getHubGradient(color)` for the animated accent bar only
+
+### Finalized UI Rules (authoritative)
+
+- Personality: precise, warm, easy
+- Typeface: Outfit (all text tiers)
+- Surfaces: Hybrid — bordered/flat in product UI; glass used for landing/hero or highlights; keep animated border on interactive elements
+- Density: Medium; radii from tokens (`--radius-lg` default for cards/panels)
+- Motion: Gentle 160–220ms ease-out; low amplitude; respect reduced motion
+- Icons: Duotone with subtle gradient (hub accent fill + base), 1.5px rounded stroke; fall back to outline ≤16px
+- Tables: Hairline row dividers with hover highlight (current `TableRow` pattern)
+- Buttons: Solid accent (flat) as primary; inherits hub color via `data-hub-root`
+- Inputs: Soft filled (neutral background tint), hub-accent focus ring
+- Focus: Hub-accent halo; ring derives from hub color
+- Header/Sidebar: Follow current pattern (neutral surfaces with hub accent indicators via `GlobalHeader`/`GlobalSidebar`)
+- Gradients: Use hub tokens
+  - Rails/badges: `.bg-hub-rail`
+  - Strong strips/hero chips: `.bg-hub-cta`
+  - Soft section backgrounds: `.bg-hub-soft`
+  - Gradient text: `.text-hub-gradient`
+
+
+
 **Solid Backgrounds (no transparency)**:
 ```css
 /* ✅ CORRECT */

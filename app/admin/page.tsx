@@ -5,7 +5,6 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -14,8 +13,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { getAuthContext } from "@/lib/auth";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 export default async function AdminDashboardPage() {
   const authContext = await getAuthContext();

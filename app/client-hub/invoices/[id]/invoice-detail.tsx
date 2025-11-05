@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 
 interface InvoiceDetailProps {
   invoiceId: string;

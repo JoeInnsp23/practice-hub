@@ -1,8 +1,8 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Shield, User } from "lucide-react";
 import { useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";

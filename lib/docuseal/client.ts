@@ -135,5 +135,24 @@ export class DocuSealClient {
   }
 }
 
-// Export singleton instance
-export const docusealClient = new DocuSealClient();
+// Lazy singleton instance - only created when first accessed
+let docusealClientInstance: DocuSealClient | null = null;
+
+function getDocuSealClient(): DocuSealClient {
+  if (!docusealClientInstance) {
+    docusealClientInstance = new DocuSealClient();
+  }
+  return docusealClientInstance;
+}
+
+// Export getter function that lazily initializes the client
+export const docusealClient = new Proxy({} as DocuSealClient, {
+  get(_target, prop) {
+    const client = getDocuSealClient();
+    const value = (client as unknown as Record<string | symbol, unknown>)[prop];
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    return value;
+  },
+});

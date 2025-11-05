@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Edit2, MessageSquare, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +20,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSession } from "@/lib/auth-client";
 import { highlightMentions } from "@/lib/services/mention-parser";
-import { trpc } from "@/lib/trpc/client";
 import { MentionAutocomplete } from "./mention-autocomplete";
 
 interface TaskNotesSectionProps {

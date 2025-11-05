@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { Calendar, Clock, Flag, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -19,7 +20,6 @@ import {
   type PlaceholderData,
   replacePlaceholders,
 } from "@/lib/services/template-placeholders";
-import { trpc } from "@/lib/trpc/client";
 
 interface TaskTemplatePreviewDialogProps {
   open: boolean;

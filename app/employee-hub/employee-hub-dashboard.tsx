@@ -10,14 +10,14 @@ import {
   Umbrella,
 } from "lucide-react";
 import Link from "next/link";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { useSession } from "@/lib/auth-client";
-import { trpc } from "@/lib/trpc/client";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 interface EmployeeHubDashboardProps {
   userName?: string;

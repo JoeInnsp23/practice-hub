@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ZodError } from "zod";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,7 +40,6 @@ import {
   companySettingsSchema,
   userSettingsSchema,
 } from "@/lib/schemas/settings-schemas";
-import { trpc } from "@/lib/trpc/client";
 
 export default function SettingsPage() {
   // Fetch tenant, user, and timesheet settings from backend

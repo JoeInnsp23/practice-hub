@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { Clock, FileText, History, User } from "lucide-react";
 import { useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { trpc } from "@/lib/trpc/client";
 
 interface LegalVersionHistoryDialogProps {
   pageType: "privacy" | "terms" | "cookie_policy";

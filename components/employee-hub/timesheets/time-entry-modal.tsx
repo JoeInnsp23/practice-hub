@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -126,6 +126,82 @@ export function TimeEntryModal({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Track the last auto-generated description to know if user has manually edited
+  const lastAutoDescriptionRef = useRef<string>("");
+  const userHasEditedDescriptionRef = useRef<boolean>(false);
+
+  // Filter tasks based on selected client
+  const availableTasks =
+    formData.clientId && formData.clientId !== "none"
+      ? tasks.filter((task) => task.clientId === formData.clientId)
+      : tasks;
+
+  // Generate auto-description based on work type, client, and task
+  const autoDescription = useMemo(() => {
+    const parts: string[] = [];
+    const seen = new Set<string>();
+
+    // Helper to normalize a value for comparison (case-insensitive, trimmed)
+    const normalize = (value: string) => value.toLowerCase().trim();
+
+    // Helper to add individual parts, checking each one for duplicates
+    const addParts = (value: string) => {
+      if (!value || !value.trim()) return;
+
+      // Split by common separators (dash, comma, pipe, etc.)
+      const valueParts = value
+        .split(/\s*[-–—,|]\s*/)
+        .map((p) => p.trim())
+        .filter((p) => p);
+
+      // Add each part if not already seen
+      for (const part of valueParts) {
+        const normalized = normalize(part);
+        if (normalized && !seen.has(normalized)) {
+          seen.add(normalized);
+          parts.push(part);
+        }
+      }
+    };
+
+    // Add work type
+    const workType = workTypes.find(
+      (wt) => wt.code === formData.workType.toUpperCase(),
+    );
+    if (workType) {
+      addParts(workType.label);
+    }
+
+    // Add client
+    if (formData.clientId && formData.clientId !== "none") {
+      const client = clients.find((c) => c.id === formData.clientId);
+      if (client) {
+        addParts(client.name);
+      }
+    }
+
+    // Add task
+    if (formData.taskId && formData.taskId !== "none") {
+      const task = availableTasks.find((t) => t.id === formData.taskId);
+      if (task) {
+        addParts(task.name);
+      }
+    }
+
+    if (parts.length === 0) {
+      return "";
+    }
+
+    return parts.join(" - ");
+  }, [
+    formData.workType,
+    formData.clientId,
+    formData.taskId,
+    workTypes,
+    clients,
+    availableTasks,
+  ]);
+
   // Update form data when props change
   useEffect(() => {
     if (isOpen) {
@@ -153,12 +229,6 @@ export function TimeEntryModal({
     getDefaultStartTime,
   ]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Filter tasks based on selected client
-  const availableTasks =
-    formData.clientId && formData.clientId !== "none"
-      ? tasks.filter((task) => task.clientId === formData.clientId)
-      : tasks;
-
   // Calculate duration when start/end times change
   useEffect(() => {
     if (formData.startTime && formData.endTime) {
@@ -184,14 +254,66 @@ export function TimeEntryModal({
     const hasClient = formData.clientId !== "none";
 
     // Only set billable if work type is typically billable AND there's a client
-    setFormData((prev) => ({
-      ...prev,
-      billable: hasClient && workType?.isBillable !== false,
-    }));
+    // Check if billable actually needs to change to avoid infinite loops
+    const newBillable = hasClient && workType?.isBillable !== false;
+
+    setFormData((prev) => {
+      // Only update if billable value actually changed
+      if (prev.billable !== newBillable) {
+        return {
+          ...prev,
+          billable: newBillable,
+        };
+      }
+      return prev;
+    });
   }, [formData.workType, formData.clientId, workTypes]);
+
+  // Auto-generate description when work type, client, or task changes
+  useEffect(() => {
+    // Skip auto-generation if:
+    // 1. User has manually edited the description
+    // 2. There's no auto-description to generate
+    // 3. The description is already set from selectedEntry
+    if (!autoDescription || userHasEditedDescriptionRef.current) {
+      return;
+    }
+
+    // Only auto-populate if description is empty or matches the last auto-generated one
+    if (
+      formData.description === "" ||
+      formData.description === lastAutoDescriptionRef.current
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        description: autoDescription,
+      }));
+      lastAutoDescriptionRef.current = autoDescription;
+    }
+  }, [autoDescription, formData.description]);
+
+  // Reset user edit flag when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      userHasEditedDescriptionRef.current = false;
+      // If description comes from selectedEntry, mark as user-edited to preserve it
+      if (selectedEntry?.description) {
+        userHasEditedDescriptionRef.current = true;
+        lastAutoDescriptionRef.current = selectedEntry.description;
+      }
+    } else {
+      userHasEditedDescriptionRef.current = false;
+      lastAutoDescriptionRef.current = "";
+    }
+  }, [isOpen, selectedEntry]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.startTime || !formData.endTime) {
+      toast.error("Please select both a start time and an end time");
+      return;
+    }
 
     if (!formData.hours || formData.hours <= 0) {
       toast.error("Please enter valid hours");
@@ -393,11 +515,15 @@ export function TimeEntryModal({
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  placeholder="What did you work on?"
+                  placeholder={autoDescription || "What did you work on?"}
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => {
+                    // Mark as user-edited when user types
+                    if (!userHasEditedDescriptionRef.current) {
+                      userHasEditedDescriptionRef.current = true;
+                    }
+                    setFormData({ ...formData, description: e.target.value });
+                  }}
                   rows={3}
                 />
               </div>

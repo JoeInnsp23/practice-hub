@@ -1,8 +1,14 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-04T17:04:01.846Z
+# Generated: 2025-11-05T16:05:39.808Z
 
 functions:
+  landingRouter:
+    description: "Landing Page Router"
+    file: "app/server/routers/landing.ts"
+    line: 6
+    type: "function"
+    signature: "const landingRouter"
   staffStatisticsRouter:
     description: "Staff Statistics Router"
     file: "app/server/routers/staffStatistics.ts"
@@ -1201,6 +1207,60 @@ components:
     line: 15
     type: "component"
     signature: "function DatePickerButton"
+  LargeBentoCard:
+    description: "Hook to detect current theme"
+    file: "components/landing/bento-cards.tsx"
+    line: 7
+    type: "component"
+    signature: "function LargeBentoCard"
+  MediumBentoCard:
+    description: "Medium bento card with highlighted feature"
+    file: "components/landing/bento-cards.tsx"
+    line: 319
+    type: "component"
+    signature: "function MediumBentoCard"
+  SmallBentoCard:
+    description: "Small bento card with compact display"
+    file: "components/landing/bento-cards.tsx"
+    line: 393
+    type: "component"
+    signature: "function SmallBentoCard"
+  BlogFeed:
+    description: "Blog Feed Component"
+    file: "components/landing/blog-feed.tsx"
+    line: 17
+    type: "component"
+    signature: "function BlogFeed"
+  useParallax:
+    description: "Icon constellation animation component"
+    file: "components/landing/landing-animations.tsx"
+    line: 6
+    type: "component"
+    signature: "function useParallax"
+  getTimeOfDayGreeting:
+    description: "Time of day greeting"
+    file: "components/landing/landing-animations.tsx"
+    line: 86
+    type: "component"
+    signature: "function getTimeOfDayGreeting"
+  CelebrationConfetti:
+    description: "Celebration confetti component (simple, CSS-based)"
+    file: "components/landing/landing-animations.tsx"
+    line: 99
+    type: "component"
+    signature: "function CelebrationConfetti"
+  LandingPageContent:
+    description: "Landing page content for internal staff portal - Full custom redesign"
+    file: "components/landing/landing-page-content.tsx"
+    line: 36
+    type: "component"
+    signature: "function LandingPageContent"
+  ThemeToggle:
+    description: "Floating Theme Toggle"
+    file: "components/landing/theme-toggle.tsx"
+    line: 6
+    type: "component"
+    signature: "function ThemeToggle"
   LegalEditor:
     description: "Legal Editor Component"
     file: "components/legal/legal-editor.tsx"
@@ -1308,9 +1368,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-04T17:04:01.848Z"
-  total_entries: 216
-  functions: 134
+  generated: "2025-11-05T16:05:39.821Z"
+  total_entries: 226
+  functions: 135
   types: 58
-  components: 20
+  components: 29
   classes: 4

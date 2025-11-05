@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { DatePickerButton } from "@/components/employee-hub/timesheets/date-picker-button";
 import { WeeklySummaryCard } from "@/components/employee-hub/timesheets/weekly-summary-card";
 import { WeeklyTimesheetGrid } from "@/components/employee-hub/timesheets/weekly-timesheet-grid";
@@ -18,7 +19,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc/client";
 
 export default function TimePage() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>

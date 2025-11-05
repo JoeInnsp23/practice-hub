@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -5,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import {
   activityLogs,
+  leaveBalances,
   staffCapacity,
   timeEntries,
   timesheetSubmissions,
@@ -99,6 +101,112 @@ async function accrueToilFromTimesheet(
   }
 }
 
+type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function adjustToilBalance(
+  tx: DbTransaction,
+  {
+    tenantId,
+    userId,
+    date,
+    hours,
+    operation,
+  }: {
+    tenantId: string;
+    userId: string;
+    date: string | Date;
+    hours: number | string;
+    operation: "deduct" | "refund";
+  },
+) {
+  const numericHours =
+    typeof hours === "string" ? Number.parseFloat(hours) : Number(hours);
+
+  const hoursValue = Math.abs(numericHours);
+
+  if (!Number.isFinite(hoursValue) || hoursValue === 0) {
+    return;
+  }
+
+  const entryDate = typeof date === "string" ? new Date(date) : date;
+
+  if (Number.isNaN(entryDate.getTime())) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Invalid date for TOIL adjustment.",
+    });
+  }
+
+  const year = entryDate.getFullYear();
+
+  const [balance] = await tx
+    .select({ toilBalance: leaveBalances.toilBalance })
+    .from(leaveBalances)
+    .where(
+      and(
+        eq(leaveBalances.tenantId, tenantId),
+        eq(leaveBalances.userId, userId),
+        eq(leaveBalances.year, year),
+      ),
+    )
+    .limit(1);
+
+  const currentBalance = Number(balance?.toilBalance ?? 0);
+
+  if (operation === "deduct") {
+    if (currentBalance < hoursValue - 1e-6) {
+      throw new TRPCError({
+        code: "PRECONDITION_FAILED",
+        message: `Insufficient TOIL balance. You have ${currentBalance.toFixed(
+          2,
+        )} hours available, but this entry requires ${hoursValue.toFixed(2)} hours.`,
+      });
+    }
+
+    await tx
+      .update(leaveBalances)
+      .set({
+        toilBalance: sql`${leaveBalances.toilBalance} - ${hoursValue}`,
+      })
+      .where(
+        and(
+          eq(leaveBalances.tenantId, tenantId),
+          eq(leaveBalances.userId, userId),
+          eq(leaveBalances.year, year),
+        ),
+      );
+
+    return;
+  }
+
+  if (balance) {
+    await tx
+      .update(leaveBalances)
+      .set({
+        toilBalance: sql`${leaveBalances.toilBalance} + ${hoursValue}`,
+      })
+      .where(
+        and(
+          eq(leaveBalances.tenantId, tenantId),
+          eq(leaveBalances.userId, userId),
+          eq(leaveBalances.year, year),
+        ),
+      );
+  } else {
+    await tx.insert(leaveBalances).values({
+      id: randomUUID(),
+      tenantId,
+      userId,
+      year,
+      annualEntitlement: 25,
+      annualUsed: 0,
+      sickUsed: 0,
+      toilBalance: hoursValue,
+      carriedOver: 0,
+    });
+  }
+}
+
 // Generate schema from Drizzle table definition
 const insertTimeEntrySchema = createInsertSchema(timeEntries, {
   date: z.string(),
@@ -125,11 +233,24 @@ export const timesheetsRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { tenantId } = ctx.authContext;
+      const { tenantId, userId: currentUserId, role } = ctx.authContext;
       const { startDate, endDate, userId, clientId, billable } = input;
 
       // Build conditions
       const conditions = [eq(timeEntries.tenantId, tenantId)];
+
+      // Enforce user isolation: non-admin users can only see their own entries
+      // Admin users can view any user's entries if userId is provided, otherwise see all
+      if (role === "admin") {
+        // Admin can view specific user's entries if userId is provided
+        if (userId) {
+          conditions.push(eq(timeEntries.userId, userId));
+        }
+        // Otherwise admin sees all entries (no userId filter)
+      } else {
+        // Non-admin users can ONLY see their own entries
+        conditions.push(eq(timeEntries.userId, currentUserId));
+      }
 
       if (startDate) {
         conditions.push(gte(timeEntries.date, startDate));
@@ -137,10 +258,6 @@ export const timesheetsRouter = router({
 
       if (endDate) {
         conditions.push(lte(timeEntries.date, endDate));
-      }
-
-      if (userId) {
-        conditions.push(eq(timeEntries.userId, userId));
       }
 
       if (clientId) {
@@ -185,49 +302,60 @@ export const timesheetsRouter = router({
     .input(timeEntrySchema)
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const newEntry = await db.transaction(async (tx) => {
+        const [createdEntry] = await tx
+          .insert(timeEntries)
+          .values({
+            tenantId,
+            userId,
+            date: input.date,
+            clientId: input.clientId,
+            serviceId: input.serviceId,
+            taskId: input.taskId,
+            description: input.description,
+            hours: input.hours,
+            billable: input.billable,
+            rate: input.rate,
+            startTime: input.startTime,
+            endTime: input.endTime,
+            status: input.status,
+            notes: input.notes,
+            workType: input.workType,
+            billed: input.billed,
+            amount: input.amount,
+            invoiceId: input.invoiceId,
+            submissionId: input.submissionId,
+            submittedAt: input.submittedAt,
+            approvedById: input.approvedById,
+            approvedAt: input.approvedAt,
+          })
+          .returning();
 
-      // Create the time entry
-      const [newEntry] = await db
-        .insert(timeEntries)
-        .values({
+        if ((input.workType || "WORK").toUpperCase() === "TOIL") {
+          await adjustToilBalance(tx, {
+            tenantId,
+            userId,
+            date: input.date,
+            hours: input.hours,
+            operation: "deduct",
+          });
+        }
+
+        await tx.insert(activityLogs).values({
           tenantId,
+          entityType: "timeEntry",
+          entityId: createdEntry.id,
+          action: "created",
+          description: `Logged ${input.hours}h for ${input.description}`,
           userId,
-          date: input.date,
-          clientId: input.clientId,
-          serviceId: input.serviceId,
-          taskId: input.taskId,
-          description: input.description,
-          hours: input.hours,
-          billable: input.billable,
-          rate: input.rate,
-          startTime: input.startTime,
-          endTime: input.endTime,
-          status: input.status,
-          notes: input.notes,
-          workType: input.workType,
-          billed: input.billed,
-          amount: input.amount,
-          invoiceId: input.invoiceId,
-          submissionId: input.submissionId,
-          submittedAt: input.submittedAt,
-          approvedById: input.approvedById,
-          approvedAt: input.approvedAt,
-        })
-        .returning();
+          userName: `${firstName} ${lastName}`,
+          newValues: {
+            hours: input.hours,
+            billable: input.billable,
+          },
+        });
 
-      // Log the activity
-      await db.insert(activityLogs).values({
-        tenantId,
-        entityType: "timeEntry",
-        entityId: newEntry.id,
-        action: "created",
-        description: `Logged ${input.hours}h for ${input.description}`,
-        userId,
-        userName: `${firstName} ${lastName}`,
-        newValues: {
-          hours: input.hours,
-          billable: input.billable,
-        },
+        return createdEntry;
       });
 
       return { success: true, timeEntry: newEntry };
@@ -242,44 +370,75 @@ export const timesheetsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const updatedEntry = await db.transaction(async (tx) => {
+        const existingRows = await tx
+          .select()
+          .from(timeEntries)
+          .where(
+            and(
+              eq(timeEntries.id, input.id),
+              eq(timeEntries.tenantId, tenantId),
+            ),
+          )
+          .limit(1);
 
-      // Check entry exists and belongs to tenant
-      const existingEntry = await db
-        .select()
-        .from(timeEntries)
-        .where(
-          and(eq(timeEntries.id, input.id), eq(timeEntries.tenantId, tenantId)),
-        )
-        .limit(1);
+        if (!existingRows[0]) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Time entry not found",
+          });
+        }
 
-      if (!existingEntry[0]) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Time entry not found",
+        const existingEntry = existingRows[0];
+        const entryUserId = existingEntry.userId;
+        const previousWorkType = (
+          existingEntry.workType || "WORK"
+        ).toUpperCase();
+
+        if (previousWorkType === "TOIL") {
+          await adjustToilBalance(tx, {
+            tenantId,
+            userId: entryUserId,
+            date: existingEntry.date,
+            hours: existingEntry.hours,
+            operation: "refund",
+          });
+        }
+
+        const [newEntry] = await tx
+          .update(timeEntries)
+          .set({
+            ...input.data,
+            updatedAt: new Date(),
+          })
+          .where(eq(timeEntries.id, input.id))
+          .returning();
+
+        const updatedWorkType = (newEntry.workType || "WORK").toUpperCase();
+
+        if (updatedWorkType === "TOIL") {
+          await adjustToilBalance(tx, {
+            tenantId,
+            userId: entryUserId,
+            date: newEntry.date,
+            hours: newEntry.hours,
+            operation: "deduct",
+          });
+        }
+
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "timeEntry",
+          entityId: input.id,
+          action: "updated",
+          description: `Updated time entry`,
+          userId,
+          userName: `${firstName} ${lastName}`,
+          oldValues: existingEntry,
+          newValues: input.data,
         });
-      }
 
-      // Update entry
-      const [updatedEntry] = await db
-        .update(timeEntries)
-        .set({
-          ...input.data,
-          updatedAt: new Date(),
-        })
-        .where(eq(timeEntries.id, input.id))
-        .returning();
-
-      // Log the activity
-      await db.insert(activityLogs).values({
-        tenantId,
-        entityType: "timeEntry",
-        entityId: input.id,
-        action: "updated",
-        description: `Updated time entry`,
-        userId,
-        userName: `${firstName} ${lastName}`,
-        oldValues: existingEntry[0],
-        newValues: input.data,
+        return newEntry;
       });
 
       return { success: true, timeEntry: updatedEntry };
@@ -289,33 +448,49 @@ export const timesheetsRouter = router({
     .input(z.string())
     .mutation(async ({ ctx, input: id }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      await db.transaction(async (tx) => {
+        const existingRows = await tx
+          .select()
+          .from(timeEntries)
+          .where(
+            and(eq(timeEntries.id, id), eq(timeEntries.tenantId, tenantId)),
+          )
+          .limit(1);
 
-      // Check entry exists and belongs to tenant
-      const existingEntry = await db
-        .select()
-        .from(timeEntries)
-        .where(and(eq(timeEntries.id, id), eq(timeEntries.tenantId, tenantId)))
-        .limit(1);
+        if (!existingRows[0]) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Time entry not found",
+          });
+        }
 
-      if (!existingEntry[0]) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Time entry not found",
+        const existingEntry = existingRows[0];
+        const entryUserId = existingEntry.userId;
+        const existingWorkType = (
+          existingEntry.workType || "WORK"
+        ).toUpperCase();
+
+        if (existingWorkType === "TOIL") {
+          await adjustToilBalance(tx, {
+            tenantId,
+            userId: entryUserId,
+            date: existingEntry.date,
+            hours: existingEntry.hours,
+            operation: "refund",
+          });
+        }
+
+        await tx.delete(timeEntries).where(eq(timeEntries.id, id));
+
+        await tx.insert(activityLogs).values({
+          tenantId,
+          entityType: "timeEntry",
+          entityId: id,
+          action: "deleted",
+          description: `Deleted time entry (${existingEntry.hours}h)`,
+          userId,
+          userName: `${firstName} ${lastName}`,
         });
-      }
-
-      // Delete the entry
-      await db.delete(timeEntries).where(eq(timeEntries.id, id));
-
-      // Log the activity
-      await db.insert(activityLogs).values({
-        tenantId,
-        entityType: "timeEntry",
-        entityId: id,
-        action: "deleted",
-        description: `Deleted time entry (${existingEntry[0].hours}h)`,
-        userId,
-        userName: `${firstName} ${lastName}`,
       });
 
       return { success: true };

@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { Calendar, Clock, Plus, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { WorkingPatternFormDialog } from "@/components/admin/staff/working-pattern-form-dialog";
 import { WorkingPatternHistoryDialog } from "@/components/admin/staff/working-pattern-history-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 import type { WorkingPattern } from "@/lib/trpc/types";
 
 // Pattern type labels

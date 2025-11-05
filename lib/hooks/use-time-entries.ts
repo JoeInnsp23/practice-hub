@@ -1,8 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { useSession } from "@/lib/auth-client";
 
 export interface TimeEntry {
@@ -19,25 +19,6 @@ export interface TimeEntry {
   status?: "draft" | "submitted" | "approved" | "rejected";
   userId?: string;
   user?: string;
-  workType?: string;
-  startTime?: string;
-  endTime?: string;
-}
-
-interface TimeEntryAPIResponse {
-  id: string;
-  date: string;
-  clientName?: string;
-  clientId?: string;
-  taskTitle?: string;
-  taskId?: string;
-  description?: string;
-  hours: number;
-  billable: boolean;
-  billed: boolean;
-  status?: "draft" | "submitted" | "approved" | "rejected";
-  userId?: string;
-  userName?: string;
   workType?: string;
   startTime?: string;
   endTime?: string;
@@ -60,233 +41,223 @@ export function useTimeEntries(
   startDate?: string,
   endDate?: string,
   _refreshKey?: number,
+  selectedUserId?: string, // Optional: for admin to view specific user's timesheets
 ) {
-  const [data, setData] = useState<TimeEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const currentUserId = session?.user?.id;
 
-  useEffect(() => {
-    async function fetchEntries() {
-      if (!userId) {
-        setIsLoading(false);
-        return;
-      }
+  const { data, isLoading, error } = trpc.timesheets.list.useQuery(
+    {
+      startDate,
+      endDate,
+      userId: selectedUserId ?? currentUserId,
+    },
+    {
+      enabled: !!currentUserId,
+    },
+  );
 
-      try {
-        setIsLoading(true);
+  // Transform tRPC response to match our interface
+  // Note: The router returns raw database rows without joins, so clientName, taskTitle, userName are not available
+  const entries: TimeEntry[] =
+    data?.timeEntries.map((e) => ({
+      id: e.id,
+      date: new Date(e.date),
+      client: undefined, // Not available from router - would need to join clients table
+      clientId: e.clientId || undefined,
+      task: undefined, // Not available from router - would need to join tasks table
+      taskId: e.taskId || undefined,
+      description: e.description || undefined,
+      hours: Number(e.hours),
+      billable: e.billable || false,
+      billed: e.billed || false,
+      status: e.status || undefined,
+      userId: e.userId || undefined,
+      user: undefined, // Not available from router - would need to join users table
+      workType: e.workType || undefined,
+      startTime: e.startTime || undefined,
+      endTime: e.endTime || undefined,
+    })) || [];
 
-        // Build query parameters
-        const params = new URLSearchParams();
-        if (startDate) params.append("startDate", startDate);
-        if (endDate) params.append("endDate", endDate);
-        params.append("userId", userId);
-
-        const response = await fetch(`/api/time-entries?${params}`);
-        if (response.ok) {
-          const data = await response.json();
-          // Transform API response to match our interface
-          const entries: TimeEntry[] = data.entries.map(
-            (e: TimeEntryAPIResponse) => ({
-              id: e.id,
-              date: new Date(e.date),
-              client: e.clientName,
-              clientId: e.clientId,
-              task: e.taskTitle,
-              taskId: e.taskId,
-              description: e.description,
-              hours: e.hours,
-              billable: e.billable,
-              billed: e.billed,
-              status: e.status,
-              userId: e.userId,
-              user: e.userName,
-              workType: e.workType,
-              startTime: e.startTime,
-              endTime: e.endTime,
-            }),
-          );
-          setData(entries);
-        } else {
-          throw new Error("Failed to fetch time entries");
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch entries"),
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchEntries();
-  }, [userId, startDate, endDate]);
-
-  return { data, isLoading, error };
+  return {
+    data: entries,
+    isLoading,
+    error: error
+      ? error instanceof Error
+        ? error
+        : new Error(String(error))
+      : null,
+  };
 }
 
 // Hook to create a time entry
 export function useCreateTimeEntry() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const utils = trpc.useUtils();
+
+  const mutation = trpc.timesheets.create.useMutation({
+    onSuccess: () => {
+      toast.success("Time entry created");
+      // Invalidate and refetch time entries
+      utils.timesheets.list.invalidate();
+      utils.timesheets.summary.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create time entry");
+    },
+  });
 
   const mutateAsync = async (entry: TimeEntryInput) => {
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    try {
-      setIsLoading(true);
-
-      const response = await fetch("/api/time-entries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...entry,
-          date: format(entry.date, "yyyy-MM-dd"),
-          userId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create time entry");
-      }
-
-      const data = await response.json();
-      toast.success("Time entry created");
-      return data.entry;
-    } catch (error) {
-      toast.error("Failed to create time entry");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    return mutation.mutateAsync({
+      date: format(entry.date, "yyyy-MM-dd"),
+      clientId: entry.clientId,
+      taskId: entry.taskId,
+      description: entry.description,
+      hours: entry.hours.toString(),
+      billable: entry.billable,
+      workType: entry.workType,
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+    });
   };
 
-  return { mutateAsync, isLoading };
+  return { mutateAsync, isLoading: mutation.isPending };
 }
 
 // Hook to update a time entry
 export function useUpdateTimeEntry() {
-  const [isLoading, setIsLoading] = useState(false);
+  const utils = trpc.useUtils();
+
+  const mutation = trpc.timesheets.update.useMutation({
+    onSuccess: () => {
+      toast.success("Time entry updated");
+      // Invalidate and refetch time entries
+      utils.timesheets.list.invalidate();
+      utils.timesheets.summary.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update time entry");
+    },
+  });
 
   const mutateAsync = async (id: string, updates: Partial<TimeEntry>) => {
-    try {
-      setIsLoading(true);
-      // API call would go here
-      // const response = await fetch(`/api/time-entries/${id}`, {
-      //   method: "PATCH",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(updates),
-      // });
+    const updateData: Record<string, unknown> = {};
 
-      toast.success("Time entry updated");
-      return { id, ...updates };
-    } catch (error) {
-      toast.error("Failed to update time entry");
-      throw error;
-    } finally {
-      setIsLoading(false);
+    if (updates.date !== undefined) {
+      updateData.date = format(updates.date, "yyyy-MM-dd");
     }
+    if (updates.clientId !== undefined) {
+      updateData.clientId = updates.clientId;
+    }
+    if (updates.taskId !== undefined) {
+      updateData.taskId = updates.taskId;
+    }
+    if (updates.description !== undefined) {
+      updateData.description = updates.description;
+    }
+    if (updates.hours !== undefined) {
+      updateData.hours = updates.hours.toString();
+    }
+    if (updates.billable !== undefined) {
+      updateData.billable = updates.billable;
+    }
+    if (updates.workType !== undefined) {
+      updateData.workType = updates.workType;
+    }
+    if (updates.startTime !== undefined) {
+      updateData.startTime = updates.startTime;
+    }
+    if (updates.endTime !== undefined) {
+      updateData.endTime = updates.endTime;
+    }
+
+    return mutation.mutateAsync({
+      id,
+      data: updateData,
+    });
   };
 
-  return { mutateAsync, isLoading };
+  return { mutateAsync, isLoading: mutation.isPending };
 }
 
 // Hook to delete a time entry
 export function useDeleteTimeEntry() {
-  const [isLoading, setIsLoading] = useState(false);
+  const utils = trpc.useUtils();
 
-  const mutateAsync = async (_id: string) => {
-    try {
-      setIsLoading(true);
-      // API call would go here
-      // await fetch(`/api/time-entries/${id}`, {
-      //   method: "DELETE",
-      // });
-
+  const mutation = trpc.timesheets.delete.useMutation({
+    onSuccess: () => {
       toast.success("Time entry deleted");
-    } catch (error) {
-      toast.error("Failed to delete time entry");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+      // Invalidate and refetch time entries
+      utils.timesheets.list.invalidate();
+      utils.timesheets.summary.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete time entry");
+    },
+  });
+
+  const mutateAsync = async (id: string) => {
+    return mutation.mutateAsync(id);
   };
 
-  return { mutateAsync, isLoading };
+  return { mutateAsync, isLoading: mutation.isPending };
 }
 
 // Hook to submit week for approval
 export function useSubmitWeekForApproval() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const utils = trpc.useUtils();
 
-  const mutateAsync = async (_weekStart: string) => {
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    try {
-      setIsLoading(true);
-      // API call would go here
-      // const response = await fetch("/api/time-entries/submit-week", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ weekStart }),
-      // });
-
+  const mutation = trpc.timesheets.submit.useMutation({
+    onSuccess: () => {
       toast.success("Week submitted for approval");
-      return { success: true };
-    } catch (error) {
-      toast.error("Failed to submit week");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+      // Invalidate and refetch relevant queries
+      utils.timesheets.list.invalidate();
+      utils.timesheets.summary.invalidate();
+      utils.timesheets.getSubmissionStatus.invalidate();
+      utils.timesheets.getPendingApprovals.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to submit week");
+    },
+  });
+
+  const mutateAsync = async (weekStart: string, weekEnd: string) => {
+    return mutation.mutateAsync({
+      weekStartDate: weekStart,
+      weekEndDate: weekEnd,
+    });
   };
 
-  return { mutateAsync, isLoading };
+  return { mutateAsync, isLoading: mutation.isPending };
 }
 
 // Hook to copy previous week entries
 export function useCopyPreviousWeek() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const utils = trpc.useUtils();
+
+  const mutation = trpc.timesheets.copyPreviousWeek.useMutation({
+    onSuccess: () => {
+      toast.success("Previous week copied successfully");
+      // Invalidate and refetch time entries
+      utils.timesheets.list.invalidate();
+      utils.timesheets.summary.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to copy week");
+    },
+  });
 
   const mutateAsync = async ({
-    sourceWeekStart: _sourceWeekStart,
-    targetWeekStart: _targetWeekStart,
+    currentWeekStart,
+    currentWeekEnd,
   }: {
-    sourceWeekStart: string;
-    targetWeekStart: string;
+    currentWeekStart: string;
+    currentWeekEnd: string;
   }) => {
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    try {
-      setIsLoading(true);
-      // API call would go here
-      // const response = await fetch("/api/time-entries/copy-week", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ sourceWeekStart, targetWeekStart }),
-      // });
-
-      toast.success("Previous week copied successfully");
-      return { success: true };
-    } catch (error) {
-      toast.error("Failed to copy week");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    return mutation.mutateAsync({
+      currentWeekStartDate: currentWeekStart,
+      currentWeekEndDate: currentWeekEnd,
+    });
   };
 
-  return { mutateAsync, isLoading };
+  return { mutateAsync, isLoading: mutation.isPending };
 }

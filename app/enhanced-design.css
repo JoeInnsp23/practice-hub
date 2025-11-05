@@ -200,6 +200,61 @@
     outline-offset: 2px;
   }
 
+  /* Gentle float animation for constellation icons */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Confetti drop animation */
+  @keyframes confetti {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  .animate-confetti {
+    animation: confetti 3s ease-out forwards;
+  }
+
+  /* Gentle bounce for hover interactions */
+  @keyframes gentleBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .animate-gentle-bounce {
+    animation: gentleBounce 0.6s ease-out;
+  }
+
+  /* Respect prefers-reduced-motion for new animations */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-float,
+    .animate-confetti,
+    .animate-gentle-bounce {
+      animation: none;
+    }
+  }
+
   /* ============================================================================
    * SKELETON SHIMMER
    * ============================================================================ */
@@ -233,7 +288,8 @@
    * ============================================================================ */
 
   .card-interactive {
-    @apply bg-card rounded-xl p-6 relative transition-all duration-300;
+    @apply bg-card p-6 relative transition-all duration-300;
+    border-radius: var(--radius-lg);
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.1),
       0 2px 4px -1px rgba(0, 0, 0, 0.06);

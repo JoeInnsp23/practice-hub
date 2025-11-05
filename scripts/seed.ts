@@ -253,6 +253,13 @@ async function seedDatabase() {
       isBillable: false,
       sortOrder: 6,
     },
+    {
+      code: "TOIL",
+      label: "TOIL",
+      colorCode: "#0ea5e9", // sky blue
+      isBillable: false,
+      sortOrder: 7,
+    },
   ];
 
   await db
@@ -3206,6 +3213,28 @@ For more information, visit the ICO website: https://ico.org.uk
         });
         const rate = Number(user.hourlyRate || 100);
 
+        const startHour = faker.number.int({ min: 7, max: 17 });
+        const startMinute = faker.helpers.arrayElement([0, 15, 30, 45]);
+        const startMinutesTotal = startHour * 60 + startMinute;
+        const durationMinutes = Math.max(30, Math.round(hours * 60));
+        const maxMinutesInDay = 23 * 60 + 45;
+        const endMinutesTotal = Math.min(
+          startMinutesTotal + durationMinutes,
+          maxMinutesInDay,
+        );
+        const actualDurationHours = (endMinutesTotal - startMinutesTotal) / 60;
+
+        const formatMinutesToTime = (minutes: number) => {
+          const hrs = Math.floor(minutes / 60);
+          const mins = minutes % 60;
+          return `${hrs.toString().padStart(2, "0")}:${mins
+            .toString()
+            .padStart(2, "0")}`;
+        };
+
+        const startTime = formatMinutesToTime(startMinutesTotal);
+        const endTime = formatMinutesToTime(endMinutesTotal);
+
         await db.insert(timeEntries).values({
           tenantId: tenant.id,
           userId: user.id,
@@ -3213,12 +3242,14 @@ For more information, visit the ICO website: https://ico.org.uk
           taskId: task?.id || null,
           serviceId: faker.helpers.arrayElement(createdServices).id,
           date: dateStr,
-          hours: String(hours),
+          hours: actualDurationHours.toFixed(2),
           workType: faker.helpers.arrayElement(workTypeCodes),
           billable: faker.datatype.boolean({ probability: 0.8 }),
           billed: faker.datatype.boolean({ probability: 0.3 }),
           rate: String(rate),
-          amount: String(hours * rate),
+          amount: String(actualDurationHours * rate),
+          startTime,
+          endTime,
           description: faker.lorem.sentence(),
           status:
             days > 7

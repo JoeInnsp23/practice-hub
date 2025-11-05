@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { History, Plus } from "lucide-react";
 import { useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { CapacityFormDialog } from "@/components/admin/staff/capacity-form-dialog";
 import { CapacityHistoryDialog } from "@/components/admin/staff/capacity-history-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 import type {
   StaffCapacityListOutput,
   StaffUtilization,

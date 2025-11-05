@@ -1,9 +1,9 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { FileText, Home, LogOut, MessageSquare, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import * as Sentry from "@sentry/nextjs";
 import { toast } from "react-hot-toast";
 import { ClientSwitcher } from "@/components/client-portal/client-switcher";
 import { Button } from "@/components/ui/button";

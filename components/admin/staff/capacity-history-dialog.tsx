@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { trpc } from "@/app/providers/trpc-provider";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 
 interface CapacityHistoryDialogProps {
   open: boolean;

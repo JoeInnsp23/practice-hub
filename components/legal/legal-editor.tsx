@@ -3,12 +3,12 @@
 import { FileText, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { trpc } from "@/lib/trpc/client";
 import { LegalVersionHistoryDialog } from "./legal-version-history-dialog";
 
 interface LegalEditorProps {

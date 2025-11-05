@@ -3,6 +3,7 @@
 import { Building2, Calendar, FileText, Search } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { VATValidationIndicator } from "@/components/client-hub/vat-validation-indicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { trpc } from "@/lib/trpc/client";
 import type { WizardFormData } from "../client-wizard-modal";
 
 interface RegistrationDetailsStepProps {

@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   addMonths,
   eachDayOfInterval,
@@ -14,8 +15,8 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
   type TimeEntry,
@@ -30,11 +31,13 @@ import { TimeEntryModal } from "./time-entry-modal";
 interface MonthlyTimesheetProps {
   initialDate?: Date;
   onViewChange?: (view: "daily" | "weekly" | "monthly") => void;
+  selectedUserId?: string; // Optional: for admin to view specific user's timesheets
 }
 
 export function MonthlyTimesheet({
   initialDate = new Date(),
   onViewChange,
+  selectedUserId,
 }: MonthlyTimesheetProps) {
   const [currentDate, setCurrentDate] = useState(initialDate);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,9 +50,18 @@ export function MonthlyTimesheet({
   const { data: workTypesData } = useWorkTypes();
   const workTypes = workTypesData?.workTypes || [];
 
-  // Empty arrays until API is connected
-  const clients: Array<{ id: string; name: string }> = [];
-  const tasks: Array<{ id: string; name: string; clientId?: string }> = [];
+  // Fetch clients and tasks from database
+  const { data: clientsData } = trpc.clients.list.useQuery({});
+  const { data: tasksData } = trpc.tasks.list.useQuery({});
+
+  const clients: Array<{ id: string; name: string }> =
+    clientsData?.clients.map((c) => ({ id: c.id, name: c.name })) || [];
+  const tasks: Array<{ id: string; name: string; clientId?: string }> =
+    tasksData?.tasks.map((t) => ({
+      id: t.id,
+      name: t.title,
+      clientId: t.clientId || undefined,
+    })) || [];
 
   // Get calendar days for current month
   const monthStart = startOfMonth(currentDate);
@@ -62,11 +74,12 @@ export function MonthlyTimesheet({
     end: calendarEnd,
   });
 
-  // Fetch time entries for the month
+  // Fetch time entries for the entire calendar range (including days from prev/next month)
   const { data: timeEntries } = useTimeEntries(
-    format(monthStart, "yyyy-MM-dd"),
-    format(monthEnd, "yyyy-MM-dd"),
+    format(calendarStart, "yyyy-MM-dd"),
+    format(calendarEnd, "yyyy-MM-dd"),
     refreshKey,
+    selectedUserId,
   );
 
   // Get entries for a specific day
@@ -155,27 +168,6 @@ export function MonthlyTimesheet({
         </Button>
       </div>
 
-      {/* Summary Bar */}
-      <div className="flex items-center space-x-6 px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-blue-500 dark:bg-blue-400 rounded"></div>
-          <span className="text-sm text-slate-700 dark:text-slate-300">
-            Billable
-          </span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-slate-400 dark:bg-slate-500 rounded"></div>
-          <span className="text-sm text-slate-700 dark:text-slate-300">
-            Non-Billable
-          </span>
-        </div>
-        <div className="text-sm text-slate-600 dark:text-slate-400">
-          Total:{" "}
-          {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) || 0}{" "}
-          hours
-        </div>
-      </div>
-
       {/* View Toggle */}
       {onViewChange && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
@@ -192,16 +184,36 @@ export function MonthlyTimesheet({
               Month
             </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCurrentDate(new Date())}
-            className="text-blue-600 dark:text-blue-400"
-          >
-            Today
-          </Button>
         </div>
       )}
+
+      {/* Summary Bar */}
+      <div className="flex items-center px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-red-500 rounded"></div>
+            <span className="text-sm text-slate-700 dark:text-slate-300">
+              Billable
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-blue-500 rounded"></div>
+            <span className="text-sm text-slate-700 dark:text-slate-300">
+              Non-Billable
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 ml-auto text-sm">
+          <div className="text-slate-600 dark:text-slate-400">
+            <span className="font-medium">Total:</span>
+            <span className="ml-2 font-bold text-slate-800 dark:text-slate-200">
+              {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) ||
+                0}
+              h
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Calendar Grid */}
       <div className="flex-1 overflow-auto">
@@ -282,8 +294,8 @@ export function MonthlyTimesheet({
                       const workTypeLabel = workType?.label || "Unknown";
 
                       return (
-                        <button
-                          type="button"
+                        // biome-ignore lint/a11y/useSemanticElements: Div avoids nested interactive button structure
+                        <div
                           key={entry.id || `${entry.date}-${entry.hours}`}
                           className="w-full text-left text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-4"
                           style={{
@@ -301,6 +313,8 @@ export function MonthlyTimesheet({
                               openModal(day, entry);
                             }
                           }}
+                          role="button"
+                          tabIndex={0}
                         >
                           <div className="flex items-center gap-1">
                             {/* Billable/Non-billable dot */}
@@ -322,7 +336,7 @@ export function MonthlyTimesheet({
                               {entry.description}
                             </div>
                           )}
-                        </button>
+                        </div>
                       );
                     })}
                     {dayEntries.length > 3 && (

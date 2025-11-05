@@ -99,16 +99,19 @@ export function CardInteractive({
   ariaLabel,
   className,
   children,
+  style: propsStyle,
   ...props
 }: CardInteractiveProps) {
   // Get gradient for the module color
   const gradient = getHubGradient(moduleColor);
 
   // Set CSS variables for module color and gradient
+  // Merge with any existing styles to ensure CSS variables are preserved
+  // CSS variables must come last to ensure they override any conflicting properties
   const style: React.CSSProperties = {
+    ...propsStyle,
     "--module-color": moduleColor,
     "--module-gradient": gradient,
-    ...props.style,
   } as React.CSSProperties;
 
   // If onClick is provided, render as button for better accessibility

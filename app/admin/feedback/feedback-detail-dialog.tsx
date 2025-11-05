@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   Bug,
   FileText,
@@ -10,7 +11,6 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

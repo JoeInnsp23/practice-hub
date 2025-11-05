@@ -2,6 +2,7 @@
 
 import { AlertCircle, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { DepartmentUtilizationChart } from "@/components/staff/department-utilization-chart";
 import { StaffComparisonTable } from "@/components/staff/staff-comparison-table";
 import { StaffTrendDialog } from "@/components/staff/staff-trend-dialog";
@@ -11,7 +12,6 @@ import { UtilizationHeatmap } from "@/components/staff/utilization-heatmap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { trpc } from "@/lib/trpc/client";
 import { exportStaffUtilizationToCSV } from "@/lib/utils/export-csv";
 
 export default function StaffStatisticsPage() {

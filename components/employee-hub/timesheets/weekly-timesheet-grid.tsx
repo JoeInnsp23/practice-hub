@@ -4,6 +4,7 @@ import { addDays, format, startOfWeek } from "date-fns";
 import { Edit2, Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 
 interface WeeklyTimesheetGridProps {

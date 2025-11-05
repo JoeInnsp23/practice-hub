@@ -1,0 +1,41 @@
+---
+description: Sentry, error formatting, rate limiting, and user messaging
+globs: "app/server/trpc.ts, app/**"
+---
+
+## Scope
+- Server error capture and client user feedback standards.
+
+## Do
+- Capture server errors via tRPC `errorFormatter` and send to Sentry (no `console` in prod).
+- Use non-PII tags/extra; include `tenantId`/`userId` when available.
+- Apply rate limiting globally (fast-path no-op in dev if not configured).
+- On the client, show user-friendly toasts via `react-hot-toast`; don’t show raw errors.
+
+## Don’t
+- Don’t use `console.log/warn/debug` in production (Biome `noConsole`).
+
+## References
+- `app/server/trpc.ts`
+- `CLAUDE.md` (Error Tracking & Logging Policy)
+
+## Minimal Error Formatter
+```ts
+// app/server/trpc.ts
+import { initTRPC } from "@trpc/server";
+import superjson from "superjson";
+import * as Sentry from "@sentry/nextjs";
+
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+  errorFormatter({ shape, error }) {
+    if (error.code !== "UNAUTHORIZED" && error.code !== "FORBIDDEN" && error.cause instanceof Error) {
+      Sentry.captureException(error.cause, {
+        tags: { area: "trpc", operation: shape.data.path || "unknown" },
+      });
+    }
+    return shape;
+  },
+});
+```
+

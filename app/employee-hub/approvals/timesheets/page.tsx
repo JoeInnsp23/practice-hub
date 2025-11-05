@@ -4,10 +4,10 @@ import * as Sentry from "@sentry/nextjs";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { TimesheetRejectModal } from "@/components/employee-hub/timesheets/timesheet-reject-modal";
 import { TimesheetSubmissionCard } from "@/components/employee-hub/timesheets/timesheet-submission-card";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc/client";
 
 export default function ApprovalsPage() {
   const [selectedSubmissions, setSelectedSubmissions] = useState<Set<string>>(

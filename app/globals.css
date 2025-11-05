@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./enhanced-design.css";
@@ -27,7 +26,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Outfit", var(--font-geist-sans);
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -79,72 +78,148 @@
   --glass-shadow-light: 0 10px 40px rgba(148, 163, 184, 0.3);
   --glass-shadow-dark: 0 10px 40px rgba(0, 0, 0, 0.5);
 
-  /* Practice-Hub Default Color Scheme (Slate-based) */
-  --card: oklch(1 0 0); /* white */
-  --card-foreground: oklch(0.15 0.028 247.9); /* slate-900 */
-  --popover: oklch(1 0 0); /* white */
-  --popover-foreground: oklch(0.15 0.028 247.9); /* slate-900 */
-  --primary: oklch(0.515 0.151 254.09); /* Deep blue #2563EB */
+  /* New Unique Teal-Based Color Scheme (Dark Mode - Default) */
+  /* Inspired by Cursor's beautiful teal but completely unique */
+  --card: oklch(0.18 0.025 251.3); /* Dark teal-ish slate */
+  --card-foreground: oklch(0.94 0.005 249.1); /* Light off-white */
+  --popover: oklch(0.18 0.025 251.3);
+  --popover-foreground: oklch(0.94 0.005 249.1);
+  --primary: oklch(0.56 0.15 196.6); /* Bright teal (not AI purple) */
+  --primary-foreground: oklch(0.08 0.015 251.3); /* Very dark teal */
+  --secondary: oklch(0.52 0.12 178.5); /* Secondary teal - different hue */
+  --secondary-foreground: oklch(0.95 0.003 249.1);
+  --muted: oklch(0.28 0.02 251.3); /* Darker for muted areas */
+  --muted-foreground: oklch(0.65 0.01 249.1);
+  --accent: oklch(0.72 0.17 62.1); /* Warm gold accent (not purple) */
+  --accent-foreground: oklch(0.08 0.015 251.3);
+  --destructive: oklch(0.62 0.23 29.2); /* Red for errors */
+  --border: oklch(0.25 0.022 251.3); /* Subtle dark border */
+  --input: oklch(0.13 0.02 251.3); /* Very dark for inputs */
+  --ring: oklch(0.56 0.15 196.6); /* Match primary teal */
+  --chart-1: oklch(0.56 0.15 196.6); /* Teal */
+  --chart-2: oklch(0.52 0.12 178.5); /* Secondary teal */
+  --chart-3: oklch(0.72 0.17 62.1); /* Gold */
+  --chart-4: oklch(0.45 0.08 251.3); /* Muted teal */
+  --chart-5: oklch(0.6 0.14 241.2); /* Cyan-ish */
+  --sidebar: oklch(0.12 0.018 251.3);
+  --sidebar-foreground: oklch(0.94 0.005 249.1);
+  --sidebar-primary: oklch(0.56 0.15 196.6);
+  --sidebar-primary-foreground: oklch(0.94 0.005 249.1);
+  --sidebar-accent: oklch(0.72 0.17 62.1);
+  --sidebar-accent-foreground: oklch(0.08 0.015 251.3);
+  --sidebar-border: oklch(0.25 0.022 251.3);
+  --sidebar-ring: oklch(0.56 0.15 196.6);
+  --background: oklch(0.1 0.018 251.3); /* Deep dark teal background */
+  --foreground: oklch(0.94 0.005 249.1); /* Light foreground */
+}
+
+.dark {
+  /* Dark mode - keep the dark teal theme */
+  --background: oklch(0.1 0.018 251.3);
+  --foreground: oklch(0.94 0.005 249.1);
+  --card: oklch(0.18 0.025 251.3);
+  --card-foreground: oklch(0.94 0.005 249.1);
+  --popover: oklch(0.18 0.025 251.3);
+  --popover-foreground: oklch(0.94 0.005 249.1);
+  --primary: oklch(0.56 0.15 196.6);
+  --primary-foreground: oklch(0.94 0.005 249.1);
+  --secondary: oklch(0.52 0.12 178.5);
+  --secondary-foreground: oklch(0.95 0.003 249.1);
+  --muted: oklch(0.28 0.02 251.3);
+  --muted-foreground: oklch(0.65 0.01 249.1);
+  --accent: oklch(0.72 0.17 62.1);
+  --accent-foreground: oklch(0.08 0.015 251.3);
+  --destructive: oklch(0.64 0.24 22.2);
+  --border: oklch(0.25 0.022 251.3);
+  --input: oklch(0.13 0.02 251.3);
+  --ring: oklch(0.56 0.15 196.6);
+  --chart-1: oklch(0.56 0.15 196.6);
+  --chart-2: oklch(0.52 0.12 178.5);
+  --chart-3: oklch(0.72 0.17 62.1);
+  --chart-4: oklch(0.45 0.08 251.3);
+  --chart-5: oklch(0.6 0.14 241.2);
+  --sidebar: oklch(0.12 0.018 251.3);
+  --sidebar-foreground: oklch(0.94 0.005 249.1);
+  --sidebar-primary: oklch(0.56 0.15 196.6);
+  --sidebar-primary-foreground: oklch(0.94 0.005 249.1);
+  --sidebar-accent: oklch(0.72 0.17 62.1);
+  --sidebar-accent-foreground: oklch(0.08 0.015 251.3);
+  --sidebar-border: oklch(0.25 0.022 251.3);
+  --sidebar-ring: oklch(0.56 0.15 196.6);
+}
+
+/* Light mode - responds to manual theme toggle */
+[data-theme="light"] {
+  /* Light mode - clean, readable, high contrast */
+  --background: oklch(0.985 0.002 247.84); /* Very light slate */
+  --foreground: oklch(0.2 0.03 247.9); /* Much darker text for readability */
+  --card: oklch(1 0 0); /* Pure white */
+  --card-foreground: oklch(0.2 0.03 247.9); /* Dark text on white cards */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.03 247.9);
+  --primary: oklch(0.515 0.151 254.09); /* Blue (keeping feedback button blue) */
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0.003 247.84); /* slate-100 */
-  --secondary-foreground: oklch(0.41 0.017 247.87); /* slate-600 */
-  --muted: oklch(0.97 0.003 247.84); /* slate-100 */
-  --muted-foreground: oklch(0.41 0.017 247.87); /* slate-600 */
-  --accent: oklch(0.654 0.161 162.57); /* Emerald #10B981 */
+  --secondary: oklch(0.97 0.003 247.84); /* Light slate */
+  --secondary-foreground: oklch(0.2 0.03 247.9); /* Darker for readability */
+  --muted: oklch(0.96 0.003 247.84); /* Slightly darker muted bg */
+  --muted-foreground: oklch(0.45 0.018 247.87); /* Much darker muted text */
+  --accent: oklch(0.654 0.161 162.57); /* Emerald accent */
   --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.549 0.215 29.23); /* Red #DC2626 */
-  --border: oklch(0.92 0.004 247.85); /* slate-200 */
-  --input: oklch(0.92 0.004 247.85); /* slate-200 */
-  --ring: oklch(0.515 0.151 254.09); /* Match primary */
-  --chart-1: oklch(0.515 0.151 254.09); /* Blue */
-  --chart-2: oklch(0.654 0.161 162.57); /* Emerald */
-  --chart-3: oklch(0.577 0.174 271.85); /* Violet */
-  --chart-4: oklch(0.502 0.015 256.79); /* Slate */
-  --chart-5: oklch(0.691 0.139 85.22); /* Amber */
+  --destructive: oklch(0.549 0.215 29.23);
+  --border: oklch(0.88 0.005 247.85); /* Slightly darker borders */
+  --input: oklch(0.98 0.002 247.85); /* Lighter input backgrounds */
+  --ring: oklch(0.515 0.151 254.09);
+  --chart-1: oklch(0.515 0.151 254.09);
+  --chart-2: oklch(0.654 0.161 162.57);
+  --chart-3: oklch(0.577 0.174 271.85);
+  --chart-4: oklch(0.502 0.015 256.79);
+  --chart-5: oklch(0.691 0.139 85.22);
   --sidebar: oklch(0.985 0.002 247.839);
-  --sidebar-foreground: oklch(0.13 0.028 261.692);
+  --sidebar-foreground: oklch(0.2 0.03 247.9); /* Darker sidebar text */
   --sidebar-primary: oklch(0.21 0.034 264.665);
   --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
   --sidebar-accent: oklch(0.967 0.003 264.542);
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
-  --sidebar-border: oklch(0.928 0.006 264.531);
-  --sidebar-ring: oklch(0.707 0.022 261.325);
-  --background: oklch(0.98 0.002 247.84); /* slate-50 for page bg */
-  --foreground: oklch(0.15 0.028 247.9); /* slate-900 */
+  --sidebar-border: oklch(0.88 0.006 264.531); /* Darker borders */
+  --sidebar-ring: oklch(0.515 0.151 254.09); /* Blue ring */
 }
 
-.dark {
-  --background: oklch(0.15 0.028 247.9); /* slate-900 for page bg */
-  --foreground: oklch(0.97 0.003 247.84); /* slate-100 */
-  --card: oklch(0.23 0.021 247.89); /* slate-800 */
-  --card-foreground: oklch(0.97 0.003 247.84); /* slate-100 */
-  --popover: oklch(0.23 0.021 247.89); /* slate-800 */
-  --popover-foreground: oklch(0.97 0.003 247.84); /* slate-100 */
-  --primary: oklch(0.515 0.151 254.09); /* Keep blue primary */
-  --primary-foreground: oklch(1 0 0); /* white */
-  --secondary: oklch(0.31 0.019 247.88); /* slate-700 */
-  --secondary-foreground: oklch(0.86 0.007 247.86); /* slate-300 */
-  --muted: oklch(0.31 0.019 247.88); /* slate-700 */
-  --muted-foreground: oklch(0.68 0.014 247.86); /* slate-400 */
-  --accent: oklch(0.654 0.161 162.57); /* Keep emerald accent */
-  --accent-foreground: oklch(1 0 0); /* white */
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.31 0.019 247.88); /* slate-700 */
-  --input: oklch(0.31 0.019 247.88); /* slate-700 */
-  --ring: oklch(0.515 0.151 254.09); /* Match primary */
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.034 264.665);
-  --sidebar-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-accent: oklch(0.278 0.033 256.848);
-  --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+/* Fallback for system preference when no manual theme is set */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    /* Light mode - clean, readable, high contrast */
+    --background: oklch(0.985 0.002 247.84); /* Very light slate */
+    --foreground: oklch(0.2 0.03 247.9); /* Much darker text for readability */
+    --card: oklch(1 0 0); /* Pure white */
+    --card-foreground: oklch(0.2 0.03 247.9); /* Dark text on white cards */
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.2 0.03 247.9);
+    --primary: oklch(0.515 0.151 254.09); /* Blue (keeping feedback button blue) */
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.97 0.003 247.84); /* Light slate */
+    --secondary-foreground: oklch(0.2 0.03 247.9); /* Darker for readability */
+    --muted: oklch(0.96 0.003 247.84); /* Slightly darker muted bg */
+    --muted-foreground: oklch(0.45 0.018 247.87); /* Much darker muted text */
+    --accent: oklch(0.654 0.161 162.57); /* Emerald accent */
+    --accent-foreground: oklch(1 0 0);
+    --destructive: oklch(0.549 0.215 29.23);
+    --border: oklch(0.88 0.005 247.85); /* Slightly darker borders */
+    --input: oklch(0.98 0.002 247.85); /* Lighter input backgrounds */
+    --ring: oklch(0.515 0.151 254.09);
+    --chart-1: oklch(0.515 0.151 254.09);
+    --chart-2: oklch(0.654 0.161 162.57);
+    --chart-3: oklch(0.577 0.174 271.85);
+    --chart-4: oklch(0.502 0.015 256.79);
+    --chart-5: oklch(0.691 0.139 85.22);
+    --sidebar: oklch(0.985 0.002 247.839);
+    --sidebar-foreground: oklch(0.2 0.03 247.9); /* Darker sidebar text */
+    --sidebar-primary: oklch(0.21 0.034 264.665);
+    --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
+    --sidebar-accent: oklch(0.967 0.003 264.542);
+    --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
+    --sidebar-border: oklch(0.88 0.006 264.531); /* Darker borders */
+    --sidebar-ring: oklch(0.515 0.151 254.09); /* Blue ring */
+  }
 }
 
 @layer base {
@@ -303,6 +378,71 @@
   .gradient-soft {
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   }
+
+  /* Hub gradient utilities */
+  .bg-hub-rail {
+    background: var(--hub-gradient-rail);
+  }
+
+  .bg-hub-cta {
+    background: var(--hub-gradient-cta);
+    color: #fff;
+  }
+
+  .bg-hub-soft {
+    background: var(--hub-gradient-soft);
+  }
+
+  .text-hub-gradient {
+    background: var(--hub-gradient-dim);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* ==========================================================================
+ * HUB THEME VARIABLES
+ * Map a hub color to primary/ring and derived shades across the page.
+ * Apply by setting `data-hub-root` on a wrapper and `--hub-color` inline.
+ * ==========================================================================
+ */
+[data-hub-root] {
+  /* Hub base color (set inline by layout) */
+  --hub-color: var(--primary);
+  /* Derived shades (oklch color-mix for modern browsers) */
+  --hub-color-400: color-mix(in oklch, var(--hub-color) 88%, white 12%);
+  --hub-color-500: var(--hub-color);
+  --hub-color-600: color-mix(in oklch, var(--hub-color) 90%, black 10%);
+  --hub-color-700: color-mix(in oklch, var(--hub-color) 80%, black 20%);
+
+  /* Wire to design tokens so components pick up hub accent automatically */
+  --primary: var(--hub-color-500);
+  --ring: var(--hub-color-500);
+
+  /* Hub gradients and soft tints */
+  --hub-soft-50: color-mix(in oklch, var(--hub-color-500) 6%, white 94%);
+  --hub-soft-100: color-mix(in oklch, var(--hub-color-500) 12%, white 88%);
+  --hub-gradient-rail: linear-gradient(
+    90deg,
+    var(--hub-color-500),
+    var(--hub-color-600)
+  );
+  --hub-gradient-cta: linear-gradient(
+    90deg,
+    var(--hub-color-500),
+    var(--hub-color-700)
+  );
+  --hub-gradient-dim: linear-gradient(
+    90deg,
+    var(--hub-color-400),
+    var(--hub-color-500)
+  );
+  --hub-gradient-soft: linear-gradient(
+    180deg,
+    var(--hub-soft-50),
+    var(--hub-soft-100)
+  );
 }
 
 /* Accessibility Media Queries */

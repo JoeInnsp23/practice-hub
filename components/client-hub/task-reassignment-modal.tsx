@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +31,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { trpc } from "@/lib/trpc/client";
 
 const reassignmentSchema = z.object({
   toUserId: z.string().min(1, "Please select a user"),

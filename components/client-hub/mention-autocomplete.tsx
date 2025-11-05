@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import {
   Popover,
   PopoverContent,
@@ -11,7 +12,6 @@ import {
   insertMention,
   isInMentionContext,
 } from "@/lib/services/mention-parser";
-import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 
 interface MentionAutocompleteProps {

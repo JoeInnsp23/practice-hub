@@ -19,6 +19,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +53,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { dataToCSV } from "@/lib/services/csv-import";
-import { trpc } from "@/lib/trpc/client";
 
 type EntityType = "clients" | "tasks" | "services";
 type ImportStatus =

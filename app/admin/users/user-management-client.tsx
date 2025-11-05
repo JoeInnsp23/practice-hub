@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import {
   Activity,
   Edit,
@@ -16,7 +17,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";

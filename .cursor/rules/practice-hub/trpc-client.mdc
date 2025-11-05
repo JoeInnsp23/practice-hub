@@ -1,0 +1,60 @@
+---
+description: Client integration via @trpc/react-query (no createTRPCNext)
+globs: "app/providers/trpc-provider.tsx, **/*.tsx"
+---
+
+## Scope
+- How to wire TRPC provider and use hooks in client components.
+
+## Do
+- Use `createTRPCReact<AppRouter>()` with a single app-level provider.
+- Use `httpBatchLink`; enable `loggerLink` in development.
+- Use `useQuery`/`useMutation` with appropriate `staleTime` and invalidation.
+
+## Don’t
+- Don’t use `createTRPCNext` (Pages Router only).
+
+## Reference
+- `app/providers/trpc-provider.tsx`
+
+## Minimal Provider
+```tsx
+"use client";
+import { createTRPCReact } from "@trpc/react-query";
+import { httpBatchLink, loggerLink } from "@trpc/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { AppRouter } from "@/app/server";
+
+export const trpc = createTRPCReact<AppRouter>();
+
+export function TRPCProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient();
+  return (
+    <trpc.Provider
+      queryClient={queryClient}
+      links={[
+        loggerLink({
+          enabled: (op) =>
+            process.env.NODE_ENV === "development" ||
+            (op.direction === "down" && op.result instanceof Error),
+        }),
+        httpBatchLink({ url: "/api/trpc" }),
+      ]}
+    >
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </trpc.Provider>
+  );
+}
+```
+
+## Usage
+```tsx
+"use client";
+import { trpc } from "@/app/providers/trpc-provider";
+
+export function ClientCount() {
+  const { data } = trpc.clients.list.useQuery();
+  return <span>{data?.length ?? 0}</span>;
+}
+```
+

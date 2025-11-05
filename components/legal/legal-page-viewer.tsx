@@ -4,9 +4,9 @@ import { FileText } from "lucide-react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/lib/trpc/client";
 
 interface LegalPageViewerProps {
   pageType: "privacy" | "terms" | "cookie_policy";

@@ -48,7 +48,11 @@ export default function ClientHubLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div
+      data-hub-root
+      style={{ ["--hub-color" as any]: HUB_COLORS["client-hub"] }}
+      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+    >
       <GlobalHeader
         moduleName="Client Hub"
         title="Client Hub"

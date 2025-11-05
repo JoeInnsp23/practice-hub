@@ -14,6 +14,7 @@ import { importLogsRouter } from "./routers/import-logs";
 import { integrationsRouter } from "./routers/integrations";
 import { invitationsRouter } from "./routers/invitations";
 import { invoicesRouter } from "./routers/invoices";
+import { landingRouter } from "./routers/landing";
 import { leadsRouter } from "./routers/leads";
 import { leaveRouter } from "./routers/leave";
 import { legalRouter } from "./routers/legal";
@@ -89,6 +90,7 @@ export const appRouter = router({
   legal: legalRouter,
   importLogs: importLogsRouter,
   integrations: integrationsRouter,
+  landing: landingRouter,
 });
 
 export type AppRouter = typeof appRouter;

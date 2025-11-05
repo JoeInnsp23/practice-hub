@@ -1,10 +1,11 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { addDays, format, isSameDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import * as Sentry from "@sentry/nextjs";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
   type TimeEntry,
@@ -19,11 +20,13 @@ import { TimeEntryModal } from "./time-entry-modal";
 interface HourlyTimesheetProps {
   initialWeekStart?: Date;
   onViewChange?: (view: "daily" | "weekly" | "monthly") => void;
+  selectedUserId?: string; // Optional: for admin to view specific user's timesheets
 }
 
 export function HourlyTimesheet({
   initialWeekStart = new Date(),
   onViewChange,
+  selectedUserId,
 }: HourlyTimesheetProps) {
   const [currentWeek, setCurrentWeek] = useState(
     startOfWeek(initialWeekStart, { weekStartsOn: 1 }),
@@ -41,16 +44,30 @@ export function HourlyTimesheet({
   const { data: workTypesData } = useWorkTypes();
   const workTypes = workTypesData?.workTypes || [];
 
-  // Empty arrays until API is connected
-  const clients: Array<{ id: string; name: string }> = [];
-  const tasks: Array<{ id: string; name: string; clientId?: string }> = [];
+  // Fetch clients and tasks from database
+  const { data: clientsData } = trpc.clients.list.useQuery({});
+  const { data: tasksData } = trpc.tasks.list.useQuery({});
+
+  const clients: Array<{ id: string; name: string }> =
+    clientsData?.clients.map((c) => ({ id: c.id, name: c.name })) || [];
+  const tasks: Array<{ id: string; name: string; clientId?: string }> =
+    tasksData?.tasks.map((t) => ({
+      id: t.id,
+      name: t.title,
+      clientId: t.clientId || undefined,
+    })) || [];
 
   // Get week dates
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
   const weekStart = format(currentWeek, "yyyy-MM-dd");
   const weekEnd = format(addDays(currentWeek, 6), "yyyy-MM-dd");
 
-  const { data: timeEntries } = useTimeEntries(weekStart, weekEnd, refreshKey);
+  const { data: timeEntries } = useTimeEntries(
+    weekStart,
+    weekEnd,
+    refreshKey,
+    selectedUserId,
+  );
 
   // Generate 24 hours (12am to 11pm)
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -306,13 +323,22 @@ export function HourlyTimesheet({
                 </div>
                 {weekDays.map((day, dayIndex) => {
                   const entries = getEntriesForSlot(day, slot.hour);
+                  const unscheduledEntries =
+                    slot.hour === 0
+                      ? getEntriesForSlot(day).filter(
+                          (entry) =>
+                            !entry.startTime || entry.startTime.trim() === "",
+                        )
+                      : [];
                   const isWeekend = dayIndex >= 5;
                   const isToday = currentTime && isSameDay(day, currentTime);
 
                   return (
-                    <button
-                      type="button"
+                    // biome-ignore lint/a11y/useSemanticElements: Div container avoids nested button semantics
+                    <div
                       key={day.toISOString()}
+                      role="button"
+                      tabIndex={0}
                       className={cn(
                         "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer w-full text-left",
                         "hover:bg-slate-100 dark:hover:bg-slate-700/50",
@@ -329,6 +355,71 @@ export function HourlyTimesheet({
                         }
                       }}
                     >
+                      {unscheduledEntries.length > 0 && (
+                        <div className="space-y-1 mb-1">
+                          {unscheduledEntries.map((entry) => {
+                            const workType = workTypes.find(
+                              (wt) =>
+                                wt.code ===
+                                (entry.workType || "WORK").toUpperCase(),
+                            );
+                            const workTypeColor =
+                              workType?.colorCode || "#94a3b8";
+                            const workTypeLabel = workType?.label || "Unknown";
+
+                            return (
+                              // biome-ignore lint/a11y/useSemanticElements: Div avoids nested interactive button structure
+                              <div
+                                key={`unscheduled-${entry.id || `${entry.date}-${entry.hours}`}`}
+                                className="w-full text-left text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
+                                style={{
+                                  backgroundColor: `${workTypeColor}20`,
+                                  borderLeftColor: workTypeColor,
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedEntry(entry);
+                                  setSelectedDate(new Date(entry.date));
+                                  setIsModalOpen(true);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSelectedEntry(entry);
+                                    setSelectedDate(new Date(entry.date));
+                                    setIsModalOpen(true);
+                                  }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                              >
+                                <div className="flex items-center gap-1">
+                                  <div
+                                    className={cn(
+                                      "w-1.5 h-1.5 rounded-full flex-shrink-0",
+                                      entry.billable
+                                        ? "bg-red-500"
+                                        : "bg-blue-500",
+                                    )}
+                                  />
+                                  <span className="font-medium truncate flex-1">
+                                    {workTypeLabel}
+                                  </span>
+                                  {entry.hours && (
+                                    <span className="text-[10px]">
+                                      {entry.hours}h
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                                    No start time
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                       {entries.length > 0 && (
                         <div className="space-y-1">
                           {entries.slice(0, 2).map((entry) => {
@@ -343,8 +434,8 @@ export function HourlyTimesheet({
                             const workTypeLabel = workType?.label || "Unknown";
 
                             return (
-                              <button
-                                type="button"
+                              // biome-ignore lint/a11y/useSemanticElements: Div avoids nested interactive button structure
+                              <div
                                 key={entry.id || `${entry.date}-${entry.hours}`}
                                 className="w-full text-left text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
                                 style={{
@@ -366,6 +457,8 @@ export function HourlyTimesheet({
                                     setIsModalOpen(true);
                                   }
                                 }}
+                                role="button"
+                                tabIndex={0}
                               >
                                 <div className="flex items-center gap-1">
                                   <div
@@ -385,7 +478,7 @@ export function HourlyTimesheet({
                                     </span>
                                   )}
                                 </div>
-                              </button>
+                              </div>
                             );
                           })}
                           {entries.length > 2 && (
@@ -395,7 +488,7 @@ export function HourlyTimesheet({
                           )}
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

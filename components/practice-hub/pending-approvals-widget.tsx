@@ -2,10 +2,10 @@
 
 import { CheckCircle2, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
-import { trpc } from "@/lib/trpc/client";
 
 export function PendingApprovalsWidget() {
   const router = useRouter();

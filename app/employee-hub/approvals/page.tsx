@@ -2,10 +2,10 @@
 
 import { CheckCircle, Clock, Umbrella } from "lucide-react";
 import Link from "next/link";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc/client";
 
 export default function ApprovalQueuePage() {
   // Fetch pending approvals

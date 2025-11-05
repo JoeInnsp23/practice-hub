@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { trpc } from "@/app/providers/trpc-provider";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/lib/trpc/client";
 
 interface StaffTrendDialogProps {
   userId: string | null;

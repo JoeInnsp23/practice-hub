@@ -13,6 +13,7 @@ import {
 import Papa from "papaparse";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { ClientBreakdown } from "@/components/client-hub/reports/client-breakdown";
 import { RevenueChart } from "@/components/client-hub/reports/revenue-chart";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { trpc } from "@/lib/trpc/client";
 import { formatCurrency, formatHours } from "@/lib/utils/format";
 
 type PeriodType =

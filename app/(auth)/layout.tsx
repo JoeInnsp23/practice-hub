@@ -3,9 +3,6 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      {children}
-    </div>
-  );
+  // Children (sign-in/sign-up pages) handle their own layout now
+  return <>{children}</>;
 }

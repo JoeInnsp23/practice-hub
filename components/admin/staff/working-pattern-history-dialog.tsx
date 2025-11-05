@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { Calendar, Clock } from "lucide-react";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -19,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 
 // Pattern type labels
 const PATTERN_TYPE_LABELS: Record<string, string> = {

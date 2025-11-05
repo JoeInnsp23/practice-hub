@@ -1,0 +1,96 @@
+## Practice Hub UI/UX — Project Rule (Cursor)
+
+Scope: Applies to all product UI in this repository (Next.js App Router). These rules make the interface feel precise, warm, and easy, while remaining distinctive per hub.
+
+### Brand & Personality
+- Precise, warm, easy (authoritative tone; never flashy for its own sake).
+- Typeface: Outfit for all text tiers (headings, body, UI).
+- No A/B testing in product UX; we ship opinionated, high‑polish design.
+
+### Multi‑Hub Theming (authoritative)
+- Use `HUB_COLORS` and the hub root wrapper to theme per hub.
+  - Wrap hub pages with `data-hub-root` and set `--hub-color` so components inherit hub accent.
+  - Primary color and focus ring are derived from hub color.
+- Gradients & tints are auto‑derived; do not hand‑roll hex variants.
+
+### Visual System
+- Surfaces: Hybrid
+  - Product UI: bordered/flat (solid backgrounds), low shadow depth.
+  - Marketing/highlights: glass allowed in moderation.
+  - Keep the animated accent rail for interactive cards.
+- Density & radii
+  - Medium density by default.
+  - Radii from tokens: base `--radius: 0.5rem`; use `--radius-lg` for cards/panels.
+- Color & contrast
+  - Maintain WCAG 2.1 AA contrast; prefer neutral surfaces with hub‑accent accents.
+  - Use hub gradients/tints (see Gradient Tokens) instead of generic rainbow/AI blobs.
+
+### Motion & Interaction
+- Motion personality: gentle (160–220ms ease‑out, low amplitude).
+- Respect `prefers-reduced-motion`; disable non‑essential transforms.
+- Hover/focus affordances must be clear and consistent.
+
+### Components — Required Defaults
+- Cards
+  - Use `Card` for static content; `CardInteractive` for clickable/interactive blocks.
+  - `CardInteractive` uses the animated hub gradient rail; keep it enabled.
+- Buttons
+  - Primary = solid accent (flat), inherits hub color automatically.
+  - Focus halo is hub‑accent; disabled states reduce opacity (no color shifts).
+- Inputs
+  - Soft filled boxes with subtle border; hub‑accent focus ring.
+  - Inline validation with clear, concise messaging.
+- Tables
+  - Hairline row dividers with hover highlight; avoid zebra striping.
+  - Sticky headers and progressive disclosure for dense views where needed.
+- Icons
+  - Duotone icons with subtle gradient (hub accent fill + neutral base), 1.5px rounded stroke.
+  - Fallback to outline at ≤16px for clarity.
+- Header/Sidebar
+  - Keep neutral surfaces with hub‑accent indicators (current pattern).
+
+### Gradient & Tint Tokens (usage)
+- Use hub‑derived utilities instead of bespoke CSS:
+  - Accent rails/badges: `.bg-hub-rail`
+  - Stronger CTA strips/hero chips: `.bg-hub-cta`
+  - Soft section backgrounds: `.bg-hub-soft`
+  - Gradient headings: `.text-hub-gradient`
+
+### Accessibility (must)
+- WCAG 2.1 AA minimum for text/icons.
+- Keyboard first: `:focus-visible` rings (hub‑accent) on all interactive elements.
+- Provide alt text for non‑text media; announce async states (live regions when needed).
+- Respect reduced motion and high‑contrast user settings.
+
+### Performance & Quality
+- Optimize icons/illustrations (SVG preferred; minimal DOM).
+- Lazy load non‑critical media; code‑split heavy views.
+- Keep motion GPU‑friendly (opacity/transform only); prefer CSS animations.
+
+### Content & IA
+- Clear visual hierarchy (typographic scale, spacing rhythm).
+- Progressive disclosure; avoid overwhelming first views.
+- Consistent terminology and tone; concise, purposeful microcopy.
+
+### Consistency & System Use
+- Use shared components first; do not hand‑roll styles that exist in the design system.
+- Use design tokens and hub utilities (`--hub-color`, gradient classes); avoid hardcoded hex/rgb.
+- Keep light/dark parity; verify in both themes before merging.
+
+### Prohibited (anti‑goals)
+- Generic “AI SaaS” visual clichés: neon purple/blue blob gradients, excessive glass, chat‑bubble chrome.
+- Introducing alternate toast/notification libraries (use `react-hot-toast`).
+- Overly heavy shadows, low‑contrast text, or focus states that rely only on color.
+
+### Review Checklist (PR gate)
+- [ ] Uses shared components and tokens; no bespoke hex colors.
+- [ ] Hub accent applied via `data-hub-root`; focus rings are hub‑accented.
+- [ ] Surfaces follow hybrid rule; animated rail kept for interactive cards.
+- [ ] Buttons = solid accent; inputs = soft filled; tables = hairline + hover.
+- [ ] Motion is gentle; respects reduced‑motion.
+- [ ] Passes AA contrast; keyboard navigation works end‑to‑end.
+- [ ] Verified in light and dark themes.
+
+Notes
+- Hub colors live in `lib/utils/hub-colors.ts`; gradients and hub variables in `app/globals.css`.
+- Follow repository “Critical Design Elements” and error/logging policies in `CLAUDE.md`.

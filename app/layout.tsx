@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Outfit } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { TRPCProvider } from "@/app/providers/trpc-provider";
 import { FeedbackButton } from "@/components/feedback/feedback-button";
@@ -7,9 +7,10 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Footer } from "@/components/shared/footer";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -28,10 +29,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
-      >
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${outfit.variable} ${geistMono.variable}`}
+    >
+      <body className="font-sans antialiased flex flex-col min-h-screen">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

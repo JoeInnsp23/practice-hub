@@ -3,6 +3,7 @@
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
+import { trpc as api } from "@/app/providers/trpc-provider";
 import { ClientOnly } from "@/components/client-only";
 import { NavigationTabs } from "@/components/practice-hub/NavigationTabs";
 import { PendingApprovalsWidget } from "@/components/practice-hub/pending-approvals-widget";
@@ -16,9 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { useSession } from "@/lib/auth-client";
-import { api } from "@/lib/trpc/client";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 interface PracticeHubClientProps {
   userRole?: string;

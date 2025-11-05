@@ -3,6 +3,7 @@
 import { Ban, Calendar, Flag, RotateCcw, Settings } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +32,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/lib/trpc/client";
 
 interface ClientTemplateOverridesProps {
   clientId: string;

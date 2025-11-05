@@ -2,11 +2,11 @@
 
 import { AlertCircle, TrendingUp, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { trpc } from "@/lib/trpc/client";
 
 export function TeamCapacityWidget() {
   const router = useRouter();

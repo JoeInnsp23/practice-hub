@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,7 +34,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { trpc } from "@/lib/trpc/client";
 
 const capacityFormSchema = z.object({
   userId: z.string().min(1, "Please select a staff member"),
