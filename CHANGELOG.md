@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Practice Hub Redesign (Phase 2)
+- **Company Announcements System**: Multi-tenant announcement management with priority levels (info/warning/critical), schedule windows, and pin-to-top functionality
+- **Admin Announcements Page**: Complete CRUD interface with icon picker, color customization, and status toggling
+- **Urgent Tasks Widget**: Server-computed widget showing top 5 urgent tasks (high priority or due within 5 days) with client names and due date formatting
+- **Need Help Card**: Support contact widget with email, phone, and live chat options
+- **Two-Column Layout**: Redesigned Practice Hub main page with left column (welcome, approvals, navigation) and right column (announcements, tasks, help)
+- **Hub Color Theming**: Advanced CSS variable system with derived color shades (`--hub-color-400/500/600`) and gradient rail decorations
+- **Enhanced CardInteractive**: Animated gradient left rail on hover, integrated with hub color system
+- **Role-Based Widgets**: Admin-only gating for pending approvals widget using session router
+
+### Added - Testing Infrastructure
+- Announcements router tests: CRUD, schedule window filtering, multi-tenant isolation, pin/active toggling
+- Tasks router tests: getTopUrgentTasks with priority filtering, due date ordering, user-scoped results
+- Integration tests for announcement priority badges and client name joins
+- Vitest test coverage for new widget components
+
+### Changed - UI/UX Improvements
+- Updated AppCard component to use CardInteractive for consistency
+- Removed sidebar references from Practice Hub layout (full-width content)
+- Enhanced glass-card design system with interactive hover states
+- Improved announcement display with icon mapping and color theming
+
+### Technical
+- Added session router for client-side role access (eliminates prop drilling)
+- Server-side urgent tasks computation for performance optimization
+- Schedule window filtering with nullable date handling (startsAt/endsAt)
+- Pin-first ordering with composite database index (tenantId, isPinned, createdAt)
+- Admin-only procedures for announcement management operations
+
 ### Documentation
 - Complete environment variables reference (`ENVIRONMENT_VARIABLES.md`)
 - Complete database schema documentation (`DATABASE_SCHEMA.md`)
