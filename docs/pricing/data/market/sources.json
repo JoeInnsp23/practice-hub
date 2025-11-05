@@ -124,5 +124,32 @@
     "credibility_score": 8,
     "source_type": "published_pricing_page",
     "notes": "Digital accounting platform with transparent pricing"
+  },
+  {
+    "source_id": "SRC015",
+    "brand": "The Online Accountants",
+    "url": "https://theonlineaccountants.uk/accountants-fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Fixed-fee packages from £349/year for year-end accounts"
+  },
+  {
+    "source_id": "SRC016",
+    "brand": "Xcountant",
+    "url": "https://xcountant.com/accountants-fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Transparent three-tier pricing (Bronze/Silver/Gold)"
+  },
+  {
+    "source_id": "SRC017",
+    "brand": "Quick Tax Returns",
+    "url": "https://www.quicktaxreturns.co.uk/accountant-fees-for-tax-returns-uk-2025/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 7,
+    "source_type": "published_pricing_page",
+    "notes": "Tax return specialist with published fee structure"
   }
 ]
