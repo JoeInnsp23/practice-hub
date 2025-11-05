@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import { and, desc, eq, gte, lte, or } from "drizzle-orm";
 import { z } from "zod";
 import { announcements } from "@/lib/db/schema";
-import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, router, protectedProcedure } from "../trpc";
 
 // Validation schemas
 const announcementCreateSchema = z.object({
@@ -32,7 +32,7 @@ const announcementUpdateSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export const announcementsRouter = createTRPCRouter({
+export const announcementsRouter = router({
   /**
    * Public query - Get active, visible announcements for Practice Hub
    * Returns announcements that:
