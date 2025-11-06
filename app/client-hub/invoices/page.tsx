@@ -377,6 +377,7 @@ export default function InvoicesPage() {
       {/* Invoice Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent
+          data-hub-root
           className="max-w-4xl max-h-[90vh] overflow-y-auto"
           style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
         >

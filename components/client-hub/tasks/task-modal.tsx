@@ -152,6 +152,7 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
       }}
     >
       <DialogContent
+        data-hub-root
         data-testid="task-form-modal"
         className="max-w-lg"
         style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
