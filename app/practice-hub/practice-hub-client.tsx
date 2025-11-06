@@ -8,7 +8,6 @@ import {
   ExternalLink,
   FileText,
   Globe,
-  LayoutGrid,
   type LucideIcon,
   Settings,
   Share2,
@@ -75,7 +74,7 @@ const PRACTICE_HUB_MODULES: Array<{
     url: "/social-hub",
     icon: Share2,
     hubKey: "social-hub",
-    status: "active",
+    status: "coming-soon",
   },
   {
     name: "Portal Hub",
@@ -83,7 +82,7 @@ const PRACTICE_HUB_MODULES: Array<{
     url: "/client-admin",
     icon: Globe,
     hubKey: "portal-hub",
-    status: "active",
+    status: "coming-soon",
   },
   {
     name: "Admin Hub",
@@ -125,7 +124,7 @@ interface PracticeHubClientProps {
 }
 
 export function PracticeHubClient({
-  userRole: _userRole,
+  userRole,
   userName,
 }: PracticeHubClientProps) {
   const { data: session } = useSession();
@@ -133,6 +132,17 @@ export function PracticeHubClient({
 
   // Use passed userName or fall back to session user data
   const displayName = userName || session?.user?.name?.split(" ")[0] || "User";
+
+  // Get user role from props or session
+  const currentUserRole = userRole || session?.user?.role;
+
+  // Filter modules based on user role - only show Admin Hub to admins
+  const visibleModules = PRACTICE_HUB_MODULES.filter((module) => {
+    if (module.hubKey === "admin-hub") {
+      return currentUserRole === "admin";
+    }
+    return true;
+  });
 
   // Fetch portal data for external links only
   const { data: categoriesWithLinks, isLoading } =
@@ -150,7 +160,7 @@ export function PracticeHubClient({
       ? externalCategories
       : externalCategories.filter((cat) => cat.id === selectedCategory);
 
-  const handleAppClick = (app: (typeof PRACTICE_HUB_MODULES)[0]) => {
+  const handleAppClick = (app: (typeof visibleModules)[0]) => {
     if (app.status === "active") {
       window.location.href = app.url;
     }
@@ -193,7 +203,7 @@ export function PracticeHubClient({
               {/* Practice Hub Tab */}
               <TabsContent value="practice-hub" className="mt-0">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {PRACTICE_HUB_MODULES.map((module, index) => {
+                  {visibleModules.map((module, index) => {
                     const IconComponent = module.icon;
                     const isComingSoon = module.status === "coming-soon";
                     const moduleColor = HUB_COLORS[module.hubKey];
