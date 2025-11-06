@@ -2,7 +2,7 @@
  * @deprecated This file is deprecated as of STORY-4.6: Work Type Migration to Database
  *
  * Work types are now stored in the database (work_types table) and managed via:
- * - Admin UI: /admin/settings/work-types
+ * - Admin UI: /admin-hub/settings/work-types
  * - React Hook: useWorkTypes() from @/lib/hooks/use-work-types
  * - tRPC Router: workTypesRouter in @/app/server/routers/workTypes
  *

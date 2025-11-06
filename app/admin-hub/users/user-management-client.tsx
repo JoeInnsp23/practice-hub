@@ -385,7 +385,7 @@ export function UserManagementClient({
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => router.push(`/admin/users/${user.id}`)}
+                          onClick={() => router.push(`/admin-hub/users/${user.id}`)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           View Details

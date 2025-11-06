@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       );
 
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=${encodeURIComponent(errorDescription || error)}`,
+        `${process.env.NEXT_PUBLIC_APP_URL}/admin-hub/settings/integrations?xeroError=${encodeURIComponent(errorDescription || error)}`,
       );
     }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       console.error("[Xero OAuth] No Xero organizations found");
 
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=no_organizations`,
+        `${process.env.NEXT_PUBLIC_APP_URL}/admin-hub/settings/integrations?xeroError=no_organizations`,
       );
     }
 
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
 
     // Redirect to integrations settings page with success
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroConnected=true`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/admin-hub/settings/integrations?xeroConnected=true`,
     );
   } catch (error) {
     Sentry.captureException(error, {
@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.redirect(
-          `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=connection_failed`,
+          `${process.env.NEXT_PUBLIC_APP_URL}/admin-hub/settings/integrations?xeroError=connection_failed`,
         );
       } catch {
         // If state parsing fails, just redirect to integrations page
@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/admin/settings/integrations?xeroError=connection_failed`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/admin-hub/settings/integrations?xeroError=connection_failed`,
     );
   }
 }

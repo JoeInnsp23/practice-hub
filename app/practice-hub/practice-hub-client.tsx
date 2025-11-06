@@ -14,7 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
+import { getIconComponent } from "@/app/admin-hub/portal-links/icon-utils";
 import { trpc as api } from "@/app/providers/trpc-provider";
 import { ClientOnly } from "@/components/client-only";
 import { AnnouncementsPanel } from "@/components/practice-hub/announcements-panel";

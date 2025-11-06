@@ -11,7 +11,7 @@ export const metadata = {
 /**
  * Admin Legal Settings Page
  * Allows administrators to edit legal page content
- * Accessible at /admin/settings/legal (admin-only)
+ * Accessible at /admin-hub/settings/legal (admin-only)
  */
 export default function AdminLegalSettingsPage() {
   return (

@@ -90,27 +90,27 @@
 | `users.ts` | [Auto-detected] | See file |
 | `workflows.ts` | [Auto-detected] | See file |
 | `workingPatterns.ts` | [Auto-detected] | See file |--|-------------|
-| `/admin/` | [Auto-detected] | Member |
-| `/admin/api-docs` | [Auto-detected] | Member |
-| `/admin/departments` | [Auto-detected] | Member |
-| `/admin/feedback` | [Auto-detected] | Member |
-| `/admin/invitations` | [Auto-detected] | Member |
-| `/admin/kyc-review` | [Auto-detected] | Member |
-| `/admin/kyc-review/[id]` | [Auto-detected] | Member |
-| `/admin/leave/approvals` | [Auto-detected] | Member |
-| `/admin/portal-links` | [Auto-detected] | Member |
-| `/admin/pricing` | [Auto-detected] | Member |
-| `/admin/settings/email-templates` | [Auto-detected] | Member |
-| `/admin/settings/import-history` | [Auto-detected] | Member |
-| `/admin/settings/integrations` | [Auto-detected] | Member |
-| `/admin/settings/legal` | [Auto-detected] | Member |
-| `/admin/settings/work-types` | [Auto-detected] | Member |
-| `/admin/staff/capacity` | [Auto-detected] | Member |
-| `/admin/staff/statistics` | [Auto-detected] | Member |
-| `/admin/staff/utilization` | [Auto-detected] | Member |
-| `/admin/staff/working-patterns` | [Auto-detected] | Member |
-| `/admin/users` | [Auto-detected] | Member |
-| `/admin/users/[id]` | [Auto-detected] | Member ||-------------|--------------|
+| `/admin-hub/` | [Auto-detected] | Member |
+| `/admin-hub/api-docs` | [Auto-detected] | Member |
+| `/admin-hub/departments` | [Auto-detected] | Member |
+| `/admin-hub/feedback` | [Auto-detected] | Member |
+| `/admin-hub/invitations` | [Auto-detected] | Member |
+| `/admin-hub/kyc-review` | [Auto-detected] | Member |
+| `/admin-hub/kyc-review/[id]` | [Auto-detected] | Member |
+| `/admin-hub/leave/approvals` | [Auto-detected] | Member |
+| `/admin-hub/portal-links` | [Auto-detected] | Member |
+| `/admin-hub/pricing` | [Auto-detected] | Member |
+| `/admin-hub/settings/email-templates` | [Auto-detected] | Member |
+| `/admin-hub/settings/import-history` | [Auto-detected] | Member |
+| `/admin-hub/settings/integrations` | [Auto-detected] | Member |
+| `/admin-hub/settings/legal` | [Auto-detected] | Member |
+| `/admin-hub/settings/work-types` | [Auto-detected] | Member |
+| `/admin-hub/staff/capacity` | [Auto-detected] | Member |
+| `/admin-hub/staff/statistics` | [Auto-detected] | Member |
+| `/admin-hub/staff/utilization` | [Auto-detected] | Member |
+| `/admin-hub/staff/working-patterns` | [Auto-detected] | Member |
+| `/admin-hub/users` | [Auto-detected] | Member |
+| `/admin-hub/users/[id]` | [Auto-detected] | Member ||-------------|--------------|
 | `/[module]` | Main page | [Admin \| Member \| Client] |
 | `/[module]/[feature]` | Feature page | [Access level] |
 

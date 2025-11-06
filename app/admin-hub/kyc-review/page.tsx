@@ -288,7 +288,7 @@ export default function AdminKYCReviewPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Link href={`/admin/kyc-review/${verification.id}`}>
+                        <Link href={`/admin-hub/kyc-review/${verification.id}`}>
                           <Button variant="outline" size="sm">
                             <Eye className="h-4 w-4 mr-1" />
                             Review

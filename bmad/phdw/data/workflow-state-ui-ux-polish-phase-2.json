@@ -78,7 +78,7 @@
       "files_touched": [
         "app/practice-hub/**",
         "app/client-hub/**",
-        "app/admin/**",
+        "app/admin-hub/**",
         "app/employee-hub/**",
         "app/proposal-hub/**",
         "app/social-hub/**",

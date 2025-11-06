@@ -1,5 +1,5 @@
 {
-  "generated": "2025-11-06T19:00:47.195Z",
+  "generated": "2025-11-06T20:12:05.646Z",
   "version": "1.0",
   "total_entries": 227,
   "functions": [
@@ -1586,7 +1586,7 @@
     {
       "name": "AdminLegalSettingsPage",
       "description": "Admin Legal Settings Page",
-      "file": "app/admin/settings/legal/page.tsx",
+      "file": "app/admin-hub/settings/legal/page.tsx",
       "line": 11,
       "type": "component",
       "signature": "default function AdminLegalSettingsPage"

@@ -2,7 +2,7 @@
  * Import History Page
  *
  * Admin page for viewing CSV import history and logs
- * Located at: /admin/settings/import-history
+ * Located at: /admin-hub/settings/import-history
  */
 
 import { Suspense } from "react";
