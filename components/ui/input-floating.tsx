@@ -125,6 +125,11 @@ export function FloatingLabelInput({
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
+    // Sync DOM value to internal state for React Hook Form compatibility
+    // This ensures hasValue is correct after blur
+    if (value === undefined && inputRef.current) {
+      setInternalValue(inputRef.current.value);
+    }
     onBlur?.(e);
   };
 
