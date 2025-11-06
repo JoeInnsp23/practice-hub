@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import type * as React from "react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -98,6 +98,7 @@ export function FloatingLabelInput({
   const [internalValue, setInternalValue] = useState<string>(
     defaultValue?.toString() || "",
   );
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Determine actual input type (toggle password visibility)
   const inputType =
@@ -106,9 +107,11 @@ export function FloatingLabelInput({
   // Check if input has a value
   // For controlled inputs, check value prop
   // For uncontrolled inputs, check internal state
+  // For React Hook Form, check DOM value directly
   const hasValue = Boolean(
     (value !== undefined && value !== null && value !== "") ||
-      (value === undefined && internalValue !== ""),
+      (value === undefined && internalValue !== "") ||
+      inputRef.current?.value,
   );
 
   // Determine if label should be floating
@@ -142,6 +145,7 @@ export function FloatingLabelInput({
   return (
     <div className="relative" style={style}>
       <input
+        ref={inputRef}
         id={inputId}
         data-slot="input-floating"
         type={inputType}
