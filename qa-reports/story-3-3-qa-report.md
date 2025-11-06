@@ -187,7 +187,7 @@ import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 <GlobalSidebar
   moduleName="Admin Panel"
-  baseHref="/admin"
+  baseHref="/admin-hub"
   navigation={navigation}
   sections={sections}
   moduleColor={HUB_COLORS.admin}

@@ -126,7 +126,7 @@ This audit tracks hardcoded colors (bg-white, bg-slate-*, text-slate-*, border-s
 
 ### 5. Admin Hub Audit
 
-**Path:** `app/admin/**/*.tsx`, `components/admin/**/*.tsx`
+**Path:** `app/admin-hub/**/*.tsx`, `components/admin/**/*.tsx`
 
 **Status:** ✅ Complete - Ready for Fixes
 

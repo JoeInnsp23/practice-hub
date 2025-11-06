@@ -64,7 +64,7 @@ Apply enhanced design system to Admin Hub layouts.
 
 ## Files to Modify
 
-- `app/admin/**` (Admin Hub pages)
+- `app/admin-hub/**` (Admin Hub pages)
 
 ---
 

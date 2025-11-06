@@ -374,7 +374,7 @@ File explicitly marks itself as:
 **Inconsistent Module Names:**
 
 **Conflict 1: Admin Module**
-- Code directory: `app/admin/`
+- Code directory: `app/admin-hub/`
 - Documentation: `modules/admin/README.md`
 - Also documented as: `modules/admin-panel/README.md`
 - bmm-brownfield-architecture.md: Mentions "should be renamed to `admin-hub/`"

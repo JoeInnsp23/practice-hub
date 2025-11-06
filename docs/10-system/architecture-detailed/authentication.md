@@ -530,7 +530,7 @@ export const usersRouter = router({
 
 **Role-Based Access (Server Components)**:
 ```typescript
-// app/admin/layout.tsx
+// app/admin-hub/layout.tsx
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth";
 
@@ -684,7 +684,7 @@ export default async function OAuthSetupPage() {
 ### Example 3: Protected Server Component (Module-Level)
 
 ```typescript
-// app/admin/layout.tsx
+// app/admin-hub/layout.tsx
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth";
 

@@ -75,7 +75,7 @@ const handleSubmit = async (data) => {
 - `components/proposal-hub/task-dialog.tsx`
 
 ### Page Files (7 files)
-- `app/admin/settings/integrations/page.tsx`
+- `app/admin-hub/settings/integrations/page.tsx`
 - `app/client-hub/invoices/[id]/invoice-detail.tsx`
 - `app/client-hub/reports/page.tsx`
 - `app/client-portal/onboarding/page.tsx`

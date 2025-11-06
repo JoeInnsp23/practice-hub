@@ -102,7 +102,7 @@
 - Timesheets are in `app/client-hub/time-tracking/`
 - Time entries in `app/client-hub/time/`
 - Leave requests in `app/client-hub/leave/`
-- Approvals in `app/admin/leave/approvals/`
+- Approvals in `app/admin-hub/leave/approvals/`
 
 **Target State:**
 - New `app/employee-hub/` module
@@ -296,7 +296,7 @@
 
 **1.6 Staff Capacity Integration (1 day)**
 
-**Current Location:** `app/admin/staff/` - Staff capacity, working patterns, utilization
+**Current Location:** `app/admin-hub/staff/` - Staff capacity, working patterns, utilization
 
 **Decision:** Split between Employee Hub (employee view) and Admin Hub (manager view)
 

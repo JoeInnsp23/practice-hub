@@ -100,7 +100,7 @@ Enhance existing components and create new component variants. All components de
 **File-Touch Analysis:**
 - Story 3.1: `app/practice-hub/**` (Practice Hub only)
 - Story 3.2: `app/client-hub/**` (Client Hub only)
-- Story 3.3: `app/admin/**` (Admin Hub only)
+- Story 3.3: `app/admin-hub/**` (Admin Hub only)
 - Story 3.4: `app/employee-hub/**` (Employee Hub only - when created)
 - Story 3.5: `app/proposal-hub/**` (Proposal Hub only)
 - Story 3.6: `app/social-hub/**`, `app/client-portal/**` (Social Hub + Client Portal)
@@ -282,7 +282,7 @@ Total: 9.5 days (3 days saved = 24% faster)
 **Analysis:**
 - Story 3.1: `app/practice-hub/**`
 - Story 3.2: `app/client-hub/**`
-- Story 3.3: `app/admin/**`
+- Story 3.3: `app/admin-hub/**`
 - Story 3.4: `app/employee-hub/**`
 - Story 3.5: `app/proposal-hub/**`
 - Story 3.6: `app/social-hub/**`, `app/client-portal/**`

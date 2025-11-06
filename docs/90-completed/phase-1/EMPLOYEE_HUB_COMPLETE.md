@@ -464,7 +464,7 @@ All Employee Hub components are:
 - `components/client-hub/leave/` (6 files)
 
 **Admin Hub:**
-- `app/admin/leave/` (entire directory)
+- `app/admin-hub/leave/` (entire directory)
 - `components/admin/leave/` (2 files)
 
 **Staff Components:**

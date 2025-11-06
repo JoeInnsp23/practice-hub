@@ -131,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.0] - 2025-10-06
 
 ### Added - Admin KYC Review
-- Admin KYC review dashboard at `/admin/kyc-review`
+- Admin KYC review dashboard at `/admin-hub/kyc-review`
 - Manual approval/rejection workflow for flagged verifications
 - Detailed verification reports with document data, biometrics, AML results
 - Re-verification flow for rejected or failed checks
