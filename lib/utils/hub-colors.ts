@@ -24,7 +24,7 @@
  * ```
  */
 export const HUB_COLORS = {
-  "practice-hub": "#2dd4bf", // Teal (matches landing page CTA)
+  "practice-hub": "oklch(0.56 0.15 196.6)", // Teal (EXACT landing page CTA color)
   "client-hub": "#3b82f6", // Blue
   "proposal-hub": "#ec4899", // Pink
   "employee-hub": "#10b981", // Emerald
@@ -57,7 +57,7 @@ export type HubName = keyof typeof HUB_COLORS;
  * creating visual depth for interactive elements like card accent bars.
  */
 const HUB_GRADIENTS: Record<string, string> = {
-  "#2dd4bf": "linear-gradient(90deg, #2dd4bf, #14b8a6)", // Teal gradient (Practice Hub)
+  "oklch(0.56 0.15 196.6)": "linear-gradient(90deg, oklch(0.56 0.15 196.6), oklch(0.48 0.14 196.6))", // Teal gradient (Practice Hub)
   "#3b82f6": "linear-gradient(90deg, #3b82f6, #2563eb)", // Blue gradient (Client Hub)
   "#ec4899": "linear-gradient(90deg, #ec4899, #db2777)", // Pink gradient (Proposal Hub)
   "#10b981": "linear-gradient(90deg, #10b981, #059669)", // Emerald gradient (Employee Hub)

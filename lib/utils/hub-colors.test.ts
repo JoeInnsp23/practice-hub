@@ -17,7 +17,7 @@ describe("hub-colors", () => {
     });
 
     it("should have correct color values", () => {
-      expect(HUB_COLORS["practice-hub"]).toBe("#2dd4bf");
+      expect(HUB_COLORS["practice-hub"]).toBe("oklch(0.56 0.15 196.6)");
       expect(HUB_COLORS["client-hub"]).toBe("#3b82f6");
       expect(HUB_COLORS["proposal-hub"]).toBe("#ec4899");
       expect(HUB_COLORS["employee-hub"]).toBe("#10b981");
@@ -86,8 +86,8 @@ describe("hub-colors", () => {
     });
 
     it("should return correct gradient for practice-hub teal", () => {
-      const gradient = getHubGradient("#2dd4bf");
-      expect(gradient).toBe("linear-gradient(90deg, #2dd4bf, #14b8a6)");
+      const gradient = getHubGradient("oklch(0.56 0.15 196.6)");
+      expect(gradient).toBe("linear-gradient(90deg, oklch(0.56 0.15 196.6), oklch(0.48 0.14 196.6))");
     });
 
     it("should default to blue gradient for unknown colors", () => {
