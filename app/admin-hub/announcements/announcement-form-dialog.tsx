@@ -10,6 +10,7 @@ import { z } from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -158,7 +159,7 @@ export function AnnouncementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {announcement ? "Edit Announcement" : "Create Announcement"}
@@ -170,7 +171,9 @@ export function AnnouncementFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
+        <Card>
+          <CardContent className="pt-6">
+            <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <FormField
@@ -289,7 +292,7 @@ export function AnnouncementFormDialog({
               control={form.control}
               name="isPinned"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4 bg-muted/50">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -307,7 +310,7 @@ export function AnnouncementFormDialog({
             />
 
             {/* Schedule Window */}
-            <div className="space-y-4 rounded-md border border-border p-4 bg-muted/50">
+            <div className="space-y-4 rounded-md border p-4">
               <div>
                 <h4 className="font-medium text-sm mb-2">
                   Schedule Window (Optional)
@@ -418,6 +421,8 @@ export function AnnouncementFormDialog({
             </DialogFooter>
           </form>
         </Form>
+          </CardContent>
+        </Card>
       </DialogContent>
     </Dialog>
   );
