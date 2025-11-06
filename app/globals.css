@@ -331,13 +331,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
-  .glass-primary {
-    background: var(--glass-primary);
-    backdrop-filter: var(--blur-sm);
-    -webkit-backdrop-filter: var(--blur-sm);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-  }
-
   .glass-hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
