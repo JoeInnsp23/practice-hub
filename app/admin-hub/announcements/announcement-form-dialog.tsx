@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { SimpleIconPicker } from "./simple-icon-picker";
+import { IconPicker } from "../portal-links/icon-picker";
 
 const announcementFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long"),
@@ -225,7 +225,7 @@ export function AnnouncementFormDialog({
                   <FormItem>
                     <FormLabel>Icon *</FormLabel>
                     <FormControl>
-                      <SimpleIconPicker
+                      <IconPicker
                         value={field.value}
                         onChange={field.onChange}
                       />
@@ -242,21 +242,23 @@ export function AnnouncementFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Icon Color *</FormLabel>
-                    <div className="flex gap-2">
-                      <FormControl>
+                    <FormControl>
+                      <div className="flex gap-2">
                         <Input
+                          type="color"
+                          className="w-20 h-10 p-1 cursor-pointer"
+                          {...field}
+                        />
+                        <Input
+                          type="text"
                           placeholder="#8b5cf6"
                           {...field}
-                          className="flex-1"
+                          className="flex-1 font-mono"
                         />
-                      </FormControl>
-                      <div
-                        className="w-12 h-10 rounded border"
-                        style={{ backgroundColor: field.value }}
-                      />
-                    </div>
+                      </div>
+                    </FormControl>
                     <FormDescription className="text-xs">
-                      Hex format: #RRGGBB
+                      Pick a color or enter hex code (#RRGGBB)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
