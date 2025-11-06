@@ -224,10 +224,12 @@ export function AnnouncementFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Icon *</FormLabel>
-                    <SimpleIconPicker
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <FormControl>
+                      <SimpleIconPicker
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
