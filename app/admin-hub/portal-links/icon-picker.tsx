@@ -10,8 +10,8 @@ import {
   getAllIconNames,
   getCommonIconNames,
   getIconComponent,
-  searchIcons,
-} from "./icon-index";
+  fuzzySearchIcons,
+} from "./icon-utils";
 
 interface IconPickerProps {
   value?: string;
@@ -38,13 +38,13 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
   // Filter icons based on debounced search
   const filteredIcons = useMemo(() => {
     if (debouncedSearch.trim()) {
-      // Use optimized search with pre-built index
-      return searchIcons(debouncedSearch, 100);
+      // Use fuzzy search across all icons
+      return fuzzySearchIcons(debouncedSearch, allIconNames).slice(0, 100);
     } else {
       // Show common icons when not searching
       return commonIconNames;
     }
-  }, [debouncedSearch, commonIconNames]);
+  }, [debouncedSearch, commonIconNames, allIconNames]);
 
   // Get the selected icon component
   const SelectedIcon = value ? getIconComponent(value) || FileText : FileText;
