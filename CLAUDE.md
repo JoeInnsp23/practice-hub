@@ -157,7 +157,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 7. **Module color scheme** - Use module color tokens via the shared theme (Client Hub `#3b82f6`, Admin `#f97316`, Practice Hub primary). Do not use inline hex in components.
 
 8. **Authentication patterns** - Follow Better Auth standard patterns:
-  - **Middleware (Node runtime)**: Protect routes; public paths: `/`, `/sign-in`, `/sign-up`; allow `/api/*`; unauthenticated users redirect to `/sign-in?from=PATH`.
+  - **Middleware (Node runtime)**: Protect routes; public paths: `/`, `/sign-in`; allow `/api/*`; unauthenticated users redirect to `/sign-in?from=PATH`.
   - **Auth API Route (Node runtime)**: `app/api/auth/[...all]/route.ts` uses `toNextJsHandler(auth)` with `export const runtime = "nodejs"`.
   - **Tenant/role context**: Use `getAuthContext()` for tenant and role information; use protected/admin tRPC procedures.
   - **Server components/layouts**: Use `redirect()` on unauthorized access.
@@ -301,7 +301,7 @@ The app is organized into distinct hub modules under `app/`:
 - `proposal-hub/` - Proposal management
 - `social-hub/` - Social features
 - `client-portal/` - External client access
-- `(auth)/` - Authentication pages (sign-in/sign-up)
+- `(auth)/` - Authentication pages (sign-in)
 
 ### Database Configuration
 - Schema defined in `lib/db/schema.ts`

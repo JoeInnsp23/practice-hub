@@ -11,13 +11,13 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CardInteractive } from "@/components/ui/card-interactive";
 import { FloatingLabelInput } from "@/components/ui/input-floating";
 import { signIn } from "@/lib/auth-client";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
@@ -102,7 +102,7 @@ function SignInFormContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex max-w-screen overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)] flex max-w-screen overflow-x-hidden">
       {/* Left side - Branding/Hero section */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-500/5 to-transparent" />
@@ -183,12 +183,7 @@ function SignInFormContent() {
             </div>
           </div>
 
-          <CardInteractive
-            moduleColor={HUB_COLORS["practice-hub"]}
-            className="w-full animate-lift-in shadow-xl"
-            style={{ animationDelay: "0.1s", opacity: 0 }}
-            ariaLabel="Sign In"
-          >
+          <Card className="glass-card w-full animate-lift-in shadow-xl rounded-3xl" style={{ animationDelay: "0.1s", opacity: 0 }}>
             <CardHeader className="space-y-1 pb-8">
               <CardTitle className="text-2xl font-bold">
                 Sign in to your account
@@ -279,6 +274,7 @@ function SignInFormContent() {
                     error={errors.password?.message}
                     success={isSuccess}
                     moduleColor={HUB_COLORS["practice-hub"]}
+                    showPasswordToggle
                   />
                 </div>
               </CardContent>
@@ -294,22 +290,9 @@ function SignInFormContent() {
                 >
                   {isSuccess ? "Success!" : "Sign in"}
                 </Button>
-
-                <p
-                  className="text-sm text-center text-muted-foreground animate-fade-in"
-                  style={{ animationDelay: "0.6s", opacity: 0 }}
-                >
-                  Don't have an account?{" "}
-                  <Link
-                    href="/sign-up"
-                    className="text-primary hover:underline font-medium"
-                  >
-                    Create account
-                  </Link>
-                </p>
               </CardFooter>
             </form>
-          </CardInteractive>
+          </Card>
         </div>
       </div>
     </div>
@@ -320,7 +303,7 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)] flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         </div>
       }

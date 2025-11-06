@@ -3,15 +3,11 @@ import { auth } from "@/lib/auth";
 import { clientPortalAuth } from "@/lib/client-portal-auth";
 
 // Public paths for staff authentication
-const publicPaths = ["/", "/sign-in", "/sign-up", "/accept-invitation"];
+const publicPaths = ["/", "/sign-in", "/accept-invitation"];
 const authApiPath = "/api/auth";
 
 // Public paths for client portal authentication
-const clientPortalPublicPaths = [
-  "/portal/sign-in",
-  "/portal/sign-up",
-  "/portal/accept",
-];
+const clientPortalPublicPaths = ["/portal/sign-in", "/portal/accept"];
 const clientPortalApiPath = "/api/client-portal-auth";
 
 export default async function middleware(request: NextRequest) {

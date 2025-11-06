@@ -257,7 +257,6 @@ practice-hub/
 ├── app/                          # Next.js App Router
 │   ├── (auth)/                  # Authentication pages
 │   │   ├── sign-in/
-│   │   ├── sign-up/
 │   │   └── oauth-setup/         # Microsoft OAuth setup
 │   ├── api/                     # API routes
 │   │   ├── auth/                # Better Auth endpoints

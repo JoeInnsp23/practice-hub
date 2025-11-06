@@ -3,6 +3,6 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Children (sign-in/sign-up pages) handle their own layout now
+  // Children (sign-in page) handle their own layout now
   return <>{children}</>;
 }

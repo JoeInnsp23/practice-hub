@@ -43,13 +43,12 @@ async function handleRateLimit(request: Request) {
 }
 
 /**
- * POST handler with rate limiting for sign-in and sign-up
+ * POST handler with rate limiting for sign-in
  */
 export async function POST(request: Request) {
-  // Only rate limit authentication endpoints (sign-in, sign-up)
+  // Only rate limit authentication endpoint (sign-in)
   const url = new URL(request.url);
-  const shouldRateLimit =
-    url.pathname.includes("/sign-in") || url.pathname.includes("/sign-up");
+  const shouldRateLimit = url.pathname.includes("/sign-in");
 
   if (shouldRateLimit) {
     const rateLimitResponse = await handleRateLimit(request);

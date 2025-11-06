@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import type * as React from "react";
 import { useId, useState } from "react";
 
@@ -32,6 +32,12 @@ interface FloatingLabelInputProps
    * Optional - defaults to ring color if not provided.
    */
   moduleColor?: string;
+
+  /**
+   * Whether to show password visibility toggle button.
+   * Only applies when type="password".
+   */
+  showPasswordToggle?: boolean;
 }
 
 /**
@@ -75,10 +81,12 @@ export function FloatingLabelInput({
   error,
   success,
   moduleColor,
+  showPasswordToggle = false,
   className,
   id,
   value,
   defaultValue,
+  type,
   onFocus,
   onBlur,
   ...props
@@ -86,9 +94,14 @@ export function FloatingLabelInput({
   const generatedId = useId();
   const inputId = id || generatedId;
   const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [internalValue, setInternalValue] = useState<string>(
     defaultValue?.toString() || "",
   );
+
+  // Determine actual input type (toggle password visibility)
+  const inputType =
+    type === "password" && showPasswordToggle && showPassword ? "text" : type;
 
   // Check if input has a value
   // For controlled inputs, check value prop
@@ -131,6 +144,7 @@ export function FloatingLabelInput({
       <input
         id={inputId}
         data-slot="input-floating"
+        type={inputType}
         value={value}
         defaultValue={defaultValue}
         onChange={handleChange}
@@ -155,6 +169,8 @@ export function FloatingLabelInput({
             "border-green-500 focus-visible:ring-green-500/20",
           // Aria invalid for accessibility
           error && "aria-invalid",
+          // Add right padding when password toggle is shown
+          showPasswordToggle && type === "password" && "pr-12",
           className,
         )}
         aria-invalid={error ? true : undefined}
@@ -175,6 +191,22 @@ export function FloatingLabelInput({
       >
         {label}
       </label>
+      {/* Password visibility toggle button */}
+      {showPasswordToggle && type === "password" && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+          tabIndex={-1}
+        >
+          {showPassword ? (
+            <EyeOff className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <Eye className="h-5 w-5" aria-hidden="true" />
+          )}
+        </button>
+      )}
       {error && (
         <p
           id={`${inputId}-error`}
@@ -186,7 +218,11 @@ export function FloatingLabelInput({
       )}
       {success && !error && (
         <CheckCircle2
-          className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500 animate-fade-in"
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 h-5 w-5 text-green-500 animate-fade-in",
+            // Position success icon to avoid overlap with password toggle
+            showPasswordToggle && type === "password" ? "right-12" : "right-3",
+          )}
           aria-hidden="true"
         />
       )}
