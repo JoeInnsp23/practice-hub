@@ -163,7 +163,7 @@ export function AnnouncementFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
-        <Card className="glass-card shadow-xl rounded-3xl max-h-[90vh] overflow-y-auto">
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
           <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
             <CardTitle>
               {announcement ? "Edit Announcement" : "Create Announcement"}
