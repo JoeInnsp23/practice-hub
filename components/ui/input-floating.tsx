@@ -89,6 +89,7 @@ export function FloatingLabelInput({
   type,
   onFocus,
   onBlur,
+  ref: externalRef,
   ...props
 }: FloatingLabelInputProps) {
   const generatedId = useId();
@@ -150,7 +151,16 @@ export function FloatingLabelInput({
   return (
     <div className="relative" style={style}>
       <input
-        ref={inputRef}
+        ref={(element) => {
+          // Call external ref (e.g., React Hook Form's ref)
+          if (typeof externalRef === 'function') {
+            externalRef(element);
+          } else if (externalRef && 'current' in externalRef) {
+            externalRef.current = element;
+          }
+          // Store in internal ref for hasValue check
+          inputRef.current = element;
+        }}
         id={inputId}
         data-slot="input-floating"
         type={inputType}
