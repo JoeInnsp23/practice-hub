@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-05T23:56:42.099Z
+# Generated: 2025-11-06T00:14:12.376Z
 
 functions:
   landingRouter:
@@ -1258,7 +1258,7 @@ components:
   LandingPageContent:
     description: "Landing page content for internal staff portal - Full custom redesign"
     file: "components/landing/landing-page-content.tsx"
-    line: 36
+    line: 37
     type: "component"
     signature: "function LandingPageContent"
   ThemeToggle:
@@ -1374,7 +1374,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-05T23:56:42.100Z"
+  generated: "2025-11-06T00:14:12.385Z"
   total_entries: 227
   functions: 136
   types: 58

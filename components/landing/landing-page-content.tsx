@@ -15,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
@@ -44,6 +45,7 @@ import { ThemeToggle } from "./theme-toggle";
  * - Energetic animations and surprising moments
  */
 export function LandingPageContent() {
+  const router = useRouter();
   const [visibleSections, setVisibleSections] = useState<Set<string>>(
     new Set(["hero"]),
   );
@@ -250,7 +252,7 @@ export function LandingPageContent() {
               icon={Building2}
               size="large"
               onClick={() => {
-                window.location.href = "/sign-in";
+                router.push("/sign-in");
               }}
               ariaLabel="Launch Client Hub"
               animationDelay={
@@ -279,7 +281,7 @@ export function LandingPageContent() {
               icon={Shield}
               size="small"
               onClick={() => {
-                window.location.href = "/sign-in";
+                router.push("/sign-in");
               }}
               ariaLabel="Launch Admin Hub"
               animationDelay={
@@ -296,7 +298,7 @@ export function LandingPageContent() {
               icon={Sparkles}
               size="small"
               onClick={() => {
-                window.location.href = "/sign-in";
+                router.push("/sign-in");
               }}
               ariaLabel="Launch Practice Hub"
               animationDelay={
@@ -313,7 +315,7 @@ export function LandingPageContent() {
               icon={FileText}
               size="medium"
               onClick={() => {
-                window.location.href = "/sign-in";
+                router.push("/sign-in");
               }}
               ariaLabel="Launch Proposal Hub"
               animationDelay={
