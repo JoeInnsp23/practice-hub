@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "./enhanced-design.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -389,7 +388,7 @@
   .card-interactive:hover {
     transform: translateY(-4px);
     box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 0 0 1px var(--module-color, rgba(0, 0, 0, 0.1)),
       0 20px 25px -5px rgba(0, 0, 0, 0.15),
       0 10px 10px -5px rgba(0, 0, 0, 0.06);
   }
@@ -409,7 +408,7 @@
 
   .dark .card-interactive:hover {
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 0 0 1px var(--module-color, rgba(255, 255, 255, 0.1)),
       0 20px 25px -5px rgba(0, 0, 0, 0.5),
       0 10px 10px -5px rgba(0, 0, 0, 0.2);
   }
@@ -472,6 +471,321 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* ============================================================================
+   * SHADOW SYSTEM - Multi-layer professional shadows
+   * ============================================================================ */
+
+  /* Soft shadow - subtle depth for cards */
+  .shadow-soft {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.05),
+      0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Medium shadow - standard card depth */
+  .shadow-medium {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Strong shadow - elevated cards */
+  .shadow-strong {
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Elevated shadow - modals, overlays */
+  .shadow-elevated {
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Dark mode shadow variants */
+  .dark .shadow-soft {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark .shadow-medium {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.4),
+      0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .shadow-strong {
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.5),
+      0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark .shadow-elevated {
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.6),
+      0 10px 10px -5px rgba(0, 0, 0, 0.5);
+  }
+
+  /* ============================================================================
+   * ANIMATION KEYFRAMES
+   * ============================================================================ */
+
+  /* Fade in with upward motion - for page content */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Slide in from left - for modals/drawers */
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  /* Lift in with fade - for cards */
+  @keyframes liftIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Shimmer effect - for loading skeletons */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Spin - for loading spinners */
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Shake - for error validation feedback */
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  /* Slide down - for error messages */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Gentle float animation for constellation icons */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Confetti drop animation */
+  @keyframes confetti {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Gentle bounce for hover interactions */
+  @keyframes gentleBounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  /* ============================================================================
+   * ANIMATION UTILITY CLASSES
+   * ============================================================================ */
+
+  /* Entrance animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease forwards;
+  }
+
+  .animate-lift-in {
+    animation: liftIn 0.3s ease forwards;
+  }
+
+  /* Modal/dialog liftIn animation - applies when dialog is open */
+  /* This ensures the animation only runs when the dialog is opening */
+  [data-state="open"].animate-lift-in,
+  [data-state="open"] .animate-lift-in,
+  [data-state="open"][data-slot="dialog-content"].animate-lift-in {
+    animation: liftIn 0.3s ease forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-confetti {
+    animation: confetti 3s ease-out forwards;
+  }
+
+  .animate-gentle-bounce {
+    animation: gentleBounce 0.6s ease-out;
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Button feedback micro-interactions */
+  .button-feedback {
+    transition: all 0.2s ease;
+  }
+
+  .button-feedback:hover {
+    transform: scale(1.02);
+  }
+
+  .button-feedback:active {
+    transform: scale(0.98);
+  }
+
+  /* Focus ring with hub color support */
+  .button-feedback:focus-visible {
+    outline: 2px solid var(--module-color, var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* ============================================================================
+   * SKELETON SHIMMER
+   * ============================================================================ */
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      var(--muted-foreground) 20%,
+      var(--muted) 40%,
+      var(--muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  .dark .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      var(--muted-foreground) 20%,
+      var(--muted) 40%,
+      var(--muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* ============================================================================
+   * FLOATING LABEL INPUT
+   * ============================================================================ */
+
+  /* Error shake animation */
+  .input-error-shake {
+    animation: shake 0.3s ease;
+  }
+
+  /* Error message slide-down animation */
+  .input-error-message {
+    animation: slideDown 0.2s ease-out;
+  }
+
+  /* ============================================================================
+   * TABLE ROW HOVER EFFECTS
+   * ============================================================================ */
+
+  .table-row {
+    transition: background-color 0.2s ease;
+  }
+
+  .table-row:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .dark .table-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Table row actions - fade in on hover */
+  .table-row-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .table-row:hover .table-row-actions {
+    opacity: 1;
+  }
+
+  /* Better spacing for table rows */
+  .table-row td {
+    padding: 1rem 0.75rem;
   }
 }
 
@@ -541,6 +855,53 @@
     background: rgba(17, 24, 39, 1);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+
+  /* Disable new animations from merged enhanced-design.css */
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-lift-in,
+  .animate-float,
+  .animate-confetti,
+  .animate-gentle-bounce,
+  [data-state="open"].animate-lift-in,
+  [data-state="open"] .animate-lift-in {
+    animation: none;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+  }
+
+  .button-feedback:hover,
+  .button-feedback:active {
+    transform: none;
+  }
+
+  .card-interactive:hover {
+    transform: none;
+  }
+
+  .skeleton-shimmer {
+    animation: none;
+  }
+
+  .table-row {
+    transition: none;
+  }
+
+  .table-row:hover {
+    background-color: transparent;
+  }
+
+  .table-row-actions {
+    transition: none;
+    opacity: 1;
+  }
+
+  .input-error-shake,
+  .input-error-message {
+    animation: none;
   }
 }
 
