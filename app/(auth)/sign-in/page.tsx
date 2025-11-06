@@ -105,7 +105,7 @@ function SignInFormContent() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)] flex max-w-screen overflow-x-hidden">
       {/* Left side - Branding/Hero section */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-500/5 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-600/10 via-teal-800/5 to-transparent" />
         <div className="relative z-10">
           <div
             className="mb-12 animate-fade-in"
@@ -129,10 +129,10 @@ function SignInFormContent() {
           </div>
 
           <div
-            className="space-y-6 mt-16 animate-fade-in"
+            className="space-y-8 mt-20 animate-fade-in"
             style={{ animationDelay: "0.2s", opacity: 0 }}
           >
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-5">
               <div className="h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
                 <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
@@ -147,7 +147,7 @@ function SignInFormContent() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-5">
               <div className="h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
@@ -166,7 +166,7 @@ function SignInFormContent() {
       </div>
 
       {/* Right side - Login form */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-12 min-w-0">
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-10 min-w-0">
         <div className="w-full max-w-md mx-auto">
           {/* Mobile logo */}
           <div
@@ -184,7 +184,7 @@ function SignInFormContent() {
           </div>
 
           <Card className="glass-card w-full animate-lift-in shadow-xl rounded-3xl" style={{ animationDelay: "0.1s", opacity: 0 }}>
-            <CardHeader className="space-y-1 pb-8">
+            <CardHeader className="space-y-1 px-8 pt-8 pb-8 md:px-10 md:pt-10">
               <CardTitle className="text-2xl font-bold">
                 Sign in to your account
               </CardTitle>
@@ -193,7 +193,7 @@ function SignInFormContent() {
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 px-8 md:px-10">
               <Button
                 type="button"
                 variant="outline"
@@ -233,7 +233,7 @@ function SignInFormContent() {
             </CardContent>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              <CardContent className="space-y-6 pt-2">
+              <CardContent className="space-y-6 px-8 pt-2 md:px-10">
                 <div
                   className="animate-fade-in"
                   style={{ animationDelay: "0.3s", opacity: 0 }}
@@ -279,7 +279,7 @@ function SignInFormContent() {
                 </div>
               </CardContent>
 
-              <CardFooter className="flex flex-col space-y-4 pt-2">
+              <CardFooter className="flex flex-col space-y-4 px-8 pt-2 pb-8 md:px-10 md:pb-10">
                 <Button
                   type="submit"
                   className="w-full h-12 text-base font-medium animate-fade-in"
