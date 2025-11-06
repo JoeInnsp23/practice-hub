@@ -158,7 +158,7 @@ export function AnnouncementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="glass-strong max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {announcement ? "Edit Announcement" : "Create Announcement"}
@@ -289,7 +289,7 @@ export function AnnouncementFormDialog({
               control={form.control}
               name="isPinned"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4 bg-muted/50">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -307,7 +307,7 @@ export function AnnouncementFormDialog({
             />
 
             {/* Schedule Window */}
-            <div className="space-y-4 rounded-md border p-4">
+            <div className="space-y-4 rounded-md border border-border p-4 bg-muted/50">
               <div>
                 <h4 className="font-medium text-sm mb-2">
                   Schedule Window (Optional)
