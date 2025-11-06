@@ -201,7 +201,7 @@ function SignInFormContent() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 animate-fade-in bg-slate-100 border-slate-300 dark:bg-input/30 dark:border-input shadow-sm hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                className="w-full h-12 animate-fade-in bg-slate-100 border-slate-300 dark:bg-input/30 dark:border-input shadow-sm hover:bg-primary hover:text-primary-foreground hover:border-primary dark:hover:bg-slate-700 dark:hover:border-slate-600 dark:hover:text-foreground transition-colors"
                 style={{ animationDelay: "0.2s", opacity: 0 }}
                 onClick={handleMicrosoftSignIn}
                 disabled={isLoading || isMicrosoftLoading}
