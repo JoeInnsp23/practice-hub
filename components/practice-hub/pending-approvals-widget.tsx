@@ -58,7 +58,6 @@ export function PendingApprovalsWidget() {
         <Button
           onClick={() => router.push("/client-hub/time/approvals")}
           size="sm"
-          className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
         >
           <CheckCircle2 className="h-4 w-4 mr-1" />
           Review Now

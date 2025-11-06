@@ -1018,7 +1018,6 @@ export default function SettingsPage() {
                 <Button
                   onClick={handleSaveTimesheetSettings}
                   disabled={updateTimesheetSettings.isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
                 >
                   {showTimesheetSaved ? (
                     <>

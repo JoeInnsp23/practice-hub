@@ -35,19 +35,19 @@ export function QuickActions({ className }: QuickActionsProps) {
       label: "New Task",
       icon: Plus,
       onClick: () => setIsTaskModalOpen(true),
-      variant: "secondary" as const,
+      variant: "default" as const,
     },
     {
       label: "Add Client",
       icon: Users,
       onClick: () => setIsClientModalOpen(true),
-      variant: "secondary" as const,
+      variant: "default" as const,
     },
     {
       label: "View Reports",
       icon: BarChart3,
       onClick: () => router.push("/client-hub/reports"),
-      variant: "secondary" as const,
+      variant: "default" as const,
     },
   ];
 

@@ -125,7 +125,7 @@ export default function OnboardingDetailPage({
           status === "completed"
             ? "bg-green-600 hover:bg-green-700"
             : status === "in_progress"
-              ? "bg-blue-600 hover:bg-blue-700"
+              ? "bg-primary hover:bg-primary/90"
               : ""
         }
       >

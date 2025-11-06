@@ -534,7 +534,7 @@ export function ClientWizardModal({
               <Button
                 onClick={handleNext}
                 disabled={!validateCurrentStep()}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 min-w-[100px]"
+                className="flex items-center space-x-2 min-w-[100px]"
                 data-testid="client-wizard-next-button"
               >
                 <span>Next</span>

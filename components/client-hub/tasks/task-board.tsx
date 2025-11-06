@@ -128,8 +128,8 @@ export function TaskBoard({
                       </div>
                     ) : (
                       columnTasks.map((task) => (
-                        <button
-                          type="button"
+                        // biome-ignore lint/a11y/useSemanticElements: Cannot use <button> here as it would nest with Button inside TaskCard (DropdownMenu trigger)
+                        <div
                           key={task.id}
                           draggable
                           onDragStart={() => handleDragStart(task)}
@@ -139,7 +139,9 @@ export function TaskBoard({
                               handleDragStart(task);
                             }
                           }}
-                          className="cursor-move w-full text-left"
+                          className="cursor-move w-full"
+                          role="button"
+                          tabIndex={0}
                         >
                           <TaskCard
                             task={task}
@@ -147,7 +149,7 @@ export function TaskBoard({
                             onDelete={onDeleteTask}
                             onStatusChange={onStatusChange}
                           />
-                        </button>
+                        </div>
                       ))
                     )}
                   </div>

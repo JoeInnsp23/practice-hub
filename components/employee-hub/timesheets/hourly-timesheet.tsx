@@ -180,10 +180,7 @@ export function HourlyTimesheet({
         </div>
 
         {/* New Time Entry Button */}
-        <Button
-          onClick={() => openModal(new Date())}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
+        <Button onClick={() => openModal(new Date())}>
           <Plus className="h-4 w-4 mr-2" />
           New Time Entry
         </Button>
