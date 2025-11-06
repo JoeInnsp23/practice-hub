@@ -71,8 +71,12 @@ export const announcementsRouter = router({
           .where(and(...conditions, scheduleConditions))
           .orderBy(
             desc(announcements.isPinned), // Pinned first
-            sql`${announcements.priority} DESC`, // Critical > Warning > Info
-            desc(announcements.createdAt), // Newest first
+            sql`CASE ${announcements.priority}
+              WHEN 'critical' THEN 1
+              WHEN 'warning' THEN 2
+              WHEN 'info' THEN 3
+            END`, // Priority second (critical > warning > info)
+            desc(announcements.createdAt), // Newest third
           )
           .limit(input.limit);
 
@@ -122,7 +126,11 @@ export const announcementsRouter = router({
           .where(and(...conditions))
           .orderBy(
             desc(announcements.isPinned),
-            sql`${announcements.priority} DESC`,
+            sql`CASE ${announcements.priority}
+              WHEN 'critical' THEN 1
+              WHEN 'warning' THEN 2
+              WHEN 'info' THEN 3
+            END`, // Priority second (critical > warning > info)
             desc(announcements.createdAt),
           );
 
