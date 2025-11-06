@@ -21,6 +21,7 @@ import {
 import { FloatingLabelInput } from "@/components/ui/input-floating";
 import { signIn } from "@/lib/auth-client";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
+import { ThemeToggle } from "@/components/landing/theme-toggle";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -103,6 +104,9 @@ function SignInFormContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)] flex max-w-screen overflow-x-hidden">
+      {/* Theme Toggle */}
+      <ThemeToggle />
+
       {/* Left side - Branding/Hero section */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-teal-600/10 via-teal-800/5 to-transparent" />
