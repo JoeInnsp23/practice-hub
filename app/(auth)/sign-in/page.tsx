@@ -184,7 +184,7 @@ function SignInFormContent() {
           </div>
 
           <Card className="glass-card w-full animate-lift-in shadow-xl rounded-3xl" style={{ animationDelay: "0.1s", opacity: 0 }}>
-            <CardHeader className="space-y-1 px-8 pt-8 pb-8 md:px-10 md:pt-10">
+            <CardHeader className="space-y-1 px-8 pt-6 pb-6 md:px-10 md:pt-8 md:pb-6">
               <CardTitle className="text-2xl font-bold">
                 Sign in to your account
               </CardTitle>
@@ -279,7 +279,7 @@ function SignInFormContent() {
                 </div>
               </CardContent>
 
-              <CardFooter className="flex flex-col space-y-4 px-8 pt-2 pb-8 md:px-10 md:pb-10">
+              <CardFooter className="flex flex-col space-y-4 px-8 pt-6 pb-6 md:px-10 md:pt-8 md:pb-8">
                 <Button
                   type="submit"
                   className="w-full h-12 text-base font-medium animate-fade-in"
