@@ -1,5 +1,5 @@
 {
-  "generated": "2025-11-05T20:47:32.847Z",
+  "generated": "2025-11-06T18:16:55.416Z",
   "version": "1.0",
   "total_entries": 227,
   "functions": [
@@ -999,7 +999,7 @@
       "name": "getHubGradient",
       "description": "Gradient mapping for hub colors.",
       "file": "lib/utils/hub-colors.ts",
-      "line": 49,
+      "line": 53,
       "type": "function",
       "signature": "function getHubGradient"
     },
@@ -1545,7 +1545,7 @@
       "name": "HubName",
       "description": "Type representing valid hub names.",
       "file": "lib/utils/hub-colors.ts",
-      "line": 35,
+      "line": 39,
       "type": "type",
       "signature": "type HubName"
     },
@@ -1675,7 +1675,7 @@
       "name": "LandingPageContent",
       "description": "Landing page content for internal staff portal - Full custom redesign",
       "file": "components/landing/landing-page-content.tsx",
-      "line": 36,
+      "line": 37,
       "type": "component",
       "signature": "function LandingPageContent"
     },
