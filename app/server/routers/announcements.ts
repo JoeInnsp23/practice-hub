@@ -163,6 +163,7 @@ export const announcementsRouter = router({
             startsAt: input.startsAt ?? null,
             endsAt: input.endsAt ?? null,
             isActive: true,
+            publishedAt: new Date(),
           })
           .returning();
 
