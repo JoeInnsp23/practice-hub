@@ -10,7 +10,6 @@ import { z } from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -171,9 +170,7 @@ export function AnnouncementFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Card>
-          <CardContent className="pt-6">
-            <Form {...form}>
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <FormField
@@ -421,8 +418,6 @@ export function AnnouncementFormDialog({
             </DialogFooter>
           </form>
         </Form>
-          </CardContent>
-        </Card>
       </DialogContent>
     </Dialog>
   );
