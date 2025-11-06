@@ -158,8 +158,8 @@ export function AnnouncementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="glass-card shadow-xl rounded-3xl max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
           <DialogTitle>
             {announcement ? "Edit Announcement" : "Create Announcement"}
           </DialogTitle>
@@ -172,6 +172,7 @@ export function AnnouncementFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-6 px-8 md:px-10">
             {/* Title */}
             <FormField
               control={form.control}
@@ -402,8 +403,9 @@ export function AnnouncementFormDialog({
                 />
               </div>
             </div>
+            </div>
 
-            <DialogFooter>
+            <DialogFooter className="px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
               <Button
                 type="button"
                 variant="outline"
