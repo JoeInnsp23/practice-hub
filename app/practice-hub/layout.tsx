@@ -15,7 +15,7 @@ export default function PracticeHubLayout({
       style={
         { "--hub-color": HUB_COLORS["practice-hub"] } as React.CSSProperties
       }
-      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-950 dark:to-slate-900"
     >
       <GlobalHeader
         title="Practice Hub"
@@ -31,7 +31,7 @@ export default function PracticeHubLayout({
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-slate-100 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-700">
+      <footer className="mt-auto bg-slate-100 dark:bg-slate-950 border-t border-slate-300 dark:border-slate-800">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-muted-foreground">
             © 2025 Practice Hub. Internal Use Only.

@@ -43,7 +43,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     <div
       data-hub-root
       style={{ "--hub-color": HUB_COLORS.admin } as React.CSSProperties}
-      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-950 dark:to-slate-900"
     >
       <GlobalHeader
         moduleName="Admin Panel"

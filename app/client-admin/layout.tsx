@@ -10,7 +10,7 @@ export default function ClientAdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <GlobalHeader
         title="Client Admin"
         subtitle="Manage Client Portal Access"

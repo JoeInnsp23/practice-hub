@@ -58,7 +58,7 @@ export default function EmployeeHubLayout({
       style={
         { "--hub-color": HUB_COLORS["employee-hub"] } as React.CSSProperties
       }
-      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+      className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-950 dark:to-slate-900"
     >
       <GlobalHeader
         moduleName="Employee Hub"

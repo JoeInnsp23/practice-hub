@@ -301,42 +301,34 @@
   }
 
   .dark .solid-card {
-    background: rgba(30, 41, 59, 1);
-    border: 1px solid rgba(51, 65, 85, 1);
-    box-shadow:
-      0 1px 3px 0 rgba(0, 0, 0, 0.1),
-      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    background: rgba(20, 26, 35, 1);
+    border: 1px solid rgba(40, 45, 55, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
-  /* Dark mode solid styles */
+  /* Dark mode solid styles - flat design with minimal shadows */
   .dark .glass-card {
-    background: rgb(30, 41, 59);
-    border: 1px solid rgb(51, 65, 85);
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.3),
-      0 1px 3px rgba(0, 0, 0, 0.1);
+    background: rgb(20, 26, 35);
+    border: 1px solid rgb(40, 45, 55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
   .dark .glass-subtle {
-    background: rgb(30, 41, 59);
-    border: 1px solid rgb(51, 65, 85);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: rgb(20, 26, 35);
+    border: 1px solid rgb(40, 45, 55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
   .dark .glass-strong {
-    background: rgb(30, 41, 59);
-    border: 1px solid rgb(51, 65, 85);
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.5),
-      0 2px 4px rgba(0, 0, 0, 0.1);
+    background: rgb(20, 26, 35);
+    border: 1px solid rgb(40, 45, 55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
   .dark .glass-table {
-    background: rgb(30, 41, 59);
-    border: 1px solid rgb(51, 65, 85);
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.3),
-      0 1px 3px rgba(0, 0, 0, 0.1);
+    background: rgb(20, 26, 35);
+    border: 1px solid rgb(40, 45, 55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
   .glass-primary {
@@ -399,18 +391,15 @@
 
   /* Dark mode support */
   .dark .card-interactive {
-    background: rgb(30, 41, 59);
-    border: 1px solid rgb(51, 65, 85);
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.3),
-      0 1px 3px rgba(0, 0, 0, 0.1);
+    background: rgb(20, 26, 35);
+    border: 1px solid rgb(40, 45, 55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
 
   .dark .card-interactive:hover {
     box-shadow:
       0 0 0 1px var(--module-color, rgba(255, 255, 255, 0.1)),
-      0 20px 25px -5px rgba(0, 0, 0, 0.5),
-      0 10px 10px -5px rgba(0, 0, 0, 0.2);
+      0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
   /* Subtle neutral gradients for 2025 */
