@@ -149,10 +149,10 @@ export function FloatingLabelInput({
         defaultValue={defaultValue}
         onChange={handleChange}
         className={cn(
-          "peer w-full rounded-md border bg-background px-3 pt-6 pb-2 text-sm transition-all duration-200",
+          "peer w-full rounded-md border bg-slate-50 dark:bg-input/30 px-3 pt-6 pb-2 text-sm transition-all duration-200",
           "file:text-foreground placeholder:text-muted-foreground",
           "selection:bg-primary selection:text-primary-foreground",
-          "dark:bg-input/30 border-input",
+          "border-input",
           "shadow-xs outline-none",
           "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
