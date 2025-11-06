@@ -191,9 +191,6 @@ export function PracticeHubClient({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Main Content (2/3 width) */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Pending Approvals Widget (for managers/admins) */}
-          <PendingApprovalsWidget />
-
           {/* Navigation Tabs */}
           <ClientOnly>
             <NavigationTabs showFavorites={false}>
@@ -391,6 +388,9 @@ export function PracticeHubClient({
         <div className="space-y-6">
           {/* Announcements Panel */}
           <AnnouncementsPanel limit={5} />
+
+          {/* Pending Approvals Widget (for managers/admins) */}
+          <PendingApprovalsWidget />
 
           {/* Urgent Tasks Widget */}
           <UrgentTasksWidget />

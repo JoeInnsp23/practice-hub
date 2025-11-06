@@ -18,9 +18,28 @@ export function UrgentTasksWidget() {
     },
   );
 
-  // Don't show widget if loading or no tasks
-  if (isLoading || !tasks || tasks.length === 0) {
+  // Show loading state
+  if (isLoading) {
     return null;
+  }
+
+  // Show empty state if no urgent tasks
+  if (!tasks || tasks.length === 0) {
+    return (
+      <Card className="glass-card shadow-medium p-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-lg">All Clear!</h3>
+            <p className="text-sm text-muted-foreground">
+              No urgent tasks at the moment
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
   }
 
   const formatDueDate = (dueDate: Date | null) => {

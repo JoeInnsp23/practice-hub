@@ -2133,9 +2133,9 @@ export const tasksRouter = router({
         .leftJoin(clients, eq(tasks.clientId, clients.id))
         .where(
           and(
-            eq(tasks.assigneeId, ctx.authContext.userId),
+            eq(tasks.assignedToId, ctx.authContext.userId),
             eq(tasks.tenantId, ctx.authContext.tenantId),
-            inArray(tasks.status, ["todo", "in_progress"]),
+            inArray(tasks.status, ["pending", "in_progress"]),
             or(
               eq(tasks.priority, "high"),
               sql`${tasks.dueDate} <= ${todayPlus5}`,

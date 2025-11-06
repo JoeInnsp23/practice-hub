@@ -56,7 +56,7 @@ export function PendingApprovalsWidget() {
         </div>
 
         <Button
-          onClick={() => router.push("/client-hub/time/approvals")}
+          onClick={() => router.push("/employee-hub/approvals/timesheets")}
           size="sm"
         >
           <CheckCircle2 className="h-4 w-4 mr-1" />

@@ -127,7 +127,7 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
           return (
             <div
               key={announcement.id}
-              className="flex gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+              className="flex gap-3 p-3"
             >
               {/* Icon */}
               <div
