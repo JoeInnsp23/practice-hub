@@ -12,6 +12,7 @@ import {
   clientPortalSignOut,
   useClientPortalSession,
 } from "@/lib/client-portal-auth-client";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 export default function ClientPortalLayout({
   children,
@@ -39,7 +40,13 @@ export default function ClientPortalLayout({
 
   return (
     <ClientPortalProvider>
-      <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)]">
+      <div
+        data-hub-root
+        style={
+          { "--hub-color": HUB_COLORS["portal-hub"] } as React.CSSProperties
+        }
+        className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)]"
+      >
         {/* Header */}
         <header className="bg-card shadow-sm border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
