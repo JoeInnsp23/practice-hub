@@ -361,7 +361,16 @@
 
   /* Interactive card with gradient rail decoration */
   .card-interactive {
-    @apply glass-card rounded-xl p-6 relative overflow-hidden;
+    /* Inlined from .glass-card - Tailwind v4 doesn't allow @apply with component classes */
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(226, 232, 240);
+    box-shadow:
+      0 10px 40px rgba(148, 163, 184, 0.1),
+      0 1px 3px rgba(0, 0, 0, 0.04);
+    border-radius: 0.75rem; /* rounded-xl */
+    padding: 1.5rem; /* p-6 */
+    position: relative;
+    overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -390,6 +399,14 @@
   }
 
   /* Dark mode support */
+  .dark .card-interactive {
+    background: rgb(30, 41, 59);
+    border: 1px solid rgb(51, 65, 85);
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
   .dark .card-interactive:hover {
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0.05),
