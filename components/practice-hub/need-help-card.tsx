@@ -62,7 +62,7 @@ export function NeedHelpCard() {
 
       {/* CTA Button */}
       <Button asChild className="w-full" variant="outline">
-        <Link href="/admin/feedback">Contact Support</Link>
+        <Link href="/admin-hub/feedback">Contact Support</Link>
       </Button>
     </Card>
   );

@@ -87,7 +87,7 @@ const PRACTICE_HUB_MODULES: Array<{
   {
     name: "Admin Hub",
     description: "System administration and configuration",
-    url: "/admin",
+    url: "/admin-hub",
     icon: Settings,
     hubKey: "admin-hub",
     status: "active",

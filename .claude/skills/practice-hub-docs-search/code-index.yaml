@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-06T19:00:47.192Z
+# Generated: 2025-11-06T20:12:05.643Z
 
 functions:
   landingRouter:
@@ -1191,7 +1191,7 @@ components:
     signature: "default function TermsPage"
   AdminLegalSettingsPage:
     description: "Admin Legal Settings Page"
-    file: "app/admin/settings/legal/page.tsx"
+    file: "app/admin-hub/settings/legal/page.tsx"
     line: 11
     type: "component"
     signature: "default function AdminLegalSettingsPage"
@@ -1374,7 +1374,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-06T19:00:47.193Z"
+  generated: "2025-11-06T20:12:05.644Z"
   total_entries: 227
   functions: 136
   types: 58

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   Globe,
@@ -5,6 +7,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 import {
   Card,
   CardContent,
@@ -13,19 +16,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
-import { getAuthContext } from "@/lib/auth";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
-export default async function AdminDashboardPage() {
-  const authContext = await getAuthContext();
-  if (!authContext) return null;
+export default function AdminDashboardPage() {
+  const { data: session } = useSession();
+
+  if (!session?.user) return null;
 
   const adminSections = [
     {
       title: "User Management",
       description: "Manage team members and their permissions",
       icon: Users,
-      href: "/admin/users",
+      href: "/admin-hub/users",
       iconColor: "text-blue-600",
       bgColor: "bg-blue-50 dark:bg-blue-950/20",
     },
@@ -33,7 +36,7 @@ export default async function AdminDashboardPage() {
       title: "Portal Links",
       description: "Manage portal categories and links",
       icon: Globe,
-      href: "/admin/portal-links",
+      href: "/admin-hub/portal-links",
       iconColor: "text-indigo-600",
       bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
     },
@@ -41,7 +44,7 @@ export default async function AdminDashboardPage() {
       title: "Feedback & Issues",
       description: "View and manage user feedback and bug reports",
       icon: MessageSquare,
-      href: "/admin/feedback",
+      href: "/admin-hub/feedback",
       iconColor: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20",
     },
@@ -108,25 +111,23 @@ export default async function AdminDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">
-                Organization
+                User
               </p>
               <p className="font-semibold">
-                {authContext.organizationName || "Practice Hub"}
+                {session.user.name || session.user.email}
               </p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">
-                Your Role
+                Email
               </p>
-              <p className="font-semibold capitalize">{authContext.role}</p>
+              <p className="font-semibold">{session.user.email}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">
-                Tenant ID
+                Admin Role
               </p>
-              <p className="font-mono text-xs text-slate-500 dark:text-slate-400">
-                {authContext.tenantId}
-              </p>
+              <p className="font-semibold capitalize">Administrator</p>
             </div>
           </div>
         </CardContent>

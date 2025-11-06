@@ -42,7 +42,7 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
     await page.click('button[type="submit"]');
 
     // 5. Approve timesheet
-    await page.goto("/admin/timesheets/pending");
+    await page.goto("/admin-hub/timesheets/pending");
     await page.locator('button:has-text("Approve")').first().click();
     await page.locator('button:has-text("Confirm")').click();
 
@@ -104,7 +104,7 @@ test.describe("TOIL Complete Workflow (E2E)", () => {
     await page.fill('input[type="password"]', "password123");
     await page.click('button[type="submit"]');
 
-    await page.goto("/admin/leave/pending");
+    await page.goto("/admin-hub/leave/pending");
     await page.locator('button:has-text("Approve")').first().click();
     await page.fill('textarea[name="comments"]', "Approved");
     await page.locator('button:has-text("Confirm")').click();

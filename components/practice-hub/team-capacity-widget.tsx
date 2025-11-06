@@ -109,7 +109,7 @@ export function TeamCapacityWidget() {
           variant="outline"
           size="sm"
           className="w-full"
-          onClick={() => router.push("/admin/staff/utilization")}
+          onClick={() => router.push("/admin-hub/staff/utilization")}
         >
           <TrendingUp className="mr-2 h-4 w-4" />
           View Utilization Dashboard

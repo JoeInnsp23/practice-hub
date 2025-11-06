@@ -68,3 +68,4 @@ export function useSidebarState(options: UseSidebarStateOptions = {}) {
     toggleDrawer,
   } as const;
 }
+

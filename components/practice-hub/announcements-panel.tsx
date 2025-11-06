@@ -134,7 +134,7 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
         </div>
 
         <Button asChild size="sm" variant="outline" className="text-xs">
-          <Link href="/admin/announcements">View All</Link>
+          <Link href="/admin-hub/announcements">View All</Link>
         </Button>
       </div>
 

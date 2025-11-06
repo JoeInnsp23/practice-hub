@@ -239,7 +239,7 @@ async function seedTestDatabase() {
       {
         title: "Admin Panel",
         description: "System administration and configuration",
-        url: "/admin",
+        url: "/admin-hub",
         iconName: "Settings",
         sortOrder: 9,
       },

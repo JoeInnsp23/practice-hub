@@ -228,7 +228,7 @@ export function UserManagementClient({
           </p>
         </div>
         <Button
-          onClick={() => router.push("/admin/invitations")}
+          onClick={() => router.push("/admin-hub/invitations")}
           className="gap-2"
         >
           <UserPlus className="h-4 w-4" />

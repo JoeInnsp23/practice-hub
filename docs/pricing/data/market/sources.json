@@ -205,5 +205,491 @@
     "credibility_score": 8,
     "source_type": "published_pricing_page",
     "notes": "Virtual CFO/FD services; strategic advisory pricing"
+  },
+  {
+    "source_id": "SRC024",
+    "brand": "Right Choice Bookkeeping",
+    "url": "https://rchbservices.uk/en/price-list/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive bookkeeping specialist with turnover-based and transaction-based pricing for sole traders partnerships and limited companies"
+  },
+  {
+    "source_id": "SRC025",
+    "brand": "Direct Peak",
+    "url": "https://www.directpeak.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Three-tier packages (Compliance £99, Business £159, Insights £245) including management accounts; Xero Gold Partner"
+  },
+  {
+    "source_id": "SRC026",
+    "brand": "Debitam",
+    "url": "https://www.debitam.com/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Five packages £80-£399 annual including CIC LLP and dormant company accounts; 26000+ companies; Trustpilot 4.9/5"
+  },
+  {
+    "source_id": "SRC027",
+    "brand": "Aardvark Accounting",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £89/month all-inclusive with FreeAgent"
+  },
+  {
+    "source_id": "SRC028",
+    "brand": "Clever Accounts",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £104.50/month dedicated accountant"
+  },
+  {
+    "source_id": "SRC029",
+    "brand": "Integro Accounting",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £125/month award-winning 5-star rated"
+  },
+  {
+    "source_id": "SRC030",
+    "brand": "SG Accounting",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £119/month full monthly service"
+  },
+  {
+    "source_id": "SRC031",
+    "brand": "Bluebird Accountancy",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £110/month with free company formation"
+  },
+  {
+    "source_id": "SRC032",
+    "brand": "Forbes Young",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £110/month with personal tax return included"
+  },
+  {
+    "source_id": "SRC033",
+    "brand": "ICS",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £149-£185/month multiple service tiers"
+  },
+  {
+    "source_id": "SRC034",
+    "brand": "Tax Compute",
+    "url": "https://www.itcontracting.com/contractor-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor accountants comparison table; £150/month comprehensive with IR35 assistance"
+  },
+  {
+    "source_id": "SRC035",
+    "brand": "Lukro Ltd",
+    "url": "https://www.lukro.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Detailed transaction-based bookkeeping packages £50-£275/month; payroll £10/employee; VAT £25-£40/month; year-end accounts from £450"
+  },
+  {
+    "source_id": "SRC036",
+    "brand": "MAF Scotland",
+    "url": "https://www.kjmaccountancy.com/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Scotland-based contractor specialist; three tiers £95-£300/month including management accounts; regional diversity"
+  },
+  {
+    "source_id": "SRC037",
+    "brand": "Hippo Accountants",
+    "url": "https://hippoaccountants.com/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Service-specific pricing; ltd accounts £1200/year; landlord tax £600/year; CGT filing £750; hourly bookkeeping £60/hour"
+  },
+  {
+    "source_id": "SRC038",
+    "brand": "Cheap Accounting",
+    "url": "https://www.bytestart.co.uk/self-employed-accounts/compare-sole-trader-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "ByteStart comparison table; sole trader from £52.50+VAT; cloud software support MTD-ready"
+  },
+  {
+    "source_id": "SRC039",
+    "brand": "Vantage Accounting",
+    "url": "https://www.bytestart.co.uk/self-employed-accounts/compare-sole-trader-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "ByteStart comparison table; sole trader from £49+VAT; FreeAgent included no contracts"
+  },
+  {
+    "source_id": "SRC040",
+    "brand": "Clear House Accountants",
+    "url": "https://www.bytestart.co.uk/self-employed-accounts/compare-sole-trader-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "ByteStart comparison table; sole trader from £30; QuickBooks included dedicated manager"
+  },
+  {
+    "source_id": "SRC041",
+    "brand": "Gorilla Accounting",
+    "url": "https://www.bytestart.co.uk/self-employed-accounts/compare-sole-trader-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "ByteStart comparison table; sole trader £55; FreeAgent IR35 help quick-response support"
+  },
+  {
+    "source_id": "SRC042",
+    "brand": "No Worries Accounting",
+    "url": "https://www.bytestart.co.uk/self-employed-accounts/compare-sole-trader-accountants/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "ByteStart comparison table; sole trader from £35; IR35 advice cloud software all-inclusive"
+  },
+  {
+    "source_id": "SRC043",
+    "brand": "CloudBook",
+    "url": "https://www.cloudbook.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Four package tiers (Annual, Annual+, Quarterly, Monthly) £20-£90/month ex-VAT; includes add-on services (payroll, pension, CIS, extra bookkeeping)"
+  },
+  {
+    "source_id": "SRC044",
+    "brand": "James Smith Chartered Accountant",
+    "url": "https://www.jamessmithcharteredaccountant.co.uk/accountancy-fees/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Self-assessment from £250+VAT; landlord from £399+VAT; limited companies from £900+VAT annual"
+  },
+  {
+    "source_id": "SRC045",
+    "brand": "Coman & Co",
+    "url": "https://comanandco.co.uk/pricing",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive fixed fee schedule covering landlord tax, sole trader, contractor companies, LLP, partnerships, VAT, payroll, bookkeeping; £10-£66/month ex-VAT; excellent transparency"
+  },
+  {
+    "source_id": "SRC046",
+    "brand": "West Lancs Chartered Accountants",
+    "url": "https://www.westlancsaccountants.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Three service tiers: Personal Tax from £10/month, Contractor Ltd from £50/month, Small Business from £75/month; fixed fee basis"
+  },
+  {
+    "source_id": "SRC047",
+    "brand": "One Accounting",
+    "url": "https://www.oneaccounting.co.uk/packages-page/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Edinburgh-based Chartered Management Accountants; Bronze £200/month, Silver £400/month; high-value business control and growth packages; Scotland regional coverage"
+  },
+  {
+    "source_id": "SRC048",
+    "brand": "GM Professional Accountants",
+    "url": "https://gmprofessionalaccountants.co.uk/factsheets/how-much-are-accountant-fees-for-a-small-business/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 7,
+    "source_type": "published_pricing_page",
+    "notes": "London-based firm; sole trader £250-£350, limited company £650-£850 annual; subscription packages from £20/month; payroll £100-£120 per employee"
+  },
+  {
+    "source_id": "SRC049",
+    "brand": "TAJ Accountants",
+    "url": "https://www.tajaccountants.co.uk/how-much-does-an-accountant-cost-per-month-in-the-uk-a-complete-guide/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 7,
+    "source_type": "published_pricing_page",
+    "notes": "Self-assessment £100-£300, VAT returns £75-£200, payroll £5-£10 per payslip or £25-£100 monthly for small teams"
+  },
+  {
+    "source_id": "SRC050",
+    "brand": "Heights Accountancy",
+    "url": "https://heightsaccountancy.co.uk/2025/10/06/how-much-does-an-accountant-cost-uk-2025/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive 2025 pricing guide covering Ltd companies £2430-£7430+ annual, sole traders £300-£3700+ annual, partnerships £800-£3800+ annual, property/SPVs £650-£5100+ annual; includes bookkeeping £30-£350/month, payroll £8-£30 per payslip, VAT £150-£300/quarter, management accounts £250-£500/month"
+  },
+  {
+    "source_id": "SRC051",
+    "brand": "Edmonds Accountancy",
+    "url": "https://www.edmonds-accountancy.co.uk/how-much-does-an-accountant-cost-in-2024/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 7,
+    "source_type": "published_pricing_page",
+    "notes": "2024 pricing guide: hourly rates £75-£250+, tax returns £150-£750 annual, business accounting £500-£5000+ annual"
+  },
+  {
+    "source_id": "SRC052",
+    "brand": "AccKent Accountants",
+    "url": "https://www.acckent.com/limited-company-accountant-fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Limited company packages: £47/month recurring OR £199 one-off annual fee; clear transparent pricing"
+  },
+  {
+    "source_id": "SRC053",
+    "brand": "My Accounts Digital",
+    "url": "https://www.myaccountsdigital.co.uk/services/limited-company-accountant-fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Transaction-based pricing: monthly packages £55-£80 (25-200 transactions), annual packages £450-£780 (trial balance to 1000 transactions); includes bookkeeping, accounts, self-assessment, Companies House filings"
+  },
+  {
+    "source_id": "SRC054",
+    "brand": "CloudCo Accountants",
+    "url": "https://cloudcogroup.com/limited-company-accountant-cost/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Start-ups and PSCs package £100-£200+VAT/month; includes dedicated account manager, bookkeeping, annual accounts, tax returns, payroll for up to two employees"
+  },
+  {
+    "source_id": "SRC055",
+    "brand": "Tom's Bookkeeping Services",
+    "url": "https://www.tomsbookkeeping.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Transaction-based pricing: Sole traders £60-£300/month (1-150 invoices), Limited companies £120-£400/month (1-150 invoices); includes bookkeeping, accounts, payroll, financial reports, self-assessment tax returns, VAT declarations"
+  },
+  {
+    "source_id": "SRC056",
+    "brand": "Dolan Accountancy",
+    "url": "https://www.dolanaccountancy.com/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor specialist from £125+VAT/month; FCSA accredited, IR35 support standard, 24/7 portal; featured in ContractEye Top 10 (2025) with 4.6/5.0 Trustpilot rating"
+  },
+  {
+    "source_id": "SRC057",
+    "brand": "Maslins",
+    "url": "https://www.maslins.co.uk/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "comparison_listing",
+    "notes": "Contractor specialist £119+VAT/month; FreeAgent included, payroll for 2 directors, dedicated accountant; featured in ContractEye Top 10 (2025) with 5.0/5.0 Google rating (187 reviews)"
+  },
+  {
+    "source_id": "SRC058",
+    "brand": "Churchill Knight & Associates",
+    "url": "https://www.churchillknight.co.uk/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "comparison_listing",
+    "notes": "Contractor specialist from £120/month; established since 1998, FCSA-accredited, specialist CIS support; featured in ContractEye Top 10 (2025) with 4.7/5.0 Trustpilot rating"
+  },
+  {
+    "source_id": "SRC059",
+    "brand": "PaperRocket Accounting",
+    "url": "https://www.paperrocket.co.uk/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "comparison_listing",
+    "notes": "Contractor specialist Bronze/Silver/Gold tiers from £105+VAT/month; 2024 Contracting Awards recognition; featured in ContractEye Top 10 (2025) with 5.0/5.0 Google rating (51 reviews)"
+  },
+  {
+    "source_id": "SRC060",
+    "brand": "UK Landlord Tax",
+    "url": "https://uklandlordtax.co.uk/fixed-fees/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Landlord and property tax specialist; comprehensive fixed fees for UK/non-resident landlords (single/joint), Ltd company services, CGT, Airbnb; £15-£75/month"
+  },
+  {
+    "source_id": "SRC061",
+    "brand": "Elver E-Commerce Accountants",
+    "url": "https://www.elverecommerceaccountants.co.uk/pricing/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "E-commerce specialist with detailed published pricing; compliance £82-£420/month, bookkeeping revenue reconciliation £32/month per platform, software bundles £108-£129/month, example packages £150-£3704/month for £75k-£10m turnover businesses"
+  },
+  {
+    "source_id": "SRC062",
+    "brand": "Crunch",
+    "url": "https://www.crunch.co.uk/what-we-do/ecommerce-accounting",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "E-commerce accounting specialist; 4 tiers (Boost £175, Growth £253, Scale £357, Rocket custom) all +VAT/month with turnover limits £300k-£5m+; includes dedicated ACCA accountant, unlimited tax advice, software, bookkeeping support, platform linking"
+  },
+  {
+    "source_id": "SRC063",
+    "brand": "Doshi Accountants",
+    "url": "https://doshiaccountants.co.uk/fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive published fee schedule covering accounts & tax (£60-£165/month), VAT (£45-£375/month), management accounts (£35-£150/month), payroll (£30-£100/month), self-assessment (£15-£21/month), property accounts (£13-£30/month), company formation, bookkeeping £13/hour; turnover-based pricing across 9-17 bands"
+  },
+  {
+    "source_id": "SRC064",
+    "brand": "RJ Accountancy",
+    "url": "https://rjaccountancy.co.uk/fees/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Detailed published pricing: company accounts £25-£90/month (14 turnover bands £0-500k), sole trader accounts £5-£40/month (9 bands), basic tax return £15/month, partnership return £13/month, rental property £3/month per property, PAYE £10/month per employee, VAT returns £10-£20/month; all annual fees converted to monthly"
+  },
+  {
+    "source_id": "SRC065",
+    "brand": "The Online Accountants",
+    "url": "https://theonlineaccountants.uk/accountants-fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Tiered annual pricing: limited companies £30-£65/month (small/medium/large £349-£749+VAT), dormant £17/month, self-employed £35-£67/month, partnerships £42/month + £17/month per additional partner; turnover-based tiers up to £30k/£100k/£250k"
+  },
+  {
+    "source_id": "SRC066",
+    "brand": "Quick Tax Returns",
+    "url": "https://www.quicktaxreturns.co.uk/accountant-fees-for-tax-returns-uk-2025/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Fixed-fee tax return specialist: basic self-assessment from £200, director returns £300-£500 range, partnership returns £200-£400 range, complex self-employed £350-£600+; transparent fixed fees with no surprise charges"
+  },
+  {
+    "source_id": "SRC067",
+    "brand": "Right Choice Bookkeeping",
+    "url": "https://rchbservices.uk/en/price-list/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Invoice-volume-based bookkeeping: self-employed £30-£50/month (up to 50 invoices), partnerships £40-£60/month, limited companies £80-£100/month (up to 50 invoices); includes self-assessment returns, confirmation statement, CT, payroll for one director"
+  },
+  {
+    "source_id": "SRC068",
+    "brand": "Aben Bookkeeping",
+    "url": "http://www.abenbookkeeping.co.uk/fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Sussex-based bookkeeping specialist: £25+VAT/hour for bookkeeping & VAT returns, £13+VAT/month minimum payroll processing plus £1.55 per payslip; fees based on specific business needs"
+  },
+  {
+    "source_id": "SRC069",
+    "brand": "Xcountant",
+    "url": "https://xcountant.com/accountants-fees",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive published pricing: Ltd company packages £100-£450/month (5 tiers including Xero subscriptions), sole trader packages £65-£120/month, one-off services (year-end accounts £350-£2500+, personal tax £150-£250+, dormant £100+), bookkeeping £30/hour remote, £40/hour on-site London, standard hourly rate £100+VAT"
+  },
+  {
+    "source_id": "SRC070",
+    "brand": "Low Cost Accounts",
+    "url": "https://lowcostaccounts.co.uk/our-fees/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Budget-friendly fixed monthly packages for limited companies: Starter £45/month (accounts, CT, 25 bookkeeping entries), Growth £75/month (adds payroll, confirmation statement, SA), Comprehensive £100/month (adds VAT, cloud software, registered address); all include dedicated accountant"
+  },
+  {
+    "source_id": "SRC071",
+    "brand": "Penney's Accountancy",
+    "url": "https://www.penneysaccountancy.co.uk/prices/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Comprehensive detailed pricing: year-end accounts £96-£350/month (turnover £0-£1m+), dormant £21/month, self-assessment £26-£38/month, company services £8-£17/month, payroll £37-£139/month (by employee count), bookkeeping £45/hour, advisory £42-£131/month, CIS £37-£53/month, tax investigation cover £11-£17/month; all prices current as of April 5, 2025"
+  },
+  {
+    "source_id": "SRC072",
+    "brand": "The Accountancy Partnership",
+    "url": "https://www.theaccountancy.co.uk/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 8,
+    "source_type": "published_pricing_page",
+    "notes": "Budget-friendly packages: sole traders from £24.50/month, limited companies from £34.50/month, partnerships from £24.50/month; includes dedicated online accountant, annual accounts, tax returns, Pandle Pro bookkeeping software, unlimited support, no hidden costs, all filing included"
+  },
+  {
+    "source_id": "SRC073",
+    "brand": "Wizz Accounting",
+    "url": "https://www.wizzaccounting.co.uk/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 7,
+    "source_type": "published_pricing_page",
+    "notes": "Budget online accounting: sole traders from £27/month, limited companies from £54/month, partnerships from £45/month; base prices for monthly subscriptions, custom packages available"
+  },
+  {
+    "source_id": "SRC074",
+    "brand": "Cheap Accounting",
+    "url": "https://www.cheapaccounting.co.uk/monthly.php",
+    "captured_date": "2025-01-05",
+    "credibility_score": 9,
+    "source_type": "published_pricing_page",
+    "notes": "Turnover-based monthly packages for limited companies: £53/month (up to £30k), £63/month (£30-85k), £74/month (£85-150k); includes statutory accounts, Companies House filing, CT return, 1 director SA, monthly payroll; excludes VAT, bookkeeping, and registered office"
+  },
+  {
+    "source_id": "SRC075",
+    "brand": "Clearstone Business",
+    "url": "https://clearstonebusiness.co.uk/packages-pricing/turnover-500k-1m/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Specialist pricing for £500k-£1m turnover businesses: Entry £129-£299/month, Full £167-£407/month, Advanced £189-£499/month; 20/16/12 week turnaround times; includes cloud software, statutory accounts, tax computations, confirmation statement, unlimited advice; Full adds dedicated manager, fee protection, tax planning, health checks; Advanced adds directors' SA, profit improvement planning"
+  },
+  {
+    "source_id": "SRC076",
+    "brand": "My Accountancy Hub",
+    "url": "https://myaccountancyhub.co.uk/how-much-are-accountancy-fees-for-a-new-limited-company/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Detailed turnover-based pricing for limited companies £15k-£2m: Essential Hub £79-£399+VAT/month, Standard Hub £149-£469+VAT/month, Complete Hub £219-£539+VAT/month; pricing scales with turnover (accounts fee: £44 at £30-70k, £72 at £70-125k, £120 at £125-250k, £200 at £250-500k, £288 at £500k-1m, £320 at £1-2m); includes 20% new business discount"
+  },
+  {
+    "source_id": "SRC077",
+    "brand": "Simplex Accounting",
+    "url": "https://simplex-accounting.co.uk/",
+    "captured_date": "2025-01-05",
+    "credibility_score": 10,
+    "source_type": "published_pricing_page",
+    "notes": "Transaction-based bookkeeping from £25/month; £1 per transaction in blocks of 25; tiered structure: 1-100 transactions = £100, 101-150 = £150; unlimited calls/texts/emails included; flexible monthly plans with self-assessment included"
   }
 ]

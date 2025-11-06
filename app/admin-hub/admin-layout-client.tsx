@@ -14,12 +14,12 @@ import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Invitations", href: "/admin/invitations", icon: Mail },
-  { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
-  { name: "Portal Links", href: "/admin/portal-links", icon: Globe },
+  { name: "Dashboard", href: "/admin-hub", icon: LayoutDashboard },
+  { name: "Announcements", href: "/admin-hub/announcements", icon: Megaphone },
+  { name: "Users", href: "/admin-hub/users", icon: Users },
+  { name: "Invitations", href: "/admin-hub/invitations", icon: Mail },
+  { name: "Feedback", href: "/admin-hub/feedback", icon: MessageSquare },
+  { name: "Portal Links", href: "/admin-hub/portal-links", icon: Globe },
 ];
 
 const sections: {
@@ -31,7 +31,7 @@ const sections: {
     items: [
       {
         name: "Leave Approvals",
-        href: "/admin/leave/approvals",
+        href: "/admin-hub/leave/approvals",
         icon: Calendar,
       },
     ],
@@ -54,7 +54,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
       <div className="flex">
         <GlobalSidebar
           moduleName="Admin Panel"
-          baseHref="/admin"
+          baseHref="/admin-hub"
           navigation={navigation}
           sections={sections}
           moduleColor={HUB_COLORS["admin-hub"]}

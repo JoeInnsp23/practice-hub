@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 
 const EAGLE_FEED_URL = "https://www.eagle-education.co.uk/feed/";
@@ -25,7 +26,22 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Eagle RSS proxy error:", error);
+    const capturedError =
+      error instanceof Error
+        ? error
+        : new Error("Unknown error while fetching Eagle Education RSS feed");
+
+    Sentry.captureException(capturedError, {
+      tags: {
+        area: "rss",
+        module: "practice-hub",
+        operation: "fetch-eagle-feed",
+        severity: "error",
+      },
+      extra: {
+        feedUrl: EAGLE_FEED_URL,
+      },
+    });
     return NextResponse.json(
       { error: "Failed to fetch Eagle Education blog feed" },
       { status: 500 },

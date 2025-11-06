@@ -66,7 +66,7 @@ export default function AdminKYCDetailPage({
       toast.success("Verification approved successfully");
       setShowApproveDialog(false);
       refetch();
-      router.push("/admin/kyc-review");
+      router.push("/admin-hub/kyc-review");
     } catch (error) {
       const message =
         error instanceof Error
@@ -93,7 +93,7 @@ export default function AdminKYCDetailPage({
       toast.success("Verification rejected");
       setShowRejectDialog(false);
       refetch();
-      router.push("/admin/kyc-review");
+      router.push("/admin-hub/kyc-review");
     } catch (error) {
       const message =
         error instanceof Error
@@ -140,7 +140,7 @@ export default function AdminKYCDetailPage({
         <p className="text-muted-foreground mb-4">
           The requested verification could not be found.
         </p>
-        <Link href="/admin/kyc-review">
+        <Link href="/admin-hub/kyc-review">
           <Button>Back to Review Queue</Button>
         </Link>
       </div>
@@ -157,7 +157,7 @@ export default function AdminKYCDetailPage({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/admin/kyc-review">
+          <Link href="/admin-hub/kyc-review">
             <Button variant="outline" size="sm">
               <ArrowLeft className="h-4 w-4 mr-1" />
               Back

@@ -14,7 +14,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
 
   test("should display staff utilization cards", async ({ page }) => {
     // 1. Navigate to statistics page
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // 2. Verify summary cards render
     await expect(page.locator('text="Total Staff"')).toBeVisible();
@@ -44,7 +44,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should display 12-week trend chart", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // 1. Click "View Trend" on a staff card
     const viewTrendButton = page
@@ -74,7 +74,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should switch between view tabs", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // 1. Verify Individual View tab is active by default
     await expect(
@@ -98,7 +98,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should sort comparison table", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // 1. Navigate to Comparison Table tab
     await page.click('button:has-text("Comparison Table")');
@@ -133,7 +133,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should filter comparison table by status", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // Navigate to Comparison Table tab
     await page.click('button:has-text("Comparison Table")');
@@ -167,7 +167,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should export CSV", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // Navigate to Comparison Table tab
     await page.click('button:has-text("Comparison Table")');
@@ -188,7 +188,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should display utilization alerts", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // Check if overallocated alert is present
     const overallocatedAlert = page.locator('text="Overallocated Staff"');
@@ -213,7 +213,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should display department utilization", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // Scroll to department utilization section
     await page
@@ -240,7 +240,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
   });
 
   test("should handle loading states", async ({ page }) => {
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // On first load, skeleton loaders should appear briefly
     // This is hard to test due to speed, but we can verify the page eventually loads
@@ -256,7 +256,7 @@ test.describe("Staff Statistics Page (E2E)", () => {
     // This would require a test database with no staff data
     // or mocking the API responses
 
-    await page.goto("/admin/staff/statistics");
+    await page.goto("/admin-hub/staff/statistics");
 
     // If no data, should show empty state message
     const emptyMessage = page.locator('text="No utilization data available"');

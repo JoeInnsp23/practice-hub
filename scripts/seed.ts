@@ -1076,7 +1076,7 @@ For more information, visit the ICO website: https://ico.org.uk
     {
       title: "Admin Panel",
       description: "System administration and configuration",
-      url: "/admin",
+      url: "/admin-hub",
       iconName: "Settings",
       sortOrder: 10,
     },
@@ -4797,7 +4797,7 @@ For more information, visit the ICO website: https://ico.org.uk
       type: "approval_needed",
       title: "KYC Approval Needed",
       message: "New KYC verification requires your review",
-      actionUrl: "/admin/kyc-review",
+      actionUrl: "/admin-hub/kyc-review",
       entityType: "kyc_verification",
       isRead: true,
       readAt: faker.date.recent({ days: 1 }),

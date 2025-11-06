@@ -95,7 +95,7 @@ export function UserDetailsClient({
   const deleteMutation = trpc.users.delete.useMutation({
     onSuccess: () => {
       toast.success("User deleted successfully");
-      router.push("/admin/users");
+      router.push("/admin-hub/users");
     },
     onError: (error) => {
       toast.error(error.message || "Failed to delete user");
@@ -151,7 +151,7 @@ export function UserDetailsClient({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/admin/users")}
+            onClick={() => router.push("/admin-hub/users")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
