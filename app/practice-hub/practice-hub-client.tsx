@@ -1,6 +1,19 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import {
+  Briefcase,
+  Building,
+  Calculator,
+  DollarSign,
+  ExternalLink,
+  FileText,
+  Globe,
+  LayoutGrid,
+  type LucideIcon,
+  Settings,
+  Share2,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { getIconComponent } from "@/app/admin/portal-links/icon-utils";
 import { trpc as api } from "@/app/providers/trpc-provider";
@@ -21,7 +34,98 @@ import {
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
+import { HUB_COLORS, type HubName } from "@/lib/utils/hub-colors";
+
+// Static hub modules configuration
+const PRACTICE_HUB_MODULES: Array<{
+  name: string;
+  description: string;
+  url: string;
+  icon: LucideIcon;
+  hubKey: HubName;
+  status: "active" | "coming-soon";
+}> = [
+  {
+    name: "Practice Hub",
+    description: "Central hub for practice management",
+    url: "/practice-hub",
+    icon: LayoutGrid,
+    hubKey: "practice-hub",
+    status: "active",
+  },
+  {
+    name: "Client Hub",
+    description: "Manage clients, contacts, and relationships",
+    url: "/client-hub",
+    icon: Users,
+    hubKey: "client-hub",
+    status: "active",
+  },
+  {
+    name: "Proposal Hub",
+    description: "Create and manage client proposals",
+    url: "/proposal-hub",
+    icon: FileText,
+    hubKey: "proposal-hub",
+    status: "active",
+  },
+  {
+    name: "Employee Hub",
+    description: "Manage timesheets, leave requests, and TOIL",
+    url: "/employee-hub",
+    icon: Briefcase,
+    hubKey: "employee-hub",
+    status: "active",
+  },
+  {
+    name: "Social Hub",
+    description: "Practice social features and team collaboration",
+    url: "/social-hub",
+    icon: Share2,
+    hubKey: "social-hub",
+    status: "active",
+  },
+  {
+    name: "Portal Hub",
+    description: "Manage external client portal users and access",
+    url: "/client-admin",
+    icon: Globe,
+    hubKey: "portal-hub",
+    status: "active",
+  },
+  {
+    name: "Admin Hub",
+    description: "System administration and configuration",
+    url: "/admin",
+    icon: Settings,
+    hubKey: "admin-hub",
+    status: "active",
+  },
+  {
+    name: "Bookkeeping Hub",
+    description: "Bookkeeping and reconciliation (coming soon)",
+    url: "/bookkeeping",
+    icon: Calculator,
+    hubKey: "bookkeeping-hub",
+    status: "coming-soon",
+  },
+  {
+    name: "Accounts Hub",
+    description: "Annual accounts preparation (coming soon)",
+    url: "/accounts-hub",
+    icon: Building,
+    hubKey: "accounts-hub",
+    status: "coming-soon",
+  },
+  {
+    name: "Payroll Hub",
+    description: "Payroll processing and RTI (coming soon)",
+    url: "/payroll",
+    icon: DollarSign,
+    hubKey: "payroll-hub",
+    status: "coming-soon",
+  },
+];
 
 interface PracticeHubClientProps {
   userRole?: string;
@@ -38,70 +142,9 @@ export function PracticeHubClient({
   // Use passed userName or fall back to session user data
   const displayName = userName || session?.user?.name?.split(" ")[0] || "User";
 
-  // Fetch portal data
+  // Fetch portal data for external links only
   const { data: categoriesWithLinks, isLoading } =
     api.portal.getCategoriesWithLinks.useQuery();
-  const { data: favorites } = api.portal.getUserFavorites.useQuery();
-  const toggleFavoriteMutation = api.portal.toggleFavorite.useMutation();
-
-  // Get Practice Hub category and its links
-  const practiceHubCategory = categoriesWithLinks?.find(
-    (cat) => cat.name === "Practice Hub",
-  );
-
-  // Map display names to HUB_COLORS keys
-  const hubNameMap: Record<string, keyof typeof HUB_COLORS> = {
-    "Practice Hub": "practice-hub",
-    "Proposal Hub": "proposal-hub",
-    "Social Hub": "social-hub",
-    "Client Hub": "client-hub",
-    "Employee Hub": "employee-hub",
-    "Client Portal": "portal-hub", // Portal Hub
-    "Portal Hub": "portal-hub",
-    "Admin Panel": "admin-hub", // Admin Hub
-    "Admin Hub": "admin-hub",
-    "Bookkeeping Hub": "bookkeeping-hub",
-    "Accounts Hub": "accounts-hub",
-    "Payroll Hub": "payroll-hub",
-  };
-
-  const practiceHubApps =
-    practiceHubCategory?.links.map((link) => {
-      // Get the appropriate icon
-      const IconComponent = link.iconName
-        ? getIconComponent(link.iconName) || ExternalLink
-        : ExternalLink;
-
-      // Determine status from description
-      let status: "active" | "coming-soon" | "placeholder" = "active";
-      if (
-        link.description?.includes("coming soon") ||
-        link.url.includes("/bookkeeping") ||
-        link.url.includes("/accounts-hub") ||
-        link.url.includes("/payroll") ||
-        link.url.includes("/employee-portal")
-      ) {
-        status = "coming-soon";
-      }
-
-      // Use hub-specific color from HUB_COLORS or fall back to category color
-      const hubKey = hubNameMap[link.title];
-      const moduleColor = hubKey
-        ? HUB_COLORS[hubKey]
-        : practiceHubCategory.colorHex || HUB_COLORS["practice-hub"];
-
-      return {
-        id: link.id,
-        name: link.title,
-        description: link.description || "",
-        icon: IconComponent,
-        color: moduleColor,
-        url: link.url,
-        status,
-        isFavorite:
-          favorites?.some((favorite) => favorite.linkId === link.id) || false,
-      };
-    }) || [];
 
   // Get all external links (non-Practice Hub categories)
   const externalCategories =
@@ -115,18 +158,9 @@ export function PracticeHubClient({
       ? externalCategories
       : externalCategories.filter((cat) => cat.id === selectedCategory);
 
-  const handleAppClick = (app: (typeof practiceHubApps)[0]) => {
+  const handleAppClick = (app: (typeof PRACTICE_HUB_MODULES)[0]) => {
     if (app.status === "active") {
       window.location.href = app.url;
-    }
-  };
-
-  const _handleToggleFavorite = async (linkId: string) => {
-    try {
-      await toggleFavoriteMutation.mutateAsync({ linkId });
-    } catch {
-      // Silently fail for favorite toggle - non-critical action
-      // Error already handled by mutation's onError handler
     }
   };
 
@@ -167,67 +201,60 @@ export function PracticeHubClient({
               {/* Practice Hub Tab */}
               <TabsContent value="practice-hub" className="mt-0">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {practiceHubApps.length === 0 ? (
-                    <Card className="col-span-full p-8 text-center">
-                      <p className="text-muted-foreground">
-                        No Practice Hub apps available.
-                      </p>
-                    </Card>
-                  ) : (
-                    practiceHubApps.map((app, index) => {
-                      const IconComponent = app.icon;
-                      const isComingSoon = app.status === "coming-soon";
+                  {PRACTICE_HUB_MODULES.map((module, index) => {
+                    const IconComponent = module.icon;
+                    const isComingSoon = module.status === "coming-soon";
+                    const moduleColor = HUB_COLORS[module.hubKey];
 
-                      return (
-                        <CardInteractive
-                          key={app.id}
-                          moduleColor={app.color}
-                          onClick={
-                            !isComingSoon
-                              ? () => handleAppClick(app)
-                              : undefined
-                          }
-                          ariaLabel={
-                            !isComingSoon
-                              ? `Navigate to ${app.name}`
-                              : `${app.name} (Coming Soon)`
-                          }
-                          className="animate-lift-in rounded-xl p-6"
+                    return (
+                      <CardInteractive
+                        key={module.hubKey}
+                        moduleColor={moduleColor}
+                        onClick={
+                          !isComingSoon
+                            ? () => handleAppClick(module)
+                            : undefined
+                        }
+                        ariaLabel={
+                          !isComingSoon
+                            ? `Navigate to ${module.name}`
+                            : `${module.name} (Coming Soon)`
+                        }
+                        className="animate-lift-in rounded-xl p-6"
+                        style={{
+                          animationDelay: `${index * 0.1}s`,
+                          opacity: 0,
+                        }}
+                      >
+                        {/* Icon Container */}
+                        <div
+                          className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300"
                           style={{
-                            animationDelay: `${index * 0.1}s`,
-                            opacity: 0,
+                            background: `linear-gradient(135deg, ${moduleColor}, ${moduleColor}dd)`,
                           }}
                         >
-                          {/* Icon Container */}
-                          <div
-                            className="mb-4 inline-flex rounded-xl p-3 shadow-md transition-all duration-300"
-                            style={{
-                              background: `linear-gradient(135deg, ${app.color}, ${app.color}dd)`,
-                            }}
-                          >
-                            <IconComponent className="h-6 w-6 text-white transition-transform duration-300" />
-                          </div>
+                          <IconComponent className="h-6 w-6 text-white transition-transform duration-300" />
+                        </div>
 
-                          {/* Title */}
-                          <h3 className="mb-2 text-lg font-semibold text-card-foreground">
-                            {app.name}
-                          </h3>
+                        {/* Title */}
+                        <h3 className="mb-2 text-lg font-semibold text-card-foreground">
+                          {module.name}
+                        </h3>
 
-                          {/* Description */}
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {app.description}
-                          </p>
+                        {/* Description */}
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {module.description}
+                        </p>
 
-                          {/* Coming Soon Badge */}
-                          {isComingSoon && (
-                            <span className="absolute right-4 top-4 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-                              Coming Soon
-                            </span>
-                          )}
-                        </CardInteractive>
-                      );
-                    })
-                  )}
+                        {/* Coming Soon Badge */}
+                        {isComingSoon && (
+                          <span className="absolute right-4 top-4 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                            Coming Soon
+                          </span>
+                        )}
+                      </CardInteractive>
+                    );
+                  })}
                 </div>
               </TabsContent>
 
