@@ -74,11 +74,17 @@ export function GlobalHeader({
                 </div>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-card-foreground">
+                <h1
+                  className={`text-xl font-semibold ${headerColor ? "text-white" : "text-card-foreground"}`}
+                >
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-xs text-muted-foreground">{subtitle}</p>
+                  <p
+                    className={`text-xs ${headerColor ? "text-white/90" : "text-muted-foreground"}`}
+                  >
+                    {subtitle}
+                  </p>
                 )}
               </div>
             </div>
