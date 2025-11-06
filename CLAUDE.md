@@ -145,9 +145,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 3. **Headers and Sidebars** - Use shared `GlobalHeader` and `GlobalSidebar` components. Provide module-specific `headerColor`; set `showBackToHome={true}` for non–practice-hub modules. Keep header/sidebar colors aligned to the module palette. Do not build bespoke headers/sidebars.
 
-4. **Layout backgrounds** - All module layouts must use gradient background (apply on the top-level layout container):
+4. **Layout backgrounds** - All module layouts must use gradient background with radial gradient in dark mode (apply on the top-level layout container):
    ```tsx
-   className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800"
+   className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)]"
    ```
 
  
