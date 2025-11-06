@@ -49,18 +49,20 @@ export function PracticeHubClient({
     (cat) => cat.name === "Practice Hub",
   );
 
-  // Define module-specific colors (preserving original colors)
-  const moduleColors: Record<string, string> = {
-    "Proposal Hub": "#ec4899", // pink
-    "Social Hub": "#8b5cf6", // purple
-    "Client Hub": "#3b82f6", // blue
-    "Employee Hub": "#10b981", // emerald green
-    "Employee Portal": "#a855f7", // purple
-    "Client Portal": "#10b981", // green
-    "Admin Panel": "#f97316", // orange
-    "Bookkeeping Hub": "#f59e0b", // amber
-    "Accounts Hub": "#06b6d4", // cyan
-    "Payroll Hub": "#84cc16", // lime
+  // Map display names to HUB_COLORS keys
+  const hubNameMap: Record<string, keyof typeof HUB_COLORS> = {
+    "Practice Hub": "practice-hub",
+    "Proposal Hub": "proposal-hub",
+    "Social Hub": "social-hub",
+    "Client Hub": "client-hub",
+    "Employee Hub": "employee-hub",
+    "Client Portal": "portal-hub", // Portal Hub
+    "Portal Hub": "portal-hub",
+    "Admin Panel": "admin-hub", // Admin Hub
+    "Admin Hub": "admin-hub",
+    "Bookkeeping Hub": "bookkeeping-hub",
+    "Accounts Hub": "accounts-hub",
+    "Payroll Hub": "payroll-hub",
   };
 
   const practiceHubApps =
@@ -82,9 +84,11 @@ export function PracticeHubClient({
         status = "coming-soon";
       }
 
-      // Use module-specific color or fall back to category color
-      const moduleColor =
-        moduleColors[link.title] || practiceHubCategory.colorHex || "#ff8609";
+      // Use hub-specific color from HUB_COLORS or fall back to category color
+      const hubKey = hubNameMap[link.title];
+      const moduleColor = hubKey
+        ? HUB_COLORS[hubKey]
+        : practiceHubCategory.colorHex || HUB_COLORS["practice-hub"];
 
       return {
         id: link.id,
