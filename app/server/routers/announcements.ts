@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { and, desc, eq, gte, lte, or } from "drizzle-orm";
+import { and, desc, eq, gte, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { announcements } from "@/lib/db/schema";
 import { adminProcedure, router, protectedProcedure } from "../trpc";
@@ -71,7 +71,7 @@ export const announcementsRouter = router({
           .where(and(...conditions, scheduleConditions))
           .orderBy(
             desc(announcements.isPinned), // Pinned first
-            desc(announcements.priority), // Critical > Warning > Info
+            sql`${announcements.priority} DESC`, // Critical > Warning > Info
             desc(announcements.createdAt), // Newest first
           )
           .limit(input.limit);
@@ -122,7 +122,7 @@ export const announcementsRouter = router({
           .where(and(...conditions))
           .orderBy(
             desc(announcements.isPinned),
-            desc(announcements.priority),
+            sql`${announcements.priority} DESC`,
             desc(announcements.createdAt),
           );
 
