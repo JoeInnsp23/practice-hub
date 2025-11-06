@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { Invoice } from "@/lib/trpc/types";
+import { HUB_COLORS } from "@/lib/utils/constants";
 import { formatCurrency } from "@/lib/utils/format";
 
 // Form data type (subset of Invoice without DB-generated fields)
@@ -375,7 +376,10 @@ export default function InvoicesPage() {
 
       {/* Invoice Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-4xl max-h-[90vh] overflow-y-auto"
+          style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
+        >
           <DialogHeader>
             <DialogTitle>
               {editingInvoice ? "Edit Invoice" : "Create New Invoice"}

@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { HUB_COLORS } from "@/lib/utils/constants";
 
 // Import step components
 import { BasicInfoStep } from "./wizard/basic-info-step";
@@ -386,6 +387,7 @@ export function ClientWizardModal({
       <DialogContent
         data-testid="client-wizard-modal"
         className="max-w-[1400px] w-[95vw] max-h-[90vh] flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800"
+        style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
       >
         <DialogHeader className="space-y-4 pb-6">
           <div>
@@ -524,7 +526,7 @@ export function ClientWizardModal({
             {currentStep === STEPS.length - 1 ? (
               <Button
                 onClick={handleSubmit}
-                className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white flex items-center space-x-2 min-w-[140px]"
+                className="flex items-center space-x-2 min-w-[140px]"
                 data-testid="client-wizard-complete-button"
               >
                 <Check className="h-4 w-4" />

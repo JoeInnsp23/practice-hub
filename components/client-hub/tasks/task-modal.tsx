@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { HUB_COLORS } from "@/lib/utils/constants";
 import type {
   TaskFormPayload,
   TaskFormPriority,
@@ -150,7 +151,11 @@ export function TaskModal({ isOpen, onClose, onSave, task }: TaskModalProps) {
         if (!open) onClose();
       }}
     >
-      <DialogContent data-testid="task-form-modal" className="max-w-lg">
+      <DialogContent
+        data-testid="task-form-modal"
+        className="max-w-lg"
+        style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
+      >
         <DialogHeader>
           <DialogTitle>{task ? "Edit Task" : "Create Task"}</DialogTitle>
           <DialogDescription>
