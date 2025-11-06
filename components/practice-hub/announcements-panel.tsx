@@ -98,7 +98,7 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
   };
 
   return (
-    <Card className="glass-card shadow-medium p-6">
+    <Card className="glass-card shadow-medium p-6 !border-l-transparent">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">

@@ -386,14 +386,14 @@ export function PracticeHubClient({
 
         {/* Right Column - Widgets (1/3 width) */}
         <div className="space-y-6">
+          {/* Urgent Tasks Widget */}
+          <UrgentTasksWidget />
+
           {/* Announcements Panel */}
           <AnnouncementsPanel limit={5} />
 
           {/* Pending Approvals Widget (for managers/admins) */}
           <PendingApprovalsWidget />
-
-          {/* Urgent Tasks Widget */}
-          <UrgentTasksWidget />
 
           {/* Need Help Card */}
           <NeedHelpCard />
