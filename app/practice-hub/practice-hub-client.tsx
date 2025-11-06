@@ -177,10 +177,7 @@ export function PracticeHubClient({
   return (
     <div className="space-y-8">
       {/* Welcome Section - Full Width */}
-      <CardInteractive
-        moduleColor={HUB_COLORS["practice-hub"]}
-        className="rounded-xl p-8 animate-fade-in"
-      >
+      <div className="animate-fade-in">
         <h1 className="text-3xl font-bold text-card-foreground">
           Welcome to Practice Hub, {displayName}!
         </h1>
@@ -188,7 +185,7 @@ export function PracticeHubClient({
           Access all your essential tools and resources from one central
           location.
         </p>
-      </CardInteractive>
+      </div>
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
