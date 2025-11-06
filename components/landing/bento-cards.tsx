@@ -421,7 +421,7 @@ export function SmallBentoCard({
       moduleColor={color}
       onClick={onClick}
       ariaLabel={ariaLabel}
-      className={`md:col-span-2 rounded-2xl p-6 relative overflow-hidden group hover:shadow-lg transition-shadow duration-300 ${
+      className={`md:col-span-2 rounded-2xl p-6 relative overflow-hidden group ${
         visible ? "animate-lift-in" : "opacity-0"
       }`}
       style={{ animationDelay }}
