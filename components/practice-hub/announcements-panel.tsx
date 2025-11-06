@@ -52,9 +52,28 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
     },
   );
 
-  // Don't show panel if loading or no announcements
-  if (isLoading || !announcements || announcements.length === 0) {
+  // Show loading state
+  if (isLoading) {
     return null;
+  }
+
+  // Show empty state if no announcements
+  if (!announcements || announcements.length === 0) {
+    return (
+      <Card className="glass-card shadow-medium p-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
+            <Megaphone className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-lg">Company Announcements</h3>
+            <p className="text-sm text-muted-foreground">
+              No announcements at this time
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
   }
 
   const getPriorityBadge = (priority: string) => {
@@ -98,7 +117,7 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
   };
 
   return (
-    <Card className="glass-card shadow-medium p-6 !border-l-transparent">
+    <Card className="glass-card shadow-medium p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">

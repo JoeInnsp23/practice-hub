@@ -7,13 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export function NeedHelpCard() {
   return (
-    <Card className="glass-card shadow-medium p-6 relative overflow-hidden">
-      {/* Gradient decoration rail */}
-      <div
-        className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-600"
-        aria-hidden="true"
-      />
-
+    <Card className="glass-card shadow-medium p-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
