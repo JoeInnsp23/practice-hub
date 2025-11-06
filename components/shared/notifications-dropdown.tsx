@@ -15,7 +15,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-export function NotificationsDropdown() {
+export function NotificationsDropdown({
+  isOnColoredBackground = false,
+}: {
+  isOnColoredBackground?: boolean;
+}) {
   const utils = trpc.useUtils();
   const [open, setOpen] = useState(false);
 
@@ -88,10 +92,12 @@ export function NotificationsDropdown() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className={`relative ${isOnColoredBackground ? "hover:bg-white/10" : ""}`}
           aria-label="Notifications"
         >
-          <Bell className="h-5 w-5" />
+          <Bell
+            className={`h-5 w-5 ${isOnColoredBackground ? "text-white" : ""}`}
+          />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-semibold flex items-center justify-center">
               {unreadCount > 9 ? "9+" : unreadCount}

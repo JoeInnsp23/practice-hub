@@ -94,9 +94,9 @@ export function GlobalHeader({
         {/* Right Section */}
         <div className="flex items-center space-x-4 px-4 sm:px-6 lg:px-8">
           <ClientOnly>
-            <DateTimeDisplay />
-            <NotificationsDropdown />
-            <ThemeToggle />
+            <DateTimeDisplay isOnColoredBackground={!!headerColor} />
+            <NotificationsDropdown isOnColoredBackground={!!headerColor} />
+            <ThemeToggle isOnColoredBackground={!!headerColor} />
             <UserButton />
           </ClientOnly>
         </div>

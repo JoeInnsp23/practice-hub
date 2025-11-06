@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-export function DateTimeDisplay() {
+export function DateTimeDisplay({
+  isOnColoredBackground = false,
+}: {
+  isOnColoredBackground?: boolean;
+}) {
   const [currentDate, setCurrentDate] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -37,9 +41,21 @@ export function DateTimeDisplay() {
   }
 
   return (
-    <div className="hidden text-right text-sm text-slate-700 dark:text-slate-300 sm:block">
+    <div
+      className={`hidden text-right text-sm sm:block ${
+        isOnColoredBackground
+          ? "text-white"
+          : "text-slate-700 dark:text-slate-300"
+      }`}
+    >
       <div className="font-medium">{currentDate}</div>
-      <div className="text-xs text-slate-500 dark:text-slate-400">
+      <div
+        className={`text-xs ${
+          isOnColoredBackground
+            ? "text-white/80"
+            : "text-slate-500 dark:text-slate-400"
+        }`}
+      >
         {currentTime}
       </div>
     </div>
