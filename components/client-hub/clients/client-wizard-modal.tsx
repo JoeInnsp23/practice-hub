@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { HUB_COLORS } from "@/lib/utils/constants";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 // Import step components
 import { BasicInfoStep } from "./wizard/basic-info-step";

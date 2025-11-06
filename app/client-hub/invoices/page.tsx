@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { Invoice } from "@/lib/trpc/types";
-import { HUB_COLORS } from "@/lib/utils/constants";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { formatCurrency } from "@/lib/utils/format";
 
 // Form data type (subset of Invoice without DB-generated fields)

@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { HUB_COLORS } from "@/lib/utils/constants";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import type {
   TaskFormPayload,
   TaskFormPriority,
