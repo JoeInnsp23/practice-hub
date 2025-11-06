@@ -31,7 +31,7 @@ export default function PracticeHubLayout({
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto bg-slate-100 dark:bg-slate-950 border-t border-slate-300 dark:border-slate-800">
+      <footer className="mt-auto bg-muted/30 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-muted-foreground">
             © 2025 Practice Hub. Internal Use Only.

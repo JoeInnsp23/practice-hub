@@ -77,79 +77,8 @@
   --glass-shadow-light: 0 10px 40px rgba(148, 163, 184, 0.3);
   --glass-shadow-dark: 0 10px 40px rgba(0, 0, 0, 0.5);
 
-  /* New Unique Teal-Based Color Scheme (Dark Mode - Default) */
-  /* Inspired by Cursor's beautiful teal but completely unique */
-  --card: oklch(0.18 0.025 251.3); /* Dark teal-ish slate */
-  --card-foreground: oklch(0.94 0.005 249.1); /* Light off-white */
-  --popover: oklch(0.18 0.025 251.3);
-  --popover-foreground: oklch(0.94 0.005 249.1);
-  --primary: oklch(0.56 0.15 196.6); /* Bright teal (not AI purple) */
-  --primary-foreground: oklch(0.08 0.015 251.3); /* Very dark teal */
-  --secondary: oklch(0.52 0.12 178.5); /* Secondary teal - different hue */
-  --secondary-foreground: oklch(0.95 0.003 249.1);
-  --muted: oklch(0.28 0.02 251.3); /* Darker for muted areas */
-  --muted-foreground: oklch(0.65 0.01 249.1);
-  --accent: oklch(0.72 0.17 62.1); /* Warm gold accent (not purple) */
-  --accent-foreground: oklch(0.08 0.015 251.3);
-  --destructive: oklch(0.62 0.23 29.2); /* Red for errors */
-  --border: oklch(0.25 0.022 251.3); /* Subtle dark border */
-  --input: oklch(0.13 0.02 251.3); /* Very dark for inputs */
-  --ring: oklch(0.56 0.15 196.6); /* Match primary teal */
-  --chart-1: oklch(0.56 0.15 196.6); /* Teal */
-  --chart-2: oklch(0.52 0.12 178.5); /* Secondary teal */
-  --chart-3: oklch(0.72 0.17 62.1); /* Gold */
-  --chart-4: oklch(0.45 0.08 251.3); /* Muted teal */
-  --chart-5: oklch(0.6 0.14 241.2); /* Cyan-ish */
-  --sidebar: oklch(0.12 0.018 251.3);
-  --sidebar-foreground: oklch(0.94 0.005 249.1);
-  --sidebar-primary: oklch(0.56 0.15 196.6);
-  --sidebar-primary-foreground: oklch(0.94 0.005 249.1);
-  --sidebar-accent: oklch(0.72 0.17 62.1);
-  --sidebar-accent-foreground: oklch(0.08 0.015 251.3);
-  --sidebar-border: oklch(0.25 0.022 251.3);
-  --sidebar-ring: oklch(0.56 0.15 196.6);
-  --background: oklch(0.1 0.018 251.3); /* Deep dark teal background */
-  --foreground: oklch(0.94 0.005 249.1); /* Light foreground */
-}
-
-.dark {
-  /* Dark mode - keep the dark teal theme */
-  --background: oklch(0.1 0.018 251.3);
-  --foreground: oklch(0.94 0.005 249.1);
-  --card: oklch(0.18 0.025 251.3);
-  --card-foreground: oklch(0.94 0.005 249.1);
-  --popover: oklch(0.18 0.025 251.3);
-  --popover-foreground: oklch(0.94 0.005 249.1);
-  --primary: oklch(0.56 0.15 196.6);
-  --primary-foreground: oklch(0.94 0.005 249.1);
-  --secondary: oklch(0.52 0.12 178.5);
-  --secondary-foreground: oklch(0.95 0.003 249.1);
-  --muted: oklch(0.28 0.02 251.3);
-  --muted-foreground: oklch(0.65 0.01 249.1);
-  --accent: oklch(0.72 0.17 62.1);
-  --accent-foreground: oklch(0.08 0.015 251.3);
-  --destructive: oklch(0.64 0.24 22.2);
-  --border: oklch(0.25 0.022 251.3);
-  --input: oklch(0.13 0.02 251.3);
-  --ring: oklch(0.56 0.15 196.6);
-  --chart-1: oklch(0.56 0.15 196.6);
-  --chart-2: oklch(0.52 0.12 178.5);
-  --chart-3: oklch(0.72 0.17 62.1);
-  --chart-4: oklch(0.45 0.08 251.3);
-  --chart-5: oklch(0.6 0.14 241.2);
-  --sidebar: oklch(0.12 0.018 251.3);
-  --sidebar-foreground: oklch(0.94 0.005 249.1);
-  --sidebar-primary: oklch(0.56 0.15 196.6);
-  --sidebar-primary-foreground: oklch(0.94 0.005 249.1);
-  --sidebar-accent: oklch(0.72 0.17 62.1);
-  --sidebar-accent-foreground: oklch(0.08 0.015 251.3);
-  --sidebar-border: oklch(0.25 0.022 251.3);
-  --sidebar-ring: oklch(0.56 0.15 196.6);
-}
-
-/* Light mode - responds to manual theme toggle */
-[data-theme="light"] {
-  /* Light mode - clean, readable, high contrast */
+  /* Light Mode - Default Theme */
+  /* Clean, readable, high contrast */
   --background: oklch(0.985 0.002 247.84); /* Very light slate */
   --foreground: oklch(0.2 0.03 247.9); /* Much darker text for readability */
   --card: oklch(1 0 0); /* Pure white */
@@ -183,42 +112,40 @@
   --sidebar-ring: oklch(0.515 0.151 254.09); /* Blue ring */
 }
 
-/* Fallback for system preference when no manual theme is set */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) {
-    /* Light mode - clean, readable, high contrast */
-    --background: oklch(0.985 0.002 247.84); /* Very light slate */
-    --foreground: oklch(0.2 0.03 247.9); /* Much darker text for readability */
-    --card: oklch(1 0 0); /* Pure white */
-    --card-foreground: oklch(0.2 0.03 247.9); /* Dark text on white cards */
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.2 0.03 247.9);
-    --primary: oklch(0.515 0.151 254.09); /* Blue (keeping feedback button blue) */
-    --primary-foreground: oklch(1 0 0);
-    --secondary: oklch(0.97 0.003 247.84); /* Light slate */
-    --secondary-foreground: oklch(0.2 0.03 247.9); /* Darker for readability */
-    --muted: oklch(0.96 0.003 247.84); /* Slightly darker muted bg */
-    --muted-foreground: oklch(0.45 0.018 247.87); /* Much darker muted text */
-    --accent: oklch(0.654 0.161 162.57); /* Emerald accent */
-    --accent-foreground: oklch(1 0 0);
-    --destructive: oklch(0.549 0.215 29.23);
-    --border: oklch(0.88 0.005 247.85); /* Slightly darker borders */
-    --input: oklch(0.98 0.002 247.85); /* Lighter input backgrounds */
-    --ring: oklch(0.515 0.151 254.09);
-    --chart-1: oklch(0.515 0.151 254.09);
-    --chart-2: oklch(0.654 0.161 162.57);
-    --chart-3: oklch(0.577 0.174 271.85);
-    --chart-4: oklch(0.502 0.015 256.79);
-    --chart-5: oklch(0.691 0.139 85.22);
-    --sidebar: oklch(0.985 0.002 247.839);
-    --sidebar-foreground: oklch(0.2 0.03 247.9); /* Darker sidebar text */
-    --sidebar-primary: oklch(0.21 0.034 264.665);
-    --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-    --sidebar-accent: oklch(0.967 0.003 264.542);
-    --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
-    --sidebar-border: oklch(0.88 0.006 264.531); /* Darker borders */
-    --sidebar-ring: oklch(0.515 0.151 254.09); /* Blue ring */
-  }
+.dark {
+  /* Dark Mode - Unique Teal-Based Theme */
+  /* Inspired by Cursor's beautiful teal but completely unique */
+  --card: oklch(0.18 0.025 251.3); /* Dark teal-ish slate */
+  --card-foreground: oklch(0.94 0.005 249.1); /* Light off-white */
+  --popover: oklch(0.18 0.025 251.3);
+  --popover-foreground: oklch(0.94 0.005 249.1);
+  --primary: oklch(0.56 0.15 196.6); /* Bright teal (not AI purple) */
+  --primary-foreground: oklch(0.94 0.005 249.1); /* Light off-white */
+  --secondary: oklch(0.52 0.12 178.5); /* Secondary teal - different hue */
+  --secondary-foreground: oklch(0.95 0.003 249.1);
+  --muted: oklch(0.28 0.02 251.3); /* Darker for muted areas */
+  --muted-foreground: oklch(0.65 0.01 249.1);
+  --accent: oklch(0.72 0.17 62.1); /* Warm gold accent (not purple) */
+  --accent-foreground: oklch(0.08 0.015 251.3);
+  --destructive: oklch(0.62 0.23 29.2); /* Red for errors */
+  --border: oklch(0.25 0.022 251.3); /* Subtle dark border */
+  --input: oklch(0.13 0.02 251.3); /* Very dark for inputs */
+  --ring: oklch(0.56 0.15 196.6); /* Match primary teal */
+  --chart-1: oklch(0.56 0.15 196.6); /* Teal */
+  --chart-2: oklch(0.52 0.12 178.5); /* Secondary teal */
+  --chart-3: oklch(0.72 0.17 62.1); /* Gold */
+  --chart-4: oklch(0.45 0.08 251.3); /* Muted teal */
+  --chart-5: oklch(0.6 0.14 241.2); /* Cyan-ish */
+  --sidebar: oklch(0.12 0.018 251.3);
+  --sidebar-foreground: oklch(0.94 0.005 249.1);
+  --sidebar-primary: oklch(0.56 0.15 196.6);
+  --sidebar-primary-foreground: oklch(0.94 0.005 249.1);
+  --sidebar-accent: oklch(0.72 0.17 62.1);
+  --sidebar-accent-foreground: oklch(0.08 0.015 251.3);
+  --sidebar-border: oklch(0.25 0.022 251.3);
+  --sidebar-ring: oklch(0.56 0.15 196.6);
+  --background: oklch(0.1 0.018 251.3); /* Deep dark teal background */
+  --foreground: oklch(0.94 0.005 249.1); /* Light foreground */
 }
 
 /* Hub color theming system - derives shades from --hub-color variable */
@@ -237,6 +164,7 @@
 
   /* Map to shadcn tokens for consistency */
   --primary: var(--hub-color-500);
+  --primary-foreground: oklch(0.94 0.005 249.1); /* Always light text on hub-colored buttons */
   --ring: var(--hub-color-500);
 }
 

@@ -311,7 +311,7 @@ export function PracticeHubClient({
                     {filteredExternalLinks.map((category) => (
                       <div key={category.id}>
                         <h3
-                          className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 pb-2 border-b"
+                          className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4 pb-2 border-b"
                           style={{
                             borderColor: category.colorHex || "#e5e5e5",
                           }}
