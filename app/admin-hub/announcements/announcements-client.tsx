@@ -180,14 +180,14 @@ export function AnnouncementsClient() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-20">Status</TableHead>
-                  <TableHead className="w-28">Priority</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead className="w-20 text-center">Pinned</TableHead>
-                  <TableHead className="w-40">Published</TableHead>
-                  <TableHead className="w-40">Starts</TableHead>
-                  <TableHead className="w-40">Expires</TableHead>
-                  <TableHead className="w-32 text-right">Actions</TableHead>
+                  <TableHead className="w-20 whitespace-nowrap">Status</TableHead>
+                  <TableHead className="w-28 whitespace-nowrap">Priority</TableHead>
+                  <TableHead className="max-w-md">Title</TableHead>
+                  <TableHead className="w-20 text-center whitespace-nowrap">Pinned</TableHead>
+                  <TableHead className="w-40 whitespace-nowrap">Published</TableHead>
+                  <TableHead className="w-40 whitespace-nowrap">Starts</TableHead>
+                  <TableHead className="w-40 whitespace-nowrap">Expires</TableHead>
+                  <TableHead className="w-32 text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -209,7 +209,7 @@ export function AnnouncementsClient() {
                 ) : (
                   announcements.map((announcement) => (
                     <TableRow key={announcement.id}>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Switch
                           checked={announcement.isActive}
                           onCheckedChange={(checked) =>
@@ -217,13 +217,13 @@ export function AnnouncementsClient() {
                           }
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         {getPriorityBadge(announcement.priority)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="max-w-md">
                         <div className="flex items-center gap-2">
                           <div
-                            className="p-1.5 rounded"
+                            className="p-1.5 rounded flex-shrink-0"
                             style={{
                               backgroundColor: `${announcement.iconColor}20`,
                             }}
@@ -235,17 +235,17 @@ export function AnnouncementsClient() {
                               {announcement.icon}
                             </div>
                           </div>
-                          <div>
-                            <div className="font-medium">
+                          <div className="min-w-0">
+                            <div className="font-medium break-words">
                               {announcement.title}
                             </div>
-                            <div className="text-sm text-muted-foreground line-clamp-1">
+                            <div className="text-sm text-muted-foreground break-words">
                               {announcement.content}
                             </div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center whitespace-nowrap">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -265,16 +265,16 @@ export function AnnouncementsClient() {
                           />
                         </Button>
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="text-sm whitespace-nowrap">
                         {formatDateTime(announcement.publishedAt)}
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="text-sm whitespace-nowrap">
                         {formatDateTime(announcement.startsAt)}
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="text-sm whitespace-nowrap">
                         {formatDateTime(announcement.endsAt)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"

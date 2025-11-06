@@ -330,13 +330,13 @@ export function FeedbackManagementClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="whitespace-nowrap">Type</TableHead>
+                <TableHead className="max-w-md">Title</TableHead>
+                <TableHead className="whitespace-nowrap">User</TableHead>
+                <TableHead className="whitespace-nowrap">Status</TableHead>
+                <TableHead className="whitespace-nowrap">Priority</TableHead>
+                <TableHead className="whitespace-nowrap">Date</TableHead>
+                <TableHead className="w-[100px] whitespace-nowrap">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -346,20 +346,20 @@ export function FeedbackManagementClient({
                   className="cursor-pointer"
                   onClick={() => setSelectedFeedback(item)}
                 >
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     <span className="text-muted-foreground">
                       {getTypeIcon(item.type)}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{item.title}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-sm">
+                  <TableCell className="max-w-md">
+                    <div className="min-w-0">
+                      <div className="font-medium break-words">{item.title}</div>
+                      <div className="text-sm text-muted-foreground break-words">
                         {item.description}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     <div className="text-sm">
                       <div>{item.userName || "Unknown"}</div>
                       <div className="text-muted-foreground">
@@ -367,12 +367,12 @@ export function FeedbackManagementClient({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(item.status)}</TableCell>
-                  <TableCell>{getPriorityBadge(item.priority)}</TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">{getStatusBadge(item.status)}</TableCell>
+                  <TableCell className="whitespace-nowrap">{getPriorityBadge(item.priority)}</TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {new Date(item.createdAt).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     <Button
                       variant="ghost"
                       size="sm"

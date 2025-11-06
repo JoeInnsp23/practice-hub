@@ -109,34 +109,34 @@ export default function DepartmentsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Department Name</TableHead>
-              <TableHead>Manager</TableHead>
-              <TableHead>Staff Count</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="max-w-md">Department Name</TableHead>
+              <TableHead className="whitespace-nowrap">Manager</TableHead>
+              <TableHead className="whitespace-nowrap">Staff Count</TableHead>
+              <TableHead className="whitespace-nowrap">Status</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {departments.map((department) => (
               <TableRow key={department.id}>
-                <TableCell>
-                  <div>
-                    <p className="font-medium">{department.name}</p>
+                <TableCell className="max-w-md">
+                  <div className="min-w-0">
+                    <p className="font-medium break-words">{department.name}</p>
                     {department.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-1">
+                      <p className="text-sm text-muted-foreground break-words">
                         {department.description}
                       </p>
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {department.managerName ? (
                     <span className="text-sm">{department.managerName}</span>
                   ) : (
                     <span className="text-sm text-muted-foreground">—</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   <div className="flex items-center gap-1">
                     <span className="font-medium">{department.staffCount}</span>
                     <span className="text-sm text-muted-foreground">
@@ -144,7 +144,7 @@ export default function DepartmentsTable({
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {department.isActive ? (
                     <Badge variant="default" className="bg-green-600">
                       Active
@@ -153,7 +153,7 @@ export default function DepartmentsTable({
                     <Badge variant="secondary">Inactive</Badge>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
