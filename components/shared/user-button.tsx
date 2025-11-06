@@ -51,7 +51,10 @@ export function UserButton() {
           </Avatar>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 glass-card">
+      <DropdownMenuContent
+        align="end"
+        className="w-56 !bg-white dark:!bg-[rgb(20,26,35)] !border-slate-200 dark:!border-[rgb(40,45,55)] !shadow-[0_10px_40px_rgba(148,163,184,0.1),0_1px_3px_rgba(0,0,0,0.04)] dark:!shadow-[0_2px_4px_rgba(0,0,0,0.15)]"
+      >
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium">{session.user.name || "User"}</p>
