@@ -3,6 +3,7 @@ import {
   clientPortalAuth,
   getClientPortalAuthContext,
 } from "@/lib/client-portal-auth";
+import { db } from "@/lib/db";
 
 export const createContext = async () => {
   // Get Better Auth session (staff)
@@ -22,6 +23,7 @@ export const createContext = async () => {
   const clientPortalAuthContext = await getClientPortalAuthContext();
 
   return {
+    db,
     session,
     authContext,
     clientPortalSession,
