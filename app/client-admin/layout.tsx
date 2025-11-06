@@ -3,6 +3,7 @@
 import { Calendar, FileText, Home, MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 export default function ClientAdminLayout({
   children,
@@ -15,7 +16,7 @@ export default function ClientAdminLayout({
         title="Client Admin"
         subtitle="Manage Client Portal Access"
         icon={Users}
-        iconColor="#4f46e5"
+        iconColor={HUB_COLORS["portal-hub"]}
       />
 
       <div className="flex">

@@ -24,12 +24,16 @@
  * ```
  */
 export const HUB_COLORS = {
+  "practice-hub": "#2dd4bf", // Teal (matches landing page CTA)
   "client-hub": "#3b82f6", // Blue
-  admin: "#f97316", // Orange
-  "employee-hub": "#10b981", // Emerald
   "proposal-hub": "#ec4899", // Pink
+  "employee-hub": "#10b981", // Emerald
   "social-hub": "#8b5cf6", // Purple
-  "practice-hub": "#2563eb", // Default blue
+  "portal-hub": "#4f46e5", // Indigo
+  "admin-hub": "#f97316", // Orange
+  "bookkeeping-hub": "#f59e0b", // Amber (planned)
+  "accounts-hub": "#06b6d4", // Cyan (planned)
+  "payroll-hub": "#84cc16", // Lime (planned)
 } as const;
 
 /**
@@ -53,12 +57,16 @@ export type HubName = keyof typeof HUB_COLORS;
  * creating visual depth for interactive elements like card accent bars.
  */
 const HUB_GRADIENTS: Record<string, string> = {
-  "#3b82f6": "linear-gradient(90deg, #3b82f6, #2563eb)", // Blue gradient
-  "#f97316": "linear-gradient(90deg, #f97316, #ea580c)", // Orange gradient
-  "#10b981": "linear-gradient(90deg, #10b981, #059669)", // Emerald gradient
-  "#ec4899": "linear-gradient(90deg, #ec4899, #db2777)", // Pink gradient
-  "#8b5cf6": "linear-gradient(90deg, #8b5cf6, #7c3aed)", // Purple gradient
-  "#2563eb": "linear-gradient(90deg, #2563eb, #1d4ed8)", // Practice Hub blue gradient
+  "#2dd4bf": "linear-gradient(90deg, #2dd4bf, #14b8a6)", // Teal gradient (Practice Hub)
+  "#3b82f6": "linear-gradient(90deg, #3b82f6, #2563eb)", // Blue gradient (Client Hub)
+  "#ec4899": "linear-gradient(90deg, #ec4899, #db2777)", // Pink gradient (Proposal Hub)
+  "#10b981": "linear-gradient(90deg, #10b981, #059669)", // Emerald gradient (Employee Hub)
+  "#8b5cf6": "linear-gradient(90deg, #8b5cf6, #7c3aed)", // Purple gradient (Social Hub)
+  "#4f46e5": "linear-gradient(90deg, #4f46e5, #4338ca)", // Indigo gradient (Portal Hub)
+  "#f97316": "linear-gradient(90deg, #f97316, #ea580c)", // Orange gradient (Admin Hub)
+  "#f59e0b": "linear-gradient(90deg, #f59e0b, #d97706)", // Amber gradient (Bookkeeping Hub)
+  "#06b6d4": "linear-gradient(90deg, #06b6d4, #0891b2)", // Cyan gradient (Accounts Hub)
+  "#84cc16": "linear-gradient(90deg, #84cc16, #65a30d)", // Lime gradient (Payroll Hub)
 } as const;
 
 /**

@@ -3,22 +3,30 @@ import { getHubGradient, HUB_COLORS, type HubName } from "./hub-colors";
 
 describe("hub-colors", () => {
   describe("HUB_COLORS", () => {
-    it("should include all 6 hub colors", () => {
-      expect(HUB_COLORS).toHaveProperty("client-hub");
-      expect(HUB_COLORS).toHaveProperty("admin");
-      expect(HUB_COLORS).toHaveProperty("employee-hub");
-      expect(HUB_COLORS).toHaveProperty("proposal-hub");
-      expect(HUB_COLORS).toHaveProperty("social-hub");
+    it("should include all 10 hub colors", () => {
       expect(HUB_COLORS).toHaveProperty("practice-hub");
+      expect(HUB_COLORS).toHaveProperty("client-hub");
+      expect(HUB_COLORS).toHaveProperty("proposal-hub");
+      expect(HUB_COLORS).toHaveProperty("employee-hub");
+      expect(HUB_COLORS).toHaveProperty("social-hub");
+      expect(HUB_COLORS).toHaveProperty("portal-hub");
+      expect(HUB_COLORS).toHaveProperty("admin-hub");
+      expect(HUB_COLORS).toHaveProperty("bookkeeping-hub");
+      expect(HUB_COLORS).toHaveProperty("accounts-hub");
+      expect(HUB_COLORS).toHaveProperty("payroll-hub");
     });
 
     it("should have correct color values", () => {
+      expect(HUB_COLORS["practice-hub"]).toBe("#2dd4bf");
       expect(HUB_COLORS["client-hub"]).toBe("#3b82f6");
-      expect(HUB_COLORS.admin).toBe("#f97316");
-      expect(HUB_COLORS["employee-hub"]).toBe("#10b981");
       expect(HUB_COLORS["proposal-hub"]).toBe("#ec4899");
+      expect(HUB_COLORS["employee-hub"]).toBe("#10b981");
       expect(HUB_COLORS["social-hub"]).toBe("#8b5cf6");
-      expect(HUB_COLORS["practice-hub"]).toBe("#2563eb");
+      expect(HUB_COLORS["portal-hub"]).toBe("#4f46e5");
+      expect(HUB_COLORS["admin-hub"]).toBe("#f97316");
+      expect(HUB_COLORS["bookkeeping-hub"]).toBe("#f59e0b");
+      expect(HUB_COLORS["accounts-hub"]).toBe("#06b6d4");
+      expect(HUB_COLORS["payroll-hub"]).toBe("#84cc16");
     });
 
     it("should be a const object", () => {
@@ -33,12 +41,16 @@ describe("hub-colors", () => {
   describe("HubName type", () => {
     it("should accept valid hub names", () => {
       const validHubNames: HubName[] = [
-        "client-hub",
-        "admin",
-        "employee-hub",
-        "proposal-hub",
-        "social-hub",
         "practice-hub",
+        "client-hub",
+        "proposal-hub",
+        "employee-hub",
+        "social-hub",
+        "portal-hub",
+        "admin-hub",
+        "bookkeeping-hub",
+        "accounts-hub",
+        "payroll-hub",
       ];
 
       validHubNames.forEach((hubName) => {
@@ -73,9 +85,9 @@ describe("hub-colors", () => {
       expect(gradient).toBe("linear-gradient(90deg, #8b5cf6, #7c3aed)");
     });
 
-    it("should return correct gradient for practice-hub blue", () => {
-      const gradient = getHubGradient("#2563eb");
-      expect(gradient).toBe("linear-gradient(90deg, #2563eb, #1d4ed8)");
+    it("should return correct gradient for practice-hub teal", () => {
+      const gradient = getHubGradient("#2dd4bf");
+      expect(gradient).toBe("linear-gradient(90deg, #2dd4bf, #14b8a6)");
     });
 
     it("should default to blue gradient for unknown colors", () => {

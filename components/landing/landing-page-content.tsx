@@ -277,7 +277,7 @@ export function LandingPageContent() {
             <SmallBentoCard
               title="Admin Hub"
               description="Settings, user management, and firm operations at your fingertips."
-              color={HUB_COLORS.admin}
+              color={HUB_COLORS["admin-hub"]}
               icon={Shield}
               size="small"
               onClick={() => {
@@ -368,7 +368,7 @@ export function LandingPageContent() {
           <div className="text-center mb-10">
             <Trophy
               className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-3 animate-gentle-bounce"
-              style={{ color: HUB_COLORS.admin, animationDelay: "0s" }}
+              style={{ color: HUB_COLORS["admin-hub"], animationDelay: "0s" }}
               aria-hidden="true"
             />
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">

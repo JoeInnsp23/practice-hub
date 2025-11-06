@@ -42,13 +42,13 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   return (
     <div
       data-hub-root
-      style={{ "--hub-color": HUB_COLORS.admin } as React.CSSProperties}
+      style={{ "--hub-color": HUB_COLORS["admin-hub"] } as React.CSSProperties}
       className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)]"
     >
       <GlobalHeader
         moduleName="Admin Panel"
         title="Admin Panel"
-        headerColor={HUB_COLORS.admin}
+        headerColor={HUB_COLORS["admin-hub"]}
         showBackToHome={true}
       />
       <div className="flex">
@@ -57,7 +57,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           baseHref="/admin"
           navigation={navigation}
           sections={sections}
-          moduleColor={HUB_COLORS.admin}
+          moduleColor={HUB_COLORS["admin-hub"]}
         />
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
       </div>

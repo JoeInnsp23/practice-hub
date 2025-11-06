@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-06T02:46:50.325Z
+# Generated: 2025-11-06T03:05:11.837Z
 
 functions:
   landingRouter:
@@ -750,7 +750,7 @@ functions:
   getHubGradient:
     description: "Gradient mapping for hub colors."
     file: "lib/utils/hub-colors.ts"
-    line: 49
+    line: 53
     type: "function"
     signature: "function getHubGradient"
   getAutoSalesStage:
@@ -1160,7 +1160,7 @@ types:
   HubName:
     description: "Type representing valid hub names."
     file: "lib/utils/hub-colors.ts"
-    line: 35
+    line: 39
     type: "type"
     signature: "type HubName"
   PlaceholderData:
@@ -1374,7 +1374,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-06T02:46:50.326Z"
+  generated: "2025-11-06T03:05:11.838Z"
   total_entries: 227
   functions: 136
   types: 58

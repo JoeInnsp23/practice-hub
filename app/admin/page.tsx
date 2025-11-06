@@ -66,7 +66,7 @@ export default async function AdminDashboardPage() {
           return (
             <CardInteractive
               key={section.href}
-              moduleColor={HUB_COLORS.admin}
+              moduleColor={HUB_COLORS["admin-hub"]}
               onClick={() => {
                 window.location.href = section.href;
               }}
