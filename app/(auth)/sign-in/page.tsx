@@ -109,7 +109,7 @@ function SignInFormContent() {
 
       {/* Left side - Branding/Hero section */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-600/25 via-teal-800/15 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/25 via-blue-800/15 to-transparent dark:from-teal-600/25 dark:via-teal-800/15" />
         <div className="relative z-10">
           <div
             className="mb-12 animate-fade-in"
