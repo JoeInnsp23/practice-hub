@@ -36,7 +36,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
 import { HUB_COLORS, type HubName } from "@/lib/utils/hub-colors";
 
-// Static hub modules configuration
+// Static hub modules configuration (excluding Practice Hub itself since we're already on it)
 const PRACTICE_HUB_MODULES: Array<{
   name: string;
   description: string;
@@ -45,14 +45,6 @@ const PRACTICE_HUB_MODULES: Array<{
   hubKey: HubName;
   status: "active" | "coming-soon";
 }> = [
-  {
-    name: "Practice Hub",
-    description: "Central hub for practice management",
-    url: "/practice-hub",
-    icon: LayoutGrid,
-    hubKey: "practice-hub",
-    status: "active",
-  },
   {
     name: "Client Hub",
     description: "Manage clients, contacts, and relationships",
