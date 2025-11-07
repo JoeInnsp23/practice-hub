@@ -63,15 +63,15 @@ export function AnnouncementsClient() {
   const [announcementToDelete, setAnnouncementToDelete] =
     useState<Announcement | null>(null);
 
-  // Sorting state
+  // Sorting state (null = default ordering)
   const [sortBy, setSortBy] = useState<
-    "priority" | "title" | "publishedAt" | "startsAt" | "endsAt"
-  >("publishedAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    "priority" | "title" | "publishedAt" | "startsAt" | "endsAt" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const { data: announcements, isLoading } =
     trpc.announcements.adminList.useQuery({
-      sortBy,
+      sortBy: sortBy ?? undefined,
       sortOrder,
     });
   const deleteMutation = trpc.announcements.delete.useMutation();
@@ -170,17 +170,21 @@ export function AnnouncementsClient() {
   const handleSort = (
     column: "priority" | "title" | "publishedAt" | "startsAt" | "endsAt",
   ) => {
-    if (sortBy === column) {
-      // Toggle sort order if clicking same column
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      // Set new column and default to descending for dates, ascending for others
+    if (sortBy !== column) {
+      // Clicking a different column - start with appropriate order
       setSortBy(column);
       setSortOrder(
         column === "publishedAt" || column === "startsAt" || column === "endsAt"
           ? "desc"
           : "asc",
       );
+    } else if (sortOrder === "asc") {
+      // Same column, currently ascending - switch to descending
+      setSortOrder("desc");
+    } else {
+      // Same column, currently descending - reset to default (no sort)
+      setSortBy(null);
+      setSortOrder("asc"); // Reset order for next time
     }
   };
 

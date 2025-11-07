@@ -107,9 +107,8 @@ export const announcementsRouter = router({
         priority: z.enum(["info", "warning", "critical"]).optional(),
         sortBy: z
           .enum(["priority", "title", "publishedAt", "startsAt", "endsAt"])
-          .optional()
-          .default("publishedAt"),
-        sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
+          .optional(),
+        sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -132,40 +131,53 @@ export const announcementsRouter = router({
         // Always sort pinned items first
         orderByArray.push(desc(announcements.isPinned));
 
-        // Apply custom sorting based on input
-        const sortDirection = input.sortOrder === "asc" ? asc : desc;
+        if (input.sortBy) {
+          // Apply custom sorting based on input
+          const sortDirection = input.sortOrder === "asc" ? asc : desc;
 
-        switch (input.sortBy) {
-          case "priority":
-            // For priority, use CASE statement for custom ordering
-            orderByArray.push(
-              input.sortOrder === "asc"
-                ? sql`CASE
-                    WHEN ${announcements.priority} = 'info' THEN 1
-                    WHEN ${announcements.priority} = 'warning' THEN 2
-                    WHEN ${announcements.priority} = 'critical' THEN 3
-                    ELSE 4
-                  END`
-                : sql`CASE
-                    WHEN ${announcements.priority} = 'critical' THEN 1
-                    WHEN ${announcements.priority} = 'warning' THEN 2
-                    WHEN ${announcements.priority} = 'info' THEN 3
-                    ELSE 4
-                  END`
-            );
-            break;
-          case "title":
-            orderByArray.push(sortDirection(announcements.title));
-            break;
-          case "publishedAt":
-            orderByArray.push(sortDirection(announcements.publishedAt));
-            break;
-          case "startsAt":
-            orderByArray.push(sortDirection(announcements.startsAt));
-            break;
-          case "endsAt":
-            orderByArray.push(sortDirection(announcements.endsAt));
-            break;
+          switch (input.sortBy) {
+            case "priority":
+              // For priority, use CASE statement for custom ordering
+              orderByArray.push(
+                input.sortOrder === "asc"
+                  ? sql`CASE
+                      WHEN ${announcements.priority} = 'info' THEN 1
+                      WHEN ${announcements.priority} = 'warning' THEN 2
+                      WHEN ${announcements.priority} = 'critical' THEN 3
+                      ELSE 4
+                    END`
+                  : sql`CASE
+                      WHEN ${announcements.priority} = 'critical' THEN 1
+                      WHEN ${announcements.priority} = 'warning' THEN 2
+                      WHEN ${announcements.priority} = 'info' THEN 3
+                      ELSE 4
+                    END`
+              );
+              break;
+            case "title":
+              orderByArray.push(sortDirection(announcements.title));
+              break;
+            case "publishedAt":
+              orderByArray.push(sortDirection(announcements.publishedAt));
+              break;
+            case "startsAt":
+              orderByArray.push(sortDirection(announcements.startsAt));
+              break;
+            case "endsAt":
+              orderByArray.push(sortDirection(announcements.endsAt));
+              break;
+          }
+        } else {
+          // Default ordering when no sortBy is specified
+          // Priority (critical first), then newest
+          orderByArray.push(
+            sql`CASE
+              WHEN ${announcements.priority} = 'critical' THEN 1
+              WHEN ${announcements.priority} = 'warning' THEN 2
+              WHEN ${announcements.priority} = 'info' THEN 3
+              ELSE 4
+            END`
+          );
         }
 
         // Add secondary sort by createdAt for stability

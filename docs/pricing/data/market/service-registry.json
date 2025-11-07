@@ -1,0 +1,408 @@
+{
+  "$schema": "service-registry-schema.json",
+  "version": "1.0.0",
+  "created": "2025-01-06",
+  "description": "UK Accountancy Services Registry - Standardized service codes with pricing insights from 1,200 real observations",
+  "categories": [
+    {
+      "category_id": "COMPLIANCE",
+      "category_name": "Core Compliance Services",
+      "description": "Statutory compliance requirements for UK businesses",
+      "services": [
+        {
+          "service_code": "COMP_ACCOUNTS",
+          "service_name": "Company Accounts Preparation",
+          "description": "Preparation of statutory accounts and Companies House filing",
+          "observations": 437,
+          "mean_price_gbp": 135.50,
+          "price_range": "£0-£3704",
+          "typical_entities": ["ltd", "llp", "cic"],
+          "data_quality": "A",
+          "includes": ["Statutory accounts", "Companies House filing", "Corporation tax computation"],
+          "pricing_model": "Primarily turnover-based (Model A)"
+        },
+        {
+          "service_code": "COMP_SATR",
+          "service_name": "Self Assessment Tax Return",
+          "description": "Personal tax return preparation and HMRC filing",
+          "observations": 174,
+          "mean_price_gbp": 42.30,
+          "price_range": "£0-£300",
+          "typical_entities": ["sole_trader", "partnership", "ltd"],
+          "data_quality": "A",
+          "includes": ["Self assessment return", "Tax computation", "HMRC filing"],
+          "pricing_model": "Fixed fee or income-based"
+        },
+        {
+          "service_code": "COMP_CT",
+          "service_name": "Corporation Tax Return",
+          "description": "Corporation tax computation and HMRC filing",
+          "observations": 12,
+          "mean_price_gbp": 45.00,
+          "price_range": "£15-£100",
+          "typical_entities": ["ltd"],
+          "data_quality": "A",
+          "includes": ["CT600 preparation", "Tax computation", "HMRC filing"],
+          "pricing_model": "Fixed fee"
+        },
+        {
+          "service_code": "COMP_DORMANT",
+          "service_name": "Dormant Company Accounts",
+          "description": "Dormant company statutory accounts",
+          "observations": 5,
+          "mean_price_gbp": 18.00,
+          "price_range": "£7-£33",
+          "typical_entities": ["ltd"],
+          "data_quality": "A",
+          "includes": ["Dormant accounts", "Companies House filing"],
+          "pricing_model": "Fixed fee (lowest cost service)"
+        },
+        {
+          "service_code": "COMP_CONFIRMATION",
+          "service_name": "Confirmation Statement",
+          "description": "Annual Companies House confirmation statement",
+          "observations": 4,
+          "mean_price_gbp": 9.00,
+          "price_range": "£8-£10",
+          "typical_entities": ["ltd"],
+          "data_quality": "A",
+          "includes": ["Confirmation statement filing"],
+          "pricing_model": "Fixed fee"
+        },
+        {
+          "service_code": "COMP_PARTNERSHIP",
+          "service_name": "Partnership Tax Return",
+          "description": "Partnership tax return and partner allocations",
+          "observations": 6,
+          "mean_price_gbp": 35.00,
+          "price_range": "£13-£60",
+          "typical_entities": ["partnership"],
+          "data_quality": "A",
+          "includes": ["Partnership return", "Partner allocations"],
+          "pricing_model": "Fixed fee + per partner"
+        }
+      ]
+    },
+    {
+      "category_id": "BOOKKEEPING",
+      "category_name": "Bookkeeping Services",
+      "description": "Transaction processing and bookkeeping services",
+      "services": [
+        {
+          "service_code": "BOOK_MONTHLY",
+          "service_name": "Monthly Bookkeeping",
+          "description": "Monthly bookkeeping and transaction processing",
+          "observations": 108,
+          "mean_price_gbp": 163.25,
+          "price_range": "£10-£900",
+          "typical_entities": ["ltd", "sole_trader", "partnership"],
+          "data_quality": "A",
+          "includes": ["Transaction processing", "Bank reconciliation", "Monthly reports"],
+          "pricing_model": "Transaction-based (Model B) or fixed monthly",
+          "note": "Predominantly Model B - pricing varies by transaction volume"
+        },
+        {
+          "service_code": "BOOK_QUARTERLY",
+          "service_name": "Quarterly Bookkeeping",
+          "description": "Quarterly bookkeeping and transaction processing",
+          "observations": 21,
+          "mean_price_gbp": 42.85,
+          "price_range": "£10-£90",
+          "typical_entities": ["sole_trader", "ltd", "partnership"],
+          "data_quality": "A",
+          "includes": ["Quarterly transaction processing", "Reconciliation"],
+          "pricing_model": "Transaction-based (Model B)"
+        },
+        {
+          "service_code": "BOOK_BASIC",
+          "service_name": "Basic Bookkeeping",
+          "description": "Entry-level bookkeeping services",
+          "observations": 37,
+          "mean_price_gbp": 85.40,
+          "price_range": "£24-£210",
+          "typical_entities": ["sole_trader", "ltd"],
+          "data_quality": "A",
+          "includes": ["Basic transaction entry", "Simple reconciliation"],
+          "pricing_model": "Fixed monthly or hourly"
+        },
+        {
+          "service_code": "BOOK_STANDARD",
+          "service_name": "Standard Bookkeeping",
+          "description": "Standard bookkeeping package",
+          "observations": 18,
+          "mean_price_gbp": 125.00,
+          "price_range": "£60-£240",
+          "typical_entities": ["ltd", "partnership"],
+          "data_quality": "A",
+          "includes": ["Full bookkeeping", "Bank reconciliation", "Creditor/debtor management"],
+          "pricing_model": "Fixed monthly"
+        },
+        {
+          "service_code": "BOOK_FULL",
+          "service_name": "Full Bookkeeping Service",
+          "description": "Comprehensive bookkeeping services",
+          "observations": 7,
+          "mean_price_gbp": 180.00,
+          "price_range": "£96-£300",
+          "typical_entities": ["ltd"],
+          "data_quality": "A",
+          "includes": ["Complete bookkeeping", "Management reporting", "Financial controls"],
+          "pricing_model": "Fixed monthly or transaction-based"
+        }
+      ]
+    },
+    {
+      "category_id": "VAT",
+      "category_name": "VAT Services",
+      "description": "VAT registration, returns, and compliance",
+      "services": [
+        {
+          "service_code": "VAT_QTR",
+          "service_name": "Quarterly VAT Returns",
+          "description": "Quarterly VAT return preparation and submission",
+          "observations": 47,
+          "mean_price_gbp": 58.50,
+          "price_range": "£10-£375",
+          "typical_entities": ["ltd", "sole_trader", "partnership"],
+          "data_quality": "A",
+          "includes": ["VAT return preparation", "MTD submission"],
+          "pricing_model": "Fixed quarterly fee (converted to monthly)"
+        },
+        {
+          "service_code": "VAT_MTH",
+          "service_name": "Monthly VAT Returns",
+          "description": "Monthly VAT return preparation and submission",
+          "observations": 6,
+          "mean_price_gbp": 75.00,
+          "price_range": "£25-£150",
+          "typical_entities": ["ltd"],
+          "data_quality": "A",
+          "includes": ["Monthly VAT return", "MTD submission"],
+          "pricing_model": "Fixed monthly fee"
+        }
+      ]
+    },
+    {
+      "category_id": "PAYROLL",
+      "category_name": "Payroll Services",
+      "description": "Payroll processing and pension administration",
+      "services": [
+        {
+          "service_code": "PAYROLL_BASE",
+          "service_name": "Payroll Processing",
+          "description": "Monthly payroll processing service",
+          "observations": 42,
+          "mean_price_gbp": 42.15,
+          "price_range": "£5-£139",
+          "typical_entities": ["ltd", "partnership"],
+          "data_quality": "A",
+          "includes": ["Payslip generation", "RTI submission", "P60s"],
+          "pricing_model": "Per employee or fixed monthly"
+        },
+        {
+          "service_code": "PAYROLL_RUN",
+          "service_name": "Payroll Run",
+          "description": "Per-run payroll processing",
+          "observations": 16,
+          "mean_price_gbp": 25.00,
+          "price_range": "£10-£50",
+          "typical_entities": ["ltd"],
+          "data_quality": "A",
+          "includes": ["Payslip preparation", "RTI filing"],
+          "pricing_model": "Per payroll run"
+        }
+      ]
+    },
+    {
+      "category_id": "PROPERTY",
+      "category_name": "Property & Landlord Services",
+      "description": "Property tax and landlord accounting services",
+      "services": [
+        {
+          "service_code": "LANDLORD_TAX",
+          "service_name": "Landlord Tax Return",
+          "description": "Property income tax return for landlords",
+          "observations": 23,
+          "mean_price_gbp": 28.50,
+          "price_range": "£3-£75",
+          "typical_entities": ["sole_trader"],
+          "data_quality": "A",
+          "includes": ["Property income schedules", "Tax computation", "HMRC filing"],
+          "pricing_model": "Fixed fee, often tiered by property count"
+        },
+        {
+          "service_code": "PROPERTY_RENTAL",
+          "service_name": "Property Rental Accounts",
+          "description": "Rental property accounting services",
+          "observations": 4,
+          "mean_price_gbp": 40.00,
+          "price_range": "£20-£60",
+          "typical_entities": ["sole_trader", "ltd"],
+          "data_quality": "A",
+          "includes": ["Rental income/expense tracking", "Tax reporting"],
+          "pricing_model": "Per property or fixed"
+        }
+      ]
+    },
+    {
+      "category_id": "MANAGEMENT",
+      "category_name": "Management Accounting",
+      "description": "Management accounts and financial reporting",
+      "services": [
+        {
+          "service_code": "MGMT_ACCTS",
+          "service_name": "Management Accounts",
+          "description": "Monthly management accounts and reporting",
+          "observations": 33,
+          "mean_price_gbp": 165.00,
+          "price_range": "£35-£500",
+          "typical_entities": ["ltd", "partnership"],
+          "data_quality": "A",
+          "includes": ["P&L", "Balance sheet", "Cash flow", "KPI reporting"],
+          "pricing_model": "Fixed monthly fee"
+        }
+      ]
+    },
+    {
+      "category_id": "SPECIALIZED",
+      "category_name": "Specialized Services",
+      "description": "Specialized accounting and tax services",
+      "services": [
+        {
+          "service_code": "SALES_INV",
+          "service_name": "Sales Invoicing",
+          "description": "Sales invoice processing and management",
+          "observations": 24,
+          "mean_price_gbp": 75.00,
+          "price_range": "£10-£240",
+          "typical_entities": ["ltd", "sole_trader", "partnership"],
+          "data_quality": "A",
+          "includes": ["Invoice creation", "Invoice tracking"],
+          "pricing_model": "Transaction-based (Model B) - per invoice tiers"
+        },
+        {
+          "service_code": "CGT_FILING",
+          "service_name": "Capital Gains Tax Filing",
+          "description": "CGT computation and filing",
+          "observations": 8,
+          "mean_price_gbp": 125.00,
+          "price_range": "£50-£250",
+          "typical_entities": ["sole_trader"],
+          "data_quality": "B",
+          "includes": ["CGT computation", "HMRC filing"],
+          "pricing_model": "Fixed per filing"
+        },
+        {
+          "service_code": "CIS_RETURN",
+          "service_name": "CIS Returns",
+          "description": "Construction Industry Scheme returns",
+          "observations": 7,
+          "mean_price_gbp": 45.00,
+          "price_range": "£37-£53",
+          "typical_entities": ["ltd", "sole_trader"],
+          "data_quality": "A",
+          "includes": ["CIS return preparation", "Subcontractor verification"],
+          "pricing_model": "Fixed monthly"
+        }
+      ]
+    },
+    {
+      "category_id": "PACKAGES",
+      "category_name": "Service Packages",
+      "description": "Bundled service packages",
+      "services": [
+        {
+          "service_code": "PACKAGE_START",
+          "service_name": "Starter Package",
+          "description": "Entry-level accounting package",
+          "observations": 4,
+          "mean_price_gbp": 52.50,
+          "price_range": "£45-£60",
+          "typical_entities": ["ltd", "sole_trader"],
+          "data_quality": "A",
+          "includes": ["Basic accounts", "Tax return", "Support"],
+          "pricing_model": "Fixed monthly"
+        },
+        {
+          "service_code": "PACKAGE_OPERATE",
+          "service_name": "Operate Package",
+          "description": "Mid-tier operational package",
+          "observations": 4,
+          "mean_price_gbp": 87.50,
+          "price_range": "£75-£100",
+          "typical_entities": ["ltd", "sole_trader"],
+          "data_quality": "A",
+          "includes": ["Accounts", "Tax", "VAT", "Payroll", "Support"],
+          "pricing_model": "Fixed monthly"
+        }
+      ]
+    }
+  ],
+  "pricing_models": [
+    {
+      "model_code": "modelA",
+      "model_name": "Turnover-Based Pricing",
+      "description": "Fixed monthly fee based on business turnover band",
+      "market_share": "78.3%",
+      "mean_price": "£105.93",
+      "observations": 940
+    },
+    {
+      "model_code": "modelB",
+      "model_name": "Transaction-Based Pricing",
+      "description": "Pricing based on transaction or invoice volume",
+      "market_share": "16.8%",
+      "mean_price": "£152.14",
+      "observations": 201,
+      "premium_vs_modelA": "+43.6%"
+    },
+    {
+      "model_code": "fixed",
+      "model_name": "Fixed Fee",
+      "description": "Flat fixed fee regardless of size",
+      "market_share": "0.9%",
+      "mean_price": "£121.36",
+      "observations": 11
+    }
+  ],
+  "entity_pricing": [
+    {
+      "entity_type": "ltd",
+      "mean_price": "£139.68",
+      "observations": 734,
+      "market_share": "61.2%"
+    },
+    {
+      "entity_type": "sole_trader",
+      "mean_price": "£62.22",
+      "observations": 298,
+      "market_share": "24.8%"
+    },
+    {
+      "entity_type": "partnership",
+      "mean_price": "£88.05",
+      "observations": 123,
+      "market_share": "10.3%"
+    },
+    {
+      "entity_type": "llp",
+      "mean_price": "£46.09",
+      "observations": 34,
+      "market_share": "2.8%"
+    },
+    {
+      "entity_type": "cic",
+      "mean_price": "£83.82",
+      "observations": 11,
+      "market_share": "0.9%"
+    }
+  ],
+  "notes": [
+    "All pricing in GBP per month, ex-VAT",
+    "Mean prices calculated from real UK market data (2025-01-05)",
+    "Price ranges indicate min-max observed in dataset",
+    "Data quality: A (exact), B (bounded), C (estimated)",
+    "Observations count: individual pricing points from 70 UK firms",
+    "Total dataset: 1,200 observations"
+  ]
+}
