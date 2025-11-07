@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
-import { and, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
@@ -30,11 +30,15 @@ export const usersRouter = router({
         role: z
           .union([z.enum(["member", "admin", "accountant"]), z.literal("all")])
           .optional(),
+        sortBy: z
+          .enum(["name", "email", "role", "department", "status", "createdAt"])
+          .optional(),
+        sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
-      const { search, role } = input;
+      const { search, role, sortBy, sortOrder } = input;
 
       // Build conditions
       const conditions = [eq(users.tenantId, tenantId)];
@@ -52,6 +56,38 @@ export const usersRouter = router({
         conditions.push(eq(users.role, role));
       }
 
+      // Build orderBy based on sortBy and sortOrder
+      const orderByArray = [];
+      const sortDirection = sortOrder === "asc" ? asc : desc;
+
+      if (sortBy) {
+        switch (sortBy) {
+          case "name":
+            orderByArray.push(sortDirection(users.firstName));
+            orderByArray.push(sortDirection(users.lastName));
+            break;
+          case "email":
+            orderByArray.push(sortDirection(users.email));
+            break;
+          case "role":
+            orderByArray.push(sortDirection(users.role));
+            break;
+          case "department":
+            orderByArray.push(sortDirection(users.departmentId));
+            break;
+          case "status":
+            orderByArray.push(sortDirection(users.isActive));
+            break;
+          case "createdAt":
+            orderByArray.push(sortDirection(users.createdAt));
+            break;
+        }
+      } else {
+        // Default sorting by name
+        orderByArray.push(asc(users.firstName));
+        orderByArray.push(asc(users.lastName));
+      }
+
       const usersList = await db
         .select({
           id: users.id,
@@ -62,12 +98,13 @@ export const usersRouter = router({
           status: users.status,
           isActive: users.isActive,
           hourlyRate: users.hourlyRate,
+          departmentId: users.departmentId,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         })
         .from(users)
         .where(and(...conditions))
-        .orderBy(users.firstName, users.lastName);
+        .orderBy(...orderByArray);
 
       return { users: usersList };
     }),

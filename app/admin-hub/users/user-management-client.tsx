@@ -3,6 +3,9 @@
 import * as Sentry from "@sentry/nextjs";
 import {
   Activity,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Edit,
   Eye,
   KeyRound,
@@ -84,9 +87,17 @@ export function UserManagementClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    "name" | "email" | "role" | "department" | "status" | "createdAt" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   // Fetch users using tRPC
   const { data: usersData } = trpc.users.list.useQuery({
     search: searchQuery || undefined,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   // Fetch departments to display names
@@ -215,6 +226,36 @@ export function UserManagementClient({
     return department?.name || null;
   };
 
+  const handleSort = (
+    column: "name" | "email" | "role" | "department" | "status" | "createdAt",
+  ) => {
+    if (sortBy !== column) {
+      // Clicking a different column - start with appropriate order
+      setSortBy(column);
+      setSortOrder(column === "createdAt" ? "desc" : "asc");
+    } else if (sortOrder === "asc") {
+      // Same column, currently ascending - switch to descending
+      setSortOrder("desc");
+    } else {
+      // Same column, currently descending - reset to default (no sort)
+      setSortBy(null);
+      setSortOrder("asc"); // Reset order for next time
+    }
+  };
+
+  const getSortIcon = (
+    column: "name" | "email" | "role" | "department" | "status" | "createdAt",
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
+
   return (
     <div>
       {/* Page Header */}
@@ -320,11 +361,61 @@ export function UserManagementClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("name")}
+                  >
+                    User
+                    {getSortIcon("name")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("role")}
+                  >
+                    Role
+                    {getSortIcon("role")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("department")}
+                  >
+                    Department
+                    {getSortIcon("department")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("status")}
+                  >
+                    Status
+                    {getSortIcon("status")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("createdAt")}
+                  >
+                    Joined
+                    {getSortIcon("createdAt")}
+                  </Button>
+                </TableHead>
                 <TableHead className="w-[70px]"></TableHead>
               </TableRow>
             </TableHeader>

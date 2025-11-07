@@ -239,7 +239,7 @@ export function AnnouncementsClient() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
                       onClick={() => handleSort("priority")}
                     >
                       Priority
@@ -250,7 +250,7 @@ export function AnnouncementsClient() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
                       onClick={() => handleSort("title")}
                     >
                       Title
@@ -262,7 +262,7 @@ export function AnnouncementsClient() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
                       onClick={() => handleSort("publishedAt")}
                     >
                       Published
@@ -273,7 +273,7 @@ export function AnnouncementsClient() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
                       onClick={() => handleSort("startsAt")}
                     >
                       Starts
@@ -284,7 +284,7 @@ export function AnnouncementsClient() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
                       onClick={() => handleSort("endsAt")}
                     >
                       Expires
