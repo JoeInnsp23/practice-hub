@@ -1,7 +1,17 @@
 "use client";
 
 import { format } from "date-fns";
-import { AlertCircle, Edit, Megaphone, Pin, Plus, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Edit,
+  Megaphone,
+  Pin,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -53,8 +63,17 @@ export function AnnouncementsClient() {
   const [announcementToDelete, setAnnouncementToDelete] =
     useState<Announcement | null>(null);
 
+  // Sorting state
+  const [sortBy, setSortBy] = useState<
+    "priority" | "title" | "publishedAt" | "startsAt" | "endsAt"
+  >("publishedAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
   const { data: announcements, isLoading } =
-    trpc.announcements.adminList.useQuery({});
+    trpc.announcements.adminList.useQuery({
+      sortBy,
+      sortOrder,
+    });
   const deleteMutation = trpc.announcements.delete.useMutation();
   const toggleActiveMutation = trpc.announcements.toggleActive.useMutation();
   const pinMutation = trpc.announcements.pin.useMutation();
@@ -148,6 +167,36 @@ export function AnnouncementsClient() {
     return format(new Date(date), "MMM d, yyyy h:mm a");
   };
 
+  const handleSort = (
+    column: "priority" | "title" | "publishedAt" | "startsAt" | "endsAt",
+  ) => {
+    if (sortBy === column) {
+      // Toggle sort order if clicking same column
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // Set new column and default to descending for dates, ascending for others
+      setSortBy(column);
+      setSortOrder(
+        column === "publishedAt" || column === "startsAt" || column === "endsAt"
+          ? "desc"
+          : "asc",
+      );
+    }
+  };
+
+  const getSortIcon = (
+    column: "priority" | "title" | "publishedAt" | "startsAt" | "endsAt",
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
+
   return (
     <div>
       {/* Page Header */}
@@ -182,12 +231,62 @@ export function AnnouncementsClient() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20 whitespace-nowrap">Status</TableHead>
-                  <TableHead className="w-28 whitespace-nowrap">Priority</TableHead>
-                  <TableHead className="max-w-md">Title</TableHead>
+                  <TableHead className="w-28 whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      onClick={() => handleSort("priority")}
+                    >
+                      Priority
+                      {getSortIcon("priority")}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="max-w-md">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      onClick={() => handleSort("title")}
+                    >
+                      Title
+                      {getSortIcon("title")}
+                    </Button>
+                  </TableHead>
                   <TableHead className="w-20 text-center whitespace-nowrap">Pinned</TableHead>
-                  <TableHead className="w-40 whitespace-nowrap">Published</TableHead>
-                  <TableHead className="w-40 whitespace-nowrap">Starts</TableHead>
-                  <TableHead className="w-40 whitespace-nowrap">Expires</TableHead>
+                  <TableHead className="w-40 whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      onClick={() => handleSort("publishedAt")}
+                    >
+                      Published
+                      {getSortIcon("publishedAt")}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="w-40 whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      onClick={() => handleSort("startsAt")}
+                    >
+                      Starts
+                      {getSortIcon("startsAt")}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="w-40 whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="-ml-2 h-8 px-2 font-semibold hover:bg-transparent"
+                      onClick={() => handleSort("endsAt")}
+                    >
+                      Expires
+                      {getSortIcon("endsAt")}
+                    </Button>
+                  </TableHead>
                   <TableHead className="w-32 text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
