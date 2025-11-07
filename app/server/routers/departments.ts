@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { departments, users } from "@/lib/db/schema";
@@ -12,6 +12,10 @@ export const departmentsRouter = router({
       z
         .object({
           includeInactive: z.boolean().optional().default(false),
+          sortBy: z
+            .enum(["name", "manager", "staffCount", "status"])
+            .optional(),
+          sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
         })
         .optional(),
     )
@@ -24,6 +28,33 @@ export const departmentsRouter = router({
             eq(departments.tenantId, tenantId),
             eq(departments.isActive, true),
           );
+
+      // Build orderBy based on sortBy and sortOrder
+      const orderByArray = [];
+      const sortDirection = input?.sortOrder === "desc" ? desc : asc;
+
+      if (input?.sortBy) {
+        switch (input.sortBy) {
+          case "name":
+            orderByArray.push(sortDirection(departments.name));
+            break;
+          case "manager":
+            // Sort by manager name (firstName + lastName)
+            orderByArray.push(
+              sortDirection(
+                sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`
+              )
+            );
+            break;
+          case "status":
+            orderByArray.push(sortDirection(departments.isActive));
+            break;
+          // Note: staffCount will be handled after the query since it's calculated separately
+        }
+      } else {
+        // Default sorting by name
+        orderByArray.push(asc(departments.name));
+      }
 
       const departmentList = await db
         .select({
@@ -45,7 +76,7 @@ export const departmentsRouter = router({
         .from(departments)
         .leftJoin(users, eq(departments.managerId, users.id))
         .where(where)
-        .orderBy(departments.name);
+        .orderBy(...orderByArray);
 
       // Get staff counts for each department
       const departmentIds = departmentList.map((dept) => dept.id);
@@ -72,11 +103,24 @@ export const departmentsRouter = router({
         staffCounts.map((sc) => [sc.departmentId, sc.count]),
       );
 
+      let result = departmentList.map((dept) => ({
+        ...dept,
+        staffCount: staffCountMap.get(dept.id) || 0,
+      }));
+
+      // If sorting by staffCount, do it after we've calculated the counts
+      if (input?.sortBy === "staffCount") {
+        result.sort((a, b) => {
+          if (input.sortOrder === "desc") {
+            return b.staffCount - a.staffCount;
+          } else {
+            return a.staffCount - b.staffCount;
+          }
+        });
+      }
+
       return {
-        departments: departmentList.map((dept) => ({
-          ...dept,
-          staffCount: staffCountMap.get(dept.id) || 0,
-        })),
+        departments: result,
       };
     }),
 

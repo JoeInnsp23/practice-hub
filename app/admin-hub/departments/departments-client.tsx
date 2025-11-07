@@ -29,8 +29,16 @@ export default function DepartmentsClient({
     isActive: boolean;
   } | null>(null);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    "name" | "manager" | "staffCount" | "status" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   const { data, isLoading, error } = trpc.departments.list.useQuery({
     includeInactive: showInactive,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   const filteredDepartments = useMemo(() => {
@@ -191,6 +199,19 @@ export default function DepartmentsClient({
           departments={filteredDepartments}
           isLoading={isLoading}
           onEdit={handleEdit}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSort={(column) => {
+            if (sortBy !== column) {
+              setSortBy(column);
+              setSortOrder("asc");
+            } else if (sortOrder === "asc") {
+              setSortOrder("desc");
+            } else {
+              setSortBy(null);
+              setSortOrder("asc");
+            }
+          }}
         />
 
         {/* Create/Edit Modal */}

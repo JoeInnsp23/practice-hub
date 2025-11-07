@@ -1,6 +1,14 @@
 "use client";
 
-import { Building2, Edit, MoreVertical, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Building2,
+  Edit,
+  MoreVertical,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -52,12 +60,18 @@ interface DepartmentsTableProps {
     managerId: string | null;
     isActive: boolean;
   }) => void;
+  sortBy: "name" | "manager" | "staffCount" | "status" | null;
+  sortOrder: "asc" | "desc";
+  onSort: (column: "name" | "manager" | "staffCount" | "status") => void;
 }
 
 export default function DepartmentsTable({
   departments,
   isLoading,
   onEdit,
+  sortBy,
+  sortOrder,
+  onSort,
 }: DepartmentsTableProps) {
   const [deletingDepartment, setDeletingDepartment] =
     useState<Department | null>(null);
@@ -76,6 +90,19 @@ export default function DepartmentsTable({
   const handleDelete = () => {
     if (!deletingDepartment) return;
     deleteMutation.mutate(deletingDepartment.id);
+  };
+
+  const getSortIcon = (
+    column: "name" | "manager" | "staffCount" | "status",
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
   };
 
   if (isLoading) {
@@ -109,10 +136,50 @@ export default function DepartmentsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-md">Department Name</TableHead>
-              <TableHead className="whitespace-nowrap">Manager</TableHead>
-              <TableHead className="whitespace-nowrap">Staff Count</TableHead>
-              <TableHead className="whitespace-nowrap">Status</TableHead>
+              <TableHead className="max-w-md">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => onSort("name")}
+                >
+                  Department Name
+                  {getSortIcon("name")}
+                </Button>
+              </TableHead>
+              <TableHead className="whitespace-nowrap">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => onSort("manager")}
+                >
+                  Manager
+                  {getSortIcon("manager")}
+                </Button>
+              </TableHead>
+              <TableHead className="whitespace-nowrap">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => onSort("staffCount")}
+                >
+                  Staff Count
+                  {getSortIcon("staffCount")}
+                </Button>
+              </TableHead>
+              <TableHead className="whitespace-nowrap">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => onSort("status")}
+                >
+                  Status
+                  {getSortIcon("status")}
+                </Button>
+              </TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
