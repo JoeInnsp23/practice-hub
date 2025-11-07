@@ -8,6 +8,7 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getIconComponent } from "../portal-links/icon-utils";
 import {
   Dialog,
   DialogContent,
@@ -228,12 +229,15 @@ export function AnnouncementsClient() {
                               backgroundColor: `${announcement.iconColor}20`,
                             }}
                           >
-                            <div
-                              className="h-4 w-4"
-                              style={{ color: announcement.iconColor }}
-                            >
-                              {announcement.icon}
-                            </div>
+                            {(() => {
+                              const IconComponent = getIconComponent(announcement.icon) || Megaphone;
+                              return (
+                                <IconComponent
+                                  className="h-4 w-4"
+                                  style={{ color: announcement.iconColor }}
+                                />
+                              );
+                            })()}
                           </div>
                           <div className="min-w-0">
                             <div className="font-medium break-words">
