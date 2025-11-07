@@ -1,6 +1,9 @@
 "use client";
 
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Clock,
   Edit,
   Eye,
@@ -46,6 +49,26 @@ interface ClientsTableProps {
   onView: (client: Client) => void;
   onEdit: (client: Client) => void;
   onDelete: (client: Client) => void;
+  sortBy:
+    | "clientCode"
+    | "name"
+    | "type"
+    | "status"
+    | "email"
+    | "accountManager"
+    | "createdAt"
+    | null;
+  sortOrder: "asc" | "desc";
+  onSort: (
+    column:
+      | "clientCode"
+      | "name"
+      | "type"
+      | "status"
+      | "email"
+      | "accountManager"
+      | "createdAt",
+  ) => void;
 }
 
 export function ClientsTable({
@@ -53,8 +76,31 @@ export function ClientsTable({
   onView,
   onEdit,
   onDelete,
+  sortBy,
+  sortOrder,
+  onSort,
 }: ClientsTableProps) {
   const router = useRouter();
+
+  const getSortIcon = (
+    column:
+      | "clientCode"
+      | "name"
+      | "type"
+      | "status"
+      | "email"
+      | "accountManager"
+      | "createdAt",
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
 
   const getStatusBadge = (status: Client["status"]) => {
     if (!status) {
@@ -110,19 +156,90 @@ export function ClientsTable({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Code</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Account Manager</TableHead>
-          <TableHead>Created</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
+    <div className="glass-table">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("clientCode")}
+              >
+                Code
+                {getSortIcon("clientCode")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("name")}
+              >
+                Name
+                {getSortIcon("name")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("type")}
+              >
+                Type
+                {getSortIcon("type")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("status")}
+              >
+                Status
+                {getSortIcon("status")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("email")}
+              >
+                Email
+                {getSortIcon("email")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("accountManager")}
+              >
+                Account Manager
+                {getSortIcon("accountManager")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("createdAt")}
+              >
+                Created
+                {getSortIcon("createdAt")}
+              </Button>
+            </TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
       <TableBody>
         {clients.map((client) => (
           <TableRow
@@ -186,5 +303,6 @@ export function ClientsTable({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

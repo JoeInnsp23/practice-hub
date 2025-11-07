@@ -57,6 +57,12 @@ export default function ClientsPage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    "clientCode" | "name" | "type" | "status" | "email" | "accountManager" | "createdAt" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch clients using tRPC
@@ -64,6 +70,8 @@ export default function ClientsPage() {
     search: debouncedSearchTerm || undefined,
     type: typeFilter !== "all" ? typeFilter : undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   const clients = clientsData?.clients || [];
@@ -304,6 +312,19 @@ export default function ClientsPage() {
             onView={handleViewClient}
             onEdit={handleEditClient}
             onDelete={handleDeleteClient}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={(column) => {
+              if (sortBy !== column) {
+                setSortBy(column);
+                setSortOrder(column === "createdAt" ? "desc" : "asc");
+              } else if (sortOrder === "asc") {
+                setSortOrder("desc");
+              } else {
+                setSortBy(null);
+                setSortOrder("asc");
+              }
+            }}
           />
         </div>
       </Card>

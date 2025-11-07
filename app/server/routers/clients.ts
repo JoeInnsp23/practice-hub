@@ -84,6 +84,18 @@ export const clientsRouter = router({
         search: z.string().optional(),
         type: z.string().optional(),
         status: z.string().optional(),
+        sortBy: z
+          .enum([
+            "clientCode",
+            "name",
+            "type",
+            "status",
+            "email",
+            "accountManager",
+            "createdAt",
+          ])
+          .optional(),
+        sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
       }),
     )
     .query(async ({ ctx, input }) => {
