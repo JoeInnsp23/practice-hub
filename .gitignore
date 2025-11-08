@@ -53,3 +53,7 @@ next-env.d.ts
 # BMAD (local only)
 .bmad-core/
 .bmad-*/
+
+# drizzle introspection artifacts (not used - lib/db/schema.ts is source of truth)
+drizzle/schema.ts
+drizzle/relations.ts
