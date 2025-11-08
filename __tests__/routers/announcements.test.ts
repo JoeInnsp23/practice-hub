@@ -102,7 +102,9 @@ describe("app/server/routers/announcements.ts", () => {
       const hasFutureStart = result.some(
         (a: any) => a.startsAt && a.startsAt > new Date(),
       );
-      const hasPastEnd = result.some((a: any) => a.endsAt && a.endsAt < new Date());
+      const hasPastEnd = result.some(
+        (a: any) => a.endsAt && a.endsAt < new Date(),
+      );
 
       // At least one of these should be true if we have test data
       // (This is a soft check - won't fail if database is empty)

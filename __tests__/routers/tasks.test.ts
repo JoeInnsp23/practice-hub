@@ -2439,17 +2439,12 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       ctx.authContext.tenantId = tenant;
 
       // Create completed urgent task
-      const completedTask = await createTestTask(
-        tenant,
-        client.id,
-        user,
-        {
-          title: "Completed Urgent Task",
-          priority: "high",
-          status: "completed",
-          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        },
-      );
+      const completedTask = await createTestTask(tenant, client.id, user, {
+        title: "Completed Urgent Task",
+        priority: "high",
+        status: "completed",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
       tracker.tasks?.push(completedTask.id);
 
       const result = await caller.getTopUrgentTasks();
@@ -2633,31 +2628,21 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       ctx.authContext.tenantId = tenant1;
 
       // Create task for tenant1/user1
-      const tenant1Task = await createTestTask(
-        tenant1,
-        client1.id,
-        user1,
-        {
-          title: "Tenant 1 Task",
-          priority: "high",
-          status: "pending",
-          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        },
-      );
+      const tenant1Task = await createTestTask(tenant1, client1.id, user1, {
+        title: "Tenant 1 Task",
+        priority: "high",
+        status: "pending",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
       tracker.tasks?.push(tenant1Task.id);
 
       // Create task for tenant2/user2 (same user name, different tenant)
-      const tenant2Task = await createTestTask(
-        tenant2,
-        client2.id,
-        user2,
-        {
-          title: "Tenant 2 Task",
-          priority: "high",
-          status: "pending",
-          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        },
-      );
+      const tenant2Task = await createTestTask(tenant2, client2.id, user2, {
+        title: "Tenant 2 Task",
+        priority: "high",
+        status: "pending",
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      });
       tracker.tasks?.push(tenant2Task.id);
 
       const result = await caller.getTopUrgentTasks();

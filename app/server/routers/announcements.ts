@@ -58,10 +58,7 @@ export const announcementsRouter = router({
         // Schedule window filtering
         // Show if: (startsAt is null OR startsAt <= now) AND (endsAt is null OR endsAt >= now)
         const scheduleConditions = and(
-          or(
-            isNull(announcements.startsAt),
-            lte(announcements.startsAt, now),
-          ),
+          or(isNull(announcements.startsAt), lte(announcements.startsAt, now)),
           or(isNull(announcements.endsAt), gte(announcements.endsAt, now)),
         );
 
