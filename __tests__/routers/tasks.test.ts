@@ -35,6 +35,17 @@ import {
   type TestContextWithAuth,
 } from "../helpers/trpc";
 
+type UrgentTask = {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: "low" | "medium" | "high";
+  status: "pending" | "in_progress" | "completed" | "cancelled";
+  dueDate: Date | null;
+  clientId: string;
+  clientName: string | null;
+};
+
 describe("app/server/routers/tasks.ts (Integration)", () => {
   let ctx: TestContextWithAuth;
   let caller: ReturnType<typeof createCaller<typeof tasksRouter>>;
@@ -2423,7 +2434,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
       const result = await caller.getTopUrgentTasks();
 
-      expect(result.some((t: any) => t.id === dueSoonTask.id)).toBe(true);
+      expect(result.some((t: UrgentTask) => t.id === dueSoonTask.id)).toBe(
+        true,
+      );
     });
 
     it("should only return todo and in_progress tasks", async () => {
@@ -2450,7 +2463,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       const result = await caller.getTopUrgentTasks();
 
       // Completed task should not be in results
-      expect(result.some((t: any) => t.id === completedTask.id)).toBe(false);
+      expect(result.some((t: UrgentTask) => t.id === completedTask.id)).toBe(
+        false,
+      );
     });
 
     it("should limit results to 5 tasks", async () => {
@@ -2523,9 +2538,9 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
       // Verify ordering by due date
       if (result.length >= 3) {
-        const firstTask = result.find((t: any) => t.id === task2.id);
-        const secondTask = result.find((t: any) => t.id === task3.id);
-        const thirdTask = result.find((t: any) => t.id === task1.id);
+        const firstTask = result.find((t: UrgentTask) => t.id === task2.id);
+        const secondTask = result.find((t: UrgentTask) => t.id === task3.id);
+        const thirdTask = result.find((t: UrgentTask) => t.id === task1.id);
 
         expect(firstTask).toBeDefined();
         expect(secondTask).toBeDefined();
@@ -2577,8 +2592,8 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       const result = await caller.getTopUrgentTasks();
 
       // Should only return user1's task
-      expect(result.some((t: any) => t.id === user1Task.id)).toBe(true);
-      expect(result.some((t: any) => t.id === user2Task.id)).toBe(false);
+      expect(result.some((t: UrgentTask) => t.id === user1Task.id)).toBe(true);
+      expect(result.some((t: UrgentTask) => t.id === user2Task.id)).toBe(false);
     });
 
     it("should include client name in results", async () => {
@@ -2606,7 +2621,7 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
 
       const result = await caller.getTopUrgentTasks();
 
-      const foundTask = result.find((t: any) => t.id === task.id);
+      const foundTask = result.find((t: UrgentTask) => t.id === task.id);
       expect(foundTask).toBeDefined();
       expect(foundTask?.clientName).toBe("Test Client Co");
     });
@@ -2648,8 +2663,12 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
       const result = await caller.getTopUrgentTasks();
 
       // Should only return tenant1's task
-      expect(result.some((t: any) => t.id === tenant1Task.id)).toBe(true);
-      expect(result.some((t: any) => t.id === tenant2Task.id)).toBe(false);
+      expect(result.some((t: UrgentTask) => t.id === tenant1Task.id)).toBe(
+        true,
+      );
+      expect(result.some((t: UrgentTask) => t.id === tenant2Task.id)).toBe(
+        false,
+      );
     });
   });
 });
