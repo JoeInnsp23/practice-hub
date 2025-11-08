@@ -7,6 +7,7 @@
 import type { Context } from "@/app/server/context";
 import type { AuthContext } from "@/lib/auth";
 import type { ClientPortalAuthContext } from "@/lib/client-portal-auth";
+import { db } from "@/lib/db";
 
 /**
  * Minimal interface for tRPC routers with createCaller method.
@@ -80,6 +81,7 @@ export function createMockContext(
   const authContext = overrides.authContext ?? createMockAuthContext();
 
   return {
+    db,
     session: overrides.session ?? {
       user: {
         id: authContext.userId,

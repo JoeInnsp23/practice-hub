@@ -98,11 +98,11 @@ describe("app/server/routers/announcements.ts", () => {
       const result = await caller.adminList({});
 
       // Check that we can have inactive announcements
-      const hasInactive = result.some((a) => !a.isActive);
+      const hasInactive = result.some((a: any) => !a.isActive);
       const hasFutureStart = result.some(
-        (a) => a.startsAt && a.startsAt > new Date(),
+        (a: any) => a.startsAt && a.startsAt > new Date(),
       );
-      const hasPastEnd = result.some((a) => a.endsAt && a.endsAt < new Date());
+      const hasPastEnd = result.some((a: any) => a.endsAt && a.endsAt < new Date());
 
       // At least one of these should be true if we have test data
       // (This is a soft check - won't fail if database is empty)
@@ -282,7 +282,7 @@ describe("app/server/routers/announcements.ts", () => {
 
       // Verify it's deleted by trying to find it
       const adminList = await caller.adminList({});
-      const deleted = adminList.find((a) => a.id === announcement.id);
+      const deleted = adminList.find((a: any) => a.id === announcement.id);
       expect(deleted).toBeUndefined();
     });
   });
@@ -306,7 +306,7 @@ describe("app/server/routers/announcements.ts", () => {
 
       // Verify it's inactive
       const adminList = await caller.adminList({});
-      const updated = adminList.find((a) => a.id === announcement.id);
+      const updated = adminList.find((a: any) => a.id === announcement.id);
       expect(updated?.isActive).toBe(false);
 
       // Toggle back to active
@@ -314,7 +314,7 @@ describe("app/server/routers/announcements.ts", () => {
 
       // Verify it's active
       const adminList2 = await caller.adminList({});
-      const updated2 = adminList2.find((a) => a.id === announcement.id);
+      const updated2 = adminList2.find((a: any) => a.id === announcement.id);
       expect(updated2?.isActive).toBe(true);
     });
   });
@@ -338,7 +338,7 @@ describe("app/server/routers/announcements.ts", () => {
 
       // Verify it's pinned
       const adminList = await caller.adminList({});
-      const updated = adminList.find((a) => a.id === announcement.id);
+      const updated = adminList.find((a: any) => a.id === announcement.id);
       expect(updated?.isPinned).toBe(true);
 
       // Unpin it
@@ -346,7 +346,7 @@ describe("app/server/routers/announcements.ts", () => {
 
       // Verify it's unpinned
       const adminList2 = await caller.adminList({});
-      const updated2 = adminList2.find((a) => a.id === announcement.id);
+      const updated2 = adminList2.find((a: any) => a.id === announcement.id);
       expect(updated2?.isPinned).toBe(false);
     });
   });
@@ -367,7 +367,7 @@ describe("app/server/routers/announcements.ts", () => {
 
       // Fetch announcements - should only see current tenant's
       const announcements = await caller.list({ limit: 10 });
-      const found = announcements.find((a) => a.id === announcement.id);
+      const found = announcements.find((a: any) => a.id === announcement.id);
       expect(found).toBeDefined();
 
       // All announcements should have the same tenantId as ctx

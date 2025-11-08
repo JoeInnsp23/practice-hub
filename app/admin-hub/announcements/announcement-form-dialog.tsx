@@ -58,8 +58,8 @@ const announcementFormSchema = z.object({
   iconColor: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Invalid color (use hex format like #ff0000)"),
-  priority: z.enum(["info", "warning", "critical"]).default("info"),
-  isPinned: z.boolean().default(false),
+  priority: z.enum(["info", "warning", "critical"]),
+  isPinned: z.boolean(),
   startsAt: z.date().nullable().optional(),
   endsAt: z.date().nullable().optional(),
 });

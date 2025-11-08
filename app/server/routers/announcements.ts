@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { and, desc, eq, gte, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { announcements } from "@/lib/db/schema";
 import { adminProcedure, protectedProcedure, router } from "../trpc";
@@ -59,10 +59,10 @@ export const announcementsRouter = router({
         // Show if: (startsAt is null OR startsAt <= now) AND (endsAt is null OR endsAt >= now)
         const scheduleConditions = and(
           or(
-            eq(announcements.startsAt, null),
+            isNull(announcements.startsAt),
             lte(announcements.startsAt, now),
           ),
-          or(eq(announcements.endsAt, null), gte(announcements.endsAt, now)),
+          or(isNull(announcements.endsAt), gte(announcements.endsAt, now)),
         );
 
         const activeAnnouncements = await ctx.db

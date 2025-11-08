@@ -59,6 +59,7 @@ async function accrueToilFromTimesheet(
 
     // Create caller context for internal procedure call
     const caller = toilRouter.createCaller({
+      db,
       authContext: {
         userId,
         tenantId,

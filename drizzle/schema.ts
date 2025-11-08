@@ -1370,7 +1370,7 @@ export const importLogs = pgTable(
   ],
 );
 
-export const departments = pgTable(
+export const departments: any = pgTable(
   "departments",
   {
     id: text().primaryKey().notNull(),
@@ -3645,7 +3645,7 @@ export const workflowEmailRules = pgTable(
   ],
 );
 
-export const users = pgTable(
+export const users: any = pgTable(
   "users",
   {
     id: text().primaryKey().notNull(),

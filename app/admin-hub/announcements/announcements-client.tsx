@@ -70,10 +70,7 @@ export function AnnouncementsClient() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const { data: announcements, isLoading } =
-    trpc.announcements.adminList.useQuery({
-      sortBy: sortBy ?? undefined,
-      sortOrder,
-    });
+    trpc.announcements.adminList.useQuery({});
   const deleteMutation = trpc.announcements.delete.useMutation();
   const toggleActiveMutation = trpc.announcements.toggleActive.useMutation();
   const pinMutation = trpc.announcements.pin.useMutation();

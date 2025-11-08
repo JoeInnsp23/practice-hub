@@ -133,8 +133,8 @@ export function PracticeHubClient({
   // Use passed userName or fall back to session user data
   const displayName = userName || session?.user?.name?.split(" ")[0] || "User";
 
-  // Get user role from props or session
-  const currentUserRole = userRole || session?.user?.role;
+  // Get user role from props
+  const currentUserRole = userRole;
 
   // Filter modules based on user role - only show Admin Hub to admins
   const visibleModules = PRACTICE_HUB_MODULES.filter((module) => {
