@@ -18,7 +18,6 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getIconComponent } from "../portal-links/icon-utils";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getIconComponent } from "../portal-links/icon-utils";
 import { AnnouncementFormDialog } from "./announcement-form-dialog";
 
 interface Announcement {
@@ -234,7 +234,9 @@ export function AnnouncementsClient() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-20 whitespace-nowrap">Status</TableHead>
+                  <TableHead className="w-20 whitespace-nowrap">
+                    Status
+                  </TableHead>
                   <TableHead className="w-28 whitespace-nowrap">
                     <Button
                       variant="ghost"
@@ -257,7 +259,9 @@ export function AnnouncementsClient() {
                       {getSortIcon("title")}
                     </Button>
                   </TableHead>
-                  <TableHead className="w-20 text-center whitespace-nowrap">Pinned</TableHead>
+                  <TableHead className="w-20 text-center whitespace-nowrap">
+                    Pinned
+                  </TableHead>
                   <TableHead className="w-40 whitespace-nowrap">
                     <Button
                       variant="ghost"
@@ -291,7 +295,9 @@ export function AnnouncementsClient() {
                       {getSortIcon("endsAt")}
                     </Button>
                   </TableHead>
-                  <TableHead className="w-32 text-right whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="w-32 text-right whitespace-nowrap">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -333,7 +339,9 @@ export function AnnouncementsClient() {
                             }}
                           >
                             {(() => {
-                              const IconComponent = getIconComponent(announcement.icon) || Megaphone;
+                              const IconComponent =
+                                getIconComponent(announcement.icon) ||
+                                Megaphone;
                               return (
                                 <IconComponent
                                   className="h-4 w-4"

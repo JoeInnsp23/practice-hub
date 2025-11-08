@@ -3,6 +3,9 @@
 import * as Sentry from "@sentry/nextjs";
 import {
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Bug,
   CheckCircle,
   Clock,
@@ -92,7 +95,13 @@ export function FeedbackManagementClient({
     null,
   );
 
-  // Filter feedback based on search and filters
+  // Sorting state
+  const [sortBy, setSortBy] = useState<
+    "type" | "title" | "userEmail" | "status" | "priority" | "createdAt" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  // Filter and sort feedback based on search, filters, and sorting
   const filteredFeedback = useMemo(() => {
     let filtered = feedbackItems;
 
@@ -117,8 +126,58 @@ export function FeedbackManagementClient({
       filtered = filtered.filter((item) => item.type === typeFilter);
     }
 
+    // Apply sorting
+    if (sortBy) {
+      filtered = [...filtered].sort((a, b) => {
+        let aVal: string | number | Date | null = a[sortBy];
+        let bVal: string | number | Date | null = b[sortBy];
+
+        // Handle null values
+        if (aVal === null) aVal = "";
+        if (bVal === null) bVal = "";
+
+        // Handle dates
+        if (sortBy === "createdAt") {
+          aVal = new Date(aVal).getTime();
+          bVal = new Date(bVal).getTime();
+        }
+
+        // Perform comparison
+        if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
     return filtered;
-  }, [feedbackItems, searchQuery, statusFilter, typeFilter]);
+  }, [feedbackItems, searchQuery, statusFilter, typeFilter, sortBy, sortOrder]);
+
+  const getSortIcon = (
+    column: typeof sortBy extends null ? never : typeof sortBy,
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
+
+  const handleSort = (
+    column: typeof sortBy extends null ? never : typeof sortBy,
+  ) => {
+    if (sortBy !== column) {
+      setSortBy(column);
+      setSortOrder(column === "createdAt" ? "desc" : "asc");
+    } else if (sortOrder === "asc") {
+      setSortOrder("desc");
+    } else {
+      setSortBy(null);
+      setSortOrder("asc");
+    }
+  };
 
   const handleStatusUpdate = async (feedbackId: string, newStatus: string) => {
     try {
@@ -330,13 +389,75 @@ export function FeedbackManagementClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="whitespace-nowrap">Type</TableHead>
-                <TableHead className="max-w-md">Title</TableHead>
-                <TableHead className="whitespace-nowrap">User</TableHead>
-                <TableHead className="whitespace-nowrap">Status</TableHead>
-                <TableHead className="whitespace-nowrap">Priority</TableHead>
-                <TableHead className="whitespace-nowrap">Date</TableHead>
-                <TableHead className="w-[100px] whitespace-nowrap">Actions</TableHead>
+                <TableHead className="whitespace-nowrap">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("type")}
+                  >
+                    Type
+                    {getSortIcon("type")}
+                  </Button>
+                </TableHead>
+                <TableHead className="max-w-md">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("title")}
+                  >
+                    Title
+                    {getSortIcon("title")}
+                  </Button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("userEmail")}
+                  >
+                    User
+                    {getSortIcon("userEmail")}
+                  </Button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("status")}
+                  >
+                    Status
+                    {getSortIcon("status")}
+                  </Button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("priority")}
+                  >
+                    Priority
+                    {getSortIcon("priority")}
+                  </Button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    onClick={() => handleSort("createdAt")}
+                  >
+                    Date
+                    {getSortIcon("createdAt")}
+                  </Button>
+                </TableHead>
+                <TableHead className="w-[100px] whitespace-nowrap">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -353,7 +474,9 @@ export function FeedbackManagementClient({
                   </TableCell>
                   <TableCell className="max-w-md">
                     <div className="min-w-0">
-                      <div className="font-medium break-words">{item.title}</div>
+                      <div className="font-medium break-words">
+                        {item.title}
+                      </div>
                       <div className="text-sm text-muted-foreground break-words">
                         {item.description}
                       </div>
@@ -367,8 +490,12 @@ export function FeedbackManagementClient({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">{getStatusBadge(item.status)}</TableCell>
-                  <TableCell className="whitespace-nowrap">{getPriorityBadge(item.priority)}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {getStatusBadge(item.status)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {getPriorityBadge(item.priority)}
+                  </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {new Date(item.createdAt).toLocaleDateString()}
                   </TableCell>

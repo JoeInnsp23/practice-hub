@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -102,6 +102,19 @@ export const proposalsRouter = router({
           status: proposalStatusEnum.optional(),
           salesStage: salesStageEnum.optional(),
           search: z.string().optional(),
+          sortBy: z
+            .enum([
+              "title",
+              "clientName",
+              "status",
+              "salesStage",
+              "pricingModelUsed",
+              "monthlyTotal",
+              "annualTotal",
+              "validUntil",
+            ])
+            .optional(),
+          sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
         })
         .optional(),
     )
@@ -130,6 +143,42 @@ export const proposalsRouter = router({
         );
       }
 
+      // Build orderBy based on sortBy and sortOrder
+      const orderByArray = [];
+      const sortDirection = input?.sortOrder === "desc" ? desc : asc;
+
+      if (input?.sortBy) {
+        switch (input.sortBy) {
+          case "title":
+            orderByArray.push(sortDirection(proposals.title));
+            break;
+          case "clientName":
+            orderByArray.push(sortDirection(clients.name));
+            break;
+          case "status":
+            orderByArray.push(sortDirection(proposals.status));
+            break;
+          case "salesStage":
+            orderByArray.push(sortDirection(proposals.salesStage));
+            break;
+          case "pricingModelUsed":
+            orderByArray.push(sortDirection(proposals.pricingModelUsed));
+            break;
+          case "monthlyTotal":
+            orderByArray.push(sortDirection(proposals.monthlyTotal));
+            break;
+          case "annualTotal":
+            orderByArray.push(sortDirection(proposals.annualTotal));
+            break;
+          case "validUntil":
+            orderByArray.push(sortDirection(proposals.validUntil));
+            break;
+        }
+      } else {
+        // Default sorting by created date (newest first)
+        orderByArray.push(desc(proposals.createdAt));
+      }
+
       const proposalsList = await db
         .select({
           id: proposals.id,
@@ -152,7 +201,7 @@ export const proposalsRouter = router({
         .from(proposals)
         .leftJoin(clients, eq(proposals.clientId, clients.id))
         .where(and(...conditions))
-        .orderBy(desc(proposals.createdAt));
+        .orderBy(...orderByArray);
 
       return { proposals: proposalsList };
     }),

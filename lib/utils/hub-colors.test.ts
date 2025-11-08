@@ -87,7 +87,9 @@ describe("hub-colors", () => {
 
     it("should return correct gradient for practice-hub teal", () => {
       const gradient = getHubGradient("oklch(0.56 0.15 196.6)");
-      expect(gradient).toBe("linear-gradient(90deg, oklch(0.56 0.15 196.6), oklch(0.48 0.14 196.6))");
+      expect(gradient).toBe(
+        "linear-gradient(90deg, oklch(0.56 0.15 196.6), oklch(0.48 0.14 196.6))",
+      );
     });
 
     it("should default to blue gradient for unknown colors", () => {

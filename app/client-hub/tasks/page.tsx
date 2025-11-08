@@ -59,6 +59,19 @@ export default function TasksPage() {
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    | "title"
+    | "clientName"
+    | "status"
+    | "priority"
+    | "dueDate"
+    | "assigneeName"
+    | "progress"
+    | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch tasks using tRPC
@@ -67,6 +80,8 @@ export default function TasksPage() {
     status: statusFilter !== "all" ? statusFilter : undefined,
     priority: priorityFilter !== "all" ? priorityFilter : undefined,
     assigneeId: assigneeFilter !== "all" ? assigneeFilter : undefined,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   const tasks: TaskSummary[] = (tasksData?.tasks as TaskSummary[]) || [];
@@ -412,6 +427,19 @@ export default function TasksPage() {
               onDelete={handleDeleteTask}
               selectedTaskIds={selectedTaskIds}
               onBulkSelect={handleBulkSelect}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={(column) => {
+                if (sortBy !== column) {
+                  setSortBy(column);
+                  setSortOrder(column === "dueDate" ? "asc" : "asc");
+                } else if (sortOrder === "asc") {
+                  setSortOrder("desc");
+                } else {
+                  setSortBy(null);
+                  setSortOrder("asc");
+                }
+              }}
             />
           )}
         </div>

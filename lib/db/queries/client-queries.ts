@@ -12,7 +12,14 @@ export async function getClientsList(
     search?: string;
     type?: string;
     status?: string;
-    sortBy?: "clientCode" | "name" | "type" | "status" | "email" | "accountManager" | "createdAt";
+    sortBy?:
+      | "clientCode"
+      | "name"
+      | "type"
+      | "status"
+      | "email"
+      | "accountManager"
+      | "createdAt";
     sortOrder?: "asc" | "desc";
   },
 ) {

@@ -42,8 +42,8 @@ export const departmentsRouter = router({
             // Sort by manager name (firstName + lastName)
             orderByArray.push(
               sortDirection(
-                sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`
-              )
+                sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`,
+              ),
             );
             break;
           case "status":
@@ -103,7 +103,7 @@ export const departmentsRouter = router({
         staffCounts.map((sc) => [sc.departmentId, sc.count]),
       );
 
-      let result = departmentList.map((dept) => ({
+      const result = departmentList.map((dept) => ({
         ...dept,
         staffCount: staffCountMap.get(dept.id) || 0,
       }));

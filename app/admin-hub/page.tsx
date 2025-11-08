@@ -7,7 +7,6 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
 import {
   Card,
   CardContent,
@@ -16,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
+import { useSession } from "@/lib/auth-client";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 export default function AdminDashboardPage() {

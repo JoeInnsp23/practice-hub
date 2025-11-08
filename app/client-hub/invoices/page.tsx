@@ -33,8 +33,8 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { Invoice } from "@/lib/trpc/types";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { formatCurrency } from "@/lib/utils/format";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 // Form data type (subset of Invoice without DB-generated fields)
 interface InvoiceFormData {
@@ -73,6 +73,18 @@ export default function InvoicesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    | "invoiceNumber"
+    | "clientId"
+    | "issueDate"
+    | "dueDate"
+    | "total"
+    | "status"
+    | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch invoices using tRPC
@@ -82,6 +94,8 @@ export default function InvoicesPage() {
       statusFilter !== "all"
         ? (statusFilter as "draft" | "sent" | "paid" | "overdue" | "cancelled")
         : undefined,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   const invoices = invoicesData?.invoices || [];
@@ -370,6 +384,23 @@ export default function InvoicesPage() {
             onSend={handleSendInvoice}
             onDownload={handleDownloadInvoice}
             onDelete={handleDeleteInvoice}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={(column) => {
+              if (sortBy !== column) {
+                setSortBy(column);
+                setSortOrder(
+                  column === "dueDate" || column === "issueDate"
+                    ? "asc"
+                    : "asc",
+                );
+              } else if (sortOrder === "asc") {
+                setSortOrder("desc");
+              } else {
+                setSortBy(null);
+                setSortOrder("asc");
+              }
+            }}
           />
         </div>
       </Card>
@@ -379,7 +410,9 @@ export default function InvoicesPage() {
         <DialogContent
           data-hub-root
           className="max-w-4xl max-h-[90vh] overflow-y-auto"
-          style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
+          style={
+            { "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties
+          }
         >
           <DialogHeader>
             <DialogTitle>

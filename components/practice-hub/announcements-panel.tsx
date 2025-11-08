@@ -144,10 +144,7 @@ export function AnnouncementsPanel({ limit = 5 }: AnnouncementsPanelProps) {
           const IconComponent = getIcon(announcement.icon);
 
           return (
-            <div
-              key={announcement.id}
-              className="flex gap-3 p-3"
-            >
+            <div key={announcement.id} className="flex gap-3 p-3">
               {/* Icon */}
               <div
                 className="p-2 rounded flex-shrink-0"

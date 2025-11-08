@@ -57,4 +57,3 @@ describe("useSidebarState", () => {
     expect(result.current.isDrawerOpen).toBe(true);
   });
 });
-

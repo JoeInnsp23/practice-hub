@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/nextjs";
-import { and, asc, desc, eq, gte, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { announcements } from "@/lib/db/schema";
-import { adminProcedure, router, protectedProcedure } from "../trpc";
+import { adminProcedure, protectedProcedure, router } from "../trpc";
 
 // Validation schemas
 const announcementCreateSchema = z.object({
@@ -71,13 +71,13 @@ export const announcementsRouter = router({
           .where(and(...conditions, scheduleConditions))
           .orderBy(
             desc(announcements.isPinned), // Pinned first
-            sql`CASE
-              WHEN ${announcements.priority} = 'critical' THEN 1
-              WHEN ${announcements.priority} = 'warning' THEN 2
-              WHEN ${announcements.priority} = 'info' THEN 3
-              ELSE 4
-            END`, // Priority second (critical > warning > info)
-            desc(announcements.createdAt), // Newest third
+            sql`CASE 
+              WHEN ${announcements.priority} = 'critical' THEN 1 
+              WHEN ${announcements.priority} = 'warning' THEN 2 
+              WHEN ${announcements.priority} = 'info' THEN 3 
+              ELSE 4 
+            END`, // Critical > Warning > Info
+            desc(announcements.createdAt), // Newest first
           )
           .limit(input.limit);
 
@@ -105,10 +105,6 @@ export const announcementsRouter = router({
       z.object({
         active: z.boolean().optional(),
         priority: z.enum(["info", "warning", "critical"]).optional(),
-        sortBy: z
-          .enum(["priority", "title", "publishedAt", "startsAt", "endsAt"])
-          .optional(),
-        sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -125,69 +121,20 @@ export const announcementsRouter = router({
           conditions.push(eq(announcements.priority, input.priority));
         }
 
-        // Build orderBy array based on sortBy and sortOrder
-        const orderByArray = [];
-
-        // Always sort pinned items first
-        orderByArray.push(desc(announcements.isPinned));
-
-        if (input.sortBy) {
-          // Apply custom sorting based on input
-          const sortDirection = input.sortOrder === "asc" ? asc : desc;
-
-          switch (input.sortBy) {
-            case "priority":
-              // For priority, use CASE statement for custom ordering
-              orderByArray.push(
-                input.sortOrder === "asc"
-                  ? sql`CASE
-                      WHEN ${announcements.priority} = 'info' THEN 1
-                      WHEN ${announcements.priority} = 'warning' THEN 2
-                      WHEN ${announcements.priority} = 'critical' THEN 3
-                      ELSE 4
-                    END`
-                  : sql`CASE
-                      WHEN ${announcements.priority} = 'critical' THEN 1
-                      WHEN ${announcements.priority} = 'warning' THEN 2
-                      WHEN ${announcements.priority} = 'info' THEN 3
-                      ELSE 4
-                    END`
-              );
-              break;
-            case "title":
-              orderByArray.push(sortDirection(announcements.title));
-              break;
-            case "publishedAt":
-              orderByArray.push(sortDirection(announcements.publishedAt));
-              break;
-            case "startsAt":
-              orderByArray.push(sortDirection(announcements.startsAt));
-              break;
-            case "endsAt":
-              orderByArray.push(sortDirection(announcements.endsAt));
-              break;
-          }
-        } else {
-          // Default ordering when no sortBy is specified
-          // Priority (critical first), then newest
-          orderByArray.push(
-            sql`CASE
-              WHEN ${announcements.priority} = 'critical' THEN 1
-              WHEN ${announcements.priority} = 'warning' THEN 2
-              WHEN ${announcements.priority} = 'info' THEN 3
-              ELSE 4
-            END`
-          );
-        }
-
-        // Add secondary sort by createdAt for stability
-        orderByArray.push(desc(announcements.createdAt));
-
         const allAnnouncements = await ctx.db
           .select()
           .from(announcements)
           .where(and(...conditions))
-          .orderBy(...orderByArray);
+          .orderBy(
+            desc(announcements.isPinned),
+            sql`CASE 
+              WHEN ${announcements.priority} = 'critical' THEN 1 
+              WHEN ${announcements.priority} = 'warning' THEN 2 
+              WHEN ${announcements.priority} = 'info' THEN 3 
+              ELSE 4 
+            END`,
+            desc(announcements.createdAt),
+          );
 
         return allAnnouncements;
       } catch (error) {

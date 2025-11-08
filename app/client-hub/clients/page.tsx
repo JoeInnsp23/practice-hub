@@ -59,7 +59,14 @@ export default function ClientsPage() {
 
   // Sorting state (null = default ordering)
   const [sortBy, setSortBy] = useState<
-    "clientCode" | "name" | "type" | "status" | "email" | "accountManager" | "createdAt" | null
+    | "clientCode"
+    | "name"
+    | "type"
+    | "status"
+    | "email"
+    | "accountManager"
+    | "createdAt"
+    | null
   >(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 

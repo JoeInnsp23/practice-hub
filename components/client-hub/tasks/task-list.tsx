@@ -3,6 +3,9 @@
 import { format } from "date-fns";
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   CheckCircle,
   Clock,
   Edit,
@@ -44,6 +47,26 @@ interface TaskListProps {
   isLoading?: boolean;
   selectedTaskIds?: string[];
   onBulkSelect?: (taskIds: string[]) => void;
+  sortBy:
+    | "title"
+    | "clientName"
+    | "status"
+    | "priority"
+    | "dueDate"
+    | "assigneeName"
+    | "progress"
+    | null;
+  sortOrder: "asc" | "desc";
+  onSort: (
+    column:
+      | "title"
+      | "clientName"
+      | "status"
+      | "priority"
+      | "dueDate"
+      | "assigneeName"
+      | "progress",
+  ) => void;
 }
 
 export function TaskList({
@@ -53,6 +76,9 @@ export function TaskList({
   isLoading,
   selectedTaskIds = [],
   onBulkSelect,
+  sortBy,
+  sortOrder,
+  onSort,
 }: TaskListProps) {
   const router = useRouter();
   const [localSelectedIds, setLocalSelectedIds] =
@@ -70,6 +96,26 @@ export function TaskList({
       : localSelectedIds.filter((id) => id !== taskId);
     setLocalSelectedIds(newSelection);
     onBulkSelect?.(newSelection);
+  };
+
+  const getSortIcon = (
+    column:
+      | "title"
+      | "clientName"
+      | "status"
+      | "priority"
+      | "dueDate"
+      | "assigneeName"
+      | "progress",
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
   };
 
   const getStatusBadge = (status: TaskStatus | null | undefined) => {
@@ -197,193 +243,265 @@ export function TaskList({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">
-            <Checkbox
-              checked={
-                localSelectedIds.length === tasks.length && tasks.length > 0
-              }
-              onCheckedChange={handleSelectAll}
-            />
-          </TableHead>
-          <TableHead>Task</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Priority</TableHead>
-          <TableHead>Due Date</TableHead>
-          <TableHead>Assignee</TableHead>
-          <TableHead>Progress</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tasks.map((task) => (
-          <TableRow
-            key={task.id}
-            className="cursor-pointer hover:bg-muted/50"
-            onClick={(e) => {
-              // Don't navigate if clicking checkbox or actions
-              if (
-                !(e.target as HTMLElement).closest(".no-row-click") &&
-                !(e.target as HTMLElement).closest("button")
-              ) {
-                router.push(`/client-hub/tasks/${task.id}`);
-              }
-            }}
-          >
-            <TableCell
-              className="no-row-click"
-              onClick={(e) => e.stopPropagation()}
-            >
+    <div className="glass-table">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[50px]">
               <Checkbox
-                checked={localSelectedIds.includes(task.id)}
-                onCheckedChange={(checked) =>
-                  handleSelectTask(task.id, !!checked)
+                checked={
+                  localSelectedIds.length === tasks.length && tasks.length > 0
                 }
+                onCheckedChange={handleSelectAll}
               />
-            </TableCell>
-            <TableCell>
-              <div>
-                <p className="font-medium">{task.title}</p>
-                {task.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {task.description}
-                  </p>
-                )}
-                {Array.isArray(task.tags) && task.tags.length > 0 && (
-                  <div className="flex gap-1 mt-1">
-                    {task.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                {task.workflowName && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <GitBranch className="h-3 w-3 text-blue-600" />
-                    <Badge
-                      variant="secondary"
-                      className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                    >
-                      {task.workflowName}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            </TableCell>
-            <TableCell>{task.clientName || "—"}</TableCell>
-            <TableCell>{getStatusBadge(task.status)}</TableCell>
-            <TableCell>{getPriorityBadge(task.priority)}</TableCell>
-            <TableCell>
-              {task.dueDate ? (
-                <div className="flex items-center gap-1">
-                  {isOverdue(task.dueDate) && (
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("title")}
+              >
+                Task
+                {getSortIcon("title")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("clientName")}
+              >
+                Client
+                {getSortIcon("clientName")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("status")}
+              >
+                Status
+                {getSortIcon("status")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("priority")}
+              >
+                Priority
+                {getSortIcon("priority")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("dueDate")}
+              >
+                Due Date
+                {getSortIcon("dueDate")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("assigneeName")}
+              >
+                Assignee
+                {getSortIcon("assigneeName")}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-2 h-8 px-2 font-semibold hover:bg-blue-200 dark:hover:bg-blue-500/40"
+                onClick={() => onSort("progress")}
+              >
+                Progress
+                {getSortIcon("progress")}
+              </Button>
+            </TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tasks.map((task) => (
+            <TableRow
+              key={task.id}
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={(e) => {
+                // Don't navigate if clicking checkbox or actions
+                if (
+                  !(e.target as HTMLElement).closest(".no-row-click") &&
+                  !(e.target as HTMLElement).closest("button")
+                ) {
+                  router.push(`/client-hub/tasks/${task.id}`);
+                }
+              }}
+            >
+              <TableCell
+                className="no-row-click"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Checkbox
+                  checked={localSelectedIds.includes(task.id)}
+                  onCheckedChange={(checked) =>
+                    handleSelectTask(task.id, !!checked)
+                  }
+                />
+              </TableCell>
+              <TableCell>
+                <div>
+                  <p className="font-medium">{task.title}</p>
+                  {task.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {task.description}
+                    </p>
                   )}
-                  <span
-                    className={cn(
-                      "text-sm",
-                      isOverdue(task.dueDate) && "text-red-600 font-medium",
+                  {Array.isArray(task.tags) && task.tags.length > 0 && (
+                    <div className="flex gap-1 mt-1">
+                      {task.tags.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  {task.workflowName && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <GitBranch className="h-3 w-3 text-blue-600" />
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      >
+                        {task.workflowName}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>{task.clientName || "—"}</TableCell>
+              <TableCell>{getStatusBadge(task.status)}</TableCell>
+              <TableCell>{getPriorityBadge(task.priority)}</TableCell>
+              <TableCell>
+                {task.dueDate ? (
+                  <div className="flex items-center gap-1">
+                    {isOverdue(task.dueDate) && (
+                      <AlertTriangle className="h-4 w-4 text-red-600" />
                     )}
-                  >
-                    {formatDueDate(task.dueDate)}
+                    <span
+                      className={cn(
+                        "text-sm",
+                        isOverdue(task.dueDate) && "text-red-600 font-medium",
+                      )}
+                    >
+                      {formatDueDate(task.dueDate)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {task.assigneeName ? (
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{task.assigneeName}</span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Unassigned
+                  </span>
+                )}
+              </TableCell>
+              <TableCell>
+                <div className="w-20">
+                  <Progress value={task.progress || 0} className="h-2" />
+                  <span className="text-xs text-muted-foreground">
+                    {task.progress || 0}%
                   </span>
                 </div>
-              ) : (
-                <span className="text-sm text-muted-foreground">—</span>
-              )}
-            </TableCell>
-            <TableCell>
-              {task.assigneeName ? (
-                <div className="flex items-center gap-1">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{task.assigneeName}</span>
-                </div>
-              ) : (
-                <span className="text-sm text-muted-foreground">
-                  Unassigned
-                </span>
-              )}
-            </TableCell>
-            <TableCell>
-              <div className="w-20">
-                <Progress value={task.progress || 0} className="h-2" />
-                <span className="text-xs text-muted-foreground">
-                  {task.progress || 0}%
-                </span>
-              </div>
-            </TableCell>
-            <TableCell
-              className="text-right no-row-click"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/client-hub/tasks/${task.id}`);
-                    }}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    View Details
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(task);
-                    }}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {!task.workflowName && (
-                    <>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // In production, this would open the workflow assignment modal
-                          console.log("Assign workflow to task:", task.id);
-                        }}
-                      >
-                        <GitBranch className="mr-2 h-4 w-4" />
-                        Assign Workflow
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-                  <DropdownMenuItem>
-                    <Clock className="mr-2 h-4 w-4" />
-                    Log Time
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(task.id);
-                    }}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              </TableCell>
+              <TableCell
+                className="text-right no-row-click"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/client-hub/tasks/${task.id}`);
+                      }}
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(task);
+                      }}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {!task.workflowName && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // In production, this would open the workflow assignment modal
+                            console.log("Assign workflow to task:", task.id);
+                          }}
+                        >
+                          <GitBranch className="mr-2 h-4 w-4" />
+                          Assign Workflow
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem>
+                      <Clock className="mr-2 h-4 w-4" />
+                      Log Time
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(task.id);
+                      }}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

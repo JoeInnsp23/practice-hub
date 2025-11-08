@@ -240,69 +240,69 @@ export function ClientsTable({
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
-      <TableBody>
-        {clients.map((client) => (
-          <TableRow
-            key={client.id}
-            className="table-row cursor-pointer"
-            onClick={() => router.push(`/client-hub/clients/${client.id}`)}
-          >
-            <TableCell className="font-medium">{client.clientCode}</TableCell>
-            <TableCell className="font-medium">{client.name}</TableCell>
-            <TableCell>{getTypeBadge(client.type)}</TableCell>
-            <TableCell>{getStatusBadge(client.status)}</TableCell>
-            <TableCell className="text-sm text-muted-foreground">
-              {client.email || "-"}
-            </TableCell>
-            <TableCell>{client.accountManager || "-"}</TableCell>
-            <TableCell className="text-sm text-muted-foreground">
-              {formatDate(client.createdAt)}
-            </TableCell>
-            <TableCell
-              className="text-right"
-              onClick={(e) => e.stopPropagation()}
+        <TableBody>
+          {clients.map((client) => (
+            <TableRow
+              key={client.id}
+              className="table-row cursor-pointer"
+              onClick={() => router.push(`/client-hub/clients/${client.id}`)}
             >
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => onView(client)}>
-                    <Eye className="mr-2 h-4 w-4" />
-                    View Details
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onEdit(client)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Documents
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Clock className="mr-2 h-4 w-4" />
-                    View Tasks
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => onDelete(client)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              <TableCell className="font-medium">{client.clientCode}</TableCell>
+              <TableCell className="font-medium">{client.name}</TableCell>
+              <TableCell>{getTypeBadge(client.type)}</TableCell>
+              <TableCell>{getStatusBadge(client.status)}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {client.email || "-"}
+              </TableCell>
+              <TableCell>{client.accountManager || "-"}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {formatDate(client.createdAt)}
+              </TableCell>
+              <TableCell
+                className="text-right"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => onView(client)}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(client)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <FileText className="mr-2 h-4 w-4" />
+                      View Documents
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Clock className="mr-2 h-4 w-4" />
+                      View Tasks
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onDelete(client)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

@@ -153,9 +153,9 @@ export function FloatingLabelInput({
       <input
         ref={(element) => {
           // Call external ref (e.g., React Hook Form's ref)
-          if (typeof externalRef === 'function') {
+          if (typeof externalRef === "function") {
             externalRef(element);
-          } else if (externalRef && 'current' in externalRef) {
+          } else if (externalRef && "current" in externalRef) {
             externalRef.current = element;
           }
           // Store in internal ref for hasValue check

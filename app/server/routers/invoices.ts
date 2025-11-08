@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -57,11 +57,22 @@ export const invoicesRouter = router({
           .optional(),
         clientId: z.string().optional(),
         overdue: z.boolean().optional(),
+        sortBy: z
+          .enum([
+            "invoiceNumber",
+            "clientId",
+            "issueDate",
+            "dueDate",
+            "total",
+            "status",
+          ])
+          .optional(),
+        sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { tenantId } = ctx.authContext;
-      const { search, status, clientId, overdue } = input;
+      const { search, status, clientId, overdue, sortBy, sortOrder } = input;
 
       // Build base query
       const conditions = [eq(invoices.tenantId, tenantId)];
@@ -84,6 +95,36 @@ export const invoicesRouter = router({
           sql`${invoices.dueDate} < CURRENT_DATE`,
         );
         if (overdueCondition) conditions.push(overdueCondition);
+      }
+
+      // Build orderBy based on sortBy and sortOrder
+      const orderByArray = [];
+      const sortDirection = sortOrder === "desc" ? desc : asc;
+
+      if (sortBy) {
+        switch (sortBy) {
+          case "invoiceNumber":
+            orderByArray.push(sortDirection(invoices.invoiceNumber));
+            break;
+          case "clientId":
+            orderByArray.push(sortDirection(invoices.clientId));
+            break;
+          case "issueDate":
+            orderByArray.push(sortDirection(invoices.issueDate));
+            break;
+          case "dueDate":
+            orderByArray.push(sortDirection(invoices.dueDate));
+            break;
+          case "total":
+            orderByArray.push(sortDirection(invoices.total));
+            break;
+          case "status":
+            orderByArray.push(sortDirection(invoices.status));
+            break;
+        }
+      } else {
+        // Default sorting by created date (newest first)
+        orderByArray.push(desc(invoices.createdAt));
       }
 
       const invoicesList = await db
@@ -113,7 +154,7 @@ export const invoicesRouter = router({
         })
         .from(invoices)
         .where(and(...conditions))
-        .orderBy(desc(invoices.createdAt));
+        .orderBy(...orderByArray);
 
       return { invoices: invoicesList };
     }),

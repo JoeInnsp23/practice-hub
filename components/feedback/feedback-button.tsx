@@ -13,13 +13,18 @@ export function FeedbackButton() {
 
   // Detect current hub from pathname
   const currentHub = pathname?.split("/")[1] as HubName | undefined;
-  const hubColor = currentHub && HUB_COLORS[currentHub] ? HUB_COLORS[currentHub] : undefined;
+  const hubColor =
+    currentHub && HUB_COLORS[currentHub] ? HUB_COLORS[currentHub] : undefined;
 
   return (
     <>
       <div
         data-hub-root={hubColor ? true : undefined}
-        style={hubColor ? ({ "--hub-color": hubColor } as React.CSSProperties) : undefined}
+        style={
+          hubColor
+            ? ({ "--hub-color": hubColor } as React.CSSProperties)
+            : undefined
+        }
       >
         <Button
           onClick={() => setIsOpen(true)}

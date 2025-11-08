@@ -1,0 +1,5 @@
+id,uuid,createdAt,updatedAt,pension,frequency,monthlyPrice,quotesCollection,quotes collection ID,clientsFromPensionsOptionCollection,clients (from pensions option) collection ID
+4,rec111090am892m4yy,"14/03/2025, 17:47","14/03/2025, 18:58",Pension - 4-Weekly,4-Weekly,13,,28,,
+3,rec111090am892lwkp,"14/03/2025, 17:47","14/03/2025, 18:58",Pension - Bi-Weekly,Bi-Weekly,19.5,,,,
+2,rec111090am892l9l7,"14/03/2025, 17:46","14/03/2025, 18:58",Pension - Weekly,Weekly,32.5,VAT Registration & MGD Registration,"11,10,5,4",2,2
+1,rec1kd3g9m892jys5,"14/03/2025, 17:45","14/03/2025, 18:58",Pension - Monthly,Monthly,12,,"30,19,18,13","15,4","15,4"

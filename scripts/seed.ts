@@ -3140,7 +3140,9 @@ For more information, visit the ICO website: https://ico.org.uk
     createdTasks.push(task[0]);
   }
 
-  console.log(`✅ Created ${urgentTasksData.length} urgent tasks for admin user`);
+  console.log(
+    `✅ Created ${urgentTasksData.length} urgent tasks for admin user`,
+  );
 
   // 8. Create Task Notes
   console.log("Creating task notes...");

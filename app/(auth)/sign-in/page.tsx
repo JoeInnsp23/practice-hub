@@ -9,6 +9,7 @@ import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { ThemeToggle } from "@/components/landing/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +22,6 @@ import {
 import { FloatingLabelInput } from "@/components/ui/input-floating";
 import { signIn } from "@/lib/auth-client";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
-import { ThemeToggle } from "@/components/landing/theme-toggle";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -187,7 +187,10 @@ function SignInFormContent() {
             </div>
           </div>
 
-          <Card className="glass-card w-full animate-lift-in shadow-xl rounded-3xl" style={{ animationDelay: "0.1s", opacity: 0 }}>
+          <Card
+            className="glass-card w-full animate-lift-in shadow-xl rounded-3xl"
+            style={{ animationDelay: "0.1s", opacity: 0 }}
+          >
             <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
               <CardTitle className="text-2xl font-bold">
                 Sign in to your account

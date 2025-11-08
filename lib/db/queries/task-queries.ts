@@ -1,4 +1,4 @@
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { taskDetailsView } from "@/lib/db/schema";
 
@@ -15,6 +15,15 @@ export async function getTasksList(
     assigneeId?: string;
     clientId?: string;
     overdue?: boolean;
+    sortBy?:
+      | "title"
+      | "clientName"
+      | "status"
+      | "priority"
+      | "dueDate"
+      | "assigneeName"
+      | "progress";
+    sortOrder?: "asc" | "desc";
   },
 ) {
   const conditions = [eq(taskDetailsView.tenantId, tenantId)];
@@ -64,11 +73,61 @@ export async function getTasksList(
     );
   }
 
+  // Build orderBy based on sortBy and sortOrder
+  const orderByArray = [];
+  const sortDirection = filters.sortOrder === "desc" ? desc : asc;
+
+  if (filters.sortBy) {
+    switch (filters.sortBy) {
+      case "title":
+        orderByArray.push(sortDirection(taskDetailsView.title));
+        break;
+      case "clientName":
+        orderByArray.push(sortDirection(taskDetailsView.clientName));
+        break;
+      case "status":
+        orderByArray.push(sortDirection(taskDetailsView.status));
+        break;
+      case "priority":
+        // Sort by priority with custom order: critical/urgent > high > medium > low
+        orderByArray.push(
+          filters.sortOrder === "desc"
+            ? sql`CASE
+                WHEN ${taskDetailsView.priority} IN ('critical', 'urgent') THEN 1
+                WHEN ${taskDetailsView.priority} = 'high' THEN 2
+                WHEN ${taskDetailsView.priority} = 'medium' THEN 3
+                WHEN ${taskDetailsView.priority} = 'low' THEN 4
+                ELSE 5
+              END`
+            : sql`CASE
+                WHEN ${taskDetailsView.priority} = 'low' THEN 1
+                WHEN ${taskDetailsView.priority} = 'medium' THEN 2
+                WHEN ${taskDetailsView.priority} = 'high' THEN 3
+                WHEN ${taskDetailsView.priority} IN ('critical', 'urgent') THEN 4
+                ELSE 5
+              END`,
+        );
+        break;
+      case "dueDate":
+        orderByArray.push(sortDirection(taskDetailsView.dueDate));
+        break;
+      case "assigneeName":
+        orderByArray.push(sortDirection(taskDetailsView.assigneeName));
+        break;
+      case "progress":
+        orderByArray.push(sortDirection(taskDetailsView.progress));
+        break;
+    }
+  } else {
+    // Default sorting by created date (newest first)
+    orderByArray.push(desc(taskDetailsView.createdAt));
+  }
+
   const tasks = await db
     .select()
     .from(taskDetailsView)
     .where(and(...conditions))
-    .orderBy(taskDetailsView.createdAt);
+    .orderBy(...orderByArray);
 
   return tasks;
 }

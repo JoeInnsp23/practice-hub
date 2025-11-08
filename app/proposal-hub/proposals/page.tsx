@@ -2,6 +2,9 @@
 
 import { format } from "date-fns";
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   CheckCircle,
   Clock,
   Eye,
@@ -57,6 +60,20 @@ export default function ProposalsPage() {
   const [salesStageFilter, setSalesStageFilter] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    | "title"
+    | "clientName"
+    | "status"
+    | "salesStage"
+    | "pricingModelUsed"
+    | "monthlyTotal"
+    | "annualTotal"
+    | "validUntil"
+    | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   const utils = trpc.useUtils();
 
   // Fetch proposals
@@ -83,6 +100,8 @@ export default function ProposalsPage() {
             | "lost"
             | "dormant")
         : undefined,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   const proposals = proposalsData?.proposals || [];
@@ -130,6 +149,33 @@ export default function ProposalsPage() {
     setSearchTerm("");
     setStatusFilter("all");
     setSalesStageFilter("all");
+  };
+
+  const getSortIcon = (
+    column: typeof sortBy extends null ? never : typeof sortBy,
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
+
+  const handleSort = (
+    column: typeof sortBy extends null ? never : typeof sortBy,
+  ) => {
+    if (sortBy !== column) {
+      setSortBy(column);
+      setSortOrder(column === "validUntil" ? "asc" : "asc");
+    } else if (sortOrder === "asc") {
+      setSortOrder("desc");
+    } else {
+      setSortBy(null);
+      setSortOrder("asc");
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -272,18 +318,98 @@ export default function ProposalsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto glass-table">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Proposal</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Sales Stage</TableHead>
-                <TableHead>Pricing Model</TableHead>
-                <TableHead className="text-right">Monthly</TableHead>
-                <TableHead className="text-right">Annual</TableHead>
-                <TableHead>Valid Until</TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("title")}
+                  >
+                    Proposal
+                    {getSortIcon("title")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("clientName")}
+                  >
+                    Client
+                    {getSortIcon("clientName")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("status")}
+                  >
+                    Status
+                    {getSortIcon("status")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("salesStage")}
+                  >
+                    Sales Stage
+                    {getSortIcon("salesStage")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("pricingModelUsed")}
+                  >
+                    Pricing Model
+                    {getSortIcon("pricingModelUsed")}
+                  </Button>
+                </TableHead>
+                <TableHead className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("monthlyTotal")}
+                  >
+                    Monthly
+                    {getSortIcon("monthlyTotal")}
+                  </Button>
+                </TableHead>
+                <TableHead className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("annualTotal")}
+                  >
+                    Annual
+                    {getSortIcon("annualTotal")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("validUntil")}
+                  >
+                    Valid Until
+                    {getSortIcon("validUntil")}
+                  </Button>
+                </TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>

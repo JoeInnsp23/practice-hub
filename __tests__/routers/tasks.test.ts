@@ -2532,12 +2532,18 @@ describe("app/server/routers/tasks.ts (Integration)", () => {
         const secondTask = result.find((t) => t.id === task3.id);
         const thirdTask = result.find((t) => t.id === task1.id);
 
-        const firstIndex = result.indexOf(firstTask!);
-        const secondIndex = result.indexOf(secondTask!);
-        const thirdIndex = result.indexOf(thirdTask!);
+        expect(firstTask).toBeDefined();
+        expect(secondTask).toBeDefined();
+        expect(thirdTask).toBeDefined();
 
-        expect(firstIndex).toBeLessThan(secondIndex);
-        expect(secondIndex).toBeLessThan(thirdIndex);
+        if (firstTask && secondTask && thirdTask) {
+          const firstIndex = result.indexOf(firstTask);
+          const secondIndex = result.indexOf(secondTask);
+          const thirdIndex = result.indexOf(thirdTask);
+
+          expect(firstIndex).toBeLessThan(secondIndex);
+          expect(secondIndex).toBeLessThan(thirdIndex);
+        }
       }
     });
 

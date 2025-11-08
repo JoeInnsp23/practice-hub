@@ -388,7 +388,9 @@ export function ClientWizardModal({
         data-hub-root
         data-testid="client-wizard-modal"
         className="max-w-[1400px] w-[95vw] max-h-[90vh] flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800"
-        style={{ "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties}
+        style={
+          { "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties
+        }
       >
         <DialogHeader className="space-y-4 pb-6">
           <div>

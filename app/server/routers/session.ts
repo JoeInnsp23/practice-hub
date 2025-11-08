@@ -1,4 +1,4 @@
-import { router, protectedProcedure } from "../trpc";
+import { protectedProcedure, router } from "../trpc";
 
 /**
  * Session router - Provides client-side access to session data

@@ -312,6 +312,18 @@ export const tasksRouter = router({
         assigneeId: z.string().optional(),
         clientId: z.string().optional(),
         overdue: z.boolean().optional(),
+        sortBy: z
+          .enum([
+            "title",
+            "clientName",
+            "status",
+            "priority",
+            "dueDate",
+            "assigneeName",
+            "progress",
+          ])
+          .optional(),
+        sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
       }),
     )
     .query(async ({ ctx, input }) => {

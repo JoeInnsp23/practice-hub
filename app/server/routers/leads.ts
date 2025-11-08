@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -318,6 +318,18 @@ export const leadsRouter = router({
           search: z.string().optional(),
           status: leadStatusEnum.optional(),
           assignedToId: z.string().optional(),
+          sortBy: z
+            .enum([
+              "name",
+              "companyName",
+              "status",
+              "source",
+              "estimatedTurnover",
+              "qualificationScore",
+              "nextFollowUpAt",
+            ])
+            .optional(),
+          sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
         })
         .optional(),
     )
@@ -346,6 +358,41 @@ export const leadsRouter = router({
         }
       }
 
+      // Build orderBy based on sortBy and sortOrder
+      const orderByArray = [];
+      const sortDirection = input?.sortOrder === "desc" ? desc : asc;
+
+      if (input?.sortBy) {
+        switch (input.sortBy) {
+          case "name":
+            // Sort by lastName, then firstName
+            orderByArray.push(sortDirection(leads.lastName));
+            orderByArray.push(sortDirection(leads.firstName));
+            break;
+          case "companyName":
+            orderByArray.push(sortDirection(leads.companyName));
+            break;
+          case "status":
+            orderByArray.push(sortDirection(leads.status));
+            break;
+          case "source":
+            orderByArray.push(sortDirection(leads.source));
+            break;
+          case "estimatedTurnover":
+            orderByArray.push(sortDirection(leads.estimatedTurnover));
+            break;
+          case "qualificationScore":
+            orderByArray.push(sortDirection(leads.qualificationScore));
+            break;
+          case "nextFollowUpAt":
+            orderByArray.push(sortDirection(leads.nextFollowUpAt));
+            break;
+        }
+      } else {
+        // Default sorting by created date (newest first)
+        orderByArray.push(desc(leads.createdAt));
+      }
+
       const leadsList = await db
         .select({
           id: leads.id,
@@ -372,7 +419,7 @@ export const leadsRouter = router({
         })
         .from(leads)
         .where(and(...conditions))
-        .orderBy(desc(leads.createdAt));
+        .orderBy(...orderByArray);
 
       return { leads: leadsList };
     }),

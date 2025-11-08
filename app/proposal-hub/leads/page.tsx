@@ -2,6 +2,9 @@
 
 import { format } from "date-fns";
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Clock,
   Eye,
   MoreVertical,
@@ -57,6 +60,19 @@ export default function LeadsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+  // Sorting state (null = default ordering)
+  const [sortBy, setSortBy] = useState<
+    | "name"
+    | "companyName"
+    | "status"
+    | "source"
+    | "estimatedTurnover"
+    | "qualificationScore"
+    | "nextFollowUpAt"
+    | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   // Fetch leads
   const { data: leadsData, isLoading } = trpc.leads.list.useQuery({
     search: debouncedSearchTerm || undefined,
@@ -71,6 +87,8 @@ export default function LeadsPage() {
             | "converted"
             | "lost")
         : undefined,
+    sortBy: sortBy ?? undefined,
+    sortOrder,
   });
 
   const leads = leadsData?.leads || [];
@@ -106,6 +124,33 @@ export default function LeadsPage() {
   const resetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
+  };
+
+  const getSortIcon = (
+    column: typeof sortBy extends null ? never : typeof sortBy,
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
+
+  const handleSort = (
+    column: typeof sortBy extends null ? never : typeof sortBy,
+  ) => {
+    if (sortBy !== column) {
+      setSortBy(column);
+      setSortOrder(column === "nextFollowUpAt" ? "asc" : "asc");
+    } else if (sortOrder === "asc") {
+      setSortOrder("desc");
+    } else {
+      setSortBy(null);
+      setSortOrder("asc");
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -208,17 +253,87 @@ export default function LeadsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto glass-table">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Contact</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Est. Turnover</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Next Follow-up</TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("name")}
+                  >
+                    Contact
+                    {getSortIcon("name")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("companyName")}
+                  >
+                    Company
+                    {getSortIcon("companyName")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("status")}
+                  >
+                    Status
+                    {getSortIcon("status")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("source")}
+                  >
+                    Source
+                    {getSortIcon("source")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("estimatedTurnover")}
+                  >
+                    Est. Turnover
+                    {getSortIcon("estimatedTurnover")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("qualificationScore")}
+                  >
+                    Score
+                    {getSortIcon("qualificationScore")}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="-ml-2 h-8 px-2 font-semibold hover:bg-violet-200 dark:hover:bg-violet-500/40"
+                    onClick={() => handleSort("nextFollowUpAt")}
+                  >
+                    Next Follow-up
+                    {getSortIcon("nextFollowUpAt")}
+                  </Button>
+                </TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
