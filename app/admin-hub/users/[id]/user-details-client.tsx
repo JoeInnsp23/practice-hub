@@ -6,8 +6,10 @@ import {
   Calendar,
   CheckCircle2,
   Edit,
+  Filter,
   KeyRound,
   Mail,
+  Search,
   Shield,
   Trash2,
   UserCircle,
@@ -28,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -52,23 +55,13 @@ interface User {
   updatedAt: Date;
 }
 
-interface ActivityLog {
-  id: string;
-  action: string;
-  description: string | null;
-  userName: string | null;
-  createdAt: Date;
-}
-
 interface UserDetailsClientProps {
   user: User;
-  activityLogs: ActivityLog[];
   currentUserId: string;
 }
 
 export function UserDetailsClient({
   user: initialUser,
-  activityLogs,
   currentUserId,
 }: UserDetailsClientProps) {
   const router = useRouter();
@@ -77,8 +70,39 @@ export function UserDetailsClient({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(initialUser.role);
 
+  // Activity history state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [moduleFilter, setModuleFilter] = useState<string | undefined>(
+    undefined,
+  );
+  const [page, setPage] = useState(0);
+  const limit = 10;
+
   const { data: userData } = trpc.users.getById.useQuery(initialUser.id);
   const user = userData || initialUser;
+
+  // Fetch activity history with search and filters
+  const { data: activityData, isLoading: isLoadingActivity } =
+    trpc.activities.getUserActivityHistory.useQuery({
+      userId: user.id,
+      search: searchQuery || undefined,
+      module: moduleFilter as
+        | "admin-hub"
+        | "client-hub"
+        | "practice-hub"
+        | "proposal-hub"
+        | "employee-hub"
+        | "social-hub"
+        | "client-portal"
+        | "system"
+        | undefined,
+      limit,
+      offset: page * limit,
+    });
+
+  const activityLogs = activityData?.activities || [];
+  const hasMore = activityData?.hasMore || false;
+  const totalActivities = activityData?.total || 0;
 
   const updateRoleMutation = trpc.users.updateRole.useMutation({
     onSuccess: () => {
@@ -139,6 +163,58 @@ export function UserDetailsClient({
 
   const getDisplayRole = (role: string) => {
     return role.replace("org:", "");
+  };
+
+  const getModuleBadgeColor = (module: string) => {
+    switch (module) {
+      case "admin-hub":
+        return "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20";
+      case "client-hub":
+        return "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20";
+      case "practice-hub":
+        return "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20";
+      case "proposal-hub":
+        return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
+      case "employee-hub":
+        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
+      case "social-hub":
+        return "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20";
+      case "client-portal":
+        return "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20";
+      case "system":
+        return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20";
+      default:
+        return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20";
+    }
+  };
+
+  const getModuleDisplayName = (module: string) => {
+    return module
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const handleNextPage = () => {
+    if (hasMore) {
+      setPage((p) => p + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 0) {
+      setPage((p) => p - 1);
+    }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(0); // Reset to first page on search
+  };
+
+  const handleModuleFilterChange = (value: string) => {
+    setModuleFilter(value === "all" ? undefined : value);
+    setPage(0); // Reset to first page on filter
   };
 
   const isCurrentUser = user.id === currentUserId;
@@ -268,54 +344,137 @@ export function UserDetailsClient({
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Activity History</CardTitle>
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search activities..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              {/* Module Filter */}
+              <div className="w-full sm:w-[200px]">
+                <Select
+                  value={moduleFilter || "all"}
+                  onValueChange={handleModuleFilterChange}
+                >
+                  <SelectTrigger>
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="All Modules" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Modules</SelectItem>
+                    <SelectItem value="admin-hub">Admin Hub</SelectItem>
+                    <SelectItem value="client-hub">Client Hub</SelectItem>
+                    <SelectItem value="practice-hub">Practice Hub</SelectItem>
+                    <SelectItem value="proposal-hub">Proposal Hub</SelectItem>
+                    <SelectItem value="employee-hub">Employee Hub</SelectItem>
+                    <SelectItem value="social-hub">Social Hub</SelectItem>
+                    <SelectItem value="client-portal">Client Portal</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            {activityLogs.length > 0 ? (
-              <div className="space-y-4">
-                {activityLogs.map((log) => {
-                  const getIcon = (action: string) => {
-                    switch (action) {
-                      case "created":
-                        return (
-                          <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        );
-                      case "updated":
-                        return <Edit className="h-4 w-4 text-blue-600" />;
-                      case "deleted":
-                        return <XCircle className="h-4 w-4 text-red-600" />;
-                      default:
-                        return <UserCircle className="h-4 w-4 text-gray-600" />;
-                    }
-                  };
-
-                  return (
-                    <div
-                      key={log.id}
-                      className="flex items-start gap-3 rounded-lg border p-3 text-sm"
-                    >
-                      <div className="mt-0.5">{getIcon(log.action)}</div>
-                      <div className="flex-1">
-                        <p className="font-medium">
-                          {log.description || "No description"}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {log.userName || "System"} •{" "}
-                          {format(
-                            new Date(log.createdAt),
-                            "MMM d, yyyy 'at' h:mm a",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+            {isLoadingActivity ? (
+              <div className="text-center py-12">
+                <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading activities...</p>
               </div>
+            ) : activityLogs.length > 0 ? (
+              <>
+                <div className="space-y-3">
+                  {activityLogs.map((log) => {
+                    const getIcon = (action: string) => {
+                      switch (action) {
+                        case "created":
+                          return (
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          );
+                        case "updated":
+                          return <Edit className="h-4 w-4 text-blue-600" />;
+                        case "deleted":
+                          return <XCircle className="h-4 w-4 text-red-600" />;
+                        default:
+                          return (
+                            <UserCircle className="h-4 w-4 text-gray-600" />
+                          );
+                      }
+                    };
+
+                    return (
+                      <div
+                        key={log.id}
+                        className="flex items-start gap-3 rounded-lg border p-3 text-sm"
+                      >
+                        <div className="mt-0.5">{getIcon(log.action)}</div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium">
+                              {log.description || "No description"}
+                            </p>
+                            <Badge
+                              variant="outline"
+                              className={getModuleBadgeColor(log.module)}
+                            >
+                              {getModuleDisplayName(log.module)}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {log.userName || "System"} •{" "}
+                            {format(
+                              new Date(log.createdAt),
+                              "MMM d, yyyy 'at' h:mm a",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {page * limit + 1}-
+                    {Math.min((page + 1) * limit, totalActivities)} of{" "}
+                    {totalActivities} activities
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePreviousPage}
+                      disabled={page === 0}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextPage}
+                      disabled={!hasMore}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="text-center py-12">
                 <UserCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No activity yet</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No activity found
+                </h3>
                 <p className="text-muted-foreground">
-                  Activity history for this user will appear here
+                  {searchQuery || moduleFilter
+                    ? "Try adjusting your search or filters"
+                    : "Activity history for this user will appear here"}
                 </p>
               </div>
             )}

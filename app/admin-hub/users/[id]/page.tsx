@@ -1,8 +1,8 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { activityLogs, users } from "@/lib/db/schema";
+import { users } from "@/lib/db/schema";
 import { UserDetailsClient } from "./user-details-client";
 
 interface PageProps {
@@ -33,24 +33,6 @@ export default async function UserDetailsPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch user activity logs
-  const logs = await db
-    .select()
-    .from(activityLogs)
-    .where(
-      and(
-        eq(activityLogs.tenantId, authContext.tenantId),
-        eq(activityLogs.userId, id),
-      ),
-    )
-    .orderBy(desc(activityLogs.createdAt))
-    .limit(20);
-
-  return (
-    <UserDetailsClient
-      user={user}
-      activityLogs={logs}
-      currentUserId={authContext.userId}
-    />
-  );
+  // Activity logs are now fetched client-side via tRPC with search and pagination
+  return <UserDetailsClient user={user} currentUserId={authContext.userId} />;
 }
