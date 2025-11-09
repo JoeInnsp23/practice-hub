@@ -231,10 +231,10 @@ export function AnnouncementsClient() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-20 whitespace-nowrap">
+                  <TableHead className="w-20">
                     Status
                   </TableHead>
-                  <TableHead className="w-28 whitespace-nowrap">
+                  <TableHead>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -245,7 +245,7 @@ export function AnnouncementsClient() {
                       {getSortIcon("priority")}
                     </Button>
                   </TableHead>
-                  <TableHead className="max-w-md">
+                  <TableHead>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -256,10 +256,10 @@ export function AnnouncementsClient() {
                       {getSortIcon("title")}
                     </Button>
                   </TableHead>
-                  <TableHead className="w-20 text-center whitespace-nowrap">
+                  <TableHead className="text-center">
                     Pinned
                   </TableHead>
-                  <TableHead className="w-40 whitespace-nowrap">
+                  <TableHead>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -270,7 +270,7 @@ export function AnnouncementsClient() {
                       {getSortIcon("publishedAt")}
                     </Button>
                   </TableHead>
-                  <TableHead className="w-40 whitespace-nowrap">
+                  <TableHead>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -281,7 +281,7 @@ export function AnnouncementsClient() {
                       {getSortIcon("startsAt")}
                     </Button>
                   </TableHead>
-                  <TableHead className="w-40 whitespace-nowrap">
+                  <TableHead>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -292,7 +292,7 @@ export function AnnouncementsClient() {
                       {getSortIcon("endsAt")}
                     </Button>
                   </TableHead>
-                  <TableHead className="w-32 text-right whitespace-nowrap">
+                  <TableHead className="text-right">
                     Actions
                   </TableHead>
                 </TableRow>
