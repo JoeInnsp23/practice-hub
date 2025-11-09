@@ -226,188 +226,178 @@ export function AnnouncementsClient() {
       {/* Announcements Table */}
       <div className="glass-table">
         <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-20">
-                    Status
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
-                      onClick={() => handleSort("priority")}
-                    >
-                      Priority
-                      {getSortIcon("priority")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
-                      onClick={() => handleSort("title")}
-                    >
-                      Title
-                      {getSortIcon("title")}
-                    </Button>
-                  </TableHead>
-                  <TableHead className="text-center">
-                    Pinned
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
-                      onClick={() => handleSort("publishedAt")}
-                    >
-                      Published
-                      {getSortIcon("publishedAt")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
-                      onClick={() => handleSort("startsAt")}
-                    >
-                      Starts
-                      {getSortIcon("startsAt")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
-                      onClick={() => handleSort("endsAt")}
-                    >
-                      Expires
-                      {getSortIcon("endsAt")}
-                    </Button>
-                  </TableHead>
-                  <TableHead className="text-right">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      Loading announcements...
-                    </TableCell>
-                  </TableRow>
-                ) : !announcements || announcements.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <Megaphone className="h-8 w-8 opacity-50" />
-                        <p>No announcements yet. Create your first one!</p>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-20">Status</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => handleSort("priority")}
+                >
+                  Priority
+                  {getSortIcon("priority")}
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => handleSort("title")}
+                >
+                  Title
+                  {getSortIcon("title")}
+                </Button>
+              </TableHead>
+              <TableHead className="text-center">Pinned</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => handleSort("publishedAt")}
+                >
+                  Published
+                  {getSortIcon("publishedAt")}
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => handleSort("startsAt")}
+                >
+                  Starts
+                  {getSortIcon("startsAt")}
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  onClick={() => handleSort("endsAt")}
+                >
+                  Expires
+                  {getSortIcon("endsAt")}
+                </Button>
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8">
+                  Loading announcements...
+                </TableCell>
+              </TableRow>
+            ) : !announcements || announcements.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <Megaphone className="h-8 w-8 opacity-50" />
+                    <p>No announcements yet. Create your first one!</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              announcements.map((announcement) => (
+                <TableRow key={announcement.id}>
+                  <TableCell className="whitespace-nowrap">
+                    <Switch
+                      checked={announcement.isActive}
+                      onCheckedChange={(checked) =>
+                        handleToggleActive(announcement.id, checked)
+                      }
+                    />
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {getPriorityBadge(announcement.priority)}
+                  </TableCell>
+                  <TableCell className="max-w-md">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="p-1.5 rounded flex-shrink-0"
+                        style={{
+                          backgroundColor: `${announcement.iconColor}20`,
+                        }}
+                      >
+                        {(() => {
+                          const IconComponent =
+                            getIconComponent(announcement.icon) || Megaphone;
+                          return (
+                            <IconComponent
+                              className="h-4 w-4"
+                              style={{ color: announcement.iconColor }}
+                            />
+                          );
+                        })()}
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  announcements.map((announcement) => (
-                    <TableRow key={announcement.id}>
-                      <TableCell className="whitespace-nowrap">
-                        <Switch
-                          checked={announcement.isActive}
-                          onCheckedChange={(checked) =>
-                            handleToggleActive(announcement.id, checked)
-                          }
-                        />
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        {getPriorityBadge(announcement.priority)}
-                      </TableCell>
-                      <TableCell className="max-w-md">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="p-1.5 rounded flex-shrink-0"
-                            style={{
-                              backgroundColor: `${announcement.iconColor}20`,
-                            }}
-                          >
-                            {(() => {
-                              const IconComponent =
-                                getIconComponent(announcement.icon) ||
-                                Megaphone;
-                              return (
-                                <IconComponent
-                                  className="h-4 w-4"
-                                  style={{ color: announcement.iconColor }}
-                                />
-                              );
-                            })()}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-medium break-words">
-                              {announcement.title}
-                            </div>
-                            <div className="text-sm text-muted-foreground break-words">
-                              {announcement.content}
-                            </div>
-                          </div>
+                      <div className="min-w-0">
+                        <div className="font-medium break-words">
+                          {announcement.title}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-center whitespace-nowrap">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            handleTogglePin(
-                              announcement.id,
-                              !announcement.isPinned,
-                            )
-                          }
-                        >
-                          <Pin
-                            className={`h-4 w-4 ${
-                              announcement.isPinned
-                                ? "fill-current text-primary"
-                                : "text-muted-foreground"
-                            }`}
-                          />
-                        </Button>
-                      </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">
-                        {formatDateTime(announcement.publishedAt)}
-                      </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">
-                        {formatDateTime(announcement.startsAt)}
-                      </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">
-                        {formatDateTime(announcement.endsAt)}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(announcement)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setAnnouncementToDelete(announcement);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                        <div className="text-sm text-muted-foreground break-words">
+                          {announcement.content}
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleTogglePin(announcement.id, !announcement.isPinned)
+                      }
+                    >
+                      <Pin
+                        className={`h-4 w-4 ${
+                          announcement.isPinned
+                            ? "fill-current text-primary"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    </Button>
+                  </TableCell>
+                  <TableCell className="text-sm whitespace-nowrap">
+                    {formatDateTime(announcement.publishedAt)}
+                  </TableCell>
+                  <TableCell className="text-sm whitespace-nowrap">
+                    {formatDateTime(announcement.startsAt)}
+                  </TableCell>
+                  <TableCell className="text-sm whitespace-nowrap">
+                    {formatDateTime(announcement.endsAt)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(announcement)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setAnnouncementToDelete(announcement);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
         </Table>
       </div>
 

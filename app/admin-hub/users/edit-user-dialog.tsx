@@ -56,7 +56,7 @@ export function EditUserDialog({
     lastName: user.lastName || "",
     role: user.role,
     isActive: user.isActive,
-    departmentId: user.departmentId || "",
+    departmentId: user.departmentId || "none",
   });
 
   // Fetch departments for dropdown
@@ -87,7 +87,8 @@ export function EditUserDialog({
         firstName: formData.firstName,
         lastName: formData.lastName,
         role: formData.role as "admin" | "member" | "client",
-        departmentId: formData.departmentId || null,
+        departmentId:
+          formData.departmentId === "none" ? null : formData.departmentId,
       },
     });
   };
@@ -174,7 +175,7 @@ export function EditUserDialog({
                   <SelectValue placeholder="Select department (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No Department</SelectItem>
+                  <SelectItem value="none">No Department</SelectItem>
                   {departmentsData?.departments.map((dept) => (
                     <SelectItem key={dept.id} value={dept.id}>
                       {dept.name}
