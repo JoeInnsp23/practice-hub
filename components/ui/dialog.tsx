@@ -2,7 +2,7 @@
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -58,6 +58,21 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  // Capture hub color from the current context (before portal)
+  const [hubColor, setHubColor] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    // Find the closest [data-hub-root] element and read its --hub-color
+    const hubRoot = document.querySelector("[data-hub-root]");
+    if (hubRoot) {
+      const computedStyle = getComputedStyle(hubRoot);
+      const color = computedStyle.getPropertyValue("--hub-color").trim();
+      if (color) {
+        setHubColor(color);
+      }
+    }
+  }, []);
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -66,6 +81,7 @@ function DialogContent({
         data-testid="dialog-content"
         role="dialog"
         aria-modal="true"
+        data-hub-root=""
         className={cn(
           // Smooth 300ms liftIn animation for modal entrance
           // All modal sizes animate consistently with liftIn
@@ -76,7 +92,13 @@ function DialogContent({
           "animate-lift-in",
           className,
         )}
-        style={{ pointerEvents: "auto" }}
+        style={
+          {
+            pointerEvents: "auto",
+            "--hub-color": hubColor || "",
+          } as React.CSSProperties
+        }
+        suppressHydrationWarning
         {...props}
       >
         {children}
