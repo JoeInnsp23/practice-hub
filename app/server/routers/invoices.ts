@@ -258,7 +258,7 @@ export const invoicesRouter = router({
         // Log the activity
         await tx.insert(activityLogs).values({
           tenantId,
-          module: "practice-hub",
+          module: "client-hub",
           entityType: "invoice",
           entityId: newInvoice.id,
           action: "created",
@@ -314,7 +314,7 @@ export const invoicesRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
-        module: "practice-hub",
+        module: "client-hub",
         entityType: "invoice",
         entityId: input.id,
         action: "updated",
@@ -365,7 +365,7 @@ export const invoicesRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
-        module: "practice-hub",
+        module: "client-hub",
         entityType: "invoice",
         entityId: input.id,
         action: "updated",
@@ -407,7 +407,7 @@ export const invoicesRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
-        module: "practice-hub",
+        module: "client-hub",
         entityType: "invoice",
         entityId: id,
         action: "deleted",
@@ -469,7 +469,7 @@ export const invoicesRouter = router({
         for (const invoice of updatedInvoices) {
           await tx.insert(activityLogs).values({
             tenantId,
-            module: "practice-hub",
+            module: "client-hub",
             entityType: "invoice",
             entityId: invoice.id,
             action: "bulk_status_update",
@@ -543,7 +543,7 @@ export const invoicesRouter = router({
             // Log activity
             await tx.insert(activityLogs).values({
               tenantId,
-              module: "practice-hub",
+              module: "client-hub",
               entityType: "invoice",
               entityId: invoice.id,
               action: "bulk_email_sent",
@@ -560,7 +560,7 @@ export const invoicesRouter = router({
             // Log failure
             await tx.insert(activityLogs).values({
               tenantId,
-              module: "practice-hub",
+              module: "client-hub",
               entityType: "invoice",
               entityId: invoice.id,
               action: "bulk_email_failed",
@@ -621,7 +621,7 @@ export const invoicesRouter = router({
         for (const invoice of existingInvoices) {
           await tx.insert(activityLogs).values({
             tenantId,
-            module: "practice-hub",
+            module: "client-hub",
             entityType: "invoice",
             entityId: invoice.id,
             action: "bulk_delete",
@@ -675,7 +675,7 @@ export const invoicesRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
-        module: "practice-hub",
+        module: "client-hub",
         entityType: "invoice",
         entityId: invoiceId,
         action: "pdf_generated",

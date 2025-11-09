@@ -4441,7 +4441,7 @@ For more information, visit the ICO website: https://ico.org.uk
         const task = faker.helpers.arrayElement(createdTasks);
         entityId = task.id;
         entityName = task.title;
-        module = "practice-hub";
+        module = "client-hub"; // Tasks are in /client-hub/tasks
         break;
       }
       case "client": {
@@ -4454,7 +4454,17 @@ For more information, visit the ICO website: https://ico.org.uk
       case "invoice":
         entityId = faker.string.uuid();
         entityName = `Invoice #${faker.number.int({ min: 1000, max: 9999 })}`;
-        module = "practice-hub";
+        module = "client-hub"; // Invoices are in /client-hub/invoices
+        break;
+      case "document":
+        entityId = faker.string.uuid();
+        entityName = `Document - ${faker.system.fileName()}`;
+        module = "client-hub"; // Documents are in /client-hub/documents
+        break;
+      case "compliance":
+        entityId = faker.string.uuid();
+        entityName = `Compliance Item - ${faker.company.name()}`;
+        module = "client-hub"; // Compliance is in /client-hub/compliance
         break;
       default:
         entityId = faker.string.uuid();

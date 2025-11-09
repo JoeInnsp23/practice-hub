@@ -937,7 +937,7 @@ export const documentsRouter = router({
         for (const document of updatedDocuments) {
           await tx.insert(activityLogs).values({
             tenantId,
-            module: "practice-hub",
+            module: "client-hub",
             entityType: "document",
             entityId: document.id,
             action: "bulk_move",
@@ -1004,7 +1004,7 @@ export const documentsRouter = router({
         for (const document of updatedDocuments) {
           await tx.insert(activityLogs).values({
             tenantId,
-            module: "practice-hub",
+            module: "client-hub",
             entityType: "document",
             entityId: document.id,
             action: "bulk_change_category",
@@ -1057,7 +1057,7 @@ export const documentsRouter = router({
         for (const document of existingDocuments) {
           await tx.insert(activityLogs).values({
             tenantId,
-            module: "practice-hub",
+            module: "client-hub",
             entityType: "document",
             entityId: document.id,
             action: "bulk_delete",
