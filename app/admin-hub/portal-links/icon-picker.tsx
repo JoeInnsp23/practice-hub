@@ -55,9 +55,16 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
     setSearch("");
   };
 
-  const handleClear = (e: React.MouseEvent) => {
+  const handleClear = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     onChange("");
+  };
+
+  const handleClearKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClear(e);
+    }
   };
 
   return (
@@ -75,14 +82,17 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
         </div>
         <div className="flex items-center gap-1">
           {value && (
-            <button
-              type="button"
+            // biome-ignore lint/a11y/useSemanticElements: Cannot use <button> here as it's inside another Button component
+            <span
+              role="button"
+              tabIndex={0}
               className="p-1 hover:bg-accent hover:text-accent-foreground rounded-sm cursor-pointer"
               onClick={handleClear}
+              onKeyDown={handleClearKeyDown}
               aria-label="Clear icon selection"
             >
               <X className="h-3 w-3" />
-            </button>
+            </span>
           )}
           {isOpen ? (
             <ChevronUp className="h-4 w-4 opacity-50" />
