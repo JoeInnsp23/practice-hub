@@ -65,9 +65,9 @@ export function SimpleIconPicker({ value, onChange }: SimpleIconPickerProps) {
               key={name}
               type="button"
               onClick={() => onChange(name)}
-              className={`flex flex-col items-center gap-1 p-3 rounded-lg border hover:bg-accent transition-colors ${
+              className={`flex flex-col items-center gap-1 p-3 rounded-lg border hover:bg-[var(--hub-color,var(--accent))]/10 hover:text-[var(--hub-color,var(--accent))] dark:hover:bg-[var(--hub-color,var(--accent))]/20 dark:hover:text-[var(--hub-color,var(--accent))] transition-colors ${
                 value === name
-                  ? "bg-accent border-primary"
+                  ? "bg-[var(--hub-color,var(--accent))]/10 text-[var(--hub-color,var(--accent))] dark:bg-[var(--hub-color,var(--accent))]/20 dark:text-[var(--hub-color,var(--accent))] border-primary"
                   : "border-transparent"
               }`}
             >
