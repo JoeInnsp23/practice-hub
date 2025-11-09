@@ -344,6 +344,7 @@ export const timesheetsRouter = router({
 
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "employee-hub",
           entityType: "timeEntry",
           entityId: createdEntry.id,
           action: "created",
@@ -429,6 +430,7 @@ export const timesheetsRouter = router({
 
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "employee-hub",
           entityType: "timeEntry",
           entityId: input.id,
           action: "updated",
@@ -485,6 +487,7 @@ export const timesheetsRouter = router({
 
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "employee-hub",
           entityType: "timeEntry",
           entityId: id,
           action: "deleted",

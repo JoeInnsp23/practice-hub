@@ -100,6 +100,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "service_component",
         entityId: component.id,
         action: "created",
@@ -171,6 +172,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "service_component",
         entityId: component.id,
         action: "updated",
@@ -244,6 +246,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "service_component",
         entityId: id,
         action: "deleted",
@@ -337,6 +340,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "service_component",
         entityId: component.id,
         action: "created",
@@ -375,6 +379,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "service_component",
         entityId: input.ids[0],
         action: "updated",
@@ -501,6 +506,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_rule",
         entityId: rule.id,
         action: "created",
@@ -570,6 +576,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_rule",
         entityId: rule.id,
         action: "updated",
@@ -611,6 +618,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_rule",
         entityId: id,
         action: "deleted",
@@ -662,6 +670,7 @@ export const pricingAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_rule",
         entityId: rules[0]?.id || "",
         action: "created",

@@ -178,6 +178,7 @@ export const pricingConfigRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_config",
         entityId: tenantId,
         action: "updated",
@@ -225,6 +226,7 @@ export const pricingConfigRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_config",
         entityId: tenantId,
         action: "updated",
@@ -272,6 +274,7 @@ export const pricingConfigRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_config",
         entityId: tenantId,
         action: "updated",
@@ -319,6 +322,7 @@ export const pricingConfigRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_config",
         entityId: tenantId,
         action: "updated",
@@ -357,6 +361,7 @@ export const pricingConfigRouter = router({
     // Log activity
     await db.insert(activityLogs).values({
       tenantId,
+      module: "admin-hub",
       entityType: "pricing_config",
       entityId: tenantId,
       action: "updated",
@@ -430,6 +435,7 @@ export const pricingConfigRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "pricing_config",
         entityId: tenantId,
         action: "updated",

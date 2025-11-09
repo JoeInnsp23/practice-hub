@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { logActivity } from "@/lib/activity-logger";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { activityLogs, departments, users } from "@/lib/db/schema";
@@ -164,8 +165,9 @@ export const usersRouter = router({
       .returning();
 
     // Log the activity
-    await db.insert(activityLogs).values({
+    await logActivity({
       tenantId,
+      module: "admin-hub",
       entityType: "user",
       entityId: newUser.id,
       action: "created",
@@ -213,8 +215,9 @@ export const usersRouter = router({
         .returning();
 
       // Log the activity
-      await db.insert(activityLogs).values({
+      await logActivity({
         tenantId,
+        module: "admin-hub",
         entityType: "user",
         entityId: input.id,
         action: "updated",
@@ -259,8 +262,9 @@ export const usersRouter = router({
       await db.delete(users).where(eq(users.id, id));
 
       // Log the activity
-      await db.insert(activityLogs).values({
+      await logActivity({
         tenantId,
+        module: "admin-hub",
         entityType: "user",
         entityId: id,
         action: "deleted",
@@ -307,8 +311,9 @@ export const usersRouter = router({
         .returning();
 
       // Log the activity
-      await db.insert(activityLogs).values({
+      await logActivity({
         tenantId,
+        module: "admin-hub",
         entityType: "user",
         entityId: input.id,
         action: "updated",
@@ -360,8 +365,9 @@ export const usersRouter = router({
         });
 
         // Log the activity
-        await db.insert(activityLogs).values({
+        await logActivity({
           tenantId,
+          module: "admin-hub",
           entityType: "user",
           entityId: input.userId,
           action: "password_reset_sent",
@@ -439,6 +445,7 @@ export const usersRouter = router({
         for (const user of updatedUsers) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "admin-hub",
             entityType: "user",
             entityId: user.id,
             action: "bulk_status_update",
@@ -500,6 +507,7 @@ export const usersRouter = router({
         for (const user of updatedUsers) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "admin-hub",
             entityType: "user",
             entityId: user.id,
             action: "bulk_role_change",
@@ -579,6 +587,7 @@ export const usersRouter = router({
         for (const user of updatedUsers) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "admin-hub",
             entityType: "user",
             entityId: user.id,
             action: "bulk_department_assign",

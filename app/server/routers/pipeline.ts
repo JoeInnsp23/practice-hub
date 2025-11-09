@@ -317,6 +317,7 @@ export const pipelineRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "client-hub",
           entityType: "lead",
           entityId: input.dealId,
           action: "stage_changed",
@@ -380,6 +381,7 @@ export const pipelineRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "proposal",
         entityId: input.dealId,
         action: "stage_changed",

@@ -219,6 +219,7 @@ export const clientsRouter = router({
         // Log the activity
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "client-hub",
           entityType: "client",
           entityId: newClient.id,
           action: "created",
@@ -292,6 +293,7 @@ export const clientsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "client",
         entityId: input.id,
         action: "updated",
@@ -337,6 +339,7 @@ export const clientsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "client",
         entityId: id,
         action: "archived",
@@ -501,6 +504,7 @@ export const clientsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "client_contact",
         entityId: input.id,
         action: "updated",
@@ -572,6 +576,7 @@ export const clientsRouter = router({
         // Log activity (use generated UUID for entityId, store company number in metadata)
         await db.insert(activityLogs).values({
           tenantId,
+          module: "client-hub",
           entityType: "companies_house_lookup",
           entityId: crypto.randomUUID(),
           action: "looked_up",
@@ -686,6 +691,7 @@ export const clientsRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "client-hub",
           entityType: "vat_validation",
           entityId: clientId || crypto.randomUUID(),
           action: result.isValid ? "validated" : "validation_failed",
@@ -933,6 +939,7 @@ export const clientsRouter = router({
           // Log activity
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "client-hub",
             entityType: "client_import",
             entityId: crypto.randomUUID(),
             action: "imported",
@@ -1027,6 +1034,7 @@ export const clientsRouter = router({
         for (const client of updatedClients) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "client-hub",
             entityType: "client",
             entityId: client.id,
             action: "bulk_status_update",
@@ -1106,6 +1114,7 @@ export const clientsRouter = router({
         for (const client of updatedClients) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "client-hub",
             entityType: "client",
             entityId: client.id,
             action: "bulk_assign_manager",
@@ -1158,6 +1167,7 @@ export const clientsRouter = router({
         for (const client of existingClients) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "client-hub",
             entityType: "client",
             entityId: client.id,
             action: "bulk_delete",

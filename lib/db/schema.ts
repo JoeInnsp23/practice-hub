@@ -2576,6 +2576,9 @@ export const activityLogs = pgTable(
     userAgent: text("user_agent"),
     metadata: jsonb("metadata"),
 
+    // Module/Hub tracking
+    module: varchar("module", { length: 50 }).notNull(), // admin-hub, client-hub, practice-hub, etc.
+
     // Timestamp
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -2590,6 +2593,12 @@ export const activityLogs = pgTable(
       table.tenantId,
       table.entityType,
       table.entityId,
+    ),
+    userModuleIdx: index("idx_activity_user_module").on(
+      table.tenantId,
+      table.userId,
+      table.module,
+      table.createdAt,
     ),
   }),
 );

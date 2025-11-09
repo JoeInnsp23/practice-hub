@@ -89,6 +89,7 @@ export async function expireProposals(): Promise<ExpireProposalsResult> {
         // 2b. Create activity log entry
         await db.insert(activityLogs).values({
           tenantId: proposal.tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: proposal.id,
           action: "status_changed",

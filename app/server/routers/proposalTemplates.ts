@@ -143,6 +143,7 @@ export const proposalTemplatesRouter = router({
           // Log activity
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "proposal-hub",
             entityType: "proposal_template",
             entityId: template.id,
             action: "created",
@@ -226,6 +227,7 @@ export const proposalTemplatesRouter = router({
           // Log activity
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "proposal-hub",
             entityType: "proposal_template",
             entityId: input.id,
             action: "updated",
@@ -284,6 +286,7 @@ export const proposalTemplatesRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal_template",
           entityId: id,
           action: "deleted",
@@ -346,6 +349,7 @@ export const proposalTemplatesRouter = router({
           // Log activity
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "proposal-hub",
             entityType: "proposal_template",
             entityId: id,
             action: "set_default",

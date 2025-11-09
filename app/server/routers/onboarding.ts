@@ -676,6 +676,7 @@ export const onboardingRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId: ctx.authContext.tenantId,
+        module: "client-portal",
         entityType: "onboarding_session",
         entityId: sessionId,
         action: "questionnaire_updated",
@@ -845,6 +846,7 @@ export const onboardingRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId: ctx.authContext.tenantId,
+          module: "client-portal",
           entityType: "client",
           entityId: client.id,
           action: "kyc_verification_initiated",
@@ -879,6 +881,7 @@ export const onboardingRouter = router({
           // Log email failure
           await db.insert(activityLogs).values({
             tenantId: ctx.authContext.tenantId,
+            module: "client-portal",
             entityType: "client",
             entityId: client.id,
             action: "email_send_failed",
@@ -926,6 +929,7 @@ export const onboardingRouter = router({
         // Log error
         await db.insert(activityLogs).values({
           tenantId: ctx.authContext.tenantId,
+          module: "client-portal",
           entityType: "onboarding_session",
           entityId: sessionId,
           action: "kyc_verification_failed",
@@ -1114,6 +1118,7 @@ export const onboardingRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId: ctx.authContext.tenantId,
+          module: "client-portal",
           entityType: "client",
           entityId: client.id,
           action: "kyc_verification_restarted",

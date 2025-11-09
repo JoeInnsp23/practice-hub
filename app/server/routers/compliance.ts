@@ -192,6 +192,7 @@ export const complianceRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "compliance",
         entityId: newItem.id,
         action: "created",
@@ -263,6 +264,7 @@ export const complianceRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "compliance",
         entityId: input.id,
         action: "updated",
@@ -301,6 +303,7 @@ export const complianceRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "compliance",
         entityId: id,
         action: "deleted",
@@ -365,6 +368,7 @@ export const complianceRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "compliance",
         entityId: input.id,
         action: "updated",

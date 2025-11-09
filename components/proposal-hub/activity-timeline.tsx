@@ -204,6 +204,7 @@ export function ActivityTimeline({
     }
 
     createActivity.mutate({
+      module: "proposal-hub",
       entityType,
       entityId,
       action: newActivityAction,

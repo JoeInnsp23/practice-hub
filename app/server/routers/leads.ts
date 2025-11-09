@@ -269,6 +269,7 @@ export const leadsRouter = router({
       // Log activity (without user context since it's public)
       await db.insert(activityLogs).values({
         tenantId: tenant.id,
+        module: "client-hub",
         entityType: "lead",
         entityId: newLead.id,
         action: "created",
@@ -504,6 +505,7 @@ export const leadsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "lead",
         entityId: newLead.id,
         action: "created",
@@ -564,6 +566,7 @@ export const leadsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "lead",
         entityId: input.id,
         action: "updated",
@@ -609,6 +612,7 @@ export const leadsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "lead",
         entityId: id,
         action: "archived",
@@ -658,6 +662,7 @@ export const leadsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "lead",
         entityId: input.leadId,
         action: "assigned",
@@ -717,6 +722,7 @@ export const leadsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-hub",
         entityType: "lead",
         entityId: input.leadId,
         action: "follow_up_scheduled",
@@ -839,6 +845,7 @@ export const leadsRouter = router({
         // Log activity for lead
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "client-hub",
           entityType: "lead",
           entityId: input.leadId,
           action: "converted",
@@ -850,6 +857,7 @@ export const leadsRouter = router({
         // Log activity for client
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "client-hub",
           entityType: "client",
           entityId: newClient.id,
           action: "created",

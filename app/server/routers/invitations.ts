@@ -25,6 +25,7 @@ async function logInvitationActivity(params: {
 }) {
   await db.insert(activityLogs).values({
     tenantId: params.tenantId,
+    module: "admin-hub",
     entityType: "invitation",
     entityId: params.invitationId,
     action: params.action,

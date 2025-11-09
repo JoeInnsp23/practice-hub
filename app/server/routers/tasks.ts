@@ -610,6 +610,7 @@ export const tasksRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "task",
         entityId: newTask.id,
         action: "created",
@@ -674,6 +675,7 @@ export const tasksRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "task",
         entityId: input.id,
         action: "updated",
@@ -717,6 +719,7 @@ export const tasksRouter = router({
           // Log auto-generation activity
           await db.insert(activityLogs).values({
             tenantId,
+            module: "practice-hub",
             entityType: "task",
             entityId: input.id,
             action: "auto_generated_next_period",
@@ -764,6 +767,7 @@ export const tasksRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "task",
         entityId: id,
         action: "deleted",
@@ -826,6 +830,7 @@ export const tasksRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "task",
         entityId: input.id,
         action: "updated",
@@ -1109,6 +1114,7 @@ export const tasksRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "task",
         entityId: input.taskId,
         action: "checklist_updated",
@@ -1181,6 +1187,7 @@ export const tasksRouter = router({
         for (const task of updatedTasks) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "practice-hub",
             entityType: "task",
             entityId: task.id,
             action: "bulk_status_update",
@@ -1239,6 +1246,7 @@ export const tasksRouter = router({
         for (const task of updatedTasks) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "practice-hub",
             entityType: "task",
             entityId: task.id,
             action: "bulk_assign",
@@ -1286,6 +1294,7 @@ export const tasksRouter = router({
         for (const task of existingTasks) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "practice-hub",
             entityType: "task",
             entityId: task.id,
             action: "bulk_delete",
@@ -1370,6 +1379,7 @@ export const tasksRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "task",
         entityId: task.id,
         action: "note_added",

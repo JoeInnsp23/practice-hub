@@ -599,6 +599,7 @@ async function handleProposalSigning(
     // Log activity
     await tx.insert(activityLogs).values({
       tenantId,
+      module: "proposal-hub",
       entityType: "proposal",
       entityId: proposalId,
       action: "proposal_signed",
@@ -743,6 +744,7 @@ async function handleDocumentSigning(
     // Create activity log
     await tx.insert(activityLogs).values({
       tenantId,
+      module: "client-portal",
       userId: doc.uploadedById,
       action: "Document Signed",
       entityType: "document",
@@ -808,6 +810,7 @@ async function handleSubmissionDeclined(submission: DocusealSubmissionData) {
     // Log activity
     await tx.insert(activityLogs).values({
       tenantId,
+      module: "proposal-hub",
       entityType: "proposal",
       entityId: proposalId,
       action: "proposal_signature_declined",
@@ -896,6 +899,7 @@ async function handleSubmissionExpired(submission: DocusealSubmissionData) {
     // Log activity
     await tx.insert(activityLogs).values({
       tenantId,
+      module: "proposal-hub",
       entityType: "proposal",
       entityId: proposalId,
       action: "proposal_signature_expired",

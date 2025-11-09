@@ -123,6 +123,7 @@ export const servicesRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "service",
         entityId: newService.id,
         action: "created",
@@ -176,6 +177,7 @@ export const servicesRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "service",
         entityId: input.id,
         action: "updated",
@@ -221,6 +223,7 @@ export const servicesRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "service",
         entityId: id,
         action: "deactivated",

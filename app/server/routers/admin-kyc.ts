@@ -261,6 +261,7 @@ export const adminKycRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId: ctx.authContext.tenantId,
+        module: "admin-hub",
         entityType: "client",
         entityId: verification.clientId,
         action: "kyc_verification_approved",
@@ -334,6 +335,7 @@ export const adminKycRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId: ctx.authContext.tenantId,
+        module: "admin-hub",
         entityType: "client",
         entityId: verification.clientId,
         action: "kyc_verification_rejected",

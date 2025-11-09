@@ -315,6 +315,7 @@ describe("Tenant Isolation Integration Tests", () => {
         .insert(activityLogs)
         .values({
           tenantId: TENANT_A_ID,
+          module: "client-hub",
           entityType: "client",
           entityId: "00000000-0000-0000-0000-000000000001", // Mock UUID for testing
           action: "created",
@@ -328,6 +329,7 @@ describe("Tenant Isolation Integration Tests", () => {
         .insert(activityLogs)
         .values({
           tenantId: TENANT_B_ID,
+          module: "client-hub",
           entityType: "lead",
           entityId: "00000000-0000-0000-0000-000000000002", // Mock UUID for testing
           action: "updated",

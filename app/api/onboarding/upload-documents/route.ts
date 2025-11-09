@@ -242,6 +242,7 @@ export async function POST(request: Request) {
     // Log activity
     await db.insert(activityLogs).values({
       tenantId,
+      module: "client-portal",
       entityType: "onboarding_session",
       entityId: onboardingSessionId,
       action: "documents_uploaded",

@@ -41,6 +41,7 @@ async function logTemplateActivity(params: {
 }) {
   await db.insert(activityLogs).values({
     tenantId: params.tenantId,
+    module: "admin-hub",
     entityType: "email_template",
     entityId: params.templateId,
     action: params.action,

@@ -121,6 +121,7 @@ export async function autoConvertLeadToClient(
         // Log activity for lead
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "client-portal",
           entityType: "lead",
           entityId: leadId,
           action: "converted",
@@ -137,6 +138,7 @@ export async function autoConvertLeadToClient(
         // Log activity for client
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "client-portal",
           entityType: "client",
           entityId: newClient.id,
           action: "created",

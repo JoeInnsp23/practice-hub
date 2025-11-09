@@ -85,6 +85,7 @@ export const legalRouter = router({
         // Log creation activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "practice-hub",
           entityType: "legal_page",
           entityId: newPage.id,
           action: "created",
@@ -117,6 +118,7 @@ export const legalRouter = router({
       // Log update activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "legal_page",
         entityId: updatedPage.id,
         action: "updated",

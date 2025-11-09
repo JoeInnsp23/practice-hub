@@ -173,6 +173,7 @@ export const transactionDataRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "practice-hub",
           entityType: "transaction_data",
           entityId: result.id,
           action: "updated",
@@ -195,6 +196,7 @@ export const transactionDataRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "practice-hub",
           entityType: "transaction_data",
           entityId: result.id,
           action: "created",
@@ -295,6 +297,7 @@ export const transactionDataRouter = router({
           const { userId, firstName, lastName } = ctx.authContext;
           await db.insert(activityLogs).values({
             tenantId,
+            module: "practice-hub",
             entityType: "client",
             entityId: clientId,
             action: "xero_sync",
@@ -394,6 +397,7 @@ export const transactionDataRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "practice-hub",
           entityType: "transaction_data",
           entityId: savedData.id,
           action: "created",
@@ -454,6 +458,7 @@ export const transactionDataRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "practice-hub",
         entityType: "transaction_data",
         entityId: id,
         action: "deleted",

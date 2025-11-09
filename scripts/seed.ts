@@ -4426,31 +4426,45 @@ For more information, visit the ICO website: https://ico.org.uk
 
     let entityId: string;
     let entityName: string;
+    let module:
+      | "admin-hub"
+      | "client-hub"
+      | "practice-hub"
+      | "proposal-hub"
+      | "employee-hub"
+      | "social-hub"
+      | "client-portal"
+      | "system";
 
     switch (entityType) {
       case "task": {
         const task = faker.helpers.arrayElement(createdTasks);
         entityId = task.id;
         entityName = task.title;
+        module = "practice-hub";
         break;
       }
       case "client": {
         const client = faker.helpers.arrayElement(createdClients);
         entityId = client.id;
         entityName = client.name;
+        module = "client-hub";
         break;
       }
       case "invoice":
         entityId = faker.string.uuid();
         entityName = `Invoice #${faker.number.int({ min: 1000, max: 9999 })}`;
+        module = "practice-hub";
         break;
       default:
         entityId = faker.string.uuid();
         entityName = `${entityType} Item`;
+        module = "practice-hub";
     }
 
     await db.insert(activityLogs).values({
       tenantId: tenant.id,
+      module,
       entityType,
       entityId,
       action,

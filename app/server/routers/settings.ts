@@ -96,6 +96,7 @@ export const settingsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "tenant",
         entityId: tenantId,
         action: "updated",
@@ -230,6 +231,7 @@ export const settingsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "settings",
         entityId: userId,
         action: "updated",
@@ -313,6 +315,7 @@ export const settingsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "settings",
         entityId: userId,
         action: "updated",
@@ -392,6 +395,7 @@ export const settingsRouter = router({
       // Log the activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "admin-hub",
         entityType: "settings",
         entityId: userId,
         action: "updated",

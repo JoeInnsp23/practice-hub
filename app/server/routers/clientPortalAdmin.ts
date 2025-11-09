@@ -137,6 +137,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_invitation",
         entityId: invitation.id,
         action: "invitation.sent",
@@ -269,6 +270,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_invitation",
         entityId: invitation.id,
         action: "invitation.resent",
@@ -324,6 +326,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_invitation",
         entityId: invitation.id,
         action: "invitation.revoked",
@@ -444,6 +447,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_access",
         entityId: newAccess.id,
         action: "access.granted",
@@ -474,6 +478,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_access",
         entityId: input.accessId,
         action: "access.revoked",
@@ -509,6 +514,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_access",
         entityId: input.accessId,
         action: "role.updated",
@@ -539,6 +545,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_user",
         entityId: input.portalUserId,
         action: "user.suspended",
@@ -569,6 +576,7 @@ export const clientPortalAdminRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "client-portal",
         entityType: "client_portal_user",
         entityId: input.portalUserId,
         action: "user.reactivated",

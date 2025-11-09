@@ -466,6 +466,7 @@ export const proposalsRouter = router({
         // Log activity
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: newProposal.id,
           action: "created",
@@ -555,6 +556,7 @@ export const proposalsRouter = router({
         // Log activity for lead
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "lead",
           entityId: input.leadId,
           action: "proposal_created",
@@ -570,6 +572,7 @@ export const proposalsRouter = router({
         // Log activity for proposal
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: newProposal.id,
           action: "created",
@@ -690,6 +693,7 @@ export const proposalsRouter = router({
         // Log activity for proposal update
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: input.id,
           action: "updated",
@@ -704,6 +708,7 @@ export const proposalsRouter = router({
         if (autoSalesStage && input.data.status) {
           await tx.insert(activityLogs).values({
             tenantId,
+            module: "proposal-hub",
             entityType: "proposal",
             entityId: input.id,
             action: "sales_stage_automated",
@@ -771,6 +776,7 @@ export const proposalsRouter = router({
         // Log activity
         await db.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: input.id,
           action: "sales_stage_updated",
@@ -826,6 +832,7 @@ export const proposalsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "proposal-hub",
         entityType: "proposal",
         entityId: id,
         action: "archived",
@@ -1002,6 +1009,7 @@ export const proposalsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "proposal-hub",
         entityType: "proposal",
         entityId: input.id,
         action: "sent",
@@ -1213,6 +1221,7 @@ export const proposalsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "proposal-hub",
         entityType: "proposal",
         entityId: proposalId,
         action: "pdf_generated",
@@ -1315,6 +1324,7 @@ export const proposalsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "proposal-hub",
         entityType: "proposal",
         entityId: input.proposalId,
         action: "version_created",
@@ -1460,6 +1470,7 @@ export const proposalsRouter = router({
         // 4. Log activity
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: input.id,
           action: "updated",
@@ -1717,6 +1728,7 @@ export const proposalsRouter = router({
         // Log activity (no userId since this is public)
         await tx.insert(activityLogs).values({
           tenantId,
+          module: "proposal-hub",
           entityType: "proposal",
           entityId: input.proposalId,
           action: "proposal_signed",
@@ -1880,6 +1892,7 @@ export const proposalsRouter = router({
       // Log activity
       await db.insert(activityLogs).values({
         tenantId,
+        module: "proposal-hub",
         entityType: "proposal",
         entityId: input.proposalId,
         action: "note_added",

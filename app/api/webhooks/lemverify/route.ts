@@ -176,6 +176,7 @@ async function handleVerificationCompleted(
     // Log activity
     await db.insert(activityLogs).values({
       tenantId: verification.tenantId,
+      module: "client-hub",
       entityType: "client",
       entityId: verification.clientId,
       action: "kyc_verification_approved",
@@ -204,6 +205,7 @@ async function handleVerificationCompleted(
     // Log activity for manual review
     await db.insert(activityLogs).values({
       tenantId: verification.tenantId,
+      module: "client-hub",
       entityType: "client",
       entityId: verification.clientId,
       action: "kyc_verification_requires_review",
@@ -248,6 +250,7 @@ async function handleAMLAlert(event: LemVerifyWebhookEvent) {
   // Log critical alert
   await db.insert(activityLogs).values({
     tenantId: verification.tenantId,
+    module: "client-hub",
     entityType: "client",
     entityId: verification.clientId,
     action: "kyc_aml_alert",
@@ -434,6 +437,7 @@ export async function POST(request: Request) {
           if (event.clientRef) {
             await db.insert(activityLogs).values({
               tenantId: "system",
+              module: "client-hub",
               entityType: "system",
               entityId: event.id,
               action: "webhook_processing_error",
