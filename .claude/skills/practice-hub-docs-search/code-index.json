@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-09T20:04:13.686Z",
+  "generated": "2025-11-09T21:28:43.248Z",
   "version": "1.0",
-  "total_entries": 227,
+  "total_entries": 228,
   "functions": [
     {
       "name": "landingRouter",
@@ -1100,6 +1100,14 @@
       "line": 13,
       "type": "type",
       "signature": "type RouterOutputs"
+    },
+    {
+      "name": "ActivityModule",
+      "description": "Module/Hub where activity is logged from",
+      "file": "lib/activity-logger.ts",
+      "line": 4,
+      "type": "type",
+      "signature": "type ActivityModule"
     },
     {
       "name": "ExtractedIndividualData",

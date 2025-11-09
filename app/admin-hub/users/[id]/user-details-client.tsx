@@ -166,23 +166,24 @@ export function UserDetailsClient({
   };
 
   const getModuleBadgeColor = (module: string) => {
+    // Colors match centralized HUB_COLORS from lib/utils/hub-colors.ts
     switch (module) {
       case "admin-hub":
-        return "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20";
+        return "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20"; // #f97316 Orange
       case "client-hub":
-        return "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20";
+        return "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"; // #3b82f6 Blue
       case "practice-hub":
-        return "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20";
+        return "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20"; // oklch(0.56 0.15 196.6) Teal
       case "proposal-hub":
-        return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
+        return "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20"; // #ec4899 Pink
       case "employee-hub":
-        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
+        return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"; // #10b981 Emerald
       case "social-hub":
-        return "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20";
+        return "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"; // #8b5cf6 Purple
       case "client-portal":
-        return "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20";
+        return "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/20"; // #4f46e5 Indigo (portal-hub)
       case "system":
-        return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20";
+        return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"; // Neutral
       default:
         return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20";
     }
