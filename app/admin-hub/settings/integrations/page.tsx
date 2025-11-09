@@ -472,7 +472,11 @@ export default function IntegrationsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfigModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setConfigModalOpen(false)}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
               Cancel
             </Button>
             <Button
@@ -501,6 +505,7 @@ export default function IntegrationsPage() {
             <Button
               variant="outline"
               onClick={() => setDisconnectModalOpen(false)}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
             >
               Cancel
             </Button>

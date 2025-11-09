@@ -200,7 +200,12 @@ export function EditUserDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>

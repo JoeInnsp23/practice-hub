@@ -456,6 +456,7 @@ export function CategoryManagement() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
                 >
                   Cancel
                 </Button>
@@ -483,6 +484,7 @@ export function CategoryManagement() {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
             >
               Cancel
             </Button>

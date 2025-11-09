@@ -573,10 +573,12 @@ export default function AdminKYCDetailPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleApprove}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
               {approveMutation.isPending ? "Approving..." : "Approve"}
             </AlertDialogAction>
@@ -609,10 +611,12 @@ export default function AdminKYCDetailPage({
             </p>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleReject}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive text-white hover:bg-destructive/90"
               disabled={rejectionReason.length < 10}
             >
               {rejectMutation.isPending ? "Rejecting..." : "Reject"}

@@ -468,6 +468,7 @@ export default function EmailTemplatesPage() {
                 setIsCreateOpen(false);
                 resetForm();
               }}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
             >
               Cancel
             </Button>
@@ -567,6 +568,7 @@ export default function EmailTemplatesPage() {
                 setEditingTemplate(null);
                 resetForm();
               }}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
             >
               Cancel
             </Button>
@@ -609,6 +611,7 @@ export default function EmailTemplatesPage() {
                 setTestRecipient("");
                 setSelectedTemplateForTest(null);
               }}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
             >
               Cancel
             </Button>

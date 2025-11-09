@@ -379,7 +379,11 @@ export default function WorkTypesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsCreateOpen(false)}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
               Cancel
             </Button>
             <Button onClick={handleCreate} disabled={createMutation.isPending}>
@@ -451,7 +455,11 @@ export default function WorkTypesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingWorkType(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setEditingWorkType(null)}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
               Cancel
             </Button>
             <Button onClick={handleUpdate} disabled={updateMutation.isPending}>

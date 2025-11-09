@@ -307,7 +307,11 @@ export function FeedbackDetailDialog({
         </Tabs>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+          >
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={saving}>

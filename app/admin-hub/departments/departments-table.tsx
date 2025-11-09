@@ -281,13 +281,16 @@ export default function DepartmentsTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>
+            <AlertDialogCancel
+              disabled={deleteMutation.isPending}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
