@@ -70,7 +70,6 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
   const sendInvitationMutation = trpc.invitations.send.useMutation({
     onSuccess: () => {
       toast.success("Invitation sent successfully");
-      utils.invitations.list.invalidate();
       utils.users.list.invalidate();
       setIsOpen(false);
       form.reset();

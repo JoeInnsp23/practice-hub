@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-09T19:17:40.313Z",
+  "generated": "2025-11-09T19:53:03.665Z",
   "version": "1.0",
-  "total_entries": 227,
+  "total_entries": 228,
   "functions": [
     {
       "name": "landingRouter",
@@ -1582,6 +1582,14 @@
       "line": 9,
       "type": "component",
       "signature": "default function TermsPage"
+    },
+    {
+      "name": "InvitationsRedirect",
+      "description": "Invitations Page - Deprecated",
+      "file": "app/admin-hub/invitations/page.tsx",
+      "line": 3,
+      "type": "component",
+      "signature": "default function InvitationsRedirect"
     },
     {
       "name": "AdminLegalSettingsPage",

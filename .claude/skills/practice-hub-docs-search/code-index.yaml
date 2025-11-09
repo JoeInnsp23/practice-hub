@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-09T19:53:03.655Z
+# Generated: 2025-11-09T20:04:13.679Z
 
 functions:
   landingRouter:
@@ -1189,12 +1189,6 @@ components:
     line: 9
     type: "component"
     signature: "default function TermsPage"
-  InvitationsRedirect:
-    description: "Invitations Page - Deprecated"
-    file: "app/admin-hub/invitations/page.tsx"
-    line: 3
-    type: "component"
-    signature: "default function InvitationsRedirect"
   AdminLegalSettingsPage:
     description: "Admin Legal Settings Page"
     file: "app/admin-hub/settings/legal/page.tsx"
@@ -1380,9 +1374,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-09T19:53:03.663Z"
-  total_entries: 228
+  generated: "2025-11-09T20:04:13.683Z"
+  total_entries: 227
   functions: 136
   types: 58
-  components: 30
+  components: 29
   classes: 4

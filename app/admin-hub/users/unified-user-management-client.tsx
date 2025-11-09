@@ -92,7 +92,7 @@ interface InvitationRow {
   createdAt: Date;
 }
 
-type TableRow = UserRow | InvitationRow;
+type UnifiedTableRow = UserRow | InvitationRow;
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -229,7 +229,7 @@ export function UnifiedUserManagementClient() {
   const resendInvitationMutation = trpc.invitations.resend.useMutation({
     onSuccess: () => {
       toast.success("Invitation resent successfully");
-      utils.invitations.list.invalidate();
+      utils.users.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -239,7 +239,7 @@ export function UnifiedUserManagementClient() {
   const cancelInvitationMutation = trpc.invitations.cancel.useMutation({
     onSuccess: () => {
       toast.success("Invitation cancelled");
-      utils.invitations.list.invalidate();
+      utils.users.list.invalidate();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -247,7 +247,7 @@ export function UnifiedUserManagementClient() {
   });
 
   // Transform data into unified table rows
-  const tableData: TableRow[] = useMemo(() => {
+  const tableData: UnifiedTableRow[] = useMemo(() => {
     if (filterView === "active-users") {
       if (!usersData?.users) return [];
 
