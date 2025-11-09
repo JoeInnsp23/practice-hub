@@ -17,7 +17,6 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -225,10 +224,8 @@ export function AnnouncementsClient() {
       </div>
 
       {/* Announcements Table */}
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+      <div className="glass-table">
+        <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">
@@ -411,10 +408,8 @@ export function AnnouncementsClient() {
                   ))
                 )}
               </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+        </Table>
+      </div>
 
       {/* Create/Edit Dialog */}
       <AnnouncementFormDialog
