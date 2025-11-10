@@ -17,11 +17,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -382,274 +388,285 @@ export function TimeEntryModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedEntry ? "Edit Time Entry" : "New Time Entry"}
-            </DialogTitle>
-            <DialogDescription>
-              Record your time spent on client work
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">
+            {selectedEntry ? "Edit Time Entry" : "New Time Entry"}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Record your time spent on client work
+          </DialogDescription>
 
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              {/* Work Type */}
-              <div className="space-y-2">
-                <Label htmlFor="workType">Work Type</Label>
-                <Select
-                  value={formData.workType}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, workType: value })
-                  }
-                >
-                  <SelectTrigger id="workType">
-                    <SelectValue placeholder="Select work type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {workTypes.map((type) => (
-                      <SelectItem key={type.code} value={type.code}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded"
-                            style={{ backgroundColor: type.colorCode }}
-                          />
-                          <span>{type.label}</span>
-                          {type.isBillable && (
-                            <span className="text-xs text-muted-foreground">
-                              (Billable)
-                            </span>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>
+                {selectedEntry ? "Edit Time Entry" : "New Time Entry"}
+              </CardTitle>
+              <CardDescription>
+                Record your time spent on client work
+              </CardDescription>
+            </CardHeader>
 
-              {/* Date */}
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.date && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date
-                        ? format(formData.date, "PPP")
-                        : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date}
-                      onSelect={(date) =>
-                        setFormData({ ...formData, date: date || new Date() })
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Client */}
-              <div className="space-y-2">
-                <Label htmlFor="client">Client</Label>
-                <Select
-                  value={formData.clientId}
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      clientId: value,
-                      taskId: "none",
-                    })
-                  }
-                >
-                  <SelectTrigger id="client">
-                    <SelectValue placeholder="Select client" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No client</SelectItem>
-                    {clients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Task */}
-              <div className="space-y-2">
-                <Label htmlFor="task">Task</Label>
-                <Select
-                  value={formData.taskId}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, taskId: value })
-                  }
-                  disabled={!formData.clientId && availableTasks.length === 0}
-                >
-                  <SelectTrigger id="task">
-                    <SelectValue placeholder="Select task (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No task</SelectItem>
-                    {availableTasks.map((task) => (
-                      <SelectItem key={task.id} value={task.id}>
-                        {task.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder={autoDescription || "What did you work on?"}
-                  value={formData.description}
-                  onChange={(e) => {
-                    // Mark as user-edited when user types
-                    if (!userHasEditedDescriptionRef.current) {
-                      userHasEditedDescriptionRef.current = true;
-                    }
-                    setFormData({ ...formData, description: e.target.value });
-                  }}
-                  rows={3}
-                />
-              </div>
-
-              {/* Time Selection */}
-              <div className="grid grid-cols-3 gap-4">
+            <form onSubmit={handleSubmit}>
+              <CardContent className="space-y-6 px-8 md:px-10">
+                {/* Work Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="startTime">Start Time</Label>
-                  <Input
-                    id="startTime"
-                    type="time"
-                    value={formData.startTime}
-                    onChange={(e) =>
-                      setFormData({ ...formData, startTime: e.target.value })
+                  <Label htmlFor="workType">Work Type</Label>
+                  <Select
+                    value={formData.workType}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, workType: value })
                     }
-                  />
+                  >
+                    <SelectTrigger id="workType">
+                      <SelectValue placeholder="Select work type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {workTypes.map((type) => (
+                        <SelectItem key={type.code} value={type.code}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded"
+                              style={{ backgroundColor: type.colorCode }}
+                            />
+                            <span>{type.label}</span>
+                            {type.isBillable && (
+                              <span className="text-xs text-muted-foreground">
+                                (Billable)
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
+                {/* Date */}
                 <div className="space-y-2">
-                  <Label htmlFor="endTime">End Time</Label>
-                  <Input
-                    id="endTime"
-                    type="time"
-                    value={formData.endTime}
-                    onChange={(e) =>
-                      setFormData({ ...formData, endTime: e.target.value })
-                    }
-                  />
+                  <Label htmlFor="date">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.date && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.date
+                          ? format(formData.date, "PPP")
+                          : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.date}
+                        onSelect={(date) =>
+                          setFormData({ ...formData, date: date || new Date() })
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
+                {/* Client */}
                 <div className="space-y-2">
-                  <Label htmlFor="hours">Hours</Label>
-                  <Input
-                    id="hours"
-                    type="number"
-                    step="0.25"
-                    min="0"
-                    max="24"
-                    placeholder="0.00"
-                    value={formData.hours || ""}
-                    onChange={(e) =>
+                  <Label htmlFor="client">Client</Label>
+                  <Select
+                    value={formData.clientId}
+                    onValueChange={(value) =>
                       setFormData({
                         ...formData,
-                        hours: parseFloat(e.target.value) || 0,
+                        clientId: value,
+                        taskId: "none",
                       })
                     }
+                  >
+                    <SelectTrigger id="client">
+                      <SelectValue placeholder="Select client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No client</SelectItem>
+                      {clients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Task */}
+                <div className="space-y-2">
+                  <Label htmlFor="task">Task</Label>
+                  <Select
+                    value={formData.taskId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, taskId: value })
+                    }
+                    disabled={!formData.clientId && availableTasks.length === 0}
+                  >
+                    <SelectTrigger id="task">
+                      <SelectValue placeholder="Select task (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No task</SelectItem>
+                      {availableTasks.map((task) => (
+                        <SelectItem key={task.id} value={task.id}>
+                          {task.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder={autoDescription || "What did you work on?"}
+                    value={formData.description}
+                    onChange={(e) => {
+                      // Mark as user-edited when user types
+                      if (!userHasEditedDescriptionRef.current) {
+                        userHasEditedDescriptionRef.current = true;
+                      }
+                      setFormData({ ...formData, description: e.target.value });
+                    }}
+                    rows={3}
                   />
                 </div>
-              </div>
 
-              {/* Billable */}
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="billable"
-                  checked={formData.billable}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, billable: checked })
-                  }
-                />
-                <Label htmlFor="billable" className="font-normal">
-                  Billable time
-                </Label>
-              </div>
-
-              {/* Advanced Options */}
-              <div className="border-t pt-4">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="w-full justify-between"
-                >
-                  <span>Advanced Options</span>
-                  {showAdvanced ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-
-                {showAdvanced && (
-                  <div className="mt-4 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullDescription">Full Description</Label>
-                      <Textarea
-                        id="fullDescription"
-                        placeholder="Detailed description of work performed (optional)"
-                        value={formData.fullDescription}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            fullDescription: e.target.value,
-                          })
-                        }
-                        rows={4}
-                      />
-                    </div>
+                {/* Time Selection */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startTime">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={formData.startTime}
+                      onChange={(e) =>
+                        setFormData({ ...formData, startTime: e.target.value })
+                      }
+                    />
                   </div>
-                )}
-              </div>
-            </div>
 
-            <DialogFooter className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {selectedEntry && (
+                  <div className="space-y-2">
+                    <Label htmlFor="endTime">End Time</Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={formData.endTime}
+                      onChange={(e) =>
+                        setFormData({ ...formData, endTime: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="hours">Hours</Label>
+                    <Input
+                      id="hours"
+                      type="number"
+                      step="0.25"
+                      min="0"
+                      max="24"
+                      placeholder="0.00"
+                      value={formData.hours || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hours: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Billable */}
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="billable"
+                    checked={formData.billable}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, billable: checked })
+                    }
+                  />
+                  <Label htmlFor="billable" className="font-normal">
+                    Billable time
+                  </Label>
+                </div>
+
+                {/* Advanced Options */}
+                <div className="border-t pt-4">
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="ghost"
                     size="sm"
-                    onClick={() => setShowDeleteConfirm(true)}
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="w-full justify-between"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <span>Advanced Options</span>
+                    {showAdvanced ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
                   </Button>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button type="button" variant="outline" onClick={handleReset}>
-                  Reset
-                </Button>
-                <Button type="submit">
-                  {selectedEntry ? "Update" : "Save"} Entry
-                </Button>
-              </div>
-            </DialogFooter>
-          </form>
+
+                  {showAdvanced && (
+                    <div className="mt-4 space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="fullDescription">
+                          Full Description
+                        </Label>
+                        <Textarea
+                          id="fullDescription"
+                          placeholder="Detailed description of work performed (optional)"
+                          value={formData.fullDescription}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              fullDescription: e.target.value,
+                            })
+                          }
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex items-center justify-between px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                <div className="flex items-center gap-2">
+                  {selectedEntry && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button type="button" variant="outline" onClick={handleReset}>
+                    Reset
+                  </Button>
+                  <Button type="submit">
+                    {selectedEntry ? "Update" : "Save"} Entry
+                  </Button>
+                </div>
+              </CardFooter>
+            </form>
+          </Card>
         </DialogContent>
       </Dialog>
 

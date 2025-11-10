@@ -20,11 +20,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -261,200 +267,223 @@ export function LeaveRequestModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            {request ? "Edit Leave Request" : "Request Leave"}
-          </DialogTitle>
-          <DialogDescription>
-            {request
-              ? "Modify your leave request details"
-              : "Submit a new leave request for approval"}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {request ? "Edit Leave Request" : "Request Leave"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {request
+            ? "Modify your leave request details"
+            : "Submit a new leave request for approval"}
+        </DialogDescription>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Leave Type */}
-            <FormField
-              control={form.control}
-              name="leaveType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Leave Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select leave type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {leaveTypeOptions.map((option) => {
-                        const Icon = option.icon;
-                        return (
-                          <SelectItem key={option.value} value={option.value}>
-                            <div className="flex items-center gap-2">
-                              <Icon className={`h-4 w-4 ${option.color}`} />
-                              {option.label}
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>
+              {request ? "Edit Leave Request" : "Request Leave"}
+            </CardTitle>
+            <CardDescription>
+              {request
+                ? "Modify your leave request details"
+                : "Submit a new leave request for approval"}
+            </CardDescription>
+          </CardHeader>
 
-            {/* Date Range */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Start Date</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        min={new Date().toISOString().split("T")[0]}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <CardContent className="space-y-6 px-8 md:px-10">
+                {/* Leave Type */}
+                <FormField
+                  control={form.control}
+                  name="leaveType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Leave Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select leave type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {leaveTypeOptions.map((option) => {
+                            const Icon = option.icon;
+                            return (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Icon className={`h-4 w-4 ${option.color}`} />
+                                  {option.label}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>End Date</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        min={
-                          startDate || new Date().toISOString().split("T")[0]
-                        }
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                {/* Date Range */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Date</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            min={new Date().toISOString().split("T")[0]}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            {/* Working Days Calculation */}
-            {calculatedDays > 0 && (
-              <div className="p-4 rounded-lg bg-muted">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Working days:
-                  </span>
-                  <Badge
-                    variant="secondary"
-                    className="text-base font-semibold"
-                  >
-                    {calculatedDays} {calculatedDays === 1 ? "day" : "days"}
-                  </Badge>
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Date</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            min={
+                              startDate ||
+                              new Date().toISOString().split("T")[0]
+                            }
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Excluding weekends and bank holidays
-                </p>
-              </div>
-            )}
 
-            {/* Balance Warning */}
-            {hasInsufficientBalance && (
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Insufficient Leave Balance</AlertTitle>
-                <AlertDescription>
-                  {leaveType === "annual_leave" && balance && (
-                    <>
-                      You have {balance.remaining} days remaining but are
-                      requesting {calculatedDays} days.
-                    </>
+                {/* Working Days Calculation */}
+                {calculatedDays > 0 && (
+                  <div className="p-4 rounded-lg bg-muted">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Working days:
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="text-base font-semibold"
+                      >
+                        {calculatedDays} {calculatedDays === 1 ? "day" : "days"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Excluding weekends and bank holidays
+                    </p>
+                  </div>
+                )}
+
+                {/* Balance Warning */}
+                {hasInsufficientBalance && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Insufficient Leave Balance</AlertTitle>
+                    <AlertDescription>
+                      {leaveType === "annual_leave" && balance && (
+                        <>
+                          You have {balance.remaining} days remaining but are
+                          requesting {calculatedDays} days.
+                        </>
+                      )}
+                      {leaveType === "toil" && balance && (
+                        <>
+                          You have {balance.toilBalance} TOIL days available but
+                          are requesting {calculatedDays} days.
+                        </>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Conflict Warning */}
+                {conflicts && conflicts.length > 0 && (
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Overlapping Leave Detected</AlertTitle>
+                    <AlertDescription>
+                      <p className="mb-2">
+                        The following team members have leave during this
+                        period:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1">
+                        {conflicts.map((conflict) => (
+                          <li key={conflict.id} className="text-sm">
+                            <strong>{conflict.userName}</strong> -{" "}
+                            {new Date(conflict.startDate).toLocaleDateString()}{" "}
+                            to {new Date(conflict.endDate).toLocaleDateString()}
+                          </li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Notes */}
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add any additional information about your leave request..."
+                          className="resize-none"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Provide any relevant details or context for your request
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  {leaveType === "toil" && balance && (
-                    <>
-                      You have {balance.toilBalance} TOIL days available but are
-                      requesting {calculatedDays} days.
-                    </>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
+                />
+              </CardContent>
 
-            {/* Conflict Warning */}
-            {conflicts && conflicts.length > 0 && (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Overlapping Leave Detected</AlertTitle>
-                <AlertDescription>
-                  <p className="mb-2">
-                    The following team members have leave during this period:
-                  </p>
-                  <ul className="list-disc list-inside space-y-1">
-                    {conflicts.map((conflict) => (
-                      <li key={conflict.id} className="text-sm">
-                        <strong>{conflict.userName}</strong> -{" "}
-                        {new Date(conflict.startDate).toLocaleDateString()} to{" "}
-                        {new Date(conflict.endDate).toLocaleDateString()}
-                      </li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any additional information about your leave request..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Provide any relevant details or context for your request
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={requestMutation.isPending || hasInsufficientBalance}
-              >
-                {requestMutation.isPending
-                  ? "Submitting..."
-                  : request
-                    ? "Update Request"
-                    : "Submit Request"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={requestMutation.isPending || hasInsufficientBalance}
+                >
+                  {requestMutation.isPending
+                    ? "Submitting..."
+                    : request
+                      ? "Update Request"
+                      : "Submit Request"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
       </DialogContent>
     </Dialog>
   );

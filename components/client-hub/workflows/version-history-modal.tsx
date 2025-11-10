@@ -15,10 +15,16 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PublishNotesDialog } from "./publish-notes-dialog";
@@ -132,143 +138,155 @@ export function VersionHistoryModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            Version History
-          </DialogTitle>
-          <DialogDescription>
-            View and manage all versions of this workflow template
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Version History</DialogTitle>
+        <DialogDescription className="sr-only">
+          View and manage all versions of this workflow template
+        </DialogDescription>
 
-        <div className="space-y-3">
-          {versions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No version history available</p>
-            </div>
-          ) : (
-            versions.map((version) => (
-              <div
-                key={version.id}
-                className={`border rounded-lg p-4 ${
-                  version.isActive
-                    ? "border-green-500 bg-green-50 dark:bg-green-950"
-                    : ""
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge
-                        variant={version.isActive ? "default" : "secondary"}
-                        className="font-mono"
-                      >
-                        v{version.version}
-                      </Badge>
-                      {version.isActive && (
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Version History
+            </CardTitle>
+            <CardDescription>
+              View and manage all versions of this workflow template
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-3 px-8 md:px-10 pb-8 md:pb-10">
+            {versions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No version history available</p>
+              </div>
+            ) : (
+              versions.map((version) => (
+                <div
+                  key={version.id}
+                  className={`border rounded-lg p-4 ${
+                    version.isActive
+                      ? "border-green-500 bg-green-50 dark:bg-green-950"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
                         <Badge
-                          variant="outline"
-                          className="text-green-600 border-green-600"
+                          variant={version.isActive ? "default" : "secondary"}
+                          className="font-mono"
                         >
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Active
+                          v{version.version}
                         </Badge>
-                      )}
-                      <Badge variant="outline" className="text-xs">
-                        {version.changeType}
-                      </Badge>
-                    </div>
+                        {version.isActive && (
+                          <Badge
+                            variant="outline"
+                            className="text-green-600 border-green-600"
+                          >
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Active
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {version.changeType}
+                        </Badge>
+                      </div>
 
-                    <p className="text-sm font-medium mb-1">{version.name}</p>
-                    {version.description && (
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {version.description}
-                      </p>
-                    )}
-
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      {version.changeDescription && (
-                        <p className="italic">"{version.changeDescription}"</p>
-                      )}
-                      {version.publishNotes && (
-                        <p className="italic text-blue-600 dark:text-blue-400">
-                          "{version.publishNotes}"
+                      <p className="text-sm font-medium mb-1">{version.name}</p>
+                      {version.description && (
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {version.description}
                         </p>
                       )}
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Created{" "}
-                          {format(
-                            new Date(version.createdAt),
-                            "MMM dd, yyyy HH:mm",
-                          )}
-                        </span>
-                        {version.publishedAt && (
-                          <span>
-                            Published{" "}
+
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        {version.changeDescription && (
+                          <p className="italic">
+                            "{version.changeDescription}"
+                          </p>
+                        )}
+                        {version.publishNotes && (
+                          <p className="italic text-blue-600 dark:text-blue-400">
+                            "{version.publishNotes}"
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            Created{" "}
                             {format(
-                              new Date(version.publishedAt),
+                              new Date(version.createdAt),
                               "MMM dd, yyyy HH:mm",
                             )}
                           </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Layers className="h-3 w-3" />
-                        {(version.stagesSnapshot as StagesSnapshot)?.stages
-                          ?.length || 0}{" "}
-                        stages
+                          {version.publishedAt && (
+                            <span>
+                              Published{" "}
+                              {format(
+                                new Date(version.publishedAt),
+                                "MMM dd, yyyy HH:mm",
+                              )}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Layers className="h-3 w-3" />
+                          {(version.stagesSnapshot as StagesSnapshot)?.stages
+                            ?.length || 0}{" "}
+                          stages
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="ml-4 flex gap-2">
-                    {!version.isActive && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            handleCompare(version.id, version.version)
-                          }
-                        >
-                          <GitBranch className="h-3 w-3 mr-1" />
-                          Compare
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            handlePublishClick(version.id, version.version)
-                          }
-                        >
-                          Activate
-                        </Button>
-                        {onRollback &&
-                          version.version < (versions[0]?.version || 0) && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() =>
-                                handleRollbackClick(version.id, version.version)
-                              }
-                            >
-                              <Undo2 className="h-3 w-3 mr-1" />
-                              Rollback
-                            </Button>
-                          )}
-                      </>
-                    )}
+                    <div className="ml-4 flex gap-2">
+                      {!version.isActive && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              handleCompare(version.id, version.version)
+                            }
+                          >
+                            <GitBranch className="h-3 w-3 mr-1" />
+                            Compare
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              handlePublishClick(version.id, version.version)
+                            }
+                          >
+                            Activate
+                          </Button>
+                          {onRollback &&
+                            version.version < (versions[0]?.version || 0) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleRollbackClick(
+                                    version.id,
+                                    version.version,
+                                  )
+                                }
+                              >
+                                <Undo2 className="h-3 w-3 mr-1" />
+                                Rollback
+                              </Button>
+                            )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
 
         {/* Comparison Modal */}
         {comparisonModal && (

@@ -10,11 +10,17 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -134,128 +140,150 @@ export function ApprovalActionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon className={`h-5 w-5 ${iconColor}`} />
-            {isApprove ? "Approve" : "Reject"} Leave Request
-          </DialogTitle>
-          <DialogDescription>
-            {isApprove
-              ? "Confirm approval of this leave request"
-              : "Provide a reason for rejecting this leave request"}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {isApprove ? "Approve" : "Reject"} Leave Request
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isApprove
+            ? "Confirm approval of this leave request"
+            : "Provide a reason for rejecting this leave request"}
+        </DialogDescription>
 
-        {/* Request Details */}
-        <div className="space-y-4 py-4">
-          <div className="glass-card p-4 space-y-3">
-            {/* Employee Info */}
-            <div className="flex items-center gap-3 pb-3 border-b">
-              <User className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <div className="font-medium">{request.userName}</div>
-                <div className="text-sm text-muted-foreground">
-                  {request.userEmail}
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle className="flex items-center gap-2">
+              <Icon className={`h-5 w-5 ${iconColor}`} />
+              {isApprove ? "Approve" : "Reject"} Leave Request
+            </CardTitle>
+            <CardDescription>
+              {isApprove
+                ? "Confirm approval of this leave request"
+                : "Provide a reason for rejecting this leave request"}
+            </CardDescription>
+          </CardHeader>
+
+          {/* Request Details */}
+          <CardContent className="space-y-6 px-8 md:px-10">
+            <div className="glass-card p-4 space-y-3">
+              {/* Employee Info */}
+              <div className="flex items-center gap-3 pb-3 border-b">
+                <User className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <div className="font-medium">{request.userName}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {request.userEmail}
+                  </div>
                 </div>
               </div>
+
+              {/* Leave Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">Type</div>
+                  <Badge variant="secondary">
+                    {leaveTypeLabels[request.leaveType] || request.leaveType}
+                  </Badge>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Duration
+                  </div>
+                  <div className="font-medium">
+                    {request.daysCount}{" "}
+                    {request.daysCount === 1 ? "day" : "days"}
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Dates
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    {formatDate(request.startDate)} -{" "}
+                    {formatDate(request.endDate)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Employee Notes */}
+              {request.notes && (
+                <div className="pt-3 border-t">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Employee Notes
+                  </div>
+                  <p className="text-sm">{request.notes}</p>
+                </div>
+              )}
             </div>
 
-            {/* Leave Details */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">Type</div>
-                <Badge variant="secondary">
-                  {leaveTypeLabels[request.leaveType] || request.leaveType}
-                </Badge>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">
-                  Duration
-                </div>
-                <div className="font-medium">
-                  {request.daysCount} {request.daysCount === 1 ? "day" : "days"}
-                </div>
-              </div>
-              <div className="col-span-2">
-                <div className="text-xs text-muted-foreground mb-1">Dates</div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  {formatDate(request.startDate)} -{" "}
-                  {formatDate(request.endDate)}
-                </div>
-              </div>
-            </div>
+            {/* Comments Form */}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="comments"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {isApprove
+                          ? "Comments (Optional)"
+                          : "Rejection Reason (Required)"}
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={
+                            isApprove
+                              ? "Add any comments for the employee..."
+                              : "Explain why this request is being rejected..."
+                          }
+                          className="resize-none"
+                          rows={4}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {isApprove
+                          ? "Optional notes that will be visible to the employee"
+                          : "This reason will be sent to the employee"}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Employee Notes */}
-            {request.notes && (
-              <div className="pt-3 border-t">
-                <div className="text-xs text-muted-foreground mb-1">
-                  Employee Notes
-                </div>
-                <p className="text-sm">{request.notes}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Comments Form */}
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="comments"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {isApprove
-                        ? "Comments (Optional)"
-                        : "Rejection Reason (Required)"}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={
-                          isApprove
-                            ? "Add any comments for the employee..."
-                            : "Explain why this request is being rejected..."
-                        }
-                        className="resize-none"
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {isApprove
-                        ? "Optional notes that will be visible to the employee"
-                        : "This reason will be sent to the employee"}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleClose}>
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="outline"
-                  className={buttonColor}
-                  disabled={
-                    approveMutation.isPending || rejectMutation.isPending
-                  }
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {approveMutation.isPending || rejectMutation.isPending
-                    ? "Processing..."
-                    : isApprove
-                      ? "Approve Request"
-                      : "Reject Request"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </div>
+                <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleClose}
+                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className={buttonColor}
+                    disabled={
+                      approveMutation.isPending || rejectMutation.isPending
+                    }
+                  >
+                    <Icon className="h-4 w-4 mr-2" />
+                    {approveMutation.isPending || rejectMutation.isPending
+                      ? "Processing..."
+                      : isApprove
+                        ? "Approve Request"
+                        : "Reject Request"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </DialogContent>
     </Dialog>
   );

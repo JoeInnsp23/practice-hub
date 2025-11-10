@@ -6,11 +6,17 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -140,158 +146,169 @@ export function SignatureUploadModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Request Client Signature</DialogTitle>
-          <DialogDescription>
-            Upload a PDF document that requires client signature. The client
-            will receive an email with a signing link.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Request Client Signature</DialogTitle>
+        <DialogDescription className="sr-only">
+          Upload a PDF document that requires client signature. The client will
+          receive an email with a signing link.
+        </DialogDescription>
 
-        {signingUrl ? (
-          // Success state
-          <div className="space-y-4 py-4">
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <FileText className="h-6 w-6 text-green-600 mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-green-900 dark:text-green-100">
-                    Signature Request Sent!
-                  </h3>
-                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                    The client has been emailed a signing link. You can also
-                    share the link below directly.
-                  </p>
-                  <div className="mt-3">
-                    <Label className="text-xs">Signing URL</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        value={signingUrl}
-                        readOnly
-                        className="font-mono text-xs"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(signingUrl);
-                          toast.success("Link copied to clipboard!");
-                        }}
-                      >
-                        Copy
-                      </Button>
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>Request Client Signature</CardTitle>
+            <CardDescription>
+              Upload a PDF document that requires client signature. The client
+              will receive an email with a signing link.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-4 px-8 md:px-10">
+            {signingUrl ? (
+              // Success state
+              <div className="space-y-4">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <FileText className="h-6 w-6 text-green-600 mt-1" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-green-900 dark:text-green-100">
+                        Signature Request Sent!
+                      </h3>
+                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                        The client has been emailed a signing link. You can also
+                        share the link below directly.
+                      </p>
+                      <div className="mt-3">
+                        <Label className="text-xs">Signing URL</Label>
+                        <div className="flex gap-2 mt-1">
+                          <Input
+                            value={signingUrl}
+                            readOnly
+                            className="font-mono text-xs"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(signingUrl);
+                              toast.success("Link copied to clipboard!");
+                            }}
+                          >
+                            Copy
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ) : (
-          // Upload form
-          <div className="space-y-4 py-4">
-            <div>
-              <Label htmlFor="client">
-                Client <span className="text-destructive">*</span>
-              </Label>
-              <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger id="client">
-                  <SelectValue placeholder="Select client..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients?.clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name} ({client.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            ) : (
+              // Upload form
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="client">
+                    Client <span className="text-destructive">*</span>
+                  </Label>
+                  <Select value={clientId} onValueChange={setClientId}>
+                    <SelectTrigger id="client">
+                      <SelectValue placeholder="Select client..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients?.clients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.name} ({client.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div>
-              <Label htmlFor="file">
-                PDF Document <span className="text-destructive">*</span>
-              </Label>
-              <div className="mt-1">
-                <label
-                  htmlFor="file"
-                  className="flex items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors"
-                >
-                  <div className="text-center">
-                    {file ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <FileText className="h-8 w-8 text-primary" />
-                        <p className="text-sm font-medium">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                <div>
+                  <Label htmlFor="file">
+                    PDF Document <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="mt-1">
+                    <label
+                      htmlFor="file"
+                      className="flex items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors"
+                    >
+                      <div className="text-center">
+                        {file ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <FileText className="h-8 w-8 text-primary" />
+                            <p className="text-sm font-medium">{file.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <Upload className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">
+                              Click to upload PDF (max 10MB)
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          Click to upload PDF (max 10MB)
-                        </p>
-                      </div>
-                    )}
+                      <input
+                        id="file"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
-                  <input
-                    id="file"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
+                </div>
+
+                <div>
+                  <Label htmlFor="name">
+                    Document Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g., Service Agreement 2024"
                   />
-                </label>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description (Optional)</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Add any notes or instructions for the client..."
+                    rows={3}
+                  />
+                </div>
               </div>
-            </div>
+            )}
+          </CardContent>
 
-            <div>
-              <Label htmlFor="name">
-                Document Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Service Agreement 2024"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description (Optional)</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add any notes or instructions for the client..."
-                rows={3}
-              />
-            </div>
-          </div>
-        )}
-
-        <DialogFooter>
-          {signingUrl ? (
-            <Button onClick={handleClose}>Done</Button>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleClose}
-                disabled={isUploading}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleUpload}
-                disabled={isUploading || !file || !clientId || !name}
-              >
-                {isUploading ? "Uploading..." : "Upload & Send"}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+          <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+            {signingUrl ? (
+              <Button onClick={handleClose}>Done</Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={isUploading}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpload}
+                  disabled={isUploading || !file || !clientId || !name}
+                >
+                  {isUploading ? "Uploading..." : "Upload & Send"}
+                </Button>
+              </>
+            )}
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );

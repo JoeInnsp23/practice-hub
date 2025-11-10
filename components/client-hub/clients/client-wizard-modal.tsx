@@ -4,10 +4,17 @@ import { AlertCircle, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -384,58 +391,70 @@ export function ClientWizardModal({
         if (!open) onClose();
       }}
     >
-      <DialogContent
-        data-hub-root
-        data-testid="client-wizard-modal"
-        className="max-w-[1400px] w-[95vw] max-h-[90vh] flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800"
-        style={
-          { "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties
-        }
-      >
-        <DialogHeader className="space-y-4 pb-6">
-          <div>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
-              {client ? "Edit Client" : "Create New Client"}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground mt-2">
-              {client
-                ? "Update client information using the comprehensive wizard below."
-                : "Set up a new client with all necessary information and configurations."}
-            </DialogDescription>
-          </div>
+      <DialogContent className="max-w-[1400px] w-[95vw] p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {client ? "Edit Client" : "Create New Client"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {client
+            ? "Update client information using the comprehensive wizard below."
+            : "Set up a new client with all necessary information and configurations."}
+        </DialogDescription>
 
-          {/* Enhanced Progress Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">
-                Step {currentStep + 1} of {STEPS.length}
-              </span>
-              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                {Math.round(progressValue)}% Complete
-              </span>
+        <Card
+          data-hub-root
+          data-testid="client-wizard-modal"
+          className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-hidden flex flex-col"
+          style={
+            { "--hub-color": HUB_COLORS["client-hub"] } as React.CSSProperties
+          }
+        >
+          <CardHeader className="space-y-4 px-8 pt-4 pb-6 md:px-10 md:pt-6">
+            <div>
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
+                {client ? "Edit Client" : "Create New Client"}
+              </CardTitle>
+              <CardDescription className="text-sm text-muted-foreground mt-2">
+                {client
+                  ? "Update client information using the comprehensive wizard below."
+                  : "Set up a new client with all necessary information and configurations."}
+              </CardDescription>
             </div>
-            <Progress
-              value={progressValue}
-              className="h-2 bg-slate-200 dark:bg-slate-700"
-            />
 
-            {/* Step Indicators */}
-            <div className="flex justify-center">
-              <div className="flex gap-2 overflow-x-auto pb-2 px-4">
-                {STEPS.map((step, index) => (
-                  <button
-                    type="button"
-                    key={step.id}
-                    onClick={() => {
-                      if (
-                        index < currentStep ||
-                        (index === 0 && stepValidation[0])
-                      ) {
-                        setCurrentStep(index);
+            {/* Enhanced Progress Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Step {currentStep + 1} of {STEPS.length}
+                </span>
+                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                  {Math.round(progressValue)}% Complete
+                </span>
+              </div>
+              <Progress
+                value={progressValue}
+                className="h-2 bg-slate-200 dark:bg-slate-700"
+              />
+
+              {/* Step Indicators */}
+              <div className="flex justify-center">
+                <div className="flex gap-2 overflow-x-auto pb-2 px-4">
+                  {STEPS.map((step, index) => (
+                    <button
+                      type="button"
+                      key={step.id}
+                      onClick={() => {
+                        if (
+                          index < currentStep ||
+                          (index === 0 && stepValidation[0])
+                        ) {
+                          setCurrentStep(index);
+                        }
+                      }}
+                      disabled={
+                        index > currentStep && !stepValidation[index - 1]
                       }
-                    }}
-                    disabled={index > currentStep && !stepValidation[index - 1]}
-                    className={`
+                      className={`
                       flex-shrink-0 flex flex-col items-center justify-center p-2 rounded-lg transition-all w-[110px] h-[80px]
                       ${
                         index === currentStep
@@ -446,108 +465,108 @@ export function ClientWizardModal({
                       }
                       ${index > currentStep && !stepValidation[index - 1] ? "opacity-50 cursor-not-allowed" : ""}
                     `}
-                  >
-                    <div className="flex items-center justify-center w-8 h-8 mb-1">
-                      {index < currentStep ? (
-                        <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      ) : index === currentStep ? (
-                        <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                          {index + 1}
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-xs font-medium">
-                          {index + 1}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-center leading-tight font-medium max-w-[90px]">
-                      {step.title}
-                    </span>
-                  </button>
-                ))}
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 mb-1">
+                        {index < currentStep ? (
+                          <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        ) : index === currentStep ? (
+                          <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">
+                            {index + 1}
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-xs font-medium">
+                            {index + 1}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-center leading-tight font-medium max-w-[90px]">
+                        {step.title}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        </DialogHeader>
+          </CardHeader>
 
-        {/* Step Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6">
-          {/* Step Header */}
-          <div className="border-b pb-4 mb-8">
-            <div className="flex items-start space-x-3">
-              <span className="text-2xl">{STEPS[currentStep].icon}</span>
-              <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                  {STEPS[currentStep].title}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {STEPS[currentStep].description}
-                </p>
+          {/* Step Content */}
+          <CardContent className="flex-1 min-h-0 overflow-y-auto px-8 py-6 md:px-10">
+            {/* Step Header */}
+            <div className="border-b pb-4 mb-8">
+              <div className="flex items-start space-x-3">
+                <span className="text-2xl">{STEPS[currentStep].icon}</span>
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                    {STEPS[currentStep].title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {STEPS[currentStep].description}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Form Content - Full Width */}
-          {renderCurrentStep()}
-        </div>
+            {/* Form Content - Full Width */}
+            {renderCurrentStep()}
+          </CardContent>
 
-        {/* Enhanced Navigation Footer */}
-        <div className="flex justify-between items-center border-t bg-slate-50 dark:bg-slate-900 px-6 py-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-            className="flex items-center space-x-2 min-w-[120px]"
-            data-testid="client-wizard-previous-button"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            <span>Previous</span>
-          </Button>
-
-          <div className="flex items-center space-x-4">
-            {/* Validation Indicator */}
-            {currentStep < STEPS.length - 1 && !validateCurrentStep() && (
-              <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                <span>Complete required fields</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex space-x-3">
+          <CardFooter className="flex justify-between items-center border-t bg-slate-50 dark:bg-slate-900 px-6 py-4">
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
-              className="min-w-[100px]"
-              data-testid="client-wizard-cancel-button"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="flex items-center space-x-2 min-w-[120px]"
+              data-testid="client-wizard-previous-button"
             >
-              Cancel
+              <ChevronLeft className="h-4 w-4" />
+              <span>Previous</span>
             </Button>
 
-            {currentStep === STEPS.length - 1 ? (
+            <div className="flex items-center space-x-4">
+              {/* Validation Indicator */}
+              {currentStep < STEPS.length - 1 && !validateCurrentStep() && (
+                <div className="flex items-center text-amber-600 dark:text-amber-400 text-sm">
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  <span>Complete required fields</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex space-x-3">
               <Button
-                onClick={handleSubmit}
-                className="flex items-center space-x-2 min-w-[140px]"
-                data-testid="client-wizard-complete-button"
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="min-w-[100px] hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                data-testid="client-wizard-cancel-button"
               >
-                <Check className="h-4 w-4" />
-                <span>Complete Setup</span>
+                Cancel
               </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={!validateCurrentStep()}
-                className="flex items-center space-x-2 min-w-[100px]"
-                data-testid="client-wizard-next-button"
-              >
-                <span>Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
+
+              {currentStep === STEPS.length - 1 ? (
+                <Button
+                  onClick={handleSubmit}
+                  className="flex items-center space-x-2 min-w-[140px]"
+                  data-testid="client-wizard-complete-button"
+                >
+                  <Check className="h-4 w-4" />
+                  <span>Complete Setup</span>
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  disabled={!validateCurrentStep()}
+                  className="flex items-center space-x-2 min-w-[100px]"
+                  data-testid="client-wizard-next-button"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );

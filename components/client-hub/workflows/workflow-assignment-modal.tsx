@@ -7,11 +7,17 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -67,105 +73,117 @@ export function WorkflowAssignmentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Assign Workflow to Task</DialogTitle>
-          <DialogDescription>
-            Select a workflow template to assign to:{" "}
-            <strong>{taskTitle}</strong>
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Assign Workflow to Task</DialogTitle>
+        <DialogDescription className="sr-only">
+          Select a workflow template to assign to: {taskTitle}
+        </DialogDescription>
 
-        <div className="py-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : workflows.length === 0 ? (
-            <div className="text-center py-8">
-              <GitBranch className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">
-                No active workflows available
-              </p>
-            </div>
-          ) : (
-            <RadioGroup
-              value={selectedWorkflowId}
-              onValueChange={setSelectedWorkflowId}
-            >
-              <div className="space-y-3">
-                {workflows.map((workflow) => (
-                  <button
-                    type="button"
-                    key={workflow.id}
-                    className="w-full flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer text-left"
-                    onClick={() => setSelectedWorkflowId(workflow.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setSelectedWorkflowId(workflow.id);
-                      }
-                    }}
-                  >
-                    <RadioGroupItem value={workflow.id} id={workflow.id} />
-                    <Label
-                      htmlFor={workflow.id}
-                      className="flex-1 cursor-pointer"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{workflow.name}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {workflow.type}
-                          </Badge>
-                        </div>
-                        {workflow.description && (
-                          <p className="text-sm text-muted-foreground">
-                            {workflow.description}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Layers className="h-3 w-3" />
-                            {workflow.stageCount || 0} stages
-                          </span>
-                          {workflow.estimatedDays && (
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              Est. {workflow.estimatedDays} days
-                            </span>
-                          )}
-                          {workflow.service && (
-                            <span>Service: {workflow.service.name}</span>
-                          )}
-                        </div>
-                      </div>
-                    </Label>
-                  </button>
-                ))}
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>Assign Workflow to Task</CardTitle>
+            <CardDescription>
+              Select a workflow template to assign to:{" "}
+              <strong>{taskTitle}</strong>
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6 px-8 md:px-10">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            </RadioGroup>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isAssigning}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAssign}
-            disabled={!selectedWorkflowId || isAssigning}
-          >
-            {isAssigning ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Assigning...
-              </>
+            ) : workflows.length === 0 ? (
+              <div className="text-center py-8">
+                <GitBranch className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">
+                  No active workflows available
+                </p>
+              </div>
             ) : (
-              "Assign Workflow"
+              <RadioGroup
+                value={selectedWorkflowId}
+                onValueChange={setSelectedWorkflowId}
+              >
+                <div className="space-y-3">
+                  {workflows.map((workflow) => (
+                    <button
+                      type="button"
+                      key={workflow.id}
+                      className="w-full flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer text-left"
+                      onClick={() => setSelectedWorkflowId(workflow.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedWorkflowId(workflow.id);
+                        }
+                      }}
+                    >
+                      <RadioGroupItem value={workflow.id} id={workflow.id} />
+                      <Label
+                        htmlFor={workflow.id}
+                        className="flex-1 cursor-pointer"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{workflow.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {workflow.type}
+                            </Badge>
+                          </div>
+                          {workflow.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {workflow.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Layers className="h-3 w-3" />
+                              {workflow.stageCount || 0} stages
+                            </span>
+                            {workflow.estimatedDays && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Est. {workflow.estimatedDays} days
+                              </span>
+                            )}
+                            {workflow.service && (
+                              <span>Service: {workflow.service.name}</span>
+                            )}
+                          </div>
+                        </div>
+                      </Label>
+                    </button>
+                  ))}
+                </div>
+              </RadioGroup>
             )}
-          </Button>
-        </DialogFooter>
+          </CardContent>
+
+          <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              disabled={isAssigning}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAssign}
+              disabled={!selectedWorkflowId || isAssigning}
+            >
+              {isAssigning ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Assigning...
+                </>
+              ) : (
+                "Assign Workflow"
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );

@@ -6,11 +6,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -185,276 +191,294 @@ export function WorkflowInstanceModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create Workflow</DialogTitle>
-          <DialogDescription>
-            Assign a workflow template to a task to track progress through
-            stages
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Task Mode Selection */}
-          <div className="space-y-3">
-            <Label>Assign Workflow To</Label>
-            <RadioGroup
-              value={taskMode}
-              onValueChange={(value) =>
-                setTaskMode(value as "existing" | "new")
-              }
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="existing" id="existing" />
-                <Label
-                  htmlFor="existing"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <CheckSquare className="h-4 w-4" />
-                  Existing Task (without workflow)
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="new" id="new" />
-                <Label
-                  htmlFor="new"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Plus className="h-4 w-4" />
-                  Create New Task
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
+      <DialogContent className="sm:max-w-[600px] p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Create Workflow</DialogTitle>
+        <DialogDescription className="sr-only">
+          Assign a workflow template to a task to track progress through stages
+        </DialogDescription>
 
-          {/* Task Selection/Creation based on mode */}
-          {taskMode === "existing" ? (
-            <div className="space-y-2">
-              <Label htmlFor="task">Select Task *</Label>
-              <Select
-                value={formData.existingTask?.id}
-                onValueChange={(value) => {
-                  const task = mockTasksWithoutWorkflow.find(
-                    (t) => t.id === value,
-                  );
-                  setFormData({ ...formData, existingTask: task || null });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a task without workflow" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockTasksWithoutWorkflow.map((task) => (
-                    <SelectItem key={task.id} value={task.id}>
-                      <div>
-                        <div className="font-medium">{task.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          Client: {task.client}
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="taskTitle">Task Title *</Label>
-                <Input
-                  id="taskTitle"
-                  value={formData.taskTitle}
-                  onChange={(e) =>
-                    setFormData({ ...formData, taskTitle: e.target.value })
-                  }
-                  placeholder="Enter task title"
-                  required={taskMode === "new"}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="taskDescription">Task Description</Label>
-                <Textarea
-                  id="taskDescription"
-                  value={formData.taskDescription}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      taskDescription: e.target.value,
-                    })
-                  }
-                  placeholder="Enter task description"
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="priority">Priority</Label>
-                <Select
-                  value={formData.taskPriority}
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>Create Workflow</CardTitle>
+            <CardDescription>
+              Assign a workflow template to a task to track progress through
+              stages
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="px-8 md:px-10">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Task Mode Selection */}
+              <div className="space-y-3">
+                <Label>Assign Workflow To</Label>
+                <RadioGroup
+                  value={taskMode}
                   onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      taskPriority: value as TaskPriority,
-                    })
+                    setTaskMode(value as "existing" | "new")
                   }
                 >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="existing" id="existing" />
+                    <Label
+                      htmlFor="existing"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <CheckSquare className="h-4 w-4" />
+                      Existing Task (without workflow)
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="new" id="new" />
+                    <Label
+                      htmlFor="new"
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create New Task
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Task Selection/Creation based on mode */}
+              {taskMode === "existing" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="task">Select Task *</Label>
+                  <Select
+                    value={formData.existingTask?.id}
+                    onValueChange={(value) => {
+                      const task = mockTasksWithoutWorkflow.find(
+                        (t) => t.id === value,
+                      );
+                      setFormData({ ...formData, existingTask: task || null });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a task without workflow" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockTasksWithoutWorkflow.map((task) => (
+                        <SelectItem key={task.id} value={task.id}>
+                          <div>
+                            <div className="font-medium">{task.title}</div>
+                            <div className="text-xs text-muted-foreground">
+                              Client: {task.client}
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="taskTitle">Task Title *</Label>
+                    <Input
+                      id="taskTitle"
+                      value={formData.taskTitle}
+                      onChange={(e) =>
+                        setFormData({ ...formData, taskTitle: e.target.value })
+                      }
+                      placeholder="Enter task title"
+                      required={taskMode === "new"}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taskDescription">Task Description</Label>
+                    <Textarea
+                      id="taskDescription"
+                      value={formData.taskDescription}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          taskDescription: e.target.value,
+                        })
+                      }
+                      placeholder="Enter task description"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select
+                      value={formData.taskPriority}
+                      onValueChange={(value) =>
+                        setFormData({
+                          ...formData,
+                          taskPriority: value as TaskPriority,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {/* Template Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="template">Workflow Template *</Label>
+                <Select onValueChange={handleTemplateChange}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select a workflow template" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        <div>
+                          <div className="font-medium">{template.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {template.service.name} • {template.stages.length}{" "}
+                            stages • Est. {template.estimatedDays} days
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          )}
 
-          {/* Template Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="template">Workflow Template *</Label>
-            <Select onValueChange={handleTemplateChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a workflow template" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    <div>
-                      <div className="font-medium">{template.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {template.service.name} • {template.stages.length}{" "}
-                        stages • Est. {template.estimatedDays} days
-                      </div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              {/* Client Selection (only for new tasks) */}
+              {taskMode === "new" && (
+                <div className="space-y-2">
+                  <Label htmlFor="client">Client *</Label>
+                  <Select onValueChange={handleClientChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockClients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-          {/* Client Selection (only for new tasks) */}
-          {taskMode === "new" && (
-            <div className="space-y-2">
-              <Label htmlFor="client">Client *</Label>
-              <Select onValueChange={handleClientChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a client" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockClients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Workflow Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">Workflow Name *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder="Enter workflow name"
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              You can customize the workflow name or use the auto-generated one
-            </p>
-          </div>
-
-          {/* Due Date */}
-          <div className="space-y-2">
-            <Label>Due Date *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !formData.dueDate && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.dueDate ? (
-                    format(formData.dueDate, "PPP")
-                  ) : (
-                    <span>Pick a due date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={formData.dueDate || undefined}
-                  onSelect={(date) =>
-                    setFormData({ ...formData, dueDate: date || null })
+              {/* Workflow Name */}
+              <div className="space-y-2">
+                <Label htmlFor="name">Workflow Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
                   }
-                  initialFocus
+                  placeholder="Enter workflow name"
+                  required
                 />
-              </PopoverContent>
-            </Popover>
-          </div>
+                <p className="text-xs text-muted-foreground">
+                  You can customize the workflow name or use the auto-generated
+                  one
+                </p>
+              </div>
 
-          {/* Assignee */}
-          <div className="space-y-2">
-            <Label htmlFor="assignee">Assignee *</Label>
-            <Select
-              value={formData.assignee}
-              onValueChange={(value) =>
-                setFormData({ ...formData, assignee: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an assignee" />
-              </SelectTrigger>
-              <SelectContent>
-                {mockAssignees.map((assignee) => (
-                  <SelectItem key={assignee} value={assignee}>
-                    {assignee}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              {/* Due Date */}
+              <div className="space-y-2">
+                <Label>Due Date *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.dueDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.dueDate ? (
+                        format(formData.dueDate, "PPP")
+                      ) : (
+                        <span>Pick a due date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={formData.dueDate || undefined}
+                      onSelect={(date) =>
+                        setFormData({ ...formData, dueDate: date || null })
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
-            <Input
-              id="notes"
-              value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
-              placeholder="Add any additional notes"
-            />
-          </div>
+              {/* Assignee */}
+              <div className="space-y-2">
+                <Label htmlFor="assignee">Assignee *</Label>
+                <Select
+                  value={formData.assignee}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, assignee: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an assignee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockAssignees.map((assignee) => (
+                      <SelectItem key={assignee} value={assignee}>
+                        {assignee}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={
-                !formData.client ||
-                !formData.template ||
-                !formData.dueDate ||
-                !formData.assignee ||
-                !formData.name
-              }
-            >
-              Create Workflow
-            </Button>
-          </DialogFooter>
-        </form>
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Input
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
+                  placeholder="Add any additional notes"
+                />
+              </div>
+            </form>
+          </CardContent>
+
+          <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+            <form onSubmit={handleSubmit}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  !formData.client ||
+                  !formData.template ||
+                  !formData.dueDate ||
+                  !formData.assignee ||
+                  !formData.name
+                }
+              >
+                Create Workflow
+              </Button>
+            </form>
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );

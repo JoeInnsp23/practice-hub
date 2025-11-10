@@ -13,13 +13,18 @@ import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 
@@ -146,298 +151,311 @@ export function ClientImportModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Import Clients from CSV</DialogTitle>
-          <DialogDescription>
-            Upload a CSV file to import multiple clients at once. Download the
-            template for the correct format.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-4xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Import Clients from CSV</DialogTitle>
+        <DialogDescription className="sr-only">
+          Upload a CSV file to import multiple clients at once. Download the
+          template for the correct format.
+        </DialogDescription>
 
-        <div className="space-y-4">
-          {/* Download Template */}
-          <Alert>
-            <FileText className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>Need help? Download our CSV template with examples.</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownloadTemplate}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Download Template
-              </Button>
-            </AlertDescription>
-          </Alert>
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>Import Clients from CSV</CardTitle>
+            <CardDescription>
+              Upload a CSV file to import multiple clients at once. Download the
+              template for the correct format.
+            </CardDescription>
+          </CardHeader>
 
-          {/* Upload Step */}
-          {step === "upload" && (
-            <div className="space-y-4">
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Upload CSV File</p>
-                  <p className="text-xs text-muted-foreground">
-                    Select a CSV file with client data
-                  </p>
+          <CardContent className="space-y-4 px-8 md:px-10">
+            {/* Download Template */}
+            <Alert>
+              <FileText className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>Need help? Download our CSV template with examples.</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadTemplate}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Download Template
+                </Button>
+              </AlertDescription>
+            </Alert>
+
+            {/* Upload Step */}
+            {step === "upload" && (
+              <div className="space-y-4">
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Upload CSV File</p>
+                    <p className="text-xs text-muted-foreground">
+                      Select a CSV file with client data
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileChange}
+                    className="mt-4"
+                  />
+                  {csvFile && (
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      Selected: {csvFile.name}
+                    </p>
+                  )}
                 </div>
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileChange}
-                  className="mt-4"
-                />
-                {csvFile && (
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    Selected: {csvFile.name}
-                  </p>
+              </div>
+            )}
+
+            {/* Preview Step */}
+            {step === "preview" && previewResult && (
+              <div className="space-y-4">
+                {/* Preview Summary */}
+                <div className="grid grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Total Rows</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold">
+                        {previewResult.totalRows}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        Valid
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-green-600">
+                        {previewResult.validRows}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        Errors
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-red-600">
+                        {previewResult.errorRows}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Validation Errors */}
+                {previewResult.errors.length > 0 && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <p className="font-medium mb-2">Validation Errors:</p>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        {previewResult.errors.slice(0, 10).map((error) => (
+                          <li key={`error-${error.row}`}>
+                            Row {error.row}: {error.errors.join(", ")}
+                          </li>
+                        ))}
+                        {previewResult.errors.length > 10 && (
+                          <li className="text-muted-foreground">
+                            ...and {previewResult.errors.length - 10} more
+                            errors
+                          </li>
+                        )}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Preview Rows */}
+                {previewResult.previewRows.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">
+                        Preview (First 5 Rows)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left p-2">Company Name</th>
+                              <th className="text-left p-2">Email</th>
+                              <th className="text-left p-2">Client Type</th>
+                              <th className="text-left p-2">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {previewResult.previewRows.map((row) => (
+                              <tr
+                                key={`${row.data.email}-${row.data.company_name}`}
+                                className="border-b"
+                              >
+                                <td className="p-2">
+                                  {row.data.company_name as string}
+                                </td>
+                                <td className="p-2">
+                                  {row.data.email as string}
+                                </td>
+                                <td className="p-2">
+                                  {row.data.client_type as string}
+                                </td>
+                                <td className="p-2">
+                                  <Badge variant="outline">
+                                    {row.data.status as string}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Preview Step */}
-          {step === "preview" && previewResult && (
-            <div className="space-y-4">
-              {/* Preview Summary */}
-              <div className="grid grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Total Rows</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      {previewResult.totalRows}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      Valid
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-green-600">
-                      {previewResult.validRows}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      Errors
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-red-600">
-                      {previewResult.errorRows}
-                    </p>
-                  </CardContent>
-                </Card>
+            {/* Importing Step */}
+            {step === "importing" && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  Processing import...
+                </p>
               </div>
+            )}
 
-              {/* Validation Errors */}
-              {previewResult.errors.length > 0 && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
+            {/* Summary Step */}
+            {step === "summary" && importSummary && (
+              <div className="space-y-4">
+                <Alert>
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
                   <AlertDescription>
-                    <p className="font-medium mb-2">Validation Errors:</p>
-                    <ul className="list-disc list-inside space-y-1 text-sm">
-                      {previewResult.errors.slice(0, 10).map((error) => (
-                        <li key={`error-${error.row}`}>
-                          Row {error.row}: {error.errors.join(", ")}
-                        </li>
-                      ))}
-                      {previewResult.errors.length > 10 && (
-                        <li className="text-muted-foreground">
-                          ...and {previewResult.errors.length - 10} more errors
-                        </li>
-                      )}
-                    </ul>
+                    <p className="font-medium">Import Complete!</p>
+                    <p className="text-sm mt-1">
+                      Successfully imported {importSummary.imported} clients
+                      {importSummary.skipped > 0 &&
+                        `, skipped ${importSummary.skipped} duplicates`}
+                    </p>
                   </AlertDescription>
                 </Alert>
-              )}
 
-              {/* Preview Rows */}
-              {previewResult.previewRows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">
-                      Preview (First 5 Rows)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b">
-                            <th className="text-left p-2">Company Name</th>
-                            <th className="text-left p-2">Email</th>
-                            <th className="text-left p-2">Client Type</th>
-                            <th className="text-left p-2">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {previewResult.previewRows.map((row) => (
-                            <tr
-                              key={`${row.data.email}-${row.data.company_name}`}
-                              className="border-b"
-                            >
-                              <td className="p-2">
-                                {row.data.company_name as string}
-                              </td>
-                              <td className="p-2">
-                                {row.data.email as string}
-                              </td>
-                              <td className="p-2">
-                                {row.data.client_type as string}
-                              </td>
-                              <td className="p-2">
-                                <Badge variant="outline">
-                                  {row.data.status as string}
-                                </Badge>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+                {/* Summary Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        Imported
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-green-600">
+                        {importSummary.imported}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Skipped</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-muted-foreground">
+                        {importSummary.skipped}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-red-600" />
+                        Errors
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-red-600">
+                        {importSummary.errors.length}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
 
-          {/* Importing Step */}
-          {step === "importing" && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">
-                Processing import...
-              </p>
-            </div>
-          )}
-
-          {/* Summary Step */}
-          {step === "summary" && importSummary && (
-            <div className="space-y-4">
-              <Alert>
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription>
-                  <p className="font-medium">Import Complete!</p>
-                  <p className="text-sm mt-1">
-                    Successfully imported {importSummary.imported} clients
-                    {importSummary.skipped > 0 &&
-                      `, skipped ${importSummary.skipped} duplicates`}
-                  </p>
-                </AlertDescription>
-              </Alert>
-
-              {/* Summary Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      Imported
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-green-600">
-                      {importSummary.imported}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Skipped</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-muted-foreground">
-                      {importSummary.skipped}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-red-600" />
-                      Errors
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold text-red-600">
-                      {importSummary.errors.length}
-                    </p>
-                  </CardContent>
-                </Card>
+                {/* Error Details */}
+                {importSummary.errors.length > 0 && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <p className="font-medium mb-2">Import Errors:</p>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        {importSummary.errors.map((error) => (
+                          <li key={`import-error-${error.row}`}>
+                            Row {error.row}: {error.errors.join(", ")}
+                          </li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
+            )}
+          </CardContent>
 
-              {/* Error Details */}
-              {importSummary.errors.length > 0 && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <p className="font-medium mb-2">Import Errors:</p>
-                    <ul className="list-disc list-inside space-y-1 text-sm">
-                      {importSummary.errors.map((error) => (
-                        <li key={`import-error-${error.row}`}>
-                          Row {error.row}: {error.errors.join(", ")}
-                        </li>
-                      ))}
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          )}
-        </div>
+          <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+            {step === "upload" && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handlePreview} disabled={!csvFile}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Preview Import
+                </Button>
+              </>
+            )}
 
-        <DialogFooter>
-          {step === "upload" && (
-            <>
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button onClick={handlePreview} disabled={!csvFile}>
-                <FileText className="h-4 w-4 mr-2" />
-                Preview Import
-              </Button>
-            </>
-          )}
+            {step === "preview" && (
+              <>
+                <Button variant="outline" onClick={handleReset}>
+                  Upload Different File
+                </Button>
+                <Button
+                  onClick={handleImport}
+                  disabled={!previewResult || previewResult.validRows === 0}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import {previewResult?.validRows || 0} Clients
+                </Button>
+              </>
+            )}
 
-          {step === "preview" && (
-            <>
-              <Button variant="outline" onClick={handleReset}>
-                Upload Different File
-              </Button>
-              <Button
-                onClick={handleImport}
-                disabled={!previewResult || previewResult.validRows === 0}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Import {previewResult?.validRows || 0} Clients
-              </Button>
-            </>
-          )}
-
-          {step === "summary" && (
-            <>
-              <Button variant="outline" onClick={handleReset}>
-                Import More Clients
-              </Button>
-              <Button onClick={handleClose}>
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Done
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+            {step === "summary" && (
+              <>
+                <Button variant="outline" onClick={handleReset}>
+                  Import More Clients
+                </Button>
+                <Button onClick={handleClose}>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Done
+                </Button>
+              </>
+            )}
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );

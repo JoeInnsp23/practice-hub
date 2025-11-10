@@ -18,6 +18,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -25,8 +26,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -434,96 +433,118 @@ export default function IntegrationsPage() {
 
       {/* Configuration Modal */}
       <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Configure {selectedIntegration?.name}</DialogTitle>
-            <DialogDescription>
-              Manage sync settings and data mapping preferences
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="syncFrequency">Sync Frequency</Label>
-              <select
-                id="syncFrequency"
-                className="w-full rounded-md border border-input bg-background px-3 py-2"
-              >
-                <option value="realtime">Real-time (recommended)</option>
-                <option value="hourly">Every hour</option>
-                <option value="daily">Daily</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label>Auto-sync Options</Label>
+        <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">
+            Configure {selectedIntegration?.name}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Manage sync settings and data mapping preferences
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Configure {selectedIntegration?.name}</CardTitle>
+              <CardDescription>
+                Manage sync settings and data mapping preferences
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-8 md:px-10">
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Sync new clients</span>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Sync new invoices</span>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Sync payments</span>
-                  <Switch />
+                <Label htmlFor="syncFrequency">Sync Frequency</Label>
+                <select
+                  id="syncFrequency"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2"
+                >
+                  <option value="realtime">Real-time (recommended)</option>
+                  <option value="hourly">Every hour</option>
+                  <option value="daily">Daily</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Auto-sync Options</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Sync new clients</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Sync new invoices</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Sync payments</span>
+                    <Switch />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setConfigModalOpen(false)}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                toast.success("Configuration saved");
-                setConfigModalOpen(false);
-              }}
-            >
-              Save Configuration
-            </Button>
-          </DialogFooter>
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setConfigModalOpen(false)}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  toast.success("Configuration saved");
+                  setConfigModalOpen(false);
+                }}
+              >
+                Save Configuration
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
 
       {/* Disconnect Confirmation Modal */}
       <Dialog open={disconnectModalOpen} onOpenChange={setDisconnectModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Disconnect {selectedIntegration?.name}?</DialogTitle>
-            <DialogDescription>
-              This will stop syncing data with {selectedIntegration?.name}. You
-              can reconnect at any time.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDisconnectModalOpen(false)}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDisconnect}
-              disabled={disconnectMutation.isPending}
-            >
-              {disconnectMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Disconnecting...
-                </>
-              ) : (
-                "Disconnect"
-              )}
-            </Button>
-          </DialogFooter>
+        <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">
+            Disconnect {selectedIntegration?.name}?
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            This will stop syncing data with {selectedIntegration?.name}. You
+            can reconnect at any time.
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Disconnect {selectedIntegration?.name}?</CardTitle>
+              <CardDescription>
+                This will stop syncing data with {selectedIntegration?.name}.
+                You can reconnect at any time.
+              </CardDescription>
+            </CardHeader>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setDisconnectModalOpen(false)}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDisconnect}
+                disabled={disconnectMutation.isPending}
+              >
+                {disconnectMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Disconnecting...
+                  </>
+                ) : (
+                  "Disconnect"
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
     </div>

@@ -9,13 +9,19 @@ import { z } from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -154,335 +160,362 @@ export function TaskTemplateFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Edit Template" : "Create Template"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing
-              ? "Update the task template settings below"
-              : "Create a new task template with placeholder support"}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {isEditing ? "Edit Template" : "Create Template"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isEditing
+            ? "Update the task template settings below"
+            : "Create a new task template with placeholder support"}
+        </DialogDescription>
 
-        {isLoadingTemplate ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Service Selection */}
-              <FormField
-                control={form.control}
-                name="serviceId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Service *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a service" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {services.map((service) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name} ({service.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      The service this template is associated with
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>
+              {isEditing ? "Edit Template" : "Create Template"}
+            </CardTitle>
+            <CardDescription>
+              {isEditing
+                ? "Update the task template settings below"
+                : "Create a new task template with placeholder support"}
+            </CardDescription>
+          </CardHeader>
 
-              {/* Name Pattern */}
-              <FormField
-                control={form.control}
-                name="namePattern"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name Pattern *</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g., Prepare {service_name} for {client_name}"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Task name template with placeholder support.{" "}
-                      <button
-                        type="button"
-                        onClick={() => setShowPlaceholders(!showPlaceholders)}
-                        className="text-primary hover:underline"
-                      >
-                        {showPlaceholders ? "Hide" : "Show"} available
-                        placeholders
-                      </button>
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {isLoadingTemplate ? (
+            <CardContent className="px-8 md:px-10 pb-8 md:pb-10">
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            </CardContent>
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <CardContent className="space-y-6 px-8 md:px-10">
+                  {/* Service Selection */}
+                  <FormField
+                    control={form.control}
+                    name="serviceId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Service *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a service" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {services.map((service) => (
+                              <SelectItem key={service.id} value={service.id}>
+                                {service.name} ({service.code})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          The service this template is associated with
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Placeholder Help */}
-              {showPlaceholders && (
-                <div className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950 p-4">
-                  <div className="flex items-start space-x-2">
-                    <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                        Available Placeholders:
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(SUPPORTED_PLACEHOLDERS).map(
-                          ([key, _description]) => (
-                            <Badge
-                              key={key}
-                              variant="outline"
-                              className="text-xs cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900"
-                              onClick={() => {
-                                const currentValue =
-                                  form.getValues("namePattern");
-                                form.setValue(
-                                  "namePattern",
-                                  `${currentValue}{${key}}`,
-                                );
-                              }}
-                            >
-                              {`{${key}}`}
-                            </Badge>
-                          ),
-                        )}
+                  {/* Name Pattern */}
+                  <FormField
+                    control={form.control}
+                    name="namePattern"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name Pattern *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Prepare {service_name} for {client_name}"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Task name template with placeholder support.{" "}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowPlaceholders(!showPlaceholders)
+                            }
+                            className="text-primary hover:underline"
+                          >
+                            {showPlaceholders ? "Hide" : "Show"} available
+                            placeholders
+                          </button>
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Placeholder Help */}
+                  {showPlaceholders && (
+                    <div className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950 p-4">
+                      <div className="flex items-start space-x-2">
+                        <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                            Available Placeholders:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(SUPPORTED_PLACEHOLDERS).map(
+                              ([key, _description]) => (
+                                <Badge
+                                  key={key}
+                                  variant="outline"
+                                  className="text-xs cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900"
+                                  onClick={() => {
+                                    const currentValue =
+                                      form.getValues("namePattern");
+                                    form.setValue(
+                                      "namePattern",
+                                      `${currentValue}{${key}}`,
+                                    );
+                                  }}
+                                >
+                                  {`{${key}}`}
+                                </Badge>
+                              ),
+                            )}
+                          </div>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                            Click a placeholder to insert it into the name
+                            pattern
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                        Click a placeholder to insert it into the name pattern
-                      </p>
                     </div>
+                  )}
+
+                  {/* Description Pattern */}
+                  <FormField
+                    control={form.control}
+                    name="descriptionPattern"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description Pattern</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="e.g., Complete {service_name} for {client_name} - Tax Year {tax_year}"
+                            rows={3}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Task description template (optional, supports
+                          placeholders)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Task Type and Priority Row */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="taskType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Task Type *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select task type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="compliance">
+                                Compliance
+                              </SelectItem>
+                              <SelectItem value="bookkeeping">
+                                Bookkeeping
+                              </SelectItem>
+                              <SelectItem value="advisory">Advisory</SelectItem>
+                              <SelectItem value="review">Review</SelectItem>
+                              <SelectItem value="client_communication">
+                                Client Communication
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Priority *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select priority" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="urgent">Urgent</SelectItem>
+                              <SelectItem value="critical">Critical</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                </div>
-              )}
 
-              {/* Description Pattern */}
-              <FormField
-                control={form.control}
-                name="descriptionPattern"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description Pattern</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., Complete {service_name} for {client_name} - Tax Year {tax_year}"
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Task description template (optional, supports
-                      placeholders)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Task Type and Priority Row */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="taskType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Task Type *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
+                  {/* Estimated Hours */}
+                  <FormField
+                    control={form.control}
+                    name="estimatedHours"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estimated Hours</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select task type" />
-                          </SelectTrigger>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            placeholder="e.g., 8"
+                            {...field}
+                            value={field.value || ""}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                              )
+                            }
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="compliance">Compliance</SelectItem>
-                          <SelectItem value="bookkeeping">
-                            Bookkeeping
-                          </SelectItem>
-                          <SelectItem value="advisory">Advisory</SelectItem>
-                          <SelectItem value="review">Review</SelectItem>
-                          <SelectItem value="client_communication">
-                            Client Communication
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormDescription>
+                          Expected time to complete this task (optional)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
+                  {/* Due Date Offset Row */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="dueDateOffsetMonths"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Due Date Offset (Months)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="e.g., 3"
+                              {...field}
+                              value={field.value}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Months after service activation
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="dueDateOffsetDays"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Due Date Offset (Days)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="e.g., 30"
+                              {...field}
+                              value={field.value}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Days after service activation
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Recurring Checkbox */}
+                  <FormField
+                    control={form.control}
+                    name="isRecurring"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="urgent">Urgent</SelectItem>
-                          <SelectItem value="critical">Critical</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Recurring Task</FormLabel>
+                          <FormDescription>
+                            Mark this template for recurring task generation
+                            (e.g., quarterly VAT returns)
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
 
-              {/* Estimated Hours */}
-              <FormField
-                control={form.control}
-                name="estimatedHours"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estimated Hours</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        placeholder="e.g., 8"
-                        {...field}
-                        value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value),
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Expected time to complete this task (optional)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Due Date Offset Row */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="dueDateOffsetMonths"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date Offset (Months)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="0"
-                          placeholder="e.g., 3"
-                          {...field}
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Months after service activation
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="dueDateOffsetDays"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date Offset (Days)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="0"
-                          placeholder="e.g., 30"
-                          {...field}
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Days after service activation
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Recurring Checkbox */}
-              <FormField
-                control={form.control}
-                name="isRecurring"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Recurring Task</FormLabel>
-                      <FormDescription>
-                        Mark this template for recurring task generation (e.g.,
-                        quarterly VAT returns)
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {isEditing ? "Update Template" : "Create Template"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        )}
+                <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onOpenChange(false)}
+                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    {isEditing ? "Update Template" : "Create Template"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          )}
+        </Card>
       </DialogContent>
     </Dialog>
   );

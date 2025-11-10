@@ -10,6 +10,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -17,8 +18,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -376,106 +375,118 @@ export default function EmailTemplatesPage() {
 
       {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Create Email Template</DialogTitle>
-            <DialogDescription>
-              Create a new automated email template with variable placeholders
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="templateName">Template Name</Label>
-              <Input
-                id="templateName"
-                placeholder="Task Assignment Notification"
-                value={formData.templateName}
-                onChange={(e) =>
-                  setFormData({ ...formData, templateName: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="templateType">Template Type</Label>
-              <Select
-                value={formData.templateType}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, templateType: value })
-                }
+        <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Create Email Template</DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new automated email template with variable placeholders
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Create Email Template</CardTitle>
+              <CardDescription>
+                Create a new automated email template with variable placeholders
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-8 md:px-10">
+              <div className="space-y-2">
+                <Label htmlFor="templateName">Template Name</Label>
+                <Input
+                  id="templateName"
+                  placeholder="Task Assignment Notification"
+                  value={formData.templateName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, templateName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="templateType">Template Type</Label>
+                <Select
+                  value={formData.templateType}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, templateType: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select template type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templateTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  {
+                    templateTypes.find((t) => t.value === formData.templateType)
+                      ?.description
+                  }
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="subject">Email Subject</Label>
+                <Input
+                  id="subject"
+                  placeholder="New task assigned: {task_name}"
+                  value={formData.subject}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subject: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bodyHtml">HTML Body</Label>
+                <Textarea
+                  id="bodyHtml"
+                  placeholder="<p>Hi {staff_name},</p><p>You have been assigned a new task: {task_name}</p>"
+                  value={formData.bodyHtml}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bodyHtml: e.target.value })
+                  }
+                  rows={10}
+                  className="font-mono text-sm"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Use variables like {"{client_name}"}, {"{task_name}"}, etc.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bodyText">Plain Text Body (Optional)</Label>
+                <Textarea
+                  id="bodyText"
+                  placeholder="Hi {staff_name}, You have been assigned a new task: {task_name}"
+                  value={formData.bodyText}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bodyText: e.target.value })
+                  }
+                  rows={5}
+                />
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsCreateOpen(false);
+                  resetForm();
+                }}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select template type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {templateTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground">
-                {
-                  templateTypes.find((t) => t.value === formData.templateType)
-                    ?.description
-                }
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subject">Email Subject</Label>
-              <Input
-                id="subject"
-                placeholder="New task assigned: {task_name}"
-                value={formData.subject}
-                onChange={(e) =>
-                  setFormData({ ...formData, subject: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="bodyHtml">HTML Body</Label>
-              <Textarea
-                id="bodyHtml"
-                placeholder="<p>Hi {staff_name},</p><p>You have been assigned a new task: {task_name}</p>"
-                value={formData.bodyHtml}
-                onChange={(e) =>
-                  setFormData({ ...formData, bodyHtml: e.target.value })
-                }
-                rows={10}
-                className="font-mono text-sm"
-              />
-              <p className="text-sm text-muted-foreground">
-                Use variables like {"{client_name}"}, {"{task_name}"}, etc.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="bodyText">Plain Text Body (Optional)</Label>
-              <Textarea
-                id="bodyText"
-                placeholder="Hi {staff_name}, You have been assigned a new task: {task_name}"
-                value={formData.bodyText}
-                onChange={(e) =>
-                  setFormData({ ...formData, bodyText: e.target.value })
-                }
-                rows={5}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsCreateOpen(false);
-                resetForm();
-              }}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create Template"}
-            </Button>
-          </DialogFooter>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreate}
+                disabled={createMutation.isPending}
+              >
+                {createMutation.isPending ? "Creating..." : "Create Template"}
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
 
@@ -489,139 +500,162 @@ export default function EmailTemplatesPage() {
           }
         }}
       >
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Email Template</DialogTitle>
-            <DialogDescription>
-              Update email template configuration
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-templateName">Template Name</Label>
-              <Input
-                id="edit-templateName"
-                value={formData.templateName}
-                onChange={(e) =>
-                  setFormData({ ...formData, templateName: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-templateType">Template Type</Label>
-              <Select
-                value={formData.templateType}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, templateType: value })
-                }
+        <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Edit Email Template</DialogTitle>
+          <DialogDescription className="sr-only">
+            Update email template configuration
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Edit Email Template</CardTitle>
+              <CardDescription>
+                Update email template configuration
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-8 md:px-10">
+              <div className="space-y-2">
+                <Label htmlFor="edit-templateName">Template Name</Label>
+                <Input
+                  id="edit-templateName"
+                  value={formData.templateName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, templateName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-templateType">Template Type</Label>
+                <Select
+                  value={formData.templateType}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, templateType: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templateTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-subject">Email Subject</Label>
+                <Input
+                  id="edit-subject"
+                  value={formData.subject}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subject: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-bodyHtml">HTML Body</Label>
+                <Textarea
+                  id="edit-bodyHtml"
+                  value={formData.bodyHtml}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bodyHtml: e.target.value })
+                  }
+                  rows={10}
+                  className="font-mono text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-bodyText">
+                  Plain Text Body (Optional)
+                </Label>
+                <Textarea
+                  id="edit-bodyText"
+                  value={formData.bodyText}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bodyText: e.target.value })
+                  }
+                  rows={5}
+                />
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditingTemplate(null);
+                  resetForm();
+                }}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {templateTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-subject">Email Subject</Label>
-              <Input
-                id="edit-subject"
-                value={formData.subject}
-                onChange={(e) =>
-                  setFormData({ ...formData, subject: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-bodyHtml">HTML Body</Label>
-              <Textarea
-                id="edit-bodyHtml"
-                value={formData.bodyHtml}
-                onChange={(e) =>
-                  setFormData({ ...formData, bodyHtml: e.target.value })
-                }
-                rows={10}
-                className="font-mono text-sm"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-bodyText">Plain Text Body (Optional)</Label>
-              <Textarea
-                id="edit-bodyText"
-                value={formData.bodyText}
-                onChange={(e) =>
-                  setFormData({ ...formData, bodyText: e.target.value })
-                }
-                rows={5}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditingTemplate(null);
-                resetForm();
-              }}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Updating..." : "Update Template"}
-            </Button>
-          </DialogFooter>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUpdate}
+                disabled={updateMutation.isPending}
+              >
+                {updateMutation.isPending ? "Updating..." : "Update Template"}
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
 
       {/* Test Email Dialog */}
       <Dialog open={testEmailDialogOpen} onOpenChange={setTestEmailDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Send Test Email</DialogTitle>
-            <DialogDescription>
-              Send a test email to verify the template rendering
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="testRecipient">Recipient Email</Label>
-              <Input
-                id="testRecipient"
-                type="email"
-                placeholder="you@example.com"
-                value={testRecipient}
-                onChange={(e) => setTestRecipient(e.target.value)}
-              />
-              <p className="text-sm text-muted-foreground">
-                Test email will use sample data for template variables
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setTestEmailDialogOpen(false);
-                setTestRecipient("");
-                setSelectedTemplateForTest(null);
-              }}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={confirmSendTest}
-              disabled={sendTestMutation.isPending || !testRecipient}
-            >
-              {sendTestMutation.isPending ? "Sending..." : "Send Test Email"}
-            </Button>
-          </DialogFooter>
+        <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Send Test Email</DialogTitle>
+          <DialogDescription className="sr-only">
+            Send a test email to verify the template rendering
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Send Test Email</CardTitle>
+              <CardDescription>
+                Send a test email to verify the template rendering
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-8 md:px-10">
+              <div className="space-y-2">
+                <Label htmlFor="testRecipient">Recipient Email</Label>
+                <Input
+                  id="testRecipient"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={testRecipient}
+                  onChange={(e) => setTestRecipient(e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Test email will use sample data for template variables
+                </p>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setTestEmailDialogOpen(false);
+                  setTestRecipient("");
+                  setSelectedTemplateForTest(null);
+                }}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmSendTest}
+                disabled={sendTestMutation.isPending || !testRecipient}
+              >
+                {sendTestMutation.isPending ? "Sending..." : "Send Test Email"}
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
 
@@ -630,38 +664,47 @@ export default function EmailTemplatesPage() {
         open={!!previewTemplate}
         onOpenChange={(open) => !open && setPreviewTemplate(null)}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Email Preview</DialogTitle>
-            <DialogDescription>
-              Preview of {previewTemplate?.templateName} with sample data
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {previewMutation.data && (
-              <>
-                <div className="space-y-2">
-                  <Label>Subject</Label>
-                  <div className="p-3 bg-muted rounded-lg">
-                    {previewMutation.data.subject}
+        <DialogContent className="max-w-4xl p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Email Preview</DialogTitle>
+          <DialogDescription className="sr-only">
+            Preview of {previewTemplate?.templateName} with sample data
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Email Preview</CardTitle>
+              <CardDescription>
+                Preview of {previewTemplate?.templateName} with sample data
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6 px-8 md:px-10">
+              {previewMutation.data && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Subject</Label>
+                    <div className="p-3 bg-muted rounded-lg">
+                      {previewMutation.data.subject}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Email Body</Label>
-                  <div
-                    className="p-4 bg-white dark:bg-slate-800 border rounded-lg"
-                    // biome-ignore lint/security/noDangerouslySetInnerHtml: Preview needs to render HTML
-                    dangerouslySetInnerHTML={{
-                      __html: previewMutation.data.bodyHtml,
-                    }}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setPreviewTemplate(null)}>Close</Button>
-          </DialogFooter>
+                  <div className="space-y-2">
+                    <Label>Email Body</Label>
+                    <div
+                      className="p-4 bg-white dark:bg-slate-800 border rounded-lg"
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: Preview needs to render HTML
+                      dangerouslySetInnerHTML={{
+                        __html: previewMutation.data.bodyHtml,
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button onClick={() => setPreviewTemplate(null)}>Close</Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
     </>

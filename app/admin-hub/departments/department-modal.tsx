@@ -5,11 +5,17 @@ import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -133,106 +139,117 @@ export default function DepartmentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>
-              {isEditing ? "Edit Department" : "Create Department"}
-            </DialogTitle>
-            <DialogDescription>
-              {isEditing
-                ? "Update the department details below."
-                : "Create a new department to organize your staff."}
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {isEditing ? "Edit Department" : "Create Department"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isEditing
+            ? "Update the department details below."
+            : "Create a new department to organize your staff."}
+        </DialogDescription>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">
-                Department Name <span className="text-red-600">*</span>
-              </Label>
-              <Input
-                id="name"
-                placeholder="e.g., Tax, Audit, Advisory"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={isPending}
-              />
-            </div>
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>
+                {isEditing ? "Edit Department" : "Create Department"}
+              </CardTitle>
+              <CardDescription>
+                {isEditing
+                  ? "Update the department details below."
+                  : "Create a new department to organize your staff."}
+              </CardDescription>
+            </CardHeader>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Brief description of the department's responsibilities..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={isPending}
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="manager">Department Manager</Label>
-              <Select
-                value={managerId}
-                onValueChange={setManagerId}
-                disabled={isPending}
-              >
-                <SelectTrigger id="manager">
-                  <SelectValue placeholder="Select a manager (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">No Manager</SelectItem>
-                  {eligibleManagers.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.firstName} {user.lastName} ({user.role})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Only admin and accountant roles can be department managers
-              </p>
-            </div>
-
-            {isEditing && (
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="isActive"
-                  checked={isActive}
-                  onCheckedChange={setIsActive}
+            <CardContent className="space-y-6 px-8 md:px-10">
+              <div className="space-y-2">
+                <Label htmlFor="name">
+                  Department Name <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="e.g., Tax, Audit, Advisory"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
                   disabled={isPending}
                 />
-                <Label htmlFor="isActive" className="cursor-pointer">
-                  Active Department
-                </Label>
               </div>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isPending}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending
-                ? isEditing
-                  ? "Updating..."
-                  : "Creating..."
-                : isEditing
-                  ? "Update Department"
-                  : "Create Department"}
-            </Button>
-          </DialogFooter>
-        </form>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Brief description of the department's responsibilities..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  disabled={isPending}
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="manager">Department Manager</Label>
+                <Select
+                  value={managerId}
+                  onValueChange={setManagerId}
+                  disabled={isPending}
+                >
+                  <SelectTrigger id="manager">
+                    <SelectValue placeholder="Select a manager (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No Manager</SelectItem>
+                    {eligibleManagers.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.firstName} {user.lastName} ({user.role})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Only admin and accountant roles can be department managers
+                </p>
+              </div>
+
+              {isEditing && (
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={setIsActive}
+                    disabled={isPending}
+                  />
+                  <Label htmlFor="isActive" className="cursor-pointer">
+                    Active Department
+                  </Label>
+                </div>
+              )}
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isPending}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending
+                  ? isEditing
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEditing
+                    ? "Update Department"
+                    : "Create Department"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
       </DialogContent>
     </Dialog>
   );

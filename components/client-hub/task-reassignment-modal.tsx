@@ -7,11 +7,17 @@ import * as z from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -106,133 +112,149 @@ export function TaskReassignmentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
-            Reassign Task{isBulk && taskCount > 1 ? "s" : ""}
-          </DialogTitle>
-          <DialogDescription>
-            {isBulk && taskCount > 1
-              ? `Reassign ${taskCount} selected tasks to a different user.`
-              : `Reassign "${taskTitle}" to a different user.`}
-            {currentAssignee && (
-              <span className="block mt-2 text-sm">
-                Current assignee: <strong>{currentAssignee.name}</strong>
-              </span>
-            )}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          Reassign Task{isBulk && taskCount > 1 ? "s" : ""}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isBulk && taskCount > 1
+            ? `Reassign ${taskCount} selected tasks to a different user.`
+            : `Reassign "${taskTitle}" to a different user.`}
+        </DialogDescription>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="assignmentType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assignment Type *</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select assignment type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="assigned_to">Assigned To</SelectItem>
-                      <SelectItem value="preparer">Preparer</SelectItem>
-                      <SelectItem value="reviewer">Reviewer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Choose which assignment field to update
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>
+              Reassign Task{isBulk && taskCount > 1 ? "s" : ""}
+            </CardTitle>
+            <CardDescription>
+              {isBulk && taskCount > 1
+                ? `Reassign ${taskCount} selected tasks to a different user.`
+                : `Reassign "${taskTitle}" to a different user.`}
+              {currentAssignee && (
+                <span className="block mt-2 text-sm">
+                  Current assignee: <strong>{currentAssignee.name}</strong>
+                </span>
               )}
-            />
+            </CardDescription>
+          </CardHeader>
 
-            <FormField
-              control={form.control}
-              name="toUserId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assign To *</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select user" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {users.map((user) => (
-                        <SelectItem
-                          key={user.id}
-                          value={user.id}
-                          disabled={user.id === currentAssignee?.id}
-                        >
-                          {user.firstName} {user.lastName}
-                          {user.id === currentAssignee?.id && " (Current)"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Select the user to assign this task to
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <CardContent className="space-y-6 px-8 md:px-10">
+                <FormField
+                  control={form.control}
+                  name="assignmentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assignment Type *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isSubmitting}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select assignment type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="assigned_to">
+                            Assigned To
+                          </SelectItem>
+                          <SelectItem value="preparer">Preparer</SelectItem>
+                          <SelectItem value="reviewer">Reviewer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Choose which assignment field to update
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="changeReason"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reason (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter reason for reassignment..."
-                      className="resize-none"
-                      rows={4}
-                      maxLength={500}
-                      disabled={isSubmitting}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {field.value?.length || 0}/500 characters
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="toUserId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assign To *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isSubmitting}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select user" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {users.map((user) => (
+                            <SelectItem
+                              key={user.id}
+                              value={user.id}
+                              disabled={user.id === currentAssignee?.id}
+                            >
+                              {user.firstName} {user.lastName}
+                              {user.id === currentAssignee?.id && " (Current)"}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select the user to assign this task to
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Reassigning..."
-                  : `Reassign Task${isBulk && taskCount > 1 ? "s" : ""}`}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                <FormField
+                  control={form.control}
+                  name="changeReason"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Reason (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter reason for reassignment..."
+                          className="resize-none"
+                          rows={4}
+                          maxLength={500}
+                          disabled={isSubmitting}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value?.length || 0}/500 characters
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+
+              <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isSubmitting}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting
+                    ? "Reassigning..."
+                    : `Reassign Task${isBulk && taskCount > 1 ? "s" : ""}`}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
       </DialogContent>
     </Dialog>
   );

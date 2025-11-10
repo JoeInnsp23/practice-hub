@@ -12,13 +12,19 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -160,185 +166,199 @@ export function DataImportModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Import {entityName}</DialogTitle>
-          <DialogDescription>
-            Upload a CSV file to import multiple {entityName.toLowerCase()} at
-            once
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Import {entityName}</DialogTitle>
+        <DialogDescription className="sr-only">
+          Upload a CSV file to import multiple {entityName.toLowerCase()} at
+          once
+        </DialogDescription>
 
-        <div className="space-y-4 py-4">
-          {/* Template Download */}
-          {templateEndpoint && (
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <FileSpreadsheet className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Download Template</p>
-                  <p className="text-xs text-muted-foreground">
-                    Use our template for proper formatting
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownloadTemplate}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
-          )}
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>Import {entityName}</CardTitle>
+            <CardDescription>
+              Upload a CSV file to import multiple {entityName.toLowerCase()} at
+              once
+            </CardDescription>
+          </CardHeader>
 
-          {/* File Upload */}
-          <div className="space-y-2">
-            <Label htmlFor="file">Select CSV File</Label>
-            <Input
-              id="file"
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              disabled={isImporting}
-            />
-            {file && (
-              <p className="text-sm text-muted-foreground">
-                Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
-              </p>
-            )}
-          </div>
-
-          {/* Dry Run Option */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="dryRun"
-              checked={isDryRun}
-              onCheckedChange={(checked) => setIsDryRun(checked as boolean)}
-              disabled={isImporting}
-            />
-            <Label
-              htmlFor="dryRun"
-              className="text-sm font-normal cursor-pointer"
-            >
-              Dry run (validate without importing)
-            </Label>
-          </div>
-
-          {/* Progress */}
-          {isImporting && (
-            <div className="space-y-2">
-              <Progress value={progress} />
-              <p className="text-sm text-muted-foreground text-center">
-                {isDryRun ? "Validating..." : "Importing..."}
-              </p>
-            </div>
-          )}
-
-          {/* Results */}
-          {result && (
-            <div className="space-y-3">
-              {/* Summary */}
-              <Alert
-                className={
-                  result.success
-                    ? "border-green-200 bg-green-50 dark:bg-green-900/20"
-                    : "border-destructive"
-                }
-              >
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="space-y-1">
-                    <p className="font-medium">
-                      {result.dryRun ? "Validation" : "Import"} Complete
+          <CardContent className="space-y-4 px-8 md:px-10">
+            {/* Template Download */}
+            {templateEndpoint && (
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <FileSpreadsheet className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Download Template</p>
+                    <p className="text-xs text-muted-foreground">
+                      Use our template for proper formatting
                     </p>
-                    <div className="text-sm space-y-0.5">
-                      <p>Total rows: {result.summary.totalRows}</p>
-                      {result.summary.validRows !== undefined && (
-                        <p className="text-green-600 dark:text-green-400">
-                          ✓ Valid: {result.summary.validRows}
-                        </p>
-                      )}
-                      {result.summary.processedRows !== undefined && (
-                        <p className="text-green-600 dark:text-green-400">
-                          ✓ Processed: {result.summary.processedRows}
-                        </p>
-                      )}
-                      {result.summary.failedRows !== undefined &&
-                        result.summary.failedRows > 0 && (
-                          <p className="text-destructive">
-                            ✗ Failed: {result.summary.failedRows}
-                          </p>
-                        )}
-                      {result.summary.invalidRows !== undefined &&
-                        result.summary.invalidRows > 0 && (
-                          <p className="text-destructive">
-                            ✗ Invalid: {result.summary.invalidRows}
-                          </p>
-                        )}
-                      {result.summary.skippedRows > 0 && (
-                        <p className="text-orange-600 dark:text-orange-400">
-                          ⚠ Skipped: {result.summary.skippedRows}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </AlertDescription>
-              </Alert>
-
-              {/* Errors */}
-              {result.errors && result.errors.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">
-                    Errors ({result.errors.length}):
-                  </p>
-                  <div className="max-h-40 overflow-y-auto space-y-1">
-                    {result.errors.map((error, index) => (
-                      <div
-                        key={`error-${error.row}-${error.field}-${index}`}
-                        className="text-xs p-2 bg-destructive/10 rounded flex items-start gap-2"
-                      >
-                        <XCircle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <span className="font-medium">Row {error.row}:</span>{" "}
-                          {error.message} ({error.field})
-                          {error.value && (
-                            <span className="text-muted-foreground">
-                              {" "}
-                              - Value: {error.value}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
-              )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadTemplate}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            )}
 
-              {/* Success message for dry run */}
-              {result.success && result.dryRun && (
-                <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+            {/* File Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="file">Select CSV File</Label>
+              <Input
+                id="file"
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                disabled={isImporting}
+              />
+              {file && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                </p>
+              )}
+            </div>
+
+            {/* Dry Run Option */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="dryRun"
+                checked={isDryRun}
+                onCheckedChange={(checked) => setIsDryRun(checked as boolean)}
+                disabled={isImporting}
+              />
+              <Label
+                htmlFor="dryRun"
+                className="text-sm font-normal cursor-pointer"
+              >
+                Dry run (validate without importing)
+              </Label>
+            </div>
+
+            {/* Progress */}
+            {isImporting && (
+              <div className="space-y-2">
+                <Progress value={progress} />
+                <p className="text-sm text-muted-foreground text-center">
+                  {isDryRun ? "Validating..." : "Importing..."}
+                </p>
+              </div>
+            )}
+
+            {/* Results */}
+            {result && (
+              <div className="space-y-3">
+                {/* Summary */}
+                <Alert
+                  className={
+                    result.success
+                      ? "border-green-200 bg-green-50 dark:bg-green-900/20"
+                      : "border-destructive"
+                  }
+                >
+                  <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Validation successful! Uncheck "Dry run" and click Import to
-                    proceed with actual import.
+                    <div className="space-y-1">
+                      <p className="font-medium">
+                        {result.dryRun ? "Validation" : "Import"} Complete
+                      </p>
+                      <div className="text-sm space-y-0.5">
+                        <p>Total rows: {result.summary.totalRows}</p>
+                        {result.summary.validRows !== undefined && (
+                          <p className="text-green-600 dark:text-green-400">
+                            ✓ Valid: {result.summary.validRows}
+                          </p>
+                        )}
+                        {result.summary.processedRows !== undefined && (
+                          <p className="text-green-600 dark:text-green-400">
+                            ✓ Processed: {result.summary.processedRows}
+                          </p>
+                        )}
+                        {result.summary.failedRows !== undefined &&
+                          result.summary.failedRows > 0 && (
+                            <p className="text-destructive">
+                              ✗ Failed: {result.summary.failedRows}
+                            </p>
+                          )}
+                        {result.summary.invalidRows !== undefined &&
+                          result.summary.invalidRows > 0 && (
+                            <p className="text-destructive">
+                              ✗ Invalid: {result.summary.invalidRows}
+                            </p>
+                          )}
+                        {result.summary.skippedRows > 0 && (
+                          <p className="text-orange-600 dark:text-orange-400">
+                            ⚠ Skipped: {result.summary.skippedRows}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </AlertDescription>
                 </Alert>
-              )}
-            </div>
-          )}
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleImport} disabled={!file || isImporting}>
-            <Upload className="h-4 w-4 mr-2" />
-            {isDryRun ? "Validate" : "Import"}
-          </Button>
-        </DialogFooter>
+                {/* Errors */}
+                {result.errors && result.errors.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">
+                      Errors ({result.errors.length}):
+                    </p>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {result.errors.map((error, index) => (
+                        <div
+                          key={`error-${error.row}-${error.field}-${index}`}
+                          className="text-xs p-2 bg-destructive/10 rounded flex items-start gap-2"
+                        >
+                          <XCircle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <span className="font-medium">
+                              Row {error.row}:
+                            </span>{" "}
+                            {error.message} ({error.field})
+                            {error.value && (
+                              <span className="text-muted-foreground">
+                                {" "}
+                                - Value: {error.value}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Success message for dry run */}
+                {result.success && result.dryRun && (
+                  <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription>
+                      Validation successful! Uncheck "Dry run" and click Import
+                      to proceed with actual import.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
+          </CardContent>
+
+          <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleImport} disabled={!file || isImporting}>
+              <Upload className="h-4 w-4 mr-2" />
+              {isDryRun ? "Validate" : "Import"}
+            </Button>
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-09T22:48:12.919Z
+# Generated: 2025-11-10T21:29:56.112Z
 
 functions:
   landingRouter:
@@ -1210,7 +1210,7 @@ components:
   GenerationPreviewModal:
     description: "Modal to preview and confirm task generation from templates"
     file: "components/client-hub/services/generation-preview-modal.tsx"
-    line: 33
+    line: 39
     type: "component"
     signature: "function GenerationPreviewModal"
   DatePickerButton:
@@ -1380,7 +1380,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-09T22:48:12.921Z"
+  generated: "2025-11-10T21:29:56.113Z"
   total_entries: 228
   functions: 136
   types: 59

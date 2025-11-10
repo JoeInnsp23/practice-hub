@@ -14,11 +14,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -120,161 +126,171 @@ export function GenerationPreviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Generate Tasks Preview
-          </DialogTitle>
-          <DialogDescription>
-            Review the tasks that will be automatically created from templates
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">Generate Tasks Preview</DialogTitle>
+        <DialogDescription className="sr-only">
+          Review the tasks that will be automatically created from templates
+        </DialogDescription>
 
-        <div className="flex-1 overflow-y-auto space-y-4 py-4">
-          {/* Loading State */}
-          {isLoading && (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="border rounded-lg p-4 space-y-2">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-hidden flex flex-col">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Generate Tasks Preview
+            </CardTitle>
+            <CardDescription>
+              Review the tasks that will be automatically created from templates
+            </CardDescription>
+          </CardHeader>
 
-          {/* Error State */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Failed to load preview: {error.message}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Empty State */}
-          {!isLoading && !error && preview && preview.length === 0 && (
-            <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                No Task Templates Found
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                There are no task templates configured for this service. Create
-                templates in the Task Templates section to enable
-                auto-generation.
-              </p>
-            </div>
-          )}
-
-          {/* Preview List */}
-          {!isLoading && preview && preview.length > 0 && (
-            <>
-              <Alert>
-                <CheckCircle2 className="h-4 w-4" />
-                <AlertDescription>
-                  {preview.length} task{preview.length !== 1 ? "s" : ""} will be
-                  created
-                </AlertDescription>
-              </Alert>
-
-              <div className="space-y-3">
-                {preview.map((task, index) => (
-                  <div
-                    key={task.templateId}
-                    className="border rounded-lg p-4 space-y-3 hover:border-primary/50 transition-colors"
-                  >
-                    {/* Task Header */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-muted-foreground">
-                            #{index + 1}
-                          </span>
-                          <Badge variant={getPriorityColor(task.priority)}>
-                            {task.priority}
-                          </Badge>
-                          {task.isRecurring && (
-                            <Badge variant="outline" className="text-xs">
-                              Recurring
-                            </Badge>
-                          )}
-                        </div>
-                        <h4 className="font-medium text-sm leading-tight">
-                          {task.taskName}
-                        </h4>
-                      </div>
-                    </div>
-
-                    {/* Task Description */}
-                    {task.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {task.description}
-                      </p>
-                    )}
-
-                    {/* Task Metadata */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-4 w-4" />
-                        <span>Due: {format(new Date(task.dueDate), "PP")}</span>
-                      </div>
-                      {task.estimatedHours > 0 && (
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-4 w-4" />
-                          <span>{task.estimatedHours}h estimated</span>
-                        </div>
-                      )}
-                      {task.taskType && (
-                        <Badge variant="outline" className="text-xs">
-                          {task.taskType}
-                        </Badge>
-                      )}
+          <CardContent className="flex-1 overflow-y-auto space-y-4 px-8 md:px-10">
+            {/* Loading State */}
+            {isLoading && (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="border rounded-lg p-4 space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-4 w-24" />
                     </div>
                   </div>
                 ))}
               </div>
-            </>
-          )}
-        </div>
+            )}
 
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={generateMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleGenerate}
-            disabled={
-              !preview ||
-              preview.length === 0 ||
-              generateMutation.isPending ||
-              isLoading
-            }
-          >
-            {generateMutation.isPending ? (
+            {/* Error State */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Failed to load preview: {error.message}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Empty State */}
+            {!isLoading && !error && preview && preview.length === 0 && (
+              <div className="text-center py-12">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  No Task Templates Found
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  There are no task templates configured for this service.
+                  Create templates in the Task Templates section to enable
+                  auto-generation.
+                </p>
+              </div>
+            )}
+
+            {/* Preview List */}
+            {!isLoading && preview && preview.length > 0 && (
               <>
-                <span className="animate-spin mr-2">⏳</span>
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate {preview?.length || 0} Task
-                {preview?.length !== 1 ? "s" : ""}
+                <Alert>
+                  <CheckCircle2 className="h-4 w-4" />
+                  <AlertDescription>
+                    {preview.length} task{preview.length !== 1 ? "s" : ""} will
+                    be created
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-3">
+                  {preview.map((task, index) => (
+                    <div
+                      key={task.templateId}
+                      className="border rounded-lg p-4 space-y-3 hover:border-primary/50 transition-colors"
+                    >
+                      {/* Task Header */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              #{index + 1}
+                            </span>
+                            <Badge variant={getPriorityColor(task.priority)}>
+                              {task.priority}
+                            </Badge>
+                            {task.isRecurring && (
+                              <Badge variant="outline" className="text-xs">
+                                Recurring
+                              </Badge>
+                            )}
+                          </div>
+                          <h4 className="font-medium text-sm leading-tight">
+                            {task.taskName}
+                          </h4>
+                        </div>
+                      </div>
+
+                      {/* Task Description */}
+                      {task.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {task.description}
+                        </p>
+                      )}
+
+                      {/* Task Metadata */}
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            Due: {format(new Date(task.dueDate), "PP")}
+                          </span>
+                        </div>
+                        {task.estimatedHours > 0 && (
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="h-4 w-4" />
+                            <span>{task.estimatedHours}h estimated</span>
+                          </div>
+                        )}
+                        {task.taskType && (
+                          <Badge variant="outline" className="text-xs">
+                            {task.taskType}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </>
             )}
-          </Button>
-        </DialogFooter>
+          </CardContent>
+
+          <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={generateMutation.isPending}
+              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerate}
+              disabled={
+                !preview ||
+                preview.length === 0 ||
+                generateMutation.isPending ||
+                isLoading
+              }
+            >
+              {generateMutation.isPending ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate {preview?.length || 0} Task
+                  {preview?.length !== 1 ? "s" : ""}
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       </DialogContent>
     </Dialog>
   );
