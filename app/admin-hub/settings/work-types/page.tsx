@@ -27,6 +27,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -34,8 +35,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -310,86 +309,98 @@ export default function WorkTypesPage() {
 
       {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Work Type</DialogTitle>
-            <DialogDescription>
-              Add a new work type category for time tracking
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="code">Code</Label>
-              <Input
-                id="code"
-                placeholder="WORK"
-                value={formData.code}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    code: e.target.value.toUpperCase(),
-                  })
-                }
-              />
-              <p className="text-sm text-muted-foreground">
-                Uppercase letters and underscores only
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="label">Label</Label>
-              <Input
-                id="label"
-                placeholder="Work"
-                value={formData.label}
-                onChange={(e) =>
-                  setFormData({ ...formData, label: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="colorCode">Color</Label>
-              <div className="flex gap-2">
+        <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Create Work Type</DialogTitle>
+          <DialogDescription className="sr-only">
+            Add a new work type category for time tracking
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Create Work Type</CardTitle>
+              <CardDescription>
+                Add a new work type category for time tracking
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-4 px-8 md:px-10">
+              <div className="space-y-2">
+                <Label htmlFor="code">Code</Label>
                 <Input
-                  id="colorCode"
-                  type="color"
-                  value={formData.colorCode}
+                  id="code"
+                  placeholder="WORK"
+                  value={formData.code}
                   onChange={(e) =>
-                    setFormData({ ...formData, colorCode: e.target.value })
+                    setFormData({
+                      ...formData,
+                      code: e.target.value.toUpperCase(),
+                    })
                   }
-                  className="w-20 h-10"
                 />
+                <p className="text-sm text-muted-foreground">
+                  Uppercase letters and underscores only
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="label">Label</Label>
                 <Input
-                  value={formData.colorCode}
+                  id="label"
+                  placeholder="Work"
+                  value={formData.label}
                   onChange={(e) =>
-                    setFormData({ ...formData, colorCode: e.target.value })
+                    setFormData({ ...formData, label: e.target.value })
                   }
-                  placeholder="#3b82f6"
                 />
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isBillable"
-                checked={formData.isBillable}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, isBillable: checked })
-                }
-              />
-              <Label htmlFor="isBillable">Billable</Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsCreateOpen(false)}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
+              <div className="space-y-2">
+                <Label htmlFor="colorCode">Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="colorCode"
+                    type="color"
+                    value={formData.colorCode}
+                    onChange={(e) =>
+                      setFormData({ ...formData, colorCode: e.target.value })
+                    }
+                    className="w-20 h-10"
+                  />
+                  <Input
+                    value={formData.colorCode}
+                    onChange={(e) =>
+                      setFormData({ ...formData, colorCode: e.target.value })
+                    }
+                    placeholder="#3b82f6"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isBillable"
+                  checked={formData.isBillable}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isBillable: checked })
+                  }
+                />
+                <Label htmlFor="isBillable">Billable</Label>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setIsCreateOpen(false)}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreate}
+                disabled={createMutation.isPending}
+              >
+                {createMutation.isPending ? "Creating..." : "Create"}
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
 
@@ -398,74 +409,84 @@ export default function WorkTypesPage() {
         open={!!editingWorkType}
         onOpenChange={(open) => !open && setEditingWorkType(null)}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Work Type</DialogTitle>
-            <DialogDescription>
-              Update work type configuration
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Code</Label>
-              <Input value={formData.code} disabled />
-              <p className="text-sm text-muted-foreground">
-                Code cannot be changed
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-label">Label</Label>
-              <Input
-                id="edit-label"
-                value={formData.label}
-                onChange={(e) =>
-                  setFormData({ ...formData, label: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-colorCode">Color</Label>
-              <div className="flex gap-2">
+        <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Edit Work Type</DialogTitle>
+          <DialogDescription className="sr-only">
+            Update work type configuration
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Edit Work Type</CardTitle>
+              <CardDescription>Update work type configuration</CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-4 px-8 md:px-10">
+              <div className="space-y-2">
+                <Label>Code</Label>
+                <Input value={formData.code} disabled />
+                <p className="text-sm text-muted-foreground">
+                  Code cannot be changed
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-label">Label</Label>
                 <Input
-                  id="edit-colorCode"
-                  type="color"
-                  value={formData.colorCode}
+                  id="edit-label"
+                  value={formData.label}
                   onChange={(e) =>
-                    setFormData({ ...formData, colorCode: e.target.value })
-                  }
-                  className="w-20 h-10"
-                />
-                <Input
-                  value={formData.colorCode}
-                  onChange={(e) =>
-                    setFormData({ ...formData, colorCode: e.target.value })
+                    setFormData({ ...formData, label: e.target.value })
                   }
                 />
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-isBillable"
-                checked={formData.isBillable}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, isBillable: checked })
-                }
-              />
-              <Label htmlFor="edit-isBillable">Billable</Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditingWorkType(null)}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Updating..." : "Update"}
-            </Button>
-          </DialogFooter>
+              <div className="space-y-2">
+                <Label htmlFor="edit-colorCode">Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="edit-colorCode"
+                    type="color"
+                    value={formData.colorCode}
+                    onChange={(e) =>
+                      setFormData({ ...formData, colorCode: e.target.value })
+                    }
+                    className="w-20 h-10"
+                  />
+                  <Input
+                    value={formData.colorCode}
+                    onChange={(e) =>
+                      setFormData({ ...formData, colorCode: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit-isBillable"
+                  checked={formData.isBillable}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isBillable: checked })
+                  }
+                />
+                <Label htmlFor="edit-isBillable">Billable</Label>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setEditingWorkType(null)}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUpdate}
+                disabled={updateMutation.isPending}
+              >
+                {updateMutation.isPending ? "Updating..." : "Update"}
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
     </>

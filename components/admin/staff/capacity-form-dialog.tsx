@@ -10,10 +10,17 @@ import { z } from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -141,134 +148,151 @@ export function CapacityFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Update Capacity" : "Add Staff Capacity"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing
-              ? "Update the capacity record for this staff member."
-              : "Set the weekly capacity for a staff member. This will be used to calculate utilization."}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[500px] p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {isEditing ? "Update Capacity" : "Add Staff Capacity"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {isEditing
+            ? "Update the capacity record for this staff member."
+            : "Set the weekly capacity for a staff member. This will be used to calculate utilization."}
+        </DialogDescription>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="userId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Staff Member</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={isEditing}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a staff member" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {usersData?.users.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.firstName} {user.lastName} ({user.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    {isEditing
-                      ? "Cannot change the staff member for an existing record"
-                      : "Select the staff member to set capacity for"}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>
+              {isEditing ? "Update Capacity" : "Add Staff Capacity"}
+            </CardTitle>
+            <CardDescription>
+              {isEditing
+                ? "Update the capacity record for this staff member."
+                : "Set the weekly capacity for a staff member. This will be used to calculate utilization."}
+            </CardDescription>
+          </CardHeader>
 
-            <FormField
-              control={form.control}
-              name="effectiveFrom"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Effective From</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    The date from which this capacity is effective
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <CardContent className="space-y-4 px-8 md:px-10">
+                <FormField
+                  control={form.control}
+                  name="userId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Staff Member</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isEditing}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a staff member" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {usersData?.users.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.firstName} {user.lastName} ({user.email})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {isEditing
+                          ? "Cannot change the staff member for an existing record"
+                          : "Select the staff member to set capacity for"}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="weeklyHours"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Weekly Hours</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.5"
-                      min="1"
-                      max="168"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Expected working hours per week (e.g., 37.5 for full-time)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="effectiveFrom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Effective From</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        The date from which this capacity is effective
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Additional notes about this capacity record..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="weeklyHours"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Weekly Hours</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min="1"
+                          max="168"
+                          {...field}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Expected working hours per week (e.g., 37.5 for
+                        full-time)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Saving..."
-                  : isEditing
-                    ? "Update Capacity"
-                    : "Add Capacity"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Additional notes about this capacity record..."
+                          className="resize-none"
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+
+              <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isSubmitting}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting
+                    ? "Saving..."
+                    : isEditing
+                      ? "Update Capacity"
+                      : "Add Capacity"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
       </DialogContent>
     </Dialog>
   );

@@ -9,13 +9,18 @@ import * as z from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -307,191 +312,217 @@ export function CategoryManagement() {
 
       {/* Create/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedCategory ? "Edit Category" : "Create Category"}
-            </DialogTitle>
-            <DialogDescription>
-              {selectedCategory
-                ? "Update the category details below"
-                : "Add a new category to organize portal links"}
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">
+            {selectedCategory ? "Edit Category" : "Create Category"}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {selectedCategory
+              ? "Update the category details below"
+              : "Add a new category to organize portal links"}
+          </DialogDescription>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Tax Resources" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>
+                {selectedCategory ? "Edit Category" : "Create Category"}
+              </CardTitle>
+              <CardDescription>
+                {selectedCategory
+                  ? "Update the category details below"
+                  : "Add a new category to organize portal links"}
+              </CardDescription>
+            </CardHeader>
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Brief description of this category"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="iconName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Icon</FormLabel>
-                      <FormControl>
-                        <IconPicker
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Choose an icon to represent this category
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="colorHex"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Color</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            className="w-20 h-10 p-1 cursor-pointer"
-                            {...field}
-                          />
-                          <Input
-                            type="text"
-                            placeholder="#ff8609"
-                            {...field}
-                            className="flex-1 font-mono"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormDescription>
-                        Category color in hex format
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="sortOrder"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sort Order</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="0"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value, 10))
-                          }
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Display order (lower numbers appear first)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Active</FormLabel>
-                      <div className="flex items-center space-x-2">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <CardContent className="space-y-6 px-8 md:px-10">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
+                          <Input placeholder="e.g., Tax Resources" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Brief description of this category"
+                            {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Inactive categories won't be displayed
-                        </FormDescription>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {selectedCategory ? "Update" : "Create"} Category
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="iconName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Icon</FormLabel>
+                          <FormControl>
+                            <IconPicker
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Choose an icon to represent this category
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="colorHex"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Color</FormLabel>
+                          <FormControl>
+                            <div className="flex gap-2">
+                              <Input
+                                type="color"
+                                className="w-20 h-10 p-1 cursor-pointer"
+                                {...field}
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#ff8609"
+                                {...field}
+                                className="flex-1 font-mono"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Category color in hex format
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="sortOrder"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sort Order</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value, 10))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Display order (lower numbers appear first)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="isActive"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Active</FormLabel>
+                          <div className="flex items-center space-x-2">
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Inactive categories won't be displayed
+                            </FormDescription>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+
+                <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsModalOpen(false)}
+                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {selectedCategory ? "Update" : "Create"} Category
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </Card>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Category</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{categoryToDelete?.name}"? This
-              will also delete all links in this category. This action cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete Category
-            </Button>
-          </DialogFooter>
+        <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Delete Category</DialogTitle>
+          <DialogDescription className="sr-only">
+            Are you sure you want to delete "{categoryToDelete?.name}"? This
+            will also delete all links in this category. This action cannot be
+            undone.
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Delete Category</CardTitle>
+              <CardDescription>
+                Are you sure you want to delete "{categoryToDelete?.name}"? This
+                will also delete all links in this category. This action cannot
+                be undone.
+              </CardDescription>
+            </CardHeader>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete Category
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
     </div>

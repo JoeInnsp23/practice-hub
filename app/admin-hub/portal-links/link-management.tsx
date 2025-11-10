@@ -21,14 +21,19 @@ import * as z from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -484,314 +489,343 @@ export function LinkManagement() {
 
       {/* Create/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedLink ? "Edit Link" : "Create Link"}
-            </DialogTitle>
-            <DialogDescription>
-              {selectedLink
-                ? "Update the link details below"
-                : "Add a new link to the portal"}
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">
+            {selectedLink ? "Edit Link" : "Create Link"}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {selectedLink
+              ? "Update the link details below"
+              : "Add a new link to the portal"}
+          </DialogDescription>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories?.map((category: Category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>
+                {selectedLink ? "Edit Link" : "Create Link"}
+              </CardTitle>
+              <CardDescription>
+                {selectedLink
+                  ? "Update the link details below"
+                  : "Add a new link to the portal"}
+              </CardDescription>
+            </CardHeader>
 
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., VAT Returns" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Brief description of this link"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://example.com or /internal/page"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      External URLs must start with http(s)://. Internal paths
-                      should start with /
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="iconName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Icon</FormLabel>
-                      <FormControl>
-                        <IconPicker
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <CardContent className="space-y-6 px-8 md:px-10">
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
                           value={field.value}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Choose an icon to display with this link
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="sortOrder"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sort Order</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="0"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value, 10))
-                          }
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Display order (lower numbers appear first)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="isInternal"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                      <div className="space-y-0.5">
-                        <FormLabel>Internal Link</FormLabel>
-                        <FormDescription>
-                          Link points to a page within this application
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="targetBlank"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                      <div className="space-y-0.5">
-                        <FormLabel>Open in New Tab</FormLabel>
-                        <FormDescription>
-                          Opens link in a new browser tab
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="requiresAuth"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                      <div className="space-y-0.5">
-                        <FormLabel>Requires Auth</FormLabel>
-                        <FormDescription>
-                          Users must be logged in to access
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                      <div className="space-y-0.5">
-                        <FormLabel>Active</FormLabel>
-                        <FormDescription>
-                          Inactive links won't be displayed
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="allowedRoles"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Allowed Roles</FormLabel>
-                    <FormDescription>
-                      Select which roles can see this link (leave empty for all)
-                    </FormDescription>
-                    <div className="space-y-2">
-                      {roleOptions.map((role) => (
-                        <div
-                          key={role.value}
-                          className="flex items-center space-x-2"
                         >
-                          <Checkbox
-                            id={`role-${role.value}`}
-                            checked={field.value?.includes(role.value)}
-                            onCheckedChange={(checked) => {
-                              const current = field.value || [];
-                              if (checked) {
-                                field.onChange([...current, role.value]);
-                              } else {
-                                field.onChange(
-                                  current.filter((r) => r !== role.value),
-                                );
-                              }
-                            }}
-                          />
-                          <label
-                            htmlFor={`role-${role.value}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {role.label}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories?.map((category: Category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {selectedLink ? "Update" : "Create"} Link
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., VAT Returns" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Brief description of this link"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="https://example.com or /internal/page"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          External URLs must start with http(s)://. Internal
+                          paths should start with /
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="iconName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Icon</FormLabel>
+                          <FormControl>
+                            <IconPicker
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Choose an icon to display with this link
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="sortOrder"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sort Order</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value, 10))
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Display order (lower numbers appear first)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="isInternal"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>Internal Link</FormLabel>
+                            <FormDescription>
+                              Link points to a page within this application
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="targetBlank"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>Open in New Tab</FormLabel>
+                            <FormDescription>
+                              Opens link in a new browser tab
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="requiresAuth"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>Requires Auth</FormLabel>
+                            <FormDescription>
+                              Users must be logged in to access
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="isActive"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>Active</FormLabel>
+                            <FormDescription>
+                              Inactive links won't be displayed
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="allowedRoles"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Allowed Roles</FormLabel>
+                        <FormDescription>
+                          Select which roles can see this link (leave empty for
+                          all)
+                        </FormDescription>
+                        <div className="space-y-2">
+                          {roleOptions.map((role) => (
+                            <div
+                              key={role.value}
+                              className="flex items-center space-x-2"
+                            >
+                              <Checkbox
+                                id={`role-${role.value}`}
+                                checked={field.value?.includes(role.value)}
+                                onCheckedChange={(checked) => {
+                                  const current = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...current, role.value]);
+                                  } else {
+                                    field.onChange(
+                                      current.filter((r) => r !== role.value),
+                                    );
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={`role-${role.value}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {role.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+
+                <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsModalOpen(false)}
+                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {selectedLink ? "Update" : "Create"} Link
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </Card>
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Link</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{linkToDelete?.title}"? This
-              action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete Link
-            </Button>
-          </DialogFooter>
+        <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-0 shadow-none">
+          <DialogTitle className="sr-only">Delete Link</DialogTitle>
+          <DialogDescription className="sr-only">
+            Are you sure you want to delete "{linkToDelete?.title}"? This action
+            cannot be undone.
+          </DialogDescription>
+
+          <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+            <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+              <CardTitle>Delete Link</CardTitle>
+              <CardDescription>
+                Are you sure you want to delete "{linkToDelete?.title}"? This
+                action cannot be undone.
+              </CardDescription>
+            </CardHeader>
+
+            <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete Link
+              </Button>
+            </CardFooter>
+          </Card>
         </DialogContent>
       </Dialog>
     </div>

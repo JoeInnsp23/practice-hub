@@ -8,11 +8,17 @@ import { z } from "zod";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -298,247 +304,261 @@ export function WorkingPatternFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {editingPattern ? "Edit Working Pattern" : "Add Working Pattern"}
-          </DialogTitle>
-          <DialogDescription>
-            Define a flexible working pattern with day-by-day hour allocation
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl p-0 bg-transparent border-0 shadow-none">
+        <DialogTitle className="sr-only">
+          {editingPattern ? "Edit Working Pattern" : "Add Working Pattern"}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Define a flexible working pattern with day-by-day hour allocation
+        </DialogDescription>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Pattern Templates */}
-            {!editingPattern && (
-              <div className="space-y-2">
-                <FormLabel>Quick Templates</FormLabel>
-                <Select
-                  value={selectedTemplate}
-                  onValueChange={(value) => {
-                    setSelectedTemplate(value);
-                    applyTemplate(value);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a template..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(PATTERN_TEMPLATES).map(
-                      ([key, template]) => (
-                        <SelectItem key={key} value={key}>
-                          {template.name}
-                        </SelectItem>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Start with a template and customize as needed
-                </FormDescription>
-              </div>
-            )}
+        <Card className="glass-card shadow-xl rounded-lg max-h-[90vh] overflow-y-auto">
+          <CardHeader className="space-y-1 px-8 pt-4 pb-4 md:px-10 md:pt-6 md:pb-4">
+            <CardTitle>
+              {editingPattern ? "Edit Working Pattern" : "Add Working Pattern"}
+            </CardTitle>
+            <CardDescription>
+              Define a flexible working pattern with day-by-day hour allocation
+            </CardDescription>
+          </CardHeader>
 
-            {/* User Selection */}
-            <FormField
-              control={form.control}
-              name="userId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Staff Member *</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={!!editingPattern}
-                  >
-                    <FormControl>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <CardContent className="space-y-4 px-8 md:px-10">
+                {/* Pattern Templates */}
+                {!editingPattern && (
+                  <div className="space-y-2">
+                    <FormLabel>Quick Templates</FormLabel>
+                    <Select
+                      value={selectedTemplate}
+                      onValueChange={(value) => {
+                        setSelectedTemplate(value);
+                        applyTemplate(value);
+                      }}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select staff member" />
+                        <SelectValue placeholder="Select a template..." />
                       </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {usersData?.users?.map((user) => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.firstName && user.lastName
-                            ? `${user.firstName} ${user.lastName}`
-                            : user.email}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Pattern Type */}
-            <FormField
-              control={form.control}
-              name="patternType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pattern Type *</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select pattern type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="full_time">Full-Time</SelectItem>
-                      <SelectItem value="part_time">Part-Time</SelectItem>
-                      <SelectItem value="compressed_hours">
-                        Compressed Hours
-                      </SelectItem>
-                      <SelectItem value="job_share">Job Share</SelectItem>
-                      <SelectItem value="custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Contracted Hours */}
-            <FormField
-              control={form.control}
-              name="contractedHours"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contracted Hours (per week) *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.5"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Total contracted hours per week
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Day-by-Day Hours */}
-            <div className="space-y-3">
-              <FormLabel>Weekly Schedule *</FormLabel>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { name: "mondayHours", label: "Monday" },
-                  { name: "tuesdayHours", label: "Tuesday" },
-                  { name: "wednesdayHours", label: "Wednesday" },
-                  { name: "thursdayHours", label: "Thursday" },
-                  { name: "fridayHours", label: "Friday" },
-                  { name: "saturdayHours", label: "Saturday" },
-                  { name: "sundayHours", label: "Sunday" },
-                ].map(({ name, label }) => (
-                  <FormField
-                    key={name}
-                    control={form.control}
-                    name={name as keyof FormData}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{label}</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            placeholder="0"
-                            {...field}
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Total: {totalHours.toFixed(1)}h /{" "}
-                  {form.watch("contractedHours")}h
-                </span>
-                {!isValid && (
-                  <span className="text-destructive">
-                    Sum must equal contracted hours
-                  </span>
+                      <SelectContent>
+                        {Object.entries(PATTERN_TEMPLATES).map(
+                          ([key, template]) => (
+                            <SelectItem key={key} value={key}>
+                              {template.name}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Start with a template and customize as needed
+                    </FormDescription>
+                  </div>
                 )}
-              </div>
-            </div>
 
-            {/* Effective From */}
-            <FormField
-              control={form.control}
-              name="effectiveFrom"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Effective From *</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Date when this pattern becomes active
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* User Selection */}
+                <FormField
+                  control={form.control}
+                  name="userId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Staff Member *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={!!editingPattern}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select staff member" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {usersData?.users?.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.firstName && user.lastName
+                                ? `${user.firstName} ${user.lastName}`
+                                : user.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any additional notes about this pattern..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Pattern Type */}
+                <FormField
+                  control={form.control}
+                  name="patternType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pattern Type *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select pattern type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="full_time">Full-Time</SelectItem>
+                          <SelectItem value="part_time">Part-Time</SelectItem>
+                          <SelectItem value="compressed_hours">
+                            Compressed Hours
+                          </SelectItem>
+                          <SelectItem value="job_share">Job Share</SelectItem>
+                          <SelectItem value="custom">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  !isValid ||
-                  createMutation.isPending ||
-                  updateMutation.isPending
-                }
-              >
-                {createMutation.isPending || updateMutation.isPending
-                  ? "Saving..."
-                  : editingPattern
-                    ? "Update Pattern"
-                    : "Create Pattern"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                {/* Contracted Hours */}
+                <FormField
+                  control={form.control}
+                  name="contractedHours"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contracted Hours (per week) *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          {...field}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Total contracted hours per week
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Day-by-Day Hours */}
+                <div className="space-y-3">
+                  <FormLabel>Weekly Schedule *</FormLabel>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { name: "mondayHours", label: "Monday" },
+                      { name: "tuesdayHours", label: "Tuesday" },
+                      { name: "wednesdayHours", label: "Wednesday" },
+                      { name: "thursdayHours", label: "Thursday" },
+                      { name: "fridayHours", label: "Friday" },
+                      { name: "saturdayHours", label: "Saturday" },
+                      { name: "sundayHours", label: "Sunday" },
+                    ].map(({ name, label }) => (
+                      <FormField
+                        key={name}
+                        control={form.control}
+                        name={name as keyof FormData}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{label}</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.5"
+                                placeholder="0"
+                                {...field}
+                                value={field.value}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Total: {totalHours.toFixed(1)}h /{" "}
+                      {form.watch("contractedHours")}h
+                    </span>
+                    {!isValid && (
+                      <span className="text-destructive">
+                        Sum must equal contracted hours
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Effective From */}
+                <FormField
+                  control={form.control}
+                  name="effectiveFrom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Effective From *</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Date when this pattern becomes active
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Notes */}
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add any additional notes about this pattern..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+
+              <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-8 pt-6 pb-4 md:px-10 md:pt-8 md:pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    !isValid ||
+                    createMutation.isPending ||
+                    updateMutation.isPending
+                  }
+                >
+                  {createMutation.isPending || updateMutation.isPending
+                    ? "Saving..."
+                    : editingPattern
+                      ? "Update Pattern"
+                      : "Create Pattern"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
       </DialogContent>
     </Dialog>
   );
