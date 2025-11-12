@@ -35,7 +35,8 @@ export type TimeEntriesStackParamList = {
 
 export type LeaveStackParamList = {
   LeaveRequests: undefined;
-  LeaveRequest: { requestId?: string };
+  LeaveRequestForm: undefined;
+  LeaveRequestDetail: { requestId: string };
   LeaveCalendar: undefined;
   LeaveBalance: undefined;
   TOILDashboard: undefined;

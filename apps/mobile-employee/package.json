@@ -11,6 +11,8 @@
   "dependencies": {
     "@practice-hub/api-client": "workspace:*",
     "@practice-hub/shared-types": "workspace:*",
+    "@react-native-community/datetimepicker": "^9.1.6",
+    "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.8.4",
     "@react-navigation/native": "^7.1.19",
     "@react-navigation/stack": "^7.6.3",

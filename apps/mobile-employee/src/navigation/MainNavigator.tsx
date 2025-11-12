@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DashboardScreen } from "../screens/main/DashboardScreen";
 import { TimesheetsListScreen } from "../screens/timesheets/TimesheetsListScreen";
 import { QuickEntryScreen } from "../screens/time-entries/QuickEntryScreen";
-import { LeaveRequestsScreen } from "../screens/leave/LeaveRequestsScreen";
+import { LeaveNavigator } from "./LeaveNavigator";
 import { ApprovalQueueScreen } from "../screens/approvals/ApprovalQueueScreen";
 import type { MainTabParamList } from "./types";
 import { COLORS } from "../lib/colors";
@@ -60,8 +60,9 @@ export function MainNavigator() {
       />
       <Tab.Screen
         name="Leave"
-        component={LeaveRequestsScreen}
+        component={LeaveNavigator}
         options={{
+          headerShown: false,
           tabBarLabel: "Leave",
         }}
       />
