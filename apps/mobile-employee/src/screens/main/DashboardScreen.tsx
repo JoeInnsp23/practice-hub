@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Button } from "../../components/ui/Button";
 import { useAuth } from "../../hooks/useAuth";
+import { COLORS } from "../../lib/colors";
 
 /**
  * Dashboard/Home screen for Employee Hub
@@ -61,7 +62,7 @@ export function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: COLORS.background,
   },
   header: {
     padding: 24,
@@ -70,12 +71,12 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: "#64748b",
+    color: COLORS.textSecondary,
   },
   statsContainer: {
     flexDirection: "row",
@@ -85,22 +86,22 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: COLORS.surface,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: COLORS.border,
     alignItems: "center",
   },
   statValue: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#3b82f6",
+    color: COLORS.primary, // Emerald green
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    color: "#64748b",
+    color: COLORS.textSecondary,
   },
   section: {
     padding: 24,
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1e293b",
+    color: COLORS.textPrimary,
     marginBottom: 16,
   },
   actionButton: {

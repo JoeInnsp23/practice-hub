@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DashboardScreen } from "../screens/main/DashboardScreen";
 import { ClientsScreen } from "../screens/ClientsScreen";
 import type { MainTabParamList } from "./types";
+import { COLORS } from "../lib/colors";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -15,19 +16,19 @@ export function MainNavigator() {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: "#ffffff",
+          backgroundColor: COLORS.surface,
         },
-        headerTintColor: "#1e293b",
+        headerTintColor: COLORS.textPrimary,
         headerTitleStyle: {
           fontWeight: "600",
         },
         tabBarStyle: {
-          backgroundColor: "#ffffff",
+          backgroundColor: COLORS.surface,
           borderTopWidth: 1,
-          borderTopColor: "#e2e8f0",
+          borderTopColor: COLORS.border,
         },
-        tabBarActiveTintColor: "#3b82f6",
-        tabBarInactiveTintColor: "#64748b",
+        tabBarActiveTintColor: COLORS.primary, // Emerald green
+        tabBarInactiveTintColor: COLORS.textSecondary,
       }}
     >
       <Tab.Screen

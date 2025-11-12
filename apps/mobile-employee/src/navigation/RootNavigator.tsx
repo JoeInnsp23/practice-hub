@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { AuthNavigator } from "./AuthNavigator";
 import { MainNavigator } from "./MainNavigator";
 import type { RootStackParamList } from "./types";
+import { COLORS } from "../lib/colors";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -18,7 +19,7 @@ export function RootNavigator() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -41,6 +42,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: COLORS.background,
   },
 });

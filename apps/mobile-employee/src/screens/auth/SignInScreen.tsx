@@ -11,6 +11,7 @@ import {
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
+import { COLORS } from "../../lib/colors";
 
 /**
  * Sign In screen for Employee Hub
@@ -139,7 +140,7 @@ export function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: COLORS.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -153,12 +154,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: COLORS.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#64748b",
+    color: COLORS.textSecondary,
   },
   form: {
     flex: 1,
@@ -169,6 +170,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: "#94a3b8",
+    color: COLORS.textTertiary,
   },
 });

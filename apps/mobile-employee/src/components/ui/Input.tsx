@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   type TextInputProps,
 } from "react-native";
+import { COLORS, SLATE } from "../../lib/colors";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -42,7 +43,7 @@ export function Input({
             error && styles.inputError,
             style,
           ]}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={COLORS.placeholder}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           {...props}
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#1e293b",
+    color: COLORS.textPrimary,
     marginBottom: 8,
   },
   inputWrapper: {
@@ -81,18 +82,18 @@ const styles = StyleSheet.create({
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: COLORS.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#1e293b",
-    backgroundColor: "#ffffff",
+    color: COLORS.textPrimary,
+    backgroundColor: COLORS.surface,
   },
   inputFocused: {
-    borderColor: "#3b82f6",
+    borderColor: COLORS.primary,
   },
   inputError: {
-    borderColor: "#ef4444",
+    borderColor: COLORS.error,
   },
   rightIcon: {
     position: "absolute",
@@ -101,12 +102,12 @@ const styles = StyleSheet.create({
   },
   error: {
     fontSize: 12,
-    color: "#ef4444",
+    color: COLORS.error,
     marginTop: 4,
   },
   helperText: {
     fontSize: 12,
-    color: "#64748b",
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
 });

@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   type TouchableOpacityProps
 } from "react-native";
+import { COLORS } from "../../lib/colors";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -41,7 +42,7 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === "primary" ? "#ffffff" : "#3b82f6"}
+          color={variant === "primary" ? "#ffffff" : COLORS.primary}
         />
       ) : (
         <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
@@ -59,15 +60,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   primary: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: COLORS.primary,
   },
   secondary: {
-    backgroundColor: "#64748b",
+    backgroundColor: COLORS.textSecondary,
   },
   outline: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#3b82f6",
+    borderColor: COLORS.primary,
   },
   ghost: {
     backgroundColor: "transparent",
@@ -86,9 +87,9 @@ const styles = StyleSheet.create({
     color: "#ffffff",
   },
   outlineText: {
-    color: "#3b82f6",
+    color: COLORS.primary,
   },
   ghostText: {
-    color: "#3b82f6",
+    color: COLORS.primary,
   },
 });
