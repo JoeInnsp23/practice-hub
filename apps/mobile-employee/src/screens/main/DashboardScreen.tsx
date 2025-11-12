@@ -19,34 +19,34 @@ export function DashboardScreen() {
 
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>0</Text>
-          <Text style={styles.statLabel}>Clients</Text>
+          <Text style={styles.statValue}>0h</Text>
+          <Text style={styles.statLabel}>This Week</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statValue}>0</Text>
-          <Text style={styles.statLabel}>Proposals</Text>
+          <Text style={styles.statLabel}>Leave Days</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>0</Text>
-          <Text style={styles.statLabel}>Documents</Text>
+          <Text style={styles.statValue}>0h</Text>
+          <Text style={styles.statLabel}>TOIL Balance</Text>
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <Button
-          title="Add Client"
+          title="Log Time"
           variant="primary"
           onPress={() => {
-            // TODO: Navigate to add client
+            // TODO: Navigate to time entry
           }}
           style={styles.actionButton}
         />
         <Button
-          title="Create Proposal"
+          title="Request Leave"
           variant="outline"
           onPress={() => {
-            // TODO: Navigate to create proposal
+            // TODO: Navigate to leave request
           }}
           style={styles.actionButton}
         />

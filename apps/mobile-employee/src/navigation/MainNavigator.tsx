@@ -1,6 +1,9 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DashboardScreen } from "../screens/main/DashboardScreen";
-import { ClientsScreen } from "../screens/ClientsScreen";
+import { TimesheetsListScreen } from "../screens/timesheets/TimesheetsListScreen";
+import { QuickEntryScreen } from "../screens/time-entries/QuickEntryScreen";
+import { LeaveRequestsScreen } from "../screens/leave/LeaveRequestsScreen";
+import { ApprovalQueueScreen } from "../screens/approvals/ApprovalQueueScreen";
 import type { MainTabParamList } from "./types";
 import { COLORS } from "../lib/colors";
 
@@ -8,7 +11,8 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 /**
  * Main app navigation with bottom tabs
- * Dashboard, Clients, Proposals, Documents, Profile
+ * Dashboard, Timesheets, Time Entries, Leave, Approvals
+ * Matches web Employee Hub structure
  */
 export function MainNavigator() {
   return (
@@ -40,13 +44,34 @@ export function MainNavigator() {
         }}
       />
       <Tab.Screen
-        name="Clients"
-        component={ClientsScreen}
+        name="Timesheets"
+        component={TimesheetsListScreen}
         options={{
-          tabBarLabel: "Clients",
+          tabBarLabel: "Timesheets",
         }}
       />
-      {/* TODO: Add Proposals, Documents, Profile tabs */}
+      <Tab.Screen
+        name="TimeEntries"
+        component={QuickEntryScreen}
+        options={{
+          title: "Time Entry",
+          tabBarLabel: "Log Time",
+        }}
+      />
+      <Tab.Screen
+        name="Leave"
+        component={LeaveRequestsScreen}
+        options={{
+          tabBarLabel: "Leave",
+        }}
+      />
+      <Tab.Screen
+        name="Approvals"
+        component={ApprovalQueueScreen}
+        options={{
+          tabBarLabel: "Approvals",
+        }}
+      />
     </Tab.Navigator>
   );
 }

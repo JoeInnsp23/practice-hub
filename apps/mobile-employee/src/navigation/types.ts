@@ -1,5 +1,6 @@
 /**
- * Navigation type definitions for type-safe navigation
+ * Navigation type definitions for Employee Hub mobile app
+ * Matches web app structure: Timesheets, Time Entries, Leave, TOIL, Approvals
  */
 
 export type RootStackParamList = {
@@ -15,28 +16,37 @@ export type AuthStackParamList = {
 
 export type MainTabParamList = {
   Dashboard: undefined;
-  Clients: undefined;
-  Proposals: undefined;
-  Documents: undefined;
-  Profile: undefined;
+  Timesheets: undefined;
+  TimeEntries: undefined;
+  Leave: undefined;
+  Approvals: undefined;
 };
 
-export type ClientsStackParamList = {
-  ClientsList: undefined;
-  ClientDetail: { clientId: string };
-  ClientForm: { clientId?: string };
+export type TimesheetsStackParamList = {
+  TimesheetsList: undefined;
+  TimesheetDetail: { weekId: string };
+  TimesheetEntry: { weekId: string };
 };
 
-export type ProposalsStackParamList = {
-  ProposalsList: undefined;
-  ProposalDetail: { proposalId: string };
-  ProposalForm: { proposalId?: string; clientId?: string };
+export type TimeEntriesStackParamList = {
+  QuickEntry: undefined;
+  EntryHistory: undefined;
 };
 
-export type DocumentsStackParamList = {
-  DocumentsList: undefined;
-  DocumentViewer: { documentId: string; documentUrl: string };
-  DocumentUpload: { clientId?: string };
+export type LeaveStackParamList = {
+  LeaveRequests: undefined;
+  LeaveRequest: { requestId?: string };
+  LeaveCalendar: undefined;
+  LeaveBalance: undefined;
+  TOILDashboard: undefined;
+  TOILBalance: undefined;
+  TOILHistory: undefined;
+};
+
+export type ApprovalsStackParamList = {
+  ApprovalQueue: undefined;
+  TimesheetApprovals: undefined;
+  LeaveApprovals: undefined;
 };
 
 declare global {
