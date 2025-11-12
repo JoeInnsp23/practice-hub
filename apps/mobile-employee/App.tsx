@@ -1,26 +1,17 @@
+import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, StyleSheet } from "react-native";
 import { TRPCProvider } from "./src/providers/TRPCProvider";
-import { ClientsScreen } from "./src/screens/ClientsScreen";
+import { RootNavigator } from "./src/navigation/RootNavigator";
 
 /**
  * Practice Hub Employee - Mobile App
- * Demonstrates monorepo setup with shared types and tRPC
+ * Full-featured mobile app with authentication and navigation
  */
 export default function App() {
   return (
     <TRPCProvider>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="auto" />
-        <ClientsScreen />
-      </SafeAreaView>
+      <StatusBar style="auto" />
+      <RootNavigator />
     </TRPCProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-});
