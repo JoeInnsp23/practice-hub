@@ -1,5 +1,5 @@
 packages:
-  # Apps - deployable applications
-  - "apps/*"
-  # Packages - shared libraries and utilities
-  - "packages/*"
+  - apps/*
+  - packages/*
+
+nodeLinker: hoisted

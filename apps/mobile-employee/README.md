@@ -113,7 +113,7 @@ eas submit --platform android
 
 ## 📚 Documentation
 
-See [MONOREPO_MOBILE_GUIDE.md](/MONOREPO_MOBILE_GUIDE.md) for complete monorepo documentation.
+See [MONOREPO_MOBILE_GUIDE.md](/docs/40-guides/mobile-development.md) for complete monorepo documentation.
 
 ## 🧪 Testing
 
