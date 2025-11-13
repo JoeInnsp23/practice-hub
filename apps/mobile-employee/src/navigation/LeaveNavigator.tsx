@@ -2,6 +2,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { LeaveRequestsScreen } from "../screens/leave/LeaveRequestsScreen";
 import { LeaveRequestFormScreen } from "../screens/leave/LeaveRequestFormScreen";
 import { LeaveBalanceScreen } from "../screens/leave/LeaveBalanceScreen";
+import { TOILDashboardScreen } from "../screens/leave/TOILDashboardScreen";
+import { TOILHistoryScreen } from "../screens/leave/TOILHistoryScreen";
 import type { LeaveStackParamList } from "./types";
 import { COLORS } from "../lib/colors";
 
@@ -42,6 +44,20 @@ export function LeaveNavigator() {
         component={LeaveBalanceScreen}
         options={{
           headerTitle: "Leave Balance",
+        }}
+      />
+      <Stack.Screen
+        name="TOILDashboard"
+        component={TOILDashboardScreen}
+        options={{
+          headerTitle: "TOIL",
+        }}
+      />
+      <Stack.Screen
+        name="TOILHistory"
+        component={TOILHistoryScreen}
+        options={{
+          headerTitle: "TOIL History",
         }}
       />
     </Stack.Navigator>

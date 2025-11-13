@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DashboardScreen } from "../screens/main/DashboardScreen";
 import { TimesheetsListScreen } from "../screens/timesheets/TimesheetsListScreen";
-import { QuickEntryScreen } from "../screens/time-entries/QuickEntryScreen";
+import { TimeEntriesNavigator } from "./TimeEntriesNavigator";
 import { LeaveNavigator } from "./LeaveNavigator";
 import { ApprovalQueueScreen } from "../screens/approvals/ApprovalQueueScreen";
 import type { MainTabParamList } from "./types";
@@ -52,8 +52,9 @@ export function MainNavigator() {
       />
       <Tab.Screen
         name="TimeEntries"
-        component={QuickEntryScreen}
+        component={TimeEntriesNavigator}
         options={{
+          headerShown: false,
           title: "Time Entry",
           tabBarLabel: "Log Time",
         }}

@@ -8,16 +8,27 @@ import {
   Platform,
   Alert,
 } from "react-native";
+import type { StackNavigationProp } from "@react-navigation/stack";
 import { trpc } from "@practice-hub/api-client";
 import { COLORS } from "../../lib/colors";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import type { TimeEntriesStackParamList } from "../../navigation/types";
+
+type QuickEntryScreenNavigationProp = StackNavigationProp<
+  TimeEntriesStackParamList,
+  "QuickEntry"
+>;
+
+type Props = {
+  navigation: QuickEntryScreenNavigationProp;
+};
 
 /**
  * Quick time entry screen - log time quickly
  * Matches web: app/employee-hub/time-entries/page.tsx
  */
-export function QuickEntryScreen() {
+export function QuickEntryScreen({ navigation }: Props) {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
@@ -148,6 +159,13 @@ export function QuickEntryScreen() {
             disabled={createEntry.isPending}
             style={styles.submitButton}
           />
+
+          <Button
+            title="View History"
+            variant="outline"
+            onPress={() => navigation.navigate("EntryHistory")}
+            style={styles.historyButton}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -204,5 +222,8 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 24,
+  },
+  historyButton: {
+    marginTop: 12,
   },
 });
