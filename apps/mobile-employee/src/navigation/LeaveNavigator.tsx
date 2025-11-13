@@ -4,6 +4,7 @@ import { LeaveRequestFormScreen } from "../screens/leave/LeaveRequestFormScreen"
 import { LeaveBalanceScreen } from "../screens/leave/LeaveBalanceScreen";
 import { TOILDashboardScreen } from "../screens/leave/TOILDashboardScreen";
 import { TOILHistoryScreen } from "../screens/leave/TOILHistoryScreen";
+import LeaveCalendarScreen from "../screens/leave/LeaveCalendarScreen";
 import type { LeaveStackParamList } from "./types";
 import { COLORS } from "../lib/colors";
 
@@ -58,6 +59,13 @@ export function LeaveNavigator() {
         component={TOILHistoryScreen}
         options={{
           headerTitle: "TOIL History",
+        }}
+      />
+      <Stack.Screen
+        name="LeaveCalendar"
+        component={LeaveCalendarScreen}
+        options={{
+          headerTitle: "Team Calendar",
         }}
       />
     </Stack.Navigator>

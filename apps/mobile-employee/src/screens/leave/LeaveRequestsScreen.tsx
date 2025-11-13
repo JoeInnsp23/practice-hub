@@ -116,12 +116,20 @@ export function LeaveRequestsScreen({ navigation }: Props) {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>My Leave Requests</Text>
           <Text style={styles.headerSubtitle}>{requests.length} requests</Text>
-          <Button
-            title="Request Leave"
-            variant="primary"
-            onPress={() => navigation.navigate("LeaveRequestForm")}
-            style={styles.headerButton}
-          />
+          <View style={styles.buttonRow}>
+            <Button
+              title="Request Leave"
+              variant="primary"
+              onPress={() => navigation.navigate("LeaveRequestForm")}
+              style={styles.flexButton}
+            />
+            <Button
+              title="Team Calendar"
+              variant="secondary"
+              onPress={() => navigation.navigate("LeaveCalendar")}
+              style={styles.flexButton}
+            />
+          </View>
         </View>
       }
     />
@@ -192,6 +200,14 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     marginTop: 8,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  flexButton: {
+    flex: 1,
   },
   requestCard: {
     backgroundColor: COLORS.surface,
