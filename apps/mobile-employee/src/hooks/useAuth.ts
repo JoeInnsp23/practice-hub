@@ -1,69 +1,71 @@
 import { useState, useEffect, useCallback } from "react";
 import * as SecureStore from "expo-secure-store";
+import * as authClient from "../lib/auth-client";
 
-const TOKEN_KEY = "auth-token";
-const USER_KEY = "auth-user";
+const SESSION_KEY = "better-auth-session";
 
 interface User {
   id: string;
   email: string;
   name: string;
-  tenantId: string;
-  role: "admin" | "staff";
+  tenantId?: string;
+  role?: string;
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
 }
 
 /**
- * Authentication hook using Better Auth + SecureStore
- * Manages auth state and token storage
+ * Authentication hook using Better Auth
+ * Connects to the same Better Auth API as the web app
+ * Stores session in SecureStore for persistence
  */
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
-    token: null,
     isLoading: true,
     isAuthenticated: false,
   });
 
-  // Load stored auth on mount
+  // Load stored session on mount
   useEffect(() => {
-    loadStoredAuth();
+    loadSession();
   }, []);
 
-  const loadStoredAuth = async () => {
+  const loadSession = async () => {
     try {
-      const [token, userJson] = await Promise.all([
-        SecureStore.getItemAsync(TOKEN_KEY),
-        SecureStore.getItemAsync(USER_KEY),
-      ]);
+      // Check if there's a stored session
+      const storedSession = await SecureStore.getItemAsync(SESSION_KEY);
 
-      if (token && userJson) {
-        const user = JSON.parse(userJson);
-        setAuthState({
-          user,
-          token,
-          isLoading: false,
-          isAuthenticated: true,
-        });
-      } else {
-        setAuthState({
-          user: null,
-          token: null,
-          isLoading: false,
-          isAuthenticated: false,
-        });
+      if (storedSession) {
+        const sessionData = JSON.parse(storedSession);
+
+        // Verify session is still valid with Better Auth
+        const result = await authClient.getSession();
+
+        if (result.success && result.session) {
+          setAuthState({
+            user: result.session.user,
+            isLoading: false,
+            isAuthenticated: true,
+          });
+          return;
+        }
       }
-    } catch (error) {
-      console.error("Failed to load auth:", error);
+
+      // No valid session
       setAuthState({
         user: null,
-        token: null,
+        isLoading: false,
+        isAuthenticated: false,
+      });
+    } catch (error) {
+      console.error("Failed to load session:", error);
+      setAuthState({
+        user: null,
         isLoading: false,
         isAuthenticated: false,
       });
@@ -72,85 +74,65 @@ export function useAuth() {
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {
-      // TODO: Call Better Auth API via tRPC
-      // const result = await trpc.auth.signIn.mutate({ email, password });
+      const result = await authClient.signIn(email, password);
 
-      // For now, mock response
-      const mockUser: User = {
-        id: "1",
-        email,
-        name: "Test User",
-        tenantId: "tenant-1",
-        role: "staff",
-      };
-      const mockToken = "mock-token-123";
+      if (!result.success) {
+        return {
+          success: false,
+          error: result.error || "Invalid credentials",
+        };
+      }
 
-      // Store in SecureStore
-      await Promise.all([
-        SecureStore.setItemAsync(TOKEN_KEY, mockToken),
-        SecureStore.setItemAsync(USER_KEY, JSON.stringify(mockUser)),
-      ]);
+      // Get the session after successful sign in
+      const sessionResult = await authClient.getSession();
 
-      setAuthState({
-        user: mockUser,
-        token: mockToken,
-        isLoading: false,
-        isAuthenticated: true,
-      });
+      if (sessionResult.success && sessionResult.session) {
+        // Store session in SecureStore
+        await SecureStore.setItemAsync(
+          SESSION_KEY,
+          JSON.stringify(sessionResult.session),
+        );
 
-      return { success: true };
-    } catch (error) {
+        setAuthState({
+          user: sessionResult.session.user,
+          isLoading: false,
+          isAuthenticated: true,
+        });
+
+        return { success: true };
+      }
+
+      return { success: false, error: "Failed to get session" };
+    } catch (error: any) {
       console.error("Sign in failed:", error);
-      return { success: false, error: "Invalid credentials" };
+      return {
+        success: false,
+        error: error.message || "Invalid credentials",
+      };
     }
   }, []);
 
   const signOut = useCallback(async () => {
     try {
+      // Call Better Auth sign out
+      await authClient.signOut();
+
       // Clear SecureStore
-      await Promise.all([
-        SecureStore.deleteItemAsync(TOKEN_KEY),
-        SecureStore.deleteItemAsync(USER_KEY),
-      ]);
+      await SecureStore.deleteItemAsync(SESSION_KEY);
 
       setAuthState({
         user: null,
-        token: null,
         isLoading: false,
         isAuthenticated: false,
       });
 
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign out failed:", error);
-      return { success: false, error: "Failed to sign out" };
-    }
-  }, []);
-
-  const signUp = useCallback(
-    async (email: string, password: string, name: string) => {
-      try {
-        // TODO: Call Better Auth API via tRPC
-        // const result = await trpc.auth.signUp.mutate({ email, password, name });
-
-        return { success: true };
-      } catch (error) {
-        console.error("Sign up failed:", error);
-        return { success: false, error: "Sign up failed" };
-      }
-    },
-    [],
-  );
-
-  const resetPassword = useCallback(async (email: string) => {
-    try {
-      // TODO: Call Better Auth API via tRPC
-      // const result = await trpc.auth.resetPassword.mutate({ email });
-
-      return { success: true };
-    } catch (error) {
-      console.error("Reset password failed:", error);
-      return { success: false, error: "Reset password failed" };
+      return {
+        success: false,
+        error: error.message || "Failed to sign out",
+      };
     }
   }, []);
 
@@ -158,7 +140,6 @@ export function useAuth() {
     ...authState,
     signIn,
     signOut,
-    signUp,
-    resetPassword,
+    refreshSession: loadSession,
   };
 }
