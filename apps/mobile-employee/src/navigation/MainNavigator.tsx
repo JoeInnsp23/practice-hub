@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DashboardScreen } from "../screens/main/DashboardScreen";
-import { TimesheetsListScreen } from "../screens/timesheets/TimesheetsListScreen";
+import { TimesheetsNavigator } from "./TimesheetsNavigator";
 import { TimeEntriesNavigator } from "./TimeEntriesNavigator";
 import { LeaveNavigator } from "./LeaveNavigator";
 import { ApprovalQueueScreen } from "../screens/approvals/ApprovalQueueScreen";
@@ -45,8 +45,9 @@ export function MainNavigator() {
       />
       <Tab.Screen
         name="Timesheets"
-        component={TimesheetsListScreen}
+        component={TimesheetsNavigator}
         options={{
+          headerShown: false,
           tabBarLabel: "Timesheets",
         }}
       />

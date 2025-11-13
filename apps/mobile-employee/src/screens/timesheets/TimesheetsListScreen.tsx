@@ -7,15 +7,26 @@ import {
   RefreshControl,
 } from "react-native";
 import { useState } from "react";
+import type { StackNavigationProp } from "@react-navigation/stack";
 import { trpc } from "@practice-hub/api-client";
 import { COLORS } from "../../lib/colors";
 import { Button } from "../../components/ui/Button";
+import type { TimesheetsStackParamList } from "../../navigation/types";
+
+type TimesheetsListScreenNavigationProp = StackNavigationProp<
+  TimesheetsStackParamList,
+  "TimesheetsList"
+>;
+
+type Props = {
+  navigation: TimesheetsListScreenNavigationProp;
+};
 
 /**
  * Timesheets list screen - shows weekly timesheets
  * Matches web: app/employee-hub/timesheets/page.tsx
  */
-export function TimesheetsListScreen() {
+export function TimesheetsListScreen({ navigation }: Props) {
   const [refreshing, setRefreshing] = useState(false);
 
   // Query timesheets for current user
@@ -138,6 +149,12 @@ export function TimesheetsListScreen() {
           <Text style={styles.headerSubtitle}>
             {timeEntries.length} total entries
           </Text>
+          <Button
+            title="Submit Timesheet"
+            variant="primary"
+            onPress={() => navigation.navigate("TimesheetSubmit")}
+            style={styles.submitButton}
+          />
         </View>
       }
     />
@@ -186,6 +203,10 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 14,
     color: COLORS.textSecondary,
+    marginBottom: 16,
+  },
+  submitButton: {
+    marginBottom: 8,
   },
   weekCard: {
     backgroundColor: COLORS.surface,

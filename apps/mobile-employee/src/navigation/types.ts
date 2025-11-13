@@ -24,8 +24,8 @@ export type MainTabParamList = {
 
 export type TimesheetsStackParamList = {
   TimesheetsList: undefined;
-  TimesheetDetail: { weekId: string };
-  TimesheetEntry: { weekId: string };
+  TimesheetSubmit: undefined;
+  TimesheetDetail: { submissionId: string };
 };
 
 export type TimeEntriesStackParamList = {
