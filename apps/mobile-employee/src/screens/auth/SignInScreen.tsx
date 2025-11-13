@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,15 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { COLORS } from "../../lib/colors";
+import {
+  isBiometricSupported,
+  hasBiometricCredentials,
+  getAvailableBiometricTypes,
+  getBiometricTypeName,
+  attemptBiometricLogin,
+  enableBiometric,
+  isBiometricEnabled as checkBiometricEnabled,
+} from "../../lib/biometric";
 
 /**
  * Sign In screen for Employee Hub
@@ -26,6 +35,28 @@ export function SignInScreen() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},
   );
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricType, setBiometricType] = useState("Biometric");
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+
+  // Check biometric availability on mount
+  useEffect(() => {
+    checkBiometricAvailability();
+  }, []);
+
+  const checkBiometricAvailability = async () => {
+    const supported = await isBiometricSupported();
+    const enrolled = await hasBiometricCredentials();
+    const enabled = await checkBiometricEnabled();
+
+    if (supported && enrolled) {
+      const types = await getAvailableBiometricTypes();
+      const typeName = getBiometricTypeName(types);
+      setBiometricType(typeName);
+      setBiometricAvailable(true);
+      setBiometricEnabled(enabled);
+    }
+  };
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -57,6 +88,61 @@ export function SignInScreen() {
 
       if (!result.success) {
         Alert.alert("Sign In Failed", result.error || "Please try again");
+        return;
+      }
+
+      // Offer to enable biometric after successful login
+      if (biometricAvailable && !biometricEnabled) {
+        Alert.alert(
+          "Enable Biometric Login?",
+          `Would you like to enable ${biometricType} for faster sign-in?`,
+          [
+            { text: "Not Now", style: "cancel" },
+            {
+              text: "Enable",
+              onPress: async () => {
+                const success = await enableBiometric(email);
+                if (success) {
+                  Alert.alert(
+                    "Success",
+                    `${biometricType} login enabled`,
+                  );
+                  setBiometricEnabled(true);
+                }
+              },
+            },
+          ],
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    setLoading(true);
+    try {
+      const result = await attemptBiometricLogin();
+
+      if (result.success && result.email) {
+        // Get password from secure storage if stored
+        // For now, we need to sign in with stored credentials
+        // NOTE: This is a simplified flow. In production, you might want to:
+        // 1. Store encrypted credentials
+        // 2. Use biometric to unlock stored session
+        // 3. Implement refresh tokens
+        Alert.alert(
+          "Biometric Success",
+          "Authenticated successfully. Please enter your password to complete sign-in.",
+        );
+        setEmail(result.email);
+      } else {
+        Alert.alert(
+          "Biometric Failed",
+          result.error || "Biometric authentication failed",
+        );
       }
     } catch (error) {
       Alert.alert("Error", "An unexpected error occurred");
@@ -117,6 +203,16 @@ export function SignInScreen() {
             disabled={loading}
           />
 
+          {biometricAvailable && biometricEnabled && (
+            <Button
+              title={`Sign in with ${biometricType}`}
+              variant="secondary"
+              onPress={handleBiometricLogin}
+              disabled={loading}
+              style={styles.biometricButton}
+            />
+          )}
+
           <Button
             title="Forgot Password?"
             variant="ghost"
@@ -163,6 +259,9 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  biometricButton: {
+    marginTop: 12,
   },
   footer: {
     marginTop: 24,
