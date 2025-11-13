@@ -46,8 +46,22 @@ export type LeaveStackParamList = {
 
 export type ApprovalsStackParamList = {
   ApprovalQueue: undefined;
-  TimesheetApprovals: undefined;
-  LeaveApprovals: undefined;
+  TimesheetDetail: {
+    submissionId: string;
+    userName: string;
+    weekStartDate: string;
+    weekEndDate: string;
+    totalHours: number;
+  };
+  LeaveRequestDetail: {
+    requestId: string;
+    userName: string;
+    leaveType: string;
+    startDate: string;
+    endDate: string;
+    daysCount: number;
+    notes?: string;
+  };
 };
 
 declare global {

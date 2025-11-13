@@ -7,15 +7,26 @@ import {
   RefreshControl,
 } from "react-native";
 import { useState } from "react";
+import type { StackNavigationProp } from "@react-navigation/stack";
 import { trpc } from "@practice-hub/api-client";
 import { COLORS } from "../../lib/colors";
 import { Button } from "../../components/ui/Button";
+import type { ApprovalsStackParamList } from "../../navigation/types";
+
+type ApprovalQueueScreenNavigationProp = StackNavigationProp<
+  ApprovalsStackParamList,
+  "ApprovalQueue"
+>;
+
+type Props = {
+  navigation: ApprovalQueueScreenNavigationProp;
+};
 
 /**
  * Approval queue screen - for managers to approve timesheets & leave
  * Matches web: app/employee-hub/approvals/page.tsx
  */
-export function ApprovalQueueScreen() {
+export function ApprovalQueueScreen({ navigation }: Props) {
   const [refreshing, setRefreshing] = useState(false);
 
   // Query pending timesheet approvals
@@ -132,7 +143,13 @@ export function ApprovalQueueScreen() {
             <TouchableOpacity
               style={styles.approvalCard}
               onPress={() => {
-                // TODO: Navigate to timesheet detail for approval
+                navigation.navigate("TimesheetDetail", {
+                  submissionId: item.id,
+                  userName: item.userName || "Unknown User",
+                  weekStartDate: item.weekStartDate,
+                  weekEndDate: item.weekEndDate,
+                  totalHours: Number(item.totalHours),
+                });
               }}
             >
               <View style={styles.cardHeader}>
@@ -161,7 +178,19 @@ export function ApprovalQueueScreen() {
           <TouchableOpacity
             style={styles.approvalCard}
             onPress={() => {
-              // TODO: Navigate to leave detail for approval
+              const displayName =
+                formatUserName(item.userFirstName, item.userLastName) ||
+                item.userName ||
+                item.userEmail;
+              navigation.navigate("LeaveRequestDetail", {
+                requestId: item.id,
+                userName: displayName,
+                leaveType: item.leaveType,
+                startDate: item.startDate,
+                endDate: item.endDate,
+                daysCount: item.daysCount,
+                notes: item.notes || undefined,
+              });
             }}
           >
             <View style={styles.cardHeader}>

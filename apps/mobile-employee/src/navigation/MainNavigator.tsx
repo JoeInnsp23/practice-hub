@@ -3,7 +3,7 @@ import { DashboardScreen } from "../screens/main/DashboardScreen";
 import { TimesheetsNavigator } from "./TimesheetsNavigator";
 import { TimeEntriesNavigator } from "./TimeEntriesNavigator";
 import { LeaveNavigator } from "./LeaveNavigator";
-import { ApprovalQueueScreen } from "../screens/approvals/ApprovalQueueScreen";
+import { ApprovalsNavigator } from "./ApprovalsNavigator";
 import type { MainTabParamList } from "./types";
 import { COLORS } from "../lib/colors";
 
@@ -70,8 +70,9 @@ export function MainNavigator() {
       />
       <Tab.Screen
         name="Approvals"
-        component={ApprovalQueueScreen}
+        component={ApprovalsNavigator}
         options={{
+          headerShown: false,
           tabBarLabel: "Approvals",
         }}
       />
