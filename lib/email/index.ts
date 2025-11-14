@@ -1,6 +1,7 @@
 import { render } from "@react-email/render";
 import { Resend } from "resend";
 import { InvitationEmail } from "@/emails/invitation-email";
+import { InvoiceReminderEmail } from "@/emails/invoice-reminder-email";
 import { PasswordResetEmail } from "@/emails/password-reset-email";
 import { VerificationEmail } from "@/emails/verification-email";
 
@@ -106,6 +107,43 @@ export async function sendPasswordResetEmail(
   return sendEmail({
     to: params.email,
     subject: "Reset your password",
+    html,
+  });
+}
+
+interface SendInvoiceEmailParams {
+  email: string;
+  clientName: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  totalAmount: string;
+  status: "reminder" | "overdue" | "final_notice";
+  paymentLink?: string;
+}
+
+export async function sendInvoiceEmail(params: SendInvoiceEmailParams) {
+  const html = await render(
+    InvoiceReminderEmail({
+      clientName: params.clientName,
+      invoiceNumber: params.invoiceNumber,
+      invoiceDate: params.invoiceDate,
+      dueDate: params.dueDate,
+      totalAmount: params.totalAmount,
+      status: params.status,
+      paymentLink: params.paymentLink,
+    }),
+  );
+
+  const subjectPrefix = {
+    reminder: "Payment Reminder",
+    overdue: "Overdue Invoice Notice",
+    final_notice: "FINAL NOTICE - Immediate Action Required",
+  }[params.status];
+
+  return sendEmail({
+    to: params.email,
+    subject: `${subjectPrefix} - Invoice ${params.invoiceNumber}`,
     html,
   });
 }

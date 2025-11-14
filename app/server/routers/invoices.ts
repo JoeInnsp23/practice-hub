@@ -527,16 +527,43 @@ export const invoicesRouter = router({
         const emailsSent: string[] = [];
         const emailsFailed: string[] = [];
 
-        // Send emails (would integrate with actual email service)
+        // Send emails via Resend
         for (const { invoice, client } of existingInvoices) {
           try {
-            // TODO: Integrate with actual email service (SendGrid, Resend, etc.)
-            // await emailService.send({
-            //   to: client.email,
-            //   subject: `Invoice ${invoice.invoiceNumber} Reminder`,
-            //   template: input.emailType || 'reminder',
-            //   data: { invoice, client }
-            // });
+            const { sendInvoiceEmail } = await import("@/lib/email");
+
+            // Map email type to invoice status
+            const emailStatus: "reminder" | "overdue" | "final_notice" =
+              input.emailType === "overdue" ? "overdue" : "reminder";
+
+            // Skip if client has no email address
+            if (!client.email) {
+              emailsFailed.push(invoice.id);
+              continue;
+            }
+
+            // Format dates
+            const invoiceDate = invoice.issueDate
+              ? new Date(invoice.issueDate).toLocaleDateString("en-GB")
+              : "N/A";
+            const dueDate = invoice.dueDate
+              ? new Date(invoice.dueDate).toLocaleDateString("en-GB")
+              : "N/A";
+
+            // Format total amount
+            const totalAmount = `£${Number.parseFloat(invoice.total).toFixed(2)}`;
+
+            await sendInvoiceEmail({
+              email: client.email,
+              clientName: client.name,
+              invoiceNumber: invoice.invoiceNumber,
+              invoiceDate,
+              dueDate,
+              totalAmount,
+              status: emailStatus,
+              // TODO: Add payment link when client portal invoice view is implemented
+              paymentLink: undefined,
+            });
 
             emailsSent.push(invoice.id);
 
@@ -556,6 +583,21 @@ export const invoicesRouter = router({
               },
             });
           } catch (error) {
+            // Track email failures in Sentry
+            const Sentry = await import("@sentry/nextjs");
+            Sentry.captureException(error, {
+              tags: {
+                operation: "invoice_email_send",
+                invoice_id: invoice.id,
+                email_type: input.emailType || "reminder",
+              },
+              extra: {
+                invoiceNumber: invoice.invoiceNumber,
+                clientEmail: client.email,
+                clientName: client.name,
+              },
+            });
+
             emailsFailed.push(invoice.id);
             // Log failure
             await tx.insert(activityLogs).values({
@@ -564,10 +606,12 @@ export const invoicesRouter = router({
               entityType: "invoice",
               entityId: invoice.id,
               action: "bulk_email_failed",
-              description: `Failed to send email for invoice ${invoice.invoiceNumber}`,
+              description: `Failed to send ${input.emailType || "reminder"} email for invoice ${invoice.invoiceNumber}`,
               userId,
               userName: `${firstName} ${lastName}`,
               metadata: {
+                emailType: input.emailType || "reminder",
+                recipientEmail: client.email,
                 error: error instanceof Error ? error.message : "Unknown error",
               },
             });

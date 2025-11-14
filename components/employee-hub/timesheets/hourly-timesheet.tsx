@@ -170,7 +170,7 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="footer-surface rounded-3xl border border-border h-full flex flex-col overflow-hidden">
+    <div className="rounded-3xl border border-border bg-muted/30 text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
@@ -219,7 +219,7 @@ export function HourlyTimesheet({
       </div>
 
       {/* Summary Bar */}
-      <div className="flex items-center px-4 py-2 footer-surface-bg border-b border-border">
+      <div className="flex items-center px-4 py-2 bg-muted/30 border-b border-border">
         <div className="flex items-center gap-6">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
@@ -256,8 +256,8 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="grid grid-cols-8 gap-0 sticky top-0 footer-surface-bg z-10 border-b border-border">
-            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border footer-surface-bg">
+          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-muted/30 z-10 border-b border-border">
+            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border bg-muted/30">
               Time
             </div>
             {weekDays.map((day) => {
@@ -266,7 +266,7 @@ export function HourlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "p-3 text-center text-sm font-medium border-r border-border last:border-r-0 footer-surface-bg",
+                    "p-3 text-center text-sm font-medium border-r border-border last:border-r-0 bg-muted/30",
                   )}
                   style={
                     isToday
@@ -312,7 +312,7 @@ export function HourlyTimesheet({
               >
                 <div
                   className={cn(
-                    "p-3 text-center text-sm font-medium text-foreground border-r border-border footer-surface-bg",
+                    "p-3 text-center text-sm font-medium text-foreground border-r border-border bg-muted/30",
                     isCurrentHour && "font-semibold",
                   )}
                   style={
@@ -345,7 +345,7 @@ export function HourlyTimesheet({
                       role="button"
                       tabIndex={0}
                       className={cn(
-                        "p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left footer-surface-bg",
+                        "p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left bg-muted/30",
                         "hover:bg-muted/40",
                         isToday && isCurrentHour && "font-medium",
                       )}
@@ -508,7 +508,7 @@ export function HourlyTimesheet({
       </div>
 
       {/* Daily Totals Footer */}
-      <div className="border-t border-border footer-surface-bg px-4 py-3">
+      <div className="border-t border-border bg-muted/30 px-4 py-3">
         <div className="grid grid-cols-8 gap-0 min-w-[800px]">
           <div className="text-center text-xs font-semibold text-foreground">
             Daily Totals
