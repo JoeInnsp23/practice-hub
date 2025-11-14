@@ -5,7 +5,6 @@ import {
   CheckCircle,
   Clock,
   Home,
-  Timer,
   TrendingUp,
   Umbrella,
 } from "lucide-react";
@@ -20,7 +19,6 @@ const sections = [
     title: "Time & Attendance",
     items: [
       { name: "Timesheets", href: "/employee-hub/timesheets", icon: Clock },
-      { name: "Time Entries", href: "/employee-hub/time-entries", icon: Timer },
       {
         name: "Leave Calendar",
         href: "/employee-hub/leave/calendar",

@@ -131,7 +131,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
             variant="default"
             className="bg-emerald-600 hover:bg-emerald-700"
           >
-            <Link href="/employee-hub/time-entries">
+            <Link href="/employee-hub/timesheets">
               <Clock className="h-4 w-4 mr-2" />
               Log Time
             </Link>
@@ -209,7 +209,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                   asChild
                   className="w-full bg-emerald-600 hover:bg-emerald-700 mt-auto"
                 >
-                  <Link href="/employee-hub/time-entries">View Timesheet</Link>
+                  <Link href="/employee-hub/timesheets">View Timesheet</Link>
                 </Button>
               </>
             )}

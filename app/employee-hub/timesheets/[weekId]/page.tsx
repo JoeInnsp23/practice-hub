@@ -29,10 +29,10 @@ export default function WeeklyTimesheetPage({
     weekDate = startOfWeek(weekDate, { weekStartsOn: 1 });
   } catch {
     // Invalid weekId format - redirect to current week
-    redirect("/employee-hub/time-entries");
+    redirect("/employee-hub/timesheets");
   }
 
-  // Redirect to the main time-entries page
-  // The time-entries page already has week navigation and handles all weeks
-  redirect("/employee-hub/time-entries");
+  // Redirect to the main timesheets page
+  // The timesheets page already has week navigation and handles all weeks
+  redirect("/employee-hub/timesheets");
 }
