@@ -19,7 +19,8 @@ export const clientPortalAuth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Invitations handle verification
+    // Enabled in production for security; invitations still pre-verify in both envs
+    requireEmailVerification: process.env.NODE_ENV === "production",
     password: {
       hash: async (password) => {
         return await bcrypt.hash(password, 10);

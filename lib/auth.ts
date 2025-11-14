@@ -17,7 +17,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Set to true in production
+    requireEmailVerification: process.env.NODE_ENV === "production",
     password: {
       hash: async (password) => {
         return await bcrypt.hash(password, 10);

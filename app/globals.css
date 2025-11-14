@@ -110,6 +110,11 @@
   --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
   --sidebar-border: oklch(0.88 0.006 264.531); /* Darker borders */
   --sidebar-ring: oklch(0.515 0.151 254.09); /* Blue ring */
+  --footer-surface-bg: color-mix(
+    in oklch,
+    var(--muted) 30%,
+    var(--background) 70%
+  );
 }
 
 .dark {
@@ -146,6 +151,11 @@
   --sidebar-ring: oklch(0.56 0.15 196.6);
   --background: oklch(0.1 0.018 251.3); /* Deep dark teal background */
   --foreground: oklch(0.94 0.005 249.1); /* Light foreground */
+  --footer-surface-bg: color-mix(
+    in oklch,
+    var(--muted) 30%,
+    var(--background) 70%
+  );
 }
 
 /* Hub color theming system - derives shades from --hub-color variable */
@@ -171,6 +181,15 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+
+  .footer-surface {
+    background-color: var(--footer-surface-bg);
+    color: var(--muted-foreground);
+  }
+
+  .footer-surface-bg {
+    background-color: var(--footer-surface-bg);
   }
   body {
     @apply bg-background text-foreground;

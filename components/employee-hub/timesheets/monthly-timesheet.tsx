@@ -133,7 +133,7 @@ export function MonthlyTimesheet({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="rounded-3xl border border-border bg-muted/30 text-muted-foreground h-full flex flex-col overflow-hidden">
+    <div className="footer-surface rounded-3xl border border-border h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
@@ -180,7 +180,7 @@ export function MonthlyTimesheet({
       </div>
 
       {/* Summary Bar */}
-      <div className="flex items-center px-4 py-2 bg-muted/30 border-b border-border">
+      <div className="flex items-center px-4 py-2 footer-surface-bg border-b border-border">
         <div className="flex items-center gap-6">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
@@ -207,11 +207,11 @@ export function MonthlyTimesheet({
       <div className="flex-1 overflow-auto">
         <div className="h-full">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-0 border-b border-border bg-muted/30">
+          <div className="grid grid-cols-7 gap-0 border-b border-border footer-surface-bg">
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0 bg-muted/30"
+                className="p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0 footer-surface-bg"
               >
                 {day}
               </div>
@@ -231,7 +231,7 @@ export function MonthlyTimesheet({
                   type="button"
                   key={day.toISOString()}
                   className={cn(
-                    "border-r border-b border-border last:border-r-0 min-h-[120px] p-2 cursor-pointer w-full text-left bg-muted/30",
+                    "border-r border-b border-border last:border-r-0 min-h-[120px] p-2 cursor-pointer w-full text-left footer-surface-bg",
                     "hover:bg-muted/40",
                     !isCurrentMonth && "text-muted-foreground/50",
                     isToday && "border-2",

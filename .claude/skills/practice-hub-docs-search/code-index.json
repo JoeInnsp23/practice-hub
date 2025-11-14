@@ -1,5 +1,5 @@
 {
-  "generated": "2025-11-14T21:36:18.050Z",
+  "generated": "2025-11-14T22:06:23.656Z",
   "version": "1.0",
   "total_entries": 231,
   "functions": [
@@ -423,7 +423,7 @@
       "name": "useWorkTypes",
       "description": "Hook to fetch work types from database",
       "file": "lib/hooks/use-work-types.ts",
-      "line": 3,
+      "line": 4,
       "type": "function",
       "signature": "function useWorkTypes"
     },
@@ -431,7 +431,7 @@
       "name": "useWorkTypeByCode",
       "description": "Hook to get a specific work type by code",
       "file": "lib/hooks/use-work-types.ts",
-      "line": 17,
+      "line": 18,
       "type": "function",
       "signature": "function useWorkTypeByCode"
     },
@@ -439,7 +439,7 @@
       "name": "useWorkTypeColor",
       "description": "Hook to get color for a work type",
       "file": "lib/hooks/use-work-types.ts",
-      "line": 27,
+      "line": 28,
       "type": "function",
       "signature": "function useWorkTypeColor"
     },
@@ -447,7 +447,7 @@
       "name": "useWorkTypeLabel",
       "description": "Hook to get label for a work type",
       "file": "lib/hooks/use-work-types.ts",
-      "line": 37,
+      "line": 38,
       "type": "function",
       "signature": "function useWorkTypeLabel"
     },
@@ -1233,7 +1233,7 @@
       "name": "WorkType",
       "description": "@deprecated This file is deprecated as of STORY-4.6: Work Type Migration to Database",
       "file": "lib/constants/work-types.ts",
-      "line": 1,
+      "line": 3,
       "type": "type",
       "signature": "interface WorkType"
     },
