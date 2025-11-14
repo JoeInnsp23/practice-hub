@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { HourlyTimesheet } from "@/components/employee-hub/timesheets/hourly-timesheet";
 import { MonthlyTimesheet } from "@/components/employee-hub/timesheets/monthly-timesheet";
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -113,20 +112,16 @@ export default function TimeTrackingPage() {
 
         <TabsContent value="weekly" className="space-y-4">
           {/* Weekly View - Hourly Timesheet */}
-          <Card className="p-0">
-            <div className="h-[calc(100vh-220px)]">
-              <HourlyTimesheet selectedUserId={effectiveSelectedUserId} />
-            </div>
-          </Card>
+          <div className="h-[calc(100vh-220px)]">
+            <HourlyTimesheet selectedUserId={effectiveSelectedUserId} />
+          </div>
         </TabsContent>
 
         <TabsContent value="monthly" className="space-y-4">
           {/* Monthly View - Calendar */}
-          <Card className="p-0">
-            <div className="h-[calc(100vh-220px)]">
-              <MonthlyTimesheet selectedUserId={effectiveSelectedUserId} />
-            </div>
-          </Card>
+          <div className="h-[calc(100vh-220px)]">
+            <MonthlyTimesheet selectedUserId={effectiveSelectedUserId} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

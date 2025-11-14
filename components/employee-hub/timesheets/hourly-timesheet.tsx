@@ -170,7 +170,7 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="rounded-3xl border border-border bg-muted/30 text-muted-foreground h-full flex flex-col overflow-hidden">
+    <div className="rounded-3xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
