@@ -569,8 +569,18 @@ export const timesheetsRouter = router({
 
       const totalHours = Number(result.rows[0]?.total_hours || 0);
 
+      // Get user's minimum hours setting
+      const userRecord = await db
+        .select({
+          timesheetMinWeeklyHours: users.timesheetMinWeeklyHours,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      const minimumHours = userRecord[0]?.timesheetMinWeeklyHours ?? 37.5;
+
       // Validation: minimum hours check
-      const minimumHours = 37.5; // TODO: Make configurable in settings
       if (totalHours < minimumHours) {
         throw new TRPCError({
           code: "BAD_REQUEST",

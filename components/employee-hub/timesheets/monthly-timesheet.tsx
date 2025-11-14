@@ -135,7 +135,7 @@ export function MonthlyTimesheet({
   return (
     <div className="rounded-3xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
+      <div className="glass-subtle flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
           {/* Month Navigation */}
           <div className="flex items-center space-x-2">
@@ -207,11 +207,11 @@ export function MonthlyTimesheet({
       <div className="flex-1 overflow-auto">
         <div className="h-full">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-0 border-b border-border bg-muted/30">
+          <div className="glass-subtle grid grid-cols-7 gap-0 border-b border-border">
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0 bg-muted/30"
+                className="p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0"
               >
                 {day}
               </div>
