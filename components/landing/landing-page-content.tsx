@@ -165,7 +165,7 @@ export function LandingPageContent() {
           colors={[
             "#2dd4bf",
             "#f59e0b",
-            "#94a3b8",
+            "var(--muted-foreground)",
             "#3b82f6",
             "#22d3ee",
             "#a855f7",

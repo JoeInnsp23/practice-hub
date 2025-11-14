@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
+import { MUTED_FOREGROUND_HEX_LIGHT } from "@/lib/constants/colors";
 import {
   type TimeEntry,
   type TimeEntryInput,
@@ -15,17 +16,37 @@ import {
 } from "@/lib/hooks/use-time-entries";
 import { useWorkTypes } from "@/lib/hooks/use-work-types";
 import { cn } from "@/lib/utils";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { TimeEntryModal } from "./time-entry-modal";
 
 interface HourlyTimesheetProps {
   initialWeekStart?: Date;
-  onViewChange?: (view: "daily" | "weekly" | "monthly") => void;
   selectedUserId?: string; // Optional: for admin to view specific user's timesheets
 }
 
+const EMPLOYEE_HUB_COLOR = HUB_COLORS["employee-hub"];
+
+const withOpacity = (color: string, alpha: number) => {
+  if (!color.startsWith("#")) {
+    return color;
+  }
+  const hex = color.replace("#", "");
+  if (hex.length !== 6) {
+    return color;
+  }
+
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const EMPLOYEE_HUB_HIGHLIGHT_BG = withOpacity(EMPLOYEE_HUB_COLOR, 0.15);
+const EMPLOYEE_HUB_HIGHLIGHT_BORDER = withOpacity(EMPLOYEE_HUB_COLOR, 0.35);
+
 export function HourlyTimesheet({
   initialWeekStart = new Date(),
-  onViewChange,
   selectedUserId,
 }: HourlyTimesheetProps) {
   const [currentWeek, setCurrentWeek] = useState(
@@ -149,10 +170,10 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="rounded-3xl border border-border bg-muted/30 text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
+        <div className="flex items-center gap-3">
           {/* Week Navigation */}
           <div className="flex items-center space-x-2">
             <Button
@@ -177,6 +198,17 @@ export function HourlyTimesheet({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))
+            }
+            className="font-semibold"
+            style={{ color: EMPLOYEE_HUB_COLOR }}
+          >
+            Today
+          </Button>
         </div>
 
         {/* New Time Entry Button */}
@@ -186,37 +218,8 @@ export function HourlyTimesheet({
         </Button>
       </div>
 
-      {/* View Toggle */}
-      {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-          <div className="flex items-center space-x-2">
-            <Button variant="default" size="sm">
-              Week
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-              onClick={() => onViewChange("monthly")}
-            >
-              Month
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))
-            }
-            className="text-blue-600 dark:text-blue-400"
-          >
-            Today
-          </Button>
-        </div>
-      )}
-
       {/* Summary Bar */}
-      <div className="flex items-center px-4 py-2 bg-muted border-b border-border">
+      <div className="flex items-center px-4 py-2 bg-muted/30 border-b border-border">
         <div className="flex items-center gap-6">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
@@ -253,38 +256,42 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-muted z-10 border-b border-border">
-            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border">
+          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-muted/30 z-10 border-b border-border">
+            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border bg-muted/30">
               Time
             </div>
-            {weekDays.map((day, index) => {
+            {weekDays.map((day) => {
               const isToday = currentTime && isSameDay(day, currentTime);
-              const isWeekend = index >= 5;
               return (
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "p-3 text-center text-sm font-medium border-r border-border last:border-r-0",
-                    isToday && "bg-blue-50 dark:bg-blue-500/10",
-                    isWeekend && !isToday && "bg-muted/80",
+                    "p-3 text-center text-sm font-medium border-r border-border last:border-r-0 bg-muted/30",
                   )}
+                  style={
+                    isToday
+                      ? {
+                          backgroundColor: EMPLOYEE_HUB_HIGHLIGHT_BG,
+                          borderColor: EMPLOYEE_HUB_HIGHLIGHT_BORDER,
+                        }
+                      : undefined
+                  }
                 >
                   <div
                     className={cn(
                       "text-foreground",
-                      isToday &&
-                        "text-blue-600 dark:text-blue-400 font-semibold",
+                      isToday && "font-semibold",
                     )}
+                    style={isToday ? { color: EMPLOYEE_HUB_COLOR } : undefined}
                   >
                     {format(day, "EEE")}
                   </div>
                   <div
                     className={cn(
                       "text-xs",
-                      isToday
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-muted-foreground",
+                      isToday ? "font-medium" : "text-muted-foreground",
                     )}
+                    style={isToday ? { color: EMPLOYEE_HUB_COLOR } : undefined}
                   >
                     {format(day, "MMM d")}
                   </div>
@@ -301,18 +308,26 @@ export function HourlyTimesheet({
               <div
                 key={slot.hour}
                 data-hour={slot.hour}
-                className="grid grid-cols-8 gap-0 border-b border-border hover:bg-muted/50"
+                className="grid grid-cols-8 gap-0 border-b border-border hover:bg-foreground/5"
               >
                 <div
                   className={cn(
-                    "p-3 text-center text-sm font-medium text-foreground border-r border-border",
-                    isCurrentHour &&
-                      "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400",
+                    "p-3 text-center text-sm font-medium text-foreground border-r border-border bg-muted/30",
+                    isCurrentHour && "font-semibold",
                   )}
+                  style={
+                    isCurrentHour
+                      ? {
+                          backgroundColor: EMPLOYEE_HUB_HIGHLIGHT_BG,
+                          color: EMPLOYEE_HUB_COLOR,
+                          borderColor: EMPLOYEE_HUB_HIGHLIGHT_BORDER,
+                        }
+                      : undefined
+                  }
                 >
                   {slot.display}
                 </div>
-                {weekDays.map((day, dayIndex) => {
+                {weekDays.map((day) => {
                   const entries = getEntriesForSlot(day, slot.hour);
                   const unscheduledEntries =
                     slot.hour === 0
@@ -321,7 +336,6 @@ export function HourlyTimesheet({
                             !entry.startTime || entry.startTime.trim() === "",
                         )
                       : [];
-                  const isWeekend = dayIndex >= 5;
                   const isToday = currentTime && isSameDay(day, currentTime);
 
                   return (
@@ -331,12 +345,9 @@ export function HourlyTimesheet({
                       role="button"
                       tabIndex={0}
                       className={cn(
-                        "p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left",
-                        "hover:bg-muted/50",
-                        isWeekend && "bg-muted",
-                        isToday &&
-                          isCurrentHour &&
-                          "bg-orange-50 dark:bg-orange-500/10",
+                        "p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left bg-muted/30",
+                        "hover:bg-muted/40",
+                        isToday && isCurrentHour && "font-medium",
                       )}
                       onClick={() => openModal(day, slot.hour)}
                       onKeyDown={(e) => {
@@ -345,6 +356,14 @@ export function HourlyTimesheet({
                           openModal(day, slot.hour);
                         }
                       }}
+                      style={
+                        isToday && isCurrentHour
+                          ? {
+                              backgroundColor: EMPLOYEE_HUB_HIGHLIGHT_BG,
+                              borderColor: EMPLOYEE_HUB_HIGHLIGHT_BORDER,
+                            }
+                          : undefined
+                      }
                     >
                       {unscheduledEntries.length > 0 && (
                         <div className="space-y-1 mb-1">
@@ -355,7 +374,7 @@ export function HourlyTimesheet({
                                 (entry.workType || "WORK").toUpperCase(),
                             );
                             const workTypeColor =
-                              workType?.colorCode || "#94a3b8";
+                              workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT;
                             const workTypeLabel = workType?.label || "Unknown";
 
                             return (
@@ -421,7 +440,7 @@ export function HourlyTimesheet({
                                 (entry.workType || "WORK").toUpperCase(),
                             );
                             const workTypeColor =
-                              workType?.colorCode || "#94a3b8";
+                              workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT;
                             const workTypeLabel = workType?.label || "Unknown";
 
                             return (
@@ -489,7 +508,7 @@ export function HourlyTimesheet({
       </div>
 
       {/* Daily Totals Footer */}
-      <div className="border-t border-border bg-muted px-4 py-3">
+      <div className="border-t border-border bg-muted/30 px-4 py-3">
         <div className="grid grid-cols-8 gap-0 min-w-[800px]">
           <div className="text-center text-xs font-semibold text-foreground">
             Daily Totals

@@ -224,7 +224,7 @@ export function AnnouncementsClient() {
       </div>
 
       {/* Announcements Table */}
-      <div className="glass-table">
+      <div className="overflow-x-auto glass-table">
         <Table>
           <TableHeader>
             <TableRow>

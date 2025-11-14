@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-14T21:36:18.048Z
+# Generated: 2025-11-14T22:06:23.652Z
 
 functions:
   landingRouter:
@@ -318,25 +318,25 @@ functions:
   useWorkTypes:
     description: "Hook to fetch work types from database"
     file: "lib/hooks/use-work-types.ts"
-    line: 3
+    line: 4
     type: "function"
     signature: "function useWorkTypes"
   useWorkTypeByCode:
     description: "Hook to get a specific work type by code"
     file: "lib/hooks/use-work-types.ts"
-    line: 17
+    line: 18
     type: "function"
     signature: "function useWorkTypeByCode"
   useWorkTypeColor:
     description: "Hook to get color for a work type"
     file: "lib/hooks/use-work-types.ts"
-    line: 27
+    line: 28
     type: "function"
     signature: "function useWorkTypeColor"
   useWorkTypeLabel:
     description: "Hook to get label for a work type"
     file: "lib/hooks/use-work-types.ts"
-    line: 37
+    line: 38
     type: "function"
     signature: "function useWorkTypeLabel"
   calculateLeadScore:
@@ -926,7 +926,7 @@ types:
   WorkType:
     description: "@deprecated This file is deprecated as of STORY-4.6: Work Type Migration to Database"
     file: "lib/constants/work-types.ts"
-    line: 1
+    line: 3
     type: "type"
     signature: "interface WorkType"
   ExpireProposalsResult:
@@ -1398,7 +1398,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-14T21:36:18.049Z"
+  generated: "2025-11-14T22:06:23.653Z"
   total_entries: 231
   functions: 139
   types: 59

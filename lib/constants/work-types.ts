@@ -1,3 +1,5 @@
+import { MUTED_FOREGROUND_HEX_LIGHT } from "@/lib/constants/colors";
+
 /**
  * @deprecated This file is deprecated as of STORY-4.6: Work Type Migration to Database
  *
@@ -10,7 +12,7 @@
  *
  * Migration guide:
  * - Replace WORK_TYPES array with useWorkTypes() hook
- * - Replace getWorkTypeColor() with workType?.colorCode || "#94a3b8"
+ * - Replace getWorkTypeColor() with workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT
  * - Replace getWorkTypeLabel() with workType?.label || "Unknown"
  *
  * See: docs/stories/epic-4/story-6-work-types-migration.md
@@ -96,7 +98,7 @@ export const getWorkTypeByCode = (code: string): WorkType | undefined => {
 
 export const getWorkTypeColor = (code: string): string => {
   const workType = getWorkTypeByCode(code);
-  return workType?.colorCode || "#94a3b8"; // slate-400 as fallback
+  return workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT; // Muted neutral fallback
 };
 
 export const getWorkTypeLabel = (code: string): string => {

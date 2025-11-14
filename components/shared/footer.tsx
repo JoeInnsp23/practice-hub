@@ -9,11 +9,11 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border bg-card mt-auto">
+    <footer className="border-t border-border bg-muted/30 text-muted-foreground mt-auto">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Legal Links */}
-          <nav className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+          <nav className="flex flex-wrap items-center justify-center gap-4 text-sm">
             <Link
               href="/privacy"
               className="hover:text-foreground transition-colors"
@@ -37,7 +37,7 @@ export function Footer() {
           </nav>
 
           {/* Copyright */}
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm">
             © {currentYear} Practice Hub. All rights reserved.
           </div>
         </div>

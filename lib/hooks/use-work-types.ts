@@ -1,4 +1,5 @@
 import { trpc } from "@/app/providers/trpc-provider";
+import { MUTED_FOREGROUND_HEX_LIGHT } from "@/lib/constants/colors";
 
 /**
  * Hook to fetch work types from database
@@ -31,7 +32,7 @@ export function useWorkTypeByCode(code: string) {
  */
 export function useWorkTypeColor(code: string) {
   const workType = useWorkTypeByCode(code);
-  return workType?.colorCode || "#94a3b8"; // slate-400 fallback
+  return workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT; // Muted neutral fallback
 }
 
 /**

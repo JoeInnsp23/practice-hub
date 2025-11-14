@@ -11,6 +11,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { MUTED_FOREGROUND_HEX_LIGHT } from "@/lib/constants/colors";
 
 interface PasswordResetEmailProps {
   userName?: string;
@@ -153,7 +154,7 @@ const hr = {
 
 const footer = {
   fontSize: "12px",
-  color: "#94a3b8",
+  color: MUTED_FOREGROUND_HEX_LIGHT,
   lineHeight: "18px",
   marginBottom: "0",
 };

@@ -7,7 +7,6 @@ import {
   endOfMonth,
   endOfWeek,
   format,
-  getDay,
   isSameDay,
   isSameMonth,
   startOfMonth,
@@ -18,6 +17,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Button } from "@/components/ui/button";
+import { MUTED_FOREGROUND_HEX_LIGHT } from "@/lib/constants/colors";
 import {
   type TimeEntry,
   type TimeEntryInput,
@@ -26,17 +26,18 @@ import {
 } from "@/lib/hooks/use-time-entries";
 import { useWorkTypes } from "@/lib/hooks/use-work-types";
 import { cn } from "@/lib/utils";
+import { HUB_COLORS } from "@/lib/utils/hub-colors";
 import { TimeEntryModal } from "./time-entry-modal";
+
+const EMPLOYEE_HUB_COLOR = HUB_COLORS["employee-hub"];
 
 interface MonthlyTimesheetProps {
   initialDate?: Date;
-  onViewChange?: (view: "daily" | "weekly" | "monthly") => void;
   selectedUserId?: string; // Optional: for admin to view specific user's timesheets
 }
 
 export function MonthlyTimesheet({
   initialDate = new Date(),
-  onViewChange,
   selectedUserId,
 }: MonthlyTimesheetProps) {
   const [currentDate, setCurrentDate] = useState(initialDate);
@@ -103,6 +104,10 @@ export function MonthlyTimesheet({
     setCurrentDate(newDate);
   };
 
+  const goToCurrentMonth = () => {
+    setCurrentDate(startOfMonth(new Date()));
+  };
+
   const openModal = (date: Date, entry?: TimeEntry) => {
     setSelectedDate(date);
     setSelectedEntry(entry || null);
@@ -128,10 +133,10 @@ export function MonthlyTimesheet({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="rounded-3xl border border-border bg-muted/30 text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
+        <div className="flex items-center gap-3">
           {/* Month Navigation */}
           <div className="flex items-center space-x-2">
             <Button
@@ -156,6 +161,15 @@ export function MonthlyTimesheet({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={goToCurrentMonth}
+            className="font-semibold"
+            style={{ color: EMPLOYEE_HUB_COLOR }}
+          >
+            Today
+          </Button>
         </div>
 
         {/* New Time Entry Button */}
@@ -165,27 +179,8 @@ export function MonthlyTimesheet({
         </Button>
       </div>
 
-      {/* View Toggle */}
-      {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-              onClick={() => onViewChange("weekly")}
-            >
-              Week
-            </Button>
-            <Button variant="default" size="sm">
-              Month
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* Summary Bar */}
-      <div className="flex items-center px-4 py-2 bg-muted border-b border-border">
+      <div className="flex items-center px-4 py-2 bg-muted/30 border-b border-border">
         <div className="flex items-center gap-6">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
@@ -212,11 +207,11 @@ export function MonthlyTimesheet({
       <div className="flex-1 overflow-auto">
         <div className="h-full">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-0 border-b border-border bg-muted">
+          <div className="grid grid-cols-7 gap-0 border-b border-border bg-muted/30">
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0"
+                className="p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0 bg-muted/30"
               >
                 {day}
               </div>
@@ -230,20 +225,20 @@ export function MonthlyTimesheet({
               const totalHours = getDayTotal(day);
               const isCurrentMonth = isSameMonth(day, currentDate);
               const isToday = isSameDay(day, new Date());
-              const isWeekend = getDay(day) === 0 || getDay(day) === 6;
 
               return (
                 <button
                   type="button"
                   key={day.toISOString()}
                   className={cn(
-                    "border-r border-b border-border last:border-r-0 min-h-[120px] p-2 cursor-pointer w-full text-left",
-                    "hover:bg-muted/50",
-                    !isCurrentMonth && "bg-muted/50 text-muted-foreground/50",
-                    isToday &&
-                      "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/50",
-                    isWeekend && isCurrentMonth && !isToday && "bg-muted",
+                    "border-r border-b border-border last:border-r-0 min-h-[120px] p-2 cursor-pointer w-full text-left bg-muted/30",
+                    "hover:bg-muted/40",
+                    !isCurrentMonth && "text-muted-foreground/50",
+                    isToday && "border-2",
                   )}
+                  style={
+                    isToday ? { borderColor: EMPLOYEE_HUB_COLOR } : undefined
+                  }
                   onClick={() => openModal(day)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -258,9 +253,14 @@ export function MonthlyTimesheet({
                       className={cn(
                         "text-sm font-medium",
                         isToday &&
-                          "bg-blue-600 dark:bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                          "text-white w-6 h-6 rounded-full flex items-center justify-center text-xs",
                         !isCurrentMonth && "text-muted-foreground/70",
                       )}
+                      style={
+                        isToday
+                          ? { backgroundColor: EMPLOYEE_HUB_COLOR }
+                          : undefined
+                      }
                     >
                       {format(day, "d")}
                     </span>
@@ -279,7 +279,8 @@ export function MonthlyTimesheet({
                         (wt) =>
                           wt.code === (entry.workType || "WORK").toUpperCase(),
                       );
-                      const workTypeColor = workType?.colorCode || "#94a3b8";
+                      const workTypeColor =
+                        workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT;
                       const workTypeLabel = workType?.label || "Unknown";
 
                       return (
