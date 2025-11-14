@@ -1,10 +1,13 @@
 "use client";
 
 import {
+  BookOpen,
   Calendar,
   CheckCircle,
   Clock,
+  GraduationCap,
   Home,
+  Shield,
   TrendingUp,
   Umbrella,
 } from "lucide-react";
@@ -40,6 +43,26 @@ const sections = [
         name: "Approval Queue",
         href: "/employee-hub/approvals",
         icon: CheckCircle,
+      },
+    ],
+  },
+  {
+    title: "Training & Compliance",
+    items: [
+      {
+        name: "My Training",
+        href: "/employee-hub/training",
+        icon: GraduationCap,
+      },
+      {
+        name: "SOPs Library",
+        href: "/employee-hub/training/sops",
+        icon: BookOpen,
+      },
+      {
+        name: "Compliance Dashboard",
+        href: "/employee-hub/training/compliance",
+        icon: Shield,
       },
     ],
   },

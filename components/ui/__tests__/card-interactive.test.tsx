@@ -312,11 +312,7 @@ describe("CardInteractive", () => {
 
     it("should not set rel attribute when target is not _blank", () => {
       render(
-        <CardInteractive
-          href="/admin-hub"
-          target="_self"
-          ariaLabel="Admin Hub"
-        >
+        <CardInteractive href="/admin-hub" target="_self" ariaLabel="Admin Hub">
           <div>Admin Hub</div>
         </CardInteractive>,
       );

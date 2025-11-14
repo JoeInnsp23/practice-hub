@@ -45,7 +45,7 @@ const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // Allowed file types
-const ALLOWED_FILE_TYPES = {
+const ALLOWED_FILE_TYPES: Record<SopFileType, string[]> = {
   pdf: ["application/pdf"],
   video: ["video/mp4", "video/quicktime", "video/x-msvideo"],
   image: ["image/png", "image/jpeg", "image/jpg"],
@@ -53,7 +53,7 @@ const ALLOWED_FILE_TYPES = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
     "application/msword", // .doc
   ],
-} as const;
+};
 
 export type SopFileType = "pdf" | "video" | "image" | "document";
 
@@ -61,9 +61,10 @@ export interface UploadSopFileOptions {
   tenantId: string;
   sopId: string;
   version: string;
-  file: File | Buffer;
+  buffer: Buffer;
   fileName: string;
   fileType: SopFileType;
+  contentType: string;
 }
 
 /**
@@ -140,25 +141,20 @@ function generateSopKey(
  *   tenantId: "tenant-1",
  *   sopId: "sop-123",
  *   version: "1.0",
- *   file: fileBuffer,
+ *   buffer: fileBuffer,
  *   fileName: "gdpr-policy.pdf",
  *   fileType: "pdf",
+ *   contentType: "application/pdf",
  * });
  * ```
  */
 export async function uploadSopFile(
   options: UploadSopFileOptions,
 ): Promise<string> {
-  const { tenantId, sopId, version, file, fileName, fileType } = options;
+  const { tenantId, sopId, version, buffer, fileName, fileType, contentType } =
+    options;
 
   try {
-    // Convert File to Buffer if needed
-    const buffer =
-      file instanceof Buffer ? file : Buffer.from(await file.arrayBuffer());
-
-    // Detect content type
-    const contentType = file instanceof File ? file.type : getContentType(fileName);
-
     // Validate file
     validateFile(buffer, fileType, contentType);
 
@@ -257,27 +253,6 @@ export async function deleteSopFile(s3Key: string): Promise<void> {
       `Failed to delete SOP file: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
   }
-}
-
-/**
- * Get content type from filename extension
- */
-function getContentType(fileName: string): string {
-  const extension = fileName.split(".").pop()?.toLowerCase();
-
-  const mimeTypes: Record<string, string> = {
-    pdf: "application/pdf",
-    mp4: "video/mp4",
-    mov: "video/quicktime",
-    avi: "video/x-msvideo",
-    png: "image/png",
-    jpg: "image/jpeg",
-    jpeg: "image/jpeg",
-    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    doc: "application/msword",
-  };
-
-  return mimeTypes[extension || ""] || "application/octet-stream";
 }
 
 /**

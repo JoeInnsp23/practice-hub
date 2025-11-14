@@ -4123,8 +4123,10 @@ export const trainingAttempts = pgTable(
       table.completedAt,
     ),
     // Composite index for attempt tracking
-    moduleUserAttemptIdx: index(
-      "training_attempts_module_user_attempt_idx",
-    ).on(table.moduleId, table.userId, table.attemptNumber),
+    moduleUserAttemptIdx: index("training_attempts_module_user_attempt_idx").on(
+      table.moduleId,
+      table.userId,
+      table.attemptNumber,
+    ),
   }),
 );

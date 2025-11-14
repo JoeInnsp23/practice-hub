@@ -5474,17 +5474,20 @@ For more information, visit the ICO website: https://ico.org.uk
   const topLevelCategories = [
     {
       name: "Governance & Compliance",
-      description: "Policies ensuring regulatory compliance, ethical standards, and risk management",
+      description:
+        "Policies ensuring regulatory compliance, ethical standards, and risk management",
       sortOrder: 1,
     },
     {
       name: "Client Services",
-      description: "Procedures for managing client relationships throughout the engagement lifecycle",
+      description:
+        "Procedures for managing client relationships throughout the engagement lifecycle",
       sortOrder: 2,
     },
     {
       name: "Technical Procedures",
-      description: "Core technical accounting, tax, and advisory service procedures",
+      description:
+        "Core technical accounting, tax, and advisory service procedures",
       sortOrder: 3,
     },
     {
@@ -5494,7 +5497,8 @@ For more information, visit the ICO website: https://ico.org.uk
     },
     {
       name: "Human Resources",
-      description: "People management procedures from recruitment through to offboarding",
+      description:
+        "People management procedures from recruitment through to offboarding",
       sortOrder: 5,
     },
     {
@@ -5520,50 +5524,149 @@ For more information, visit the ICO website: https://ico.org.uk
   // Create subcategories for each top-level category
   const subcategoriesData = [
     // Governance & Compliance subcategories
-    { parentName: "Governance & Compliance", name: "Anti-Money Laundering (AML)", sortOrder: 1 },
-    { parentName: "Governance & Compliance", name: "Know Your Customer (KYC)", sortOrder: 2 },
-    { parentName: "Governance & Compliance", name: "Data Protection & GDPR", sortOrder: 3 },
-    { parentName: "Governance & Compliance", name: "Professional Ethics", sortOrder: 4 },
-    { parentName: "Governance & Compliance", name: "Information Security", sortOrder: 5 },
+    {
+      parentName: "Governance & Compliance",
+      name: "Anti-Money Laundering (AML)",
+      sortOrder: 1,
+    },
+    {
+      parentName: "Governance & Compliance",
+      name: "Know Your Customer (KYC)",
+      sortOrder: 2,
+    },
+    {
+      parentName: "Governance & Compliance",
+      name: "Data Protection & GDPR",
+      sortOrder: 3,
+    },
+    {
+      parentName: "Governance & Compliance",
+      name: "Professional Ethics",
+      sortOrder: 4,
+    },
+    {
+      parentName: "Governance & Compliance",
+      name: "Information Security",
+      sortOrder: 5,
+    },
 
     // Client Services subcategories
     { parentName: "Client Services", name: "Client Onboarding", sortOrder: 1 },
     { parentName: "Client Services", name: "Client Offboarding", sortOrder: 2 },
-    { parentName: "Client Services", name: "Service Delivery Standards", sortOrder: 3 },
-    { parentName: "Client Services", name: "Quality Review Procedures", sortOrder: 4 },
-    { parentName: "Client Services", name: "Client Communication Protocols", sortOrder: 5 },
+    {
+      parentName: "Client Services",
+      name: "Service Delivery Standards",
+      sortOrder: 3,
+    },
+    {
+      parentName: "Client Services",
+      name: "Quality Review Procedures",
+      sortOrder: 4,
+    },
+    {
+      parentName: "Client Services",
+      name: "Client Communication Protocols",
+      sortOrder: 5,
+    },
 
     // Technical Procedures subcategories
-    { parentName: "Technical Procedures", name: "Bookkeeping & Accounts", sortOrder: 1 },
-    { parentName: "Technical Procedures", name: "Tax Preparation & Filing", sortOrder: 2 },
-    { parentName: "Technical Procedures", name: "Payroll Processing", sortOrder: 3 },
-    { parentName: "Technical Procedures", name: "Audit & Assurance", sortOrder: 4 },
-    { parentName: "Technical Procedures", name: "Advisory Services", sortOrder: 5 },
+    {
+      parentName: "Technical Procedures",
+      name: "Bookkeeping & Accounts",
+      sortOrder: 1,
+    },
+    {
+      parentName: "Technical Procedures",
+      name: "Tax Preparation & Filing",
+      sortOrder: 2,
+    },
+    {
+      parentName: "Technical Procedures",
+      name: "Payroll Processing",
+      sortOrder: 3,
+    },
+    {
+      parentName: "Technical Procedures",
+      name: "Audit & Assurance",
+      sortOrder: 4,
+    },
+    {
+      parentName: "Technical Procedures",
+      name: "Advisory Services",
+      sortOrder: 5,
+    },
 
     // Operational Procedures subcategories
-    { parentName: "Operational Procedures", name: "Document Management", sortOrder: 1 },
-    { parentName: "Operational Procedures", name: "Time Recording & Billing", sortOrder: 2 },
-    { parentName: "Operational Procedures", name: "Project Management", sortOrder: 3 },
-    { parentName: "Operational Procedures", name: "IT Systems & Security", sortOrder: 4 },
-    { parentName: "Operational Procedures", name: "Office Administration", sortOrder: 5 },
+    {
+      parentName: "Operational Procedures",
+      name: "Document Management",
+      sortOrder: 1,
+    },
+    {
+      parentName: "Operational Procedures",
+      name: "Time Recording & Billing",
+      sortOrder: 2,
+    },
+    {
+      parentName: "Operational Procedures",
+      name: "Project Management",
+      sortOrder: 3,
+    },
+    {
+      parentName: "Operational Procedures",
+      name: "IT Systems & Security",
+      sortOrder: 4,
+    },
+    {
+      parentName: "Operational Procedures",
+      name: "Office Administration",
+      sortOrder: 5,
+    },
 
     // Human Resources subcategories
     { parentName: "Human Resources", name: "Staff Onboarding", sortOrder: 1 },
-    { parentName: "Human Resources", name: "Performance Management", sortOrder: 2 },
-    { parentName: "Human Resources", name: "Training & Development", sortOrder: 3 },
+    {
+      parentName: "Human Resources",
+      name: "Performance Management",
+      sortOrder: 2,
+    },
+    {
+      parentName: "Human Resources",
+      name: "Training & Development",
+      sortOrder: 3,
+    },
     { parentName: "Human Resources", name: "Leave & Absence", sortOrder: 4 },
     { parentName: "Human Resources", name: "Health & Safety", sortOrder: 5 },
 
     // Financial Management subcategories
-    { parentName: "Financial Management", name: "Purchase Orders & Procurement", sortOrder: 1 },
-    { parentName: "Financial Management", name: "Expense Management", sortOrder: 2 },
-    { parentName: "Financial Management", name: "Invoice Processing", sortOrder: 3 },
-    { parentName: "Financial Management", name: "Budget Management", sortOrder: 4 },
+    {
+      parentName: "Financial Management",
+      name: "Purchase Orders & Procurement",
+      sortOrder: 1,
+    },
+    {
+      parentName: "Financial Management",
+      name: "Expense Management",
+      sortOrder: 2,
+    },
+    {
+      parentName: "Financial Management",
+      name: "Invoice Processing",
+      sortOrder: 3,
+    },
+    {
+      parentName: "Financial Management",
+      name: "Budget Management",
+      sortOrder: 4,
+    },
   ];
 
   const subcategories = subcategoriesData.map((subcat) => {
-    const parent = createdTopCategories.find((cat) => cat.name === subcat.parentName);
-    if (!parent) throw new Error(`Parent category not found: ${subcat.parentName}`);
+    const parent = createdTopCategories.find(
+      (cat) => cat.name === subcat.parentName,
+    );
+    if (!parent)
+      throw new Error(`Parent category not found: ${subcat.parentName}`);
 
     return {
       id: crypto.randomUUID(),
@@ -5576,9 +5679,14 @@ For more information, visit the ICO website: https://ico.org.uk
     };
   });
 
-  const createdSubcategories = await db.insert(sopCategories).values(subcategories).returning();
+  const createdSubcategories = await db
+    .insert(sopCategories)
+    .values(subcategories)
+    .returning();
 
-  console.log(`✅ Created ${createdTopCategories.length} top-level SOP categories and ${createdSubcategories.length} subcategories`);
+  console.log(
+    `✅ Created ${createdTopCategories.length} top-level SOP categories and ${createdSubcategories.length} subcategories`,
+  );
 
   console.log("✅ Database seeding completed!");
 
@@ -5601,7 +5709,9 @@ For more information, visit the ICO website: https://ico.org.uk
   console.log(`✓ ${emailTemplatesList.length} Email templates created`);
   console.log(`✓ Workflow email rules created (workflow triggers)`);
   console.log(`✓ ${createdAnnouncements.length} Company announcements created`);
-  console.log(`✓ ${createdTopCategories.length} SOP top-level categories and ${createdSubcategories.length} subcategories created`);
+  console.log(
+    `✓ ${createdTopCategories.length} SOP top-level categories and ${createdSubcategories.length} subcategories created`,
+  );
   console.log(`✓ 100 Activity logs created`);
 
   console.log("\n👤 Test Users:");
