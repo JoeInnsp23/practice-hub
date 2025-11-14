@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Calendar,
   Globe,
   LayoutDashboard,
   Megaphone,
@@ -18,22 +17,6 @@ const navigation = [
   { name: "User Management", href: "/admin-hub/users", icon: Users },
   { name: "Feedback", href: "/admin-hub/feedback", icon: MessageSquare },
   { name: "Portal Links", href: "/admin-hub/portal-links", icon: Globe },
-];
-
-const sections: {
-  title: string;
-  items: { name: string; href: string; icon: typeof Globe }[];
-}[] = [
-  {
-    title: "Time Management",
-    items: [
-      {
-        name: "Leave Approvals",
-        href: "/admin-hub/leave/approvals",
-        icon: Calendar,
-      },
-    ],
-  },
 ];
 
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
@@ -54,7 +37,6 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           moduleName="Admin Panel"
           baseHref="/admin-hub"
           navigation={navigation}
-          sections={sections}
           moduleColor={HUB_COLORS["admin-hub"]}
         />
         <main className="flex-1 p-8 max-w-7xl mx-auto">{children}</main>
