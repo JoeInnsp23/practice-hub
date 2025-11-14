@@ -13,7 +13,7 @@ import Link from "next/link";
 import { trpc } from "@/app/providers/trpc-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/lib/auth-client";
@@ -118,11 +118,9 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
       )}
 
       {/* Quick Actions */}
-      <CardInteractive
-        moduleColor={HUB_COLORS["employee-hub"]}
+      <Card
         className="animate-lift-in"
         style={{ animationDelay: "0s", opacity: 0 }}
-        ariaLabel="Quick Actions"
       >
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
@@ -157,7 +155,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
             </Link>
           </Button>
         </CardContent>
-      </CardInteractive>
+      </Card>
 
       {/* Dashboard Widgets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

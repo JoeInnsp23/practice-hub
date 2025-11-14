@@ -201,11 +201,9 @@ export default function ProposalHubPage() {
       </div>
 
       {/* Quick Actions */}
-      <CardInteractive
-        moduleColor={HUB_COLORS["proposal-hub"]}
+      <Card
         className="animate-lift-in"
         style={{ animationDelay: "0s", opacity: 0 }}
-        ariaLabel="Quick Actions"
       >
         <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -251,7 +249,7 @@ export default function ProposalHubPage() {
             </div>
           </Button>
         </div>
-      </CardInteractive>
+      </Card>
 
       {/* Recent Proposals */}
       <Card className="glass-card overflow-hidden">

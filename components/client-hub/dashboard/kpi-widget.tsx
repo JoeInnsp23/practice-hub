@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CardInteractive } from "@/components/ui/card-interactive";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -31,13 +31,21 @@ export function KPIWidget({
   loading = false,
   subtext,
 }: KPIWidgetProps) {
+  // Use Card for non-interactive stat cards, CardInteractive for clickable cards
+  const CardComponent = onClick ? CardInteractive : Card;
+  const cardProps = onClick
+    ? {
+        moduleColor: HUB_COLORS["client-hub"],
+        onClick,
+        ariaLabel: `View ${title}`,
+        className: cn("cursor-pointer", className),
+      }
+    : {
+        className,
+      };
+
   return (
-    <CardInteractive
-      moduleColor={HUB_COLORS["client-hub"]}
-      onClick={onClick}
-      ariaLabel={onClick ? `View ${title}` : undefined}
-      className={cn("cursor-pointer", className)}
-    >
+    <CardComponent {...cardProps}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
         <Icon className={cn("h-4 w-4", iconColor)} />
@@ -70,6 +78,6 @@ export function KPIWidget({
           </>
         )}
       </CardContent>
-    </CardInteractive>
+    </CardComponent>
   );
 }
