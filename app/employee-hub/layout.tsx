@@ -13,25 +13,25 @@ import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
-const navigation = [
-  { name: "Dashboard", href: "/employee-hub", icon: Home },
-  { name: "Timesheets", href: "/employee-hub/timesheets", icon: Clock },
-  { name: "Time Entries", href: "/employee-hub/time-entries", icon: Timer },
-  { name: "Leave", href: "/employee-hub/leave", icon: Umbrella },
-  { name: "TOIL", href: "/employee-hub/toil", icon: TrendingUp },
-];
+const navigation = [{ name: "Dashboard", href: "/employee-hub", icon: Home }];
 
 const sections = [
   {
-    title: "My Information",
+    title: "Time & Attendance",
     items: [
-      { name: "My Timesheets", href: "/employee-hub/timesheets", icon: Clock },
-      { name: "Leave Requests", href: "/employee-hub/leave", icon: Umbrella },
+      { name: "Timesheets", href: "/employee-hub/timesheets", icon: Clock },
+      { name: "Time Entries", href: "/employee-hub/time-entries", icon: Timer },
       {
         name: "Leave Calendar",
         href: "/employee-hub/leave/calendar",
         icon: Calendar,
       },
+    ],
+  },
+  {
+    title: "Benefits",
+    items: [
+      { name: "Leave Requests", href: "/employee-hub/leave", icon: Umbrella },
       { name: "TOIL Balance", href: "/employee-hub/toil", icon: TrendingUp },
     ],
   },

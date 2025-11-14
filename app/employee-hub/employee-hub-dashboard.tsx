@@ -172,7 +172,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               This Week's Timesheet
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col h-full pb-6">
             {summaryLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-8 w-full" />
@@ -180,8 +180,8 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                 <Skeleton className="h-10 w-full" />
               </div>
             ) : (
-              <div className="space-y-4">
-                <div>
+              <>
+                <div className="flex-1">
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-muted-foreground">Hours Logged</span>
                     <span className="font-medium">
@@ -207,11 +207,11 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                 </div>
                 <Button
                   asChild
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 mt-auto"
                 >
                   <Link href="/employee-hub/time-entries">View Timesheet</Link>
                 </Button>
-              </div>
+              </>
             )}
           </CardContent>
         </CardInteractive>
@@ -229,7 +229,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               Leave Balances
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col h-full pb-6">
             {leaveLoading ? (
               <div className="space-y-3">
                 <Skeleton className="h-8 w-full" />
@@ -237,35 +237,37 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                 <Skeleton className="h-10 w-full" />
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Annual Leave
-                  </span>
-                  <span className="text-lg font-bold text-emerald-600">
-                    {annualRemaining.toFixed(1)} days
-                  </span>
+              <>
+                <div className="flex-1 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Annual Leave
+                    </span>
+                    <span className="text-lg font-bold text-emerald-600">
+                      {annualRemaining.toFixed(1)} days
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      TOIL Balance
+                    </span>
+                    <span className="text-lg font-bold text-emerald-600">
+                      {toilBalanceDays} days
+                    </span>
+                  </div>
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Entitlement
+                    </p>
+                    <p className="text-sm">
+                      {annualEntitlement} days ({annualUsed} used)
+                    </p>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    TOIL Balance
-                  </span>
-                  <span className="text-lg font-bold text-emerald-600">
-                    {toilBalanceDays} days
-                  </span>
-                </div>
-                <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Entitlement
-                  </p>
-                  <p className="text-sm">
-                    {annualEntitlement} days ({annualUsed} used)
-                  </p>
-                </div>
-                <Button asChild variant="outline" className="w-full">
+                <Button asChild variant="outline" className="w-full mt-auto">
                   <Link href="/employee-hub/leave">View Leave Details</Link>
                 </Button>
-              </div>
+              </>
             )}
           </CardContent>
         </CardInteractive>
@@ -283,7 +285,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               TOIL Overview
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col h-full pb-6">
             {toilLoading ? (
               <div className="space-y-3">
                 <Skeleton className="h-12 w-full" />
@@ -291,23 +293,25 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                 <Skeleton className="h-10 w-full" />
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Current Balance
-                  </span>
-                  <span className="text-2xl font-bold text-emerald-600">
-                    {toilBalanceHours.toFixed(1)} hrs
-                  </span>
+              <>
+                <div className="flex-1 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Current Balance
+                    </span>
+                    <span className="text-2xl font-bold text-emerald-600">
+                      {toilBalanceHours.toFixed(1)} hrs
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">In Days</span>
+                    <span className="font-medium">{toilBalanceDays} days</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">In Days</span>
-                  <span className="font-medium">{toilBalanceDays} days</span>
-                </div>
-                <Button asChild variant="outline" className="w-full">
+                <Button asChild variant="outline" className="w-full mt-auto">
                   <Link href="/employee-hub/toil">View TOIL History</Link>
                 </Button>
-              </div>
+              </>
             )}
           </CardContent>
         </CardInteractive>
@@ -325,8 +329,8 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
               Pending Approvals
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+          <CardContent className="flex flex-col h-full pb-6">
+            <div className="flex-1 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   Timesheets
@@ -341,10 +345,10 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                 </span>
                 <span className="text-lg font-bold">{pendingLeaveCount}</span>
               </div>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/employee-hub/approvals">Review Queue</Link>
-              </Button>
             </div>
+            <Button asChild variant="outline" className="w-full mt-auto">
+              <Link href="/employee-hub/approvals">Review Queue</Link>
+            </Button>
           </CardContent>
         </CardInteractive>
       </div>
