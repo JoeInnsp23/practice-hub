@@ -1,6 +1,7 @@
 import {
   type AnyPgColumn,
   boolean,
+  check,
   date,
   decimal,
   index,
@@ -16,6 +17,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // Tenants table - for multi-tenancy
 export const tenants = pgTable("tenants", {
