@@ -3282,9 +3282,10 @@ For more information, visit the ICO website: https://ico.org.uk
     // Skip weekends
     if (date.getDay() === 0 || date.getDay() === 6) continue;
 
-    // Each user logs 2-5 entries per day
+    // Each user logs 2-4 entries per day (reduced from 5 to minimize overlap conflicts)
     for (const user of createdUsers) {
-      const entryCount = faker.number.int({ min: 2, max: 5 });
+      const entryCount = faker.number.int({ min: 2, max: 4 });
+      const usedTimeSlots: Array<{ start: number; end: number }> = []; // Track occupied time for this user on this day
 
       for (let i = 0; i < entryCount; i++) {
         const client = faker.helpers.arrayElement(createdClients);
@@ -3302,15 +3303,45 @@ For more information, visit the ICO website: https://ico.org.uk
         });
         const rate = Number(user.hourlyRate || 100);
 
-        const startHour = faker.number.int({ min: 7, max: 17 });
-        const startMinute = faker.helpers.arrayElement([0, 15, 30, 45]);
-        const startMinutesTotal = startHour * 60 + startMinute;
-        const durationMinutes = Math.max(30, Math.round(hours * 60));
-        const maxMinutesInDay = 23 * 60 + 45;
-        const endMinutesTotal = Math.min(
-          startMinutesTotal + durationMinutes,
-          maxMinutesInDay,
-        );
+        // Try to find non-overlapping time slot (max 10 attempts)
+        let validSlotFound = false;
+        let attempts = 0;
+        let startMinutesTotal = 0;
+        let endMinutesTotal = 0;
+
+        while (!validSlotFound && attempts < 10) {
+          attempts++;
+          const startHour = faker.number.int({ min: 7, max: 17 });
+          const startMinute = faker.helpers.arrayElement([0, 15, 30, 45]);
+          startMinutesTotal = startHour * 60 + startMinute;
+          const durationMinutes = Math.max(30, Math.round(hours * 60));
+          const maxMinutesInDay = 23 * 60 + 45;
+          endMinutesTotal = Math.min(
+            startMinutesTotal + durationMinutes,
+            maxMinutesInDay,
+          );
+
+          // Check overlap with existing slots for this user on this day
+          const overlaps = usedTimeSlots.some(
+            (slot) =>
+              (startMinutesTotal >= slot.start &&
+                startMinutesTotal < slot.end) || // New starts during existing
+              (endMinutesTotal > slot.start && endMinutesTotal <= slot.end) || // New ends during existing
+              (startMinutesTotal <= slot.start && endMinutesTotal >= slot.end), // New contains existing
+          );
+
+          if (!overlaps) {
+            validSlotFound = true;
+            usedTimeSlots.push({ start: startMinutesTotal, end: endMinutesTotal });
+            usedTimeSlots.sort((a, b) => a.start - b.start); // Keep sorted for debugging
+          }
+        }
+
+        if (!validSlotFound) {
+          // Skip this entry if no valid slot found after 10 attempts
+          continue;
+        }
+
         const actualDurationHours = (endMinutesTotal - startMinutesTotal) / 60;
 
         const formatMinutesToTime = (minutes: number) => {
@@ -3348,7 +3379,69 @@ For more information, visit the ICO website: https://ico.org.uk
           approvedAt: days > 7 ? date : null,
         });
       }
+
+      // Validate daily total for this user
+      const dayTotal = usedTimeSlots.reduce(
+        (sum, slot) => sum + (slot.end - slot.start) / 60,
+        0,
+      );
+      if (dayTotal > 24) {
+        console.error(
+          `❌ LOGIC ERROR: Day total ${dayTotal.toFixed(2)}h exceeds 24h for user ${user.email} on ${dateStr}`,
+        );
+      }
     }
+  }
+
+  // Overlap analysis - verify no per-user overlaps exist
+  console.log("🔍 Analyzing overlaps in seeded time entries...");
+  const overlapAnalysis = await db.execute(sql`
+    SELECT
+      te1.user_id,
+      te1.date,
+      COUNT(*) as overlap_count,
+      ARRAY_AGG(DISTINCT te1.id) as overlapping_ids
+    FROM time_entries te1
+    JOIN time_entries te2 ON
+      te1.user_id = te2.user_id
+      AND te1.date = te2.date
+      AND te1.id != te2.id
+      AND te1.start_time < te2.end_time
+      AND te1.end_time > te2.start_time
+    GROUP BY te1.user_id, te1.date
+    HAVING COUNT(*) > 0
+  `);
+
+  if (overlapAnalysis.rows.length > 0) {
+    console.error(
+      `❌ Found ${overlapAnalysis.rows.length} user-days with overlapping entries!`,
+    );
+    console.error("First few overlaps:", overlapAnalysis.rows.slice(0, 5));
+  } else {
+    console.log("✅ No overlapping time entries detected!");
+  }
+
+  // Check for 24-hour violations
+  const dailyLimitViolations = await db.execute(sql`
+    SELECT
+      user_id,
+      date,
+      SUM(CAST(hours AS DECIMAL)) as total_hours
+    FROM time_entries
+    GROUP BY user_id, date
+    HAVING SUM(CAST(hours AS DECIMAL)) > 24
+  `);
+
+  if (dailyLimitViolations.rows.length > 0) {
+    console.error(
+      `❌ Found ${dailyLimitViolations.rows.length} user-days exceeding 24-hour limit!`,
+    );
+    console.error(
+      "First few violations:",
+      dailyLimitViolations.rows.slice(0, 5),
+    );
+  } else {
+    console.log("✅ No 24-hour daily limit violations detected!");
   }
 
   // 9.5 Create Timesheet Submissions
