@@ -104,6 +104,27 @@ export function HourlyTimesheet({
     return { hour, display };
   });
 
+  // Calculate absolute position for continuous time entry blocks
+  const calculateEntryPosition = (entry: {
+    startTime: string | null;
+    endTime: string | null;
+  }) => {
+    if (!entry.startTime || !entry.endTime) return null;
+
+    const [startHour, startMin] = entry.startTime.split(":").map(Number);
+    const [endHour, endMin] = entry.endTime.split(":").map(Number);
+
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    const duration = endMinutes - startMinutes;
+
+    // Each hour slot is 60px high, so calculate pixel positions
+    const top = (startMinutes / 60) * 60; // Start position in pixels
+    const height = (duration / 60) * 60; // Total height in pixels
+
+    return { top, height };
+  };
+
   // Get entries for a specific day and hour
   const getEntriesForSlot = (date: Date, hour?: number) => {
     return (
@@ -353,7 +374,7 @@ export function HourlyTimesheet({
                       role="button"
                       tabIndex={0}
                       className={cn(
-                        "p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left bg-muted/30",
+                        "relative p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left bg-muted/30",
                         "hover:bg-muted/40",
                         isToday && isCurrentHour && "font-medium",
                       )}
@@ -438,114 +459,86 @@ export function HourlyTimesheet({
                           })}
                         </div>
                       )}
-                      {entries.length > 0 && (
-                        <div className="space-y-1">
-                          {entries.slice(0, 2).map((entry) => {
-                            // Get work type from database
-                            const workType = workTypes.find(
-                              (wt) =>
-                                wt.code ===
-                                (entry.workType || "WORK").toUpperCase(),
-                            );
-                            const workTypeColor =
-                              workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT;
-                            const workTypeLabel = workType?.label || "Unknown";
+                      {/* Render continuous time entry blocks only at first hour */}
+                      {slot.hour === 0 && (
+                        <div className="absolute inset-0 pointer-events-none">
+                          {getEntriesForSlot(day)
+                            .filter(
+                              (entry) => entry.startTime && entry.endTime,
+                            )
+                            .map((entry) => {
+                              const position = calculateEntryPosition(entry);
+                              if (!position) return null;
 
-                            // Calculate if this is the first, last, or middle hour of the entry span
-                            let isFirstHour = false;
-                            let isLastHour = false;
-                            let spanHours = 1;
-
-                            if (entry.startTime && entry.endTime) {
-                              const [startHour, startMinute] = entry.startTime
-                                .split(":")
-                                .map(Number);
-                              const [endHour, endMinute] = entry.endTime
-                                .split(":")
-                                .map(Number);
-
-                              const entryStart = startHour * 60 + startMinute;
-                              const entryEnd = endHour * 60 + endMinute;
-
-                              isFirstHour =
-                                Math.floor(entryStart / 60) === slot.hour;
-                              isLastHour =
-                                Math.floor((entryEnd - 1) / 60) === slot.hour;
-                              spanHours = Math.ceil(
-                                (entryEnd - entryStart) / 60,
+                              const workType = workTypes.find(
+                                (wt) =>
+                                  wt.code ===
+                                  (entry.workType || "WORK").toUpperCase(),
                               );
-                            }
+                              const workTypeColor =
+                                workType?.colorCode ||
+                                MUTED_FOREGROUND_HEX_LIGHT;
+                              const workTypeLabel =
+                                workType?.label || "Unknown";
 
-                            return (
-                              // biome-ignore lint/a11y/useSemanticElements: Div avoids nested interactive button structure
-                              <div
-                                key={entry.id || `${entry.date}-${entry.hours}`}
-                                className={cn(
-                                  "w-full text-left text-xs p-1 cursor-pointer hover:shadow-sm transition-shadow border-l-2",
-                                  // Visual span indicators
-                                  isFirstHour && !isLastHour
-                                    ? "rounded-t rounded-b-none border-b-0"
-                                    : !isFirstHour && isLastHour
-                                      ? "rounded-b rounded-t-none border-t-0"
-                                      : !isFirstHour && !isLastHour
-                                        ? "rounded-none border-t-0 border-b-0"
-                                        : "rounded", // Single hour entry
-                                )}
-                                style={{
-                                  backgroundColor: `${workTypeColor}20`,
-                                  borderLeftColor: workTypeColor,
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedEntry(entry);
-                                  setSelectedDate(new Date(entry.date));
-                                  setIsModalOpen(true);
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
+                              return (
+                                // biome-ignore lint/a11y/useSemanticElements: Div avoids nested interactive button structure
+                                <div
+                                  key={
+                                    entry.id || `${entry.date}-${entry.hours}`
+                                  }
+                                  className="absolute left-1 right-1 text-xs p-2 rounded pointer-events-auto cursor-pointer hover:shadow-md transition-shadow border-l-4"
+                                  style={{
+                                    backgroundColor: `${workTypeColor}20`,
+                                    borderLeftColor: workTypeColor,
+                                    top: `${position.top}px`,
+                                    height: `${position.height}px`,
+                                    zIndex: 10,
+                                  }}
+                                  onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedEntry(entry);
                                     setSelectedDate(new Date(entry.date));
                                     setIsModalOpen(true);
-                                  }
-                                }}
-                                role="button"
-                                tabIndex={0}
-                              >
-                                <div className="flex items-center gap-1">
-                                  <div
-                                    className={cn(
-                                      "w-1.5 h-1.5 rounded-full flex-shrink-0",
-                                      entry.billable
-                                        ? "bg-red-500"
-                                        : "bg-blue-500",
-                                    )}
-                                  />
-                                  <span className="font-medium truncate flex-1">
-                                    {workTypeLabel}
-                                    {/* Show span duration on first hour */}
-                                    {isFirstHour && spanHours > 1 && (
-                                      <span className="text-[10px] text-muted-foreground ml-1">
-                                        ({spanHours}hr span)
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setSelectedEntry(entry);
+                                      setSelectedDate(new Date(entry.date));
+                                      setIsModalOpen(true);
+                                    }
+                                  }}
+                                  role="button"
+                                  tabIndex={0}
+                                >
+                                  <div className="flex items-center gap-1">
+                                    <div
+                                      className={cn(
+                                        "w-1.5 h-1.5 rounded-full flex-shrink-0",
+                                        entry.billable
+                                          ? "bg-red-500"
+                                          : "bg-blue-500",
+                                      )}
+                                    />
+                                    <span className="font-medium truncate flex-1">
+                                      {workTypeLabel}
+                                    </span>
+                                    {entry.hours && (
+                                      <span className="text-[10px]">
+                                        {entry.hours}h
                                       </span>
                                     )}
-                                  </span>
-                                  {entry.hours && (
-                                    <span className="text-[10px]">
-                                      {/* Show hours on first slot, arrow on continuation */}
-                                      {isFirstHour ? `${entry.hours}h` : "↓"}
-                                    </span>
+                                  </div>
+                                  {entry.description && (
+                                    <div className="text-muted-foreground text-[10px] truncate mt-1">
+                                      {entry.description}
+                                    </div>
                                   )}
                                 </div>
-                              </div>
-                            );
-                          })}
-                          {entries.length > 2 && (
-                            <div className="text-[10px] text-muted-foreground text-center">
-                              +{entries.length - 2} more
-                            </div>
-                          )}
+                              );
+                            })}
                         </div>
                       )}
                     </div>
