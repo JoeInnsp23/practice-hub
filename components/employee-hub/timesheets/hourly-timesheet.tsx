@@ -149,9 +149,9 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-slate-800 rounded-lg overflow-hidden">
+    <div className="h-full flex flex-col bg-card rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
         <div className="flex items-center space-x-4">
           {/* Week Navigation */}
           <div className="flex items-center space-x-2">
@@ -164,7 +164,7 @@ export function HourlyTimesheet({
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <div className="text-base font-semibold text-slate-900 dark:text-slate-100 min-w-[200px] text-center">
+            <div className="text-base font-semibold text-foreground min-w-[200px] text-center">
               Week of {format(currentWeek, "MMM d, yyyy")}
             </div>
 
@@ -188,7 +188,7 @@ export function HourlyTimesheet({
 
       {/* View Toggle */}
       {onViewChange && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
           <div className="flex items-center space-x-2">
             <Button variant="default" size="sm">
               Week
@@ -196,7 +196,7 @@ export function HourlyTimesheet({
             <Button
               variant="ghost"
               size="sm"
-              className="text-slate-600 dark:text-slate-400"
+              className="text-muted-foreground"
               onClick={() => onViewChange("monthly")}
             >
               Month
@@ -216,31 +216,27 @@ export function HourlyTimesheet({
       )}
 
       {/* Summary Bar */}
-      <div className="flex items-center px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+      <div className="flex items-center px-4 py-2 bg-muted border-b border-border">
         <div className="flex items-center gap-6">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span className="text-sm text-slate-700 dark:text-slate-300">
-              Billable
-            </span>
+            <span className="text-sm text-foreground">Billable</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-blue-500 rounded"></div>
-            <span className="text-sm text-slate-700 dark:text-slate-300">
-              Non-Billable
-            </span>
+            <span className="text-sm text-foreground">Non-Billable</span>
           </div>
         </div>
         <div className="flex items-center gap-4 ml-auto text-sm">
-          <div className="text-slate-600 dark:text-slate-400">
+          <div className="text-muted-foreground">
             <span className="font-medium">Week Total:</span>
-            <span className="ml-2 font-bold text-slate-800 dark:text-slate-200">
+            <span className="ml-2 font-bold text-foreground">
               {timeEntries?.reduce((sum, e) => sum + e.hours, 0).toFixed(1) ||
                 0}
               h
             </span>
           </div>
-          <div className="text-slate-600 dark:text-slate-400">
+          <div className="text-muted-foreground">
             <span className="font-medium">Billable:</span>
             <span className="ml-2 font-bold text-green-600 dark:text-green-400">
               {timeEntries
@@ -257,8 +253,8 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-slate-50 dark:bg-slate-800/50 z-10 border-b border-slate-200 dark:border-slate-700">
-            <div className="p-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
+          <div className="grid grid-cols-8 gap-0 sticky top-0 bg-muted z-10 border-b border-border">
+            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border">
               Time
             </div>
             {weekDays.map((day, index) => {
@@ -268,16 +264,14 @@ export function HourlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "p-3 text-center text-sm font-medium border-r border-slate-200 dark:border-slate-700 last:border-r-0",
+                    "p-3 text-center text-sm font-medium border-r border-border last:border-r-0",
                     isToday && "bg-blue-50 dark:bg-blue-500/10",
-                    isWeekend &&
-                      !isToday &&
-                      "bg-slate-100 dark:bg-slate-800/70",
+                    isWeekend && !isToday && "bg-muted/80",
                   )}
                 >
                   <div
                     className={cn(
-                      "text-slate-700 dark:text-slate-300",
+                      "text-foreground",
                       isToday &&
                         "text-blue-600 dark:text-blue-400 font-semibold",
                     )}
@@ -289,7 +283,7 @@ export function HourlyTimesheet({
                       "text-xs",
                       isToday
                         ? "text-blue-600 dark:text-blue-400"
-                        : "text-slate-500 dark:text-slate-400",
+                        : "text-muted-foreground",
                     )}
                   >
                     {format(day, "MMM d")}
@@ -307,11 +301,11 @@ export function HourlyTimesheet({
               <div
                 key={slot.hour}
                 data-hour={slot.hour}
-                className="grid grid-cols-8 gap-0 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                className="grid grid-cols-8 gap-0 border-b border-border hover:bg-muted/50"
               >
                 <div
                   className={cn(
-                    "p-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700",
+                    "p-3 text-center text-sm font-medium text-foreground border-r border-border",
                     isCurrentHour &&
                       "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400",
                   )}
@@ -337,9 +331,9 @@ export function HourlyTimesheet({
                       role="button"
                       tabIndex={0}
                       className={cn(
-                        "p-2 min-h-[60px] border-r border-slate-200 dark:border-slate-700 last:border-r-0 cursor-pointer w-full text-left",
-                        "hover:bg-slate-100 dark:hover:bg-slate-700/50",
-                        isWeekend && "bg-slate-50 dark:bg-slate-800/50",
+                        "p-2 min-h-[60px] border-r border-border last:border-r-0 cursor-pointer w-full text-left",
+                        "hover:bg-muted/50",
+                        isWeekend && "bg-muted",
                         isToday &&
                           isCurrentHour &&
                           "bg-orange-50 dark:bg-orange-500/10",
@@ -408,7 +402,7 @@ export function HourlyTimesheet({
                                       {entry.hours}h
                                     </span>
                                   )}
-                                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                                  <span className="text-[10px] text-muted-foreground">
                                     No start time
                                   </span>
                                 </div>
@@ -479,7 +473,7 @@ export function HourlyTimesheet({
                             );
                           })}
                           {entries.length > 2 && (
-                            <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center">
+                            <div className="text-[10px] text-muted-foreground text-center">
                               +{entries.length - 2} more
                             </div>
                           )}
@@ -495,9 +489,9 @@ export function HourlyTimesheet({
       </div>
 
       {/* Daily Totals Footer */}
-      <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-3">
+      <div className="border-t border-border bg-muted px-4 py-3">
         <div className="grid grid-cols-8 gap-0 min-w-[800px]">
-          <div className="text-center text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <div className="text-center text-xs font-semibold text-foreground">
             Daily Totals
           </div>
           {weekDays.map((day) => {
@@ -512,11 +506,11 @@ export function HourlyTimesheet({
 
             return (
               <div key={day.toISOString()} className="text-center text-xs">
-                <div className="font-semibold text-slate-800 dark:text-slate-200">
+                <div className="font-semibold text-foreground">
                   {dayTotal > 0 ? `${dayTotal.toFixed(1)}h` : "-"}
                 </div>
                 {dayTotal > 0 && (
-                  <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">
+                  <div className="text-[10px] text-muted-foreground mt-1">
                     {billableTotal > 0
                       ? `${billableTotal.toFixed(1)}h billable`
                       : "Non-billable"}
