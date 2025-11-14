@@ -222,6 +222,70 @@ const timeEntrySchema = insertTimeEntrySchema.omit({
   updatedAt: true,
 });
 
+/**
+ * Check if a time entry overlaps with existing entries for the same user on the same date
+ * @param userId - User ID to check overlaps for
+ * @param tenantId - Tenant ID for multi-tenant isolation
+ * @param date - Date string (YYYY-MM-DD format)
+ * @param startTime - Start time string (HH:MM format)
+ * @param endTime - End time string (HH:MM format)
+ * @param excludeEntryId - Optional entry ID to exclude (for update operations)
+ * @returns Array of overlapping entry IDs
+ */
+async function checkTimeEntryOverlap(
+  userId: string,
+  tenantId: string,
+  date: string,
+  startTime: string,
+  endTime: string,
+  excludeEntryId?: string,
+): Promise<string[]> {
+  const overlappingEntries = await db
+    .select({ id: timeEntries.id })
+    .from(timeEntries)
+    .where(
+      and(
+        eq(timeEntries.userId, userId),
+        eq(timeEntries.tenantId, tenantId),
+        eq(timeEntries.date, date),
+        excludeEntryId
+          ? sql`${timeEntries.id} != ${excludeEntryId}`
+          : sql`true`,
+        // Overlap condition: (start1 < end2) AND (end1 > start2)
+        sql`${timeEntries.startTime} < ${endTime}`,
+        sql`${timeEntries.endTime} > ${startTime}`,
+      ),
+    );
+
+  return overlappingEntries.map((e) => e.id);
+}
+
+/**
+ * Calculate total hours for a user on a specific date
+ * @param userId - User ID
+ * @param tenantId - Tenant ID for multi-tenant isolation
+ * @param date - Date string (YYYY-MM-DD format)
+ * @param excludeEntryId - Optional entry ID to exclude from total (for update operations)
+ * @returns Total hours for the user on the specified date
+ */
+async function getDailyTotalHours(
+  userId: string,
+  tenantId: string,
+  date: string,
+  excludeEntryId?: string,
+): Promise<number> {
+  const result = await db.execute(sql`
+    SELECT COALESCE(SUM(CAST(hours AS DECIMAL)), 0) as total_hours
+    FROM time_entries
+    WHERE user_id = ${userId}
+      AND tenant_id = ${tenantId}
+      AND date = ${date}
+      ${excludeEntryId ? sql`AND id != ${excludeEntryId}` : sql``}
+  `);
+
+  return Number(result.rows[0]?.total_hours || 0);
+}
+
 export const timesheetsRouter = router({
   list: protectedProcedure
     .input(
@@ -302,7 +366,50 @@ export const timesheetsRouter = router({
   create: protectedProcedure
     .input(timeEntrySchema)
     .mutation(async ({ ctx, input }) => {
-      const { tenantId, userId, firstName, lastName } = ctx.authContext;
+      const { tenantId, userId, firstName, lastName} = ctx.authContext;
+
+      // Validation: Check for overlaps and daily limits if startTime/endTime provided
+      if (input.startTime && input.endTime) {
+        // Validate endTime > startTime
+        if (input.endTime <= input.startTime) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "End time must be after start time",
+          });
+        }
+
+        // Check for overlapping entries
+        const overlaps = await checkTimeEntryOverlap(
+          userId,
+          tenantId,
+          input.date,
+          input.startTime,
+          input.endTime,
+        );
+
+        if (overlaps.length > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Time entry overlaps with ${overlaps.length} existing ${overlaps.length === 1 ? "entry" : "entries"}. Please adjust the time range.`,
+          });
+        }
+      }
+
+      // Check 24-hour daily limit
+      const currentDayTotal = await getDailyTotalHours(
+        userId,
+        tenantId,
+        input.date,
+      );
+      const newTotal = currentDayTotal + Number(input.hours);
+
+      if (newTotal > 24) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Cannot log ${input.hours}h. Daily total would be ${newTotal.toFixed(2)}h, exceeding 24-hour limit. Current total: ${currentDayTotal.toFixed(2)}h.`,
+        });
+      }
+
       const newEntry = await db.transaction(async (tx) => {
         const [createdEntry] = await tx
           .insert(timeEntries)
@@ -396,6 +503,58 @@ export const timesheetsRouter = router({
         const previousWorkType = (
           existingEntry.workType || "WORK"
         ).toUpperCase();
+
+        // Validation: Check overlaps and daily limits if time range is being changed
+        const updatedStartTime =
+          input.data.startTime ?? existingEntry.startTime;
+        const updatedEndTime = input.data.endTime ?? existingEntry.endTime;
+        const updatedDate = input.data.date ?? existingEntry.date;
+
+        if (updatedStartTime && updatedEndTime) {
+          // Validate endTime > startTime
+          if (updatedEndTime <= updatedStartTime) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "End time must be after start time",
+            });
+          }
+
+          // Check for overlaps (exclude current entry)
+          const overlaps = await checkTimeEntryOverlap(
+            entryUserId,
+            tenantId,
+            updatedDate,
+            updatedStartTime,
+            updatedEndTime,
+            input.id, // Exclude self
+          );
+
+          if (overlaps.length > 0) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Updated time entry would overlap with ${overlaps.length} existing ${overlaps.length === 1 ? "entry" : "entries"}.`,
+            });
+          }
+        }
+
+        // Check 24-hour daily limit
+        const updatedHours = input.data.hours
+          ? Number(input.data.hours)
+          : Number(existingEntry.hours);
+        const currentDayTotal = await getDailyTotalHours(
+          entryUserId,
+          tenantId,
+          updatedDate,
+          input.id, // Exclude current entry from total
+        );
+        const newTotal = currentDayTotal + updatedHours;
+
+        if (newTotal > 24) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Cannot update to ${updatedHours}h. Daily total would be ${newTotal.toFixed(2)}h, exceeding 24-hour limit.`,
+          });
+        }
 
         if (previousWorkType === "TOIL") {
           await adjustToilBalance(tx, {
