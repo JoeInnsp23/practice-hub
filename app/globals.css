@@ -119,7 +119,8 @@
   --card-foreground: oklch(0.94 0.005 249.1); /* Light off-white */
   --popover: oklch(0.18 0.025 251.3);
   --popover-foreground: oklch(0.94 0.005 249.1);
-  --primary: oklch(0.56 0.15 196.6); /* Bright teal (not AI purple) */
+  /* Primary color will be overridden by [data-hub-root] for hub-specific colors */
+  --primary: oklch(0.56 0.15 196.6); /* Bright teal (not AI purple) - default, overridden by hubs */
   --primary-foreground: oklch(0.94 0.005 249.1); /* Light off-white */
   --secondary: oklch(0.52 0.12 178.5); /* Secondary teal - different hue */
   --secondary-foreground: oklch(0.95 0.003 249.1);
@@ -130,7 +131,7 @@
   --destructive: oklch(0.62 0.23 29.2); /* Red for errors */
   --border: oklch(0.25 0.022 251.3); /* Subtle dark border */
   --input: oklch(0.13 0.02 251.3); /* Very dark for inputs */
-  --ring: oklch(0.56 0.15 196.6); /* Match primary teal */
+  --ring: oklch(0.56 0.15 196.6); /* Match primary teal - overridden by hubs */
   --chart-1: oklch(0.56 0.15 196.6); /* Teal */
   --chart-2: oklch(0.52 0.12 178.5); /* Secondary teal */
   --chart-3: oklch(0.72 0.17 62.1); /* Gold */
@@ -148,25 +149,7 @@
   --foreground: oklch(0.94 0.005 249.1); /* Light foreground */
 }
 
-/* Hub color theming system - derives shades from --hub-color variable */
-[data-hub-root] {
-  /* Derive color shades using color-mix */
-  --hub-color-400: color-mix(in oklch, var(--hub-color) 88%, white 12%);
-  --hub-color-500: var(--hub-color);
-  --hub-color-600: color-mix(in oklch, var(--hub-color) 90%, black 10%);
-
-  /* Gradient rail for card decorations */
-  --hub-gradient-rail: linear-gradient(
-    90deg,
-    var(--hub-color-500),
-    var(--hub-color-600)
-  );
-
-  /* Map to shadcn tokens for consistency */
-  --primary: var(--hub-color-500);
-  --primary-foreground: oklch(0.94 0.005 249.1); /* Always light text on hub-colored buttons */
-  --ring: var(--hub-color-500);
-}
+/* Hub color theming system - see [data-hub-root] block around line 700 */
 
 @layer base {
   * {
@@ -707,12 +690,11 @@
  */
 [data-hub-root] {
   /* Hub base color (set inline by layout) */
-  --hub-color: var(--primary);
-  /* Derived shades (oklch color-mix for modern browsers) */
-  --hub-color-400: color-mix(in oklch, var(--hub-color) 88%, white 12%);
-  --hub-color-500: var(--hub-color);
-  --hub-color-600: color-mix(in oklch, var(--hub-color) 90%, black 10%);
-  --hub-color-700: color-mix(in oklch, var(--hub-color) 80%, black 20%);
+  /* Derived shades with fallback to prevent invalid CSS if --hub-color not set yet */
+  --hub-color-400: color-mix(in oklch, var(--hub-color, #10b981) 88%, white 12%);
+  --hub-color-500: var(--hub-color, #10b981);
+  --hub-color-600: color-mix(in oklch, var(--hub-color, #10b981) 90%, black 10%);
+  --hub-color-700: color-mix(in oklch, var(--hub-color, #10b981) 80%, black 20%);
 
   /* Wire to design tokens so components pick up hub accent automatically */
   --primary: var(--hub-color-500);
@@ -742,6 +724,9 @@
     var(--hub-soft-100)
   );
 }
+
+/* Hub-specific colors are set dynamically via inline styles in layout components */
+/* This ensures SSR (server layout) and CSR (client layout) both use HUB_COLORS */
 
 /* Accessibility Media Queries */
 @media (prefers-reduced-motion: reduce) {

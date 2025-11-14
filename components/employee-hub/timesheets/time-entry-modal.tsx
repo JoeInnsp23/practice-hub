@@ -1,7 +1,13 @@
 "use client";
 
 import { format } from "date-fns";
-import { AlertCircle, CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarIcon,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -115,7 +121,7 @@ export function TimeEntryModal({
   // Client-side validation helpers
   const checkOverlap = useCallback(
     (startTime: string, endTime: string): string | null => {
-      if (!startTime || !endTime || !existingEntries) return null;
+      if (!startTime || !endTime || !existingEntries?.timeEntries) return null;
 
       const [startHour, startMinute] = startTime.split(":").map(Number);
       const [endHour, endMinute] = endTime.split(":").map(Number);
@@ -128,7 +134,7 @@ export function TimeEntryModal({
       }
 
       // Check overlap with existing entries (exclude current entry if editing)
-      const overlaps = existingEntries.filter((entry) => {
+      const overlaps = existingEntries.timeEntries.filter((entry) => {
         if (selectedEntry?.id && entry.id === selectedEntry.id) return false;
         if (!entry.startTime || !entry.endTime) return false;
 
@@ -157,9 +163,9 @@ export function TimeEntryModal({
 
   const checkDailyLimit = useCallback(
     (hours: number): string | null => {
-      if (!existingEntries) return null;
+      if (!existingEntries?.timeEntries) return null;
 
-      const currentTotal = existingEntries.reduce((sum, entry) => {
+      const currentTotal = existingEntries.timeEntries.reduce((sum, entry) => {
         // Exclude current entry if editing
         if (selectedEntry?.id && entry.id === selectedEntry.id) return sum;
         return sum + Number(entry.hours || 0);

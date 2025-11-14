@@ -3332,7 +3332,10 @@ For more information, visit the ICO website: https://ico.org.uk
 
           if (!overlaps) {
             validSlotFound = true;
-            usedTimeSlots.push({ start: startMinutesTotal, end: endMinutesTotal });
+            usedTimeSlots.push({
+              start: startMinutesTotal,
+              end: endMinutesTotal,
+            });
             usedTimeSlots.sort((a, b) => a.start - b.start); // Keep sorted for debugging
           }
         }

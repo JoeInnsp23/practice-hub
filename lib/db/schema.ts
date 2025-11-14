@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
   boolean,
@@ -17,7 +18,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
 // Tenants table - for multi-tenancy
 export const tenants = pgTable("tenants", {

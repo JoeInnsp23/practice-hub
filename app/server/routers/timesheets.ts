@@ -366,7 +366,7 @@ export const timesheetsRouter = router({
   create: protectedProcedure
     .input(timeEntrySchema)
     .mutation(async ({ ctx, input }) => {
-      const { tenantId, userId, firstName, lastName} = ctx.authContext;
+      const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
       // Validation: Check for overlaps and daily limits if startTime/endTime provided
       if (input.startTime && input.endTime) {

@@ -133,7 +133,7 @@ export function MonthlyTimesheet({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="rounded-3xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
+    <div className="rounded-xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="glass-subtle flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
@@ -161,13 +161,7 @@ export function MonthlyTimesheet({
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={goToCurrentMonth}
-            className="font-semibold"
-            style={{ color: EMPLOYEE_HUB_COLOR }}
-          >
+          <Button variant="outline" size="sm" onClick={goToCurrentMonth}>
             Today
           </Button>
         </div>
