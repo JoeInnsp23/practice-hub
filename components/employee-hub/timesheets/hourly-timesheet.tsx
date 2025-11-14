@@ -116,10 +116,18 @@ export function HourlyTimesheet({
           return sameDay;
         }
 
-        // Check if entry falls within the specified hour
-        if (sameDay && entry.startTime) {
-          const [entryHour] = entry.startTime.split(":").map(Number);
-          return entryHour === hour;
+        // Check if entry SPANS through this hour slot (not just starts in it)
+        if (sameDay && entry.startTime && entry.endTime) {
+          const [startHour, startMinute] = entry.startTime.split(":").map(Number);
+          const [endHour, endMinute] = entry.endTime.split(":").map(Number);
+
+          const slotStart = hour * 60; // Hour slot start in minutes (e.g., 9:00 = 540)
+          const slotEnd = (hour + 1) * 60; // Hour slot end in minutes (e.g., 10:00 = 600)
+          const entryStart = startHour * 60 + startMinute;
+          const entryEnd = endHour * 60 + endMinute;
+
+          // Entry spans this hour if: (entryStart < slotEnd) AND (entryEnd > slotStart)
+          return entryStart < slotEnd && entryEnd > slotStart;
         }
 
         return false;
@@ -170,7 +178,7 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="rounded-3xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
+    <div className="rounded-xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="glass-subtle flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
@@ -199,13 +207,11 @@ export function HourlyTimesheet({
             </Button>
           </div>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() =>
               setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))
             }
-            className="font-semibold"
-            style={{ color: EMPLOYEE_HUB_COLOR }}
           >
             Today
           </Button>
@@ -443,11 +449,45 @@ export function HourlyTimesheet({
                               workType?.colorCode || MUTED_FOREGROUND_HEX_LIGHT;
                             const workTypeLabel = workType?.label || "Unknown";
 
+                            // Calculate if this is the first, last, or middle hour of the entry span
+                            let isFirstHour = false;
+                            let isLastHour = false;
+                            let spanHours = 1;
+
+                            if (entry.startTime && entry.endTime) {
+                              const [startHour, startMinute] = entry.startTime
+                                .split(":")
+                                .map(Number);
+                              const [endHour, endMinute] = entry.endTime
+                                .split(":")
+                                .map(Number);
+
+                              const entryStart = startHour * 60 + startMinute;
+                              const entryEnd = endHour * 60 + endMinute;
+                              const slotStart = slot.hour * 60;
+
+                              isFirstHour =
+                                Math.floor(entryStart / 60) === slot.hour;
+                              isLastHour =
+                                Math.floor((entryEnd - 1) / 60) === slot.hour;
+                              spanHours = Math.ceil((entryEnd - entryStart) / 60);
+                            }
+
                             return (
                               // biome-ignore lint/a11y/useSemanticElements: Div avoids nested interactive button structure
                               <div
                                 key={entry.id || `${entry.date}-${entry.hours}`}
-                                className="w-full text-left text-xs p-1 rounded cursor-pointer hover:shadow-sm transition-shadow border-l-2"
+                                className={cn(
+                                  "w-full text-left text-xs p-1 cursor-pointer hover:shadow-sm transition-shadow border-l-2",
+                                  // Visual span indicators
+                                  isFirstHour && !isLastHour
+                                    ? "rounded-t rounded-b-none border-b-0"
+                                    : !isFirstHour && isLastHour
+                                      ? "rounded-b rounded-t-none border-t-0"
+                                      : !isFirstHour && !isLastHour
+                                        ? "rounded-none border-t-0 border-b-0"
+                                        : "rounded", // Single hour entry
+                                )}
                                 style={{
                                   backgroundColor: `${workTypeColor}20`,
                                   borderLeftColor: workTypeColor,
@@ -481,10 +521,17 @@ export function HourlyTimesheet({
                                   />
                                   <span className="font-medium truncate flex-1">
                                     {workTypeLabel}
+                                    {/* Show span duration on first hour */}
+                                    {isFirstHour && spanHours > 1 && (
+                                      <span className="text-[10px] text-muted-foreground ml-1">
+                                        ({spanHours}hr span)
+                                      </span>
+                                    )}
                                   </span>
                                   {entry.hours && (
                                     <span className="text-[10px]">
-                                      {entry.hours}h
+                                      {/* Show hours on first slot, arrow on continuation */}
+                                      {isFirstHour ? `${entry.hours}h` : "↓"}
                                     </span>
                                   )}
                                 </div>
