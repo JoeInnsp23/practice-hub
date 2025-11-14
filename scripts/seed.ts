@@ -1,7 +1,7 @@
 // Environment variables are loaded via tsx -r dotenv/config in package.json
 import crypto from "node:crypto";
 import { faker } from "@faker-js/faker";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../lib/db";
 import {
   activityLogs,
