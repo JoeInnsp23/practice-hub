@@ -105,10 +105,7 @@ export function HourlyTimesheet({
   });
 
   // Calculate absolute position for continuous time entry blocks
-  const calculateEntryPosition = (entry: {
-    startTime: string | null;
-    endTime: string | null;
-  }) => {
+  const calculateEntryPosition = (entry: TimeEntry) => {
     if (!entry.startTime || !entry.endTime) return null;
 
     const [startHour, startMin] = entry.startTime.split(":").map(Number);
@@ -357,7 +354,6 @@ export function HourlyTimesheet({
                   {slot.display}
                 </div>
                 {weekDays.map((day) => {
-                  const entries = getEntriesForSlot(day, slot.hour);
                   const unscheduledEntries =
                     slot.hour === 0
                       ? getEntriesForSlot(day).filter(
@@ -463,9 +459,7 @@ export function HourlyTimesheet({
                       {slot.hour === 0 && (
                         <div className="absolute inset-0 pointer-events-none">
                           {getEntriesForSlot(day)
-                            .filter(
-                              (entry) => entry.startTime && entry.endTime,
-                            )
+                            .filter((entry) => entry.startTime && entry.endTime)
                             .map((entry) => {
                               const position = calculateEntryPosition(entry);
                               if (!position) return null;
