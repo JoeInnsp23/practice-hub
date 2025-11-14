@@ -128,7 +128,7 @@ export function MonthlyTimesheet({
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="h-full flex flex-col bg-card rounded-lg overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border">
         <div className="flex items-center space-x-4">
