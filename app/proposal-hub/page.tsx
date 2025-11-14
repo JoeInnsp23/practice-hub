@@ -23,7 +23,6 @@ import { UpcomingTasksWidget } from "@/components/proposal-hub/widgets/upcoming-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CardInteractive } from "@/components/ui/card-interactive";
 import {
   Table,
   TableBody,
@@ -32,7 +31,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
