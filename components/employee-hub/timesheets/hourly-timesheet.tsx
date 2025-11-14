@@ -118,7 +118,9 @@ export function HourlyTimesheet({
 
         // Check if entry SPANS through this hour slot (not just starts in it)
         if (sameDay && entry.startTime && entry.endTime) {
-          const [startHour, startMinute] = entry.startTime.split(":").map(Number);
+          const [startHour, startMinute] = entry.startTime
+            .split(":")
+            .map(Number);
           const [endHour, endMinute] = entry.endTime.split(":").map(Number);
 
           const slotStart = hour * 60; // Hour slot start in minutes (e.g., 9:00 = 540)
@@ -464,13 +466,14 @@ export function HourlyTimesheet({
 
                               const entryStart = startHour * 60 + startMinute;
                               const entryEnd = endHour * 60 + endMinute;
-                              const slotStart = slot.hour * 60;
 
                               isFirstHour =
                                 Math.floor(entryStart / 60) === slot.hour;
                               isLastHour =
                                 Math.floor((entryEnd - 1) / 60) === slot.hour;
-                              spanHours = Math.ceil((entryEnd - entryStart) / 60);
+                              spanHours = Math.ceil(
+                                (entryEnd - entryStart) / 60,
+                              );
                             }
 
                             return (
