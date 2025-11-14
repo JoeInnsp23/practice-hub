@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-14T20:41:29.722Z
+# Generated: 2025-11-14T21:36:18.048Z
 
 functions:
   landingRouter:
@@ -135,6 +135,18 @@ functions:
     line: 28
     type: "function"
     signature: "const APP_URL"
+  MUTED_FOREGROUND_HEX_LIGHT:
+    description: "Global color constants for contexts that cannot reference CSS variables."
+    file: "lib/constants/colors.ts"
+    line: 1
+    type: "function"
+    signature: "const MUTED_FOREGROUND_HEX_LIGHT"
+  MUTED_FOREGROUND_HEX_DARK:
+    description: "No description available"
+    file: "lib/constants/colors.ts"
+    line: 12
+    type: "function"
+    signature: "const MUTED_FOREGROUND_HEX_DARK"
   PIPELINE_STAGE_ORDER:
     description: "Pipeline stages for Kanban board"
     file: "lib/constants/pipeline-stages.ts"
@@ -1386,9 +1398,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-14T20:41:29.731Z"
-  total_entries: 229
-  functions: 137
+  generated: "2025-11-14T21:36:18.049Z"
+  total_entries: 231
+  functions: 139
   types: 59
   components: 29
   classes: 4

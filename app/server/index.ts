@@ -33,6 +33,7 @@ import { reportsRouter } from "./routers/reports";
 import { servicesRouter } from "./routers/services";
 import { sessionRouter } from "./routers/session";
 import { settingsRouter } from "./routers/settings";
+import { sopsRouter } from "./routers/sops";
 import { staffCapacityRouter } from "./routers/staffCapacity";
 import { staffStatisticsRouter } from "./routers/staffStatistics";
 import { taskGenerationRouter } from "./routers/task-generation";
@@ -65,6 +66,7 @@ export const appRouter = router({
   staffStatistics: staffStatisticsRouter,
   workingPatterns: workingPatternsRouter,
   settings: settingsRouter,
+  sops: sopsRouter,
   workflows: workflowsRouter,
   workTypes: workTypesRouter,
   portal: portalRouter,
