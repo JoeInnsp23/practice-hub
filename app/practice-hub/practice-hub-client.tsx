@@ -160,11 +160,6 @@ export function PracticeHubClient({
       ? externalCategories
       : externalCategories.filter((cat) => cat.id === selectedCategory);
 
-  const handleAppClick = (app: (typeof visibleModules)[0]) => {
-    if (app.status === "active") {
-      window.location.href = app.url;
-    }
-  };
 
   if (isLoading) {
     return (
@@ -206,11 +201,8 @@ export function PracticeHubClient({
                       <CardInteractive
                         key={module.hubKey}
                         moduleColor={moduleColor}
-                        onClick={
-                          !isComingSoon
-                            ? () => handleAppClick(module)
-                            : undefined
-                        }
+                        href={!isComingSoon ? module.url : undefined}
+                        target="_blank"
                         ariaLabel={
                           !isComingSoon
                             ? `Navigate to ${module.name}`

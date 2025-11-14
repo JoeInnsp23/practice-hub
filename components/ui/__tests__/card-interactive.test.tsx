@@ -267,4 +267,125 @@ describe("CardInteractive", () => {
       expect(button).toHaveClass("card-interactive");
     });
   });
+
+  describe("href navigation", () => {
+    it("should render as anchor tag when href is provided", () => {
+      render(
+        <CardInteractive href="/dashboard" ariaLabel="Navigate to dashboard">
+          <div>Dashboard</div>
+        </CardInteractive>,
+      );
+
+      const link = screen.getByRole("link", { name: "Navigate to dashboard" });
+      expect(link).toBeTruthy();
+      expect(link).toHaveAttribute("href", "/dashboard");
+      expect(link.tagName).toBe("A");
+    });
+
+    it("should default to target=_self for same-tab navigation", () => {
+      render(
+        <CardInteractive href="/admin-hub/users" ariaLabel="User Management">
+          <div>User Management</div>
+        </CardInteractive>,
+      );
+
+      const link = screen.getByRole("link", { name: "User Management" });
+      expect(link).toHaveAttribute("target", "_self");
+      expect(link).not.toHaveAttribute("rel");
+    });
+
+    it("should support target=_blank for new-tab navigation", () => {
+      render(
+        <CardInteractive
+          href="/client-hub"
+          target="_blank"
+          ariaLabel="Open Client Hub"
+        >
+          <div>Client Hub</div>
+        </CardInteractive>,
+      );
+
+      const link = screen.getByRole("link", { name: "Open Client Hub" });
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    });
+
+    it("should not set rel attribute when target is not _blank", () => {
+      render(
+        <CardInteractive
+          href="/admin-hub"
+          target="_self"
+          ariaLabel="Admin Hub"
+        >
+          <div>Admin Hub</div>
+        </CardInteractive>,
+      );
+
+      const link = screen.getByRole("link", { name: "Admin Hub" });
+      expect(link).not.toHaveAttribute("rel");
+    });
+
+    it("should have card-interactive, text-left, w-full, and block classes", () => {
+      render(
+        <CardInteractive href="/dashboard" ariaLabel="Dashboard">
+          <div>Dashboard</div>
+        </CardInteractive>,
+      );
+
+      const link = screen.getByRole("link", { name: "Dashboard" });
+      expect(link).toHaveClass("card-interactive");
+      expect(link).toHaveClass("text-left");
+      expect(link).toHaveClass("w-full");
+      expect(link).toHaveClass("block");
+    });
+
+    it("should apply moduleColor CSS variables to anchor tag", () => {
+      const { container } = render(
+        <CardInteractive
+          href="/client-hub"
+          moduleColor="#3b82f6"
+          ariaLabel="Client Hub"
+        >
+          <div>Client Hub</div>
+        </CardInteractive>,
+      );
+
+      const link = container.querySelector("a.card-interactive") as HTMLElement;
+      expect(link.style.getPropertyValue("--module-color")).toBe("#3b82f6");
+    });
+
+    it("should forward anchor-specific props", () => {
+      render(
+        <CardInteractive
+          href="/dashboard"
+          ariaLabel="Dashboard"
+          data-testid="test-link"
+        >
+          <div>Dashboard</div>
+        </CardInteractive>,
+      );
+
+      const link = screen.getByTestId("test-link");
+      expect(link).toBeTruthy();
+      expect(link.tagName).toBe("A");
+    });
+
+    it("should prioritize href over onClick", () => {
+      const handleClick = vi.fn();
+      render(
+        <CardInteractive
+          href="/dashboard"
+          onClick={handleClick}
+          ariaLabel="Dashboard"
+        >
+          <div>Dashboard</div>
+        </CardInteractive>,
+      );
+
+      // Should render as anchor tag, not button
+      const link = screen.getByRole("link", { name: "Dashboard" });
+      expect(link).toBeTruthy();
+      expect(screen.queryByRole("button")).toBeNull();
+    });
+  });
 });

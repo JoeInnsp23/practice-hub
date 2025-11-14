@@ -70,9 +70,7 @@ export default function AdminDashboardPage() {
             <CardInteractive
               key={section.href}
               moduleColor={HUB_COLORS["admin-hub"]}
-              onClick={() => {
-                window.location.href = section.href;
-              }}
+              href={section.href}
               ariaLabel={`Navigate to ${section.title}`}
               className="h-full animate-lift-in"
               style={{

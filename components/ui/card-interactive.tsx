@@ -21,8 +21,38 @@ interface CardInteractiveProps extends React.ComponentProps<"div"> {
   moduleColor?: string;
 
   /**
+   * URL to navigate to when the card is clicked.
+   * If provided, the card renders as an anchor tag (<a>) with target="_blank".
+   * This enables browser features like right-click "Open in new tab".
+   *
+   * @example
+   * ```tsx
+   * <CardInteractive href="/dashboard" ariaLabel="Navigate to dashboard">
+   *   Dashboard Card
+   * </CardInteractive>
+   * ```
+   */
+  href?: string;
+
+  /**
+   * Target attribute for the anchor tag.
+   * Only used when href is provided.
+   * Defaults to "_self" to navigate in the same tab.
+   * Use "_blank" to open in a new tab.
+   *
+   * @example
+   * ```tsx
+   * <CardInteractive href="/client-hub" target="_blank">
+   *   Client Hub (opens in new tab)
+   * </CardInteractive>
+   * ```
+   */
+  target?: string;
+
+  /**
    * Click handler for the card.
-   * If provided, the card becomes clickable and renders as a button.
+   * If provided (without href), the card becomes clickable and renders as a button.
+   * Use href instead for navigation to enable browser features like "Open in new tab".
    *
    * @example
    * ```tsx
@@ -35,11 +65,11 @@ interface CardInteractiveProps extends React.ComponentProps<"div"> {
 
   /**
    * Accessibility label for the card.
-   * Required when onClick is provided for screen reader support.
+   * Required when onClick or href is provided for screen reader support.
    *
    * @example
    * ```tsx
-   * <CardInteractive onClick={handleClick} ariaLabel="Navigate to dashboard">
+   * <CardInteractive href="/dashboard" ariaLabel="Navigate to dashboard">
    *   Dashboard Card
    * </CardInteractive>
    * ```
@@ -66,7 +96,8 @@ interface CardInteractiveProps extends React.ComponentProps<"div"> {
  * - Hub color support via moduleColor prop
  * - Full dark mode support
  * - Accessibility support (aria-label)
- * - Optional onClick handler
+ * - Renders as anchor tag when href is provided (enables "Open in new tab")
+ * - Renders as button when onClick is provided (for non-navigation interactions)
  *
  * @example
  * ```tsx
@@ -76,25 +107,31 @@ interface CardInteractiveProps extends React.ComponentProps<"div"> {
  *   <p>Card content</p>
  * </CardInteractive>
  *
- * // With hub color
- * <CardInteractive moduleColor="#3b82f6">
- *   <h3>Client Hub Card</h3>
- *   <p>Card content</p>
- * </CardInteractive>
- *
- * // With onClick handler
+ * // With navigation (recommended for links)
  * <CardInteractive
  *   moduleColor="#3b82f6"
- *   onClick={() => router.push('/dashboard')}
+ *   href="/dashboard"
  *   ariaLabel="Navigate to dashboard"
  * >
  *   <h3>Dashboard</h3>
  *   <p>View dashboard</p>
  * </CardInteractive>
+ *
+ * // With onClick handler (for custom behavior)
+ * <CardInteractive
+ *   moduleColor="#3b82f6"
+ *   onClick={() => handleCustomAction()}
+ *   ariaLabel="Perform action"
+ * >
+ *   <h3>Custom Action</h3>
+ *   <p>Click to perform action</p>
+ * </CardInteractive>
  * ```
  */
 export function CardInteractive({
   moduleColor = HUB_COLORS["client-hub"], // Default to blue
+  href,
+  target = "_self",
   onClick,
   ariaLabel,
   className,
@@ -113,6 +150,23 @@ export function CardInteractive({
     "--module-color": moduleColor,
     "--module-gradient": gradient,
   } as React.CSSProperties;
+
+  // If href is provided, render as anchor tag for proper navigation
+  if (href) {
+    return (
+      <a
+        href={href}
+        target={target}
+        rel={target === "_blank" ? "noopener noreferrer" : undefined}
+        aria-label={ariaLabel}
+        className={cn("card-interactive text-left w-full block", className)}
+        style={style}
+        {...(props as React.ComponentProps<"a">)}
+      >
+        {children}
+      </a>
+    );
+  }
 
   // If onClick is provided, render as button for better accessibility
   if (onClick) {
