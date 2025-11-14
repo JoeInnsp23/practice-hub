@@ -3749,3 +3749,382 @@ export const emailQueue = pgTable(
     ),
   }),
 );
+
+// ============================================================================
+// SOP Management & Training System (Story: SOP Management)
+// ============================================================================
+
+// SOP Status enum
+export const sopStatusEnum = pgEnum("sop_status", [
+  "draft",
+  "published",
+  "archived",
+  "under_review",
+]);
+
+// SOP File Type enum
+export const sopFileTypeEnum = pgEnum("sop_file_type", [
+  "pdf",
+  "video",
+  "document",
+  "image",
+]);
+
+// Assignment Status enum
+export const assignmentStatusEnum = pgEnum("assignment_status", [
+  "pending",
+  "completed",
+  "overdue",
+  "exempted",
+]);
+
+// Training Module Status enum
+export const moduleStatusEnum = pgEnum("module_status", [
+  "draft",
+  "published",
+  "archived",
+]);
+
+// Question Type enum
+export const questionTypeEnum = pgEnum("question_type", [
+  "multiple_choice",
+  "true_false",
+  "short_answer",
+]);
+
+// Attempt Status enum
+export const attemptStatusEnum = pgEnum("attempt_status", [
+  "in_progress",
+  "completed",
+  "abandoned",
+]);
+
+// SOP Categories - Hierarchical category structure for organizing SOPs
+export const sopCategories = pgTable(
+  "sop_categories",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    parentCategoryId: text("parent_category_id").references(
+      (): AnyPgColumn => sopCategories.id,
+    ), // Self-reference for hierarchy
+    sortOrder: integer("sort_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("sop_categories_tenant_id_idx").on(table.tenantId),
+    parentCategoryIdx: index("sop_categories_parent_category_id_idx").on(
+      table.parentCategoryId,
+    ),
+    sortOrderIdx: index("sop_categories_sort_order_idx").on(table.sortOrder),
+    // Prevent duplicate category names within same tenant and parent
+    uniqueTenantNameParent: uniqueIndex(
+      "sop_categories_tenant_name_parent_idx",
+    ).on(table.tenantId, table.name, table.parentCategoryId),
+  }),
+);
+
+// SOPs - Standard Operating Procedures with version control
+export const sops = pgTable(
+  "sops",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    categoryId: text("category_id")
+      .references(() => sopCategories.id)
+      .notNull(),
+    fileUrl: text("file_url").notNull(), // S3 object key
+    fileType: sopFileTypeEnum("file_type").notNull(),
+    fileSizeBytes: integer("file_size_bytes"),
+    version: text("version").default("1.0").notNull(),
+    status: sopStatusEnum("status").default("draft").notNull(),
+    requiresAcknowledgment: boolean("requires_acknowledgment")
+      .default(true)
+      .notNull(),
+    requiresPasswordVerification: boolean("requires_password_verification")
+      .default(true)
+      .notNull(),
+    expiryDate: date("expiry_date"), // SOPs can expire and require re-acknowledgment
+    createdBy: text("created_by")
+      .references(() => users.id)
+      .notNull(),
+    publishedAt: timestamp("published_at"),
+    archivedAt: timestamp("archived_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("sops_tenant_id_idx").on(table.tenantId),
+    categoryIdIdx: index("sops_category_id_idx").on(table.categoryId),
+    statusIdx: index("sops_status_idx").on(table.status),
+    createdByIdx: index("sops_created_by_idx").on(table.createdBy),
+    expiryDateIdx: index("sops_expiry_date_idx").on(table.expiryDate),
+  }),
+);
+
+// SOP Versions - Version history for SOPs
+export const sopVersions = pgTable(
+  "sop_versions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    sopId: text("sop_id")
+      .references(() => sops.id, { onDelete: "cascade" })
+      .notNull(),
+    version: text("version").notNull(),
+    fileUrl: text("file_url").notNull(),
+    fileType: sopFileTypeEnum("file_type").notNull(),
+    changeNotes: text("change_notes"), // What changed in this version
+    createdBy: text("created_by")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("sop_versions_tenant_id_idx").on(table.tenantId),
+    sopIdIdx: index("sop_versions_sop_id_idx").on(table.sopId),
+    // Prevent duplicate versions for same SOP
+    uniqueSopVersion: uniqueIndex("sop_versions_sop_id_version_idx").on(
+      table.sopId,
+      table.version,
+    ),
+  }),
+);
+
+// SOP Assignments - Targeted SOP assignments to users, roles, or departments
+export const sopAssignments = pgTable(
+  "sop_assignments",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    sopId: text("sop_id")
+      .references(() => sops.id, { onDelete: "cascade" })
+      .notNull(),
+    sopVersionId: text("sop_version_id").references(() => sopVersions.id), // Track which version assigned
+    assignedToUserId: text("assigned_to_user_id").references(() => users.id), // Individual assignment
+    assignedToRole: text("assigned_to_role"), // Role-based (admin, member, accountant)
+    assignedToDepartmentId: text("assigned_to_department_id").references(
+      () => departments.id,
+    ), // Department-wide
+    dueDate: date("due_date"),
+    status: assignmentStatusEnum("status").default("pending").notNull(),
+    assignedBy: text("assigned_by")
+      .references(() => users.id)
+      .notNull(),
+    assignedAt: timestamp("assigned_at").defaultNow().notNull(),
+    notificationSentAt: timestamp("notification_sent_at"),
+    reminderSentAt: timestamp("reminder_sent_at"),
+    completedAt: timestamp("completed_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("sop_assignments_tenant_id_idx").on(table.tenantId),
+    sopIdIdx: index("sop_assignments_sop_id_idx").on(table.sopId),
+    assignedToUserIdIdx: index("sop_assignments_assigned_to_user_id_idx").on(
+      table.assignedToUserId,
+    ),
+    assignedToRoleIdx: index("sop_assignments_assigned_to_role_idx").on(
+      table.assignedToRole,
+    ),
+    assignedToDepartmentIdIdx: index(
+      "sop_assignments_assigned_to_department_id_idx",
+    ).on(table.assignedToDepartmentId),
+    statusIdx: index("sop_assignments_status_idx").on(table.status),
+    dueDateIdx: index("sop_assignments_due_date_idx").on(table.dueDate),
+  }),
+);
+
+// SOP Readings - Audit trail for SOP views and acknowledgments
+export const sopReadings = pgTable(
+  "sop_readings",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    sopId: text("sop_id")
+      .references(() => sops.id, { onDelete: "cascade" })
+      .notNull(),
+    sopVersionId: text("sop_version_id")
+      .references(() => sopVersions.id)
+      .notNull(), // CRITICAL: which version read
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    assignmentId: text("assignment_id").references(() => sopAssignments.id), // Link to assignment if applicable
+    readAt: timestamp("read_at").defaultNow().notNull(), // When user opened SOP
+    acknowledgedAt: timestamp("acknowledged_at"), // When user clicked "I acknowledge"
+    passwordVerified: boolean("password_verified").default(false).notNull(),
+    passwordVerifiedAt: timestamp("password_verified_at"),
+    ipAddress: text("ip_address"), // For audit
+    userAgent: text("user_agent"), // Browser info
+    timeSpentSeconds: integer("time_spent_seconds"), // How long user viewed
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("sop_readings_tenant_id_idx").on(table.tenantId),
+    sopIdIdx: index("sop_readings_sop_id_idx").on(table.sopId),
+    sopVersionIdIdx: index("sop_readings_sop_version_id_idx").on(
+      table.sopVersionId,
+    ),
+    userIdIdx: index("sop_readings_user_id_idx").on(table.userId),
+    assignmentIdIdx: index("sop_readings_assignment_id_idx").on(
+      table.assignmentId,
+    ),
+    acknowledgedAtIdx: index("sop_readings_acknowledged_at_idx").on(
+      table.acknowledgedAt,
+    ),
+  }),
+);
+
+// Training Modules - Interactive training with quizzes
+export const trainingModules = pgTable(
+  "training_modules",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    content: text("content").notNull(), // Rich text/markdown content
+    passingScore: integer("passing_score").default(80).notNull(), // Percentage (0-100)
+    timeLimit: integer("time_limit"), // Seconds (NULLABLE = no limit)
+    maxAttempts: integer("max_attempts"), // NULLABLE = unlimited
+    status: moduleStatusEnum("status").default("draft").notNull(),
+    relatedSopId: text("related_sop_id").references(() => sops.id), // Optional link to SOP
+    createdBy: text("created_by")
+      .references(() => users.id)
+      .notNull(),
+    publishedAt: timestamp("published_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("training_modules_tenant_id_idx").on(table.tenantId),
+    statusIdx: index("training_modules_status_idx").on(table.status),
+    createdByIdx: index("training_modules_created_by_idx").on(table.createdBy),
+    relatedSopIdIdx: index("training_modules_related_sop_id_idx").on(
+      table.relatedSopId,
+    ),
+  }),
+);
+
+// Training Quiz Questions - Questions for training modules
+export const trainingQuizQuestions = pgTable(
+  "training_quiz_questions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    moduleId: text("module_id")
+      .references(() => trainingModules.id, { onDelete: "cascade" })
+      .notNull(),
+    questionText: text("question_text").notNull(),
+    questionType: questionTypeEnum("question_type").notNull(),
+    options: jsonb("options"), // For multiple_choice: ["Option A", "Option B", "Option C", "Option D"]
+    correctAnswer: text("correct_answer").notNull(), // For MC: "A", for TF: "true"/"false", for SA: expected answer
+    points: integer("points").default(1).notNull(), // Question weight
+    explanation: text("explanation"), // Shown after answer (helps learning)
+    sortOrder: integer("sort_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("training_quiz_questions_tenant_id_idx").on(
+      table.tenantId,
+    ),
+    moduleIdIdx: index("training_quiz_questions_module_id_idx").on(
+      table.moduleId,
+    ),
+    sortOrderIdx: index("training_quiz_questions_sort_order_idx").on(
+      table.sortOrder,
+    ),
+  }),
+);
+
+// Training Attempts - Tracking quiz results
+export const trainingAttempts = pgTable(
+  "training_attempts",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    tenantId: text("tenant_id")
+      .references(() => tenants.id, { onDelete: "cascade" })
+      .notNull(),
+    moduleId: text("module_id")
+      .references(() => trainingModules.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    attemptNumber: integer("attempt_number").notNull(), // Track attempts (1, 2, 3...)
+    answers: jsonb("answers").notNull(), // { questionId: userAnswer }
+    score: integer("score").notNull(), // Percentage (0-100)
+    passed: boolean("passed").notNull(),
+    status: attemptStatusEnum("status").default("in_progress").notNull(),
+    startedAt: timestamp("started_at").defaultNow().notNull(),
+    completedAt: timestamp("completed_at"),
+    timeSpentSeconds: integer("time_spent_seconds"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    tenantIdIdx: index("training_attempts_tenant_id_idx").on(table.tenantId),
+    moduleIdIdx: index("training_attempts_module_id_idx").on(table.moduleId),
+    userIdIdx: index("training_attempts_user_id_idx").on(table.userId),
+    passedIdx: index("training_attempts_passed_idx").on(table.passed),
+    completedAtIdx: index("training_attempts_completed_at_idx").on(
+      table.completedAt,
+    ),
+    // Composite index for attempt tracking
+    moduleUserAttemptIdx: index(
+      "training_attempts_module_user_attempt_idx",
+    ).on(table.moduleId, table.userId, table.attemptNumber),
+  }),
+);
