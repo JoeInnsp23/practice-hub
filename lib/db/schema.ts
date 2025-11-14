@@ -1247,6 +1247,16 @@ export const timeEntries = pgTable(
     ),
     statusIdx: index("idx_time_entry_status").on(table.status),
     workTypeIdx: index("idx_time_entry_work_type").on(table.workType),
+
+    // Validation constraints
+    validTimeRange: check(
+      "valid_time_range",
+      sql`end_time > start_time OR (start_time IS NULL AND end_time IS NULL)`,
+    ),
+    validHours: check(
+      "valid_hours",
+      sql`CAST(hours AS DECIMAL) > 0 AND CAST(hours AS DECIMAL) <= 24`,
+    ),
   }),
 );
 
