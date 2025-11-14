@@ -1,9 +1,11 @@
 "use client";
 
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { AlertCircle, CalendarIcon, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { trpc } from "@/app/providers/trpc-provider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,6 +99,82 @@ export function TimeEntryModal({
   // Fetch work types from database
   const { data: workTypesData } = useWorkTypes();
   const workTypes = workTypesData?.workTypes || [];
+
+  // Fetch existing time entries for the selected date (for validation)
+  const dateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined;
+  const { data: existingEntries } = trpc.timesheets.list.useQuery(
+    {
+      startDate: dateStr,
+      endDate: dateStr,
+    },
+    {
+      enabled: !!dateStr && isOpen,
+    },
+  );
+
+  // Client-side validation helpers
+  const checkOverlap = useCallback(
+    (startTime: string, endTime: string): string | null => {
+      if (!startTime || !endTime || !existingEntries) return null;
+
+      const [startHour, startMinute] = startTime.split(":").map(Number);
+      const [endHour, endMinute] = endTime.split(":").map(Number);
+      const newStart = startHour * 60 + startMinute;
+      const newEnd = endHour * 60 + endMinute;
+
+      // Check if endTime > startTime
+      if (newEnd <= newStart) {
+        return "End time must be after start time";
+      }
+
+      // Check overlap with existing entries (exclude current entry if editing)
+      const overlaps = existingEntries.filter((entry) => {
+        if (selectedEntry?.id && entry.id === selectedEntry.id) return false;
+        if (!entry.startTime || !entry.endTime) return false;
+
+        const [eStartHour, eStartMinute] = entry.startTime
+          .split(":")
+          .map(Number);
+        const [eEndHour, eEndMinute] = entry.endTime.split(":").map(Number);
+        const eStart = eStartHour * 60 + eStartMinute;
+        const eEnd = eEndHour * 60 + eEndMinute;
+
+        // Overlap: (newStart < eEnd) AND (newEnd > eStart)
+        return newStart < eEnd && newEnd > eStart;
+      });
+
+      if (overlaps.length > 0) {
+        const overlapTimes = overlaps
+          .map((e) => `${e.startTime}-${e.endTime}`)
+          .join(", ");
+        return `Time overlaps with existing ${overlaps.length === 1 ? "entry" : "entries"}: ${overlapTimes}`;
+      }
+
+      return null; // No overlap
+    },
+    [existingEntries, selectedEntry?.id],
+  );
+
+  const checkDailyLimit = useCallback(
+    (hours: number): string | null => {
+      if (!existingEntries) return null;
+
+      const currentTotal = existingEntries.reduce((sum, entry) => {
+        // Exclude current entry if editing
+        if (selectedEntry?.id && entry.id === selectedEntry.id) return sum;
+        return sum + Number(entry.hours || 0);
+      }, 0);
+
+      const newTotal = currentTotal + hours;
+
+      if (newTotal > 24) {
+        return `Daily total would be ${newTotal.toFixed(2)}h, exceeding 24-hour limit (current: ${currentTotal.toFixed(2)}h)`;
+      }
+
+      return null; // Within limit
+    },
+    [existingEntries, selectedEntry?.id],
+  );
 
   const getDefaultStartTime = useCallback(() => {
     if (selectedEntry?.startTime) return selectedEntry.startTime;
@@ -588,6 +666,34 @@ export function TimeEntryModal({
                   </div>
                 </div>
 
+                {/* Validation errors */}
+                {formData.startTime && formData.endTime && (
+                  <>
+                    {(() => {
+                      const overlapError = checkOverlap(
+                        formData.startTime,
+                        formData.endTime,
+                      );
+                      return overlapError ? (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{overlapError}</AlertDescription>
+                        </Alert>
+                      ) : null;
+                    })()}
+
+                    {(() => {
+                      const limitError = checkDailyLimit(formData.hours);
+                      return limitError ? (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{limitError}</AlertDescription>
+                        </Alert>
+                      ) : null;
+                    })()}
+                  </>
+                )}
+
                 {/* Billable */}
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -660,7 +766,13 @@ export function TimeEntryModal({
                   <Button type="button" variant="outline" onClick={handleReset}>
                     Reset
                   </Button>
-                  <Button type="submit">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !!checkOverlap(formData.startTime, formData.endTime) ||
+                      !!checkDailyLimit(formData.hours)
+                    }
+                  >
                     {selectedEntry ? "Update" : "Save"} Entry
                   </Button>
                 </div>
