@@ -113,7 +113,7 @@ export default function TimeTrackingPage() {
 
         <TabsContent value="weekly" className="space-y-4">
           {/* Weekly View - Hourly Timesheet */}
-          <Card className="glass-card p-0">
+          <Card className="p-0">
             <div className="h-[calc(100vh-250px)]">
               <HourlyTimesheet
                 onViewChange={setView}
@@ -125,7 +125,7 @@ export default function TimeTrackingPage() {
 
         <TabsContent value="monthly" className="space-y-4">
           {/* Monthly View - Calendar */}
-          <Card className="glass-card p-0">
+          <Card className="p-0">
             <div className="h-[calc(100vh-250px)]">
               <MonthlyTimesheet
                 onViewChange={setView}
