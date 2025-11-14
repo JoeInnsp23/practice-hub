@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-14T19:39:17.249Z
+# Generated: 2025-11-14T20:00:19.682Z
 
 functions:
   landingRouter:
@@ -615,6 +615,12 @@ functions:
     line: 174
     type: "function"
     signature: "function calculateNextPeriod"
+  parseSopKey:
+    description: "SOP Storage Utilities"
+    file: "lib/storage/sop-storage.ts"
+    line: 1
+    type: "function"
+    signature: "function parseSopKey"
   SUPPORTED_DELIMITERS:
     description: "Enhanced CSV Parser Utilities"
     file: "lib/utils/csv-parser-enhanced.ts"
@@ -1380,9 +1386,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-14T19:39:17.250Z"
-  total_entries: 228
-  functions: 136
+  generated: "2025-11-14T20:00:19.686Z"
+  total_entries: 229
+  functions: 137
   types: 59
   components: 29
   classes: 4
