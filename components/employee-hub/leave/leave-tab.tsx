@@ -306,7 +306,7 @@ export function LeaveTab({ onEditRequest }: LeaveTabProps) {
         </Tabs>
 
         {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-6 pt-10">
           {/* Leave Balance Widget */}
           {balance ? (
             <LeaveBalanceWidget balance={balance} />
