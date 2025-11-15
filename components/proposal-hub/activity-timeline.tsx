@@ -72,7 +72,7 @@ const getActionIcon = (action: string) => {
       return { Icon: Mail, color: "text-indigo-600 dark:text-indigo-400" };
     case "called":
     case "phone_call":
-      return { Icon: Phone, color: "text-cyan-600 dark:text-cyan-400" };
+      return { Icon: Phone, color: "text-[#ec4899] dark:text-[#ec4899]" }; // Pink - Proposal Hub color
     case "note_added":
     case "commented":
       return {
