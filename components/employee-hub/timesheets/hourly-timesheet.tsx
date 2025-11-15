@@ -198,7 +198,7 @@ export function HourlyTimesheet({
   }, []);
 
   return (
-    <div className="rounded-xl border border-border bg-transparent text-muted-foreground h-full flex flex-col overflow-hidden">
+    <div className="rounded-xl border border-border text-muted-foreground h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="glass-subtle flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-border">
         <div className="flex items-center gap-3">
@@ -282,8 +282,8 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="glass-subtle grid grid-cols-8 gap-0 sticky top-0 z-10 border-b border-border">
-            <div className="glass-subtle p-3 text-center text-sm font-medium text-foreground border-r border-border">
+          <div className="glass-subtle grid grid-cols-8 gap-0 sticky top-0 z-20 border-b border-border">
+            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border">
               Time
             </div>
             {weekDays.map((day) => {
@@ -292,7 +292,7 @@ export function HourlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "glass-subtle p-3 text-center text-sm font-medium border-r border-border last:border-r-0",
+                    "p-3 text-center text-sm font-medium text-foreground border-r border-border last:border-r-0",
                   )}
                   style={
                     isToday
