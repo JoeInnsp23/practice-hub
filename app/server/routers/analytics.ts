@@ -323,8 +323,8 @@ export const analyticsRouter = router({
           componentCode: proposalServices.componentCode,
           componentName: proposalServices.componentName,
           count: sql<number>`count(*)::int`,
-          avgPrice: sql<number>`avg(${proposalServices.price})::decimal`,
-          totalRevenue: sql<number>`sum(${proposalServices.price})::decimal`,
+          avgPrice: sql<number>`avg(CAST(${proposalServices.price} AS DECIMAL))::decimal`,
+          totalRevenue: sql<number>`sum(CAST(${proposalServices.price} AS DECIMAL))::decimal`,
         })
         .from(proposalServices)
         .innerJoin(proposals, eq(proposalServices.proposalId, proposals.id))
