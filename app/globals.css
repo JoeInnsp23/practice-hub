@@ -701,6 +701,7 @@
   /* Wire to design tokens so components pick up hub accent automatically */
   --primary: var(--hub-color-500);
   --ring: var(--hub-color-500);
+  --skeleton-color: var(--hub-color-500);
 
   /* Hub gradients and soft tints */
   --hub-soft-50: color-mix(in oklch, var(--hub-color-500) 6%, white 94%);
