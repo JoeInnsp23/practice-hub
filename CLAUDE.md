@@ -156,7 +156,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 7. **Module color scheme** - Use module color tokens via the shared theme (Client Hub `#3b82f6`, Admin `#f97316`, Practice Hub primary). Do not use inline hex in components.
 
-8. **Authentication patterns** - Follow Better Auth standard patterns:
+8. **Hub-aware component colors** - ALWAYS use design tokens for colors that should adapt to hub context:
+   - **Buttons**: Use `variant="default"` (bg-primary), `variant="ghost"` (hover:bg-primary/10), or `variant="outline"` (hover:text-primary). Never override with hardcoded colors like `className="bg-emerald-600"`.
+   - **Icons**: Use `text-primary` for accent colors, `text-muted-foreground` for neutral icons
+   - **Status badges**: Use `bg-primary/10 text-primary border-primary/20` pattern
+   - **Progress bars**: Use `bg-primary` for filled portions
+   - **NEVER use hardcoded hub colors**: `bg-emerald-600`, `text-blue-600`, `border-orange-500` bypass the hub color system
+   - **Exception**: Generic elements (errors, success states unrelated to hub context) can use semantic colors like `text-destructive`, `bg-green-500` (e.g., success checkmarks)
+
+   **Rationale**: The `[data-hub-root]` CSS block (app/globals.css:693-729) wires `--primary`, `--accent`, `--ring`, `--skeleton-color` to `--hub-color-500`, enabling automatic color adaptation across modules. Hardcoded Tailwind colors break this system.
+
+   **Correct patterns:**
+   ```tsx
+   // ✅ Hub-aware button
+   <Button variant="default">Submit</Button>
+
+   // ✅ Hub-aware icon
+   <CheckCircle className="h-5 w-5 text-primary" />
+
+   // ✅ Hub-aware badge
+   <Badge className="bg-primary/10 text-primary border-primary/20">Active</Badge>
+
+   // ❌ WRONG - Hardcoded emerald
+   <Button className="bg-emerald-600 hover:bg-emerald-700">Submit</Button>
+
+   // ❌ WRONG - Hardcoded text color
+   <CheckCircle className="h-5 w-5 text-emerald-600" />
+   ```
+
+9. **Authentication patterns** - Follow Better Auth standard patterns:
   - **Middleware (Node runtime)**: Protect routes; public paths: `/`, `/sign-in`; allow `/api/*`; unauthenticated users redirect to `/sign-in?from=PATH`.
   - **Auth API Route (Node runtime)**: `app/api/auth/[...all]/route.ts` uses `toNextJsHandler(auth)` with `export const runtime = "nodejs"`.
   - **Tenant/role context**: Use `getAuthContext()` for tenant and role information; use protected/admin tRPC procedures.
