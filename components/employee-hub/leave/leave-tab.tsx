@@ -178,15 +178,26 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
+                    id="leave-search-input"
+                    name="search"
                     type="search"
                     placeholder="Search leave requests..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
+                    aria-label="Search leave requests"
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
+                <Select
+                  value={statusFilter}
+                  onValueChange={setStatusFilter}
+                  name="statusFilter"
+                >
+                  <SelectTrigger
+                    id="leave-status-filter"
+                    className="w-[180px]"
+                    aria-label="Filter leave requests by status"
+                  >
                     <SelectValue placeholder="All Statuses" />
                   </SelectTrigger>
                   <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
@@ -197,8 +208,16 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
                     <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-[180px]">
+                <Select
+                  value={typeFilter}
+                  onValueChange={setTypeFilter}
+                  name="typeFilter"
+                >
+                  <SelectTrigger
+                    id="leave-type-filter"
+                    className="w-[180px]"
+                    aria-label="Filter leave requests by type"
+                  >
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
