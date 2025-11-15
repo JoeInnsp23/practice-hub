@@ -22,7 +22,7 @@ export default async function ApiDocsPage() {
   ]);
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

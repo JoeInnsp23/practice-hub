@@ -283,7 +283,7 @@ export function HourlyTimesheet({
         <div className="min-w-[800px]">
           {/* Day Headers */}
           <div className="glass-subtle grid grid-cols-8 gap-0 sticky top-0 z-10 border-b border-border">
-            <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border">
+            <div className="glass-subtle p-3 text-center text-sm font-medium text-foreground border-r border-border">
               Time
             </div>
             {weekDays.map((day) => {
@@ -292,7 +292,7 @@ export function HourlyTimesheet({
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "p-3 text-center text-sm font-medium border-r border-border last:border-r-0",
+                    "glass-subtle p-3 text-center text-sm font-medium border-r border-border last:border-r-0",
                   )}
                   style={
                     isToday

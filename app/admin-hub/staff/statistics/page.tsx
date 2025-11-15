@@ -67,7 +67,7 @@ export default function StaffStatisticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div>

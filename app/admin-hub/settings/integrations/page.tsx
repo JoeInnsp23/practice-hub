@@ -202,7 +202,7 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Integration Settings</h1>
         <p className="text-muted-foreground mt-2">
