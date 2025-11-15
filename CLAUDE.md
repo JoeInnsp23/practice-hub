@@ -341,6 +341,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Activity icons in proposal-hub should use pink (#ec4899), not generic colors
    - Chart colors in client-hub should incorporate blue (#3b82f6) as primary
 
+11. **Layout Padding Standards** - All hub page components must follow the standard padding pattern. Layouts provide padding; page components should not add additional padding.
+
+   **Required Pattern:**
+   ```tsx
+   // ✅ CORRECT - No padding on root div
+   export default function MyPage() {
+     return (
+       <div className="space-y-6">
+         {/* Header */}
+         <div>
+           <h1 className="text-3xl font-bold text-foreground">Page Title</h1>
+           <p className="text-muted-foreground mt-2">Page description</p>
+         </div>
+
+         {/* Content sections */}
+         <Card>...</Card>
+       </div>
+     );
+   }
+   ```
+
+   **Forbidden Patterns:**
+   ```tsx
+   // ❌ WRONG - Double padding with layout
+   <div className="p-6 space-y-6">
+
+   // ❌ WRONG - Any padding on root div
+   <div className="px-6 space-y-6">
+   <div className="py-6 space-y-6">
+   <div className="p-8 space-y-6">
+
+   // ❌ WRONG - Container with padding
+   <div className="container mx-auto py-8 px-4">
+   ```
+
+   **Rationale:** Hub layouts (via `GlobalSidebar` and layout components) provide consistent padding to all page content. Adding padding classes (`p-*`, `px-*`, `py-*`) to page root divs creates double padding, causing inconsistent spacing across hubs and pages.
+
+   **Pre-commit verification:**
+   ```bash
+   # Check for incorrect padding patterns before committing
+   grep -rn 'className="p-6\|className="px-6\|className="py-6\|className="p-8' app/*/page.tsx app/*/*/page.tsx app/*/*/*/page.tsx
+   ```
+
+   **Examples:**
+   - ✅ Correct: `/app/employee-hub/training/page.tsx`, `/app/employee-hub/training/sops/page.tsx`
+   - ❌ Common mistake: Adding `p-6` to match card padding (cards should have their own padding, not pages)
+   - ⚠️ Exception: Modal/Sheet content, Card internals, and loading/error fallback UIs can use padding (not root divs)
+
 ## Development Commands
 
 ```bash
