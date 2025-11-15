@@ -117,6 +117,12 @@ interface LeaveRequestModalProps {
     toilBalance: number;
     sickUsed: number;
   };
+  defaultLeaveType?:
+    | "annual_leave"
+    | "sick_leave"
+    | "toil"
+    | "unpaid"
+    | "other";
 }
 
 const leaveTypeOptions = [
@@ -157,6 +163,7 @@ export function LeaveRequestModal({
   onClose,
   request,
   balance,
+  defaultLeaveType = "annual_leave",
 }: LeaveRequestModalProps) {
   const utils = trpc.useUtils();
   const [calculatedDays, setCalculatedDays] = useState<number>(0);
@@ -166,7 +173,7 @@ export function LeaveRequestModal({
     defaultValues: {
       leaveType:
         (request?.leaveType as LeaveRequestFormValues["leaveType"]) ||
-        "annual_leave",
+        defaultLeaveType,
       startDate: request?.startDate || "",
       endDate: request?.endDate || "",
       notes: request?.notes || "",
