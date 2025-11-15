@@ -37,16 +37,6 @@ const sections = [
     ],
   },
   {
-    title: "Approvals",
-    items: [
-      {
-        name: "Approval Queue",
-        href: "/employee-hub/approvals",
-        icon: CheckCircle,
-      },
-    ],
-  },
-  {
     title: "Training & Compliance",
     items: [
       {
@@ -63,6 +53,17 @@ const sections = [
         name: "Compliance Dashboard",
         href: "/employee-hub/training/compliance",
         icon: Shield,
+      },
+    ],
+  },
+  {
+    title: "Admin",
+    adminOnly: true,
+    items: [
+      {
+        name: "Approvals",
+        href: "/employee-hub/approvals",
+        icon: CheckCircle,
       },
     ],
   },
