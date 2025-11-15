@@ -180,7 +180,7 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
    */
   const renderFilters = () => (
     <section
-      className="p-4 border-b border-border bg-background/50"
+      className="p-4 border-b border-border"
       aria-label="Filter leave requests by status and type"
     >
       <div className="flex flex-col sm:flex-row gap-4">
