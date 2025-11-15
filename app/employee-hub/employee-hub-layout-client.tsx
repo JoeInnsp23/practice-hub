@@ -1,6 +1,18 @@
 "use client";
 
-import { Home, type LucideIcon } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
+  GraduationCap,
+  Home,
+  type LucideIcon,
+  Shield,
+  TrendingUp,
+  Umbrella,
+} from "lucide-react";
+import { useMemo } from "react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
@@ -20,13 +32,92 @@ interface SidebarSection {
 }
 
 export function EmployeeHubLayoutClient({
-  sections,
+  isAdmin,
   children,
 }: {
-  sections: SidebarSection[];
+  isAdmin: boolean;
   children: React.ReactNode;
 }) {
   const hubColor = HUB_COLORS["employee-hub"];
+
+  // Define sections with admin-only flag
+  const allSections: SidebarSection[] = useMemo(
+    () => [
+      {
+        title: "Time & Attendance",
+        items: [
+          { name: "Timesheets", href: "/employee-hub/timesheets", icon: Clock },
+          {
+            name: "Leave Calendar",
+            href: "/employee-hub/leave/calendar",
+            icon: Calendar,
+          },
+        ],
+      },
+      {
+        title: "Benefits",
+        items: [
+          {
+            name: "Leave Requests",
+            href: "/employee-hub/leave",
+            icon: Umbrella,
+          },
+          {
+            name: "TOIL Balance",
+            href: "/employee-hub/toil",
+            icon: TrendingUp,
+          },
+        ],
+      },
+      {
+        title: "Training & Compliance",
+        items: [
+          {
+            name: "My Training",
+            href: "/employee-hub/training",
+            icon: GraduationCap,
+          },
+          {
+            name: "SOPs Library",
+            href: "/employee-hub/training/sops",
+            icon: BookOpen,
+          },
+          {
+            name: "Compliance Dashboard",
+            href: "/employee-hub/training/compliance",
+            icon: Shield,
+          },
+        ],
+      },
+      {
+        title: "Admin",
+        adminOnly: true,
+        items: [
+          {
+            name: "Approvals",
+            href: "/employee-hub/approvals",
+            icon: CheckCircle,
+          },
+          {
+            name: "SOP Management",
+            href: "/employee-hub/sops",
+            icon: BookOpen,
+          },
+        ],
+      },
+    ],
+    [],
+  );
+
+  // Filter sections based on admin role
+  const sections = useMemo(
+    () =>
+      allSections.filter((section) => {
+        if (section.adminOnly && !isAdmin) return false;
+        return true;
+      }),
+    [allSections, isAdmin],
+  );
 
   return (
     <div
