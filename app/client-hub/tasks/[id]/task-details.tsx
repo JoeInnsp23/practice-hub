@@ -317,7 +317,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
     : 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Button

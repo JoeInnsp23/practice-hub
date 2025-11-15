@@ -129,7 +129,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
       error?.message?.includes("signed-out");
 
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="text-red-600">
@@ -154,7 +154,7 @@ export function ClientHubDashboard({ userName }: ClientHubDashboardProps) {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>

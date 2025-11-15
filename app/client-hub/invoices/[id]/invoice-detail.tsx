@@ -33,7 +33,7 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto">
         <div className="mb-6 flex items-center gap-4">
           <Link href="/client-hub/invoices">
             <Button variant="ghost" size="sm">
@@ -57,7 +57,7 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
 
   if (!invoice) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto">
         <Card>
           <CardContent className="p-6">
             <p className="text-muted-foreground">Invoice not found</p>
@@ -116,7 +116,7 @@ export function InvoiceDetail({ invoiceId }: InvoiceDetailProps) {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
