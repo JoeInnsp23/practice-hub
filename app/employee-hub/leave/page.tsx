@@ -1,375 +1,106 @@
 "use client";
 
-import {
-  AlertCircle,
-  AlertTriangle,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Gift,
-  Plus,
-  Search,
-} from "lucide-react";
-import { useMemo, useState } from "react";
-import { trpc } from "@/app/providers/trpc-provider";
-import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
-import { LeaveBalanceWidget } from "@/components/employee-hub/leave/leave-balance-widget";
-import { LeaveList } from "@/components/employee-hub/leave/leave-list";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LeaveRequestModal } from "@/components/employee-hub/leave/leave-request-modal";
-import { ToilBalanceWidget } from "@/components/employee-hub/toil/toil-balance-widget";
-import { ToilHistoryTable } from "@/components/employee-hub/toil/toil-history-table";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { LeaveTab } from "@/components/employee-hub/leave/leave-tab";
+import { ToilTab } from "@/components/employee-hub/toil/toil-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { LeaveRequest } from "@/lib/trpc/types";
-import { cn } from "@/lib/utils";
-import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
-export default function LeavePage() {
-  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+export default function UnifiedLeavePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URL state management
+  const activeTab = searchParams.get("tab") || "leave";
+  const shouldOpenModal = searchParams.get("action") === "request";
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRequest, setEditingRequest] = useState<LeaveRequest | null>(
     null,
   );
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [defaultLeaveType, setDefaultLeaveType] = useState<
+    "annual_leave" | "sick_leave" | "toil" | "unpaid" | "other"
+  >("annual_leave");
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-  // Fetch leave data
-  const {
-    data: balanceResponse,
-    isLoading: balanceLoading,
-    error: balanceError,
-  } = trpc.leave.getBalance.useQuery({});
-  const {
-    data: historyResponse,
-    isLoading: historyLoading,
-    error: historyError,
-  } = trpc.leave.getHistory.useQuery({});
-  const { data: teamLeaveResponse } = trpc.leave.getTeamLeave.useQuery({});
-
-  // Extract and transform data from responses
-  const balance = balanceResponse?.balance
-    ? {
-        entitlement: balanceResponse.balance.annualEntitlement,
-        used: balanceResponse.balance.annualUsed,
-        remaining: balanceResponse.annualRemaining,
-        carriedOver: balanceResponse.balance.carriedOver,
-        toilBalance: balanceResponse.balance.toilBalance,
-        sickUsed: balanceResponse.balance.sickUsed,
-      }
-    : undefined;
-  const leaveHistory = historyResponse?.requests ?? [];
-  const teamLeave = teamLeaveResponse?.requests ?? [];
-
-  // Fetch TOIL data
-  const { data: toilBalance } = trpc.toil.getBalance.useQuery({});
-  const { data: toilHistoryResponse } = trpc.toil.getHistory.useQuery({});
-  const { data: expiringToil } = trpc.toil.getExpiringToil.useQuery({});
-
-  // Extract TOIL history
-  const toilHistory = toilHistoryResponse?.history ?? [];
-
-  // Calculate stats
-  const stats = useMemo(() => {
-    if (!leaveHistory || !balance) {
-      return {
-        pending: 0,
-        approved: 0,
-        remaining: 0,
-      };
+  // Auto-open modal from URL
+  useEffect(() => {
+    if (shouldOpenModal) {
+      setIsModalOpen(true);
+      // Clean URL after opening modal
+      const params = new URLSearchParams(searchParams);
+      params.delete("action");
+      router.replace(`/employee-hub/leave?${params.toString()}`);
     }
+  }, [shouldOpenModal, searchParams, router]);
 
-    const pendingCount = leaveHistory.filter(
-      (r) => r.status === "pending",
-    ).length;
-    const approvedThisYear = leaveHistory.filter(
-      (r) =>
-        r.status === "approved" &&
-        new Date(r.startDate).getFullYear() === new Date().getFullYear(),
-    ).length;
+  // Tab change handler
+  const handleTabChange = (value: string) => {
+    router.push(`/employee-hub/leave?tab=${value}`);
+  };
 
-    return {
-      pending: pendingCount,
-      approved: approvedThisYear,
-      remaining: balance?.remaining ?? 0,
-    };
-  }, [leaveHistory, balance]);
+  // Request leave handlers
+  const handleRequestLeave = (
+    leaveType: "annual_leave" | "toil" = "annual_leave",
+  ) => {
+    setEditingRequest(null);
+    setDefaultLeaveType(leaveType);
+    setIsModalOpen(true);
+  };
 
-  // Filter leave history
-  const filteredLeave = useMemo(() => {
-    if (!leaveHistory) return [];
-
-    return leaveHistory.filter((request) => {
-      // Status filter
-      if (statusFilter !== "all" && request.status !== statusFilter) {
-        return false;
-      }
-
-      // Type filter
-      if (typeFilter !== "all" && request.leaveType !== typeFilter) {
-        return false;
-      }
-
-      // Search filter
-      if (debouncedSearchTerm) {
-        const searchLower = debouncedSearchTerm.toLowerCase();
-        return (
-          request.notes?.toLowerCase().includes(searchLower) ||
-          request.reviewerComments?.toLowerCase().includes(searchLower)
-        );
-      }
-
-      return true;
-    });
-  }, [leaveHistory, statusFilter, typeFilter, debouncedSearchTerm]);
+  const handleRequestToilLeave = () => {
+    handleRequestLeave("toil");
+  };
 
   const handleEditRequest = (request: LeaveRequest) => {
     setEditingRequest(request);
-    setIsRequestModalOpen(true);
+    setDefaultLeaveType(request.leaveType);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsRequestModalOpen(false);
+    setIsModalOpen(false);
     setEditingRequest(null);
+    setDefaultLeaveType("annual_leave");
   };
-
-  // Check for critical errors
-  const hasCriticalError = balanceError || historyError;
-
-  if (hasCriticalError) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Loading Leave Data</AlertTitle>
-          <AlertDescription>
-            Failed to load leave information. Please refresh the page or contact
-            support if the issue persists.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Leave Management
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Request and manage your leave
-          </p>
-        </div>
-        <Button
-          onClick={() => {
-            setEditingRequest(null);
-            setIsRequestModalOpen(true);
-          }}
-          variant="default"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Request Leave
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Leave & TOIL</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage your leave requests and time off in lieu
+        </p>
       </div>
 
-      {/* KPI Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPIWidget
-          title="Annual Leave Remaining"
-          value={balance ? `${balance.remaining} days` : "Loading..."}
-          icon={Calendar}
-          loading={balanceLoading}
-          iconColor="text-primary"
-        />
-        <KPIWidget
-          title="Total Entitlement"
-          value={balance ? `${balance.entitlement} days` : "Loading..."}
-          icon={Gift}
-          loading={balanceLoading}
-          iconColor="text-blue-600"
-        />
-        <KPIWidget
-          title="Used This Year"
-          value={balance ? `${balance.used} days` : "Loading..."}
-          icon={CheckCircle}
-          loading={balanceLoading}
-          iconColor="text-orange-600"
-        />
-        <KPIWidget
-          title="Pending Requests"
-          value={stats.pending.toString()}
-          icon={Clock}
-          loading={historyLoading}
-          iconColor="text-yellow-600"
-        />
-      </div>
+      {/* Tabbed Interface */}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList className="mb-6" aria-label="Leave and TOIL management">
+          <TabsTrigger value="leave">My Leave</TabsTrigger>
+          <TabsTrigger value="toil">My TOIL</TabsTrigger>
+        </TabsList>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Leave List - Takes 2 columns */}
-        <div className="lg:col-span-2">
-          <Card>
-            <Tabs defaultValue="my-leave" className="w-full">
-              <div className="px-6 pt-6 pb-4 border-b">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="my-leave">My Leave</TabsTrigger>
-                  <TabsTrigger value="history">History</TabsTrigger>
-                </TabsList>
+        <TabsContent value="leave">
+          <LeaveTab
+            onRequestLeave={() => handleRequestLeave("annual_leave")}
+            onEditRequest={handleEditRequest}
+          />
+        </TabsContent>
 
-                {/* Filters */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search leave requests..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="All Statuses" />
-                    </SelectTrigger>
-                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="All Types" />
-                    </SelectTrigger>
-                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="annual_leave">Annual Leave</SelectItem>
-                      <SelectItem value="sick_leave">Sick Leave</SelectItem>
-                      <SelectItem value="toil">TOIL</SelectItem>
-                      <SelectItem value="unpaid">Unpaid</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+        <TabsContent value="toil">
+          <ToilTab onRequestToilLeave={handleRequestToilLeave} />
+        </TabsContent>
+      </Tabs>
 
-              <TabsContent value="my-leave" className="mt-0">
-                <div className="overflow-x-auto">
-                  <LeaveList
-                    requests={
-                      filteredLeave.filter((r) => r.status === "pending") || []
-                    }
-                    onEdit={handleEditRequest}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="history" className="mt-0">
-                <div className="overflow-x-auto">
-                  <LeaveList requests={filteredLeave || []} />
-                </div>
-              </TabsContent>
-            </Tabs>
-          </Card>
-        </div>
-
-        {/* Sidebar - Balance Widgets */}
-        <div className="lg:col-span-1 space-y-6">
-          {balance ? (
-            <LeaveBalanceWidget balance={balance} />
-          ) : (
-            <Card className="p-6">
-              <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-20 bg-muted rounded"></div>
-                <div className="h-4 bg-muted rounded"></div>
-              </div>
-            </Card>
-          )}
-
-          {/* TOIL Balance Widget */}
-          {toilBalance && expiringToil && (
-            <ToilBalanceWidget
-              balance={{
-                totalHours: toilBalance.balance,
-                totalDays: Number.parseFloat(toilBalance.balanceInDays),
-                expiringHours: expiringToil.totalExpiringHours,
-                expiringDays: Number.parseFloat(expiringToil.totalExpiringDays),
-                expiryDate:
-                  expiringToil.expiringToil.length > 0
-                    ? expiringToil.expiringToil[0].expiryDate
-                    : null,
-              }}
-            />
-          )}
-
-          {/* Team Leave Summary */}
-          {teamLeave && teamLeave.length > 0 && (
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-600" />
-                Team on Leave
-              </h3>
-              <div className="space-y-3">
-                {teamLeave.slice(0, 5).map((leave) => (
-                  <div key={leave.id} className="text-sm">
-                    <div className="font-medium">{leave.userName}</div>
-                    <div className="text-muted-foreground text-xs">
-                      {new Date(leave.startDate).toLocaleDateString()} -{" "}
-                      {new Date(leave.endDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
-                {teamLeave.length > 5 && (
-                  <div className="text-xs text-muted-foreground pt-2 border-t">
-                    +{teamLeave.length - 5} more
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
-        </div>
-      </div>
-
-      {/* TOIL History Section */}
-      {toilHistory && toilHistory.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              TOIL Accrual History
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ToilHistoryTable history={toilHistory} />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Leave Request Modal */}
+      {/* Leave Request Modal (shared) */}
       <LeaveRequestModal
-        isOpen={isRequestModalOpen}
+        isOpen={isModalOpen}
         onClose={handleCloseModal}
         request={editingRequest}
-        balance={balance}
+        defaultLeaveType={defaultLeaveType}
       />
     </div>
   );
