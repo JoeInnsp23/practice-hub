@@ -274,49 +274,47 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Leave History (2 columns) */}
-        <div className="lg:col-span-2 space-y-4">
-          <Tabs defaultValue="pending" className="w-full">
-            <TabsList>
-              <TabsTrigger value="pending">
-                Pending (
-                {filteredLeave.filter((r) => r.status === "pending").length})
-              </TabsTrigger>
-              <TabsTrigger value="history">
-                All History ({filteredLeave.length})
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="pending" className="w-full lg:col-span-2">
+          <TabsList>
+            <TabsTrigger value="pending">
+              Pending (
+              {filteredLeave.filter((r) => r.status === "pending").length})
+            </TabsTrigger>
+            <TabsTrigger value="history">
+              All History ({filteredLeave.length})
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Pending tab with filters inside glass-table */}
-            <TabsContent value="pending">
-              <div className="overflow-x-auto glass-table">
-                {renderFilters()}
-                <LeaveList
-                  requests={
-                    filteredLeave.filter((r) => r.status === "pending") || []
-                  }
-                  onEdit={onEditRequest}
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                  onSort={handleSort}
-                />
-              </div>
-            </TabsContent>
+          {/* Pending tab with filters inside glass-table */}
+          <TabsContent value="pending" className="mt-4">
+            <div className="overflow-x-auto glass-table">
+              {renderFilters()}
+              <LeaveList
+                requests={
+                  filteredLeave.filter((r) => r.status === "pending") || []
+                }
+                onEdit={onEditRequest}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+              />
+            </div>
+          </TabsContent>
 
-            {/* History tab with filters inside glass-table */}
-            <TabsContent value="history">
-              <div className="overflow-x-auto glass-table">
-                {renderFilters()}
-                <LeaveList
-                  requests={filteredLeave || []}
-                  onEdit={onEditRequest}
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                  onSort={handleSort}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+          {/* History tab with filters inside glass-table */}
+          <TabsContent value="history" className="mt-4">
+            <div className="overflow-x-auto glass-table">
+              {renderFilters()}
+              <LeaveList
+                requests={filteredLeave || []}
+                onEdit={onEditRequest}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={handleSort}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Sidebar */}
         <div className="lg:col-span-1 space-y-6">
