@@ -34,6 +34,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function TaskTemplatesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -176,7 +178,7 @@ export default function TaskTemplatesPage() {
               <SelectTrigger>
                 <SelectValue placeholder="Filter by service" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Services</SelectItem>
                 {services?.map((service) => (
                   <SelectItem key={service.id} value={service.id}>
@@ -190,7 +192,7 @@ export default function TaskTemplatesPage() {
               <SelectTrigger>
                 <SelectValue placeholder="Filter by task type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Task Types</SelectItem>
                 <SelectItem value="compliance">Compliance</SelectItem>
                 <SelectItem value="bookkeeping">Bookkeeping</SelectItem>

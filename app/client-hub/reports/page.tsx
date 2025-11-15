@@ -35,6 +35,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { formatCurrency, formatHours } from "@/lib/utils/format";
 
 type PeriodType =
@@ -290,7 +292,7 @@ export default function ReportsPage() {
             <SelectTrigger className="w-40" data-testid="date-range-selector">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
               <SelectItem value="this_month">This Month</SelectItem>
               <SelectItem value="last_month">Last Month</SelectItem>
               <SelectItem value="this_quarter">This Quarter</SelectItem>

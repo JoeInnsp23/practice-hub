@@ -49,6 +49,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface ClientDetailsProps {
   clientId: string;
@@ -432,7 +434,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                   <SelectTrigger className="w-32 h-7 text-xs">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                     <SelectItem value="prospect">Prospect</SelectItem>
                     <SelectItem value="onboarding">Onboarding</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
@@ -465,7 +467,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                     <SelectTrigger className="w-48">
                       <SelectValue placeholder="Select manager..." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                       <SelectItem value="unassigned">Unassigned</SelectItem>
                       {usersData?.users
                         .filter((user) => user.isActive)
@@ -830,7 +832,9 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                           <SelectTrigger>
                             <SelectValue placeholder="Choose source..." />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent
+                            className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                          >
                             <SelectItem value="manual">
                               📝 Enter Manually
                             </SelectItem>

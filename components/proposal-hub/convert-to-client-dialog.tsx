@@ -29,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface ConvertToClientDialogProps {
   leadId: string;
@@ -123,7 +125,7 @@ export function ConvertToClientDialog({
                 <SelectTrigger id="type">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="company">Company</SelectItem>
                   <SelectItem value="individual">Individual</SelectItem>
                   <SelectItem value="sole_trader">Sole Trader</SelectItem>

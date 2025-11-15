@@ -28,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const addClientAccessSchema = z.object({
   clientId: z.string().min(1, "Please select a client"),
@@ -123,7 +125,7 @@ export function AddClientAccessDialog({
                         <SelectValue placeholder="Select a client" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                       {availableClients?.map((client) => (
                         <SelectItem key={client.id} value={client.id}>
                           {client.name}
@@ -153,7 +155,7 @@ export function AddClientAccessDialog({
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                       <SelectItem value="viewer">
                         <div className="flex flex-col items-start">
                           <span className="font-medium">Viewer</span>

@@ -30,6 +30,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { Service } from "@/lib/trpc/types";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { formatCurrency } from "@/lib/utils/format";
 
 // Form data type (matches ServiceModal output)
@@ -301,7 +303,7 @@ export default function ServicesPage() {
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat} value={cat}>

@@ -39,6 +39,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { AddClientAccessDialog } from "./add-client-access-dialog";
 
 interface UserAccessDrawerProps {
@@ -266,7 +268,9 @@ export function UserAccessDrawer({
                               <SelectTrigger className="w-32">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent
+                                className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                              >
                                 <SelectItem value="viewer">Viewer</SelectItem>
                                 <SelectItem value="editor">Editor</SelectItem>
                                 <SelectItem value="admin">Admin</SelectItem>

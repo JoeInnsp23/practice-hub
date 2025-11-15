@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface User {
   id: string;
@@ -366,7 +367,7 @@ export function UserDetailsClient({
                     <Filter className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="All Modules" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     <SelectItem value="all">All Modules</SelectItem>
                     <SelectItem value="admin-hub">Admin Hub</SelectItem>
                     <SelectItem value="client-hub">Client Hub</SelectItem>
@@ -499,7 +500,7 @@ export function UserDetailsClient({
                 <SelectTrigger id="role">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                   <SelectItem value="member">Member</SelectItem>
                   <SelectItem value="accountant">Accountant</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>

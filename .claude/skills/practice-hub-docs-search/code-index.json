@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-15T12:18:57.058Z",
+  "generated": "2025-11-15T13:42:21.199Z",
   "version": "1.0",
-  "total_entries": 233,
+  "total_entries": 234,
   "functions": [
     {
       "name": "landingRouter",
@@ -978,6 +978,14 @@
       "line": 413,
       "type": "function",
       "signature": "function transformRow"
+    },
+    {
+      "name": "GLASS_DROPDOWN_MENU_STYLES",
+      "description": "Standard glass-card dropdown menu styling",
+      "file": "lib/utils/dropdown-styles.ts",
+      "line": 1,
+      "type": "function",
+      "signature": "const GLASS_DROPDOWN_MENU_STYLES"
     },
     {
       "name": "convertToCSV",

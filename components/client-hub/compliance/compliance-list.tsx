@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { formatDate } from "@/lib/utils/format";
 
 // Match DB schema from tRPC
@@ -182,7 +183,10 @@ export function ComplianceList({
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent
+                        align="end"
+                        className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                      >
                         <DropdownMenuItem onClick={() => onEdit(item)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit

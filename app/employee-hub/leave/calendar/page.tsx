@@ -14,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function LeaveCalendarPage() {
   const [userFilter, setUserFilter] = useState("all");
@@ -181,7 +183,7 @@ export default function LeaveCalendarPage() {
                   <SelectTrigger id="team-member-filter">
                     <SelectValue placeholder="All Team Members" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                     <SelectItem value="all">All Team Members</SelectItem>
                     {teamMembers.map((member) => (
                       <SelectItem key={member.id} value={member.id}>

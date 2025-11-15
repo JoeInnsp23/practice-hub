@@ -39,6 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface Department {
   id: string;
@@ -227,7 +228,10 @@ export default function DepartmentsTable({
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                      align="end"
+                      className={GLASS_DROPDOWN_MENU_STYLES}
+                    >
                       <DropdownMenuItem
                         onClick={() =>
                           onEdit({

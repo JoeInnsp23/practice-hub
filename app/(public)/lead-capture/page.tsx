@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type Step = 1 | 2 | 3;
 
@@ -276,7 +277,7 @@ export default function LeadCapturePage() {
                   <SelectTrigger>
                     <SelectValue placeholder="Select business type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     <SelectItem value="ltd">Ltd Company</SelectItem>
                     <SelectItem value="sole_trader">Sole Trader</SelectItem>
                     <SelectItem value="partnership">Partnership</SelectItem>
@@ -294,7 +295,7 @@ export default function LeadCapturePage() {
                   <SelectTrigger>
                     <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     {INDUSTRIES.map((industry) => (
                       <SelectItem key={industry.value} value={industry.value}>
                         {industry.label}

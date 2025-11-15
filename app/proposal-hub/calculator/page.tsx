@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function CalculatorPage() {
   const router = useRouter();
@@ -283,7 +284,7 @@ export default function CalculatorPage() {
           <SelectTrigger>
             <SelectValue placeholder="Select a template to prefill services..." />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
             {templatesData?.templates.map((template) => (
               <SelectItem key={template.id} value={template.id}>
                 {template.name} {template.isDefault && "(Default)"}
@@ -308,7 +309,7 @@ export default function CalculatorPage() {
               <SelectTrigger id="client">
                 <SelectValue placeholder="Select client..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 {clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.name} ({client.clientCode})
@@ -325,7 +326,7 @@ export default function CalculatorPage() {
               <SelectTrigger id="turnover">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="0-89k">£0 - £89k</SelectItem>
                 <SelectItem value="90k-149k">£90k - £149k</SelectItem>
                 <SelectItem value="150k-249k">£150k - £249k</SelectItem>
@@ -351,7 +352,7 @@ export default function CalculatorPage() {
               <SelectTrigger id="industry">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="simple">
                   Simple (Consultancy, B2B)
                 </SelectItem>

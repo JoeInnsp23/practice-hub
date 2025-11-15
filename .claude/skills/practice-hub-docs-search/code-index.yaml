@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-15T12:24:57.692Z
+# Generated: 2025-11-15T13:42:21.196Z
 
 functions:
   landingRouter:
@@ -735,6 +735,12 @@ functions:
     line: 413
     type: "function"
     signature: "function transformRow"
+  GLASS_DROPDOWN_MENU_STYLES:
+    description: "Standard glass-card dropdown menu styling"
+    file: "lib/utils/dropdown-styles.ts"
+    line: 1
+    type: "function"
+    signature: "const GLASS_DROPDOWN_MENU_STYLES"
   convertToCSV:
     description: "CSV Export Utilities"
     file: "lib/utils/export-csv.ts"
@@ -1410,9 +1416,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-15T12:24:57.698Z"
-  total_entries: 233
-  functions: 140
+  generated: "2025-11-15T13:42:21.198Z"
+  total_entries: 234
+  functions: 141
   types: 60
   components: 29
   classes: 4

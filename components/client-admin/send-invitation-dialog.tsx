@@ -34,6 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const invitationSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -181,7 +183,9 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
                         <SelectTrigger>
                           <SelectValue placeholder="Select client(s)" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent
+                          className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                        >
                           {clientsLoading && (
                             <SelectItem value="loading" disabled>
                               Loading clients...
@@ -217,7 +221,9 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent
+                          className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                        >
                           <SelectItem value="viewer">
                             <div>
                               <div className="font-medium">Viewer</div>

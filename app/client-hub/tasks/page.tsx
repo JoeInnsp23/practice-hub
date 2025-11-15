@@ -45,6 +45,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function TasksPage() {
   const utils = trpc.useUtils();
@@ -364,7 +366,7 @@ export default function TasksPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="pending">Not Started</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
@@ -377,7 +379,7 @@ export default function TasksPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Priorities" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Priorities</SelectItem>
                 <SelectItem value="urgent">Urgent</SelectItem>
                 <SelectItem value="high">High</SelectItem>
@@ -389,7 +391,7 @@ export default function TasksPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Assignees" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Assignees</SelectItem>
                 {uniqueAssignees.map((assignee) => (
                   <SelectItem key={assignee} value={assignee || ""}>

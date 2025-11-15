@@ -45,6 +45,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface ActivityTimelineProps {
   entityType: string;
@@ -341,7 +343,7 @@ export function ActivityTimeline({
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="note_added">Note</SelectItem>
                   <SelectItem value="phone_call">Phone Call</SelectItem>
                   <SelectItem value="email_sent">Email</SelectItem>

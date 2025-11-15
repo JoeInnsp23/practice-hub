@@ -48,6 +48,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -227,7 +228,7 @@ export default function LeadsPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="new">New</SelectItem>
                 <SelectItem value="contacted">Contacted</SelectItem>
@@ -445,7 +446,10 @@ export default function LeadsPage() {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className={GLASS_DROPDOWN_MENU_STYLES}
+                        >
                           <DropdownMenuItem
                             onClick={() =>
                               router.push(`/proposal-hub/leads/${lead.id}`)

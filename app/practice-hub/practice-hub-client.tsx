@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { HUB_COLORS, type HubName } from "@/lib/utils/hub-colors";
 
 // Static hub modules configuration (excluding Practice Hub itself since we're already on it)
@@ -268,7 +270,7 @@ export function PracticeHubClient({
                     <SelectTrigger className="w-64">
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                       <SelectItem value="all">All Categories</SelectItem>
                       {externalCategories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>

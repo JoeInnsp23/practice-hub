@@ -47,6 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface PricingRule {
   id: string;
@@ -176,7 +177,7 @@ export function PricingRulesTab() {
             <SelectTrigger className="w-[250px]">
               <SelectValue placeholder="All Services" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
               <SelectItem value="all">All Services</SelectItem>
               {components.map((comp) => (
                 <SelectItem key={comp.id} value={comp.id}>
@@ -260,7 +261,10 @@ export function PricingRulesTab() {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className={GLASS_DROPDOWN_MENU_STYLES}
+                        >
                           <DropdownMenuItem onClick={() => handleEdit(rule)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
@@ -401,7 +405,7 @@ function PricingRuleForm({
               <SelectTrigger id="componentId">
                 <SelectValue placeholder="Select service..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 {components.map((comp) => (
                   <SelectItem key={comp.id} value={comp.id}>
                     {comp.name} ({comp.code})
@@ -425,7 +429,7 @@ function PricingRuleForm({
               <SelectTrigger id="ruleType">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="turnover_band">Turnover Band</SelectItem>
                 <SelectItem value="transaction_band">
                   Transaction Band
@@ -501,7 +505,7 @@ function PricingRuleForm({
                 <SelectTrigger id="complexityLevel">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                   <SelectItem value="">None</SelectItem>
                   <SelectItem value="clean">Clean</SelectItem>
                   <SelectItem value="average">Average</SelectItem>

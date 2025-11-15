@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const assignLeadSchema = z.object({
   assignedToId: z.string().min(1, "Please select a team member"),
@@ -133,7 +134,7 @@ export function AssignLeadDialog({
                             <SelectValue placeholder="Select team member" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                           {users.map((user) => (
                             <SelectItem key={user.id} value={user.id}>
                               <div className="flex items-center gap-2">

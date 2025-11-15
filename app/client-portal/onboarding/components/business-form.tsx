@@ -9,6 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface OnboardingBusinessFormProps {
   formData: Record<string, unknown>;
@@ -52,7 +54,7 @@ export function OnboardingBusinessForm({
             <SelectTrigger>
               <SelectValue placeholder="Select turnover range" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
               <SelectItem value="0-50k">£0 - £50,000</SelectItem>
               <SelectItem value="50k-250k">£50,000 - £250,000</SelectItem>
               <SelectItem value="250k-1m">£250,000 - £1,000,000</SelectItem>

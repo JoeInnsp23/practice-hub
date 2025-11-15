@@ -40,6 +40,8 @@ import {
   companySettingsSchema,
   userSettingsSchema,
 } from "@/lib/schemas/settings-schemas";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function SettingsPage() {
   // Fetch tenant, user, and timesheet settings from backend
@@ -528,7 +530,7 @@ export default function SettingsPage() {
                       <SelectTrigger id="timezone">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                         <SelectItem value="Europe/London">
                           London (GMT)
                         </SelectItem>
@@ -570,7 +572,7 @@ export default function SettingsPage() {
                       <SelectTrigger id="dateFormat">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                         <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
                         <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                         <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
@@ -621,7 +623,7 @@ export default function SettingsPage() {
                       <SelectTrigger id="currency">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                         <SelectItem value="GBP">GBP (£)</SelectItem>
                         <SelectItem value="USD">USD ($)</SelectItem>
                         <SelectItem value="EUR">EUR (€)</SelectItem>
@@ -887,7 +889,7 @@ export default function SettingsPage() {
                       <SelectTrigger id="digestEmail">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                         <SelectItem value="daily">Daily Digest</SelectItem>
                         <SelectItem value="weekly">Weekly Digest</SelectItem>
                         <SelectItem value="never">Never</SelectItem>
@@ -909,7 +911,7 @@ export default function SettingsPage() {
                       <SelectTrigger id="theme">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                         <SelectItem value="light">Light</SelectItem>
                         <SelectItem value="dark">Dark</SelectItem>
                         <SelectItem value="system">System</SelectItem>

@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "@/lib/auth-client";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const invitationFormSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -153,7 +154,7 @@ export function SendInvitationDialog({ onSuccess }: SendInvitationDialogProps) {
                             <SelectValue placeholder="Select a role" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                           <SelectItem value="member">Member</SelectItem>
                           <SelectItem value="accountant">Accountant</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>

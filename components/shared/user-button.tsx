@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut, useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export function UserButton() {
   const router = useRouter();
@@ -53,7 +55,7 @@ export function UserButton() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-56 !bg-white dark:!bg-[rgb(20,26,35)] !border-slate-200 dark:!border-[rgb(40,45,55)] !shadow-[0_10px_40px_rgba(148,163,184,0.1),0_1px_3px_rgba(0,0,0,0.04)] dark:!shadow-[0_2px_4px_rgba(0,0,0,0.15)]"
+        className={cn(GLASS_DROPDOWN_MENU_STYLES, "w-56")}
       >
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">

@@ -15,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import SopsTable from "./sops-table";
 
 export default function SopsClient() {
@@ -161,7 +163,7 @@ export default function SopsClient() {
                 <SelectTrigger id="status-filter">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="published">Published</SelectItem>
@@ -179,7 +181,7 @@ export default function SopsClient() {
                 <SelectTrigger id="category-filter">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="all">All Categories</SelectItem>
                   {categoriesData?.categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>

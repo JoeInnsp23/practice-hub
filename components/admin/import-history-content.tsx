@@ -53,6 +53,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { dataToCSV } from "@/lib/services/csv-import";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type EntityType = "clients" | "tasks" | "services";
 type ImportStatus =
@@ -142,7 +144,7 @@ export function ImportHistoryContent() {
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Entity Type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="clients">Clients</SelectItem>
                   <SelectItem value="tasks">Tasks</SelectItem>

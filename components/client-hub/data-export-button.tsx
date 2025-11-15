@@ -26,6 +26,8 @@ import {
   exportTasks,
   type TaskExportColumn,
 } from "@/lib/export/task-export";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import type { TaskSummary } from "./tasks/types";
 
 interface DataExportButtonProps {
@@ -104,7 +106,7 @@ export function DataExportButton({
             {isExporting ? "Exporting..." : "Export"}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
           <DropdownMenuItem onClick={() => handleExport("csv")}>
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             Export as CSV

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSSE } from "@/lib/hooks/use-sse";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface Notification {
   id: string;
@@ -234,7 +236,10 @@ export function RealtimeNotifications() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-96">
+      <DropdownMenuContent
+        align="end"
+        className={cn(GLASS_DROPDOWN_MENU_STYLES, "w-96")}
+      >
         <div className="flex items-center justify-between p-3 border-b">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold">Notifications</h3>

@@ -150,7 +150,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:bg-[radial-gradient(circle_at_top,_rgba(3,18,21,1)_0%,_rgba(2,12,15,1)_55%,_rgba(1,6,9,1)_100%)]"
    ```
 
- 
+5. **Dropdown styling** - All `SelectContent` and `DropdownMenuContent` components MUST use the standardized `GLASS_DROPDOWN_MENU_STYLES` constant for consistent glass-card appearance across the application:
+
+   **Required Pattern:**
+   ```tsx
+   import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
+   import { cn } from "@/lib/utils";
+
+   // SelectContent with glass styling
+   <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES, "max-h-[300px]")}>
+     <SelectItem value="option1">Option 1</SelectItem>
+     <SelectItem value="option2">Option 2</SelectItem>
+   </SelectContent>
+
+   // DropdownMenuContent with glass styling
+   <DropdownMenuContent className={cn(GLASS_DROPDOWN_MENU_STYLES, "w-56")}>
+     <DropdownMenuItem>Action 1</DropdownMenuItem>
+     <DropdownMenuItem>Action 2</DropdownMenuItem>
+   </DropdownMenuContent>
+   ```
+
+   **Forbidden Patterns:**
+   ```tsx
+   // ❌ WRONG - Inline styling
+   <SelectContent className="bg-white dark:bg-slate-800 border shadow-lg">
+
+   // ❌ WRONG - No glass styling
+   <SelectContent>
+
+   // ❌ WRONG - Custom background colors
+   <DropdownMenuContent className="bg-gray-100 dark:bg-gray-900">
+   ```
+
+   **Rationale:** The `GLASS_DROPDOWN_MENU_STYLES` constant ensures consistent light/dark mode appearance, proper borders, shadows, and background colors that match the user profile dropdown pattern (app/employee-hub/employee-hub-layout-client.tsx:43). This prevents visual inconsistencies across 174+ dropdown instances.
+
+   **Pre-commit verification:**
+   ```bash
+   # Check for dropdowns missing glass styling
+   grep -rn "SelectContent\|DropdownMenuContent" app/ components/ | grep -v "GLASS_DROPDOWN_MENU_STYLES"
+   ```
 
 6. **Use design system classes** - Use tokens/classes from `globals.css` via shared components (e.g., `.glass-card`, `.glass-subtle`, `.glass-table`). Avoid inline `bg-*`, `border`, and `shadow` styling; extend the design system if a token is missing.
 

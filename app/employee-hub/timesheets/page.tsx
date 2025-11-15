@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function TimeTrackingPage() {
   const [view, setView] = useState<"daily" | "weekly" | "monthly">("weekly");
@@ -72,7 +74,7 @@ export default function TimeTrackingPage() {
           </p>
         </div>
         {isAdmin && (
-          <div className="flex items-center gap-2">
+          <div className="glass-card p-4 flex items-center justify-end gap-2">
             <Label htmlFor="staff-selector" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Staff Member:
@@ -84,7 +86,9 @@ export default function TimeTrackingPage() {
               <SelectTrigger id="staff-selector" className="w-[200px]">
                 <SelectValue placeholder="Select staff member" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+                className={cn(GLASS_DROPDOWN_MENU_STYLES, "max-h-[300px]")}
+              >
                 {usersData?.users?.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.firstName} {user.lastName}

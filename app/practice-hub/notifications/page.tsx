@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import type { NotificationListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type Notification = NotificationListOutput[number];
 
@@ -101,7 +102,7 @@ export default function NotificationsPage() {
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="unread">
                 Unread {unreadCount > 0 && `(${unreadCount})`}

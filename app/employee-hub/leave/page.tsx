@@ -32,6 +32,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { LeaveRequest } from "@/lib/trpc/types";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function LeavePage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
@@ -245,7 +247,7 @@ export default function LeavePage() {
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                       <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
@@ -257,7 +259,7 @@ export default function LeavePage() {
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                       <SelectItem value="all">All Types</SelectItem>
                       <SelectItem value="annual_leave">Annual Leave</SelectItem>
                       <SelectItem value="sick_leave">Sick Leave</SelectItem>

@@ -31,6 +31,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { getRecentConsoleLogs } from "@/lib/console-capture";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -172,7 +174,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                       <SelectTrigger id="category">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                         <SelectItem value="ui">User Interface</SelectItem>
                         <SelectItem value="performance">Performance</SelectItem>
                         <SelectItem value="functionality">
@@ -200,7 +202,9 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                         <SelectTrigger id="priority">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent
+                          className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                        >
                           <SelectItem value="low">Low</SelectItem>
                           <SelectItem value="medium">Medium</SelectItem>
                           <SelectItem value="high">High</SelectItem>

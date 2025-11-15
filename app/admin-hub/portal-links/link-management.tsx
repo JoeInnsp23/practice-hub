@@ -63,6 +63,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { IconPicker } from "./icon-picker";
 import { getIconComponent } from "./icon-utils";
 
@@ -295,7 +296,7 @@ export function LinkManagement() {
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
               <SelectItem value=" ">All Categories</SelectItem>
               {categories?.map((category: Category) => (
                 <SelectItem key={category.id} value={category.id}>
@@ -532,7 +533,7 @@ export function LinkManagement() {
                               <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                             {categories?.map((category: Category) => (
                               <SelectItem key={category.id} value={category.id}>
                                 {category.name}

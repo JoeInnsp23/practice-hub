@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { Invoice } from "@/lib/trpc/types";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { formatCurrency } from "@/lib/utils/format";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
@@ -364,7 +366,7 @@ export default function InvoicesPage() {
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="sent">Sent</SelectItem>

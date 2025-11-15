@@ -47,6 +47,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -271,7 +272,7 @@ export default function ProposalsPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="sent">Sent</SelectItem>
@@ -290,7 +291,7 @@ export default function ProposalsPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Sales Stages" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="all">All Sales Stages</SelectItem>
                 <SelectItem value="enquiry">Enquiry</SelectItem>
                 <SelectItem value="qualified">Qualified</SelectItem>
@@ -487,7 +488,10 @@ export default function ProposalsPage() {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className={GLASS_DROPDOWN_MENU_STYLES}
+                        >
                           <DropdownMenuItem
                             onClick={() =>
                               router.push(

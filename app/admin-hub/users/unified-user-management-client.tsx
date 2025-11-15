@@ -47,6 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { EditUserDialog } from "./edit-user-dialog";
 import { SendInvitationDialog } from "./send-invitation-dialog";
 
@@ -572,7 +573,7 @@ export function UnifiedUserManagementClient() {
           <SelectTrigger className="w-[240px]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
             <SelectItem value="active-users">Active Users</SelectItem>
             <SelectItem value="pending-invitations">
               Pending Invitations
@@ -766,7 +767,10 @@ export function UnifiedUserManagementClient() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent
+                            align="end"
+                            className={GLASS_DROPDOWN_MENU_STYLES}
+                          >
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -843,7 +847,10 @@ export function UnifiedUserManagementClient() {
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent
+                            align="end"
+                            className={GLASS_DROPDOWN_MENU_STYLES}
+                          >
                             <DropdownMenuItem
                               onClick={() => handleResendInvitation(row.id)}
                             >

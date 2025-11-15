@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 // Type inference from tRPC router
 type PricingConfigOutput = inferProcedureOutput<
@@ -631,7 +632,7 @@ export function ConfigurationTab() {
               <SelectTrigger id="default-turnover">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="0-89k">£0 - £89k</SelectItem>
                 <SelectItem value="90k-149k">£90k - £149k</SelectItem>
                 <SelectItem value="150k-249k">£150k - £249k</SelectItem>
@@ -668,7 +669,7 @@ export function ConfigurationTab() {
               <SelectTrigger id="default-industry">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="simple">Simple</SelectItem>
                 <SelectItem value="standard">Standard</SelectItem>
                 <SelectItem value="complex">Complex</SelectItem>
@@ -702,7 +703,7 @@ export function ConfigurationTab() {
               <SelectTrigger id="rounding-rule">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="none">No Rounding</SelectItem>
                 <SelectItem value="nearest_1">Nearest £1</SelectItem>
                 <SelectItem value="nearest_5">Nearest £5</SelectItem>

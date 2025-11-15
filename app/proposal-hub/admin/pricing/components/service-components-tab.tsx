@@ -51,6 +51,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type ServicePriceType = "hourly" | "fixed" | "retainer";
 
@@ -209,7 +210,7 @@ export function ServiceComponentsTab() {
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category === "all" ? "All Categories" : category}
@@ -281,7 +282,10 @@ export function ServiceComponentsTab() {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className={GLASS_DROPDOWN_MENU_STYLES}
+                        >
                           <DropdownMenuItem
                             onClick={() =>
                               handleEdit(component as ServiceComponent)
@@ -481,7 +485,7 @@ function ServiceComponentForm({
                 <SelectTrigger id="category">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                   <SelectItem value="compliance">Compliance</SelectItem>
                   <SelectItem value="vat">VAT</SelectItem>
                   <SelectItem value="bookkeeping">Bookkeeping</SelectItem>
@@ -536,7 +540,7 @@ function ServiceComponentForm({
                 <SelectTrigger id="pricingModel">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                   <SelectItem value="fixed">Fixed</SelectItem>
                   <SelectItem value="turnover">Turnover-Based</SelectItem>
                   <SelectItem value="transaction">Transaction-Based</SelectItem>

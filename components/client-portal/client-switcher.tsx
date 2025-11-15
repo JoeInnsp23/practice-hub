@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useClientPortalContext } from "@/contexts/client-portal-context";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export function ClientSwitcher() {
   const { currentClientId, setCurrentClientId, setClientAccess } =
@@ -81,7 +83,10 @@ export function ClientSwitcher() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[300px]">
+      <DropdownMenuContent
+        align="end"
+        className={cn(GLASS_DROPDOWN_MENU_STYLES, "w-[300px]")}
+      >
         <DropdownMenuLabel>Switch Client</DropdownMenuLabel>
         <DropdownMenuSeparator />
 

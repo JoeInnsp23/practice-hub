@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface EmailTemplate {
   id: string;
@@ -412,7 +413,7 @@ export default function EmailTemplatesPage() {
                   <SelectTrigger>
                     <SelectValue placeholder="Select template type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     {templateTypes.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
@@ -536,7 +537,7 @@ export default function EmailTemplatesPage() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     {templateTypes.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}

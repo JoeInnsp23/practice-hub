@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -316,7 +317,7 @@ export default function ProposalDetailPage({
                 {getSalesStageBadge(proposalData.salesStage)}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
               <SelectItem value="enquiry">Enquiry</SelectItem>
               <SelectItem value="qualified">Qualified</SelectItem>
               <SelectItem value="proposal_sent">Proposal Sent</SelectItem>

@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type StatusBadgeConfig = {
   variant: "default" | "secondary" | "outline" | "destructive";
@@ -147,7 +148,10 @@ export default function LeadDetailPage() {
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className={GLASS_DROPDOWN_MENU_STYLES}
+            >
               <DropdownMenuItem disabled>
                 <UserCheck className="h-4 w-4 mr-2" />
                 Convert to Client

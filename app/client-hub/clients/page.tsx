@@ -34,6 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface Client {
   id: string;
@@ -277,7 +279,7 @@ export default function ClientsPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="individual">Individual</SelectItem>
                 <SelectItem value="company">Company</SelectItem>
@@ -291,7 +293,7 @@ export default function ClientsPage() {
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>

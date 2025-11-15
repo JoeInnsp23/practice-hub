@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Workflow } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type WorkflowTemplate = Workflow;
 type WorkflowCreateInput = inferRouterInputs<AppRouter>["workflows"]["create"];
@@ -298,7 +299,10 @@ export default function WorkflowsPage() {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                        >
                           <DropdownMenuItem
                             onClick={() => {
                               setEditingTemplate(template);

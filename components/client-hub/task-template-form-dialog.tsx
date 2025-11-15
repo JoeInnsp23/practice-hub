@@ -43,6 +43,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SUPPORTED_PLACEHOLDERS } from "@/lib/services/template-placeholders";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const formSchema = z.object({
   serviceId: z.string().uuid("Please select a service"),
@@ -211,7 +213,9 @@ export function TaskTemplateFormDialog({
                               <SelectValue placeholder="Select a service" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent
+                            className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                          >
                             {services.map((service) => (
                               <SelectItem key={service.id} value={service.id}>
                                 {service.name} ({service.code})
@@ -337,7 +341,9 @@ export function TaskTemplateFormDialog({
                                 <SelectValue placeholder="Select task type" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent
+                              className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                            >
                               <SelectItem value="compliance">
                                 Compliance
                               </SelectItem>
@@ -371,7 +377,9 @@ export function TaskTemplateFormDialog({
                                 <SelectValue placeholder="Select priority" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent
+                              className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                            >
                               <SelectItem value="low">Low</SelectItem>
                               <SelectItem value="medium">Medium</SelectItem>
                               <SelectItem value="high">High</SelectItem>

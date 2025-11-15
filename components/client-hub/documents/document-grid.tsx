@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { DocumentListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { formatDate } from "@/lib/utils/format";
 
 type DocumentData = DocumentListOutput["documents"][number];
@@ -152,7 +153,10 @@ export function DocumentGrid({
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                      align="end"
+                      className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                    >
                       {doc.document.type === "folder" ? (
                         <DropdownMenuItem
                           onClick={() => onFolderClick(doc.document.id)}
@@ -279,7 +283,10 @@ export function DocumentGrid({
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                      align="end"
+                      className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                    >
                       {doc.document.type === "folder" ? (
                         <DropdownMenuItem
                           onClick={() => onFolderClick(doc.document.id)}

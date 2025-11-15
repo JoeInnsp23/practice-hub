@@ -38,6 +38,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -187,7 +189,9 @@ export function TaskDialog({
                               <SelectValue placeholder="Select priority" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent
+                            className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                          >
                             <SelectItem value="low">Low</SelectItem>
                             <SelectItem value="medium">Medium</SelectItem>
                             <SelectItem value="high">High</SelectItem>
@@ -214,7 +218,9 @@ export function TaskDialog({
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent
+                            className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                          >
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="in_progress">
                               In Progress
@@ -261,7 +267,9 @@ export function TaskDialog({
                               <SelectValue placeholder="Select team member" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent
+                            className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                          >
                             {users.map((user) => (
                               <SelectItem key={user.id} value={user.id}>
                                 {user.firstName} {user.lastName}

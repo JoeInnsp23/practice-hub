@@ -32,6 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface ClientTemplateOverridesProps {
   clientId: string;
@@ -304,7 +306,7 @@ export function ClientTemplateOverrides({
                 <SelectTrigger>
                   <SelectValue placeholder="Use default priority" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="default">
                     Use Default ({selectedTemplateData?.priority})
                   </SelectItem>

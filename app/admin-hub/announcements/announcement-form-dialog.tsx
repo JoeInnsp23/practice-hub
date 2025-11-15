@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { IconPicker } from "../portal-links/icon-picker";
 
 const announcementFormSchema = z.object({
@@ -292,7 +293,7 @@ export function AnnouncementFormDialog({
                             <SelectValue placeholder="Select priority" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                           <SelectItem value="info">Info</SelectItem>
                           <SelectItem value="warning">Warning</SelectItem>
                           <SelectItem value="critical">Critical</SelectItem>

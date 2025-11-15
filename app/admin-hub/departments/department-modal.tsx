@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface DepartmentModalProps {
   isOpen: boolean;
@@ -199,7 +200,7 @@ export default function DepartmentModal({
                   <SelectTrigger id="manager">
                     <SelectValue placeholder="Select a manager (optional)" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     <SelectItem value="">No Manager</SelectItem>
                     {eligibleManagers.map((user) => (
                       <SelectItem key={user.id} value={user.id}>

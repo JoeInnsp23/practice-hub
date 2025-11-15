@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { formatDate } from "@/lib/utils/format";
 import type { TaskStatus, TaskSummary } from "./types";
 
@@ -118,7 +119,10 @@ export function TaskCard({
                 <MoreVertical className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+            >
               <DropdownMenuItem onClick={() => onEdit(task)}>
                 Edit
               </DropdownMenuItem>

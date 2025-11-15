@@ -37,6 +37,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const reassignmentSchema = z.object({
   toUserId: z.string().min(1, "Please select a user"),
@@ -158,7 +160,9 @@ export function TaskReassignmentModal({
                             <SelectValue placeholder="Select assignment type" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent
+                          className={cn(GLASS_DROPDOWN_MENU_STYLES)}
+                        >
                           <SelectItem value="assigned_to">
                             Assigned To
                           </SelectItem>

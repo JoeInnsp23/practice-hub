@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const newLeadSchema = z.object({
   // Contact details
@@ -261,7 +262,7 @@ export default function NewLeadPage() {
                             <SelectValue placeholder="Select industry" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                           <SelectItem value="retail">Retail</SelectItem>
                           <SelectItem value="professional_services">
                             Professional Services
@@ -346,7 +347,7 @@ export default function NewLeadPage() {
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                           <SelectItem value="new">New</SelectItem>
                           <SelectItem value="contacted">Contacted</SelectItem>
                           <SelectItem value="qualified">Qualified</SelectItem>
@@ -380,7 +381,7 @@ export default function NewLeadPage() {
                             <SelectValue placeholder="Select source" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                           <SelectItem value="website">Website</SelectItem>
                           <SelectItem value="referral">Referral</SelectItem>
                           <SelectItem value="cold_call">Cold Call</SelectItem>

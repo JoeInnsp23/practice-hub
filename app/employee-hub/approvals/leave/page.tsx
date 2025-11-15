@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebounce } from "@/lib/hooks/use-debounce";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface SelectedRequest {
   id: string;
@@ -245,7 +247,7 @@ export default function LeaveApprovalsPage() {
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="annual_leave">Annual Leave</SelectItem>
                   <SelectItem value="sick_leave">Sick Leave</SelectItem>

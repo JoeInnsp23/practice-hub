@@ -21,6 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
@@ -243,7 +245,7 @@ export default function CreateSopForm() {
               <SelectTrigger id="categoryId">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
                 {categoriesData?.categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}

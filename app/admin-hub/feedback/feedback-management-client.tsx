@@ -40,6 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 import { FeedbackDetailDialog } from "./feedback-detail-dialog";
 
 interface Feedback {
@@ -364,7 +365,7 @@ export function FeedbackManagementClient({
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="new">New</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
@@ -375,7 +376,7 @@ export function FeedbackManagementClient({
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="issue">Issues</SelectItem>
                 <SelectItem value="feature_request">Features</SelectItem>

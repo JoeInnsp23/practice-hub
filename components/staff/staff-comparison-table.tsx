@@ -21,6 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface StaffMember {
   userId: string;
@@ -156,7 +158,7 @@ export function StaffComparisonTable({
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="overallocated">Overallocated</SelectItem>
             <SelectItem value="underutilized">Underutilized</SelectItem>

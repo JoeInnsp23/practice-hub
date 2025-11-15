@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { CalendarEventListOutput } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 type EventType = "meeting" | "deadline" | "event" | "out_of_office";
 type CalendarEvent = CalendarEventListOutput[number];
@@ -377,7 +378,7 @@ function NewEventDialog({
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="meeting">Meeting</SelectItem>
                 <SelectItem value="deadline">Deadline</SelectItem>
                 <SelectItem value="event">Event</SelectItem>

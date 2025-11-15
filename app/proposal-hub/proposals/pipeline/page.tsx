@@ -57,6 +57,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 export default function ProposalsPipelinePage() {
   const router = useRouter();
@@ -247,7 +248,7 @@ export default function ProposalsPipelinePage() {
               <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="All assignees" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                 <SelectItem value="all">All assignees</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={user.id}>

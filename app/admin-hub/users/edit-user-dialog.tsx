@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface UserData {
   id: string;
@@ -162,7 +163,7 @@ export function EditUserDialog({
                   <SelectTrigger id="editRole">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     <SelectItem value="admin">
                       <div className="flex items-center gap-2">
                         <Shield className="h-3 w-3" />
@@ -186,7 +187,7 @@ export function EditUserDialog({
                   <SelectTrigger id="editDepartment">
                     <SelectValue placeholder="Select department (optional)" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={GLASS_DROPDOWN_MENU_STYLES}>
                     <SelectItem value="none">No Department</SelectItem>
                     {departmentsData?.departments.map((dept) => (
                       <SelectItem key={dept.id} value={dept.id}>
