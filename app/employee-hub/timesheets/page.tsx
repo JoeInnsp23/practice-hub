@@ -62,7 +62,7 @@ export default function TimeTrackingPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
@@ -73,10 +73,11 @@ export default function TimeTrackingPage() {
         </p>
       </div>
 
-      {/* Control Bar: View Toggle + Staff Selector */}
-      <div className="flex items-center justify-between gap-4">
-        <Tabs value={view} onValueChange={handleViewChange}>
-          <TabsList className="grid max-w-md grid-cols-2">
+      {/* Main Content with View Toggle */}
+      <Tabs value={view} onValueChange={handleViewChange}>
+        {/* Control Bar: View Toggle + Staff Selector */}
+        <div className="flex items-center justify-between gap-4">
+          <TabsList className="grid max-w-md grid-cols-2 h-10">
             <TabsTrigger value="weekly">
               <Clock className="h-4 w-4 mr-2" />
               Weekly
@@ -86,49 +87,54 @@ export default function TimeTrackingPage() {
               Monthly
             </TabsTrigger>
           </TabsList>
-        </Tabs>
-        {isAdmin && (
-          <div className="glass-card h-9 px-4 py-1.5 rounded-lg flex items-center gap-2">
-            <Label htmlFor="staff-selector" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Staff Member:
-            </Label>
-            <Select
-              value={selectedUserId ?? currentUserId}
-              onValueChange={(value) => setSelectedUserId(value)}
-            >
-              <SelectTrigger id="staff-selector" className="w-[200px]">
-                <SelectValue placeholder="Select staff member" />
-              </SelectTrigger>
-              <SelectContent
-                className={cn(GLASS_DROPDOWN_MENU_STYLES, "max-h-[300px]")}
+          {isAdmin && (
+            <div className="glass-card h-10 px-4 py-1.5 rounded-lg flex items-center gap-2">
+              <Label
+                htmlFor="staff-selector"
+                className="flex items-center gap-2 text-sm"
               >
-                {usersData?.users?.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.firstName} {user.lastName}
-                    {user.email && ` (${user.email})`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Users className="h-4 w-4" />
+                Staff Member:
+              </Label>
+              <Select
+                value={selectedUserId ?? currentUserId}
+                onValueChange={(value) => setSelectedUserId(value)}
+              >
+                <SelectTrigger
+                  id="staff-selector"
+                  className="w-[200px] h-7 text-sm"
+                >
+                  <SelectValue placeholder="Select staff member" />
+                </SelectTrigger>
+                <SelectContent
+                  className={cn(GLASS_DROPDOWN_MENU_STYLES, "max-h-[300px]")}
+                >
+                  {usersData?.users?.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.firstName} {user.lastName}
+                      {user.email && ` (${user.email})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
+        <TabsContent value="weekly" className="space-y-4">
+          {/* Weekly View - Hourly Timesheet */}
+          <div className="h-[calc(100vh-220px)]">
+            <HourlyTimesheet selectedUserId={effectiveSelectedUserId} />
           </div>
-        )}
-      </div>
+        </TabsContent>
 
-      {/* Tab Content */}
-      <TabsContent value="weekly" className="space-y-4">
-        {/* Weekly View - Hourly Timesheet */}
-        <div className="h-[calc(100vh-220px)]">
-          <HourlyTimesheet selectedUserId={effectiveSelectedUserId} />
-        </div>
-      </TabsContent>
-
-      <TabsContent value="monthly" className="space-y-4">
-        {/* Monthly View - Calendar */}
-        <div className="h-[calc(100vh-220px)]">
-          <MonthlyTimesheet selectedUserId={effectiveSelectedUserId} />
-        </div>
-      </TabsContent>
+        <TabsContent value="monthly" className="space-y-4">
+          {/* Monthly View - Calendar */}
+          <div className="h-[calc(100vh-220px)]">
+            <MonthlyTimesheet selectedUserId={effectiveSelectedUserId} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
