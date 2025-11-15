@@ -291,78 +291,78 @@ export function ApprovalList({
           <TableBody>
             {requests.map((request) => (
               <TableRow key={request.id} className="table-row">
-                  {showBulkActions && (
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedIds.includes(request.id)}
-                        onCheckedChange={() => toggleSelection(request.id)}
-                      />
-                    </TableCell>
-                  )}
+                {showBulkActions && (
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
-                          {getUserInitials(
-                            request.userFirstName ?? undefined,
-                            request.userLastName ?? undefined,
-                            request.userEmail,
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">
-                          {request.userName ||
-                            `${request.userFirstName || ""} ${request.userLastName || ""}`.trim() ||
-                            request.userEmail}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {request.userEmail}
-                        </div>
+                    <Checkbox
+                      checked={selectedIds.includes(request.id)}
+                      onCheckedChange={() => toggleSelection(request.id)}
+                    />
+                  </TableCell>
+                )}
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {getUserInitials(
+                          request.userFirstName ?? undefined,
+                          request.userLastName ?? undefined,
+                          request.userEmail,
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium">
+                        {request.userName ||
+                          `${request.userFirstName || ""} ${request.userLastName || ""}`.trim() ||
+                          request.userEmail}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {request.userEmail}
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>{getTypeBadge(request.leaveType)}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      {formatDate(request.startDate)} -{" "}
-                      {formatDate(request.endDate)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-medium">{request.daysCount}</span>{" "}
-                    {request.daysCount === 1 ? "day" : "days"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-muted-foreground">
-                      {request.requestedAt
-                        ? formatRelativeTime(request.requestedAt)
-                        : "N/A"}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
-                        onClick={() => onApprove(request.id)}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-                        onClick={() => onReject(request.id)}
-                      >
-                        <XCircle className="h-4 w-4 mr-1" />
-                        Reject
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                  </div>
+                </TableCell>
+                <TableCell>{getTypeBadge(request.leaveType)}</TableCell>
+                <TableCell>
+                  <div className="text-sm">
+                    {formatDate(request.startDate)} -{" "}
+                    {formatDate(request.endDate)}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="font-medium">{request.daysCount}</span>{" "}
+                  {request.daysCount === 1 ? "day" : "days"}
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm text-muted-foreground">
+                    {request.requestedAt
+                      ? formatRelativeTime(request.requestedAt)
+                      : "N/A"}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+                      onClick={() => onApprove(request.id)}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                      onClick={() => onReject(request.id)}
+                    >
+                      <XCircle className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
