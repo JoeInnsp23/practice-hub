@@ -340,7 +340,7 @@ export default function ReportsPage() {
                 <CardTitle className="text-sm font-medium">
                   Collection Rate
                 </CardTitle>
-                <Target className="h-4 w-4 text-blue-600" />
+                <Target className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">

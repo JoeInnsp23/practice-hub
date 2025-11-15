@@ -226,7 +226,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
       },
       in_progress: {
         label: "In Progress",
-        className: "bg-blue-100 text-blue-800",
+        className: "bg-primary/10 text-primary border-primary/20",
       },
       not_started: {
         label: "Not Started",
@@ -603,7 +603,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                 <CardTitle className="text-sm font-medium">
                   Unbilled Hours
                 </CardTitle>
-                <Clock className="h-4 w-4 text-blue-600" />
+                <Clock className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -1080,7 +1080,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                       <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                                       <a
                                         href={`mailto:${contact.email}`}
-                                        className="text-blue-600 hover:underline"
+                                        className="text-primary hover:underline"
                                       >
                                         {contact.email}
                                       </a>
@@ -1091,7 +1091,7 @@ export default function ClientDetails({ clientId }: ClientDetailsProps) {
                                       <Phone className="h-3.5 w-3.5 text-muted-foreground" />
                                       <a
                                         href={`tel:${contact.phone}`}
-                                        className="text-blue-600 hover:underline"
+                                        className="text-primary hover:underline"
                                       >
                                         {contact.phone}
                                       </a>

@@ -235,7 +235,7 @@ export default function ServicesPage() {
             <CardTitle className="text-sm font-medium">
               Total Services
             </CardTitle>
-            <Package className="h-4 w-4 text-blue-600" />
+            <Package className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>

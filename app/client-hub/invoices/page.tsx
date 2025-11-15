@@ -283,7 +283,7 @@ export default function InvoicesPage() {
             <CardTitle className="text-sm font-medium">
               Total Invoiced
             </CardTitle>
-            <FileText className="h-4 w-4 text-blue-600" />
+            <FileText className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">

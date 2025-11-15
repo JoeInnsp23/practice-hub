@@ -212,7 +212,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
       pending: { label: "Not Started", className: "bg-gray-100 text-gray-800" },
       in_progress: {
         label: "In Progress",
-        className: "bg-blue-100 text-blue-800",
+        className: "bg-primary/10 text-primary border-primary/20",
       },
       review: { label: "Review", className: "bg-amber-100 text-amber-800" },
       completed: {
@@ -247,7 +247,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
       },
       low: {
         label: "Low",
-        className: "bg-blue-100 text-blue-800 border-blue-300",
+        className: "bg-primary/10 text-primary border-primary/20",
       },
     };
     const config = priorityConfig[priority as keyof typeof priorityConfig];
@@ -464,7 +464,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                 Time Tracking
               </p>
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-blue-500" />
+                <Clock className="h-4 w-4 text-primary" />
                 <div>
                   <span>
                     {actualHoursValue} / {estimatedHoursValue || "-"} hours
@@ -484,7 +484,7 @@ export default function TaskDetails({ taskId }: TaskDetailsProps) {
                 Preparer
               </p>
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-blue-500" />
+                <User className="h-4 w-4 text-primary" />
                 <span>{task.assignee?.name || "Unassigned"}</span>
                 {!task.assignee && (
                   <Badge

@@ -108,7 +108,7 @@ export default function ClientsPage() {
       title: "Total Clients",
       value: clients.length.toString(),
       icon: Users,
-      iconColor: "text-blue-600",
+      iconColor: "text-primary",
     },
     {
       title: "Active Clients",

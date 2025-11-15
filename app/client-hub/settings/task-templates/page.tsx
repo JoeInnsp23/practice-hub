@@ -131,7 +131,7 @@ export default function TaskTemplatesPage() {
       urgent:
         "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
       high: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
-      medium: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
+      medium: "bg-primary/10 text-primary border-primary/20",
       low: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100",
     };
     return colors[priority as keyof typeof colors] || colors.medium;
