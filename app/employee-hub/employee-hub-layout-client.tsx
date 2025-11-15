@@ -1,82 +1,29 @@
 "use client";
 
-import {
-  BookOpen,
-  Calendar,
-  CheckCircle,
-  Clock,
-  GraduationCap,
-  Home,
-  Shield,
-  TrendingUp,
-  Umbrella,
-} from "lucide-react";
+import { Home, type LucideIcon } from "lucide-react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
 import { GlobalSidebar } from "@/components/shared/GlobalSidebar";
 import { HUB_COLORS } from "@/lib/utils/hub-colors";
 
 const navigation = [{ name: "Dashboard", href: "/employee-hub", icon: Home }];
 
-const sections = [
-  {
-    title: "Time & Attendance",
-    items: [
-      { name: "Timesheets", href: "/employee-hub/timesheets", icon: Clock },
-      {
-        name: "Leave Calendar",
-        href: "/employee-hub/leave/calendar",
-        icon: Calendar,
-      },
-    ],
-  },
-  {
-    title: "Benefits",
-    items: [
-      { name: "Leave Requests", href: "/employee-hub/leave", icon: Umbrella },
-      { name: "TOIL Balance", href: "/employee-hub/toil", icon: TrendingUp },
-    ],
-  },
-  {
-    title: "Training & Compliance",
-    items: [
-      {
-        name: "My Training",
-        href: "/employee-hub/training",
-        icon: GraduationCap,
-      },
-      {
-        name: "SOPs Library",
-        href: "/employee-hub/training/sops",
-        icon: BookOpen,
-      },
-      {
-        name: "Compliance Dashboard",
-        href: "/employee-hub/training/compliance",
-        icon: Shield,
-      },
-    ],
-  },
-  {
-    title: "Admin",
-    adminOnly: true,
-    items: [
-      {
-        name: "Approvals",
-        href: "/employee-hub/approvals",
-        icon: CheckCircle,
-      },
-      {
-        name: "SOP Management",
-        href: "/employee-hub/sops",
-        icon: BookOpen,
-      },
-    ],
-  },
-];
+interface SidebarItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+interface SidebarSection {
+  title: string;
+  adminOnly?: boolean;
+  items: SidebarItem[];
+}
 
 export function EmployeeHubLayoutClient({
+  sections,
   children,
 }: {
+  sections: SidebarSection[];
   children: React.ReactNode;
 }) {
   const hubColor = HUB_COLORS["employee-hub"];

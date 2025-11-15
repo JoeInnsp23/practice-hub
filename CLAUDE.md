@@ -463,6 +463,147 @@ The application uses `getAuthContext()` and `getClientPortalAuthContext()` helpe
 
 **Complete implementation:** See `/docs/architecture/multi-tenancy.md` for auth context patterns, helper functions, query examples, and tRPC integration.
 
+## Authorization Patterns (Better Auth)
+
+**IMPORTANT: Follow these patterns consistently for admin-only features:**
+
+### Pattern 1: Server-Side Layout Filtering (Sidebar Visibility)
+
+Use this pattern to hide sidebar sections/items from non-admin users.
+
+**Server Layout Component:**
+```typescript
+// app/[hub]/layout.tsx (Server Component - NO "use client")
+import { getAuthContext } from "@/lib/auth";
+import { type LucideIcon } from "lucide-react";
+
+interface SidebarItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+interface SidebarSection {
+  title: string;
+  adminOnly?: boolean;
+  items: SidebarItem[];
+}
+
+export default async function HubLayout({ children }: { children: React.ReactNode }) {
+  const authContext = await getAuthContext();
+  const isAdmin = authContext?.role === "admin";
+
+  // Define sections with adminOnly flag
+  const sections: SidebarSection[] = [
+    { title: "Regular Section", items: [...] },
+    {
+      title: "Admin",
+      adminOnly: true,  // ← Flag for filtering
+      items: [...]
+    },
+  ];
+
+  // Filter sections based on role
+  const filteredSections = sections.filter(section => {
+    if (section.adminOnly && !isAdmin) return false;
+    return true;
+  });
+
+  return (
+    <HubLayoutClient sections={filteredSections}>
+      {children}
+    </HubLayoutClient>
+  );
+}
+```
+
+**Client Component:**
+```typescript
+// app/[hub]/hub-layout-client.tsx (Client Component - HAS "use client")
+"use client";
+import { type LucideIcon } from "lucide-react";
+
+interface SidebarItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+interface SidebarSection {
+  title: string;
+  adminOnly?: boolean;
+  items: SidebarItem[];
+}
+
+export function HubLayoutClient({
+  sections,
+  children
+}: {
+  sections: SidebarSection[];
+  children: React.ReactNode;
+}) {
+  // Render filtered sections from server
+  return (
+    <GlobalSidebar sections={sections} {...otherProps} />
+  );
+}
+```
+
+### Pattern 2: Page-Level Admin Protection (Required for Admin Pages)
+
+**CRITICAL:** ALWAYS add page-level role checks to admin-only pages, even if sidebar is filtered. This prevents direct URL access bypass.
+
+```typescript
+// app/[hub]/admin-feature/page.tsx (Server Component)
+import { getAuthContext } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function AdminFeaturePage() {
+  const authContext = await getAuthContext();
+
+  // Redirect non-admin users
+  if (!authContext || authContext.role !== "admin") {
+    redirect("/");
+  }
+
+  // Render admin-only content
+  return <AdminFeatureContent />;
+}
+```
+
+### Pattern 3: Using requireAdmin Helper (Alternative)
+
+For simpler page-level checks, use the `requireAdmin()` helper:
+
+```typescript
+// app/[hub]/admin-feature/page.tsx
+import { requireAdmin } from "@/lib/auth";
+
+export default async function AdminFeaturePage() {
+  // Throws error if not admin (caught by error boundary)
+  const authContext = await requireAdmin();
+
+  // authContext.role is guaranteed to be "admin" here
+  return <AdminFeatureContent />;
+}
+```
+
+### Multi-Layer Security Checklist
+
+For any admin-only feature, implement ALL layers:
+
+- ✅ **Layer 1:** Better Auth middleware (authentication) - Already configured
+- ✅ **Layer 2:** Server layout filtering (sidebar visibility) - Use Pattern 1
+- ✅ **Layer 3:** Page-level role checks (direct URL protection) - Use Pattern 2 or 3
+
+### Better Auth Helpers Reference
+
+- `getAuthContext()` - Returns `AuthContext | null` (includes userId, tenantId, role, email, etc.)
+- `requireAuth()` - Returns `AuthContext` or throws (for authenticated pages)
+- `requireAdmin()` - Returns `AuthContext` or throws if not admin (for admin pages)
+
+See `lib/auth.ts` for implementation details.
+
 ## Environment Setup
 
 **Required environment variables** in `.env.local`:
