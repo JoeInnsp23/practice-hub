@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BookOpen,
   Globe,
   LayoutDashboard,
   Megaphone,
@@ -17,7 +16,6 @@ const navigation = [
   { name: "Announcements", href: "/admin-hub/announcements", icon: Megaphone },
   { name: "User Management", href: "/admin-hub/users", icon: Users },
   { name: "Feedback", href: "/admin-hub/feedback", icon: MessageSquare },
-  { name: "SOP Management", href: "/admin-hub/sops", icon: BookOpen },
   { name: "Portal Links", href: "/admin-hub/portal-links", icon: Globe },
 ];
 

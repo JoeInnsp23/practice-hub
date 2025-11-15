@@ -56,15 +56,15 @@ export default function SopsClient() {
   }, [sopsData?.sops, searchQuery]);
 
   const handleCreate = () => {
-    router.push("/admin-hub/sops/create");
+    router.push("/employee-hub/sops/create");
   };
 
   const handleEdit = (sopId: string) => {
-    router.push(`/admin-hub/sops/${sopId}/edit`);
+    router.push(`/employee-hub/sops/${sopId}/edit`);
   };
 
   const handleView = (sopId: string) => {
-    router.push(`/admin-hub/sops/${sopId}`);
+    router.push(`/employee-hub/sops/${sopId}`);
   };
 
   if (sopsError) {

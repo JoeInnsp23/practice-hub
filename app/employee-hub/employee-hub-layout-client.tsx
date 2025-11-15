@@ -65,6 +65,11 @@ const sections = [
         href: "/employee-hub/approvals",
         icon: CheckCircle,
       },
+      {
+        name: "SOP Management",
+        href: "/employee-hub/sops",
+        icon: BookOpen,
+      },
     ],
   },
 ];

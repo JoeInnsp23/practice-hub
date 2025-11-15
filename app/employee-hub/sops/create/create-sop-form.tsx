@@ -76,7 +76,7 @@ export default function CreateSopForm() {
   const createMutation = trpc.sops.create.useMutation({
     onSuccess: () => {
       toast.success("SOP created successfully");
-      router.push("/admin-hub/sops");
+      router.push("/employee-hub/sops");
     },
     onError: (error) => {
       toast.error(error.message);
