@@ -290,8 +290,7 @@ export function ApprovalList({
           </TableHeader>
           <TableBody>
             {requests.map((request) => (
-              <>
-                <TableRow key={request.id} className="table-row">
+              <TableRow key={request.id} className="table-row">
                   {showBulkActions && (
                     <TableCell>
                       <Checkbox
@@ -364,7 +363,6 @@ export function ApprovalList({
                     </div>
                   </TableCell>
                 </TableRow>
-              </>
             ))}
           </TableBody>
         </Table>
