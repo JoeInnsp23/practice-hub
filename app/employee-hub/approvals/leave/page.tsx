@@ -198,7 +198,7 @@ export default function LeaveApprovalsPage() {
           value={stats.approvedThisMonth.toString()}
           icon={CheckCircle}
           loading={isLoading}
-          iconColor="text-green-600"
+          iconColor="text-primary"
         />
         <KPIWidget
           title="Rejected This Month"

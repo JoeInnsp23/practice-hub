@@ -64,7 +64,7 @@ export default function LeaveBalancePage() {
             View your current leave balances and entitlements
           </p>
         </div>
-        <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+        <Button asChild variant="default">
           <Link href="/employee-hub/leave/request">Request Leave</Link>
         </Button>
       </div>
@@ -76,7 +76,7 @@ export default function LeaveBalancePage() {
           value={`${annualRemaining.toFixed(1)} days`}
           icon={Calendar}
           loading={isLoading}
-          iconColor="text-emerald-600"
+          iconColor="text-primary"
         />
         <KPIWidget
           title="Total Entitlement"
@@ -142,7 +142,7 @@ export default function LeaveBalancePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-emerald-600" />
+                  <Calendar className="h-5 w-5 text-primary" />
                   Next Booked Leave
                 </CardTitle>
               </CardHeader>

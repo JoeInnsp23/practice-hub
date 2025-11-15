@@ -50,8 +50,8 @@ export default function SopsLibraryPage() {
         <Card className="glass-card">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="p-2 rounded-lg bg-primary/10 dark:bg-primary/20">
+                <FileText className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-base">Client Services</CardTitle>
             </div>

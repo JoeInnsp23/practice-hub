@@ -134,7 +134,7 @@ export default function ApprovalsPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading pending approvals...</p>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function ApprovalsPage() {
       </div>
 
       {selectedSubmissions.size > 0 && (
-        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">
               {selectedSubmissions.size} timesheet(s) selected
@@ -175,7 +175,7 @@ export default function ApprovalsPage() {
                 size="sm"
                 onClick={handleBulkApprove}
                 disabled={bulkApproveMutation.isPending}
-                className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700"
+                variant="default"
               >
                 <CheckCircle2 className="h-4 w-4 mr-1" />
                 Approve Selected

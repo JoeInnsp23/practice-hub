@@ -53,7 +53,7 @@ export default function LeaveRequestPage() {
           value={`${annualRemaining.toFixed(1)} days`}
           icon={Calendar}
           loading={isLoading}
-          iconColor="text-emerald-600"
+          iconColor="text-primary"
         />
         <KPIWidget
           title="TOIL Balance"
@@ -68,7 +68,7 @@ export default function LeaveRequestPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-emerald-600" />
+            <Calendar className="h-5 w-5 text-primary" />
             Leave Request Form
           </CardTitle>
         </CardHeader>

@@ -36,7 +36,7 @@ export default function ToilBalancePage() {
           }
           icon={TrendingUp}
           loading={balanceLoading}
-          iconColor="text-emerald-600"
+          iconColor="text-primary"
         />
         <KPIWidget
           title="Balance in Days"
@@ -93,7 +93,7 @@ export default function ToilBalancePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-emerald-600" />
+                <Clock className="h-5 w-5 text-primary" />
                 How TOIL Works
               </CardTitle>
             </CardHeader>
@@ -127,11 +127,7 @@ export default function ToilBalancePage() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                asChild
-                variant="default"
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
-              >
+              <Button asChild variant="default" className="w-full">
                 <Link href="/employee-hub/leave/request">
                   <Calendar className="h-4 w-4 mr-2" />
                   Request TOIL as Leave

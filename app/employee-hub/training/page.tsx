@@ -21,10 +21,10 @@ export default function MyTrainingPage() {
           <Card className="glass-card h-full transition-all hover:scale-105">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                  <BookOpen className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                <div className="p-2 rounded-lg bg-primary/10 dark:bg-primary/20">
+                  <BookOpen className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-lg group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                <CardTitle className="text-lg group-hover:text-primary transition-colors">
                   SOPs Library
                 </CardTitle>
               </div>

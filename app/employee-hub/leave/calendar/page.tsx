@@ -144,7 +144,7 @@ export default function LeaveCalendarPage() {
           value={stats.totalApproved.toString()}
           icon={Calendar}
           loading={isLoading}
-          iconColor="text-emerald-600"
+          iconColor="text-primary"
         />
       </div>
 

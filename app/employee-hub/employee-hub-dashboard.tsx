@@ -126,11 +126,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
-          <Button
-            asChild
-            variant="default"
-            className="bg-emerald-600 hover:bg-emerald-700"
-          >
+          <Button asChild variant="default">
             <Link href="/employee-hub/timesheets">
               <Clock className="h-4 w-4 mr-2" />
               Log Time
@@ -168,7 +164,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-emerald-600" />
+              <Clock className="h-5 w-5 text-primary" />
               This Week's Timesheet
             </CardTitle>
           </CardHeader>
@@ -190,7 +186,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="bg-emerald-600 h-2 rounded-full transition-all"
+                      className="bg-primary h-2 rounded-full transition-all"
                       style={{
                         width: `${Math.min(hoursPercentage, 100)}%`,
                       }}
@@ -200,15 +196,12 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                     {hoursPercentage.toFixed(0)}% complete
                   </p>
                   {isSubmitted && (
-                    <p className="text-xs text-emerald-600 mt-2 font-medium">
+                    <p className="text-xs text-primary mt-2 font-medium">
                       ✓ Submitted for approval
                     </p>
                   )}
                 </div>
-                <Button
-                  asChild
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 mt-auto"
-                >
+                <Button asChild variant="default" className="w-full mt-auto">
                   <Link href="/employee-hub/timesheets">View Timesheet</Link>
                 </Button>
               </>
@@ -225,7 +218,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Umbrella className="h-5 w-5 text-emerald-600" />
+              <Umbrella className="h-5 w-5 text-primary" />
               Leave Balances
             </CardTitle>
           </CardHeader>
@@ -243,7 +236,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                     <span className="text-sm text-muted-foreground">
                       Annual Leave
                     </span>
-                    <span className="text-lg font-bold text-emerald-600">
+                    <span className="text-lg font-bold text-primary">
                       {annualRemaining.toFixed(1)} days
                     </span>
                   </div>
@@ -251,7 +244,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                     <span className="text-sm text-muted-foreground">
                       TOIL Balance
                     </span>
-                    <span className="text-lg font-bold text-emerald-600">
+                    <span className="text-lg font-bold text-primary">
                       {toilBalanceDays} days
                     </span>
                   </div>
@@ -281,7 +274,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-600" />
+              <TrendingUp className="h-5 w-5 text-primary" />
               TOIL Overview
             </CardTitle>
           </CardHeader>
@@ -299,7 +292,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                     <span className="text-sm text-muted-foreground">
                       Current Balance
                     </span>
-                    <span className="text-2xl font-bold text-emerald-600">
+                    <span className="text-2xl font-bold text-primary">
                       {toilBalanceHours.toFixed(1)} hrs
                     </span>
                   </div>
@@ -325,7 +318,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <CheckCircle className="h-5 w-5 text-primary" />
               Pending Approvals
             </CardTitle>
           </CardHeader>

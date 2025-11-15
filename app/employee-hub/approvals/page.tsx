@@ -37,7 +37,7 @@ export default function ApprovalQueuePage() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-emerald-600" />
+                <Clock className="h-5 w-5 text-primary" />
                 Timesheet Approvals
               </div>
               {pendingTimesheets.length > 0 && (
@@ -62,7 +62,7 @@ export default function ApprovalQueuePage() {
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-2xl font-bold text-emerald-600">
+                <p className="text-2xl font-bold text-primary">
                   {pendingTimesheets.length}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -70,10 +70,7 @@ export default function ApprovalQueuePage() {
                     ? "timesheet awaiting review"
                     : "timesheets awaiting review"}
                 </p>
-                <Button
-                  asChild
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
-                >
+                <Button asChild className="w-full" variant="default">
                   <Link href="/employee-hub/approvals/timesheets">
                     Review Timesheets
                   </Link>
@@ -88,7 +85,7 @@ export default function ApprovalQueuePage() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Umbrella className="h-5 w-5 text-emerald-600" />
+                <Umbrella className="h-5 w-5 text-primary" />
                 Leave Approvals
               </div>
               {pendingLeaveCount > 0 && (
@@ -113,7 +110,7 @@ export default function ApprovalQueuePage() {
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-2xl font-bold text-emerald-600">
+                <p className="text-2xl font-bold text-primary">
                   {pendingLeaveCount}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -121,10 +118,7 @@ export default function ApprovalQueuePage() {
                     ? "leave request awaiting review"
                     : "leave requests awaiting review"}
                 </p>
-                <Button
-                  asChild
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
-                >
+                <Button asChild className="w-full" variant="default">
                   <Link href="/employee-hub/approvals/leave">
                     Review Leave Requests
                   </Link>

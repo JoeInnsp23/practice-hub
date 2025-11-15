@@ -178,7 +178,7 @@ export default function LeavePage() {
             setEditingRequest(null);
             setIsRequestModalOpen(true);
           }}
-          className="bg-emerald-600 hover:bg-emerald-700"
+          variant="default"
         >
           <Plus className="h-4 w-4 mr-2" />
           Request Leave
@@ -192,7 +192,7 @@ export default function LeavePage() {
           value={balance ? `${balance.remaining} days` : "Loading..."}
           icon={Calendar}
           loading={balanceLoading}
-          iconColor="text-emerald-600"
+          iconColor="text-primary"
         />
         <KPIWidget
           title="Total Entitlement"
@@ -352,7 +352,7 @@ export default function LeavePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-emerald-600" />
+              <Clock className="h-5 w-5 text-primary" />
               TOIL Accrual History
             </CardTitle>
           </CardHeader>

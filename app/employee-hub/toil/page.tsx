@@ -39,7 +39,7 @@ export default function ToilPage() {
           }
           icon={TrendingUp}
           loading={balanceLoading}
-          iconColor="text-emerald-600"
+          iconColor="text-primary"
         />
         <KPIWidget
           title="Balance in Days"
@@ -70,7 +70,7 @@ export default function ToilPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-emerald-600" />
+                <Clock className="h-5 w-5 text-primary" />
                 TOIL Accrual History
               </CardTitle>
             </CardHeader>

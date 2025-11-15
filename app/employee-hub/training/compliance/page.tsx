@@ -34,9 +34,7 @@ export default function ComplianceDashboardPage() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              100%
-            </div>
+            <div className="text-2xl font-bold text-primary">100%</div>
             <p className="text-xs text-muted-foreground mt-1">
               All requirements met
             </p>
@@ -90,7 +88,7 @@ export default function ComplianceDashboardPage() {
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <FileText className="h-5 w-5 text-primary" />
               Governance &amp; Compliance
             </CardTitle>
           </CardHeader>
@@ -104,9 +102,7 @@ export default function ComplianceDashboardPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Completed</span>
-                <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                  0 (0%)
-                </span>
+                <span className="text-sm font-medium text-primary">0 (0%)</span>
               </div>
             </div>
           </CardContent>
@@ -129,9 +125,7 @@ export default function ComplianceDashboardPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Completed</span>
-                <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                  0 (0%)
-                </span>
+                <span className="text-sm font-medium text-primary">0 (0%)</span>
               </div>
             </div>
           </CardContent>
