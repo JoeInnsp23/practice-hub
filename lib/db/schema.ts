@@ -1184,6 +1184,17 @@ export const timesheetSubmissions = pgTable(
 );
 
 // Time Entries table
+//
+// DATABASE TRIGGERS (drizzle/0002_create_timesheet_triggers.sql):
+// 1. time_entry_overlap_check: Prevents overlapping time entries for same user/date
+//    - Checks: (newStart < existingEnd) AND (newEnd > existingStart)
+//    - Example: Entry A (09:00-12:00) blocks Entry B (11:00-14:00)
+// 2. daily_hour_limit_check: Enforces 24-hour daily limit per user/date
+//    - Sums all hours for user+date and rejects if total would exceed 24
+//    - Example: 20h existing + 5h new = 25h → REJECTED
+//
+// These triggers provide bulletproof validation that cannot be bypassed by
+// application-layer race conditions or concurrent requests.
 export const timeEntries = pgTable(
   "time_entries",
   {

@@ -68,6 +68,18 @@ async function runMigrations() {
       console.error("❌ Failed to create views:", error);
       throw error;
     }
+
+    console.log("\n🔒 Creating timesheet validation triggers...");
+    try {
+      execSync(
+        "docker exec -i practice-hub-db psql -U postgres -d practice_hub < drizzle/0002_create_timesheet_triggers.sql",
+        { stdio: "inherit" },
+      );
+      console.log("✅ Timesheet validation triggers created successfully!");
+    } catch (error) {
+      console.error("❌ Failed to create triggers:", error);
+      throw error;
+    }
   }
 
   console.log("\n✅ Database migration complete!");
