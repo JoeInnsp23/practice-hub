@@ -11,7 +11,7 @@ export function UpcomingTasksWidget() {
 
   // Fetch tasks due in next 7 days
   const { data, isLoading } = trpc.tasks.list.useQuery({
-    status: "todo",
+    status: "pending",
   });
 
   // Complete task mutation
