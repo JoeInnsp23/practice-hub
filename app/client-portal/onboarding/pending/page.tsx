@@ -134,7 +134,7 @@ export default function OnboardingPendingPage() {
   const isRejected = onboardingSession?.status === "rejected";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Identity Verification</h1>

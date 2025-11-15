@@ -268,7 +268,7 @@ export default function OnboardingQuestionnairePage() {
   const CurrentStepIcon = STEPS[currentStep].icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
