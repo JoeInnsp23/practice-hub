@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-15T19:12:38.342Z",
+  "generated": "2025-11-15T22:07:41.637Z",
   "version": "1.0",
-  "total_entries": 234,
+  "total_entries": 236,
   "functions": [
     {
       "name": "landingRouter",
@@ -1662,6 +1662,22 @@
       "line": 39,
       "type": "component",
       "signature": "function GenerationPreviewModal"
+    },
+    {
+      "name": "LeaveList",
+      "description": "LeaveList - Table component displaying leave requests",
+      "file": "components/employee-hub/leave/leave-list.tsx",
+      "line": 118,
+      "type": "component",
+      "signature": "function LeaveList"
+    },
+    {
+      "name": "LeaveTab",
+      "description": "LeaveTab - Employee leave request management with tabs",
+      "file": "components/employee-hub/leave/leave-tab.tsx",
+      "line": 32,
+      "type": "component",
+      "signature": "function LeaveTab"
     },
     {
       "name": "DatePickerButton",
