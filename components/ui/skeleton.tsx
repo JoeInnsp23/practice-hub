@@ -6,8 +6,7 @@ import { cn } from "@/lib/utils";
 const skeletonVariants = cva("rounded-md", {
   variants: {
     variant: {
-      default:
-        "[background:var(--skeleton-color,hsl(var(--accent)))] animate-pulse",
+      default: "[background:var(--skeleton-color)] animate-pulse",
       shimmer: "skeleton-shimmer",
     },
   },
