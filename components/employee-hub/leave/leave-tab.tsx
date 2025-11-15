@@ -263,18 +263,18 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
         />
       </div>
 
-      {/* Action Button */}
-      <div className="flex justify-end">
-        <Button onClick={onRequestLeave} variant="default">
-          <Plus className="h-4 w-4 mr-2" />
-          Request Leave
-        </Button>
-      </div>
-
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Leave History (2 columns) */}
         <Tabs defaultValue="pending" className="w-full lg:col-span-2">
+          {/* Action Button */}
+          <div className="flex justify-end mb-4">
+            <Button onClick={onRequestLeave} variant="default">
+              <Plus className="h-4 w-4 mr-2" />
+              Request Leave
+            </Button>
+          </div>
+
           <TabsList>
             <TabsTrigger value="pending">
               Pending (
