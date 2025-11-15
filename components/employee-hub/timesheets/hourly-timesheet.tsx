@@ -282,7 +282,7 @@ export function HourlyTimesheet({
       <div className="flex-1 overflow-auto" ref={gridRef}>
         <div className="min-w-[800px]">
           {/* Day Headers */}
-          <div className="glass-subtle grid grid-cols-8 gap-0 sticky top-0 z-10 border-b border-border">
+          <div className="bg-background grid grid-cols-8 gap-0 sticky top-0 z-10 border-b border-border">
             <div className="p-3 text-center text-sm font-medium text-foreground border-r border-border">
               Time
             </div>
