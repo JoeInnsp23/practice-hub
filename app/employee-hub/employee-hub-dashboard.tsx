@@ -133,7 +133,7 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/employee-hub/leave/request">
+            <Link href="/employee-hub/leave?action=request">
               <Umbrella className="h-4 w-4 mr-2" />
               Request Leave
             </Link>
@@ -302,7 +302,9 @@ export function EmployeeHubDashboard({ userName }: EmployeeHubDashboardProps) {
                   </div>
                 </div>
                 <Button asChild variant="outline" className="w-full mt-auto">
-                  <Link href="/employee-hub/toil">View TOIL History</Link>
+                  <Link href="/employee-hub/leave?tab=toil">
+                    View TOIL History
+                  </Link>
                 </Button>
               </>
             )}
