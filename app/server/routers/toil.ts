@@ -126,10 +126,30 @@ export const toilRouter = router({
         )
         .limit(1);
 
+      // Get next expiry date from active TOIL accruals
+      const [nextExpiry] = await db
+        .select({
+          expiryDate: toilAccrualHistory.expiryDate,
+          hoursAccrued: toilAccrualHistory.hoursAccrued,
+        })
+        .from(toilAccrualHistory)
+        .where(
+          and(
+            eq(toilAccrualHistory.userId, userId),
+            eq(toilAccrualHistory.tenantId, tenantId),
+            eq(toilAccrualHistory.expired, false),
+            gte(toilAccrualHistory.hoursAccrued, 0),
+          ),
+        )
+        .orderBy(toilAccrualHistory.expiryDate)
+        .limit(1);
+
       return {
         userId,
         balance: balance?.toilBalance ?? 0,
         balanceInDays: ((balance?.toilBalance ?? 0) / 7.5).toFixed(1), // Convert to days
+        nextExpiryDate: nextExpiry?.expiryDate ?? null,
+        nextExpiryHours: nextExpiry?.hoursAccrued ?? 0,
       };
     }),
 
