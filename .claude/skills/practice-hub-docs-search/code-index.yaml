@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-15T20:31:01.180Z
+# Generated: 2025-11-15T21:00:50.483Z
 
 functions:
   landingRouter:
@@ -1249,6 +1249,18 @@ components:
     line: 39
     type: "component"
     signature: "function GenerationPreviewModal"
+  LeaveList:
+    description: "LeaveList - Table component displaying leave requests"
+    file: "components/employee-hub/leave/leave-list.tsx"
+    line: 104
+    type: "component"
+    signature: "function LeaveList"
+  LeaveTab:
+    description: "LeaveTab - Employee leave request management with tabs"
+    file: "components/employee-hub/leave/leave-tab.tsx"
+    line: 34
+    type: "component"
+    signature: "function LeaveTab"
   DatePickerButton:
     description: "The currently selected week start date (Monday)"
     file: "components/employee-hub/timesheets/date-picker-button.tsx"
@@ -1416,9 +1428,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-15T20:31:01.182Z"
-  total_entries: 234
+  generated: "2025-11-15T21:00:50.484Z"
+  total_entries: 236
   functions: 141
   types: 60
-  components: 29
+  components: 31
   classes: 4

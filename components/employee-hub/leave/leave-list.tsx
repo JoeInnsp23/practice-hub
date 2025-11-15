@@ -101,6 +101,17 @@ const statusConfig = {
   },
 };
 
+/**
+ * LeaveList - Table component displaying leave requests
+ *
+ * Renders a Table as the root element (no glass-table wrapper).
+ * The parent component (LeaveTab) applies the glass-table class
+ * to the overflow wrapper for consistent styling across the app.
+ *
+ * @param requests - Array of leave requests to display
+ * @param onEdit - Optional callback to edit a request (only for pending requests)
+ * @param onView - Optional callback to view request details
+ */
 export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
   const utils = trpc.useUtils();
 
@@ -172,86 +183,83 @@ export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
   }
 
   return (
-    <div className="glass-table">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Type</TableHead>
-            <TableHead>Dates</TableHead>
-            <TableHead>Days</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Requested</TableHead>
-            <TableHead>Reviewed By</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Type</TableHead>
+          <TableHead>Dates</TableHead>
+          <TableHead>Days</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Requested</TableHead>
+          <TableHead>Reviewed By</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {requests.map((request) => (
+          <TableRow key={request.id} className="table-row">
+            <TableCell>{getTypeBadge(request.leaveType)}</TableCell>
+            <TableCell>
+              <div className="text-sm">
+                {formatDate(request.startDate)} - {formatDate(request.endDate)}
+              </div>
+            </TableCell>
+            <TableCell>
+              <span className="font-medium">{request.daysCount}</span>{" "}
+              {request.daysCount === 1 ? "day" : "days"}
+            </TableCell>
+            <TableCell>{getStatusBadge(request.status)}</TableCell>
+            <TableCell>
+              <div className="text-sm text-muted-foreground">
+                {formatDate(request.requestedAt)}
+              </div>
+            </TableCell>
+            <TableCell>
+              {request.reviewerName ? (
+                <div className="text-sm">{request.reviewerName}</div>
+              ) : (
+                <span className="text-sm text-muted-foreground">-</span>
+              )}
+            </TableCell>
+            <TableCell className="text-right">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {onView && (
+                    <DropdownMenuItem onClick={() => onView(request)}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </DropdownMenuItem>
+                  )}
+                  {request.status === "pending" && onEdit && (
+                    <>
+                      <DropdownMenuItem onClick={() => onEdit(request)}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  {(request.status === "pending" ||
+                    request.status === "approved") && (
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => handleCancel(request)}
+                    >
+                      <Ban className="h-4 w-4 mr-2" />
+                      Cancel Request
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {requests.map((request) => (
-            <TableRow key={request.id} className="table-row">
-              <TableCell>{getTypeBadge(request.leaveType)}</TableCell>
-              <TableCell>
-                <div className="text-sm">
-                  {formatDate(request.startDate)} -{" "}
-                  {formatDate(request.endDate)}
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className="font-medium">{request.daysCount}</span>{" "}
-                {request.daysCount === 1 ? "day" : "days"}
-              </TableCell>
-              <TableCell>{getStatusBadge(request.status)}</TableCell>
-              <TableCell>
-                <div className="text-sm text-muted-foreground">
-                  {formatDate(request.requestedAt)}
-                </div>
-              </TableCell>
-              <TableCell>
-                {request.reviewerName ? (
-                  <div className="text-sm">{request.reviewerName}</div>
-                ) : (
-                  <span className="text-sm text-muted-foreground">-</span>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {onView && (
-                      <DropdownMenuItem onClick={() => onView(request)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                    )}
-                    {request.status === "pending" && onEdit && (
-                      <>
-                        <DropdownMenuItem onClick={() => onEdit(request)}>
-                          <Pencil className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    {(request.status === "pending" ||
-                      request.status === "approved") && (
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onClick={() => handleCancel(request)}
-                      >
-                        <Ban className="h-4 w-4 mr-2" />
-                        Cancel Request
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

@@ -7,7 +7,6 @@ import {
   Clock,
   Gift,
   Plus,
-  Search,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
@@ -15,8 +14,6 @@ import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeaveBalanceWidget } from "@/components/employee-hub/leave/leave-balance-widget";
 import { LeaveList } from "@/components/employee-hub/leave/leave-list";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDebounce } from "@/lib/hooks/use-debounce";
 import type { LeaveRequest } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
@@ -35,12 +31,21 @@ interface LeaveTabProps {
   onEditRequest: (request: LeaveRequest) => void;
 }
 
+/**
+ * LeaveTab - Employee leave request management with tabs
+ *
+ * Structure: Uses glass-table design pattern (no Card wrapper)
+ * - Matches admin-hub/announcements pattern for consistency
+ * - glass-table applied to overflow wrapper for proper table scrolling
+ * - Filters (status and type) placed above table, outside glass-table border
+ * - Search functionality removed - users filter by status and type only
+ *
+ * @param onRequestLeave - Callback to open the leave request modal
+ * @param onEditRequest - Callback to edit an existing leave request
+ */
 export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch leave data
   const { data: balanceResponse, isLoading: balanceLoading } =
@@ -102,18 +107,9 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
         return false;
       }
 
-      // Search filter
-      if (debouncedSearchTerm) {
-        const searchLower = debouncedSearchTerm.toLowerCase();
-        return (
-          request.notes?.toLowerCase().includes(searchLower) ||
-          request.reviewerComments?.toLowerCase().includes(searchLower)
-        );
-      }
-
       return true;
     });
-  }, [leaveHistory, statusFilter, typeFilter, debouncedSearchTerm]);
+  }, [leaveHistory, statusFilter, typeFilter]);
 
   return (
     <div className="space-y-6">
@@ -160,10 +156,10 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Leave History (2 columns) */}
-        <Card className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-4">
           <Tabs defaultValue="pending" className="w-full">
-            <div className="px-6 pt-6 pb-4 border-b">
-              <TabsList className="mb-4">
+            <div className="space-y-4">
+              <TabsList>
                 <TabsTrigger value="pending">
                   Pending (
                   {filteredLeave.filter((r) => r.status === "pending").length})
@@ -175,19 +171,6 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
 
               {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="leave-search-input"
-                    name="search"
-                    type="search"
-                    placeholder="Search leave requests..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                    aria-label="Search leave requests"
-                  />
-                </div>
                 <Select
                   value={statusFilter}
                   onValueChange={setStatusFilter}
@@ -232,8 +215,8 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
               </div>
             </div>
 
-            <TabsContent value="pending" className="mt-0">
-              <div className="overflow-x-auto">
+            <TabsContent value="pending" className="mt-4">
+              <div className="overflow-x-auto glass-table">
                 <LeaveList
                   requests={
                     filteredLeave.filter((r) => r.status === "pending") || []
@@ -243,8 +226,8 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
               </div>
             </TabsContent>
 
-            <TabsContent value="history" className="mt-0">
-              <div className="overflow-x-auto">
+            <TabsContent value="history" className="mt-4">
+              <div className="overflow-x-auto glass-table">
                 <LeaveList
                   requests={filteredLeave || []}
                   onEdit={onEditRequest}
@@ -252,7 +235,7 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
               </div>
             </TabsContent>
           </Tabs>
-        </Card>
+        </div>
 
         {/* Sidebar */}
         <div className="lg:col-span-1 space-y-6">
