@@ -1,7 +1,7 @@
 {
-  "generated": "2025-11-14T23:45:40.483Z",
+  "generated": "2025-11-15T00:31:59.235Z",
   "version": "1.0",
-  "total_entries": 231,
+  "total_entries": 233,
   "functions": [
     {
       "name": "landingRouter",
@@ -410,6 +410,14 @@
       "line": 1,
       "type": "function",
       "signature": "function __resetTokenCache"
+    },
+    {
+      "name": "useHubColor",
+      "description": "The current hub color (e.g., \"#3b82f6\" for client-hub).",
+      "file": "lib/hooks/use-hub-color.ts",
+      "line": 15,
+      "type": "function",
+      "signature": "function useHubColor"
     },
     {
       "name": "useSSE",
@@ -1268,6 +1276,14 @@
       "line": 190,
       "type": "type",
       "signature": "type SupportedVariable"
+    },
+    {
+      "name": "UseHubColorResult",
+      "description": "Result of the useHubColor hook.",
+      "file": "lib/hooks/use-hub-color.ts",
+      "line": 11,
+      "type": "type",
+      "signature": "interface UseHubColorResult"
     },
     {
       "name": "VerificationRequest",
