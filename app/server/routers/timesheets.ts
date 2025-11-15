@@ -280,9 +280,10 @@ async function getDailyTotalHours(
 ): Promise<number> {
   const dbOrTx = tx || db;
 
-  // Use FOR UPDATE when in transaction context to prevent race conditions
-  const result = await dbOrTx.execute(sql`
-    SELECT COALESCE(SUM(CAST(hours AS DECIMAL)), 0) as total_hours
+  // Lock individual rows (FOR UPDATE not allowed with aggregates)
+  // Sum in application code instead of SQL
+  const result = await dbOrTx.execute<{ hours: string }>(sql`
+    SELECT hours
     FROM time_entries
     WHERE user_id = ${userId}
       AND tenant_id = ${tenantId}
@@ -291,7 +292,8 @@ async function getDailyTotalHours(
     ${tx ? sql`FOR UPDATE` : sql``}
   `);
 
-  return Number(result.rows[0]?.total_hours || 0);
+  // Sum in application code
+  return result.rows.reduce((sum, row) => sum + Number(row.hours || 0), 0);
 }
 
 export const timesheetsRouter = router({

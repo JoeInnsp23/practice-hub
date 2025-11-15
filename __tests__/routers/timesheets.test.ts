@@ -776,7 +776,7 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         clientAId.id,
         {
           date: "2025-01-15",
-          hours: "100.00", // Large hours to detect if included
+          hours: "15.00", // Different hours to detect if included
         },
       );
       tracker.timeEntries?.push(entryA.id);
@@ -787,9 +787,9 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
         endDate: "2025-01-31",
       });
 
-      // The summary should not include the other tenant's 100 hours
-      // (We know our entry is 7 hours, so total should be close to that)
-      expect(result.totalHours).toBeLessThan(50); // Should be around 7, not 107
+      // The summary should not include the other tenant's 15 hours
+      // (We know our entry is 7 hours, so total should be exactly that)
+      expect(result.totalHours).toBe(7); // Should be 7, not 22 (7+15)
     });
 
     it("should validate required date fields", async () => {
@@ -1048,6 +1048,159 @@ describe("app/server/routers/timesheets.ts (Integration)", () => {
       expect(result.billableHours).toBe(0);
       expect(result.billablePercentage).toBe(0);
       expect(result.workTypeBreakdown).toHaveLength(0);
+    });
+  });
+
+  describe("Validation (Critical)", () => {
+    it("should prevent overlapping time entries for the same user/date", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Create first entry: 09:00-12:00 (3 hours)
+      const entry1 = await caller.create({
+        date: "2025-01-20",
+        clientId: client.id,
+        startTime: "09:00",
+        endTime: "12:00",
+        hours: "3.00",
+        description: "Morning work",
+        billable: true,
+        status: "draft" as const,
+      });
+      tracker.timeEntries?.push(entry1.timeEntry.id);
+
+      // Attempt to create overlapping entry: 11:00-14:00 (overlaps with entry1)
+      await expect(
+        caller.create({
+          date: "2025-01-20",
+          clientId: client.id,
+          startTime: "11:00",
+          endTime: "14:00",
+          hours: "3.00",
+          description: "Overlapping work",
+          billable: true,
+          status: "draft" as const,
+        }),
+      ).rejects.toThrow(/overlaps with/i);
+
+      // Verify database only has one entry
+      const entries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.userId, ctx.authContext.userId),
+            eq(timeEntries.date, "2025-01-20"),
+          ),
+        );
+      expect(entries).toHaveLength(1);
+    });
+
+    it("should prevent exceeding 24-hour daily limit", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Create entry with 20 hours
+      const entry1 = await caller.create({
+        date: "2025-01-21",
+        clientId: client.id,
+        hours: "20.00",
+        description: "Long work day",
+        billable: true,
+        status: "draft" as const,
+      });
+      tracker.timeEntries?.push(entry1.timeEntry.id);
+
+      // Attempt to add 5 more hours (total would be 25h, exceeding limit)
+      await expect(
+        caller.create({
+          date: "2025-01-21",
+          clientId: client.id,
+          hours: "5.00",
+          description: "Exceeding limit",
+          billable: true,
+          status: "draft" as const,
+        }),
+      ).rejects.toThrow(/exceeding 24-hour limit/i);
+
+      // Verify database only has 20 hours total
+      const entries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.userId, ctx.authContext.userId),
+            eq(timeEntries.date, "2025-01-21"),
+          ),
+        );
+
+      const totalHours = entries.reduce((sum, e) => sum + Number(e.hours), 0);
+      expect(totalHours).toBe(20);
+    });
+
+    it("should handle concurrent creation with race condition protection", async () => {
+      const client = await createTestClient(
+        ctx.authContext.tenantId,
+        ctx.authContext.userId,
+      );
+      tracker.clients?.push(client.id);
+
+      // Simulate concurrent requests (both try to add 15h to same date)
+      const promises = [
+        caller.create({
+          date: "2025-01-22",
+          clientId: client.id,
+          hours: "15.00",
+          description: "Concurrent 1",
+          billable: true,
+          status: "draft" as const,
+        }),
+        caller.create({
+          date: "2025-01-22",
+          clientId: client.id,
+          hours: "15.00",
+          description: "Concurrent 2",
+          billable: true,
+          status: "draft" as const,
+        }),
+      ];
+
+      const results = await Promise.allSettled(promises);
+
+      // Clean up successful entries
+      for (const result of results) {
+        if (result.status === "fulfilled") {
+          tracker.timeEntries?.push(result.value.timeEntry.id);
+        }
+      }
+
+      // Exactly ONE should succeed, one should fail (due to transaction locking)
+      const succeeded = results.filter((r) => r.status === "fulfilled");
+      const failed = results.filter((r) => r.status === "rejected");
+
+      expect(succeeded).toHaveLength(1);
+      expect(failed).toHaveLength(1);
+
+      // Verify database has exactly 15 hours, not 30
+      const entries = await db
+        .select()
+        .from(timeEntries)
+        .where(
+          and(
+            eq(timeEntries.userId, ctx.authContext.userId),
+            eq(timeEntries.date, "2025-01-22"),
+          ),
+        );
+
+      const totalHours = entries.reduce((sum, e) => sum + Number(e.hours), 0);
+      expect(totalHours).toBe(15);
+      expect(entries).toHaveLength(1);
     });
   });
 
