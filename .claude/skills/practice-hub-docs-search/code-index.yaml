@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-15T21:22:56.695Z
+# Generated: 2025-11-15T21:36:32.859Z
 
 functions:
   landingRouter:
@@ -1252,7 +1252,7 @@ components:
   LeaveList:
     description: "LeaveList - Table component displaying leave requests"
     file: "components/employee-hub/leave/leave-list.tsx"
-    line: 104
+    line: 118
     type: "component"
     signature: "function LeaveList"
   LeaveTab:
@@ -1428,7 +1428,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-15T21:22:56.698Z"
+  generated: "2025-11-15T21:36:32.860Z"
   total_entries: 236
   functions: 141
   types: 60

@@ -48,6 +48,12 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
+  // Sorting state (null = default ordering by requestedAt desc)
+  const [sortBy, setSortBy] = useState<
+    "leaveType" | "startDate" | "daysCount" | "status" | "requestedAt" | null
+  >(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
   // Fetch leave data
   const { data: balanceResponse, isLoading: balanceLoading } =
     trpc.leave.getBalance.useQuery({});
@@ -93,11 +99,12 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
     };
   }, [leaveHistory, balance]);
 
-  // Filter leave history
+  // Filter and sort leave history
   const filteredLeave = useMemo(() => {
     if (!leaveHistory) return [];
 
-    return leaveHistory.filter((request) => {
+    // Step 1: Filter
+    let filtered = leaveHistory.filter((request) => {
       // Status filter
       if (statusFilter !== "all" && request.status !== statusFilter) {
         return false;
@@ -110,7 +117,61 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
 
       return true;
     });
-  }, [leaveHistory, statusFilter, typeFilter]);
+
+    // Step 2: Sort (if sortBy is set)
+    if (sortBy) {
+      filtered = [...filtered].sort((a, b) => {
+        const aVal = a[sortBy];
+        const bVal = b[sortBy];
+
+        // Handle null/undefined values
+        if (aVal === null || aVal === undefined) return 1;
+        if (bVal === null || bVal === undefined) return -1;
+
+        // String comparison (for leaveType, status)
+        if (typeof aVal === "string" && typeof bVal === "string") {
+          const comparison = aVal.localeCompare(bVal);
+          return sortOrder === "asc" ? comparison : -comparison;
+        }
+
+        // Number comparison (for daysCount)
+        if (typeof aVal === "number" && typeof bVal === "number") {
+          return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+        }
+
+        // Date comparison (for startDate, requestedAt)
+        const dateA = new Date(aVal).getTime();
+        const dateB = new Date(bVal).getTime();
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      });
+    }
+
+    return filtered;
+  }, [leaveHistory, statusFilter, typeFilter, sortBy, sortOrder]);
+
+  /**
+   * Handle column sort state changes
+   * Implements 3-state cycle: null → asc → desc → null
+   * Date columns default to desc, others default to asc
+   */
+  const handleSort = (
+    column: "leaveType" | "startDate" | "daysCount" | "status" | "requestedAt",
+  ) => {
+    if (sortBy !== column) {
+      // Clicking a different column - start with appropriate order
+      setSortBy(column);
+      setSortOrder(
+        column === "startDate" || column === "requestedAt" ? "desc" : "asc",
+      );
+    } else if (sortOrder === "asc") {
+      // Same column, currently ascending - switch to descending
+      setSortOrder("desc");
+    } else {
+      // Same column, currently descending - reset to default (no sort)
+      setSortBy(null);
+      setSortOrder("asc"); // Reset order for next time
+    }
+  };
 
   /**
    * Renders the filter row for status and type filtering.
@@ -234,6 +295,9 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
                     filteredLeave.filter((r) => r.status === "pending") || []
                   }
                   onEdit={onEditRequest}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={handleSort}
                 />
               </div>
             </TabsContent>
@@ -245,6 +309,9 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
                 <LeaveList
                   requests={filteredLeave || []}
                   onEdit={onEditRequest}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={handleSort}
                 />
               </div>
             </TabsContent>

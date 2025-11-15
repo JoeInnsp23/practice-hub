@@ -2,6 +2,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Ban,
   Calendar,
   CheckCircle,
@@ -41,6 +44,17 @@ interface LeaveListProps {
   requests: LeaveRequest[];
   onEdit?: (request: LeaveRequest) => void;
   onView?: (request: LeaveRequest) => void;
+  sortBy:
+    | "leaveType"
+    | "startDate"
+    | "daysCount"
+    | "status"
+    | "requestedAt"
+    | null;
+  sortOrder: "asc" | "desc";
+  onSort: (
+    column: "leaveType" | "startDate" | "daysCount" | "status" | "requestedAt",
+  ) => void;
 }
 
 const leaveTypeConfig = {
@@ -112,7 +126,14 @@ const statusConfig = {
  * @param onEdit - Optional callback to edit a request (only for pending requests)
  * @param onView - Optional callback to view request details
  */
-export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
+export function LeaveList({
+  requests,
+  onEdit,
+  onView,
+  sortBy,
+  sortOrder,
+  onSort,
+}: LeaveListProps) {
   const utils = trpc.useUtils();
 
   const cancelMutation = trpc.leave.cancel.useMutation();
@@ -168,6 +189,19 @@ export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
     );
   };
 
+  const getSortIcon = (
+    column: "leaveType" | "startDate" | "daysCount" | "status" | "requestedAt",
+  ) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="ml-1 h-4 w-4 opacity-50" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-1 h-4 w-4" />
+    );
+  };
+
   if (requests.length === 0) {
     return (
       <div className="text-center py-12">
@@ -186,11 +220,61 @@ export function LeaveList({ requests, onEdit, onView }: LeaveListProps) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Type</TableHead>
-          <TableHead>Dates</TableHead>
-          <TableHead>Days</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Requested</TableHead>
+          <TableHead>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 h-8 px-2 font-semibold"
+              onClick={() => onSort("leaveType")}
+            >
+              Type
+              {getSortIcon("leaveType")}
+            </Button>
+          </TableHead>
+          <TableHead>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 h-8 px-2 font-semibold"
+              onClick={() => onSort("startDate")}
+            >
+              Dates
+              {getSortIcon("startDate")}
+            </Button>
+          </TableHead>
+          <TableHead>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 h-8 px-2 font-semibold"
+              onClick={() => onSort("daysCount")}
+            >
+              Days
+              {getSortIcon("daysCount")}
+            </Button>
+          </TableHead>
+          <TableHead>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 h-8 px-2 font-semibold"
+              onClick={() => onSort("status")}
+            >
+              Status
+              {getSortIcon("status")}
+            </Button>
+          </TableHead>
+          <TableHead>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 h-8 px-2 font-semibold"
+              onClick={() => onSort("requestedAt")}
+            >
+              Requested
+              {getSortIcon("requestedAt")}
+            </Button>
+          </TableHead>
           <TableHead>Reviewed By</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
