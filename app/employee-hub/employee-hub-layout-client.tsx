@@ -4,13 +4,20 @@ import {
   BookOpen,
   Calendar,
   CheckCircle,
+  CheckSquare,
   Clock,
+  FileBarChart,
+  FilePlus,
+  FileText,
   GraduationCap,
+  History,
   Home,
   type LucideIcon,
   Shield,
   TrendingUp,
   Umbrella,
+  UserCheck,
+  Wallet,
 } from "lucide-react";
 import { useMemo } from "react";
 import { GlobalHeader } from "@/components/shared/GlobalHeader";
@@ -86,6 +93,46 @@ export function EmployeeHubLayoutClient({
             name: "Compliance Dashboard",
             href: "/employee-hub/training/compliance",
             icon: Shield,
+          },
+        ],
+      },
+      {
+        title: "Review",
+        items: [
+          {
+            name: "Request Leave",
+            href: "/employee-hub/leave/request",
+            icon: FileText,
+          },
+          {
+            name: "My Leave Balance",
+            href: "/employee-hub/leave/balance",
+            icon: Wallet,
+          },
+          {
+            name: "TOIL Balance Detail",
+            href: "/employee-hub/toil/balance",
+            icon: FileBarChart,
+          },
+          {
+            name: "TOIL History",
+            href: "/employee-hub/toil/history",
+            icon: History,
+          },
+          {
+            name: "Timesheet Approvals",
+            href: "/employee-hub/approvals/timesheets",
+            icon: CheckSquare,
+          },
+          {
+            name: "Leave Approvals",
+            href: "/employee-hub/approvals/leave",
+            icon: UserCheck,
+          },
+          {
+            name: "Create SOP",
+            href: "/employee-hub/sops/create",
+            icon: FilePlus,
           },
         ],
       },
