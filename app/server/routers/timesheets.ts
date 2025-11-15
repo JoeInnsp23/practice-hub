@@ -230,6 +230,7 @@ const timeEntrySchema = insertTimeEntrySchema.omit({
  * @param startTime - Start time string (HH:MM format)
  * @param endTime - End time string (HH:MM format)
  * @param excludeEntryId - Optional entry ID to exclude (for update operations)
+ * @param tx - Optional transaction context (enables row-level locking to prevent race conditions)
  * @returns Array of overlapping entry IDs
  */
 async function checkTimeEntryOverlap(
@@ -239,25 +240,26 @@ async function checkTimeEntryOverlap(
   startTime: string,
   endTime: string,
   excludeEntryId?: string,
+  tx?: Parameters<Parameters<typeof db.transaction>[0]>[0],
 ): Promise<string[]> {
-  const overlappingEntries = await db
-    .select({ id: timeEntries.id })
-    .from(timeEntries)
-    .where(
-      and(
-        eq(timeEntries.userId, userId),
-        eq(timeEntries.tenantId, tenantId),
-        eq(timeEntries.date, date),
-        excludeEntryId
-          ? sql`${timeEntries.id} != ${excludeEntryId}`
-          : sql`true`,
-        // Overlap condition: (start1 < end2) AND (end1 > start2)
-        sql`${timeEntries.startTime} < ${endTime}`,
-        sql`${timeEntries.endTime} > ${startTime}`,
-      ),
-    );
+  const dbOrTx = tx || db;
 
-  return overlappingEntries.map((e) => e.id);
+  // Use raw SQL with FOR UPDATE when in transaction context to prevent race conditions
+  const result = await dbOrTx.execute<{ id: string }>(sql`
+    SELECT id
+    FROM time_entries
+    WHERE user_id = ${userId}
+      AND tenant_id = ${tenantId}
+      AND date = ${date}
+      ${excludeEntryId ? sql`AND id != ${excludeEntryId}` : sql``}
+      AND start_time IS NOT NULL
+      AND end_time IS NOT NULL
+      AND start_time < ${endTime}
+      AND end_time > ${startTime}
+    ${tx ? sql`FOR UPDATE` : sql``}
+  `);
+
+  return result.rows.map((row) => row.id);
 }
 
 /**
@@ -266,6 +268,7 @@ async function checkTimeEntryOverlap(
  * @param tenantId - Tenant ID for multi-tenant isolation
  * @param date - Date string (YYYY-MM-DD format)
  * @param excludeEntryId - Optional entry ID to exclude from total (for update operations)
+ * @param tx - Optional transaction context (enables row-level locking to prevent race conditions)
  * @returns Total hours for the user on the specified date
  */
 async function getDailyTotalHours(
@@ -273,14 +276,19 @@ async function getDailyTotalHours(
   tenantId: string,
   date: string,
   excludeEntryId?: string,
+  tx?: Parameters<Parameters<typeof db.transaction>[0]>[0],
 ): Promise<number> {
-  const result = await db.execute(sql`
+  const dbOrTx = tx || db;
+
+  // Use FOR UPDATE when in transaction context to prevent race conditions
+  const result = await dbOrTx.execute(sql`
     SELECT COALESCE(SUM(CAST(hours AS DECIMAL)), 0) as total_hours
     FROM time_entries
     WHERE user_id = ${userId}
       AND tenant_id = ${tenantId}
       AND date = ${date}
       ${excludeEntryId ? sql`AND id != ${excludeEntryId}` : sql``}
+    ${tx ? sql`FOR UPDATE` : sql``}
   `);
 
   return Number(result.rows[0]?.total_hours || 0);
@@ -368,49 +376,55 @@ export const timesheetsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { tenantId, userId, firstName, lastName } = ctx.authContext;
 
-      // Validation: Check for overlaps and daily limits if startTime/endTime provided
-      if (input.startTime && input.endTime) {
-        // Validate endTime > startTime
-        if (input.endTime <= input.startTime) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "End time must be after start time",
-          });
+      const newEntry = await db.transaction(async (tx) => {
+        // Validation INSIDE transaction with row-level locking to prevent race conditions
+
+        // 1. Basic validation (no DB access needed)
+        if (input.startTime && input.endTime) {
+          if (input.endTime <= input.startTime) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "End time must be after start time",
+            });
+          }
+
+          // 2. Check for overlapping entries WITH row-level lock
+          const overlaps = await checkTimeEntryOverlap(
+            userId,
+            tenantId,
+            input.date,
+            input.startTime,
+            input.endTime,
+            undefined, // No entry to exclude
+            tx, // Pass transaction for FOR UPDATE lock
+          );
+
+          if (overlaps.length > 0) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Time entry overlaps with ${overlaps.length} existing ${overlaps.length === 1 ? "entry" : "entries"}. Please adjust the time range.`,
+            });
+          }
         }
 
-        // Check for overlapping entries
-        const overlaps = await checkTimeEntryOverlap(
+        // 3. Check 24-hour daily limit WITH row-level lock
+        const currentDayTotal = await getDailyTotalHours(
           userId,
           tenantId,
           input.date,
-          input.startTime,
-          input.endTime,
+          undefined, // No entry to exclude
+          tx, // Pass transaction for FOR UPDATE lock
         );
+        const newTotal = currentDayTotal + Number(input.hours);
 
-        if (overlaps.length > 0) {
+        if (newTotal > 24) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: `Time entry overlaps with ${overlaps.length} existing ${overlaps.length === 1 ? "entry" : "entries"}. Please adjust the time range.`,
+            message: `Cannot log ${input.hours}h. Daily total would be ${newTotal.toFixed(2)}h, exceeding 24-hour limit. Current total: ${currentDayTotal.toFixed(2)}h.`,
           });
         }
-      }
 
-      // Check 24-hour daily limit
-      const currentDayTotal = await getDailyTotalHours(
-        userId,
-        tenantId,
-        input.date,
-      );
-      const newTotal = currentDayTotal + Number(input.hours);
-
-      if (newTotal > 24) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `Cannot log ${input.hours}h. Daily total would be ${newTotal.toFixed(2)}h, exceeding 24-hour limit. Current total: ${currentDayTotal.toFixed(2)}h.`,
-        });
-      }
-
-      const newEntry = await db.transaction(async (tx) => {
+        // 4. Insert new entry (validation passed with lock held)
         const [createdEntry] = await tx
           .insert(timeEntries)
           .values({
@@ -519,7 +533,7 @@ export const timesheetsRouter = router({
             });
           }
 
-          // Check for overlaps (exclude current entry)
+          // Check for overlaps (exclude current entry) WITH row-level lock
           const overlaps = await checkTimeEntryOverlap(
             entryUserId,
             tenantId,
@@ -527,6 +541,7 @@ export const timesheetsRouter = router({
             updatedStartTime,
             updatedEndTime,
             input.id, // Exclude self
+            tx, // Pass transaction for FOR UPDATE lock
           );
 
           if (overlaps.length > 0) {
@@ -537,7 +552,7 @@ export const timesheetsRouter = router({
           }
         }
 
-        // Check 24-hour daily limit
+        // Check 24-hour daily limit WITH row-level lock
         const updatedHours = input.data.hours
           ? Number(input.data.hours)
           : Number(existingEntry.hours);
@@ -546,6 +561,7 @@ export const timesheetsRouter = router({
           tenantId,
           updatedDate,
           input.id, // Exclude current entry from total
+          tx, // Pass transaction for FOR UPDATE lock
         );
         const newTotal = currentDayTotal + updatedHours;
 
