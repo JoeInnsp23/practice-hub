@@ -701,6 +701,8 @@
   /* Wire to design tokens so components pick up hub accent automatically */
   --primary: var(--hub-color-500);
   --ring: var(--hub-color-500);
+  --accent: var(--hub-color-500);
+  --accent-foreground: var(--primary-foreground);
   --skeleton-color: var(--hub-color-500);
 
   /* Hub gradients and soft tints */
