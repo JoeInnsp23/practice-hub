@@ -18,6 +18,11 @@ interface SkeletonAvatarProps extends React.ComponentProps<"div"> {
    * @default false
    */
   showBadge?: boolean;
+
+  /**
+   * Optional hub color for skeleton elements.
+   */
+  hubColor?: string;
 }
 
 const sizeClasses = {
@@ -48,6 +53,7 @@ export function SkeletonAvatar({
   className,
   size = "default",
   showBadge = false,
+  hubColor,
   ...props
 }: SkeletonAvatarProps) {
   return (
@@ -58,11 +64,13 @@ export function SkeletonAvatar({
     >
       <Skeleton
         variant="shimmer"
+        hubColor={hubColor}
         className={cn("rounded-full", sizeClasses[size])}
       />
       {showBadge && (
         <Skeleton
           variant="shimmer"
+          hubColor={hubColor}
           className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background"
         />
       )}

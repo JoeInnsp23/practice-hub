@@ -17,6 +17,11 @@ interface SkeletonWidgetProps extends React.ComponentProps<"div"> {
    * @default false
    */
   showChart?: boolean;
+
+  /**
+   * Optional hub color for skeleton elements.
+   */
+  hubColor?: string;
 }
 
 /**
@@ -40,6 +45,7 @@ export function SkeletonWidget({
   className,
   title,
   showChart = false,
+  hubColor,
   ...props
 }: SkeletonWidgetProps) {
   return (
@@ -52,17 +58,29 @@ export function SkeletonWidget({
         {title ? (
           <h3 className="text-lg font-semibold">{title}</h3>
         ) : (
-          <Skeleton variant="shimmer" className="h-6 w-32" />
+          <Skeleton
+            variant="shimmer"
+            hubColor={hubColor}
+            className="h-6 w-32"
+          />
         )}
-        <Skeleton variant="shimmer" className="h-4 w-4 rounded" />
+        <Skeleton
+          variant="shimmer"
+          hubColor={hubColor}
+          className="h-4 w-4 rounded"
+        />
       </div>
       <div className="space-y-2">
-        <Skeleton variant="shimmer" className="h-8 w-24" />
-        <Skeleton variant="shimmer" className="h-4 w-40" />
+        <Skeleton variant="shimmer" hubColor={hubColor} className="h-8 w-24" />
+        <Skeleton variant="shimmer" hubColor={hubColor} className="h-4 w-40" />
       </div>
       {showChart && (
         <div className="pt-4">
-          <Skeleton variant="shimmer" className="h-32 w-full rounded-md" />
+          <Skeleton
+            variant="shimmer"
+            hubColor={hubColor}
+            className="h-32 w-full rounded-md"
+          />
         </div>
       )}
     </div>

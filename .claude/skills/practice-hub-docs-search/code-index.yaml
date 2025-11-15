@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-14T23:59:46.897Z
+# Generated: 2025-11-15T00:22:37.218Z
 
 functions:
   landingRouter:
@@ -309,6 +309,12 @@ functions:
     line: 1
     type: "function"
     signature: "function __resetTokenCache"
+  useHubColor:
+    description: "The current hub color (e.g., "#3b82f6" for client-hub)."
+    file: "lib/hooks/use-hub-color.ts"
+    line: 15
+    type: "function"
+    signature: "function useHubColor"
   useSSE:
     description: "React hook for SSE connections"
     file: "lib/hooks/use-sse.ts"
@@ -953,6 +959,12 @@ types:
     line: 190
     type: "type"
     signature: "type SupportedVariable"
+  UseHubColorResult:
+    description: "Result of the useHubColor hook."
+    file: "lib/hooks/use-hub-color.ts"
+    line: 11
+    type: "type"
+    signature: "interface UseHubColorResult"
   VerificationRequest:
     description: "LEM Verify API Client"
     file: "lib/kyc/lemverify-client.ts"
@@ -1398,9 +1410,9 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-14T23:59:46.898Z"
-  total_entries: 231
-  functions: 139
-  types: 59
+  generated: "2025-11-15T00:22:37.224Z"
+  total_entries: 233
+  functions: 140
+  types: 60
   components: 29
   classes: 4

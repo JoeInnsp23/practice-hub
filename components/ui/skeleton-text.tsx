@@ -18,6 +18,11 @@ interface SkeletonTextProps extends React.ComponentProps<"div"> {
    * @default true
    */
   lastLineShorter?: boolean;
+
+  /**
+   * Optional hub color for skeleton elements.
+   */
+  hubColor?: string;
 }
 
 /**
@@ -41,6 +46,7 @@ export function SkeletonText({
   className,
   lines = 3,
   lastLineShorter = true,
+  hubColor,
   ...props
 }: SkeletonTextProps) {
   return (
@@ -53,6 +59,7 @@ export function SkeletonText({
         <Skeleton
           key={`skeleton-text-line-${i}`}
           variant="shimmer"
+          hubColor={hubColor}
           className={cn(
             "h-4",
             lastLineShorter && i === lines - 1 ? "w-5/6" : "w-full",

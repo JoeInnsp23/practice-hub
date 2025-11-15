@@ -24,6 +24,11 @@ interface SkeletonCardProps extends React.ComponentProps<"div"> {
    * @default false
    */
   showActions?: boolean;
+
+  /**
+   * Optional hub color for skeleton elements.
+   */
+  hubColor?: string;
 }
 
 /**
@@ -49,6 +54,7 @@ export function SkeletonCard({
   lines = 3,
   showAvatar = false,
   showActions = false,
+  hubColor,
   ...props
 }: SkeletonCardProps) {
   return (
@@ -61,12 +67,21 @@ export function SkeletonCard({
         {showAvatar && (
           <Skeleton
             variant="shimmer"
+            hubColor={hubColor}
             className="h-12 w-12 rounded-full shrink-0"
           />
         )}
         <div className="flex-1 space-y-2">
-          <Skeleton variant="shimmer" className="h-5 w-3/4" />
-          <Skeleton variant="shimmer" className="h-4 w-1/2" />
+          <Skeleton
+            variant="shimmer"
+            hubColor={hubColor}
+            className="h-5 w-3/4"
+          />
+          <Skeleton
+            variant="shimmer"
+            hubColor={hubColor}
+            className="h-4 w-1/2"
+          />
         </div>
       </div>
       <div className="space-y-2">
@@ -74,14 +89,23 @@ export function SkeletonCard({
           <Skeleton
             key={`skeleton-line-${i}`}
             variant="shimmer"
+            hubColor={hubColor}
             className={cn("h-4", i === lines - 1 ? "w-5/6" : "w-full")}
           />
         ))}
       </div>
       {showActions && (
         <div className="flex gap-2 pt-2">
-          <Skeleton variant="shimmer" className="h-9 w-24" />
-          <Skeleton variant="shimmer" className="h-9 w-24" />
+          <Skeleton
+            variant="shimmer"
+            hubColor={hubColor}
+            className="h-9 w-24"
+          />
+          <Skeleton
+            variant="shimmer"
+            hubColor={hubColor}
+            className="h-9 w-24"
+          />
         </div>
       )}
     </div>

@@ -24,6 +24,11 @@ interface SkeletonTableProps extends React.ComponentProps<"div"> {
    * @default true
    */
   showHeader?: boolean;
+
+  /**
+   * Optional hub color for skeleton elements.
+   */
+  hubColor?: string;
 }
 
 /**
@@ -48,6 +53,7 @@ export function SkeletonTable({
   rows = 5,
   columns = 4,
   showHeader = true,
+  hubColor,
   ...props
 }: SkeletonTableProps) {
   return (
@@ -65,7 +71,11 @@ export function SkeletonTable({
                   key={`skeleton-header-${i}`}
                   className="px-4 py-3 text-left"
                 >
-                  <Skeleton variant="shimmer" className="h-4 w-24" />
+                  <Skeleton
+                    variant="shimmer"
+                    hubColor={hubColor}
+                    className="h-4 w-24"
+                  />
                 </th>
               ))}
             </tr>
@@ -84,6 +94,7 @@ export function SkeletonTable({
                 >
                   <Skeleton
                     variant="shimmer"
+                    hubColor={hubColor}
                     className={cn(
                       "h-4",
                       colIndex === 0
