@@ -54,6 +54,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession } from "@/lib/auth-client";
 import {
   useDeleteTimeEntry,
   useUpdateTimeEntry,
@@ -145,7 +146,12 @@ export function TimeEntryModal({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Get current user session for filtering
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
+
   // Fetch existing time entries for the selected date (for validation)
+  // Filter by current user to ensure validation only checks their own entries
   const dateStr = formData.date
     ? format(formData.date, "yyyy-MM-dd")
     : undefined;
@@ -153,9 +159,10 @@ export function TimeEntryModal({
     {
       startDate: dateStr,
       endDate: dateStr,
+      userId: currentUserId, // Filter by current user
     },
     {
-      enabled: !!dateStr && isOpen,
+      enabled: !!dateStr && isOpen && !!currentUserId,
     },
   );
 
