@@ -287,7 +287,7 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
             </TabsList>
 
             {/* Pending tab with filters inside glass-table */}
-            <TabsContent value="pending" className="mt-4">
+            <TabsContent value="pending">
               <div className="overflow-x-auto glass-table">
                 {renderFilters()}
                 <LeaveList
@@ -303,7 +303,7 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
             </TabsContent>
 
             {/* History tab with filters inside glass-table */}
-            <TabsContent value="history" className="mt-4">
+            <TabsContent value="history">
               <div className="overflow-x-auto glass-table">
                 {renderFilters()}
                 <LeaveList
