@@ -106,8 +106,49 @@ export function TimeEntryModal({
   const { data: workTypesData } = useWorkTypes();
   const workTypes = workTypesData?.workTypes || [];
 
+  // Track the last auto-generated description to know if user has manually edited
+  const lastAutoDescriptionRef = useRef<string>("");
+  const userHasEditedDescriptionRef = useRef<boolean>(false);
+
+  // Helper functions for default times
+  const getDefaultStartTime = useCallback(() => {
+    if (selectedEntry?.startTime) return selectedEntry.startTime;
+    if (selectedHour !== null && selectedHour !== undefined) {
+      return `${selectedHour.toString().padStart(2, "0")}:00`;
+    }
+    return "09:00";
+  }, [selectedEntry, selectedHour]);
+
+  const getDefaultEndTime = useCallback(() => {
+    if (selectedEntry?.endTime) return selectedEntry.endTime;
+    if (selectedHour !== null && selectedHour !== undefined) {
+      const endHour = selectedHour + 1;
+      return `${endHour.toString().padStart(2, "0")}:00`;
+    }
+    return "10:00";
+  }, [selectedEntry, selectedHour]);
+
+  const [formData, setFormData] = useState<TimeEntryFormData>({
+    date: selectedEntry?.date || selectedDate,
+    clientId: selectedEntry?.clientId || "none",
+    taskId: selectedEntry?.taskId || "none",
+    description: selectedEntry?.description || "",
+    hours: selectedEntry?.hours || 1,
+    billable:
+      selectedEntry?.billable !== undefined ? selectedEntry.billable : false,
+    workType: selectedEntry?.workType || "WORK",
+    startTime: getDefaultStartTime(),
+    endTime: getDefaultEndTime(),
+    fullDescription: selectedEntry?.fullDescription || "",
+  });
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   // Fetch existing time entries for the selected date (for validation)
-  const dateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined;
+  const dateStr = formData.date
+    ? format(formData.date, "yyyy-MM-dd")
+    : undefined;
   const { data: existingEntries } = trpc.timesheets.list.useQuery(
     {
       startDate: dateStr,
@@ -181,44 +222,6 @@ export function TimeEntryModal({
     },
     [existingEntries, selectedEntry?.id],
   );
-
-  const getDefaultStartTime = useCallback(() => {
-    if (selectedEntry?.startTime) return selectedEntry.startTime;
-    if (selectedHour !== null && selectedHour !== undefined) {
-      return `${selectedHour.toString().padStart(2, "0")}:00`;
-    }
-    return "09:00";
-  }, [selectedEntry, selectedHour]);
-
-  const getDefaultEndTime = useCallback(() => {
-    if (selectedEntry?.endTime) return selectedEntry.endTime;
-    if (selectedHour !== null && selectedHour !== undefined) {
-      const endHour = selectedHour + 1;
-      return `${endHour.toString().padStart(2, "0")}:00`;
-    }
-    return "10:00";
-  }, [selectedEntry, selectedHour]);
-
-  const [formData, setFormData] = useState<TimeEntryFormData>({
-    date: selectedEntry?.date || selectedDate,
-    clientId: selectedEntry?.clientId || "none",
-    taskId: selectedEntry?.taskId || "none",
-    description: selectedEntry?.description || "",
-    hours: selectedEntry?.hours || 1,
-    billable:
-      selectedEntry?.billable !== undefined ? selectedEntry.billable : false,
-    workType: selectedEntry?.workType || "WORK",
-    startTime: getDefaultStartTime(),
-    endTime: getDefaultEndTime(),
-    fullDescription: selectedEntry?.fullDescription || "",
-  });
-
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  // Track the last auto-generated description to know if user has manually edited
-  const lastAutoDescriptionRef = useRef<string>("");
-  const userHasEditedDescriptionRef = useRef<boolean>(false);
 
   // Filter tasks based on selected client
   const availableTasks =
