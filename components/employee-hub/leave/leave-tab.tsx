@@ -14,6 +14,7 @@ import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeaveBalanceWidget } from "@/components/employee-hub/leave/leave-balance-widget";
 import { LeaveList } from "@/components/employee-hub/leave/leave-list";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
