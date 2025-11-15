@@ -190,6 +190,91 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
    **Examples:** Onboarding checklists, proposal calculator service selection, task lists
 
+10. **Hub Color Consistency** - All hub-specific components must use designated hub colors from `lib/utils/hub-colors.ts`. Never hardcode teal/blue/pink/orange/etc. colors directly in components.
+
+   **Hub Color Reference:**
+   ```typescript
+   import { HUB_COLORS } from "@/lib/utils/hub-colors";
+
+   // Practice Hub: oklch(0.56 0.15 196.6) - Teal
+   // Client Hub: #3b82f6 - Blue
+   // Proposal Hub: #ec4899 - Pink
+   // Employee Hub: #10b981 - Emerald
+   // Social Hub: #8b5cf6 - Purple
+   // Portal Hub: #4f46e5 - Indigo
+   // Admin Hub: #f97316 - Orange
+   ```
+
+   **Required Patterns:**
+
+   **a) CSS Variables (Preferred):**
+   ```tsx
+   // Use hub-aware CSS variables with fallback
+   className="bg-[var(--hub-color-500)] text-[var(--hub-color-500)]"
+
+   // For backgrounds with opacity
+   className="bg-[var(--hub-color-500)]/10"
+
+   // Hover states
+   className="hover:bg-[var(--hub-color-500)]/20"
+   ```
+
+   **b) Inline Styles with HUB_COLORS:**
+   ```tsx
+   import { HUB_COLORS } from "@/lib/utils/hub-colors";
+
+   const hubColor = HUB_COLORS["admin-hub"];
+   <div style={{ backgroundColor: hubColor }}>...</div>
+   ```
+
+   **c) Client Components with useHubColor Hook:**
+   ```tsx
+   import { useHubColor } from "@/lib/hooks/use-hub-color";
+
+   function MyComponent() {
+     const { hubColor, hubGradient } = useHubColor();
+     return <div style={{ background: hubGradient }}>...</div>;
+   }
+   ```
+
+   **d) Hub-Aware Skeleton Components:**
+   ```tsx
+   import { HUB_COLORS } from "@/lib/utils/hub-colors";
+   import { Skeleton } from "@/components/ui/skeleton";
+
+   <Skeleton hubColor={HUB_COLORS["proposal-hub"]} className="h-4 w-32" />
+   ```
+
+   **Forbidden Patterns:**
+   ```tsx
+   // ❌ WRONG - Hardcoded colors
+   className="bg-teal-500 text-blue-600 border-pink-500"
+
+   // ❌ WRONG - Inline hex values
+   style={{ color: "#3b82f6" }}
+
+   // ❌ WRONG - Hardcoded oklch
+   style={{ color: "oklch(0.56 0.15 196.6)" }}
+   ```
+
+   **Color Semantic Roles:**
+   - `--primary` → Hub-specific color (dynamic per module)
+   - `--secondary` → Neutral gray (static, provides contrast)
+   - `--accent` → Emerald/gold highlight (static, distinct from primary)
+
+   **Pre-Commit Verification:**
+   ```bash
+   # Check for hardcoded hub colors before committing
+   grep -rn "bg-teal\|text-teal\|border-teal" app/ components/
+   grep -rn "bg-cyan\|text-cyan\|border-cyan" app/ components/
+   grep -rn "#3b82f6\|#ec4899\|#10b981\|#8b5cf6\|#f97316" app/ components/ | grep -v "HUB_COLORS\|hub-colors.ts"
+   ```
+
+   **Examples:**
+   - Loading skeletons in admin-hub should use orange (#f97316), not teal
+   - Activity icons in proposal-hub should use pink (#ec4899), not generic colors
+   - Chart colors in client-hub should incorporate blue (#3b82f6) as primary
+
 ## Development Commands
 
 ```bash
