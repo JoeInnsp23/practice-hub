@@ -524,7 +524,7 @@ export function UnifiedUserManagementClient() {
             <CardTitle className="text-sm font-medium">
               Pending Invitations
             </CardTitle>
-            <Mail className="h-4 w-4 text-orange-600" />
+            <Mail className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pendingInvitations}</div>

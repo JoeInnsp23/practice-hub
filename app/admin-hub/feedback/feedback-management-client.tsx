@@ -309,7 +309,7 @@ export function FeedbackManagementClient({
             <CardTitle className="text-2xl">{stats.total}</CardTitle>
           </CardHeader>
           <CardContent>
-            <MessageSquare className="h-4 w-4 text-orange-500" />
+            <MessageSquare className="h-4 w-4 text-primary" />
           </CardContent>
         </Card>
 
@@ -329,7 +329,7 @@ export function FeedbackManagementClient({
             <CardTitle className="text-2xl">{stats.inProgress}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Clock className="h-4 w-4 text-orange-500" />
+            <Clock className="h-4 w-4 text-primary" />
           </CardContent>
         </Card>
 
@@ -393,7 +393,7 @@ export function FeedbackManagementClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    className="-ml-2 h-8 px-2 font-semibold"
                     onClick={() => handleSort("type")}
                   >
                     Type
@@ -404,7 +404,7 @@ export function FeedbackManagementClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    className="-ml-2 h-8 px-2 font-semibold"
                     onClick={() => handleSort("title")}
                   >
                     Title
@@ -415,7 +415,7 @@ export function FeedbackManagementClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    className="-ml-2 h-8 px-2 font-semibold"
                     onClick={() => handleSort("userEmail")}
                   >
                     User
@@ -426,7 +426,7 @@ export function FeedbackManagementClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    className="-ml-2 h-8 px-2 font-semibold"
                     onClick={() => handleSort("status")}
                   >
                     Status
@@ -437,7 +437,7 @@ export function FeedbackManagementClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    className="-ml-2 h-8 px-2 font-semibold"
                     onClick={() => handleSort("priority")}
                   >
                     Priority
@@ -448,7 +448,7 @@ export function FeedbackManagementClient({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                    className="-ml-2 h-8 px-2 font-semibold"
                     onClick={() => handleSort("createdAt")}
                   >
                     Date

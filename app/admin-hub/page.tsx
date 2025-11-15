@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-orange-500" />
+            <Settings className="h-5 w-5 text-primary" />
             System Information
           </CardTitle>
         </CardHeader>

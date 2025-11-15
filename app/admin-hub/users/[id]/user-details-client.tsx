@@ -169,7 +169,7 @@ export function UserDetailsClient({
     // Colors match centralized HUB_COLORS from lib/utils/hub-colors.ts
     switch (module) {
       case "admin-hub":
-        return "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20"; // #f97316 Orange
+        return "bg-primary/10 text-primary border-primary/20"; // #f97316 Orange
       case "client-hub":
         return "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"; // #3b82f6 Blue
       case "practice-hub":
@@ -249,7 +249,7 @@ export function UserDetailsClient({
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col items-center">
-              <div className="h-24 w-24 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-medium mb-4">
+              <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-medium mb-4">
                 {user.firstName?.[0]?.toUpperCase() ||
                   user.email[0].toUpperCase()}
                 {user.lastName?.[0]?.toUpperCase() || ""}

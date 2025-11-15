@@ -139,7 +139,7 @@ export function ApiDocsClient({
                             </code>
                             <Badge variant="outline">{proc.type}</Badge>
                             {proc.requiresAuth && (
-                              <Badge className="bg-orange-600 text-white">
+                              <Badge className="bg-primary/10 text-primary border-primary/20">
                                 Auth Required
                               </Badge>
                             )}
@@ -284,7 +284,7 @@ export function ApiDocsClient({
                                     ? "bg-blue-600 text-white"
                                     : endpoint.method === "POST"
                                       ? "bg-green-600 text-white"
-                                      : "bg-orange-600 text-white"
+                                      : "bg-primary text-white"
                                 }
                               >
                                 {endpoint.method}
@@ -297,7 +297,7 @@ export function ApiDocsClient({
                               {endpoint.description}
                             </p>
                             {endpoint.rateLimit && (
-                              <p className="text-xs text-orange-600 mt-1">
+                              <p className="text-xs text-primary mt-1">
                                 Rate Limit: {endpoint.rateLimit}
                               </p>
                             )}

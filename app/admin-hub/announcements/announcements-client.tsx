@@ -233,7 +233,7 @@ export function AnnouncementsClient() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => handleSort("priority")}
                 >
                   Priority
@@ -244,7 +244,7 @@ export function AnnouncementsClient() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => handleSort("title")}
                 >
                   Title
@@ -256,7 +256,7 @@ export function AnnouncementsClient() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => handleSort("publishedAt")}
                 >
                   Published
@@ -267,7 +267,7 @@ export function AnnouncementsClient() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => handleSort("startsAt")}
                 >
                   Starts
@@ -278,7 +278,7 @@ export function AnnouncementsClient() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => handleSort("endsAt")}
                 >
                   Expires

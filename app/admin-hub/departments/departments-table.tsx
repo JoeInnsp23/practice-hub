@@ -140,7 +140,7 @@ export default function DepartmentsTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => onSort("name")}
                 >
                   Department Name
@@ -151,7 +151,7 @@ export default function DepartmentsTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => onSort("manager")}
                 >
                   Manager
@@ -162,7 +162,7 @@ export default function DepartmentsTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => onSort("staffCount")}
                 >
                   Staff Count
@@ -173,7 +173,7 @@ export default function DepartmentsTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="-ml-2 h-8 px-2 font-semibold hover:bg-orange-200 dark:hover:bg-orange-500/40"
+                  className="-ml-2 h-8 px-2 font-semibold"
                   onClick={() => onSort("status")}
                 >
                   Status
