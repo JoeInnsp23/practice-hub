@@ -38,7 +38,7 @@ interface LeaveTabProps {
  * Structure: Uses glass-table design pattern (no Card wrapper)
  * - Matches admin-hub/announcements pattern for consistency
  * - glass-table applied to overflow wrapper for proper table scrolling
- * - Filters (status and type) placed above table, outside glass-table border
+ * - Filters (status and type) placed INSIDE glass-table as first row before table
  * - Search functionality removed - users filter by status and type only
  *
  * @param onRequestLeave - Callback to open the leave request modal
@@ -112,6 +112,62 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
     });
   }, [leaveHistory, statusFilter, typeFilter]);
 
+  /**
+   * Renders the filter row for status and type filtering.
+   * This row appears inside the glass-table wrapper, above the LeaveList table.
+   * Duplicated in both pending and history tabs for consistent UX.
+   */
+  const renderFilters = () => (
+    <section
+      className="p-4 border-b border-border bg-background/50"
+      aria-label="Filter leave requests by status and type"
+    >
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Select
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          name="statusFilter"
+        >
+          <SelectTrigger
+            id="leave-status-filter"
+            className="w-full sm:w-[200px]"
+            aria-label="Filter leave requests by status"
+          >
+            <SelectValue placeholder="All Statuses" />
+          </SelectTrigger>
+          <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={typeFilter}
+          onValueChange={setTypeFilter}
+          name="typeFilter"
+        >
+          <SelectTrigger
+            id="leave-type-filter"
+            className="w-full sm:w-[200px]"
+            aria-label="Filter leave requests by type"
+          >
+            <SelectValue placeholder="All Types" />
+          </SelectTrigger>
+          <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="annual_leave">Annual Leave</SelectItem>
+            <SelectItem value="sick_leave">Sick Leave</SelectItem>
+            <SelectItem value="toil">TOIL</SelectItem>
+            <SelectItem value="unpaid">Unpaid</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </section>
+  );
+
   return (
     <div className="space-y-6">
       {/* KPI Widgets */}
@@ -159,65 +215,20 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
         {/* Leave History (2 columns) */}
         <div className="lg:col-span-2 space-y-4">
           <Tabs defaultValue="pending" className="w-full">
-            <div className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="pending">
-                  Pending (
-                  {filteredLeave.filter((r) => r.status === "pending").length})
-                </TabsTrigger>
-                <TabsTrigger value="history">
-                  All History ({filteredLeave.length})
-                </TabsTrigger>
-              </TabsList>
+            <TabsList>
+              <TabsTrigger value="pending">
+                Pending (
+                {filteredLeave.filter((r) => r.status === "pending").length})
+              </TabsTrigger>
+              <TabsTrigger value="history">
+                All History ({filteredLeave.length})
+              </TabsTrigger>
+            </TabsList>
 
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Select
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                  name="statusFilter"
-                >
-                  <SelectTrigger
-                    id="leave-status-filter"
-                    className="w-[180px]"
-                    aria-label="Filter leave requests by status"
-                  >
-                    <SelectValue placeholder="All Statuses" />
-                  </SelectTrigger>
-                  <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={typeFilter}
-                  onValueChange={setTypeFilter}
-                  name="typeFilter"
-                >
-                  <SelectTrigger
-                    id="leave-type-filter"
-                    className="w-[180px]"
-                    aria-label="Filter leave requests by type"
-                  >
-                    <SelectValue placeholder="All Types" />
-                  </SelectTrigger>
-                  <SelectContent className={cn(GLASS_DROPDOWN_MENU_STYLES)}>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="annual_leave">Annual Leave</SelectItem>
-                    <SelectItem value="sick_leave">Sick Leave</SelectItem>
-                    <SelectItem value="toil">TOIL</SelectItem>
-                    <SelectItem value="unpaid">Unpaid</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
+            {/* Pending tab with filters inside glass-table */}
             <TabsContent value="pending" className="mt-4">
               <div className="overflow-x-auto glass-table">
+                {renderFilters()}
                 <LeaveList
                   requests={
                     filteredLeave.filter((r) => r.status === "pending") || []
@@ -227,8 +238,10 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
               </div>
             </TabsContent>
 
+            {/* History tab with filters inside glass-table */}
             <TabsContent value="history" className="mt-4">
               <div className="overflow-x-auto glass-table">
+                {renderFilters()}
                 <LeaveList
                   requests={filteredLeave || []}
                   onEdit={onEditRequest}
