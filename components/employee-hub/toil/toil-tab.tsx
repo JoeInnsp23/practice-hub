@@ -7,14 +7,9 @@ import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { ToilBalanceWidget } from "@/components/employee-hub/toil/toil-balance-widget";
 import { ToilHistoryTable } from "@/components/employee-hub/toil/toil-history-table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface ToilTabProps {
-  onRequestToilLeave: () => void;
-}
-
-export function ToilTab({ onRequestToilLeave }: ToilTabProps) {
+export function ToilTab() {
   // Fetch TOIL data
   const { data: toilBalance, isLoading: balanceLoading } =
     trpc.toil.getBalance.useQuery({});
@@ -85,14 +80,6 @@ export function ToilTab({ onRequestToilLeave }: ToilTabProps) {
           </AlertDescription>
         </Alert>
       )}
-
-      {/* Action Buttons */}
-      <div className="flex gap-4">
-        <Button onClick={onRequestToilLeave} variant="default">
-          <Calendar className="h-4 w-4 mr-2" />
-          Request TOIL as Leave
-        </Button>
-      </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

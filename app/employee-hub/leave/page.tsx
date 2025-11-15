@@ -1,10 +1,12 @@
 "use client";
 
+import { Calendar, Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LeaveRequestModal } from "@/components/employee-hub/leave/leave-request-modal";
 import { LeaveTab } from "@/components/employee-hub/leave/leave-tab";
 import { ToilTab } from "@/components/employee-hub/toil/toil-tab";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LeaveRequest } from "@/lib/trpc/types";
 
@@ -78,20 +80,36 @@ export default function UnifiedLeavePage() {
 
       {/* Tabbed Interface */}
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="mb-6" aria-label="Leave and TOIL management">
-          <TabsTrigger value="leave">My Leave</TabsTrigger>
-          <TabsTrigger value="toil">My TOIL</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <TabsList aria-label="Leave and TOIL management">
+            <TabsTrigger value="leave">My Leave</TabsTrigger>
+            <TabsTrigger value="toil">My TOIL</TabsTrigger>
+          </TabsList>
+
+          {activeTab === "leave" && (
+            <Button
+              onClick={() => handleRequestLeave("annual_leave")}
+              variant="default"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Request Leave
+            </Button>
+          )}
+
+          {activeTab === "toil" && (
+            <Button onClick={handleRequestToilLeave} variant="default">
+              <Calendar className="h-4 w-4 mr-2" />
+              Request TOIL as Leave
+            </Button>
+          )}
+        </div>
 
         <TabsContent value="leave">
-          <LeaveTab
-            onRequestLeave={() => handleRequestLeave("annual_leave")}
-            onEditRequest={handleEditRequest}
-          />
+          <LeaveTab onEditRequest={handleEditRequest} />
         </TabsContent>
 
         <TabsContent value="toil">
-          <ToilTab onRequestToilLeave={handleRequestToilLeave} />
+          <ToilTab />
         </TabsContent>
       </Tabs>
 

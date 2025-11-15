@@ -1,6 +1,6 @@
 # Practice Hub Code Index v1.0
 # Auto-generated from JSDoc comments in TypeScript files
-# Generated: 2025-11-15T21:52:46.108Z
+# Generated: 2025-11-15T22:00:54.703Z
 
 functions:
   landingRouter:
@@ -1258,7 +1258,7 @@ components:
   LeaveTab:
     description: "LeaveTab - Employee leave request management with tabs"
     file: "components/employee-hub/leave/leave-tab.tsx"
-    line: 35
+    line: 32
     type: "component"
     signature: "function LeaveTab"
   DatePickerButton:
@@ -1428,7 +1428,7 @@ classes:
 
 metadata:
   version: "1.0"
-  generated: "2025-11-15T21:52:46.109Z"
+  generated: "2025-11-15T22:00:54.704Z"
   total_entries: 236
   functions: 141
   types: 60

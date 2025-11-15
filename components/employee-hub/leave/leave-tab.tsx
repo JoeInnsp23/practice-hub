@@ -6,14 +6,12 @@ import {
   CheckCircle,
   Clock,
   Gift,
-  Plus,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { trpc } from "@/app/providers/trpc-provider";
 import { KPIWidget } from "@/components/client-hub/dashboard/kpi-widget";
 import { LeaveBalanceWidget } from "@/components/employee-hub/leave/leave-balance-widget";
 import { LeaveList } from "@/components/employee-hub/leave/leave-list";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -28,7 +26,6 @@ import { cn } from "@/lib/utils";
 import { GLASS_DROPDOWN_MENU_STYLES } from "@/lib/utils/dropdown-styles";
 
 interface LeaveTabProps {
-  onRequestLeave: () => void;
   onEditRequest: (request: LeaveRequest) => void;
 }
 
@@ -40,11 +37,11 @@ interface LeaveTabProps {
  * - glass-table applied to overflow wrapper for proper table scrolling
  * - Filters (status and type) placed INSIDE glass-table as first row before table
  * - Search functionality removed - users filter by status and type only
+ * - Request Leave button moved to page level for alignment with tab switch
  *
- * @param onRequestLeave - Callback to open the leave request modal
  * @param onEditRequest - Callback to edit an existing leave request
  */
-export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
+export function LeaveTab({ onEditRequest }: LeaveTabProps) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
@@ -267,14 +264,6 @@ export function LeaveTab({ onRequestLeave, onEditRequest }: LeaveTabProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Leave History (2 columns) */}
         <Tabs defaultValue="pending" className="w-full lg:col-span-2">
-          {/* Action Button */}
-          <div className="flex justify-end mb-4">
-            <Button onClick={onRequestLeave} variant="default">
-              <Plus className="h-4 w-4 mr-2" />
-              Request Leave
-            </Button>
-          </div>
-
           <TabsList>
             <TabsTrigger value="pending">
               Pending (
