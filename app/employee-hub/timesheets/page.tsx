@@ -64,17 +64,31 @@ export default function TimeTrackingPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
-          <p className="text-muted-foreground mt-2">
-            {isAdmin
-              ? "View and manage timesheets for staff members"
-              : "Track your time and monitor productivity across projects"}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Time Tracking</h1>
+        <p className="text-muted-foreground mt-2">
+          {isAdmin
+            ? "View and manage timesheets for staff members"
+            : "Track your time and monitor productivity across projects"}
+        </p>
+      </div>
+
+      {/* Control Bar: View Toggle + Staff Selector */}
+      <div className="flex items-center justify-between gap-4">
+        <Tabs value={view} onValueChange={handleViewChange}>
+          <TabsList className="grid max-w-md grid-cols-2">
+            <TabsTrigger value="weekly">
+              <Clock className="h-4 w-4 mr-2" />
+              Weekly
+            </TabsTrigger>
+            <TabsTrigger value="monthly">
+              <Calendar className="h-4 w-4 mr-2" />
+              Monthly
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         {isAdmin && (
-          <div className="glass-card p-4 flex items-center justify-end gap-2">
+          <div className="glass-card h-9 px-4 py-1.5 rounded-lg flex items-center gap-2">
             <Label htmlFor="staff-selector" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Staff Member:
@@ -101,33 +115,20 @@ export default function TimeTrackingPage() {
         )}
       </div>
 
-      {/* Main Content with View Toggle */}
-      <Tabs value={view} onValueChange={handleViewChange}>
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="weekly">
-            <Clock className="h-4 w-4 mr-2" />
-            Weekly
-          </TabsTrigger>
-          <TabsTrigger value="monthly">
-            <Calendar className="h-4 w-4 mr-2" />
-            Monthly
-          </TabsTrigger>
-        </TabsList>
+      {/* Tab Content */}
+      <TabsContent value="weekly" className="space-y-4">
+        {/* Weekly View - Hourly Timesheet */}
+        <div className="h-[calc(100vh-220px)]">
+          <HourlyTimesheet selectedUserId={effectiveSelectedUserId} />
+        </div>
+      </TabsContent>
 
-        <TabsContent value="weekly" className="space-y-4">
-          {/* Weekly View - Hourly Timesheet */}
-          <div className="h-[calc(100vh-220px)]">
-            <HourlyTimesheet selectedUserId={effectiveSelectedUserId} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="monthly" className="space-y-4">
-          {/* Monthly View - Calendar */}
-          <div className="h-[calc(100vh-220px)]">
-            <MonthlyTimesheet selectedUserId={effectiveSelectedUserId} />
-          </div>
-        </TabsContent>
-      </Tabs>
+      <TabsContent value="monthly" className="space-y-4">
+        {/* Monthly View - Calendar */}
+        <div className="h-[calc(100vh-220px)]">
+          <MonthlyTimesheet selectedUserId={effectiveSelectedUserId} />
+        </div>
+      </TabsContent>
     </div>
   );
 }
